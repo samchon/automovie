@@ -148,6 +148,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       leftHind: { ...rig.limbs.leftHind[4]!, z: rig.limbs.leftHind[0]!.z },
       rightHind: { ...rig.limbs.rightHind[4]!, z: rig.limbs.rightHind[0]!.z },
     },
+    rig.limbs.leftFore[0]!.y - rig.limbs.leftFore[4]!.y,
   );
   const ground: QuadrupedFooting.IPlan | undefined = QuadrupedFooting.prepare(
     species.archetype,
@@ -376,17 +377,16 @@ export function rideQuadruped<Affordance extends string, D extends string>(
                   fore,
                 ),
               )
-            : fore
-              ? goal
-              : EquineFootwork.hindGoal(
-                  footwork,
-                  seconds,
-                  rest[4]!,
-                  rest[0]!,
-                  goal,
-                  placement,
-                  ground,
-                ),
+            : EquineFootwork.limbGoal(
+                footwork,
+                seconds,
+                fore,
+                rest[4]!,
+                rest[0]!,
+                goal,
+                placement,
+                ground,
+              ),
         );
       }
 

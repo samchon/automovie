@@ -8,6 +8,7 @@ import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
 import { EquineBank } from "./EquineBank";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
+import { EquineScramble } from "./EquineScramble";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedFooting } from "./QuadrupedFooting";
 import type { QuadrupedGait } from "./QuadrupedGait";
@@ -36,7 +37,8 @@ export namespace EquineFootwork {
     | ISlideStop
     | EquineLateral.Technique
     | EquineJump.Technique
-    | EquineBank.ISlide;
+    | EquineBank.ISlide
+    | EquineScramble.IScramble;
 
   /**
    * A named film-second cue a technique adds to the ride.
@@ -116,6 +118,8 @@ export namespace EquineFootwork {
     readonly jump?: EquineJump.IRequest;
     /** Admitted slides down steep banks, in leg order. */
     readonly bank: readonly EquineBank.IWindow[];
+    /** Admitted scrambles up steep banks, in leg order. */
+    readonly scramble: readonly EquineScramble.IWindow[];
   }
 
   /**
@@ -127,6 +131,7 @@ export namespace EquineFootwork {
    * @param gait Optional fixed gait in the public ride request.
    * @param hooves The actual neutral hoof endpoints in model metres, which fix the pirouette heading.
    * @param centred The moving stance centres, under each attachment, which fix the shoulder-in heading.
+   * @param reach The fore limb's length, attachment to hoof, metres, which bounds a scramble's climb per bound.
    * @returns Independent registration for the gait selector, event reader, goal sampler, lateral headings and the jump request.
    * @throws {ArchetypeRefusal} For an unsupported animal, travel context, inconsistent authored timing, an inadmissible lateral figure, jump or baulk, or a second jump.
    *
@@ -145,10 +150,12 @@ export namespace EquineFootwork {
     gait: QuadrupedGait.Gait | undefined,
     hooves: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
     centred: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
+    reach: number,
   ): IPlan {
     const backing: Set<number> = new Set();
     const lateral: EquineLateral.IWindow[] = [];
     const bank: EquineBank.IWindow[] = [];
+    const scramble: EquineScramble.IWindow[] = [];
     const cues: IInstant[] = [];
     let jump: EquineJump.IRequest | undefined;
     let slide: ISlide | undefined;
@@ -212,6 +219,7 @@ export namespace EquineFootwork {
           course.legs.length,
           plan,
           course.footing,
+          hooves.leftHind.z,
         );
         bank.push(window);
         cues.push(
@@ -219,6 +227,27 @@ export namespace EquineFootwork {
           { seconds: window.from + window.entry, label: "bankSlideSat" },
           { seconds: window.to - window.exit, label: "bankSlideRise" },
           { seconds: window.to, label: "bankSlideEnd" },
+        );
+        continue;
+      }
+      if (technique.kind === "bank-scramble") {
+        const window: EquineScramble.IWindow = EquineScramble.admit(
+          archetype,
+          index,
+          leg,
+          technique,
+          course.legs.length,
+          plan,
+          course.footing,
+          reach,
+        );
+        scramble.push(window);
+        cues.push(
+          { seconds: window.from, label: "bankScrambleStart" },
+          ...window.bounds.slice(1, -1).map(
+            (seconds: number): IInstant => ({ seconds, label: "bankBound" }),
+          ),
+          { seconds: window.to, label: "bankScrambleEnd" },
         );
         continue;
       }
@@ -287,6 +316,7 @@ export namespace EquineFootwork {
       slide,
       lateral,
       bank,
+      scramble,
       ...(jump === undefined ? {} : { jump }),
     };
 
@@ -390,10 +420,11 @@ export namespace EquineFootwork {
   }
 
   /**
-   * A hind hoof's goal under the admitted techniques: an arena slide's moving contact, then a bank slide's sliding seat.
+   * A hoof's goal under the admitted techniques: a scramble's bounds for either pair, then, for a hind, an arena slide's moving contact and a bank slide's sliding seat.
    *
    * @param plan The admitted technique plan.
    * @param second The film second.
+   * @param fore Whether the hoof is a fore.
    * @param neutral The hoof's neutral point, model metres.
    * @param attachment The limb's attachment, model metres.
    * @param goal The gait's goal.
@@ -403,29 +434,42 @@ export namespace EquineFootwork {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frames and the order the techniques apply in.
    * @evidence contracts/development/implementation.md#principled-implementation Each technique replaces the gait's goal only inside its own window.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two compositions.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A chain of compositions.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work outside a slide.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `slideGoal` and `EquineBank.goal`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work outside a technique's window.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `EquineScramble.goal`, `slideGoal` and `EquineBank.goal`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
    */
-  export function hindGoal(
+  export function limbGoal(
     plan: IPlan,
     second: number,
+    fore: boolean,
     neutral: IAutoMovieVector3,
     attachment: IAutoMovieVector3,
     goal: QuadrupedRidePose.IGoal,
     placement: IAutoMovieTransform,
     footing: QuadrupedFooting.IPlan | undefined,
   ): QuadrupedRidePose.IGoal {
-    return EquineBank.goal(
-      plan.bank,
+    const bounding: QuadrupedRidePose.IGoal = EquineScramble.goal(
+      plan.scramble,
       second,
+      fore,
       neutral,
       attachment,
-      slideGoal(plan.slide, second, neutral, goal),
+      goal,
       placement,
       footing,
     );
+    return fore
+      ? EquineBank.step(plan.bank, second, bounding)
+      : EquineBank.goal(
+          plan.bank,
+          second,
+          neutral,
+          attachment,
+          slideGoal(plan.slide, second, neutral, bounding),
+          placement,
+          footing,
+        );
   }
 }

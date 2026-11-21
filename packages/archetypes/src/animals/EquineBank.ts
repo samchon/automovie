@@ -27,6 +27,12 @@ export namespace EquineBank {
   /** The share of the hind limb's length the sliding hind hooves come forward under the body: authored, provisional. */
   export const TUCK: number = 0.25;
 
+  /** How far down the face the horse is before it sits, shares of its hind hooves' distance behind the root: authored, provisional, so the hindquarters and the tail are over the face, not the crest. */
+  export const REAR: number = 1.5;
+
+  /** How much higher a fore swings while the horse slides, shares of its gait's own lift and fold: authored, provisional, stepping down a steep face. */
+  export const STEP: number = 1;
+
   /** The steepest face a slide is admitted on, as rise over run: authored, 45 degrees, past which a slide becomes a fall. */
   export const STEEPEST: number = 1;
 
@@ -80,11 +86,12 @@ export namespace EquineBank {
    * @param legs The course's leg count.
    * @param plan The course plan.
    * @param footing The course's authored footing.
+   * @param behind The hind hooves' distance behind the root, metres.
    * @returns The window.
    * @throws {ArchetypeRefusal} For a leg that is not a straight descent over footing with a run-out at its foot, a face its hooves hold or one steeper than `STEEPEST`, and nonfinite or overlapping blends.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The face's grade is the leg's own rise over its length; a loaded hoof slides once that tangent exceeds the friction coefficient.
+   * @evidence contracts/development/implementation.md#principled-implementation The face's grade is the leg's own rise over its length; a loaded hoof slides once that tangent exceeds the friction coefficient. The sit begins once the hindquarters are REAR hind-hoof distances down the face.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Leg shape, face, run-out, blends, then the window.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A face outside the technique's bounds is refused, never flattened.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two plan reads.
@@ -99,6 +106,7 @@ export namespace EquineBank {
     legs: number,
     plan: ArchetypeCourse.IPlan,
     footing: QuadrupedFooting.IScene | undefined,
+    behind: number,
   ): IWindow {
     const refuse = (reason: string): never => {
       throw new ArchetypeRefusal({
@@ -134,14 +142,17 @@ export namespace EquineBank {
         `The face's grade ${grade} is steeper than a slide's ${STEEPEST}`,
       );
     const span: ArchetypeCourse.ILegSpan = plan.legSpans[index]!;
-    const from: number = plan.when(span.from);
+    // The horse sits once its hindquarters and tail are over the face, and is risen by the foot.
+    const from: number = plan.when(
+      span.from + Math.min(span.span, REAR * Math.abs(behind)),
+    );
     const to: number = plan.when(span.from + span.span);
     if (
       ![entry, exit].every(Number.isFinite) ||
       !(entry > 0 && exit > 0 && entry + exit <= to - from)
     )
       return refuse(
-        "A bank slide sits and rises over positive blends within the face",
+        "A bank slide sits and rises over positive blends within the face, once the hindquarters are over it",
       );
     return { from, to, entry, exit };
   }
@@ -240,5 +251,36 @@ export namespace EquineBank {
       lift: (1 - amount) * goal.lift,
       fold: (1 - amount) * goal.fold,
     };
+  }
+
+  /**
+   * A fore hoof's goal while the horse slides: its gait's own step, swung `STEP` higher and folded `STEP` more, stepping down the steep face to steer.
+   *
+   * @param windows The admitted slides.
+   * @param seconds The film second.
+   * @param goal The gait's goal for the hoof.
+   * @returns The goal, the gait's outside a slide.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what changes and when.
+   * @evidence contracts/development/implementation.md#principled-implementation The gait keeps the footfalls and their world footholds; only the swing's clearance and fold grow with the sit's share.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two scalings.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A standing hoof, lift zero, is unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `share`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
+   */
+  export function step(
+    windows: readonly IWindow[],
+    seconds: number,
+    goal: QuadrupedRidePose.IGoal,
+  ): QuadrupedRidePose.IGoal {
+    const amount: number = share(windows, seconds);
+    return amount === 0
+      ? goal
+      : {
+          ...goal,
+          lift: goal.lift * (1 + STEP * amount),
+          fold: goal.fold * (1 + STEP * amount),
+        };
   }
 }
