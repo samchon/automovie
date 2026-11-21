@@ -15,7 +15,7 @@ import type {
  * @param hip The hip joint, world metres.
  * @param ankle The ankle, world metres.
  * @param facing The unit horizontal facing.
- * @returns The shank's forward lean, degrees, positive with the knee ahead of the ankle.
+ * @returns The shank's forward lean from the vertical, degrees, within a right angle either way, positive with the knee ahead of the ankle.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the plane, the knee's side, the sign and why a law reads it.
  * @evidence contracts/development/implementation.md#principled-implementation The law of cosines places the knee of a two-link leg in its sagittal plane.
@@ -52,7 +52,11 @@ export function shankTilt(
   );
   const kneeForward: number = thigh * Math.sin(toward + opening);
   const kneeDown: number = -thigh * Math.cos(toward + opening);
+  // Read against the vertical either way, so a shank folded above its
+  // ankle, as a leg swung over a saddle folds, leans at most a right angle
+  // and turns through it without a jump.
   return (
-    Math.atan2(kneeForward - forward, kneeDown - down) / Quaternion.DEG2RAD
+    Math.atan2(kneeForward - forward, Math.abs(kneeDown - down)) /
+    Quaternion.DEG2RAD
   );
 }

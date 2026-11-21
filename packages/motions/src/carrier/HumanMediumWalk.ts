@@ -21,6 +21,7 @@ import { HumanWater } from "../perform/HumanWater";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { shankTilt } from "./shankTilt";
+import { unloadedFoot } from "./unloadedFoot";
 
 type Params = IAutoMovieMotionHumanMedium.IWalkParams;
 type Plan = IAutoMovieMotionHumanActionPlan;
@@ -40,6 +41,9 @@ const CLEARANCE: number = 0.05;
 
 /** Hands held above the water's surface at hip depth or deeper, metres (provisional staging). */
 const ARMS_ABOVE: number = 0.15;
+
+/** Seconds over which a lifted foot's toe-down turn eases in from and out to its plants (provisional staging). */
+const EASE: number = 0.1;
 
 /** The trunk's forward lean while wading, degrees (provisional staging). */
 const WADE_LEAN: number = 10;
@@ -232,15 +236,25 @@ export function HumanMediumWalk(
       const left: IAutoMovieVector3 = Vector3.cross(UP, facing);
       const pelvis: IAutoMovieVector3 = Vector3.add(
         posture.root,
+        // As the wind leans the body.
         Quaternion.rotateVector(
-          resolveHumanPosture.heading(posture),
+          resolveHumanPosture.heading({
+            ...posture,
+            pitch:
+              posture.pitch +
+              (lean / Quaternion.DEG2RAD) * Vector3.dot(into, facing),
+            roll:
+              posture.roll -
+              (lean / Quaternion.DEG2RAD) *
+                Vector3.dot(into, Vector3.cross(UP, facing)),
+          }),
           body.rest.get("hips")!,
         ),
       );
       for (const side of ["left", "right"] as const) {
         const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
-        if (goal === undefined || sink === 0) continue;
-        const swing: number = swingShare(windows[side], share);
+        if (goal === undefined) continue;
+        const swing: number = sink === 0 ? 0 : swingShare(windows[side], share);
         const rise: number = (sink + CLEARANCE) * Math.sin(Math.PI * swing);
         const point: IAutoMovieVector3 = {
           ...goal.point,
@@ -257,7 +271,7 @@ export function HumanMediumWalk(
         const tilt: number =
           shankTilt(body, hip, point, facing) -
           shankTilt(body, hip, goal.point, facing);
-        limbs[`${side}Leg`] = {
+        const lifted: IAutoMovieHumanLimbGoal = {
           ...goal,
           point,
           bend: { ...goal.bend, y: goal.bend.y + rise },
@@ -270,6 +284,32 @@ export function HumanMediumWalk(
                 ),
               }),
         };
+        // A foot no plant holds bears nothing: its ankle stays within
+        // what a weightless ankle reaches.
+        const bearing: boolean = windows[side].some(
+          (window: IAutoMovieMotionHumanContactWindow): boolean =>
+            share >= window.from && share <= window.to,
+        );
+        // Eased over `EASE` seconds from each plant's edge, so the foot
+        // turns into and out of its plants without a jump.
+        const edge: number = Math.min(
+          ...windows[side].map(
+            (window: IAutoMovieMotionHumanContactWindow): number =>
+              Math.min(
+                Math.abs(share - window.from),
+                Math.abs(share - window.to),
+              ),
+          ),
+        );
+        limbs[`${side}Leg`] = bearing
+          ? lifted
+          : unloadedFoot(
+              body,
+              hip,
+              lifted,
+              facing,
+              Math.min(1, (edge * walked.duration) / EASE),
+            );
       }
       if (
         medium?.kind === "water" &&

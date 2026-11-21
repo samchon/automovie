@@ -8,8 +8,8 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { shankTilt } from "./shankTilt";
 
-/** How far short of the unloaded limit the closed form keeps a weightless ankle, degrees: the ideal two-link leg's lean differs from the fitted one by a fraction of a degree. */
-const MARGIN: number = 1;
+/** How far short of the unloaded limit the closed form keeps a weightless ankle, degrees: the ideal two-link leg's lean, read without the pelvis's own turn, differs from the fitted one by up to a few degrees. */
+const MARGIN: number = 3;
 
 /**
  * A leg goal whose foot bears nothing, turned toes down as far as its
@@ -21,6 +21,7 @@ const MARGIN: number = 1;
  * @param hip The leg's hip joint, world metres.
  * @param goal The leg goal, its foot turned by `rotation`.
  * @param facing The unit horizontal facing.
+ * @param weight The share of the turn applied, 0 to 1: a caller easing the foot in and out of its plants passes less than 1 near them.
  * @returns The goal, its foot turned down when it must be; unchanged otherwise.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the limit, the reading and when the goal is unchanged.
@@ -36,6 +37,7 @@ export function unloadedFoot(
   hip: IAutoMovieVector3,
   goal: IAutoMovieHumanLimbGoal,
   facing: IAutoMovieVector3,
+  weight: number = 1,
 ): IAutoMovieHumanLimbGoal {
   if (goal.rotation === undefined) return goal;
   const excess: number =
@@ -48,7 +50,7 @@ export function unloadedFoot(
     rotation: Quaternion.multiply(
       Quaternion.fromAxisAngle(
         Vector3.cross({ x: 0, y: 1, z: 0 }, facing),
-        excess,
+        excess * weight,
       ),
       goal.rotation,
     ),
