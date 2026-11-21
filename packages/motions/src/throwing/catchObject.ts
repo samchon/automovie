@@ -70,6 +70,10 @@ import { throwObject } from "./throwObject";
  * provisional), which is `secured`, then carry it to before the sternum and
  * hold it. Events: `reach`, `prepare`, `contact`, `secured`, `held`.
  *
+ * The catch may start any time up to that `prepare` instant: with the throw,
+ * or later, as when the thrower cuts its own throw at the release to catch
+ * what it tossed (a juggle, a rhythmic toss).
+ *
  * Not yet: hand closure timed by optical expansion (Savelsbergh et al.
  * 1991), a running catch (McLeod and Dienes 1996), a fumble, the catch
  * against the chest, and a held prop handed from the throw.
@@ -230,7 +234,7 @@ export namespace catchObject {
         axis: "from",
         value: context.params.from,
         reason: `the catch starts ${(-contact + 0.1).toFixed(2)} s too late to prepare`,
-        fix: "start the catch when the throw starts, with nothing between that delays the catcher",
+        fix: "start the catch at least 0.1 s before the object arrives: with the throw, or cut from the thrower's own throw at its release",
       });
     const secured: number = contact + GIVE_TIME;
     const held: number = secured + 0.4;

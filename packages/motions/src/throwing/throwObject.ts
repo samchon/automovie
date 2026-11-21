@@ -99,8 +99,11 @@ export namespace throwObject {
   /** The launch is the throw's physical outcome. Prop flight starts at its own release. */
   export const physical: boolean = true;
 
-  /** Cancel table: the thrower stands or walks once the follow-through ends. */
+  /** Cancel table: the thrower stands or walks once the follow-through ends, and may catch what it threw from the release on. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
+    // The thrower may turn to catch what it threw, a toss and re-catch or a
+    // juggle, once the object has left the hand.
+    catchObject: [{ window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.1 }],
     stand: [
       {
         window: ["followThrough", 1],
