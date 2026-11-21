@@ -1,5 +1,6 @@
 import type {
   IAutoMovieCapturePlanRequest,
+  IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/interface";
 import type { IApplyAutoMovieInspectionProps } from "@automovie/render";
@@ -107,7 +108,7 @@ export namespace IAutoMovieInspectorScene {
   /**
    * Where a mount reports what it learns; the component turns each report into state.
    *
-   * @evidence contracts/development/design.md#principled-representation Five events: ready, a legend, labels, a drawing error or its end, and a refused request.
+   * @evidence contracts/development/design.md#principled-representation Reports readiness, legend, labels, any placed diagnostics, drawing errors and request refusals.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Each is read by the inspector component and nothing else.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A drawing error and a refused request are separate, because only the second changes the request.
    * @evidence contracts/development/common.md#meaningful-documentation States when each event fires.
@@ -164,6 +165,43 @@ export namespace IAutoMovieInspectorScene {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback signature; the component implements it.
      */
     error(message: string | null): void;
+
+    /**
+     * Findings and coverage of a painted production sample when the subject provides diagnostics.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when it fires and that generic subjects omit it.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The consumer owns the callback's presentation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback signature with no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The mount supplies the clock and the observed facts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The callback chooses how to present its packet.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The packet comes from the painted frame's one observation.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The consumer controls how much observed history it retains.
+     */
+    diagnostics?(packet: IAutoMovieInspectionDiagnostics): void;
+
+    /**
+     * Console evidence from the current mount's confirmed diagnostic observations.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The first visit and an observed multi-frame span are separate events.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The listener owns presentation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callback has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The mount keeps replay identity and admits measured intervals.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The listener owns output.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each event comes from the already painted sample.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The listener chooses retention.
+     */
+    diagnosticIncident?(
+      entry:
+        | {
+            kind: "first";
+            observation: IAutoMovieInspectionDiagnostics.IObservation;
+          }
+        | {
+            kind: "episode";
+            episode: IAutoMovieInspectionDiagnostics.IEpisode;
+            firstSample: IAutoMovieInspectionDiagnostics.ITime;
+          },
+    ): void;
 
     /**
      * The scene refused a request; `request` is the one it still draws and `message` why.

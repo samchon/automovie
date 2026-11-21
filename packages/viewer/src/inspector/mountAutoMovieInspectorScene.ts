@@ -1,5 +1,6 @@
 import type {
   IAutoMovieCapturePlanRequest,
+  IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLabel,
   IAutoMovieInspectionView,
 } from "@automovie/interface";
@@ -13,11 +14,14 @@ import {
   autoMovieViewerNamedViewpoints,
   formatAutoMovieInspectionRequest,
   listAutoMovieInspectionPaths,
+  observeAutoMoviePlacedInspection,
   parseAutoMovieInspectionView,
+  renderWithAutoMovieInspectionDiagnostics,
   resolveAutoMovieInspectionView,
 } from "@automovie/render";
 import type * as THREE from "three";
 
+import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticLog.js";
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
@@ -76,6 +80,8 @@ export function mountAutoMovieInspectorScene(props: {
   report: IAutoMovieInspectorScene.IReport;
 }): IAutoMovieInspectorScene {
   const { host, playhead, report } = props;
+  const diagnosticLog: AutoMovieInspectorDiagnosticLog =
+    new AutoMovieInspectorDiagnosticLog(report);
   let disposed: boolean = false;
   let wanted: IAutoMovieCapturePlanRequest = props.request;
   let live: ILive | undefined;
@@ -246,6 +252,7 @@ export function mountAutoMovieInspectorScene(props: {
     now.seeking = true;
     let ready: Promise<void>;
     try {
+      if (now.instance.inspectPlaced !== undefined) now.inspection.restore();
       ready = now.instance.seek(snapshot.seconds);
     } catch (error) {
       ready = Promise.reject(
@@ -270,7 +277,12 @@ export function mountAutoMovieInspectorScene(props: {
   ): void {
     const { instance } = now;
     try {
-      now.inspection.update(instance.marks?.(snapshot.seconds));
+      const diagnostics: IAutoMovieInspectionDiagnostics | undefined =
+        observeAutoMoviePlacedInspection(instance, snapshot.seconds, "viewer");
+      if (instance.inspectPlaced === undefined)
+        now.inspection.update(instance.marks?.(snapshot.seconds));
+      else if (installInspection(now, wanted, snapshot.seconds))
+        now.applied = wanted;
 
       // The delivery camera takes the raster's aspect, as a capture of the subject does.
       const aspect: number = instance.width / instance.height;
@@ -291,9 +303,23 @@ export function mountAutoMovieInspectorScene(props: {
         width: instance.width,
         height: instance.height,
       }).camera;
-      now.renderer.render(instance.scene, camera);
+      const diagnosticLegend: ReturnType<
+        typeof renderWithAutoMovieInspectionDiagnostics
+      > = renderWithAutoMovieInspectionDiagnostics({
+        scene: instance.scene,
+        diagnostics:
+          now.applied.inspection.shade === "beauty" ? diagnostics : undefined,
+        render: (): void => now.renderer.render(instance.scene, camera),
+        width: now.size!.width,
+        height: now.size!.height,
+        stroke: now.applied.inspection.stroke,
+      });
+      if (diagnostics !== undefined) {
+        diagnosticLog.observe(diagnostics, snapshot.playing);
+        report.diagnostics?.(diagnostics);
+      }
       if (!snapshot.playing) {
-        report.legend([...now.inspection.legend]);
+        report.legend([...now.inspection.legend, ...diagnosticLegend]);
         report.labels(place(now, camera));
         now.labelled = true;
       } else if (now.labelled) {
@@ -323,6 +349,37 @@ export function mountAutoMovieInspectorScene(props: {
     }
   }
 
+  /** Install the current request against the actual objects and keep the preceding request active on refusal. */
+  function installInspection(
+    now: ILive,
+    request: IAutoMovieCapturePlanRequest,
+    seconds: number,
+  ): boolean {
+    const marks:
+      | ReturnType<NonNullable<IAutoMovieDrawScene["marks"]>>
+      | undefined = now.instance.marks?.(seconds);
+    const inspect: (
+      next: IAutoMovieCapturePlanRequest,
+    ) => IAutoMovieInspectionHandle = (
+      next: IAutoMovieCapturePlanRequest,
+    ): IAutoMovieInspectionHandle =>
+      applyAutoMovieInspection({
+        scene: now.instance.scene,
+        request: next.inspection,
+        renderer: now.renderer,
+        ...(marks === undefined ? {} : { marks }),
+      });
+    try {
+      now.inspection = inspect(request);
+      return true;
+    } catch (error) {
+      now.inspection = inspect(now.applied);
+      wanted = now.applied;
+      report.refused(now.applied, messageOf(error));
+      return false;
+    }
+  }
+
   return {
     apply: (request: IAutoMovieCapturePlanRequest): void => {
       if (disposed || request === wanted) return;
@@ -330,28 +387,24 @@ export function mountAutoMovieInspectorScene(props: {
       const now: ILive | undefined = live;
       if (now === undefined) return;
 
-      // The inspection is re-applied only when its text changed; a refusal re-applies the previous one.
+      // Opted-in subjects apply each request only after the current settled scene is observed.
+      if (now.instance.inspectPlaced !== undefined) {
+        if (firstSecond(request) !== firstSecond(now.applied))
+          playhead.seek(firstSecond(request));
+        now.dirty = true;
+        return;
+      }
+
+      // A generic subject keeps its inspection until its request changes.
       if (written(request) !== written(now.applied)) {
-        const seconds: number = playhead.getSnapshot().seconds;
-        const inspect: (
-          next: IAutoMovieCapturePlanRequest,
-        ) => IAutoMovieInspectionHandle = (
-          next: IAutoMovieCapturePlanRequest,
-        ): IAutoMovieInspectionHandle =>
-          applyAutoMovieInspection({
-            scene: now.instance.scene,
-            request: next.inspection,
-            renderer: now.renderer,
-            marks: now.instance.marks?.(seconds) ?? [],
-          });
         now.inspection.restore();
-        try {
-          now.inspection = inspect(request);
-        } catch (error) {
-          now.inspection = inspect(now.applied);
-          wanted = now.applied;
+        const accepted: boolean = installInspection(
+          now,
+          request,
+          playhead.getSnapshot().seconds,
+        );
+        if (!accepted) {
           now.dirty = true;
-          report.refused(now.applied, messageOf(error));
           return;
         }
         report.legend([...now.inspection.legend]);
@@ -375,6 +428,7 @@ export function mountAutoMovieInspectorScene(props: {
         (): void => now.inspection.restore(),
         (): void => now.renderer.dispose(),
         (): void => now.instance.dispose(),
+        (): void => diagnosticLog.dispose(),
       ]);
     },
   };

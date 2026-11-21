@@ -1,10 +1,17 @@
 import type {
   IAutoMovieContactReceipt,
+  IAutoMovieDeliveryContentAudit,
   IAutoMovieMark,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalProfile,
   IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
+import type {
+  IAutoMovieDrawScene,
+  IObserveAutoMoviePlacedScene,
+  observeAutoMoviePlacedCamera,
+  observeAutoMovieSceneCollision,
+} from "@automovie/render";
 import type * as THREE from "three";
 
 /**
@@ -35,6 +42,27 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the film and the draw scene own their lifetimes.
    */
   softPropsAt?: (seconds: number) => readonly IAutoMovieRenderSoftPropFrame[];
+
+  /** Additional authored diagnostics for the settled film, read before inspection masks or review cameras. */
+  inspectPlaced?: IAutoMovieDrawScene["inspectPlaced"];
+
+  /** Optional source-owned shot layers, exemptions and motion cells for the settled collision scene. */
+  inspectionLayers?: (
+    sample: IAutoMovieDrawScene.IPlacedSample,
+  ) => Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"];
+
+  /** Independent support, grip, custody and continuity expectations for the settled film. */
+  inspectionChecks?: (
+    sample: IAutoMovieDrawScene.IPlacedSample,
+  ) => readonly IObserveAutoMoviePlacedScene.ICheck[];
+
+  /** Subjects the current source shot requires the delivery camera to show. */
+  inspectionCamera?: (
+    sample: IAutoMovieDrawScene.IPlacedSample,
+  ) => Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"];
+
+  /** Optional source intent for the delivered media, including any soundtrack. */
+  delivery?: IAutoMovieDeliveryContentAudit.IIntent;
 
   /** Inspection mark kinds that may first appear after second zero; `marks` still supplies their actual geometry at the drawn second. */
   markKinds?: readonly string[];

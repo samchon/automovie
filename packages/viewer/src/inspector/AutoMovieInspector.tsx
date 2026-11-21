@@ -1,5 +1,11 @@
-import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
-import { type IAutoMovieDrawSubject, selectAutoMovieDrawSubject } from "@automovie/render";
+import type {
+  IAutoMovieInspectionDiagnostics,
+  IAutoMovieInspectionLegendEntry,
+} from "@automovie/interface";
+import {
+  type IAutoMovieDrawSubject,
+  selectAutoMovieDrawSubject,
+} from "@automovie/render";
 import {
   type ChangeEvent,
   type Dispatch,
@@ -83,6 +89,9 @@ export function AutoMovieInspector(
   const [labels, setLabels] =
     useState<IAutoMovieInspectorScene.ILabels>(UNLABELLED);
   const [failure, setFailure] = useState<string | null>(null);
+  const [diagnosticMessage, setDiagnosticMessage] = useState<string | null>(
+    null,
+  );
   const canvas: RefObject<HTMLCanvasElement | null> =
     useRef<HTMLCanvasElement>(null);
   const scene: RefObject<IAutoMovieInspectorScene | null> =
@@ -117,6 +126,24 @@ export function AutoMovieInspector(
         legend: setLegend,
         labels: setLabels,
         error: setFailure,
+        diagnostics: (packet: IAutoMovieInspectionDiagnostics): void =>
+          setDiagnosticMessage(describeDiagnostics(packet)),
+        diagnosticIncident: (
+          entry: Parameters<
+            NonNullable<IAutoMovieInspectorScene.IReport["diagnosticIncident"]>
+          >[0],
+        ): void => {
+          if (entry.kind === "first")
+            console.error(
+              `AutoMovie ${describeFinding(entry.observation)}`,
+              entry.observation,
+            );
+          else
+            console.error(
+              `AutoMovie ${entry.episode.first.finding.paths.join(" / ")} from ${describeTime(entry.firstSample)} to ${describeTime(entry.episode.last)}. Worst observed at ${describeFinding(entry.episode.worst)}`,
+              entry.episode,
+            );
+        },
         refused: (
           drawn: IAutoMovieInspectorState["request"],
           message: string,
@@ -129,6 +156,7 @@ export function AutoMovieInspector(
       scene.current = null;
       setFacts(null);
       setLabels(UNLABELLED);
+      setDiagnosticMessage(null);
       mounted.dispose();
     };
   }, [subject, name, playhead]);
@@ -233,6 +261,11 @@ export function AutoMovieInspector(
             ),
           )}
         </div>
+        {diagnosticMessage !== null && (
+          <p role="status" style={{ margin: "4px 0" }}>
+            {diagnosticMessage}
+          </p>
+        )}
         <AutoMovieInspectorTimePanel
           playhead={playhead}
           fps={facts?.fps ?? null}
@@ -364,4 +397,59 @@ function Section(props: {
       <div style={{ paddingTop: 6 }}>{props.children}</div>
     </details>
   );
+}
+
+/** Describe a sample's exact clock without inventing an output frame. */
+function describeTime(time: IAutoMovieInspectionDiagnostics.ITime): string {
+  return time.outputFrame === undefined
+    ? `${time.filmSeconds} s`
+    : `${time.filmSeconds} s (frame ${time.outputFrame})`;
+}
+
+/** Display the named parts and the checker-owned measurements of one finding. */
+function describeFinding(
+  observation: IAutoMovieInspectionDiagnostics.IObservation,
+): string {
+  const { finding, time } = observation;
+  const paths: string = finding.paths.join(" / ");
+  const measures: string[] = (finding.witness.measurements ?? []).map(
+    (entry: IAutoMovieInspectionDiagnostics.IMeasurement): string =>
+      `${entry.name} ${entry.value} ${entry.unit}`,
+  );
+  return [
+    `${describeTime(time)} · ${finding.message}`,
+    ...(paths === "" ? [] : [paths]),
+    ...measures,
+  ].join(" · ");
+}
+
+/** Show the strongest current finding and any limits on what this sample could check. */
+function describeDiagnostics(
+  packet: IAutoMovieInspectionDiagnostics,
+): string | null {
+  const strongest: IAutoMovieInspectionDiagnostics.IFinding | undefined =
+    packet.findings.find(
+      (finding: IAutoMovieInspectionDiagnostics.IFinding): boolean =>
+        finding.confidence === "confirmed" && finding.category === "error",
+    ) ?? packet.findings[0];
+  const unavailable: string[] = [];
+  for (const row of packet.coverage)
+    if (
+      row.status === "deferred" ||
+      (row.status === "unsupported" && row.required)
+    )
+      if (!unavailable.includes(row.reason)) unavailable.push(row.reason);
+  const messages: string[] = [];
+  if (strongest !== undefined) {
+    const status: string =
+      strongest.confidence === "candidate" ? "Possible" : "Confirmed";
+    messages.push(
+      `${status} — ${describeFinding({ finding: strongest, time: strongest.witness.time ?? packet.time })}`,
+    );
+  }
+  if (unavailable.length !== 0)
+    messages.push(
+      `At ${describeTime(packet.time)}. Inspection incomplete · ${unavailable.join(" · ")}`,
+    );
+  return messages.length === 0 ? null : messages.join(" · ");
 }
