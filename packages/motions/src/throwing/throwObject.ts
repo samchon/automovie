@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanInterruptRow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanThrowObject,
@@ -31,6 +32,7 @@ import { AutoMovieMotionHumanBendTrack } from "../compose/AutoMovieMotionHumanBe
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
@@ -101,26 +103,22 @@ export namespace throwObject {
 
   /** Cancel table: the thrower stands or walks once the follow-through ends, and may catch what it threw from the release on. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    // The thrower may turn to catch what it threw, a toss and re-catch or a
-    // juggle, once the object has left the hand.
-    catchObject: [{ window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.1 }],
-    stand: [
-      {
-        window: ["followThrough", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
-      },
+    catchObject: [
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.1 },
     ],
-    walk: [
-      {
-        window: ["followThrough", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
-      },
-    ],
+    stand: [after()],
+    walk: [after()],
   };
+
+  /** The cut once the follow-through ends. */
+  function after(): IAutoMovieMotionHumanInterruptRow {
+    return {
+      window: ["followThrough", 1],
+      kind: "inertialize",
+      entry: 0,
+      blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+    };
+  }
 
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
@@ -334,19 +332,16 @@ export namespace throwObject {
     };
     const prop: string | undefined = context.params.prop;
     let gripOffset: IAutoMovieVector3 | undefined;
-    const wristAt: (
+    function wristAt(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ) => IAutoMovieMotionHumanHand.IWrist = (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ): IAutoMovieMotionHumanHand.IWrist => {
+    ): IAutoMovieMotionHumanHand.IWrist {
       const g: GripFrame = grip(posture, seconds);
       gripOffset ??= {
         ...HumanHand.offset(body, side, "grip", "relaxed").point,
       };
       return placeHumanHandSurface(gripOffset, g.point, g.rotation);
-    };
+    }
     const elbow: AutoMovieMotionHumanBendTrack.ITrack =
       AutoMovieMotionHumanBendTrack.of({
         body,
@@ -381,9 +376,6 @@ export namespace throwObject {
           seconds,
         );
         const bend: IAutoMovieVector3 = elbow.elbow(posture, seconds, wrist);
-        gripOffset ??= {
-          ...HumanHand.offset(body, side, "grip", "relaxed").point,
-        };
         return {
           ...posture,
           limbs: {
@@ -391,7 +383,7 @@ export namespace throwObject {
             [`${side}Arm`]: AutoMovieMotionHumanArmTarget.fromWrist(
               wrist,
               bend,
-              { ...gripOffset },
+              { ...gripOffset! },
             ),
           },
         };
@@ -454,13 +446,18 @@ export namespace throwObject {
         : prop === undefined
           ? undefined
           : throwObjectLever.spin(context, side, prop, lever, target);
-    const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+    const composed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
+      body,
+      plan: composeAutoMovieMotionHumanAction({
         base,
         clock,
         contact: "release",
         primitives: [trunk, throwing],
-      });
+      }),
+      side,
+      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+      span: { start: 0, ready: 0, relax: duration, end: duration },
+    });
     return {
       ...composed,
       ...(style === "windmill"

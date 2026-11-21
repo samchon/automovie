@@ -1,9 +1,4 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -16,10 +11,8 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCatchObject,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
-  IAutoMovieMotionHumanThrowObjectLaunch,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -34,6 +27,7 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -41,8 +35,8 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGlove } from "./HumanGlove";
+import { catchObjectApproach } from "./catchObjectApproach";
 import { catchObjectFingers } from "./catchObjectFingers";
-import { throwObject } from "./throwObject";
 
 /**
  * Catching an object thrown by another action: the hands meet it where its
@@ -116,8 +110,11 @@ export namespace catchObject {
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
 
-  /** How far ahead of the root the object is met, arm lengths (provisional). */
-  export const REACH: number = 0.6;
+  /** How far ahead of the root the object is met, arm lengths (`catchObjectApproach.REACH`). */
+  export const REACH: number = catchObjectApproach.REACH;
+
+  /** The height a self-tossed object is caught at on its way down (`catchObjectApproach.TOSS`). */
+  export const TOSS: number = catchObjectApproach.TOSS;
 
   /** How far the hands give with the object after contact, metres (provisional). */
   export const GIVE: number = 0.1;
@@ -178,7 +175,8 @@ export namespace catchObject {
       yaw: neutral.yaw,
     };
 
-    const timing: IInterception = interception ?? approach(context, frame, arm);
+    const timing: IInterception =
+      interception ?? catchObjectApproach.of(context, frame, arm);
     const contact: number = timing.contact;
     // A staged overlay may meet the ball from a carrier such as an immersed
     // body. Read its shoulders and elbow geometry at the interception.
@@ -405,13 +403,27 @@ export namespace catchObject {
 
     const base: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, duration);
-    const composed: IAutoMovieMotionHumanActionPlan =
+    // Each catching arm is one admitted course: it reaches the ball by the
+    // contact and follows the give and the carry, never refitted per second.
+    const composed: IAutoMovieMotionHumanActionPlan = sides.reduce(
+      (
+        plan: IAutoMovieMotionHumanActionPlan,
+        side: AutoMovieHumanSide,
+      ): IAutoMovieMotionHumanActionPlan =>
+        courseArmGoal({
+          body,
+          plan,
+          side,
+          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+          span: { start: 0, ready: contact, relax: duration, end: duration },
+        }),
       composeAutoMovieMotionHumanAction({
         base,
         clock,
         contact: "contact",
         primitives: sides.map(hand),
-      });
+      }),
+    );
     return {
       ...composed,
       object: (seconds: number): IAutoMovieVector3 => {
@@ -423,61 +435,6 @@ export namespace catchObject {
           resolution,
         );
       },
-    };
-  }
-
-  /** Find where the ordinary drag-free throw first reaches the catcher's reach line. */
-  function approach(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,
-    frame: IAutoMovieMotionHumanFrame,
-    arm: number,
-  ): IInterception {
-    const placed: IAutoMovieMotionHumanPlacedAction = context.action(
-      context.params.from,
-    );
-    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined =
-      throwObject.of(placed.plan);
-    if (launch === undefined)
-      throw new HumanRefusal({
-        kind: "participant",
-        axis: "from",
-        value: context.params.from,
-        feasible: {
-          kind: "alternatives",
-          values: ["the anchor of a throwObject action"],
-        },
-        reason: `${context.params.from} is a ${placed.name}, not a throw`,
-        fix: "give the throw an anchor and name that anchor in from",
-      });
-    const ahead: number = HumanFrame.local(frame, launch.point).z - REACH * arm;
-    const closing: number = -HumanFrame.local(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
-      launch.velocity,
-    ).z;
-    if (ahead <= 0 || !(closing > 0))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "from",
-        value: context.params.from,
-        reason:
-          ahead <= 0
-            ? "the throw starts within the reach"
-            : "the throw never comes within reach",
-        fix:
-          ahead <= 0
-            ? "stand farther from the thrower, beyond the arms' reach of the release"
-            : "stand on the throw's path, or aim the throw at the catcher",
-      });
-    const released: number = placed.start + launch.seconds - context.start;
-    const flight: number = ahead / closing;
-    return {
-      contact: released + flight,
-      speed: {
-        ...launch.velocity,
-        y: launch.velocity.y - AutoMovieGravity.STANDARD * flight,
-      },
-      before: (seconds: number): IAutoMovieVector3 =>
-        throwObject.path(launch, Math.max(0, seconds - released)),
     };
   }
 }
