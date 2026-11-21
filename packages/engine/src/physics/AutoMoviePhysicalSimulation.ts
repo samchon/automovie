@@ -22,9 +22,9 @@ import { collectPhysicalContacts } from "./collectPhysicalContacts";
 import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames";
 import { freezePhysicalRecord } from "./freezePhysicalRecord";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
-import { isPhysicalPairExcluded } from "./isPhysicalPairExcluded";
 import { physicalInputDigest } from "./physicalInputDigest";
 import { physicalNativeVector } from "./physicalNativeVector";
+import { preparePhysicalContactHooks } from "./preparePhysicalContactHooks";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
 import { readPhysicalFrame } from "./readPhysicalFrame";
 import { recordPhysicalContact } from "./recordPhysicalContact";
@@ -308,14 +308,7 @@ export class AutoMoviePhysicalSimulation {
       }
       const active: Map<string, IAutoMovieContactReceipt> = new Map();
       const softened: Map<string, number> = new Map();
-      const hooks: PhysicsHooks = {
-        filterContactPair: (a: number, b: number): RAPIER.SolverFlags | null =>
-          isPhysicalPairExcluded(owned, bound, a, b)
-            ? null
-            : RAPIER.SolverFlags.COMPUTE_IMPULSE,
-        filterIntersectionPair: (a: number, b: number): boolean =>
-          !isPhysicalPairExcluded(owned, bound, a, b),
-      };
+      const hooks: PhysicsHooks = preparePhysicalContactHooks(owned, bound);
       if (start > 0) {
         const state: NonNullable<
           ReturnType<typeof cache.controllerCheckpoints.get>

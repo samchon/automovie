@@ -6,11 +6,11 @@ import type {
 import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
 
 /**
- * List the mark kinds a request's `marks` patterns may name for a set of supplied marks: what a picture can draw, each with its label and default colour.
+ * List the styled kinds for the supplied marks and the measurements available under the current request. Each entry has a label and default colour.
  *
  * The supplied marks' kinds come first, in the order they first appear, with the label and colour of their first mark. The inspection's own kinds follow in `AUTO_MOVIE_INSPECTION_KINDS` order: `edge` and the `defect/<kind>` kinds always, since every mesh has them, except `defect/sliver`, which exists only while the request sets a sliver limit, and `trail` and `trail/now` only while the request names a trail. A supplied kind that has an inspection kind's name is listed once, as supplied.
  *
- * `applyAutoMovieInspection` refuses a `marks` pattern that matches none of these, and an inspector panel and a capture plan read the same list.
+ * `listAutoMovieInspectionKindOptions` adds lifetime declarations to these styled kinds for request admission and the inspector panel.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the order, where each label and colour come from, when the conditional kinds exist, how a name clash is listed, and who reads the list.
  * @evidence contracts/development/implementation.md#principled-implementation A kind exists when something can draw it: a supplied mark, a mesh measurement that needs no input, a sliver measurement that needs its limit, or a trail the request asks for.

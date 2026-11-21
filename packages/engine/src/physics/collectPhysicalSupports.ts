@@ -13,10 +13,11 @@ import type {
 } from "@dimforge/rapier3d-compat";
 
 import { physicalSupportPoint } from "./physicalSupportPoint";
+import { readPhysicalManifoldImpulses } from "./readPhysicalManifoldImpulses";
 import { visitPhysicalNative } from "./visitPhysicalNative";
 
 /**
- * Read touching upward native floor constraints before recent positive surface impulses. Native points retain their actual combined friction; receipt-only compliant contacts use the declared average with the floor's friction 0.7. No projected sole or future contact is invented.
+ * Read touching upward native floor constraints before recent positive surface impulses. Native points retain their actual combined friction; receipt-only compliant contacts use the declared average with the floor's friction 0.7. No projected sole or future contact is invented. A native point counts as loaded only from the impulse the solver applied to it (`readPhysicalManifoldImpulses`), never from a stale impulse left on a point the solver dropped.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Read touching upward native floor constraints before recent positive surface impulses) as stated in this comment.
  * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Read touching upward native floor constraints before recent positive surface impulses) directly over its typed inputs (`input`) as nested iteration of depth 3 (flatMap over input.pattern.limbs; for-of over input.colliders; for loop bounded by i < manifold.numContacts()), delegating to `patches.includes`, `visitPhysicalNative`, `manifold.normal`, `manifold.numContacts`, `manifold.contactDist`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literals 0.5, 0.7, whose basis this answer does not independently establish and a reviewer must confirm.
@@ -70,11 +71,14 @@ export function collectPhysicalSupports(input: {
                   ),
                 (manifold: TempContactManifold, flipped: boolean): void => {
                   if (manifold.normal().y * (flipped ? -1 : 1) >= -0.5) return;
+                  const applied: number[] = readPhysicalManifoldImpulses(
+                    input.world,
+                    manifold,
+                    flipped ? other : handle,
+                    flipped ? handle : other,
+                  );
                   for (let i: number = 0; i < manifold.numContacts(); i++)
-                    if (
-                      manifold.contactDist(i) <= 0 &&
-                      manifold.contactImpulse(i) > 0
-                    )
+                    if (manifold.contactDist(i) <= 0 && applied[i]! > 0)
                       loaded = true;
                   for (
                     let i: number = 0;

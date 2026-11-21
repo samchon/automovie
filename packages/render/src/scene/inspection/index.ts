@@ -30,6 +30,7 @@ export * from "./IAutoMovieInspectionRequest.js";
 export * from "./IAutoMovieInspectionTrail.js";
 export * from "./IAutoMovieInspectionView.js";
 export * from "./legendAutoMovieInspectionMarks.js";
+export * from "./listAutoMovieInspectionKindOptions.js";
 export * from "./listAutoMovieInspectionKinds.js";
 export * from "./listAutoMovieInspectionPaths.js";
 export * from "./markAutoMovieInspectionTrails.js";

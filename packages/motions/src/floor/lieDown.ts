@@ -34,6 +34,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { StrikingBody } from "../striking/StrikingBody";
+import { floorArmRoom } from "./floorArmRoom";
 import { floorEntry } from "./floorEntry";
 import { floorSeat } from "./floorSeat";
 import { prepareLieDownFootPins } from "./prepareLieDownFootPins";
@@ -256,6 +257,8 @@ export namespace lieDown {
     let bearing: Record<"left" | "right", IAutoMovieMotionHumanFoot.Socket> | undefined;
     let plants: Pins;
     let release: Release;
+    const rooms: Record<"from" | "to", Record<AutoMovieHumanSide, number>>[] =
+      [];
     const rollSide: AutoMovieHumanSide | undefined =
       position === "lateralLeft" ? "left" : position === "lateralRight" ? "right" : undefined;
     const posedAt: (index: number, u: number) => IAutoMovieMotionHumanPosture = (index: number, u: number): IAutoMovieMotionHumanPosture => ({
@@ -403,11 +406,43 @@ export namespace lieDown {
         prepareHumanPoseResolution(resolution);
       const project: ReturnType<typeof prepareHumanPostureProjection> =
         projection ?? prepareHumanPostureProjection(body);
-      const rested: IAutoMovieMotionHumanPosture = entered === null && index === 1 && u < 1
-        ? (release ??= floorEntry.between(
-            body, GymnasticsFlight.frozen(body, placed(0, 1, read, project), read, project), placed(1, 1, read, project),
-          ))(u, read, project)
-        : placed(index, u, read, project);
+      const keyed = (w: number): IAutoMovieMotionHumanPosture =>
+        entered === null && index === 1 && w < 1
+          ? (release ??= floorEntry.between(
+              body,
+              GymnasticsFlight.frozen(
+                body,
+                placed(0, 1, read, project),
+                read,
+                project,
+              ),
+              placed(1, 1, read, project),
+            ))(w, read, project)
+          : placed(index, w, read, project);
+
+      // Between two keys the arms are blended in joint space; one carried
+      // through the body deeper than both keys hold it is let out
+      // (`floorArmRoom`).
+      let rested: IAutoMovieMotionHumanPosture = keyed(u);
+      if (u > 0 && u < 1) {
+        const ends: Record<
+          "from" | "to",
+          Record<AutoMovieHumanSide, number>
+        > = (rooms[index] ??= {
+          from: floorArmRoom.of(body, keyed(0), read, project),
+          to: floorArmRoom.of(body, keyed(1), read, project),
+        });
+        rested = floorArmRoom.cleared(
+          body,
+          rested,
+          {
+            left: ends.from.left + (ends.to.left - ends.from.left) * u,
+            right: ends.from.right + (ends.to.right - ends.from.right) * u,
+          },
+          read,
+          project,
+        );
+      }
 
       // A folded sitting folds its legs over the last phase of its route.
       const out: IAutoMovieMotionHumanPosture =
