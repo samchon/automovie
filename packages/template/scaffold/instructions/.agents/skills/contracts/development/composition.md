@@ -23,6 +23,8 @@ Does each scene realize every cited beat as written, and does the film play ever
 
 Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera and sound. For commissioned generation, carry reactions beyond the representation in the prompt.
 
+Above each composed action, comment its beat anchor, its study section for skilled practice, and the [Action, Travel, Manner and Timing](../../motion/compose/composition.md#action-axes) it settles, with any measure its JSDoc gives, such as `#s02-b03: sprint at Jun, full effort, 0.9 s to contact`. Leave other parameters uncommented.
+
 If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
 
 ### Film and catalog
