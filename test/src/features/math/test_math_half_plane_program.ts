@@ -24,12 +24,17 @@ import { TestValidator } from "@nestia/e2e";
  *    diagonal; an infeasible result has no feasible grid point.
  * 6. Order: the same set listed in reverse gives the same feasible point
  *    within 1e-9.
+ * 7. Scenario 4's strip with its first half-plane hard: the result keeps
+ *    `y >= 0.2` and lies at `y = 0.2`, where the other's violation is least.
+ *    With both hard they clash, so both are relaxed alike and the result lies
+ *    at `y = 0`. A hard count that is negative, fractional or beyond the
+ *    half-planes is refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the program and reads its point and flag against closed forms and a brute-force grid: a wrong projection, a missed disc, an infeasible set called feasible, a worse point than the grid's, or an order-dependent optimum is caught.
- * @evidence contracts/development/testing.md#independent-expectations Projections onto a line and a circle are closed forms; the grid search is a brute-force optimum independent of the incremental method; the equal-violation line of two opposed half-planes is geometry.
- * @evidence contracts/development/testing.md#distinguishing-cases Inside, one violated line, the disc alone, an infeasible pair, random sets and a reversed order.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the program and reads its point and flag against closed forms and a brute-force grid: a wrong projection, a missed disc, an infeasible set called feasible, a worse point than the grid's, an order-dependent optimum, or a fallback that relaxes a hard half-plane is caught.
+ * @evidence contracts/development/testing.md#independent-expectations Projections onto a line and a circle are closed forms; the grid search is a brute-force optimum independent of the incremental method; the equal-violation line of two opposed half-planes is geometry, as is the hard side's own line, where the other's violation is least.
+ * @evidence contracts/development/testing.md#distinguishing-cases Inside, one violated line, the disc alone, an infeasible pair, random sets, a reversed order, one hard side, two clashing hard sides and refused hard counts.
  * @evidence contracts/development/testing.md#execution-ownership A unit test of a pure engine function, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios and what each pins.
  */
 export function test_math_half_plane_program(): void {
   const findings: string[] = [];
@@ -155,5 +160,31 @@ export function test_math_half_plane_program(): void {
         `trial ${trial}: called infeasible with a feasible grid point`,
       );
   }
+  // 7. Hard half-planes in the fallback: scenario 4's strip with its first side kept.
+  const strip: ILine[] = [
+    { point: { x: 0, y: 0.2 }, direction: { x: 1, y: 0 } },
+    { point: { x: 0, y: -0.2 }, direction: { x: -1, y: 0 } },
+  ];
+  const kept: IAutoMovieSolveHalfPlaneProgram.IResult =
+    solveAutoMovieHalfPlaneProgram(strip, 1, { x: 0.1, y: 0.5 }, 1);
+  if (kept.feasible || Math.abs(kept.point.y - 0.2) > 1e-9)
+    findings.push(
+      `a hard y >= 0.2 against y <= -0.2 gives y = ${kept.point.y}, 0.2 expected`,
+    );
+  const clash: IPoint = solveAutoMovieHalfPlaneProgram(
+    strip,
+    1,
+    { x: 0.1, y: 0.5 },
+    2,
+  ).point;
+  if (Math.abs(clash.y) > 1e-9)
+    findings.push(
+      `two clashing hard half-planes give y = ${clash.y}, 0 expected`,
+    );
+  for (const hard of [-1, 0.5, 3])
+    try {
+      solveAutoMovieHalfPlaneProgram(strip, 1, { x: 0, y: 0 }, hard);
+      findings.push(`hard ${hard} was admitted`);
+    } catch {}
   TestValidator.equals("the half-plane program", findings, []);
 }
