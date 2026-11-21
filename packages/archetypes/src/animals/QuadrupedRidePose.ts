@@ -17,6 +17,7 @@ import { QuadrupedLimb } from "./QuadrupedLimb";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedRootRange } from "./QuadrupedRootRange";
+import { QuadrupedScapula } from "./QuadrupedScapula";
 import { chooseQuadrupedBodyRoot } from "./chooseQuadrupedBodyRoot";
 import type { createQuadruped } from "./createQuadruped";
 
@@ -38,6 +39,10 @@ interface Target {
   fold: number;
   /** Actual proximal joint before the common body-root displacement. */
   attachment: IAutoMovieVector3;
+  /** A fore limb's shoulder blade. */
+  blade?: QuadrupedScapula.Bone;
+  /** The root constraint this target yields, read again once the root is chosen. */
+  constraint: QuadrupedRootRange.IConstraint;
 }
 
 /**
@@ -310,18 +315,25 @@ export namespace QuadrupedRidePose {
         });
         const solved: Map<QuadrupedBody.Limb, readonly IAutoMovieVector3[]> =
           new Map();
+        const turned: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal> =
+          new Map(axial);
         for (const limb of QuadrupedBody.LIMBS) {
           const target: Target = targets.get(limb)!;
+          const attachment: IAutoMovieVector3 = shoulder(
+            target,
+            height,
+            turned,
+          );
           solved.set(
             limb,
             target.solver.solve(
-              { ...target.attachment, y: target.attachment.y + height },
+              { ...attachment, y: attachment.y + height },
               target.endpoint,
               target.fold,
             ),
           );
         }
-        return pose.position(solved, root, axial);
+        return pose.position(solved, root, turned);
       };
       const prepared: ReturnType<typeof geometry> =
         witness === undefined
@@ -371,6 +383,40 @@ export namespace QuadrupedRidePose {
         }
       return result;
 
+      /** A fore limb's shoulder joint at the chosen root: its blade turns only as far as reach needs, and the turn joins the axial goals. */
+      function shoulder(
+        target: Target,
+        height: number,
+        turned: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>,
+      ): IAutoMovieVector3 {
+        const joint: QuadrupedScapula.IJoint | undefined =
+          target.constraint.scapula;
+        const blade: QuadrupedScapula.Bone | undefined = target.blade;
+        if (joint === undefined || blade === undefined)
+          return target.attachment;
+        const angle: number = QuadrupedScapula.least(
+          joint,
+          target.constraint.goal,
+          target.constraint.reach,
+          height,
+          256 * Number.EPSILON * coordinateScale,
+        );
+        if (angle === 0) return target.attachment;
+        const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+          preview.frames.get(blade)!.rotation,
+          { x: 0, y: 1, z: 0 },
+        );
+        turned.set(blade, {
+          kind: "direction",
+          direction: {
+            x: axis.x,
+            y: axis.y * Math.cos(angle) - axis.z * Math.sin(angle),
+            z: axis.y * Math.sin(angle) + axis.z * Math.cos(angle),
+          },
+        });
+        return QuadrupedScapula.glenoid(joint, angle);
+      }
+
       /** Convert one actual solid's lift to an exact endpoint/ankle constraint. */
       function constraint(
         limb: QuadrupedBody.Limb,
@@ -409,17 +455,32 @@ export namespace QuadrupedRidePose {
               normal.y;
         }
         const endpoint: IAutoMovieVector3 = { x, y, z: goal.z };
+        const blade: QuadrupedScapula.Bone | undefined =
+          limb === "leftFore" || limb === "rightFore"
+            ? QuadrupedScapula.BONES[limb]
+            : undefined;
+        const result: QuadrupedRootRange.IConstraint = {
+          attachment,
+          goal: support.solver.target(endpoint),
+          reach: support.solver.range(goal.fold),
+          ...(blade === undefined
+            ? {}
+            : {
+                scapula: {
+                  pivot: preview.frames.get(blade)!.translation,
+                  glenoid: attachment,
+                },
+              }),
+        };
         targets.set(limb, {
           endpoint,
           fold: goal.fold,
           attachment,
           solver: support.solver,
+          ...(blade === undefined ? {} : { blade }),
+          constraint: result,
         });
-        return {
-          attachment,
-          goal: support.solver.target(endpoint),
-          reach: support.solver.range(goal.fold),
-        };
+        return result;
       }
     }
   }

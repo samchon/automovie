@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedLimb } from "./QuadrupedLimb";
+import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /**
  * A common vertical body-root interval satisfying four fixed limb attachments.
@@ -27,6 +28,9 @@ export namespace QuadrupedRootRange {
     goal: IAutoMovieVector3;
     /** Actual chain's inclusive radial reach at its current fold, metres. */
     reach: QuadrupedLimb.IRange;
+
+    /** A fore limb's shoulder blade, whose turn within range may carry the attachment toward the goal and so raise the upper bound. */
+    scapula?: QuadrupedScapula.IJoint;
   }
 
   /**
@@ -58,7 +62,7 @@ export namespace QuadrupedRootRange {
    * @throws {RangeError} For malformed/nonrepresentable geometry, horizontal overreach or incompatible whole-body constraints.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Gives the exact geometric interval, above-foot branch, metre frames and physical floor requirement, distinguishing feasibility from path selection.
-   * @evidence contracts/development/implementation.md#principled-implementation Derive each limb's vertical-drop interval from its actual radial reach and fixed horizontal separation, translate it into root coordinates and intersect all four with the actual body-floor lower bound.
+   * @evidence contracts/development/implementation.md#principled-implementation Derive each limb's vertical-drop interval from its actual radial reach and fixed horizontal separation, translate it into root coordinates and intersect all four with the actual body-floor lower bound. A fore limb with a shoulder blade takes the highest bound its blade reaches within range (`QuadrupedScapula.high`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit each complete constraint, derive its two bounds once and accumulate their intersection before one final emptiness check.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Targets, attachments and reach radii remain unchanged. Squared-radius arithmetic is normalized to avoid avoidable overflow; an empty or unrepresentable interval is refused rather than padded or projected.
    * @evidence contracts/development/implementation.md#efficient-algorithms Exactly four constant-size constraints take O(1) work and storage with no root search, event enumeration, physical simulation or retained samples.
@@ -113,7 +117,13 @@ export namespace QuadrupedRootRange {
         goal.x - attachment.x,
         goal.z - attachment.z,
       );
-      if (!(Number.isFinite(horizontal) && horizontal <= radial.maximum))
+      const high: number =
+        constraint.scapula === undefined
+          ? horizontal <= radial.maximum
+            ? goal.y - attachment.y + vertical(radial.maximum, horizontal)
+            : -Infinity
+          : QuadrupedScapula.high(constraint.scapula, goal, radial);
+      if (!(Number.isFinite(horizontal) && high > -Infinity))
         throw new RangeError(
           `The ${limb} horizontal goal ${horizontal} m exceeds its ${radial.maximum} m folded reach`,
         );
@@ -123,7 +133,6 @@ export namespace QuadrupedRootRange {
         (horizontal < radial.minimum
           ? vertical(radial.minimum, horizontal)
           : 0);
-      const high: number = offset + vertical(radial.maximum, horizontal);
       if (!(Number.isFinite(low) && Number.isFinite(high)))
         throw new RangeError(`The ${limb} root interval is not representable`);
       minimum = Math.max(minimum, low);
