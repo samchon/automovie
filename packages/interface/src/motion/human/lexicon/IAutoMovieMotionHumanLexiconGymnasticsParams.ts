@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanLineWalk } from "../exercise/IAutoMovieMotionHumanLineWalk";
 import type { IAutoMovieMotionHumanFieldThrow } from "../sport/IAutoMovieMotionHumanFieldThrow";
 import type { IAutoMovieMotionHumanHandspring } from "../sport/IAutoMovieMotionHumanHandspring";
 import type { IAutoMovieMotionHumanHighJump } from "../sport/IAutoMovieMotionHumanHighJump";
@@ -48,4 +49,7 @@ export interface IAutoMovieMotionHumanLexiconGymnasticsParams {
 
   /** A shot, discus or hammer thrown from a circle, or a javelin thrown out of a run, to the distance the composition gives. */
   fieldThrow: IAutoMovieMotionHumanFieldThrow.IParams;
+
+  /** A walk heel to toe along a beam or a rope, arms out for balance. */
+  lineWalk: IAutoMovieMotionHumanLineWalk.IParams;
 }

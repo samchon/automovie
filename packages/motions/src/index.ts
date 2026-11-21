@@ -401,6 +401,7 @@ export * from "./lexicon/HumanSportSwing";
 export * from "./lexicon/HumanSportThrow";
 export * from "./lexicon/HumanWeaponMelee";
 export * from "./exercise/ExerciseKey";
+export * from "./exercise/lineWalk";
 export * from "./exercise/prepareRopeSkip";
 export * from "./exercise/WorkoutKind";
 export * from "./exercise/WorkoutFloor";

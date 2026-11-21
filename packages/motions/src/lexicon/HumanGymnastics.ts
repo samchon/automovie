@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
+import { lineWalk as lineWalkLaw } from "../exercise/lineWalk";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { fieldThrow as fieldThrowLaw } from "../sport/fieldThrow";
 import { handspring } from "../sport/handspring";
@@ -87,4 +88,9 @@ export namespace HumanGymnastics {
   export const fieldThrow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["fieldThrow"]
   > = HumanActionRow.of("fieldThrow", fieldThrowLaw, {});
+
+  /** A walk heel to toe along a beam or a rope, arms out for balance. */
+  export const lineWalk: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["lineWalk"]
+  > = HumanActionRow.of("lineWalk", lineWalkLaw, {});
 }
