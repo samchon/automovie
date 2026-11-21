@@ -34,14 +34,17 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *   coarser grid a stroke that oscillates by design (a rub, a wave) would go
  *   out and back within two intervals, so a turn found on the coarse grid is
  *   read again on intervals of that length across its two.
- * - `speed`: the fastest any joint centre travels over a grid interval,
- *   metres per second, the bound a caller sets from the action (a hand
- *   raised to the face does not reach a punch's speed).
+ * - `speed`: the fastest any joint centre travels relative to the hips over
+ *   a grid interval, metres per second, the bound a caller sets from the
+ *   action (a hand raised to the face does not reach a punch's speed). The
+ *   hips carry the body's bulk motion, so a body carried, falling or riding
+ *   as a whole reads only its own limbs' speed; a pop of the whole body is
+ *   the `jump`'s to read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the premise, each reading, its unit and what the resolution reaches.
  * @evidence contracts/development/implementation.md#principled-implementation The definition of continuity applied directly: over equal sub-intervals a smooth path's displacements differ by acceleration times the interval squared, which vanishes sixteenfold per quartering, while a step keeps its size.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the grid for the three readings, one recursive quartering per departing interval.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones only; no bone, action or instant is exempt, and every bone is followed, so a small flip is not hidden by a faster limb.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones only; no bone, action or instant is exempt, and every bone is followed, so a small flip is not hidden by a faster limb; the speed subtracts only the hips' own displacement, which the jump still reads.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in grid frames and bones; a quartering costs three poses a level and is entered only where a displacement departs from its neighbours, and a turn on a grid coarser than `REVERSAL` costs the poses of its two intervals at that rate, read once per grid instant and only where the grid's own reading exceeds the worst found.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -105,6 +108,22 @@ export namespace AutoMovieMotionHumanAuditContinuity {
     };
     for (let i: number = 0; i + 1 < times.length; i++) {
       let departs: boolean = false;
+      // The body's bulk motion over the interval, read at the hips.
+      const hipsHere: IAutoMovieVector3 | undefined = frames[i]!.get("hips");
+      const hipsNext: IAutoMovieVector3 | undefined =
+        frames[i + 1]!.get("hips");
+      const hx: number =
+        hipsHere === undefined || hipsNext === undefined
+          ? 0
+          : hipsNext.x - hipsHere.x;
+      const hy: number =
+        hipsHere === undefined || hipsNext === undefined
+          ? 0
+          : hipsNext.y - hipsHere.y;
+      const hz: number =
+        hipsHere === undefined || hipsNext === undefined
+          ? 0
+          : hipsNext.z - hipsHere.z;
       for (const bone of frames[i]!.keys()) {
         // This interval's displacement, the one before and the one after (this
         // one's at either end of the motion), a component each: the numbers
@@ -133,7 +152,8 @@ export namespace AutoMovieMotionHumanAuditContinuity {
           az = far.z - next.z;
         }
         const travelled: number = Math.hypot(nx, ny, nz);
-        const speed: number = travelled / (times[i + 1]! - times[i]!);
+        const speed: number =
+          Math.hypot(nx - hx, ny - hy, nz - hz) / (times[i + 1]! - times[i]!);
         if (speed > result.speed.value)
           result.speed = { value: speed, seconds: times[i]!, where: bone };
         const coarse: number =
