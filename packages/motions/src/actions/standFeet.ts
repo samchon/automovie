@@ -16,15 +16,14 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
-import { prepareStandSole } from "./prepareStandSole";
 import { stand } from "./stand";
 
 /**
- * A quiet stance's feet roll about their entry contacts. On a declared
- * ground plane, the rocker can use an actual supporting point of the sole.
+ * A quiet stance's feet, flattened by rolling about the displayed bearing
+ * socket. The same contact determines its final ankle and the course to it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the contact datum and both consumers.
- * @evidence contracts/development/design.md#principled-representation A planted foot rocks about one actual convex point when both feet can reach their declared sole planes. The other contact modes use their existing articulated socket course.
+ * @evidence contracts/development/design.md#principled-representation A planted foot is a rigid rocker about one observed sole socket, with its toes' angle resolved in that bone's frame.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One course builder, its flat ankle points, offset and posture writer.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reads displayed sockets and uses HumanFoot.pivot, rather than subtracting a nominal ankle height.
  */
@@ -103,13 +102,12 @@ export namespace standFeet {
    * @param body The body.
    * @param entry The displayed state.
    * @param yaw The quiet heading, degrees.
-   * @param planes Authoritative horizontal ground heights by foot, world metres. Omission keeps the socket course.
    * @returns The contact-preserving foot course.
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, units and result.
-   * @evidence contracts/development/implementation.md#principled-implementation Ground rockers use an actual hull point bearing throughout the pitch arc. Its horizontal position stays fixed as the height settles to its declared plane. The socket path keeps the original articulated inputs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares the two foot plans once. The same course reader supplies the ankle targets, their mean displacement and the posture writer.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both feet need compatible ground geometry before choosing the convex rocker. A floor plane is supplied by the action.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The sagittal hulls are searched during preparation only. The socket path requests only planted socket bones and their ancestry. Completed geometry is read once.
+   * @evidence contracts/development/implementation.md#principled-implementation Each planted foot rolls about its lowest displayed sole socket; pitch, roll, heading and toe flexion approach their quiet values, and HumanFoot.pivot derives the ankle from that fixed contact at every share.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the two contacts once, then evaluates the two rockers and their mean displacement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No ankle-height floor inference or contact translation is used for a planted foot.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK requests only planted socket bones and their ancestry; each socket set is measured once and each moving writer evaluates its rockers once per share. At exactly completed progress the already required flat endpoint geometry supplies fresh vector copies without repeating its fixed rotations and contact construction.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry sockets serve floor and pivot selection, and fixed share-one foot/contact geometry also serves the flat targets. Each caller-owned sample shares its placements between offset and writing; no time-query result is retained.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains the body, two entry contacts and two fixed endpoint placements/offsets for its plan; outward endpoint vectors are fresh copies, and each sample's two current placements end with that reading.
    */
@@ -117,64 +115,109 @@ export namespace standFeet {
     body: IAutoMovieMotionHumanBody,
     entry: IAutoMovieMotionHumanEntryState,
     yaw: number,
-    planes?: Readonly<Record<"left" | "right", number>>,
   ): ICourse {
     const sides: readonly ["left", "right"] = ["left", "right"];
-    const ground: IPlan[] = [];
-    if (planes)
-      for (const side of sides) {
-        const foot: IAutoMovieMotionHumanEntryState.IFoot = entry.feet[side];
-        const pivot: ReturnType<typeof prepareStandSole> = prepareStandSole(
-          body,
-          side,
-          foot,
-          toeFlexion(side),
-        );
-        const plane: number = planes[side];
-        if (
-          !pivot ||
-          !Number.isFinite(plane) ||
-          Math.abs(pivot.entry.y - plane) > HumanFoot.BEARING
-        )
-          break;
-        const from: number = HumanFoot.heading(foot.rotation);
-        const turn: number = quietTurn(side, from);
-        const pitch: number = HumanFoot.pitch(foot.rotation);
-        ground.push({
-          side,
-          at: (share: number): IAutoMovieMotionHumanFoot.IPlacement => {
-            const rotation: IAutoMovieQuaternion = HumanFoot.rotation(
-              from + turn * share,
-              pitch + (pivot.pitch - pitch) * share,
-            );
-            const point: IAutoMovieVector3 = {
-              ...pivot.entry,
-              y: pivot.entry.y + (plane - pivot.entry.y) * share,
-            };
-            return {
-              ankle: Vector3.subtract(
-                point,
-                Quaternion.rotateVector(rotation, pivot.local),
+    const requested: Set<AutoMovieHumanoidBone> = new Set();
+    for (const side of sides)
+      if (entry.feet[side].planted)
+        for (const socket of ["heel", "ball", "toe"] as const)
+          requested.add(
+            body.surfaces.sockets[
+              `${socket}${side === "left" ? "Left" : "Right"}`
+            ].bone,
+          );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      entry.pose,
+      undefined,
+      requested,
+    );
+    const planted: ("left" | "right")[] = sides.filter(
+      (side: "left" | "right"): boolean => entry.feet[side].planted,
+    );
+    const socketsBySide: Partial<
+      Record<"left" | "right", IAutoMovieMotionHumanFoot.ISocket[]>
+    > = {};
+    for (const side of planted)
+      socketsBySide[side] = HumanFoot.sockets(body, bones, side);
+    const floor: number =
+      planted.length === 0
+        ? 0
+        : Math.min(
+            ...planted.flatMap((side: "left" | "right"): number[] =>
+              socketsBySide[side]!.map(
+                (s: IAutoMovieMotionHumanFoot.ISocket): number => s.point.y,
               ),
-              rotation,
-            };
-          },
-          toes: (): number => 0,
-          contact: (): IAutoMovieVector3 => pivot.local,
-        });
-      }
-
-    const plans: IPlan[] = ground.length === sides.length ? ground : sockets();
+            ),
+          );
+    const plans: IPlan[] = sides.map((side: "left" | "right"): IPlan => {
+      const heading: number =
+        yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
+      const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
+      const fallback: IAutoMovieMotionHumanFoot.IPlacement = {
+        ankle: HumanFrame.point(
+          { origin: { ...entry.posture.root, y: floor }, yaw },
+          rest,
+        ),
+        rotation: HumanFoot.rotation(heading, 0),
+      };
+      if (!entry.feet[side].planted)
+        return {
+          side,
+          at: (_: number): IAutoMovieMotionHumanFoot.IPlacement => fallback,
+          toes: (_: number): number => 0,
+          contact: (_: number): IAutoMovieVector3 =>
+            HumanFoot.offset(body, side, "mtp"),
+        };
+      const sockets: IAutoMovieMotionHumanFoot.ISocket[] = socketsBySide[side]!;
+      const pivot: IAutoMovieMotionHumanFoot.ISocket = sockets.reduce(
+        (a: IAutoMovieMotionHumanFoot.ISocket, b: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieMotionHumanFoot.ISocket => (
+          b.point.y < a.point.y ? b : a),
+      );
+      const rotation: IAutoMovieQuaternion = entry.feet[side].rotation;
+      const from: number = HumanFoot.heading(rotation);
+      const turn: number =
+        heading - from - 360 * Math.round((heading - from) / 360);
+      const pitch: number = HumanFoot.pitch(rotation);
+      const roll: number = HumanFoot.roll(rotation);
+      const flexion: number =
+        entry.pose.joints.find(
+          (j: IAutoMovieJointPose): boolean => j.bone === `${side}Toes`,
+        )?.flexion ?? 0;
+      const toes: (share: number) => number = (share: number): number =>
+        flexion * (1 - share);
+      return {
+        side,
+        at: (share: number): IAutoMovieMotionHumanFoot.IPlacement => {
+          const placement: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
+            body,
+            side,
+            pivot.socket,
+            pivot.point,
+            from + turn * share,
+            pitch * (1 - share),
+            toes(share),
+            roll * (1 - share),
+          );
+          return placement;
+        },
+        toes,
+        contact: (share: number): IAutoMovieVector3 =>
+          HumanFoot.offset(body, side, pivot.socket, toes(share)),
+      };
+    });
     const settled: ISettled[] = plans.map(
       (p: IPlan): ISettled => ({
         placement: p.at(1),
         contact: p.contact(1),
       }),
     );
-    const flat: ICourse["flat"] = {
-      left: { ...settled[0]!.placement.ankle },
-      right: { ...settled[1]!.placement.ankle },
-    };
+    const flat: ICourse["flat"] = Object.fromEntries(
+      plans.map((p: IPlan, i: number): [IPlan["side"], IAutoMovieVector3] => [
+        p.side,
+        { ...settled[i]!.placement.ankle },
+      ]),
+    ) as ICourse["flat"];
     const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
       body,
       yaw,
@@ -217,9 +260,7 @@ export namespace standFeet {
             posture.yaw === yaw
               ? legged(posture.root, feet)
               : stand.legs(body, posture.root, posture.yaw, feet);
-          const joints: IAutoMovieMotionHumanPosture["joints"] = {
-            ...posture.joints,
-          };
+          const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
           for (let i: number = 0; i < plans.length; i++) {
             const p: IPlan = plans[i]!;
             const goal: IAutoMovieHumanLimbGoal = limbs[`${p.side}Leg`]!;
@@ -230,9 +271,7 @@ export namespace standFeet {
                   ? placed[i]!.rotation
                   : Quaternion.multiply(carry.turn, placed[i]!.rotation),
               contact:
-                share === 1
-                  ? { ...settled[i]!.contact }
-                  : { ...p.contact(share) },
+                share === 1 ? { ...settled[i]!.contact } : p.contact(share),
             };
             joints[`${p.side}Toes`] = [p.toes(share), 0, 0];
           }
@@ -250,112 +289,5 @@ export namespace standFeet {
         carry?: IAutoMovieMotionHumanSupportCarry.ICarry,
       ): IAutoMovieMotionHumanPosture => sample(share).write(posture, carry),
     };
-
-    /** Read toe flexion from the actual entry. */
-    function toeFlexion(side: "left" | "right"): number {
-      return (
-        entry.pose.joints.find(
-          (joint: IAutoMovieJointPose): boolean => joint.bone === `${side}Toes`,
-        )?.flexion ?? 0
-      );
-    }
-
-    /** Shortest turn from a displayed heading to the same quiet toe-out. */
-    function quietTurn(side: "left" | "right", from: number): number {
-      const heading: number =
-        yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
-      const turn: number = heading - from;
-      return turn - 360 * Math.round(turn / 360);
-    }
-
-    /** Prepare the original articulated foot course for other support modes. */
-    function sockets(): IPlan[] {
-      const requested: Set<AutoMovieHumanoidBone> = new Set();
-      for (const side of sides)
-        if (entry.feet[side].planted)
-          for (const socket of ["heel", "ball", "toe"] as const)
-            requested.add(
-              body.surfaces.sockets[
-                `${socket}${side === "left" ? "Left" : "Right"}`
-              ].bone,
-            );
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, entry.pose, undefined, requested);
-      const planted: ("left" | "right")[] = sides.filter(
-        (side: "left" | "right"): boolean => entry.feet[side].planted,
-      );
-      const socketsBySide: Partial<
-        Record<"left" | "right", IAutoMovieMotionHumanFoot.ISocket[]>
-      > = {};
-      for (const side of planted)
-        socketsBySide[side] = HumanFoot.sockets(body, bones, side);
-      const floor: number =
-        planted.length === 0
-          ? 0
-          : Math.min(
-              ...planted.flatMap((side: "left" | "right"): number[] =>
-                socketsBySide[side]!.map(
-                  (s: IAutoMovieMotionHumanFoot.ISocket): number => s.point.y,
-                ),
-              ),
-            );
-      return sides.map((side: "left" | "right"): IPlan => {
-        const heading: number =
-          yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
-        const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-        const fallback: IAutoMovieMotionHumanFoot.IPlacement = {
-          ankle: HumanFrame.point(
-            { origin: { ...entry.posture.root, y: floor }, yaw },
-            rest,
-          ),
-          rotation: HumanFoot.rotation(heading, 0),
-        };
-        if (!entry.feet[side].planted)
-          return {
-            side,
-            at: (_: number): IAutoMovieMotionHumanFoot.IPlacement => fallback,
-            toes: (_: number): number => 0,
-            contact: (_: number): IAutoMovieVector3 =>
-              HumanFoot.offset(body, side, "mtp"),
-          };
-        const sockets: IAutoMovieMotionHumanFoot.ISocket[] =
-          socketsBySide[side]!;
-        const pivot: IAutoMovieMotionHumanFoot.ISocket = sockets.reduce(
-          (
-            a: IAutoMovieMotionHumanFoot.ISocket,
-            b: IAutoMovieMotionHumanFoot.ISocket,
-          ): IAutoMovieMotionHumanFoot.ISocket =>
-            b.point.y < a.point.y ? b : a,
-        );
-        const rotation: IAutoMovieQuaternion = entry.feet[side].rotation;
-        const from: number = HumanFoot.heading(rotation);
-        const turn: number = quietTurn(side, from);
-        const pitch: number = HumanFoot.pitch(rotation);
-        const roll: number = HumanFoot.roll(rotation);
-        const flexion: number = toeFlexion(side);
-        const toes: (share: number) => number = (share: number): number =>
-          flexion * (1 - share);
-        return {
-          side,
-          at: (share: number): IAutoMovieMotionHumanFoot.IPlacement => {
-            const placement: IAutoMovieMotionHumanFoot.IPlacement =
-              HumanFoot.pivot(
-                body,
-                side,
-                pivot.socket,
-                pivot.point,
-                from + turn * share,
-                pitch * (1 - share),
-                toes(share),
-                roll * (1 - share),
-              );
-            return placement;
-          },
-          toes,
-          contact: (share: number): IAutoMovieVector3 =>
-            HumanFoot.offset(body, side, pivot.socket, toes(share)),
-        };
-      });
-    }
   }
 }

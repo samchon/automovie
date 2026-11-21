@@ -6,14 +6,17 @@ import {
   physicalShapeBounds,
   physicalSupportPoint,
   resolveAutoMovieCenterOfMass,
+  rotationBetween,
   solvePhysicalArticulationTargets,
 } from "@automovie/engine";
 import type {
   IAutoMovieFitHumanPhysicalStandingPose,
   IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -23,6 +26,19 @@ const ANCHOR_ROUNDOFF: number = 1e-9;
 
 /** Arithmetic allowance for double-precision native angle comparisons, radians. */
 const ANGLE_ROUNDOFF: number = 1e-9;
+
+/**
+ * The height above the floor within which an authored sole bears on it,
+ * metres: the motion foot model's own allowance (`HumanFoot.BEARING`, under
+ * half the 12.9 mm mean minimum toe clearance of normal walking, Winter 1992).
+ */
+const BEARING: number = 0.006;
+
+/** The widest foot turn searched when planting the hull soles, degrees. */
+const PLANT_RANGE: number = 45;
+
+/** The planting turn's resolution, degrees. */
+const PLANT_RESOLUTION: number = 1e-9;
 
 /** Segment frames borrowed for one standing transfer. */
 type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
@@ -46,12 +62,38 @@ interface IVertex {
  * Admit a supported Human pose to native joint coordinates once before a
  * simulation. Three actual points on each foot preserve all translational
  * and rotational degrees of freedom as the legs settle into native axes.
- * The authored pelvis, ground plane and collider definitions are retained.
+ * The ground plane, collider definitions, the pelvis's orientation and its
+ * horizontal place are retained.
+ *
+ * The feet are planted at this handoff. The motion foot model stands a foot
+ * on its sockets, which lie on the bounds of the foot's colliders at rest,
+ * but the drawn heel hull does not reach that plane: in the quiet Stand its
+ * lowest point is 33.8 mm above the floor (m-average; 37.9 mm m-tall) while
+ * the forefoot hull touches it. A body handed over that way stands on its
+ * forefoot alone and falls. So each foot is turned in the direction of the
+ * ankle's flexion axis about its forefoot's bearing point, which keeps its
+ * place on the floor, until the heel and forefoot hulls touch the floor
+ * together: about 16 degrees of dorsiflexion, which leaves the ankle about
+ * 38 mm lower and 15 mm further back (m-average; 44 mm lower m-tall, 32 mm
+ * f-small). A standing leg is within a few millimetres of full extension and
+ * cannot reach that ankle from the authored pelvis, so the body above the
+ * feet is set straight down until each knee stands a shank's length from its
+ * planted ankle, about 41 mm (m-average; 46 mm m-tall, 34 mm f-small), and
+ * only the shanks turn, by about 2 degrees, to reach them;
+ * the pelvis keeps its orientation and horizontal place, and the thighs,
+ * trunk, arms and head keep their authored shape. Keeping the bearing point,
+ * not the ankle, keeps the mass center where the authored stance holds it
+ * over the forefoot: turned about the ankle instead, the planted contacts
+ * move 15 mm forward under it and m-tall steps out of its stance within a
+ * quarter second. The physical pose therefore differs from the authored one by that
+ * turn at the feet, that tilt of the shanks and that drop of the body; the
+ * difference is this handoff's correction of the foot model mismatch, not
+ * motion, and it vanishes when the drawn heel reaches the sockets' plane.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the actual sole witnesses, the bounded transfer and the preserved frames.
  * @evidence contracts/development/implementation.md#principled-implementation Fits both articulated legs against measured hull points in metres. Independently checks anchor closure, all native joint coordinates, whole-body clearance and the projected mass center.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses the Engine articulation solver and its geometry and joint readers with Human's canonical support carriers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unavailable support region, raised or penetrating sole, missed fit or inadmissible resulting pose returns a refusal and supplies no motor goals.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unavailable support region, a sole above its bearing allowance or below the floor, a missed fit or an inadmissible resulting pose returns a refusal and supplies no motor goals; the body is set down only as far as the planted ankles require, and the pelvis neither turns nor moves sideways.
  * @evidence contracts/development/implementation.md#efficient-algorithms Reads each sole once before the bounded leg solve. The residual only moves six fixed local points across its probes.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each invocation fits the supplied authored pose and retains no cached targets.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources All point geometry, poses and residual callbacks are local. No native world is created.
@@ -79,6 +121,9 @@ export function fitHumanPhysicalStandingPose(
     return { kind: "unresolved", reason: "anchor" };
 
   const bones: string[] = [];
+  const seeded: Record<string, IAutoMovieRigidTransform> = { ...targets };
+  const plans: { side: "left" | "right"; foot: IAutoMovieRigidTransform }[] =
+    [];
   const vertices: IVertex[][] = [];
   const goals: (IVertex & { world: IAutoMovieVector3 })[] = [];
   for (const side of ["left", "right"] as const) {
@@ -134,8 +179,50 @@ export function fitHumanPhysicalStandingPose(
     const own: IVertex[] = points.filter(
       (point: IVertex): boolean => point.bone === foot,
     );
-    const heel: IVertex | undefined = lowest(own, targets, "heel");
-    const forefoot: IVertex | undefined = lowest(own, targets, "forefoot");
+    if (
+      !own.some((point: IVertex): boolean => point.region === "heel") ||
+      !own.some((point: IVertex): boolean => point.region === "forefoot")
+    )
+      return { kind: "unresolved", reason: "support-geometry" };
+
+    // The authored sole bears on the floor as the motion foot model reads
+    // it: its lowest hull point within the model's bearing allowance and
+    // none below the floor. The hulls are then planted on it.
+    const bearing: number =
+      Math.min(
+        ...own.map(
+          (point: IVertex): number =>
+            physicalSupportPoint(targets[foot]!, point.local).y,
+        ),
+      ) - floor;
+    if (bearing < -tolerance || bearing > BEARING)
+      return { kind: "unresolved", reason: "support-plane" };
+    // The foot turns on the ankle's own flexion axis, so the native ankle
+    // takes the whole turn and no leg twists to supply a sideways part.
+    const flexion: IAutoMoviePhysicalJointAxis | undefined = profile.joints
+      .find((joint: IAutoMoviePhysicalJoint): boolean => joint.child === foot)
+      ?.axes.find(
+        (axis: IAutoMoviePhysicalJointAxis): boolean =>
+          axis.channel === `${foot}.flexion`,
+      );
+    if (flexion === undefined)
+      return { kind: "unresolved", reason: "support-geometry" };
+    const placed: IAutoMovieRigidTransform | undefined = plant(
+      targets[foot]!,
+      own,
+      floor,
+      Quaternion.rotateVector(targets[`${side}LowerLeg`]!.rotation, {
+        x: flexion.axis === "x" ? 1 : 0,
+        y: flexion.axis === "y" ? 1 : 0,
+        z: flexion.axis === "z" ? 1 : 0,
+      }),
+    );
+    if (placed === undefined)
+      return { kind: "unresolved", reason: "support-geometry" };
+    const planted: Poses = { ...targets, [foot]: placed };
+    plans.push({ side, foot: placed });
+    const heel: IVertex | undefined = lowest(own, planted, "heel");
+    const forefoot: IVertex | undefined = lowest(own, planted, "forefoot");
     if (!heel || !forefoot || forefoot.local.z - heel.local.z <= tolerance)
       return { kind: "unresolved", reason: "support-geometry" };
     const line: IAutoMovieVector3 = Vector3.normalize(
@@ -159,17 +246,39 @@ export function fitHumanPhysicalStandingPose(
     for (const vertex of [heel, forefoot, lateral])
       goals.push({
         ...vertex,
-        world: physicalSupportPoint(targets[foot]!, vertex.local),
+        world: physicalSupportPoint(placed, vertex.local),
       });
   }
-  if (!support(vertices, targets, floor, tolerance))
-    return { kind: "unresolved", reason: "support-plane" };
+
+  // A planted ankle lies lower than the authored one, beyond the reach of a
+  // standing leg from the authored pelvis. The body above the feet is set
+  // straight down until each knee stands a shank's length from its planted
+  // ankle, and only the shanks turn to reach the ankles: the thighs keep their
+  // place against the hanging hands. A nearly straight standing knee gives a
+  // joint solver no first-order way along the leg, so this seed is built here
+  // and the solver refines it in native axes.
+  const drop: number = Math.max(
+    0,
+    ...plans.map((plan: (typeof plans)[number]): number =>
+      lowering(profile, targets, plan.side, plan.foot),
+    ),
+  );
+  if (!Number.isFinite(drop)) return { kind: "unresolved", reason: "fit" };
+  for (const bone of Object.keys(seeded))
+    seeded[bone] = {
+      position: {
+        ...seeded[bone]!.position,
+        y: seeded[bone]!.position.y - drop,
+      },
+      rotation: seeded[bone]!.rotation,
+    };
+  for (const plan of plans) swing(profile, seeded, plan.side, plan.foot);
 
   const fit: ReturnType<typeof solvePhysicalArticulationTargets> =
     solvePhysicalArticulationTargets({
       profile,
       bones,
-      targets,
+      targets: seeded,
       tolerance,
       iterations,
       measure: (poses: Poses): number[] =>
@@ -276,6 +385,171 @@ function anchors(profile: IAutoMoviePhysicalProfile, poses: Poses): boolean {
       ) <= ANCHOR_ROUNDOFF
     );
   });
+}
+
+/**
+ * The foot turned in the direction of the given axis (the ankle's flexion
+ * axis) about its forefoot's bearing point until the lowest heel and
+ * forefoot hull points share a height, then set down so they lie on the
+ * floor. The bearing point keeps its horizontal place.
+ */
+function plant(
+  pose: IAutoMovieRigidTransform,
+  own: readonly IVertex[],
+  floor: number,
+  axis: IAutoMovieVector3,
+): IAutoMovieRigidTransform | undefined {
+  const at = (
+    placed: IAutoMovieRigidTransform,
+    region: NonNullable<IVertex["region"]>,
+  ): number =>
+    Math.min(
+      ...own
+        .filter((point: IVertex): boolean => point.region === region)
+        .map(
+          (point: IVertex): number =>
+            physicalSupportPoint(placed, point.local).y,
+        ),
+    );
+  const pivot: IAutoMovieVector3 = physicalSupportPoint(
+    pose,
+    lowest(own, { [own[0]!.bone]: pose }, "forefoot")!.local,
+  );
+  const turned = (degrees: number): IAutoMovieRigidTransform => {
+    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axis, degrees);
+    return {
+      position: Vector3.add(
+        pivot,
+        Quaternion.rotateVector(turn, Vector3.subtract(pose.position, pivot)),
+      ),
+      rotation: Quaternion.multiply(turn, pose.rotation),
+    };
+  };
+  const gap = (degrees: number): number => {
+    const placed: IAutoMovieRigidTransform = turned(degrees);
+    return at(placed, "heel") - at(placed, "forefoot");
+  };
+
+  // The heel's height over the forefoot changes sign within the searched
+  // turn for a foot whose two regions both lie under the ankle.
+  const start: number = gap(0);
+  const end: number =
+    [-PLANT_RANGE, PLANT_RANGE].find(
+      (degrees: number): boolean =>
+        Math.sign(gap(degrees)) !== Math.sign(start),
+    ) ?? Number.NaN;
+  if (!Number.isFinite(end)) return start === 0 ? pose : undefined;
+  let near: number = 0;
+  let far: number = end;
+  while (Math.abs(far - near) > PLANT_RESOLUTION) {
+    const middle: number = (near + far) / 2;
+    if (Math.sign(gap(middle)) === Math.sign(start)) near = middle;
+    else far = middle;
+  }
+  const placed: IAutoMovieRigidTransform = turned(far);
+  const lift: number =
+    floor - Math.min(at(placed, "heel"), at(placed, "forefoot"));
+  return {
+    position: { ...placed.position, y: placed.position.y + lift },
+    rotation: placed.rotation,
+  };
+}
+
+/**
+ * How far a body must be set straight down for its knee to stand a shank's
+ * length from the ankle of a planted foot, metres: the smaller root, so the
+ * shank stays as near its authored line as the planted ankle allows; NaN
+ * when no drop reaches it.
+ */
+function lowering(
+  profile: IAutoMovieFitHumanPhysicalStandingPose.IInput["profile"],
+  poses: Poses,
+  side: "left" | "right",
+  foot: IAutoMovieRigidTransform,
+): number {
+  const knee: IAutoMovieVector3 = anchor(profile, poses, `${side}LowerLeg`);
+  const ankle: IAutoMovieVector3 = anchor(profile, poses, `${side}Foot`);
+  const target: IAutoMovieVector3 = anchor(
+    profile,
+    { ...poses, [`${side}Foot`]: foot },
+    `${side}Foot`,
+  );
+  const shank: number = Vector3.length(Vector3.subtract(knee, ankle));
+  const offset: IAutoMovieVector3 = Vector3.subtract(knee, target);
+
+  // |offset - drop ŷ| = shank.
+  const discriminant: number =
+    offset.y * offset.y - (Vector3.dot(offset, offset) - shank * shank);
+  return discriminant < 0 ? Number.NaN : offset.y - Math.sqrt(discriminant);
+}
+
+/** A joint's place in the world, read on its child segment. */
+function anchor(
+  profile: IAutoMovieFitHumanPhysicalStandingPose.IInput["profile"],
+  poses: Poses,
+  child: string,
+): IAutoMovieVector3 {
+  return physicalSupportPoint(
+    poses[child]!,
+    profile.joints.find(
+      (joint: IAutoMoviePhysicalJoint): boolean => joint.child === child,
+    )!.childFrame.position,
+  );
+}
+
+/**
+ * Seed one leg to a planted foot from a lowered body: the thigh kept, the
+ * shank turned by its shortest arc from the knee to the planted ankle, and
+ * the toes carried with the foot.
+ */
+function swing(
+  profile: IAutoMovieFitHumanPhysicalStandingPose.IInput["profile"],
+  poses: Record<string, IAutoMovieRigidTransform>,
+  side: "left" | "right",
+  foot: IAutoMovieRigidTransform,
+): void {
+  const lower: string = `${side}LowerLeg`;
+  const ankleBone: string = `${side}Foot`;
+  const toes: string = `${side}Toes`;
+  const knee: IAutoMovieVector3 = anchor(profile, poses, lower);
+  const ankle: IAutoMovieVector3 = anchor(profile, poses, ankleBone);
+  const target: IAutoMovieVector3 = anchor(
+    profile,
+    { ...poses, [ankleBone]: foot },
+    ankleBone,
+  );
+  const turnLower: IAutoMovieQuaternion = rotationBetween(
+    Vector3.subtract(ankle, knee),
+    Vector3.subtract(target, knee),
+  );
+  const toesLocal: IAutoMovieRigidTransform = {
+    position: Quaternion.rotateVector(
+      Quaternion.inverse(poses[ankleBone]!.rotation),
+      Vector3.subtract(poses[toes]!.position, poses[ankleBone]!.position),
+    ),
+    rotation: Quaternion.multiply(
+      Quaternion.inverse(poses[ankleBone]!.rotation),
+      poses[toes]!.rotation,
+    ),
+  };
+  poses[lower] = {
+    position: Vector3.add(
+      knee,
+      Quaternion.rotateVector(
+        turnLower,
+        Vector3.subtract(poses[lower]!.position, knee),
+      ),
+    ),
+    rotation: Quaternion.multiply(turnLower, poses[lower]!.rotation),
+  };
+  poses[ankleBone] = foot;
+  poses[toes] = {
+    position: Vector3.add(
+      foot.position,
+      Quaternion.rotateVector(foot.rotation, toesLocal.position),
+    ),
+    rotation: Quaternion.multiply(foot.rotation, toesLocal.rotation),
+  };
 }
 
 /** Choose one actual lowest vertex in the given anatomical region. */

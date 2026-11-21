@@ -22,7 +22,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { HumanChain, HumanFoot } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -35,6 +35,14 @@ const CONTACT: number = 0.0002;
 /** Bounded native preparation accuracy, metres. */
 const FIT_TOLERANCE: number = 0.000025;
 
+/**
+ * How far the handoff may turn a thigh, radians: the planting turn is taken
+ * by the ankle and the shank, and the thigh moves only as the native fit
+ * brings an authored ankle that stands a fraction of a milliradian past its
+ * range back inside it.
+ */
+const LEG_TURN: number = 0.001;
+
 /** One independently transformed hull vertex and its source shape. */
 interface IVertex {
   /** The shape id from the actual physical profile. */
@@ -45,25 +53,30 @@ interface IVertex {
 }
 
 /**
- * Public quiet Stand settles real soles and retains their supporting points.
+ * Public quiet Stand settles on its sole sockets, and the physical handoff
+ * plants the collider soles under it.
  *
  * Scenarios:
  * 1. The canonical Human settles from its ordinary entry to the declared
- *    floor. Both heel and forefoot carry a coplanar point and support the COM.
- * 2. A different heading and stage elevation use the same actual geometry,
- *    maintaining the rocker pivot and admitted ankle and toe joints.
- * 3. A fixed-pelvis physical transfer of the authored stance retains the
- *    actual ground patches and satisfies every native joint. No collider
- *    pair the profile does not declare overlapping starts in contact. A
- *    falsely raised floor refuses the transfer and leaves the original pose
- *    untouched.
- * 4. A tall body, whose resting toes bear below its forefoot, and a large
- *    body, whose forearms hang against a wider waist, settle the same way.
+ *    floor: heel, ball and toe sockets level on it, the COM over them, and
+ *    the ankle and toe joints admitted.
+ * 2. A different heading and stage elevation settle the same way.
+ * 3. The physical transfer sets the pelvis straight down without turning it
+ *    and plants each foot by a turn in its ankle's flexion direction about
+ *    its forefoot's bearing point, the thighs keeping their place, so the
+ *    heel
+ *    and forefoot hulls both touch the floor and carry the COM, whose drawn
+ *    heel stands above the sockets' plane; every native joint is satisfied
+ *    and no collider pair the profile does not declare overlapping starts
+ *    in contact. A falsely raised floor refuses the transfer and leaves the
+ *    original pose untouched.
+ * 4. A tall body and a large body, whose forearms hang against a wider
+ *    waist, settle and transfer the same way.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the public producer, independent observations and differing world frames.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public film's displayed rigid transforms at entry, during settling, at the event and after settling. It observes support, slip and clinical angles before the handoff. The public physical handoff supplies a separate pose for native limits and retained world support.
  * @evidence contracts/development/testing.md#independent-expectations Transforms each source vertex directly and compares it with the declared world plane. The combined mass center uses actual segment masses and placed local centers.
- * @evidence contracts/development/testing.md#distinguishing-cases Detects forefoot-only geometry at the held pose, penetration and slip across the rocker, a nonzero floor interpreted in a different heading, an undeclared self-overlap at the native start, a tall body's toe-bearing entry and a large body's forearm against the waist.
+ * @evidence contracts/development/testing.md#distinguishing-cases Detects a tilted or floating socket sole, a nonzero floor interpreted in a different heading, a handoff that leaves the heel hull up, turns or shifts the pelvis sideways, turns a thigh or moves a bearing point, an undeclared self-overlap at the native start, and a large body's forearm against the waist.
  * @evidence contracts/development/testing.md#execution-ownership Uses in-memory motion evaluation and the real Human profile. It opens no render or simulated physics world.
  */
 export function test_human_motion_stand_support_geometry(): void {
@@ -93,55 +106,33 @@ export function test_human_motion_stand_support_geometry(): void {
       (time: number): motionHumanLaw.Bones => film.bones(subject, time),
     );
     const hold: motionHumanLaw.Bones = poses.at(-1)!;
+
+    // The motion foot model stands a foot flat on its sockets: once settled,
+    // heel, ball and toe share one height on the floor, within the model's
+    // bearing allowance and never below it.
     const support: IAutoMovieVector3[] = [];
     for (const side of ["left", "right"] as const) {
-      const frames: IVertex[][] = poses.map(
-        (bones: motionHumanLaw.Bones): IVertex[] =>
-          vertices(
-            body,
-            (bone: string): IAutoMovieRigidTransform => transform(bones, bone),
-            side,
-          ),
+      const sockets: IAutoMovieVector3[] = HumanFoot.sockets(
+        body,
+        hold,
+        side,
+      ).map(
+        (
+          socket: ReturnType<typeof HumanFoot.sockets>[number],
+        ): IAutoMovieVector3 => socket.point,
       );
-      const first: IVertex[] = frames[0]!;
-      const last: IVertex[] = frames.at(-1)!;
-      for (const part of [`${side}Subtalar`, `${side}Midfoot`]) {
-        const touching: IVertex[] = last.filter(
-          (vertex: IVertex): boolean =>
-            (vertex.shape === part || vertex.shape.startsWith(`${part}.`)) &&
-            nclose(vertex.point.y, floor, CONTACT),
-        );
-        if (touching.length === 0)
-          failures.push(`yaw ${yaw}: ${part} is above the plane`);
-        support.push(
-          ...touching.map((vertex: IVertex): IAutoMovieVector3 => vertex.point),
-        );
-      }
-      const initialY: number = minimum(first);
-      const pivot: boolean = first.some(
-        (vertex: IVertex, index: number): boolean =>
-          nclose(vertex.point.y, initialY, CONTACT) &&
-          frames.every((frame: IVertex[]): boolean => {
-            const point: IAutoMovieVector3 = frame[index]!.point;
-            return (
-              nclose(point.y, minimum(frame), CONTACT) &&
-              Math.hypot(point.x - vertex.point.x, point.z - vertex.point.z) <=
-                CONTACT
-            );
-          }),
+      const heights: number[] = sockets.map(
+        (point: IAutoMovieVector3): number => point.y,
       );
-      if (!pivot)
-        failures.push(`yaw ${yaw}: ${side} foot moved its bearing point`);
-      for (const [index, frame] of frames.entries()) {
-        const height: number = minimum(frame);
-        if (
-          height < floor - CONTACT ||
-          height > Math.max(initialY, floor) + CONTACT
-        )
-          failures.push(
-            `yaw ${yaw}: ${side} foot at ${times[index]}s has height ${height}`,
-          );
-      }
+      if (
+        Math.max(...heights) - Math.min(...heights) > CONTACT ||
+        Math.min(...heights) < floor - CONTACT ||
+        Math.max(...heights) > floor + HumanFoot.BEARING
+      )
+        failures.push(
+          `yaw ${yaw}: ${side} sole sockets at ${JSON.stringify(heights)} over ${floor}`,
+        );
+      support.push(...sockets);
     }
 
     if (
@@ -254,31 +245,51 @@ function checkTransfer(
         );
   }
 
-  for (const name of [
-    "hips",
-    "leftFoot",
-    "leftToes",
-    "rightFoot",
-    "rightToes",
-  ]) {
-    const expected: IAutoMovieRigidTransform = goals[name]!;
-    const fitted: IAutoMovieRigidTransform = native[name]!;
-    const translation: number = Vector3.length(
-      Vector3.subtract(fitted.position, expected.position),
+  // The pelvis keeps its orientation and horizontal place and is only set
+  // down. Each foot is only planted: turned about a horizontal axis, its
+  // ankle keeping its place over the floor.
+  {
+    const moved: IAutoMovieVector3 = Vector3.subtract(
+      native.hips!.position,
+      goals.hips!.position,
     );
-    const relative: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
-      Quaternion.inverse(expected.rotation),
-      fitted.rotation,
-    );
-    const turn: number =
-      2 *
-      Math.atan2(
-        Math.hypot(relative.x, relative.y, relative.z),
-        Math.abs(relative.w),
-      );
-    if (translation > FIT_TOLERANCE || turn > 1e-6)
+    if (
+      Math.hypot(moved.x, moved.z) > FIT_TOLERANCE ||
+      moved.y > FIT_TOLERANCE ||
+      turnAngle(goals.hips!.rotation, native.hips!.rotation) > 1e-6
+    )
       failures.push(
-        `${profile.id} transfer ${name}: moved ${translation} m, turned ${turn} rad`,
+        `${profile.id} transfer moved the pelvis ${JSON.stringify(moved)}`,
+      );
+  }
+  for (const side of ["left", "right"] as const) {
+    const source: IVertex[] = vertices(
+      body,
+      (bone: string): IAutoMovieRigidTransform => goals[bone]!,
+      side,
+    );
+    const fitted: IVertex[] = vertices(
+      body,
+      (bone: string): IAutoMovieRigidTransform => native[bone]!,
+      side,
+    );
+    const index: number = source.reduce(
+      (best: number, vertex: IVertex, i: number): number =>
+        vertex.shape.startsWith(`${side}Midfoot`) &&
+        (best < 0 || vertex.point.y < source[best]!.point.y)
+          ? i
+          : best,
+      -1,
+    );
+    const from: IAutoMovieVector3 = source[index]!.point;
+    const to: IAutoMovieVector3 = fitted[index]!.point;
+    const thigh: number = turnAngle(
+      goals[`${side}UpperLeg`]!.rotation,
+      native[`${side}UpperLeg`]!.rotation,
+    );
+    if (Math.hypot(to.x - from.x, to.z - from.z) > CONTACT || thigh > LEG_TURN)
+      failures.push(
+        `${profile.id} transfer ${side}: bearing point moved ${Math.hypot(to.x - from.x, to.z - from.z)} m sideways, thigh turned ${thigh} rad`,
       );
   }
 
@@ -340,6 +351,24 @@ function checkTransfer(
     failures.push(
       `${profile.id}: transfer changed the owned goals or exceeded residual accuracy`,
     );
+}
+
+/** The angle of the rotation from one orientation to another, radians. */
+function turnAngle(
+  from: IAutoMovieRigidTransform["rotation"],
+  to: IAutoMovieRigidTransform["rotation"],
+): number {
+  const relative: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    Quaternion.inverse(from),
+    to,
+  );
+  return (
+    2 *
+    Math.atan2(
+      Math.hypot(relative.x, relative.y, relative.z),
+      Math.abs(relative.w),
+    )
+  );
 }
 
 /** Separate a joint's positional anchors from its angular rule. */

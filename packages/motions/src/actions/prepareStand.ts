@@ -32,7 +32,7 @@ import { standUpright } from "./standUpright";
  * @returns A stand planner at a positive duration in seconds.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the probe/final-duration use, fixed inputs, varying positive seconds and stream ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Supplies the authored plane to the prepared ground rocker, preserving the midpoint/root alignment, minimum-jerk settle, seeded sway and moving-support carry.
+ * @evidence contracts/development/implementation.md#principled-implementation Retains stand's exact contact-preserving rocker course, midpoint/root alignment, minimum-jerk settle and seeded smooth sway with the same duration-specific normalization and moving-support carry.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry geometry and support choice are prepared once, then each requested duration owns its settle, fresh random channels, events, contacts and joint map.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither a probe's trajectory nor an entry posture substitutes for the duration-specific stance; each query evaluates the original equations and actual support frame.
  * @evidence contracts/development/implementation.md#efficient-algorithms A shared entry performs its socket FK and geometric preparation once; each duration prepares its two fixed four-term sway spectra lazily, while every posture still evaluates the original sines, window, rockers and carry.
@@ -44,10 +44,31 @@ export function prepareStand(
   side: AutoMovieHumanSide,
 ): (duration: number) => IAutoMovieMotionHumanActionPlan {
   const yaw: number = context.entry.posture.yaw;
-  const left: IAutoMovieMotionHumanContactWindow.Support =
-    HumanSupportFrame.contact(context, "leftFoot");
-  const right: IAutoMovieMotionHumanContactWindow.Support =
-    HumanSupportFrame.contact(context, "rightFoot");
+  const course: standFeet.ICourse = standFeet.of(
+    context.body,
+    context.entry,
+    yaw,
+  );
+  const initial: IAutoMovieVector3 = course.offset(0);
+  const upright: IAutoMovieMotionHumanStandUpright.IAlignment = standUpright.of(context.body);
+  const middle: IAutoMovieVector3 = stand.root(context.body, course.flat, yaw);
+  const aligned: IAutoMovieMotionHumanPosture["joints"] = {
+    ...stand.relaxed(context.body),
+    ...upright.joints,
+  };
+  const from: IAutoMovieVector3 = context.entry.posture.root;
+  const sway: number =
+    context.params.sway ?? stand.SWAY * HumanSkill.sway(context.skill);
+  HumanBound.least("sway", sway, 0, "m");
+
+  const left: IAutoMovieMotionHumanContactWindow.Support = HumanSupportFrame.contact(
+    context,
+    "leftFoot",
+  );
+  const right: IAutoMovieMotionHumanContactWindow.Support = HumanSupportFrame.contact(
+    context,
+    "rightFoot",
+  );
   const inherited: string | undefined =
     context.entry.feet.left.planted &&
     context.entry.feet.right.planted &&
@@ -59,45 +80,13 @@ export function prepareStand(
   const on: IAutoMovieMotionHumanStand.IParams["on"] =
     context.params.on ??
     (inherited === undefined ? undefined : { prop: inherited });
-  const from: IAutoMovieVector3 = context.entry.posture.root;
-
-  // Stand's initial posture puts its root DROP below the performer's
-  // declared ground elevation. Later entries carry any raised support
-  // explicitly, and an unnamed ground contact is the world floor.
-  const floor: number =
-    context.entry.from === undefined ? from.y + stand.DROP : 0;
-  const planes: Record<"left" | "right", number> | undefined =
-    on === undefined && left.kind === "ground" && right.kind === "ground"
-      ? { left: left.height ?? floor, right: right.height ?? floor }
-      : undefined;
-  const course: standFeet.ICourse = standFeet.of(
-    context.body,
-    context.entry,
-    yaw,
-    planes,
-  );
-  const initial: IAutoMovieVector3 = course.offset(0);
-  const upright: IAutoMovieMotionHumanStandUpright.IAlignment = standUpright.of(
-    context.body,
-  );
-  const middle: IAutoMovieVector3 = stand.root(context.body, course.flat, yaw);
-  const aligned: IAutoMovieMotionHumanPosture["joints"] = {
-    ...stand.relaxed(context.body),
-    ...upright.joints,
-  };
-  const sway: number =
-    context.params.sway ?? stand.SWAY * HumanSkill.sway(context.skill);
-  HumanBound.least("sway", sway, 0, "m");
-  const carried: (
-    seconds: number,
-  ) => IAutoMovieMotionHumanSupportCarry.ICarry | undefined = (
+  const carried: (seconds: number) => IAutoMovieMotionHumanSupportCarry.ICarry | undefined = (
     seconds: number,
   ): IAutoMovieMotionHumanSupportCarry.ICarry | undefined =>
     on === undefined
       ? undefined
       : HumanSupportCarry.of(
-          (t: number): IAutoMovieRigidTransform =>
-            context.prop(on.prop).frame(t),
+          (t: number): IAutoMovieRigidTransform => context.prop(on.prop).frame(t),
           context.start,
           context.start + seconds,
         );
@@ -122,26 +111,16 @@ export function prepareStand(
         ? { still: [settle, duration] as const }
         : {}),
       contacts: (["leftFoot", "rightFoot"] as const).map(
-        (
-          part: "leftFoot" | "rightFoot",
-        ): IAutoMovieMotionHumanContactWindow => {
-          const support: IAutoMovieMotionHumanContactWindow.Support =
-            part === "leftFoot" ? left : right;
-          return {
-            part,
-            kind: "plant",
-            from: 0,
-            to: 1,
-            support:
-              on !== undefined
-                ? { kind: "prop", subject: on.prop }
-                : support.kind === "ground" &&
-                    support.height === undefined &&
-                    floor !== 0
-                  ? { ...support, height: floor }
-                  : { ...support },
-          };
-        },
+        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+          part,
+          kind: "plant",
+          from: 0,
+          to: 1,
+          support:
+            on === undefined
+              ? { ...(part === "leftFoot" ? left : right) }
+              : { kind: "prop", subject: on.prop },
+        }),
       ),
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
@@ -174,8 +153,7 @@ export function prepareStand(
             initial.z * (1 - s) +
             swayed.z,
         };
-        const carry: IAutoMovieMotionHumanSupportCarry.ICarry | undefined =
-          carried(t);
+        const carry: IAutoMovieMotionHumanSupportCarry.ICarry | undefined = carried(t);
         return feet.write(
           {
             root: carry?.point(root) ?? root,

@@ -11,7 +11,9 @@ import type { IAutoMoviePhysicalProfile } from "../../physics/IAutoMoviePhysical
  */
 export namespace IAutoMovieFitHumanPhysicalStandingPose {
   /**
-   * One articulated standing pose already touching a horizontal ground plane.
+   * One articulated standing pose whose soles bear on a horizontal ground
+   * plane as the motion foot model reads them; the transfer plants the
+   * collider soles on it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the provider and world/metre premises and the bounded solve settings.
    * @evidence contracts/development/design.md#principled-representation Each declared provider segment has one actual authored world transform.
