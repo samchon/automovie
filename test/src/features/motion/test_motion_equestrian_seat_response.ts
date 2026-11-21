@@ -82,10 +82,10 @@ export function test_motion_equestrian_seat_response(): void {
   const rear: number = halt.duration + 2;
   const buck: number = halt.duration + 7;
   const shy: number = halt.duration + 10;
-  const levade: number = halt.duration + 13;
-  const pesade: number = halt.duration + 18;
-  const hops: number = halt.duration + 23;
-  const spun: number = halt.duration + 26;
+  const hops: number = halt.duration + 13;
+  const spun: number = halt.duration + 16;
+  const levade: number = halt.duration + 21;
+  const pesade: number = halt.duration + 26;
   const course: mountedHorseScene.Ride = EquineStance.after(horse, halt, [
     { kind: "rear", pitch: 30, ...phases(rear, 1.2, 0.8, 1.2) },
     { kind: "buck", pitch: 15, ...phases(buck, 0.6, 0.3, 0.6) },
@@ -95,10 +95,10 @@ export function test_motion_equestrian_seat_response(): void {
       width: 0.25,
       ...phases(shy, 0.8, 0.4, 0.8),
     },
-    { kind: "air", air: "levade", ...phases(levade, 1.2, 1, 1.2) },
-    { kind: "air", air: "pesade", ...phases(pesade, 1.2, 1, 1.2) },
     { kind: "crowHops", count: 3, pitch: 8, ...phases(hops, 1.8, 0.2, 0.4) },
     { kind: "spin", degrees: 90, ...phases(spun, 3.2, 0.3, 0.6) },
+    { kind: "air", air: "levade", ...phases(levade, 1.2, 1, 1.2) },
+    { kind: "air", air: "pesade", ...phases(pesade, 1.2, 1, 1.2) },
   ]);
   const reared: number = WAIT + rear + 1.2 + 0.4;
   const bucked: number = WAIT + buck + 0.6 + 0.15;
