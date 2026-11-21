@@ -249,7 +249,7 @@ export namespace crabWalk {
         phase: 0,
         stance: {
           x: -1.2 * body.measure.shoulderHalfWidth,
-          y: wrist,
+          y: palm,
           z: -shoulderBack,
         },
         bend: { x: -0.1, y: 0.25, z: -0.15 },
@@ -267,7 +267,7 @@ export namespace crabWalk {
         phase: 0.5,
         stance: {
           x: 1.2 * body.measure.shoulderHalfWidth,
-          y: wrist,
+          y: palm,
           z: -shoulderBack,
         },
         bend: { x: 0.1, y: 0.25, z: -0.15 },

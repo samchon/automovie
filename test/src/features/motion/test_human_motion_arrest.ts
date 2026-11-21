@@ -120,10 +120,14 @@ export function test_human_motion_arrest(): void {
     // The pats, in order, each reaching its region.
     let last: number = -Infinity;
     FRISK.forEach((region: AutoMovieHumanoidRegion, k: number): void => {
-      const entry = film.schedule.entries.find(
-        (row): boolean => row.intent?.anchor === `pat${k}`,
-      )!;
-      const at: number = entry.contact ?? (entry.start + entry.end) / 2;
+      const pat: IAutoMovieMotionHumanSegment = film
+        .segments("o")
+        .find(
+          (segment: IAutoMovieMotionHumanSegment): boolean =>
+            segment.intent?.anchor === `pat${k}`,
+        )!;
+      const at: number =
+        pat.start + (pat.plan.contact ?? pat.plan.duration / 2);
       const side: "left" | "right" = region.endsWith("Left") ? "left" : "right";
       const palm: IAutoMovieVector3 = HumanHand.frame(
         officer,

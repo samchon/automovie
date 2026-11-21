@@ -27,8 +27,8 @@ import { touch } from "./touch";
  * palms squeezing the victim's regions (`touch`), planned from where the
  * lunge leaves the body: the leading foot steps long toward the victim over
  * one step period (`step.period`) while the rear foot stays planted, and the
- * root travels the same length on one minimum-jerk profile, so the hands
- * reach as the body arrives. The lunge's length is what the arms lack to
+ * root travels the length the arms lack on one minimum-jerk profile, ending
+ * between the feet, so the hands reach as the body arrives. The lunge's length is what the arms lack to
  * reach the regions from where the body stands; a victim further than the
  * longest lunge is refused with the distance named.
  */
@@ -40,8 +40,11 @@ export namespace lungeGrab {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     touch.interrupts;
 
-  /** The longest lunge, in hip heights: a long forward step, about the length of a fencer's lunge (authored). */
-  export const LONGEST: number = 0.8;
+  /** The longest lunge, the hips' travel in hip heights: authored, with the leading foot stepping `STRIDE` times as far. */
+  export const LONGEST: number = 0.5;
+
+  /** How far the leading foot steps for the hips' travel: the hips end between the planted rear foot and the landed front foot (authored). */
+  export const STRIDE: number = 1.8;
 
   /** How high the leading foot lifts as it steps, metres: authored. */
   export const LIFT: number = 0.05;
@@ -115,13 +118,13 @@ export namespace lungeGrab {
       posture: arrived,
       pose: resolveHumanPosture(context.body, arrived, entry.pose),
       feet: {
-        left: {
-          ...entry.feet.left,
-          ankle: Vector3.add(entry.feet.left.ankle, travel),
-        },
-        right: {
-          ...entry.feet.right,
-          ankle: Vector3.add(entry.feet.right.ankle, travel),
+        ...entry.feet,
+        [side]: {
+          ...entry.feet[side],
+          ankle: Vector3.add(
+            entry.feet[side].ankle,
+            Vector3.scale(travel, STRIDE),
+          ),
         },
       },
     };
@@ -147,7 +150,10 @@ export namespace lungeGrab {
     const duration: number = grabbed.duration;
     const lunge: number = Math.min(step.period(context.body), duration);
     const from: IAutoMovieVector3 = entry.feet[side].ankle;
-    const to: IAutoMovieVector3 = Vector3.add(from, travel);
+    const to: IAutoMovieVector3 = Vector3.add(
+      from,
+      Vector3.scale(travel, STRIDE),
+    );
     const stay: IAutoMovieVector3 = entry.feet[rear].ankle;
     const knee: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (
       ankle: IAutoMovieVector3,

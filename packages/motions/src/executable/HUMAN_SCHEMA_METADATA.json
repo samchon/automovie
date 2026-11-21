@@ -837,6 +837,7 @@
     "stalk": {},
     "crabWalk": {},
     "lungeGrab": {},
+    "stopDropRoll": {},
     "ropeSkip": {
       "properties": {
         "flightSeconds": {

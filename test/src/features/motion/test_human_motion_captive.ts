@@ -109,15 +109,15 @@ export function test_human_motion_captive(): void {
         {
           subject: "c",
           body: captor,
-          at: { x: 0.5, y: 0, z: 0.6 },
-          yaw: 220,
+          at: { x: 0.35, y: 0, z: -0.75 },
+          yaw: 0,
           proficiency: { level: "trained" },
         },
         {
           subject: "s",
           body: captive,
           at: { x: 0, y: 0, z: 0.4 },
-          yaw: 180,
+          yaw: 0,
           proficiency: { level: "trained" },
         },
       ],
@@ -211,7 +211,7 @@ function binding(subject: string, k: number): IAutoMovieMotionHumanProp {
   return {
     subject,
     frame: {
-      position: { x: 0.45 + 0.08 * k, y: 0.9, z: 0.35 },
+      position: { x: 0.55 + 0.08 * k, y: 0.9, z: -0.55 },
       rotation: Quaternion.identity(),
     },
     points: {

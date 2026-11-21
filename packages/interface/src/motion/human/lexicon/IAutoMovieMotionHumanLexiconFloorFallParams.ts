@@ -1,5 +1,6 @@
 import type { IAutoMovieMotionHumanDive } from "../floor/IAutoMovieMotionHumanDive";
 import type { IAutoMovieMotionHumanCollapse } from "../reaction/IAutoMovieMotionHumanCollapse";
+import type { IAutoMovieMotionHumanFirefight } from "../tasks/IAutoMovieMotionHumanFirefight";
 import type { IAutoMovieMotionHumanThrown } from "../reaction/IAutoMovieMotionHumanThrown";
 import type { IAutoMovieMotionHumanWireFlight } from "../reaction/IAutoMovieMotionHumanWireFlight";
 
@@ -31,4 +32,7 @@ export interface IAutoMovieMotionHumanLexiconFloorFallParams {
 
   /** A body flown on wires along an authored path in a flight shape. */
   wireFlight: IAutoMovieMotionHumanWireFlight.IParams;
+
+  /** Stop, drop and roll: a protective drop to prone with the hands over the face, then rolls onto each side and back. */
+  stopDropRoll: IAutoMovieMotionHumanFirefight.IStopDropRoll;
 }

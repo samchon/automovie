@@ -19,7 +19,7 @@ import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The pair's separation for a lunge, metres: beyond the arms, inside a lunge. */
-const LUNGE: number = 1.25;
+const LUNGE: number = 1.05;
 /** The pair's separation no lunge covers, metres. */
 const FAR: number = 3;
 /** A palm closes on its region within this of the region's bone, metres: a shoulder's half depth and a palm. */
