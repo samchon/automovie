@@ -112,3 +112,19 @@ import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRu
   /** Step on or run up a named wall's face. */
   wallRun: IAutoMovieMotionHumanWallRun.IParams;
 
+import type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
+import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
+import type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
+import type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";
+  /** Move in cover along a named wall, window or door. */
+  moveInCover: IAutoMovieMotionHumanCover.IParams;
+
+  /** Step on or run up a named wall's face. */
+  wallRun: IAutoMovieMotionHumanWallRun.IParams;
+
+  /** Climb, descend, traverse or swing on a named rope. */
+  rope: IAutoMovieMotionHumanRope.IParams;
+
+  /** Fall down a staircase or from a ledge onto a pad or the ground. */
+  stuntFall: IAutoMovieMotionHumanStuntFall.IParams;
+
