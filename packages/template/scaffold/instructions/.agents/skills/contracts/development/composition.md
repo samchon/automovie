@@ -27,17 +27,17 @@ Under [meaningful documentation](common.md#meaningful-documentation), comment ev
 
 ```ts
 const rush = jun.run({
-  // #s02-b03 action, "he rushes Mara": the sprint pace, the run's fastest.
+  // #s02-b03 action, "he rushes Mara": at full speed.
   pace: "sprint",
-  // #s02-b03 action, "Jun snaps": strides lengthened to lunge at her.
+  // #s02-b03 action, "Jun snaps": he lunges at her.
   stride: 1.2,
-  // #s02-b03 action, "Jun snaps": strong, sudden, direct and unrestrained effort.
+  // #s02-b03 action, "Jun snaps": all his weight thrown at once, straight at her, past control.
   manner: { effort: { weight: 1, time: 1, space: 1, flow: -1 } },
-  // #s02-b03 Space, "Jun by the door, Mara at the sink": the 5 m from his door mark to her front mark.
+  // #s02-b03 Space, "Jun by the door, Mara at the sink": 5 m to her.
   to: kitchen.sink.front,
-  // via omitted: #s02-b03 Space leaves the floor between them clear, so the default straight path holds.
+  // via omitted: #s02-b03 Space leaves the floor between them clear, so he runs straight.
 });
-// #s02-b03 action, "knife raised": the knife hand stays high through the run.
+// #s02-b03 action, "knife raised": held high through the run.
 overlay(rush, jun.raise(knife, { hand: "right" }));
 // #s02-b03 Intent, "before she can get round the table": he sets off on her first step back.
 sync(rush.start, maraBackStep.start);

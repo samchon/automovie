@@ -6,7 +6,7 @@ Read the existing source and relevant installed APIs before implementing a capab
 
 Build each entity from its settings or brief facts. Compose fragments into capabilities that name what it does and to whom.
 
-Compose a person's action in the installed vocabulary using its prepared body, recorded proficiency and scene targets. Settle its [axes](../motion/compose/composition.md#action-axes) from the beat and, for skilled practice, its [performance study](../story/planning/research.md#performance-study).
+Compose a person's action in the installed vocabulary using its prepared body, recorded proficiency and scene targets. Settle it under [action axes](../motion/compose/composition.md#action-axes).
 
 Compose capabilities with the installed vocabulary and engine. Use the screenplay's outcomes. Delegate alignment and contact timing to the vocabulary.
 
@@ -34,4 +34,4 @@ Pass facts that vary by production as constructor inputs or parameters. Keep uni
 
 ## Documenting source
 
-Each changed declaration answers its development contracts in its doc comment. Document invariants and the material the module realizes. Comment each value a scene, film or catalog case passes, as [screenplay realization](../contracts/development/composition.md#screenplay-realization) requires. Give one short composition example under [Meaningful documentation](../contracts/development/common.md#meaningful-documentation).
+Each changed declaration answers its development contracts in its doc comment. Document invariants and the material the module realizes. Comment each value with the beat element, record fact or study it realizes, as its contract requires. Give one short composition example under [Meaningful documentation](../contracts/development/common.md#meaningful-documentation).

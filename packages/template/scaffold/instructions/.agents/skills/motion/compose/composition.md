@@ -24,7 +24,7 @@ For each [beat element](../staging.md#reading-the-scene) a person performs, sett
 | Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
 | Timing | When it happens against other actions, partners, hits, commands, dialogue and beats |
 
-Author those axes through the installed operators. Set each parameter that carries a settled axis, and omit it only when its default performs that setting. Leave joint fitting and contact response to their package owners. Comment each value and relied-on default under [scene realization](../../contracts/development/composition.md#scene). Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
+Author those axes through the installed operators. Set each parameter that carries a settled axis, and omit it only when its default performs that setting. Leave joint fitting and contact response to their package owners. Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
 
 Use layers for ongoing breathing and listener gaze unless the beat changes them. When one person's move changes another's options, compose the cue and the other person's choice together. Sync reactions to their cause using the law's studied reaction time where available.
 
