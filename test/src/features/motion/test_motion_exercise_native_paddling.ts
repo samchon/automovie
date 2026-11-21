@@ -14,6 +14,7 @@ import {
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -78,15 +79,15 @@ export function test_motion_exercise_native_paddling(): void {
       position: course.at(0).placement.translation,
       rotation: course.at(0).placement.rotation,
     };
-    const placed = canoe
+    const placed: IAutoMovieVector3 = canoe
       ? boat.affordances.find((a) => a.id === "floor")!.frame.translation
       : first.position;
-    const actor = {
+    const actor: IAutoMovieMotionHumanPerformer = {
       subject: "paddler",
       body,
       at: { ...placed, z: 0.31 },
       yaw: 0,
-      proficiency: { level: "trained" as const },
+      proficiency: { level: "trained" },
     };
     const chain = HumanChain.subject(actor.subject);
     const entry = chain
@@ -103,9 +104,10 @@ export function test_motion_exercise_native_paddling(): void {
     const depart: number = before?.duration ?? 0;
     const lead: number = canoe ? 0.28 : 0;
     const ready: number = depart + lead;
-    const hips: IAutoMovieVector3 | undefined = before
-      ?.bones("paddler", depart)
-      .get("hips")!.worldPosition;
+    const hips: IAutoMovieVector3 | undefined =
+      before === undefined
+        ? undefined
+        : before.bones("paddler", depart).get("hips")!.worldPosition;
     const boatAt = (film: number): IAutoMovieRigidTransform => {
       const t: number = Math.max(0, film - ready);
       const { translation, rotation } = course.at(t).placement;
