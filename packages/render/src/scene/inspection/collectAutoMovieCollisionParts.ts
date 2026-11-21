@@ -107,6 +107,7 @@ export function collectAutoMovieCollisionParts(
   }
   return { parts, surfaces, reasons };
 }
+/** The layer read by the collector and the surfaces and reasons it returns. */
 export namespace collectAutoMovieCollisionParts {
   /**
    * One source-owned layer, after its exact placement and world-matrix update.

@@ -73,7 +73,7 @@ export async function test_render_placed_scene_collision_sources(): Promise<void
     result.findings
       .filter(({ confidence }) => confidence === "confirmed")
       .map(({ paths }) => paths.join("|"))
-      .sort();
+      .sort(compareText);
   const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
 
   // 1. Closed props, a skin and an open floor.
@@ -401,4 +401,9 @@ function capTube(model: IAutoMovieModel): IAutoMovieModel {
     mesh.indices!.push(bottom + 1, last + next, last + side);
   }
   return model;
+}
+
+/** Order paths by code unit, independent of locale. */
+function compareText(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
 }

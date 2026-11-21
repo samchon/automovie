@@ -52,7 +52,7 @@ export async function test_render_placed_formation_collision(): Promise<void> {
       )
       .map((slot) => regenerateFormationSlot(input.formation, slot).slot)
       .map((slot) => `formation:${input.formation.id}/slot/${slot}`)
-      .sort();
+      .sort(compareText);
     const barrier: THREE.Mesh = new THREE.Mesh(
       new THREE.BoxGeometry(20, 20, 20),
       material,
@@ -79,7 +79,7 @@ export async function test_render_placed_formation_collision(): Promise<void> {
       inside.findings
         .filter(({ confidence }) => confidence === "confirmed")
         .map(({ paths }) => paths[1]!)
-        .sort(),
+        .sort(compareText),
       slots,
     );
     TestValidator.predicate(
@@ -106,4 +106,9 @@ export async function test_render_placed_formation_collision(): Promise<void> {
     formation.dispose();
   }
   material.dispose();
+}
+
+/** Order paths by code unit, independent of locale. */
+function compareText(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
 }
