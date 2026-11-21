@@ -22,7 +22,7 @@ Write a law only when the missing action owns what no shipped action plans:
 - an outcome rule between performers;
 - a planner of its own, for a path, a pattern of steps or a sequence no shipped planner lays out.
 
-Model the law on the law of the nearest shipped action in the installed `@automovie/motions` `src/`, or in the package repository at the installed version when the source is absent. Follow its frames, units, ownership and validation conventions. Register the law with the vocabulary as its README shows, and the vocabulary composes, cuts, refuses and checks it like its own actions.
+Model the law on the nearest shipped action's law in the installed `@automovie/motions` `src/`, or in the package repository at the installed version when that source is absent. Follow its frames, units, ownership and validation conventions. Register the law with the vocabulary as its README shows, and the vocabulary composes, cuts, refuses and checks it like its own actions.
 
 ### Other moving bodies
 

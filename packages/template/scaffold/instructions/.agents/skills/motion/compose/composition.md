@@ -8,7 +8,7 @@ Read the installed [package API](../../automovie/SKILL.md#reading-a-package) fir
 
 <!-- @source [FIBA Level 1 coaching manual](https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-level-manuals-level-1-eng.pdf), §2.1.1, illustrates an off-ball cut that opens space for a teammate. -->
 
-For each beat element a person performs, as [reading the scene](../staging.md#reading-the-scene) lists them, settle these axes from the beat record and its [performance study](../../story/planning/research.md#performance-study), top to bottom, because each narrows the next:
+For each [beat element](../staging.md#reading-the-scene) a person performs, settle these axes from the beat record and its [performance study](../../story/planning/research.md#performance-study), top to bottom, because each narrows the next:
 
 | Axis | Settle |
 | --- | --- |
@@ -24,7 +24,7 @@ For each beat element a person performs, as [reading the scene](../staging.md#re
 | Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
 | Timing | When it happens against other actions, partners, hits, commands, dialogue and beats |
 
-Author those axes through the installed operators. Set each parameter that carries a settled axis, and omit it only when its default performs that setting. Leave joint fitting and contact response to their package owners. Comment every value and relied-on default as [scene realization](../../contracts/development/composition.md#scene) requires. Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
+Author those axes through the installed operators. Set each parameter that carries a settled axis, and omit it only when its default performs that setting. Leave joint fitting and contact response to their package owners. Comment each value and relied-on default under [scene realization](../../contracts/development/composition.md#scene). Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
 
 Use layers for ongoing breathing and listener gaze unless the beat changes them. When one person's move changes another's options, compose the cue and the other person's choice together. Sync reactions to their cause using the law's studied reaction time where available.
 

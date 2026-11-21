@@ -23,12 +23,12 @@ Does each scene realize every cited beat as written, and does the film play ever
 
 Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera and sound. For commissioned generation, carry reactions beyond the representation in the prompt.
 
-Comment every value the scene passes to an action, camera, light or sound, and every default it relies on, as [meaningful documentation](common.md#meaningful-documentation) requires of implementation comments. Each comment gives the beat anchor, the element of the [beat record](../../story/layers/notation.md#records) or action block the value realizes, and how the value realizes it, citing the study section for skilled practice. Write what a reader needs to check the value against the beat and nothing the value or its JSDoc already says. Every element of each cited beat is realized by at least one commented value:
+Under [meaningful documentation](common.md#meaningful-documentation), comment every value the scene passes and every default it relies on. Give the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) the value realizes and how, and the study section for skilled practice. Write what a reader needs to check the value against the beat, and nothing the value or its JSDoc already says. Realize every element of each cited beat in at least one commented value.
 
 ```ts
 sprint({
   to: kitchen.sink.front, // #s02-b03 Space, "Mara at the sink": ends at her mark.
-  // #s02-b03 action, "he rushes her": pace omitted, the sprint's own.
+  // #s02-b03 action, "he rushes her": pace left at the sprint's default.
 });
 ```
 
