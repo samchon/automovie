@@ -24,7 +24,6 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
 import { everydayTake } from "../internal/everydayTake";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -103,7 +102,7 @@ function play(
     Object.values(HUMAN_LEXICON).flat(),
     others,
   );
-  assertTakeClean(label, take);
+  everydayTake.clean(label, take);
   return take;
 }
 

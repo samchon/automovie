@@ -29,7 +29,6 @@ import {
   HumanTabletop,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
 import { everydayTake } from "../internal/everydayTake";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -138,7 +137,7 @@ function play(
     chain,
     Object.values(HUMAN_LEXICON).flat(),
   );
-  assertTakeClean(label, take);
+  everydayTake.clean(label, take);
   for (const subject of tracked) {
     let most: number = 0;
     for (let t: number = 1 / 24; t <= take.duration; t += 1 / 24)

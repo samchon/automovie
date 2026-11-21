@@ -2,11 +2,14 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -18,6 +21,8 @@ import {
   HumanPropFrame,
   HumanRefusal,
 } from "@automovie/motions";
+
+import { assertTakeClean } from "./assertTakeClean";
 
 /**
  * Shared staging of the everyday prop takes (#3982, #3992, #3996, #4005,
@@ -187,6 +192,38 @@ export namespace everydayTake {
       throw error;
     }
     return undefined;
+  }
+
+  /**
+   * Assert the take passes the shipped verdicts; a failure names every
+   * performer's actions with their spans and events, so a fault's time
+   * reads against the phase it falls in.
+   *
+   * @param label What the take is.
+   * @param take The placed take.
+   */
+  export function clean(label: string, take: HumanPerformance): void {
+    try {
+      assertTakeClean(label, take);
+    } catch (error: unknown) {
+      const phases: string = take.performers
+        .flatMap((performer: IAutoMovieMotionHumanPerformer): string[] =>
+          take
+            .segments(performer.subject)
+            .map(
+              (s: IAutoMovieMotionHumanSegment): string =>
+                `${performer.subject}.${s.law.name} ${s.start.toFixed(2)}-${s.end.toFixed(2)}` +
+                (s.plan.events ?? [])
+                  .map(
+                    (e: IAutoMovieMotionEvent): string =>
+                      ` ${e.name}@${(s.start + e.share * s.plan.duration).toFixed(2)}`,
+                  )
+                  .join(""),
+            ),
+        )
+        .join("; ");
+      throw new Error(`${String(error)} [phases: ${phases}]`);
+    }
   }
 
   /**
