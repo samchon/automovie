@@ -24,6 +24,7 @@ import { QuadrupedFooting } from "./QuadrupedFooting";
 import { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
 import { QuadrupedJoints } from "./QuadrupedJoints";
+import { QuadrupedLameness } from "./QuadrupedLameness";
 import { QuadrupedMotion } from "./QuadrupedMotion";
 import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
@@ -187,7 +188,16 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     departure !== undefined ||
     footwork.lateral.length > 0 ||
     footwork.jump !== undefined ||
-    course.lean !== undefined;
+    course.lean !== undefined ||
+    course.lameness !== undefined;
+  const limp: QuadrupedLameness.Offset | undefined = QuadrupedLameness.prepare(
+    species.archetype,
+    course.lameness,
+    course.legs,
+    gait ?? species.table.order[species.table.order.length - 1]!,
+    animal.parts,
+    rig.limbs,
+  );
   const pose: QuadrupedRidePose.IPrepared<Affordance, Dimension> =
     QuadrupedRidePose.prepare(animal, species, rig, nativeCourse);
   const tucks: EquineTuck.IFores = EquineTuck.fores(rig.limbs);
@@ -267,9 +277,14 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       const phase: number = strides.phaseAt(seconds);
       const now: QuadrupedGait.Gait = strides.strideOf(Math.floor(phase)).gait;
       const timing: QuadrupedGait.ITiming = clock.timing(now, seconds);
+      const lame: QuadrupedLameness.IOffset | undefined = limp?.(
+        strides,
+        phase,
+        timing,
+      );
       const lean: number = course.lean?.(seconds) ?? 0;
       const placement: IAutoMovieTransform = EquinePitch.place(
-        body(state, seconds),
+        EquinePitch.place(body(state, seconds), 0, lame?.tilt),
         0,
         lean === 0
           ? undefined
@@ -367,12 +382,13 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       // The neck and the head, with the tack the species names as riding them, pitch about the neck's root, timed to the footfalls as declared.
       const nod: number =
         going *
-        QuadrupedMotion.nod(
-          species,
-          strides.strideOf(Math.floor(phase)),
-          phase,
-          timing.duty,
-        );
+          QuadrupedMotion.nod(
+            species,
+            strides.strideOf(Math.floor(phase)),
+            phase,
+            timing.duty,
+          ) +
+        (lame?.nod ?? 0);
       let archetype: Archetype<Affordance, Dimension>;
       try {
         archetype = pose.sample(
@@ -441,10 +457,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace rideQuadruped {
-  /**
-   * A per-sample trunk pitch: degrees, positive nose-down, at a film second.
-   *
-   */
+  /** A per-sample trunk pitch: degrees, positive nose-down, at a film second. */
   export type Lean = (seconds: number) => number;
 
   /** A timed path with named-gait cues over film-second intervals, as a rider's aid asks for a gait (`QuadrupedTimedCues`). */
@@ -472,6 +485,9 @@ export namespace rideQuadruped {
 
     /** Independently authored world landing surfaces and optional pole obstacles. */
     footing?: QuadrupedFooting.IScene;
+
+    /** A lame limb and its grade, at the walk or trot (`QuadrupedLameness`); an unnamed leg's automatic gait is checked as the fastest it could reach. */
+    lameness?: QuadrupedLameness.ILameness;
 
     /** An optional trunk pitch about the root at each film second, degrees, positive nose-down, such as a draught horse's forward lean into its load; the planted hooves keep their footprints. */
     lean?: Lean;
