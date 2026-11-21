@@ -53,16 +53,17 @@ interface IVertex {
  * 2. A different heading and stage elevation use the same actual geometry,
  *    maintaining the rocker pivot and admitted ankle and toe joints.
  * 3. A fixed-pelvis physical transfer of the authored stance retains the
- *    actual ground patches and satisfies every native joint. The hanging
- *    arms' roots and the two thighs start in no live self-contact. A falsely
- *    raised floor refuses the transfer and leaves the original pose untouched.
- * 4. A tall body, whose resting toes bear just below its forefoot, settles
- *    onto the same flat heel and forefoot plane and transfers.
+ *    actual ground patches and satisfies every native joint. No collider
+ *    pair the profile does not declare overlapping starts in contact. A
+ *    falsely raised floor refuses the transfer and leaves the original pose
+ *    untouched.
+ * 4. A tall body, whose resting toes bear below its forefoot, and a large
+ *    body, whose forearms hang against a wider waist, settle the same way.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the public producer, independent observations and differing world frames.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public film's displayed rigid transforms at entry, during settling, at the event and after settling. It observes support, slip and clinical angles before the handoff. The public physical handoff supplies a separate pose for native limits and retained world support.
  * @evidence contracts/development/testing.md#independent-expectations Transforms each source vertex directly and compares it with the declared world plane. The combined mass center uses actual segment masses and placed local centers.
- * @evidence contracts/development/testing.md#distinguishing-cases Detects forefoot-only geometry at the held pose, penetration and slip across the rocker, a nonzero floor interpreted in a different heading, an undeclared arm-root or thigh-root overlap at the native start, and a tall body whose entry bears on an unnamed toe vertex.
+ * @evidence contracts/development/testing.md#distinguishing-cases Detects forefoot-only geometry at the held pose, penetration and slip across the rocker, a nonzero floor interpreted in a different heading, an undeclared self-overlap at the native start, a tall body's toe-bearing entry and a large body's forearm against the waist.
  * @evidence contracts/development/testing.md#execution-ownership Uses in-memory motion evaluation and the real Human profile. It opens no render or simulated physics world.
  */
 export function test_human_motion_stand_support_geometry(): void {
@@ -72,6 +73,7 @@ export function test_human_motion_stand_support_geometry(): void {
     { name: "m-average", floor: 0.42, yaw: 37 },
     { name: "f-small", floor: 0, yaw: 37 },
     { name: "m-tall", floor: 0, yaw: 0 },
+    { name: "m-large", floor: 0, yaw: 0 },
   ] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const subject: string = "standing";
@@ -221,33 +223,25 @@ function checkTransfer(
   const native: Record<string, IAutoMovieRigidTransform> = transferred.targets;
 
   // A live self-contact pair overlapping at the native start ejects the
-  // limbs on the first substep: the hanging arms' roots against the trunk
-  // and the two thighs' roots must be declared or apart.
-  for (const [a, b] of [
-    ["spine", "leftUpperArm"],
-    ["spine", "rightUpperArm"],
-    ["hips", "leftUpperArm"],
-    ["hips", "rightUpperArm"],
-    ["leftUpperLeg", "rightUpperLeg"],
-  ] as const) {
-    if (isPhysicalProfilePairExcluded(profile, a, b)) continue;
-    const shapes = (bone: string): IAutoMoviePhysicalSegment["shapes"] =>
-      profile.segments.find(
-        (segment: IAutoMoviePhysicalSegment): boolean => segment.bone === bone,
-      )!.shapes;
-    const separation: number = Math.min(
-      ...shapes(a).flatMap((x: IAutoMoviePhysicalSegment["shapes"][number]) =>
-        shapes(b).map(
-          (y: IAutoMoviePhysicalSegment["shapes"][number]): number =>
-            physicalShapePairDistance(native[a]!, x, native[b]!, y),
-        ),
-      ),
-    );
-    if (separation < -CONTACT)
-      failures.push(
-        `${profile.id} native ${a}~${b}: live self-contact ${separation} m deep`,
-      );
-  }
+  // limbs on the first substep: every pair the profile does not declare
+  // overlapping must start apart.
+  for (const [i, a] of profile.segments.entries())
+    for (const b of profile.segments.slice(i + 1)) {
+      if (isPhysicalProfilePairExcluded(profile, a.bone, b.bone)) continue;
+      for (const x of a.shapes)
+        for (const y of b.shapes) {
+          const separation: number = physicalShapePairDistance(
+            native[a.bone]!,
+            x,
+            native[b.bone]!,
+            y,
+          );
+          if (separation < -CONTACT)
+            failures.push(
+              `${profile.id} native ${a.bone}/${x.id}~${b.bone}/${y.id}: live self-contact ${separation} m deep`,
+            );
+        }
+    }
 
   for (const joint of profile.joints) {
     const parent: IAutoMovieRigidTransform = native[joint.parent]!;
