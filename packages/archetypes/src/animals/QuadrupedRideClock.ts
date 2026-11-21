@@ -270,8 +270,18 @@ export namespace QuadrupedRideClock {
         if (index >= 0 && (speed < limits.minimum || speed > limits.maximum)) {
           const adjacent: number =
             speed < limits.minimum ? index - 1 : index + 1;
+          // A stride keeps its gait to its next footfall: a speed that leaves the gait toward any gait beyond, even past the adjacent one within the stride, holds the gait's boundary clock until the next stride takes the gait the speed calls for.
+          const beyond: readonly { minimum: number; maximum: number }[] =
+            speed < limits.minimum
+              ? ranges.slice(0, index)
+              : ranges.slice(index + 1);
           const neighbour: { minimum: number; maximum: number } | undefined =
-            ranges[adjacent];
+            ranges[adjacent] === undefined
+              ? undefined
+              : beyond.find(
+                  (range: { minimum: number; maximum: number }): boolean =>
+                    speed >= range.minimum && speed <= range.maximum,
+                );
           const high: QuadrupedGait.Gait | undefined =
             order[Math.max(index, adjacent)];
           const change: QuadrupedChange.Rule | undefined =
