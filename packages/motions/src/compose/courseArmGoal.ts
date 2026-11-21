@@ -72,7 +72,6 @@ export function courseArmGoal(
     props.together ??
     (arms.length > 1 ? AutoMovieMotionHumanArm.together() : undefined);
   let last: courseArmGoal.IRead | undefined;
-  let composed: IAutoMovieMotionHumanActionPlan | undefined;
   const kept: Map<courseArmGoal.Limb, IAutoMovieMotionHumanPosture["joints"]> =
     new Map();
   const read = (
@@ -126,7 +125,7 @@ export function courseArmGoal(
           kept.get(limb);
         if (angles === undefined) {
           const ended: IAutoMovieMotionHumanPosture["joints"] =
-            composed!.posture(span.end).joints;
+            composed.posture(span.end).joints;
           angles = {};
           for (const bone of courseArmGoal.bones(arm.side))
             if (ended[bone] !== undefined) angles[bone] = ended[bone];
@@ -184,19 +183,21 @@ export function courseArmGoal(
       });
     },
   );
-  composed = composeAutoMovieMotionHumanAction({
-    base,
-    clock: AutoMovieMotionClock.of(
-      plan.duration,
-      plan.events.map(
-        (e: IAutoMovieMotionEvent): courseArmGoal.Instant => ({
-          name: e.name,
-          seconds: e.share * plan.duration,
-        }),
+  // Read by the base only after the span, once the composition exists.
+  const composed: IAutoMovieMotionHumanActionPlan =
+    composeAutoMovieMotionHumanAction({
+      base,
+      clock: AutoMovieMotionClock.of(
+        plan.duration,
+        plan.events.map(
+          (e: IAutoMovieMotionEvent): courseArmGoal.Instant => ({
+            name: e.name,
+            seconds: e.share * plan.duration,
+          }),
+        ),
       ),
-    ),
-    primitives,
-  });
+      primitives,
+    });
   const coursed: IAutoMovieMotionHumanActionPlan = {
     ...plan,
     posture: composed.posture,
