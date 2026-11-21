@@ -180,7 +180,7 @@ export namespace AquaticEdgeExit {
       ...(["left", "right"] as const).map(
         (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
           part: `${side}Hand`,
-          kind: "press",
+          kind: "bear",
           from: PLACE,
           to: KNEE,
           support: { kind: "prop", subject: id },
@@ -264,13 +264,20 @@ export namespace AquaticEdgeExit {
       ...point,
       y: point.y + LIFT * (1 - reach),
     };
+    const wrist: IAutoMovieVector3 = Vector3.subtract(
+      placed,
+      Quaternion.rotateVector(rotation, frame.point),
+    );
+
+    // The elbow bends back toward the water, behind the pressing hand.
     return {
-      point: Vector3.subtract(
-        placed,
-        Quaternion.rotateVector(rotation, frame.point),
-      ),
+      point: wrist,
       rotation,
       contact: frame.point,
+      bend: Vector3.add(
+        wrist,
+        Vector3.add(Vector3.scale(out, 0.25), { x: 0, y: 0.05, z: 0 }),
+      ),
     };
   }
 }
