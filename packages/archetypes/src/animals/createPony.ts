@@ -95,7 +95,7 @@ export namespace createPony {
   }
 
   /** The parameters: the breed, the tack, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends createHorse.IParams {
+  export interface IParams extends Omit<createHorse.IParams, "breed"> {
     /** The breed; drawn from the seed when absent. */
     breed?: Breed;
   }

@@ -42,6 +42,7 @@ import { HumanDefence } from "./HumanDefence";
 import { HumanDressRows } from "./HumanDressRows";
 import { HumanDrill } from "./HumanDrill";
 import { HumanEmblem } from "./HumanEmblem";
+import { HumanEnvironmentRecovery } from "./HumanEnvironmentRecovery";
 import { HumanFirearm } from "./HumanFirearm";
 import { HumanFloorFall } from "./HumanFloorFall";
 import { HumanFloorRoll } from "./HumanFloorRoll";
@@ -53,7 +54,9 @@ import { HumanHabit } from "./HumanHabit";
 import { HumanHandToFaceRows } from "./HumanHandToFaceRows";
 import { HumanHandrimStroke } from "./HumanHandrimStroke";
 import { HumanLabour } from "./HumanLabour";
+import { HumanLeadHorse } from "./HumanLeadHorse";
 import { HumanManipulate } from "./HumanManipulate";
+import { HumanMounted } from "./HumanMounted";
 import { HumanMusketDrill } from "./HumanMusketDrill";
 import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
@@ -89,6 +92,7 @@ import { HumanTravelCar } from "./HumanTravelCar";
 import { HumanTravelCarExit } from "./HumanTravelCarExit";
 import { HumanTravelDoor } from "./HumanTravelDoor";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
+import { HumanTraversal } from "./HumanTraversal";
 import { HumanUpperRows } from "./HumanUpperRows";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
@@ -113,6 +117,8 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   gait: [
     HumanGait,
     HumanTravelDoor,
+    HumanTraversal,
+    HumanEnvironmentRecovery,
     HumanTravelCar,
     HumanTravelLeaf,
     HumanTravelCarExit,
@@ -131,6 +137,8 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
       HumanBicycleEffort,
       HumanBikeTransfer,
       HumanBikeGuide,
+      HumanLeadHorse,
+      HumanMounted,
     },
   ],
   carried: [HumanCarried, { spacecraftGlide }],

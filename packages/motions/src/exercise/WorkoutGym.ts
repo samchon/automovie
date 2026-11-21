@@ -23,12 +23,12 @@ import { WorkoutStance } from "./WorkoutStance";
  * (NSCA's Essentials of Strength Training and Conditioning, 4th ed.,
  * exercise technique chapters); none is a measured value.
  *
- * First pass: no bar, dumbbell or bell is held, so a hand's place is what
- * the arm's angles give; the wall of a wall sit is a place, not a prop; the
- * clean and the snatch show their positions in
- * order at a keyed tempo, not the bar's flight; a step-up, an incline or
- * decline push-up and a hip thrust are `WorkoutEquipment`'s (they need a
- * box or bench under a hand, a foot or the back).
+ * A loaded take fits its hands to the authored prop through `WorkoutLoad`.
+ * The snatch and clean-and-jerk use separate catches and recoveries from the
+ * IWF's definitions (https://iwf.sport/weightlifting_/rules/). The trajectories are keyed kinematic staging. Nagao and Yamashita's example snatch
+ * bar path (https://doi.org/10.1371/journal.pone.0263224, Fig. 3) motivates
+ * preserving the continuous fore-aft path through turnover. The wall sit
+ * uses a place. `WorkoutEquipment` owns bench and box support.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the sources and that the angles are provisional, and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.

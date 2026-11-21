@@ -1,6 +1,13 @@
+import { AutoMovieGravity, projectileAt } from "@automovie/engine";
+import type {
+  IAutoMovieProjectile,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import {
   type Archetype,
   ArchetypeCourse,
+  ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeRide,
 } from "../core";
@@ -155,12 +162,12 @@ function single(coast: rideBicycle.Coast): coast is rideBicycle.Interval {
 }
 
 /**
- * Companion constant and types of {@link rideBicycle}.
+ * The bicycle lean limit, the drive gear and an airborne take over a grounded ride.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the limit, that no bicycle figure was read and what stands in for it, and the gear, coast and instant shapes.
- * @evidence contracts/development/design.md#principled-representation One named angle in degrees; course intervals in metres as ordered pairs; teeth as counts; instants in seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one limit the ride checks and the gear the ride reads, owned with the ride.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A named, marked constant, not a number inside the check.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the provisional lean limit, the gear with its freewheel stretches and the instant shape, the horizontal drive, gravitational flight, and refused approaches for the hop.
+ * @evidence contracts/development/design.md#principled-representation A named lean angle, course intervals in metres as ordered pairs, teeth as counts, and disjoint flight intervals on the course and contact clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The bicycle owns the lean limit, the gear its ride reads and the optional jump over its own ride.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the authored wheel and rider contact clock. A returned ride publishes each flight as takeoff and touchdown instants, which a later hop reads so it cannot overlap them.
  */
 export namespace rideBicycle {
   /** The greatest lean, degrees: provisional. No figure for a bicycle was read at a source; the road motorcycle's limit of `rideMotorcycle.LEAN` is taken as the bound a narrower tyre does not exceed. */
@@ -191,5 +198,171 @@ export namespace rideBicycle {
 
     /** What happens then. */
     label: string;
+  }
+
+  /**
+   * Carry a bicycle through one level hop over a straight approach.
+   * The ground course gives horizontal motion and wheel phase. The bicycle
+   * and every named contact gain the same vertical ballistic displacement.
+   * At touchdown the grounded course continues with its original pose and
+   * forward speed.
+   *
+   * Pass the returned ride to this function again to add a flight outside
+   * its other hop intervals.
+   *
+   * @param ride The bicycle's course ride, with any previously composed hops.
+   * @param interval Takeoff and touchdown film seconds on one level,
+   * forward straight leg travelled at constant positive speed.
+   * @returns The same ride clock and drive with takeoff and touchdown instants.
+   * @throws {ArchetypeRefusal} When the interval lies outside the ride or
+   * overlaps one of its hops, the approach changes speed or direction, or
+   * the bicycle is off the level course at either boundary.
+   *
+   */
+  export function hop(
+    ride: ReturnType<typeof rideBicycle>,
+    interval: readonly [number, number],
+  ): ReturnType<typeof rideBicycle> {
+    const [takeoff, touchdown]: typeof interval = interval;
+    if (
+      !Number.isFinite(takeoff) ||
+      !Number.isFinite(touchdown) ||
+      takeoff < 0 ||
+      touchdown <= takeoff ||
+      touchdown > ride.duration
+    )
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "bicycle",
+        axis: "hop.interval",
+        value: interval,
+        feasible: null,
+        reason:
+          "takeoff and touchdown must be increasing seconds within the ride",
+        fix: "give two ordered instants on the bicycle's ride",
+      });
+
+    // The ride publishes each earlier flight as a takeoff and the touchdown
+    // after it, so a copy of the ride carries its flights with its instants.
+    let airborne: number | undefined;
+    let overlap: readonly [number, number] | undefined;
+    for (const event of ride.instants) {
+      if (event.label === "takeoff") airborne = event.seconds;
+      else if (event.label === "touchdown" && airborne !== undefined) {
+        if (takeoff < event.seconds && airborne < touchdown)
+          overlap ??= [airborne, event.seconds];
+        airborne = undefined;
+      }
+    }
+    if (overlap !== undefined)
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "bicycle",
+        axis: "hop.interval",
+        value: interval,
+        feasible: null,
+        reason: `the bicycle is already airborne from ${overlap[0]} to ${overlap[1]} s`,
+        fix: "choose a takeoff and touchdown outside its other flights",
+      });
+
+    const plan: ArchetypeCourse.IPlan = ride.plan;
+    const entry: ArchetypeCourse.IState = plan.at(takeoff);
+    const exit: ArchetypeCourse.IState = plan.at(touchdown);
+    const seconds: number = touchdown - takeoff;
+    const legIndex: number = plan.legSpans.findIndex(
+      (span: ArchetypeCourse.ILegSpan): boolean =>
+        entry.distance >= span.from && exit.distance <= span.from + span.span,
+    );
+    const leg: ArchetypeCourse.Leg | undefined =
+      plan.course.kind === "timed" ? undefined : plan.course.legs[legIndex];
+    if (
+      leg?.kind !== "straight" ||
+      leg.reverse === true ||
+      (leg.rise ?? 0) !== 0 ||
+      entry.speed <= 0 ||
+      Math.abs(exit.speed - entry.speed) > 1e-8 ||
+      Math.abs(exit.distance - entry.distance - entry.speed * seconds) > 1e-8
+    )
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "bicycle",
+        axis: "hop.approach",
+        value: interval,
+        feasible: null,
+        reason:
+          "a level hop needs a straight approach at constant forward speed",
+        fix: "stage the complete hop within one level straight leg at cruising speed",
+      });
+
+    // The flight starts and ends on the course: the displayed bicycle sits
+    // at the planned height and stands upright at both boundaries.
+    const grounded = (film: number, floor: number): boolean => {
+      const placement: IAutoMovieTransform = ride.at(film).placement;
+      return (
+        Math.abs(placement.translation.y - floor) <= 1e-8 &&
+        Math.abs(ArchetypeFrame.axis(placement, "y").y - 1) <= 1e-8
+      );
+    };
+    if (
+      !grounded(takeoff, entry.placement.translation.y) ||
+      !grounded(touchdown, exit.placement.translation.y)
+    )
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "bicycle",
+        axis: "hop.approach",
+        value: interval,
+        feasible: null,
+        reason: "both hop boundaries must show a grounded and level bicycle",
+        fix: "put the bicycle on the course at takeoff and touchdown",
+      });
+
+    const gravity: number = AutoMovieGravity.STANDARD;
+    const flight: IAutoMovieProjectile = {
+      origin: { x: 0, y: 0, z: 0 },
+      velocity: { x: 0, y: (gravity * seconds) / 2, z: 0 },
+      gravity: { x: 0, y: -gravity, z: 0 },
+    };
+
+    /** Add the shared flight height while leaving the supported pose intact. */
+    const lift = (
+      placement: IAutoMovieTransform,
+      film: number,
+    ): IAutoMovieTransform => {
+      if (film <= takeoff || film >= touchdown) return placement;
+      const height: number = projectileAt(flight, film - takeoff).position.y;
+      return {
+        ...placement,
+        translation: {
+          ...placement.translation,
+          y: placement.translation.y + height,
+        },
+      };
+    };
+
+    return {
+      ...ride,
+      instants: [
+        ...ride.instants,
+        { seconds: takeoff, label: "takeoff" },
+        { seconds: touchdown, label: "touchdown" },
+      ].sort(
+        (
+          left: (typeof ride.instants)[number],
+          right: (typeof ride.instants)[number],
+        ): number => left.seconds - right.seconds,
+      ),
+      at: (film: number): ReturnType<typeof ride.at> => {
+        const sample: ReturnType<typeof ride.at> = ride.at(film);
+        const placement: IAutoMovieTransform = lift(sample.placement, film);
+        return placement === sample.placement
+          ? sample
+          : { ...sample, placement };
+      },
+      frame: (
+        id: createBicycle.Affordance,
+        film: number,
+      ): IAutoMovieTransform => lift(ride.frame(id, film), film),
+    };
   }
 }

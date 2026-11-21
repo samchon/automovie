@@ -458,11 +458,102 @@
     "bicycleEffort": {},
     "bikeGuide": {},
     "bikeTransfer": {},
+    "leadHorse": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "transition": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "mounted": {},
     "boardRide": {},
     "bowlingDelivery": {},
+    "bowlingSlide": {
+      "properties": {
+        "distance": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "from": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "to": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "cricketBowl": {},
     "cricketDrive": {},
     "cueStroke": {},
+    "curlDelivery": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "speed": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m/s"
+          }
+        },
+        "drop": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "trail": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "heel": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 90,
+            "x-unit": "deg"
+          }
+        }
+      }
+    },
     "golfChip": {},
     "golfDrive": {},
     "golfPutt": {},
@@ -471,11 +562,13 @@
     "rugbyPass": {},
     "sittingVolley": {},
     "skate": {},
+    "skateboardPhrase": {},
     "snowGlide": {},
     "softballWindmill": {},
     "stageBladeFootwork": {},
     "stageProp": {},
     "stickBall": {},
+    "surfboardPhrase": {},
     "tennisForehandReturn": {},
     "bowViolin": {
       "properties": {
@@ -508,6 +601,59 @@
           ]
         }
       }
+    },
+    "environmentalRecovery": {
+      "alternatives": [
+        {
+          "shape": "{\"type\":\"object\",\"required\":[\"coefficient\",\"foot\",\"kind\"],\"properties\":[\"coefficient\",\"foot\",\"kind\",\"outcome\",\"rail\",\"support\"],\"discriminants\":[[\"kind\",\"slip\"]]}",
+          "occurrence": 0,
+          "tree": {
+            "properties": {
+              "coefficient": {
+                "numeric": {
+                  "type": "number",
+                  "minimum": 0,
+                  "x-unit": ""
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "crossObstacle": {
+      "alternatives": [
+        {
+          "shape": "{\"type\":\"object\",\"required\":[\"kind\",\"obstacle\"],\"properties\":[\"apex\",\"kind\",\"obstacle\"],\"discriminants\":[[\"kind\",\"jump\"]]}",
+          "occurrence": 0,
+          "tree": {
+            "properties": {
+              "apex": {
+                "numeric": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "x-unit": "m"
+                }
+              }
+            }
+          }
+        },
+        {
+          "shape": "{\"type\":\"object\",\"required\":[\"from\",\"kind\",\"to\"],\"properties\":[\"apex\",\"from\",\"kind\",\"to\"],\"discriminants\":[[\"kind\",\"gap\"]]}",
+          "occurrence": 0,
+          "tree": {
+            "properties": {
+              "apex": {
+                "numeric": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "x-unit": "m"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "crossAnkleOverKnee": {
       "properties": {
@@ -2357,6 +2503,18 @@
             "type": "number",
             "minimum": 0,
             "default": 0,
+            "x-unit": "m"
+          }
+        }
+      }
+    },
+    "hurdleClear": {},
+    "longJump": {
+      "properties": {
+        "distance": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
             "x-unit": "m"
           }
         }

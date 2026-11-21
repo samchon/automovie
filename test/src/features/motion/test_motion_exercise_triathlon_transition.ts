@@ -1,8 +1,8 @@
 import {
   ArchetypeCourse,
   createBicycle,
+  createCyclingHelmet,
   createTransitionRack,
-  createWearable,
   rideBicycle,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -399,7 +399,7 @@ function take(
   const rest: IAutoMovieVector3 = { x: 0.7, y: seat.at.y, z: seat.at.z };
   const helmet: IAutoMovieMotionHumanProp = HumanObject.prop(
     "helmet",
-    createWearable({ kind: "helmet" }, 1),
+    createCyclingHelmet({}, 1),
     { at: rest, yaw: 0 },
   );
   const performer: IAutoMovieMotionHumanPerformer = {

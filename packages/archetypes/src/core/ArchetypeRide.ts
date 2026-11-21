@@ -186,7 +186,7 @@ export namespace ArchetypeRide {
    *
    * @param archetype The support at rest.
    * @param course The course its root follows, or its plan when the caller has already planned it.
-   * @param pose What moves with the course: given the course's state, the archetype in its state there and the root's placement. Absent, the archetype goes along unchanged.
+   * @param pose The support's model and root placement at the current course state and film second. Without a poser the source model follows the course unchanged.
    * @param instants Instants the support adds to the course's.
    * @returns The ride.
    * @throws {ArchetypeRefusal} As {@link ArchetypeCourse.plan} does for a malformed course.
@@ -199,26 +199,25 @@ export namespace ArchetypeRide {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is shared by every sample, and a ride that planned the course for its own instants hands that plan in; samples are not cached, since a consumer asks each second once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride holds the rest archetype and the plan for as long as its caller keeps it.
    */
-  export function along<Id extends string, Dimension extends string>(
-    archetype: Archetype<Id, Dimension>,
+  export function along<Id extends string, D extends string>(
+    archetype: Archetype<Id, D>,
     course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
-    pose?: (state: ArchetypeCourse.IState) => IPose<Id, Dimension>,
+    pose?: (state: ArchetypeCourse.IState, seconds: number) => IPose<Id, D>,
     instants: readonly { seconds: number; label: string }[] = [],
-  ): IRide<Id, Dimension> {
+  ): IRide<Id, D> {
     const plan: ArchetypeCourse.IPlan =
       course.kind === "plan"
         ? course
         : ArchetypeCourse.plan(archetype.archetype, course);
-    const at: (seconds: number) => ISample<Id, Dimension> = (
-      seconds: number,
-    ): ISample<Id, Dimension> => {
+    function at(seconds: number): ISample<Id, D> {
       const state: ArchetypeCourse.IState = plan.at(seconds);
-      return {
-        ...(pose?.(state) ?? { archetype, placement: state.placement }),
-        course: state,
+      const sample: IPose<Id, D> = pose?.(state, seconds) ?? {
+        archetype,
+        placement: state.placement,
       };
-    };
-    const ride: IRide<Id, Dimension> = {
+      return { ...sample, course: state };
+    }
+    const ride: IRide<Id, D> = {
       plan,
       duration: plan.duration,
       instants: [...plan.instants, ...instants].sort(
@@ -227,7 +226,7 @@ export namespace ArchetypeRide {
       ),
       at,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ISample<Id, Dimension> = at(seconds);
+        const sample: ISample<Id, D> = at(seconds);
         return ArchetypeFrame.compose(
           sample.placement,
           sample.archetype.affordance(id).frame,
@@ -247,7 +246,7 @@ export namespace ArchetypeRide {
    * @param hitch The leader's contact the trailer is hitched to.
    * @param trailer The trailer at rest.
    * @param coupling The actual source contact held on the hitch; legacy inputs require it ahead along +Z, while declared single-axle support can tow a rear contact in reverse.
-   * @param options support is producer-read actual axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional actual drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies actual inter-model spans.
+   * @param options support is producer-read actual axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional actual drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies actual inter-model spans. ground, with single-axle support, seats the wheels on the authored plane under the axle instead of the leader's course datum.
    * @returns The trailer's ride.
    * @throws {ArchetypeRefusal} For inconsistent support/options, an unreachable or unsupported hitch height, an invalid support/articulation, a coupling that does not close, a nonpositive projected reach, missing contacts/line ends or front steering beyond its declared lock.
    *
@@ -275,6 +274,7 @@ export namespace ArchetypeRide {
       front?: ArchetypeTowing.IFront<Id>;
       support?: ArchetypeTowing.Support<Id>;
       lines?: readonly ILine[];
+      ground?: ArchetypeTowing.Ground;
     } = {},
   ): ITowedRide<Id, Dimension> {
     const geometry: ArchetypeTowing.IPrepared<Id> = ArchetypeTowing.prepare(
@@ -322,9 +322,10 @@ export namespace ArchetypeRide {
           const vx: number = (ahead.x - behind.x) / 1e-3;
           const vz: number = (ahead.z - behind.z) / 1e-3;
           const theta: number = x[0]!;
+          const centre: IAutoMovieVector3 = hitchAt(t, probes?.centre);
           const reach: number = geometry.height(
-            hitchAt(t, probes?.centre).y,
-            groundAt(t),
+            centre.y,
+            geometry.ground(centre, theta, groundAt(t)),
           ).reach;
           const rate: number =
             (vx * Math.cos(theta) - vz * Math.sin(theta)) / reach;
@@ -404,7 +405,7 @@ export namespace ArchetypeRide {
         options.pose?.(sample.course) ?? trailer;
       const solved: ReturnType<typeof geometry.pose> = geometry.pose(
         point,
-        groundAt(seconds),
+        geometry.ground(point, theta, groundAt(seconds)),
         theta,
         phi,
       );

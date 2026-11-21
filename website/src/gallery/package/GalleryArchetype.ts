@@ -17,6 +17,15 @@ import { GalleryCatalogue } from "./GalleryCatalogue";
  * the range each articulation moves through.
  */
 export namespace GalleryArchetype {
+  /** Read a reference recipe only when the gallery needs its subject. */
+  function referenceOf(
+    producer: GalleryCatalogue.IProducer | undefined,
+  ): GalleryCatalogue.ReferenceParams | undefined {
+    const reference: GalleryCatalogue.Reference | undefined =
+      producer?.REFERENCE;
+    return typeof reference === "function" ? reference() : reference;
+  }
+
   /** One built archetype. */
   export interface IBuilt {
     /** The archetype, with its articulations at the request's state. */
@@ -43,8 +52,8 @@ export namespace GalleryArchetype {
     // A dispatcher inherits the selected factory's reference only. A dog's
     // authored specimen mass therefore cannot override an equid's derived mass.
     const params: Record<string, unknown> = {
-      ...producer.REFERENCE,
-      ...producer.PRODUCERS?.[request.variant]?.REFERENCE,
+      ...referenceOf(producer),
+      ...referenceOf(producer.PRODUCERS?.[request.variant]),
       ...(key === "" ? {} : { [key]: request.variant }),
     };
     const rest: GalleryCatalogue.Model = producer(

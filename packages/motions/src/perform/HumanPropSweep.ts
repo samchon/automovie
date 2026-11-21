@@ -25,7 +25,9 @@ import { HumanPropCatchHands } from "./HumanPropCatchHands";
  * bones at each second and passed over while a bound around their root
  * shows them out of reach (the bounding-sphere reject of #3379), the props
  * that do not fly but those the launcher holds or wears as the flight starts
- * (they go with the launcher), and the floor, through the engine's one resolver
+ * (they go with the launcher) and, through its fitted approach, those a later
+ * launch that ends the flight holds (a bat striking the incoming ball), and
+ * the floor, through the engine's one resolver
  * (`projectileFirstContact`). The step keeps the prop from crossing the
  * thinnest collider it may meet in one step, finger bones aside: a finger is
  * the stated blind spot. A pass leaves the body it passes through behind.
@@ -52,12 +54,13 @@ export namespace HumanPropSweep {
    * @param departing The collider whose existing support or rebound contact the projectile is leaving. Only the engine's certificate can defer its initial contact and it continues to check later entry.
    * @param radius An opt-in spherical radius in metres. Its supplied projectile travels by its centre. Absent, use the prop's point or tip.
    * @param captureHands Gripping hands owned by a staged capture during their final approach. The remaining body surfaces continue to participate.
+   * @param handback The later launch that ends this flight, when one does. The props its performer holds at that launch are left out from the start of the launching action, whose own fit owns the meeting, to the end of the sweep.
    * @returns The first meeting, or null when it meets nothing before the horizon.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States film/flight clocks, the launcher and pass exclusions, support departure and rebound opt-in, physical certificate scope, first meeting and finite-horizon sweep.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the ground plane and displayed person/prop nearest queries, including the spherical radius in the stature rejection. A staged receive excludes only its assigned hand and fingers during its fitted approach, with actual closure checked separately. The engine still resolves all other surface contacts.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the ground plane and displayed person/prop nearest queries, including the spherical radius in the stature rejection. A staged receive excludes only its assigned hand and fingers during its fitted approach, with actual closure checked separately. Likewise a later launch that ends the flight owns its meeting from its action's start: the props its performer holds at that launch are absent from then on, while before it they remain colliders. The engine still resolves all other surface contacts.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure This bridge owns performance-to-collider projection and target identity; closest geometry, departure proof, scan and TOI bisections remain with their owning engine modules.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no bounce blacklist, time epsilon or fabricated gap. The existing policy omits every prop with any published launch and ignores finger thickness; the stature rejection assumes the body fits that bound, and the scan's stated thin-contact blind spot remains.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no bounce blacklist, time epsilon or fabricated gap; a handed-back prop reads as absent (an infinite gap) only inside its launch's fitted approach, as leaving it out would, since the collider list is fixed for one resolver call. The existing policy omits every prop with any published launch and ignores finger thickness; the stature rejection assumes the body fits that bound, and the scan's stated thin-contact blind spot remains.
    * @evidence contracts/development/implementation.md#efficient-algorithms Preparing P props repeats their action-segment/launch scans and scans profile shapes; C collider closures feed the engine's contact queries, whose cost also includes dynamic FK/nearest-body reads. The engine owns step/bisection cost; this method claims no measured speedup.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each person keeps fixed FK prerequisites only. Props use their exact current carrier. The sweep constructs full contact witnesses only for the chosen impact.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Collider/shape arrays and their performance-capturing callbacks are call-local and released after the sweep or refusal; only the small meeting escapes, with no retained frame history, host or new cache.
@@ -73,6 +76,7 @@ export namespace HumanPropSweep {
     departing?: string,
     radius?: number,
     captureHands: readonly HumanPropCatchHands.IApproach[] = [],
+    handback?: IHandback,
   ): IAutoMovieMotionHumanPropOutcome.IMeeting | null {
     const bend: AutoMovieMotionHumanBendRepeat =
       new AutoMovieMotionHumanBendRepeat();
@@ -172,6 +176,22 @@ export namespace HumanPropSweep {
         )
       )
         continue;
+
+      // What the next launcher holds as its launch ends this flight is that
+      // launch's own instrument: a bat fitted to the incoming ball at the
+      // strike. Its fitted approach owns the meeting, as a staged catch's
+      // hands own theirs, so the sweep leaves the instrument out from the
+      // launching action's start. Read as a collider, it closed the gap at
+      // the horizon itself, each step a fresh read of the striker's fitted
+      // arm (baseball pitch to bat stalled past three minutes).
+      const handedBack: boolean =
+        handback !== undefined &&
+        grips.some(
+          (g): boolean =>
+            g.subject === handback.subject &&
+            g.from <= handback.at &&
+            g.to >= handback.at - 1e-6,
+        );
       const pose = (t: number): IAutoMovieRigidTransform =>
         HumanPerformanceRead.prop(self, other.subject, seconds + t);
       other.shapes.forEach(
@@ -179,7 +199,11 @@ export namespace HumanPropSweep {
           const id: string = `prop:${other.subject}:${k}`;
           if (id === leave) return;
           solid.push(shape);
-          colliders.push(projectileFirstContact.shape(id, shape, pose));
+          const collider: IAutoMovieProjectileFirstContact.ICollider =
+            projectileFirstContact.shape(id, shape, pose);
+          colliders.push(
+            handedBack ? until(collider, handback!.from - seconds) : collider,
+          );
         },
       );
     }
@@ -228,6 +252,53 @@ export namespace HumanPropSweep {
         point,
       ).bone;
     }
+  }
+
+  /**
+   * The later launch that ends a flight, as the sweep leaves out the props
+   * its performer holds at that launch.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the performer, the launch's film second and the start of its fitted approach.
+   * @evidence contracts/development/design.md#principled-representation One performer subject and two film seconds, the approach start no later than the launch.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by HumanPropFlight from the next published launch and read only by this sweep.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Names no prop: the held props are read from the performance's grips at the launch, as the launcher's own are.
+   */
+  export interface IHandback {
+    /** The performer whose later launch ends the flight. */
+    subject: string;
+
+    /** The film second of that launch, where its own fit meets the prop. */
+    at: number;
+
+    /** The film second the launching action starts, from which its fit owns the approach. */
+    from: number;
+  }
+
+  /**
+   * A collider present only before a flight second: from it on, the
+   * handback's fitted approach owns the meeting, so the collider is absent.
+   */
+  function until(
+    collider: IAutoMovieProjectileFirstContact.ICollider,
+    from: number,
+  ): IAutoMovieProjectileFirstContact.ICollider {
+    return {
+      id: collider.id,
+      distance: (a, b, t): number =>
+        t >= from
+          ? Infinity
+          : collider.distance === undefined
+            ? collider.nearest(a, b, t).distance
+            : collider.distance(a, b, t),
+      nearest: (
+        a: IAutoMovieVector3,
+        b: IAutoMovieVector3,
+        t: number,
+      ): IAutoMovieProjectileFirstContact.INearest =>
+        t >= from
+          ? { distance: Infinity, point: a, normal: { x: 0, y: 1, z: 0 } }
+          : collider.nearest(a, b, t),
+    };
   }
 
   /** Whether any action launches a prop. */

@@ -1,28 +1,19 @@
-import { Vector3 } from "@automovie/engine";
-
 import {
   Archetype,
-  ArchetypeBuilder,
   ArchetypeDensity,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type ArchetypeDrawSession,
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { PROJECTILE_BANDS } from "./PROJECTILE_BANDS";
+import { createStageBallProp } from "./createStageBallProp";
+import { createStageCartridgeProp } from "./createStageCartridgeProp";
+import { createStageGrenadeProp } from "./createStageGrenadeProp";
+import { createStageRoundProp } from "./createStageRoundProp";
+import { createStageShaftToken } from "./createStageShaftToken";
+import { createStageStoneProp } from "./createStageStoneProp";
 import { projectileFlight } from "./projectileFlight";
-
-/** The readable name of each kind. */
-const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
-  ball: "musket ball",
-  arrow: "arrow",
-  bolt: "crossbow bolt",
-  roundShot: "round shot",
-  grenade: "hand grenade",
-  cartridge: "musket cartridge",
-  stone: "throwing stone",
-};
 
 /**
  * Something a weapon launches or a hand throws, or a soldier loads: a musket ball, an arrow, a crossbow bolt, a field gun's round shot, a hand grenade, a throwing stone or a musket's paper cartridge.
@@ -35,8 +26,8 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
  * @throws {ArchetypeRefusal} For an object not of the kind, a fixed dimension outside its band, or one the object gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each projectile rests or stands, how it is held, and what waits.
- * @evidence contracts/development/implementation.md#principled-implementation A ball of the drawn calibre, a pound over the service count in mass; an arrow as its read shaft at its read whole mass; a bolt as its read shaft with a head of the read length drawn round at its head width; a grenade as the data sheet's sphere with its fuze standing to the data sheet's length; a shot as the read 6-pdr. or 12-pdr. shot, its diameter and weight together; a stone as the sphere its drawn mass fills at its drawn specific gravity, `cbrt(6 m / (pi rho))` with `rho` that gravity times water's 1000 kg per cubic metre. NMM 11461's mass, which its record does not state, follows from its read figures: an ash shaft of its read width over its length less its head, and a steel head of its read length as a solid square pyramid on the shaft's width, the width its socket takes, 65.2 g.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the object, draw the other dimensions, then one branch per kind: its parts, its contacts, and its body with the flight data `flight` gives.
+ * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arrow's or a bolt's fletching, an arrow's head and a bolt head's facets are not drawn; no contact reads them.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most two parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -46,179 +37,22 @@ export function createProjectile(
   params: createProjectile.IParams,
   seed?: number | string,
 ): Archetype<createProjectile.Affordance, createProjectile.Dimension> {
-  const draw: ArchetypeDrawSession<createProjectile.Dimension> =
-    new ArchetypeDrawSession<createProjectile.Dimension>(
-      "projectile",
-      createProjectile.UNITS,
-      seed,
-      params,
-    );
   const kind: createProjectile.Kind = ArchetypeDraw.choice(
     "projectile",
     "kind",
     params.kind,
     createProjectile.KINDS,
   );
-  // An arrow, a bolt and a round shot are each one read object whole; a band is drawn only for a figure its object does not give.
-  const model: {
-    name: createProjectile.Model | undefined;
-    figures: Readonly<Partial<Record<createProjectile.Dimension, number>>>;
-  } = draw.model<createProjectile.Model>(
-    "model",
-    params.model,
-    createProjectile.MODELS[kind],
-  );
-  const d: Partial<Record<createProjectile.Dimension, number>> = {
-    ...draw.dimensions(createProjectile.BANDS[kind], createProjectile.BANDS),
-    ...model.figures,
-  };
-
-  // A stone's diameter is the sphere its drawn mass fills at its drawn specific gravity, water being 1000 kg per cubic metre: derived, not drawn.
-  if (kind === "stone")
-    d.diameter = draw.derive(
-      "diameter",
-      Math.cbrt((6 * d.mass!) / (Math.PI * d.gravity! * 1000)),
-    );
-  const builder: ArchetypeBuilder<
-    createProjectile.Affordance,
-    createProjectile.Dimension
-  > = new ArchetypeBuilder({
-    material:
-      kind === "ball"
-        ? "lead"
-        : kind === "roundShot"
-          ? "iron"
-          : kind === "stone"
-            ? "stone"
-            : "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw,
-  });
-  const v: typeof Vector3.create = Vector3.create;
-
-  // A cartridge: a paper tube from its ball end at the origin to its powder end along `+Y`, pinched in the middle, torn at the top.
-  if (kind === "cartridge") {
-    const r: number = d.diameter! / 2;
-    builder.rod("paper", r, v(0, 0, 0), v(0, d.length!, 0), {
-      color: "#d8cfb8",
-    });
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: "round",
-      frame: ArchetypeFrame.facing(
-        v(0, d.length! / 2, 0),
-        v(0, 0, -1),
-        v(0, 1, 0),
-      ),
-      extent: null,
-      grip: "precision",
-      aperture: d.diameter!,
-    });
-    builder.affordance({
-      id: "end",
-      kind: "surface",
-      direction: "along",
-      frame: ArchetypeFrame.upright(v(0, d.length!, 0)),
-      extent: null,
-    });
-    return builder.build(d.mass!);
-  }
-
-  if (kind === "bolt" || kind === "arrow") {
-    const length: number = d.length!;
-    const head: number = kind === "bolt" ? d.head! : 0;
-    const r: number = d.diameter! / 2;
-    builder.rod("shaft", r, v(0, 0, 0), v(0, length - head, 0), {
-      color: "#b98d5b",
-      surface: "wood",
-    });
-    if (kind === "bolt")
-      builder.rod(
-        "head",
-        d.headWidth! / 2,
-        v(0, length - head, 0),
-        v(0, length, 0),
-        {
-          color: "#55595f",
-          density: createProjectile.STEEL_OVER_ASH,
-          surface: "steel",
-        },
-      );
-    builder.affordance({
-      id: "shaft",
-      kind: "handle",
-      symmetry: "round",
-      frame: ArchetypeFrame.facing(
-        v(0, (length - head) / 2, 0),
-        v(0, 0, -1),
-        v(0, 1, 0),
-      ),
-      extent: null,
-      grip: "precision",
-      aperture: 2 * r,
-      length: length - head,
-    });
-    builder.affordance({
-      id: "nock",
-      kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
-      extent: null,
-    });
-    builder.affordance({
-      id: "tip",
-      kind: "surface",
-      direction: "along",
-      frame: ArchetypeFrame.upright(v(0, length, 0)),
-      extent: null,
-    });
-    return builder.build(d.mass!, {
-      rests: "wood",
-      ...createProjectile.flight(kind, model.name, r),
-    });
-  }
-
-  // A sphere: a ball pinched, a shot taken in two hands, a grenade's body in one hand with its fuze on top, a stone in one hand.
-  if (kind === "grenade") {
-    const top: number = d.length!;
-    builder.rod(
-      "fuze",
-      d.diameter! * createProjectile.FUZE,
-      v(0, d.diameter!, 0),
-      v(0, top, 0),
-      { color: "#3f4a3a" },
-    );
-  }
-  const r: number = d.diameter! / 2;
-  const stone: boolean = kind === "stone";
-  builder.ball(kind, r, v(0, r, 0), {
-    color: stone ? "#8a8580" : "#6f6f72",
-    ...(kind === "ball"
-      ? {}
-      : { surface: stone ? ("stone" as const) : ("steel" as const) }),
-  });
-  builder.affordance({
-    id: "body",
-    kind: "handle",
-    symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, r, 0), v(-1, 0, 0), v(0, 1, 0)),
-    extent: null,
-    grip:
-      kind === "ball"
-        ? "precision"
-        : kind === "grenade" || stone
-          ? "power"
-          : "two-hand",
-    aperture: d.diameter!,
-  });
-
-  return builder.build(d.mass!, {
-    ...(kind === "ball"
-      ? {}
-      : { rests: stone ? ("stone" as const) : ("steel" as const) }),
-    ...createProjectile.flight(kind, model.name, r),
-  });
+  /** The legacy surface accepts a broad selector before runtime admission. */
+  type Producer = {
+    build(
+      params: createProjectile.IParams,
+      seed?: number | string,
+    ): Archetype<createProjectile.Affordance, createProjectile.Dimension>;
+  }["build"];
+  // The selected producer validates its options from the saved parameter union.
+  const produce: Producer = createProjectile.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**
@@ -230,6 +64,31 @@ export function createProjectile(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No kind is built whose contacts lack a source; a bolt head's density over its shaft's is the ratio of read steel and ash densities, which places its balance. No object's figure stands in another's record: a figure an object does not give is drawn from a provisional band citing the read objects' range of it.
  */
 export namespace createProjectile {
+  /** The canonical factories for saved kinds, read after the catalogue loads. */
+  export const PRODUCERS = {
+    get ball(): typeof createStageBallProp {
+      return createStageBallProp;
+    },
+    get arrow(): typeof createStageShaftToken {
+      return createStageShaftToken;
+    },
+    get bolt(): typeof createStageShaftToken {
+      return createStageShaftToken;
+    },
+    get roundShot(): typeof createStageRoundProp {
+      return createStageRoundProp;
+    },
+    get grenade(): typeof createStageGrenadeProp {
+      return createStageGrenadeProp;
+    },
+    get cartridge(): typeof createStageCartridgeProp {
+      return createStageCartridgeProp;
+    },
+    get stone(): typeof createStageStoneProp {
+      return createStageStoneProp;
+    },
+  } satisfies Readonly<Record<Kind, unknown>>;
+
   /** The kinds: a musket ball, an arrow, a crossbow bolt, a field gun's round shot, a hand grenade, a musket's paper cartridge and a hand-thrown stone. */
   export type Kind =
     | "ball"

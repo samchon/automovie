@@ -159,10 +159,10 @@ export namespace HumanPropOutcome {
    * @throws {HumanRefusal} For a nonfinite or negative horizon/first contact, or a later contact whose finite absolute second does not advance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the finite nonnegative launch-relative horizon/first contact, strictly advancing later contacts, empty continuation at the horizon, callbacks, settlement and structured time/coefficient refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Admits the initial clock and each later finite absolute contact time before settlement, without changing time by an epsilon. Each engine continuation reads the declared outcome, shifts its clock once and sweeps again. Under the existing fixed-surface response approximation, only inward gravity supports a returning normal arc; v_n squared over twice that acceleration is its drag-free height and a conservative upper bound with dissipative drag. Outward or tangent gravity cannot trigger radius-based settlement.
+   * @evidence contracts/development/implementation.md#principled-implementation Admits the initial clock and each later finite absolute contact time before settlement, without changing time. A later contact must fall beyond CONTACT_SECOND, the microsecond a hit's second resolves to, so a converging exchange of contacts refuses instead of looping. Each engine continuation reads the declared outcome, shifts its clock once and sweeps again. Under the existing fixed-surface response approximation, only inward gravity supports a returning normal arc; v_n squared over twice that acceleration is its drag-free height and a conservative upper bound with dissipative drag. Outward or tangent gravity cannot trigger radius-based settlement.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop owns contact continuation while engine integration, sweeping and settlement remain separate owners supplied through typed inputs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not duplicate projectile equations, clamp callback times, advance by a guessed epsilon or impose an arbitrary bounce count. Nonprogressing, negative, overflowing and nonfinite contact clocks refuse explicitly instead of looping or fabricating a continuation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For K admitted contacts, S colliders, engine continuation costs P_i and sweep costs C_i, work is O(K*S + sum(P_i + C_i)) and returned storage O(K), plus engine-owned drag-flight storage. Strictly increasing representable finite contact times prevent a repeated-clock loop; there is no small uniform contact-count bound or callback execution-time guarantee.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For K admitted contacts, S colliders, engine continuation costs P_i and sweep costs C_i, work is O(K*S + sum(P_i + C_i)) and returned storage O(K), plus engine-owned drag-flight storage. Contacts at least CONTACT_SECOND apart bound K by the horizon over a microsecond; there is no smaller uniform contact-count bound or callback execution-time guarantee.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each continuation segment is constructed once and retained for later sampling; the engine owns optional drag-flight integration reuse, and this loop installs no callback or cross-flight cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned legs retain only their segments and contacts; local projectile and meeting references are released on return or refusal, and no host task is started.
    */
@@ -227,12 +227,17 @@ export namespace HumanPropOutcome {
         outcome.kind === "bounce" ? meeting.collider : undefined,
       );
       const end: number = met === null ? Infinity : next.from + met.hit.time;
+
+      // A contact within the microsecond a hit's second resolves to is the
+      // same event, not a later one. Admitting it lets a prop and a surface
+      // moving into it trade contacts at ever-shorter intervals that never
+      // reach the horizon, each a full sweep.
       if (
         met !== null &&
         (!Number.isFinite(met.hit.time) ||
           met.hit.time < 0 ||
           !Number.isFinite(end) ||
-          !(end > next.from))
+          !(end > next.from + CONTACT_SECOND))
       )
         throw new HumanRefusal({
           kind: "parameter",
@@ -240,12 +245,12 @@ export namespace HumanPropOutcome {
           value: end,
           feasible: {
             kind: "range",
-            minimum: next.from,
+            minimum: next.from + CONTACT_SECOND,
             maximum: null,
             unit: "s",
             open: "minimum",
           },
-          reason: `prop ${props.prop.subject} contact with ${met.collider} after relative ${met.hit.time} s reaches absolute ${end} s, which does not advance finitely beyond ${next.from} s`,
+          reason: `prop ${props.prop.subject} contact with ${met.collider} after relative ${met.hit.time} s reaches absolute ${end} s, which does not advance finitely beyond ${next.from} s by more than the ${CONTACT_SECOND} s contact resolution`,
           fix: "supply the next strictly later contact; resolve departing or simultaneous contacts before continuing the flight",
         });
       out.push({
@@ -361,3 +366,12 @@ export namespace HumanPropOutcome {
     }
   }
 }
+
+/**
+ * The second a contact's time resolves to, seconds: the microsecond at
+ * which the engine's contact specifications and a hit's id read it
+ * (`firstAutoMovieContactImpact` brackets a contact a thousandth of this
+ * wide so the reading does not depend on where its search stopped). Two
+ * contacts nearer than this are one event at that resolution.
+ */
+const CONTACT_SECOND: number = 1e-6;

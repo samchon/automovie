@@ -191,6 +191,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanThrowObjectParamsstyle",
       "description": "A low underhand bowling delivery toward the lane after the composed approach."
     },
+    "bowlingSlide": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanBowlingSlide.IParams",
+      "description": "The supported final glide and recovery of a one-handed bowling approach."
+    },
     "bowViolin": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanBowViolinParams",
       "description": "Draw a held violin bow across a string."
@@ -459,6 +463,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamskindshape",
       "description": "Crossed fingers, held out (first pass, provisional attitude)."
     },
+    "crossObstacle": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanCrossing.IParams",
+      "description": "Cross a real stage obstacle or the gap between fixed surfaces."
+    },
     "crunch": {
       "$ref": "#/components/schemas/OmitIParamskind-o13",
       "description": "Crunches."
@@ -470,6 +478,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "curl": {
       "$ref": "#/components/schemas/OmitIParamskind-o13",
       "description": "Curls, without the weight."
+    },
+    "curlDelivery": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ICurlDeliveryParams",
+      "description": "Deliver from a low flat-foot slide with trailing forefoot support."
     },
     "curtsy": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanCurtsy",
@@ -614,6 +626,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "enGarde": {
       "$ref": "#/components/schemas/OmitIParamsguard",
       "description": "The guard a fencer waits in: the hilt low in front, the point at the opponent."
+    },
+    "environmentalRecovery": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanEnvironmentRecovery.IParams",
+      "description": "Resolve a named walking trip or slip by a recovery or a fall."
     },
     "escort": {
       "$ref": "#/components/schemas/OmitIParamsatsidetrack",
@@ -1867,6 +1883,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkateParams",
       "description": "Travel over ice, optionally turning or coming to a stop."
     },
+    "skateboardPhrase": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkateboardPhraseParams",
+      "description": "The ground push, flight, landing and recovery of a skateboard."
+    },
     "slap": {
       "$ref": "#/components/schemas/OmitIParamscountkindtangentwith",
       "description": "A forehand slap: one tap of the open palm. The composition gives the cheek as the target."
@@ -2070,6 +2090,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "superman": {
       "$ref": "#/components/schemas/OmitIParamskind-o13",
       "description": "Supermans."
+    },
+    "surfboardPhrase": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISurfboardPhraseParams",
+      "description": "An entry, paddle and transfer to the surfing stance on the authored board."
     },
     "surrender": {
       "$ref": "#/components/schemas/OmitIParamsholdkind",
@@ -9047,6 +9071,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanTravelDoor.IParams",
             "description": "Walk through a named opening."
           },
+          "crossObstacle": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanCrossing.IParams",
+            "description": "Cross a real stage obstacle or the gap between fixed surfaces."
+          },
+          "environmentalRecovery": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanEnvironmentRecovery.IParams",
+            "description": "Resolve a named walking trip or slip by a recovery or a fall."
+          },
           "getIn": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanTravelCar.IParams",
             "description": "Get into a car seat through its door."
@@ -9078,6 +9110,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "limp",
           "drunk",
           "passThrough",
+          "crossObstacle",
+          "environmentalRecovery",
           "getIn",
           "openDoor",
           "getOut"
@@ -9633,6 +9667,23 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "type": "string",
             "description": "The opening's id within that obstacle; its only opening when absent."
           },
+          "mode": {
+            "oneOf": [
+              {
+                "const": "crawl"
+              },
+              {
+                "const": "duck"
+              },
+              {
+                "const": "squeeze"
+              },
+              {
+                "const": "upright"
+              }
+            ],
+            "description": "The posture fitted through the opening; `upright` when absent."
+          },
           "pace": {
             "oneOf": [
               {
@@ -9645,7 +9696,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The pace; `normal` when absent."
+            "description": "The standing gait's pace; `normal` upright and `slow` for duck and squeeze when absent. The crawl ignores it."
           }
         },
         "required": [
@@ -9653,6 +9704,304 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "Parameters of a passage.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+      },
+      "IAutoMovieMotionHumanCrossing.IParams": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanCrossing.IGap"
+          },
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanCrossing.IJump"
+          },
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanCrossing.IStep"
+          },
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanCrossing.IVault"
+          }
+        ],
+        "description": "Parameters: one of the four crossing paths.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planNamedCrossing owns the geometry and clearance refusals.",
+        "discriminator": {
+          "mapping": {
+            "gap": "#/components/schemas/IAutoMovieMotionHumanCrossing.IGap",
+            "jump": "#/components/schemas/IAutoMovieMotionHumanCrossing.IJump",
+            "step": "#/components/schemas/IAutoMovieMotionHumanCrossing.IStep",
+            "vault": "#/components/schemas/IAutoMovieMotionHumanCrossing.IVault"
+          },
+          "propertyName": "kind"
+        }
+      },
+      "IAutoMovieMotionHumanCrossing.IGap": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "gap",
+            "description": "Discriminant: a gap between two decks."
+          },
+          "from": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanCrossing.ISurface",
+            "description": "The surface both feet bear on at entry."
+          },
+          "to": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanCrossing.ISurface",
+            "description": "The surface to land on."
+          },
+          "apex": {
+            "type": "number",
+            "description": "Apex above take-off, metres; the jump's default when absent.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "required": [
+          "kind",
+          "from",
+          "to"
+        ],
+        "additionalProperties": false,
+        "description": "An airborne crossing from one fixed top surface to another."
+      },
+      "IAutoMovieMotionHumanCrossing.ISurface": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "Subject of the fixed support prop."
+          },
+          "point": {
+            "type": "string",
+            "description": "Id of its `surface` affordance, level and square to the path."
+          }
+        },
+        "required": [
+          "prop",
+          "point"
+        ],
+        "additionalProperties": false,
+        "description": "A level top surface of a placed prop."
+      },
+      "IAutoMovieMotionHumanCrossing.IJump": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "jump",
+            "description": "Discriminant: an airborne crossing of an obstacle."
+          },
+          "obstacle": {
+            "type": "string",
+            "description": "Subject of the fixed, shaped obstacle ahead."
+          },
+          "apex": {
+            "type": "number",
+            "description": "Apex above take-off, metres; the jump's default when absent.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "required": [
+          "kind",
+          "obstacle"
+        ],
+        "additionalProperties": false,
+        "description": "An airborne crossing over a shaped obstacle to the floor beyond it."
+      },
+      "IAutoMovieMotionHumanCrossing.IStep": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "step",
+            "description": "Discriminant: a stepped crossing."
+          },
+          "obstacle": {
+            "type": "string",
+            "description": "Subject of the fixed, shaped obstacle ahead."
+          },
+          "lead": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The foot that crosses first; stepOver's choice when absent."
+          }
+        },
+        "required": [
+          "kind",
+          "obstacle"
+        ],
+        "additionalProperties": false,
+        "description": "A low obstruction stepped over with planted feet."
+      },
+      "IAutoMovieMotionHumanCrossing.IVault": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "vault",
+            "description": "Discriminant: a hand-supported crossing."
+          },
+          "over": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanCrossing.ISurface",
+            "description": "The raised obstacle's top surface."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "Bearing hand; the opposite foot steps onto the top. Left when absent."
+          }
+        },
+        "required": [
+          "kind",
+          "over"
+        ],
+        "additionalProperties": false,
+        "description": "A crossing that bears on one palm and the opposite foot on a raised top."
+      },
+      "IAutoMovieMotionHumanEnvironmentRecovery.IParams": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanEnvironmentRecovery.ISlip"
+          },
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanEnvironmentRecovery.ITrip"
+          }
+        ],
+        "description": "Parameters: a trip or a slip.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planEnvironmentRecovery owns the cue and outcome refusals.",
+        "discriminator": {
+          "mapping": {
+            "slip": "#/components/schemas/IAutoMovieMotionHumanEnvironmentRecovery.ISlip",
+            "trip": "#/components/schemas/IAutoMovieMotionHumanEnvironmentRecovery.ITrip"
+          },
+          "propertyName": "kind"
+        }
+      },
+      "IAutoMovieMotionHumanEnvironmentRecovery.ISlip": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "slip",
+            "description": "Discriminant: a slipping stance foot."
+          },
+          "foot": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The bearing foot that slips."
+          },
+          "coefficient": {
+            "type": "number",
+            "description": "Static friction coefficient of the staged surface, dimensionless and non-negative.",
+            "minimum": 0,
+            "x-unit": ""
+          },
+          "support": {
+            "type": "string",
+            "description": "Subject of the prop the foot bears on; the floor when absent."
+          },
+          "outcome": {
+            "oneOf": [
+              {
+                "const": "auto"
+              },
+              {
+                "const": "fall"
+              },
+              {
+                "const": "rail"
+              },
+              {
+                "const": "step"
+              }
+            ],
+            "description": "The resolution; `auto` when absent."
+          },
+          "rail": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanEnvironmentRecovery.IRail",
+            "description": "The bar of the `rail` outcome; required by it and refused otherwise."
+          }
+        },
+        "required": [
+          "kind",
+          "foot",
+          "coefficient"
+        ],
+        "additionalProperties": false,
+        "description": "A bearing foot losing grip on its current support."
+      },
+      "IAutoMovieMotionHumanEnvironmentRecovery.IRail": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "Subject of the fixed rail prop."
+          },
+          "point": {
+            "type": "string",
+            "description": "Id of its `bar` affordance."
+          },
+          "hand": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The hand that braces on the bar."
+          }
+        },
+        "required": [
+          "prop",
+          "point",
+          "hand"
+        ],
+        "additionalProperties": false,
+        "description": "A fixed bar that receives the actor's hand as support."
+      },
+      "IAutoMovieMotionHumanEnvironmentRecovery.ITrip": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "trip",
+            "description": "Discriminant: an obstructed swing."
+          },
+          "obstacle": {
+            "type": "string",
+            "description": "Subject of the fixed prop whose shapes obstruct the toe."
+          },
+          "foot": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The swinging foot that is obstructed."
+          },
+          "outcome": {
+            "oneOf": [
+              {
+                "const": "auto"
+              },
+              {
+                "const": "fall"
+              },
+              {
+                "const": "rail"
+              },
+              {
+                "const": "step"
+              }
+            ],
+            "description": "The resolution; `auto` when absent."
+          },
+          "rail": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanEnvironmentRecovery.IRail",
+            "description": "The bar of the `rail` outcome; required by it and refused otherwise."
+          }
+        },
+        "required": [
+          "kind",
+          "obstacle",
+          "foot"
+        ],
+        "additionalProperties": false,
+        "description": "A swinging toe stopped by a fixed shaped obstruction."
       },
       "IAutoMovieMotionHumanTravelCar.IParams": {
         "type": "object",
@@ -17322,6 +17671,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkateParams",
             "description": "Travel over ice, optionally turning or coming to a stop."
           },
+          "curlDelivery": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ICurlDeliveryParams",
+            "description": "Deliver from a low flat-foot slide with trailing forefoot support."
+          },
           "snowGlide": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISnowGlideParams",
             "description": "Glide over snow on an authored grade."
@@ -17329,6 +17682,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "boardRide": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.IBoardRideParams",
             "description": "Keep a board-relative stance as the board moves."
+          },
+          "skateboardPhrase": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkateboardPhraseParams",
+            "description": "The ground push, flight, landing and recovery of a skateboard."
+          },
+          "surfboardPhrase": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISurfboardPhraseParams",
+            "description": "An entry, paddle and transfer to the surfing stance on the authored board."
           },
           "aquatic": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanAquatic.IParams",
@@ -17493,8 +17854,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         },
         "required": [
           "skate",
+          "curlDelivery",
           "snowGlide",
           "boardRide",
+          "skateboardPhrase",
+          "surfboardPhrase",
           "aquatic",
           "stickBall",
           "HumanSittingVolley",
@@ -17557,6 +17921,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "stop": {
             "type": "boolean",
             "description": "Decelerate to rest by the end of the action. Absent finishes at travel speed."
+          },
+          "edge": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.IBladeEdge",
+            "description": "Cant about each skate's forward axis through its selected runner edge."
+          },
+          "step": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkateStep",
+            "description": "Release and replace one skate during the glide."
           }
         },
         "required": [
@@ -17564,7 +17936,152 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "speed"
         ],
         "additionalProperties": false,
-        "description": "A bilateral glide on level ice with an optional arc and deceleration."
+        "description": "A pushed glide on two skates with optional real blade-edge contacts\nand one foot's timed release and recovery."
+      },
+      "IAutoMovieMotionHumanSurface.IBladeEdge": {
+        "type": "object",
+        "properties": {
+          "degrees": {
+            "type": "number",
+            "description": "Signed rotation about each foot's +Z direction, in degrees, in [-90, 90]."
+          },
+          "pivots": {
+            "$ref": "#/components/schemas/ReadonlyRecordAutoMovieHumanSideIAutoMovieVector3",
+            "description": "Left and right edge locations in their respective foot joint frames, metres."
+          }
+        },
+        "required": [
+          "degrees",
+          "pivots"
+        ],
+        "additionalProperties": false,
+        "description": "The selected physical edge on each runner with its signed cant."
+      },
+      "ReadonlyRecordAutoMovieHumanSideIAutoMovieVector3": {
+        "type": "object",
+        "properties": {
+          "left": {
+            "$ref": "#/components/schemas/IAutoMovieVector3"
+          },
+          "right": {
+            "$ref": "#/components/schemas/IAutoMovieVector3"
+          }
+        },
+        "required": [
+          "left",
+          "right"
+        ],
+        "additionalProperties": false
+      },
+      "IAutoMovieMotionHumanSurface.ISkateStep": {
+        "type": "object",
+        "properties": {
+          "side": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "Side of the released foot."
+          },
+          "window": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "Action seconds at release and reacquisition.",
+            "additionalItems": false
+          },
+          "offset": {
+            "$ref": "#/components/schemas/ReadonlyIStepOffset",
+            "description": "Metres of displacement along the moving stance's +X and forward +Z."
+          },
+          "clearance": {
+            "type": "number",
+            "description": "Peak height above the original runner plane, metres."
+          }
+        },
+        "required": [
+          "side",
+          "window",
+          "offset",
+          "clearance"
+        ],
+        "additionalProperties": false,
+        "description": "One supported skate step, including a crossover when the offset reaches\nthe opposite side. The other skate glides throughout."
+      },
+      "ReadonlyIStepOffset": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "Metres along the moving stance's +X."
+          },
+          "z": {
+            "type": "number",
+            "description": "Metres along the moving stance's forward +Z."
+          }
+        },
+        "required": [
+          "x",
+          "z"
+        ],
+        "additionalProperties": false
+      },
+      "IAutoMovieMotionHumanSurface.ICurlDeliveryParams": {
+        "type": "object",
+        "properties": {
+          "seconds": {
+            "type": "number",
+            "description": "Positive duration in seconds.",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          },
+          "speed": {
+            "type": "number",
+            "description": "Positive forward glide speed in metres per second.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m/s"
+          },
+          "stop": {
+            "type": "boolean",
+            "description": "Ease to a stop and recover upright by the end."
+          },
+          "lead": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "Side whose flat shoe carries the delivery."
+          },
+          "drop": {
+            "type": "number",
+            "description": "Additional pelvis drop below the ordinary glide, metres.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          },
+          "trail": {
+            "type": "number",
+            "description": "Distance each shoe travels from the entry stance, forward for the leading shoe and backward for the trailing shoe, metres.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          },
+          "heel": {
+            "type": "number",
+            "description": "Trailing heel lift by pitch around the ball of the foot, degrees, in (0, 90].",
+            "exclusiveMinimum": 0,
+            "maximum": 90,
+            "x-unit": "deg"
+          }
+        },
+        "required": [
+          "seconds",
+          "speed",
+          "lead",
+          "drop",
+          "trail",
+          "heel"
+        ],
+        "additionalProperties": false,
+        "description": "A flat-foot curling delivery with a lowered pelvis and a trailing\nshoe hinged around its forefoot."
       },
       "IAutoMovieMotionHumanSurface.ISnowGlideParams": {
         "type": "object",
@@ -17585,6 +18102,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "type": "boolean",
             "description": "Decelerate to rest by the end of the action. Absent finishes at travel speed."
           },
+          "edgeTransfer": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkiEdgeTransfer",
+            "description": "An alpine change between opposing ski edges during the glide."
+          },
+          "nordic": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.INordicStroke",
+            "description": "A Nordic pole stroke and its opposite ski kick."
+          },
           "grade": {
             "type": "number",
             "description": "Descent angle in degrees along the entry heading, in [-20, 20]. Absent is level."
@@ -17596,6 +18121,78 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "A bilateral snow glide on an authored plane containing the entered\nsupport. The author stages the boots on the slope before entering."
+      },
+      "IAutoMovieMotionHumanSurface.ISkiEdgeTransfer": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.IBladeEdge",
+            "description": "Initial edges, with a cant signed about the ski's forward axis."
+          },
+          "next": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.IBladeEdge",
+            "description": "Edges on the other side, with the opposite signed cant."
+          },
+          "at": {
+            "type": "number",
+            "description": "Second when the skis pass through flat between the edges."
+          },
+          "counter": {
+            "type": "number",
+            "description": "Maximum opposite chest twist relative to the carried pelvis, degrees."
+          }
+        },
+        "required": [
+          "first",
+          "next",
+          "at",
+          "counter"
+        ],
+        "additionalProperties": false,
+        "description": "One selected set of ski edges and the opposite set after an unweighting."
+      },
+      "IAutoMovieMotionHumanSurface.INordicStroke": {
+        "type": "object",
+        "properties": {
+          "hand": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The hand that keeps the pole grip through the push."
+          },
+          "on": {
+            "type": "string",
+            "description": "Scene subject id of the pole."
+          },
+          "grip": {
+            "type": "string",
+            "description": "A named moving contact frame on the pole."
+          },
+          "window": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "Action seconds of pole catch and release, ordered inside the glide.",
+            "additionalItems": false
+          },
+          "kick": {
+            "type": "number",
+            "description": "Rearward distance of the kicking ski before it recovers, metres."
+          }
+        },
+        "required": [
+          "hand",
+          "on",
+          "grip",
+          "window",
+          "kick"
+        ],
+        "additionalProperties": false,
+        "description": "A Nordic pole catch and a brief kick of the opposite ski."
       },
       "IAutoMovieMotionHumanSurface.IBoardRideParams": {
         "type": "object",
@@ -17615,6 +18212,78 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "A ride on an externally animated board after both feet are on its deck."
+      },
+      "IAutoMovieMotionHumanSurface.ISkateboardPhraseParams": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "string",
+            "description": "Scene id of the skateboard with deck, stance, tail and wheel affordances."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Duration in seconds on the actor's clock."
+          },
+          "lead": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The foot that remains forward while the other foot pushes."
+          },
+          "ground": {
+            "type": "number",
+            "description": "Elevation in metres of the skateboard's horizontal ground. Defaults to zero."
+          }
+        },
+        "required": [
+          "on",
+          "seconds",
+          "lead"
+        ],
+        "additionalProperties": false,
+        "description": "A rolling skateboard take through a ground push, stance change,\ntail pop, landing and supported recovery."
+      },
+      "IAutoMovieMotionHumanSurface.ISurfboardPhraseParams": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "string",
+            "description": "Scene id of the surfboard with deck, palm and stance affordances."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Duration in seconds on the actor's clock."
+          },
+          "lead": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The foot that reaches the front stance first."
+          },
+          "transfer": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.SurfboardTransfer",
+            "description": "Whether a foot settles before both hands release or after a free interval."
+          },
+          "water": {
+            "type": "number",
+            "description": "Elevation in metres of the water surface. Defaults to zero."
+          }
+        },
+        "required": [
+          "on",
+          "seconds",
+          "lead",
+          "transfer"
+        ],
+        "additionalProperties": false,
+        "description": "A surfboard entry, paddle and timed transfer from palms to the stance feet."
+      },
+      "IAutoMovieMotionHumanSurface.SurfboardTransfer": {
+        "oneOf": [
+          {
+            "const": "flight"
+          },
+          {
+            "const": "overlap"
+          }
+        ],
+        "description": "The order of a surfboard pop-up's palm release and stance acquisition:\n`overlap` sets a foot down before both palms release, `flight` releases\nboth palms before a foot lands."
       },
       "IAutoMovieMotionHumanAquatic.IParams": {
         "type": "object",
@@ -18074,7 +18743,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "right"
               }
             ],
-            "description": "The front foot; `left` when absent."
+            "description": "The front foot. The placed front plate chooses the side when `on` is set and this is absent. Otherwise defaults to `left`."
+          },
+          "on": {
+            "type": "string",
+            "description": "Scene id of the starting block. Its `front` and `rear` pedal affordances are the plates that bear the feet. Absent uses the body-scaled track setup."
           },
           "sex": {
             "oneOf": [
@@ -19816,6 +20489,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanThrowObjectParamsstyle",
             "description": "A high-arm cricket delivery toward the bounce point after the composed run-up."
           },
+          "bowlingSlide": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBowlingSlide.IParams",
+            "description": "The supported final glide and recovery of a one-handed bowling approach."
+          },
           "bowlingDelivery": {
             "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanThrowObjectParamsstyle",
             "description": "A low underhand bowling delivery toward the lane after the composed approach."
@@ -19890,6 +20567,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "underarmPitch",
           "softballWindmill",
           "cricketBowl",
+          "bowlingSlide",
           "bowlingDelivery",
           "pushPass",
           "rugbyPass",
@@ -19910,6 +20588,54 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "Open parameters of the sportThrow lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+      },
+      "IAutoMovieMotionHumanBowlingSlide.IParams": {
+        "type": "object",
+        "properties": {
+          "distance": {
+            "type": "number",
+            "description": "Forward glide in metres, positive and at most 0.4 of combined thigh and shank length.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          },
+          "from": {
+            "type": "number",
+            "description": "Action-local slide onset in seconds, strictly after zero.",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          },
+          "to": {
+            "type": "number",
+            "description": "Action-local slide end in seconds, after onset and before `seconds`.",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Total action-local seconds, including the recovery plant.",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "Delivery hand, `right` when absent. The other foot leads the glide."
+          }
+        },
+        "required": [
+          "distance",
+          "from",
+          "to",
+          "seconds"
+        ],
+        "additionalProperties": false,
+        "description": "Parameters."
       },
       "OmitIParamshands": {
         "type": "object",
@@ -32716,6 +33442,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "type": "string",
             "description": "The prop the flight belongs to, its subject id, so a foot on a tread bears on it; the fixed floor frame when absent."
           },
+          "rail": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanClimbStairs.IRail",
+            "description": "The bar a hand bears on during the climb; requires the stair prop in `on`. No rail when absent."
+          },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
             "description": "How it is performed."
@@ -32726,6 +33456,25 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "Parameters."
+      },
+      "IAutoMovieMotionHumanClimbStairs.IRail": {
+        "type": "object",
+        "properties": {
+          "side": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The performer's hand that braces on the rail."
+          },
+          "point": {
+            "type": "string",
+            "description": "Id of the `bar` affordance on the fixed stair prop."
+          }
+        },
+        "required": [
+          "side",
+          "point"
+        ],
+        "additionalProperties": false,
+        "description": "A hand on a named bar of the flight."
       },
       "IAutoMovieMotionHumanThrowObjectParams": {
         "type": "object",
@@ -34295,6 +35044,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "minimum": 1,
             "x-unit": ""
           },
+          "landing": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanClimbLadder.ILanding",
+            "description": "The upper surface the route joins to the floor; the climb ends on the rungs when absent."
+          },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
             "description": "How it is performed."
@@ -34305,6 +35058,36 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "Parameters."
+      },
+      "IAutoMovieMotionHumanClimbLadder.ILanding": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "Subject of the fixed prop that bears the performer at the top."
+          },
+          "point": {
+            "type": "string",
+            "description": "Id of its level `surface` affordance, its near edge at the ladder."
+          },
+          "direction": {
+            "oneOf": [
+              {
+                "const": "down"
+              },
+              {
+                "const": "up"
+              }
+            ],
+            "description": "The route's direction; `up` when absent."
+          }
+        },
+        "required": [
+          "prop",
+          "point"
+        ],
+        "additionalProperties": false,
+        "description": "The surface at the upper end of a fixed ladder route."
       },
       "IAutoMovieMotionHumanClinch.IParams": {
         "type": "object",

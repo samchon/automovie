@@ -230,8 +230,37 @@ export namespace CartCoach {
       depth: 0.45,
       width: 1,
     });
+
+    // The box driver's two rein hand stations, ahead of the box's front edge at ANSUR II's elbow rest height above it (`createCart.REST.elbow`), `BOX_HANDS` apart and ahead, provisional; a team's reins run from the bits to them.
+    for (const [side, sign] of [
+      ["left", 1],
+      ["right", -1],
+    ] as const)
+      builder.affordance({
+        id: `${side}LineGrip`,
+        kind: "rein",
+        symmetry: "round",
+        frame: ArchetypeFrame.facing(
+          v(
+            (sign * BOX_HANDS.apart) / 2,
+            c.box + createCart.REST.elbow,
+            wheelbase + 0.225 + BOX_HANDS.ahead,
+          ),
+          v(0, 1, 0),
+          v(0, 0, 1),
+        ),
+        extent: null,
+        grip: "power",
+        aperture: createCart.LINE,
+      });
   }
 }
+
+/** A box driver's hands, metres: `apart` between the two rein hand stations and `ahead` of the box's front edge; a construction estimate no source read gives. */
+const BOX_HANDS: Readonly<Record<"apart" | "ahead", number>> = {
+  apart: 0.2,
+  ahead: 0.3,
+};
 
 /** A wagon body's boards, metres: a construction estimate no act reads. */
 const BOARD: number = 0.025;

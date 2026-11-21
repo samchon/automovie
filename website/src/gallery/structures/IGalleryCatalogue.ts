@@ -1,13 +1,48 @@
 /**
- * Everything the object gallery can show: every producer of
- * `@automovie/archetypes` with its kinds, grouped by the families the
- * package's `ARCHETYPE_FAMILIES` names.
+ * The displayed producers of `@automovie/archetypes` and their variants,
+ * grouped by the families the package's `ARCHETYPE_FAMILIES` names.
  */
 export interface IGalleryCatalogue {
   /** The groups, the archetype families in the package's order. */
   groups: IGalleryCatalogue.IGroup[];
+
+  /** Saved dispatchers whose variants resolve to displayed subjects. */
+  aliases?: IGalleryCatalogue.IAlias[];
 }
 export namespace IGalleryCatalogue {
+  /** An earlier subject and its variants, in the earlier default order. */
+  export interface IAlias {
+    /** The producer name used by the saved address. */
+    id: string;
+
+    /** Each earlier variant and the displayed subject and variant it opens. */
+    variants: IAliasVariant[];
+  }
+
+  /** A displayed subject and the variant selected on it. */
+  export interface ITarget {
+    /** The displayed producer's name, such as `createCamera`. */
+    subject: string;
+
+    /** The selected variant id, or empty for a producer with one form. */
+    variant: string;
+  }
+
+  /** One earlier variant of an alias and the displayed target it opens. */
+  export interface IAliasVariant extends ITarget {
+    /** The variant id the saved address used under the earlier dispatcher. */
+    id: string;
+  }
+
+  /** One variant a picker offers. */
+  export interface IVariant {
+    /** The id an address names it by. */
+    id: string;
+
+    /** What a picker shows. */
+    label: string;
+  }
+
   /** One group of subjects. */
   export interface IGroup {
     /** The group's name: an archetype family, such as `furniture`. */
@@ -28,10 +63,10 @@ export namespace IGalleryCatalogue {
     /** The group it belongs to. */
     group: string;
 
-    /** The word for its variants, `kind` or `frame`; empty when it has one form only. */
+    /** The parameter name for its variants, or empty for one form. */
     variantKey: string;
 
     /** Its variants, each with the id an address names it by and what a picker shows; empty when it has one form only. */
-    variants: { id: string; label: string }[];
+    variants: IVariant[];
   }
 }
