@@ -1,5 +1,6 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanWorkoutBodyweight } from "./IAutoMovieMotionHumanWorkoutBodyweight";
+import type { IAutoMovieMotionHumanWorkoutDance } from "./IAutoMovieMotionHumanWorkoutDance";
 import type { IAutoMovieMotionHumanWorkoutEquipment } from "./IAutoMovieMotionHumanWorkoutEquipment";
 import type { IAutoMovieMotionHumanWorkoutFloor } from "./IAutoMovieMotionHumanWorkoutFloor";
 import type { IAutoMovieMotionHumanWorkoutGym } from "./IAutoMovieMotionHumanWorkoutGym";
@@ -58,7 +59,8 @@ export namespace IAutoMovieMotionHumanWorkout {
     | IAutoMovieMotionHumanWorkoutLying.Name
     | IAutoMovieMotionHumanWorkoutStanding.Name
     | IAutoMovieMotionHumanWorkoutPoses.Name
-    | IAutoMovieMotionHumanWorkoutHanging.Name;
+    | IAutoMovieMotionHumanWorkoutHanging.Name
+    | IAutoMovieMotionHumanWorkoutDance.Name;
 
   /**
    * Parameters.

@@ -481,6 +481,12 @@
     },
     "mounted": {},
     "boardRide": {},
+    "supportStep": {},
+    "swingPump": {},
+    "seesawRide": {},
+    "roundaboutPush": {},
+    "swingLeap": {},
+    "mediumWalk": {},
     "bowlingDelivery": {},
     "bowlingSlide": {
       "properties": {
@@ -628,6 +634,7 @@
         }
       ]
     },
+    "moveInCover": {},
     "crossObstacle": {
       "alternatives": [
         {
@@ -857,6 +864,7 @@
     "sideDrumStrike": {},
     "spacecraftGlide": {},
     "stageCatch": {},
+    "stageDeflect": {},
     "swimImmersed": {
       "properties": {
         "seconds": {
@@ -1017,6 +1025,24 @@
         }
       }
     },
+    "arabesque": {
+      "properties": {
+        "reps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "hold": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "armAtSide": {},
     "armCircles": {
       "properties": {
@@ -1056,6 +1082,24 @@
             "type": "integer",
             "minimum": 1,
             "x-unit": ""
+          }
+        }
+      }
+    },
+    "babyFreeze": {
+      "properties": {
+        "reps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "hold": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
           }
         }
       }
@@ -2546,6 +2590,17 @@
         }
       }
     },
+    "lineWalk": {
+      "properties": {
+        "steps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        }
+      }
+    },
     "fret": {},
     "frontCrawl": {
       "properties": {
@@ -3946,6 +4001,24 @@
       }
     },
     "play": {},
+    "plie": {
+      "properties": {
+        "reps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "hold": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "pnfHamstring": {
       "properties": {
         "reps": {
@@ -4143,6 +4216,24 @@
     "regrip": {},
     "relayIncoming": {},
     "relayOutgoing": {},
+    "releve": {
+      "properties": {
+        "reps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "hold": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "reloadFirearm": {},
     "restBehindHead": {
       "properties": {
@@ -4836,6 +4927,24 @@
     },
     "stirStrokes": {},
     "stopHand": {},
+    "streetRock": {
+      "properties": {
+        "reps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "hold": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "strides": {},
     "strokeDown": {},
     "stroll": {

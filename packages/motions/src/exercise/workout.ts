@@ -36,6 +36,7 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutBodyweight } from "./WorkoutBodyweight";
+import { WorkoutDance } from "./WorkoutDance";
 import { WorkoutEquipment } from "./WorkoutEquipment";
 import { WorkoutFeet } from "./WorkoutFeet";
 import { WorkoutFloor } from "./WorkoutFloor";
@@ -112,6 +113,7 @@ export namespace workout {
     ...WorkoutStanding.KINDS,
     ...WorkoutPoses.KINDS,
     ...WorkoutHanging.KINDS,
+    ...WorkoutDance.KINDS,
   };
 
   /**

@@ -156,6 +156,21 @@ export interface IAutoMovieMotionHumanLexiconSportWorkoutParams {
   /** A ballroom closed hold. */
   closedHold: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
 
+  /** A ballet plie on turned-out feet. */
+  plie: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
+
+  /** A ballet releve onto the balls of the feet. */
+  releve: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
+
+  /** A ballet arabesque on the left foot. */
+  arabesque: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
+
+  /** A breaking baby freeze on both hands. */
+  babyFreeze: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
+
+  /** A street rock with chest and head isolations. */
+  streetRock: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
+
   /** A dead hang from a bar. */
   deadHang: Omit<IAutoMovieMotionHumanWorkout.IParams, "kind">;
 

@@ -344,6 +344,41 @@ export namespace HumanSportWorkout {
     kind: "closedHold",
   });
 
+  /** A ballet plie on turned-out feet. */
+  export const plie: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportWorkout"]["plie"]
+  > = HumanActionRow.of("plie", workout, {
+    kind: "plie",
+  });
+
+  /** A ballet releve onto the balls of the feet. */
+  export const releve: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportWorkout"]["releve"]
+  > = HumanActionRow.of("releve", workout, {
+    kind: "releve",
+  });
+
+  /** A ballet arabesque on the left foot. */
+  export const arabesque: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportWorkout"]["arabesque"]
+  > = HumanActionRow.of("arabesque", workout, {
+    kind: "arabesque",
+  });
+
+  /** A breaking baby freeze on both hands. */
+  export const babyFreeze: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportWorkout"]["babyFreeze"]
+  > = HumanActionRow.of("babyFreeze", workout, {
+    kind: "babyFreeze",
+  });
+
+  /** A street rock with chest and head isolations. */
+  export const streetRock: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportWorkout"]["streetRock"]
+  > = HumanActionRow.of("streetRock", workout, {
+    kind: "streetRock",
+  });
+
   /** A dead hang from a bar. */
   export const deadHang: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["deadHang"]
