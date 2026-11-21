@@ -1,5 +1,6 @@
 import { ArchetypeCourse } from "../core";
 import { QuadrupedGait } from "./QuadrupedGait";
+import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { createQuadruped } from "./createQuadruped";
 import type { rideQuadruped } from "./rideQuadruped";
 
@@ -26,6 +27,9 @@ export namespace QuadrupedTimedRoute {
     plan: ArchetypeCourse.IPlan;
     /** The course of legs its admission and clock read. */
     course: rideQuadruped.ICourse;
+
+    /** Each timed halt from its stop to the next departure, which holds the hoof clock; none for a course of legs. */
+    holds: QuadrupedRideClock.IHold[];
   }
 
   /**
@@ -120,6 +124,20 @@ export namespace QuadrupedTimedRoute {
               : { acceleration: ramp, deceleration: ramp }),
           }
         : route;
-    return { plan, course };
+    const holds: QuadrupedRideClock.IHold[] = [];
+    halts.forEach(
+      (halt: ArchetypeCourse.IPlan["instants"][number], k: number): void => {
+        if (
+          halt.label.startsWith("stop") &&
+          k + 1 < halts.length &&
+          halts[k + 1]!.label.startsWith("depart")
+        )
+          holds.push({
+            start: halt.seconds,
+            duration: halts[k + 1]!.seconds - halt.seconds,
+          });
+      },
+    );
+    return { plan, course, holds };
   }
 }
