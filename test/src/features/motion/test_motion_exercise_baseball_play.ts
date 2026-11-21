@@ -2,6 +2,7 @@ import { createBall, createClub } from "@automovie/archetypes";
 import { AutoMovieComposition, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieComposition,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -77,8 +78,9 @@ interface ITake {
  * 1. The pitch crosses the plate plane inside the gate around the contact
  *    point; read its time from the pitch-only take.
  * 2. The batter's swing is timed so its impact lands on that crossing: the
- *    bat's strike point meets the ball surface and the same ball leaves
- *    from the bat. A fielder placed on the batted flight catches it.
+ *    bat's strike point meets the ball surface with both feet planted and
+ *    the same ball leaves from the bat. A fielder placed on the batted
+ *    flight catches it.
  * 3. A taken pitch carries past the plate into the catcher's catch.
  * 4. The batter-runner runs from home onto first base.
  * 5. An underarm softball pitch from 13.11 m reaches the same contact point
@@ -341,6 +343,18 @@ export function test_motion_exercise_baseball_play(): void {
     Quaternion.rotateVector(
       strike.rotation,
       bat.affordance("strike").frame.translation,
+    ),
+  );
+  TestValidator.predicate(
+    "the batter's feet stay planted through the impact",
+    (["leftFoot", "rightFoot"] as const).every(
+      (foot: AutoMovieHumanoidBone): boolean =>
+        Vector3.distance(
+          hitOnly.bones("batter", batted.seconds - 0.05).get(foot)!
+            .worldPosition,
+          hitOnly.bones("batter", batted.seconds + 0.05).get(foot)!
+            .worldPosition,
+        ) <= 0.005,
     ),
   );
   TestValidator.predicate(
