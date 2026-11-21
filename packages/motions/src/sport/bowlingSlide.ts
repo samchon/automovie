@@ -113,6 +113,35 @@ function plan(
   );
   const shift: IAutoMovieVector3 = Vector3.scale(direction, distance);
   const settle: number = (to + seconds) / 2;
+  // The shank's tilt forward of the line from the hip down to an ankle as the
+  // knee bends to fit the leg to it, degrees (law of cosines).
+  const tilt = (top: IAutoMovieVector3, ankle: IAutoMovieVector3): number => {
+    const d: number = Vector3.length(Vector3.subtract(top, ankle));
+    const thigh: number = body.measure.thigh;
+    const shank: number = body.measure.shank;
+    return (
+      (Math.acos(
+        Math.max(
+          -1,
+          Math.min(
+            1,
+            (d * d + shank * shank - thigh * thigh) / (2 * d * shank),
+          ),
+        ),
+      ) *
+        180) /
+      Math.PI
+    );
+  };
+  // The trailing hip where the slide stops it.
+  const stopped: IAutoMovieVector3 = hipJoints(
+    body,
+    {
+      ...Vector3.add(entry.root, Vector3.scale(shift, 0.65)),
+      y: entry.root.y - 0.11 * leg,
+    },
+    HumanFrame.turn(entry.yaw),
+  )[trail];
   const rest: IAutoMovieVector3 = hipJoints(
     body,
     entry.root,
@@ -208,13 +237,19 @@ function plan(
       )[trail];
       const height: number = feet[trail].ankle.y + 0.07 * leg * swing;
       const back: number = Math.sqrt(
-        Math.max(0, (REACH * leg) ** 2 - (hip.y - height) ** 2),
+        Math.max(
+          0,
+          (REACH * leg) ** 2 - ((time <= to ? hip : stopped).y - height) ** 2,
+        ),
       );
+      // Once the slide stops the leg's place behind is the one it reached,
+      // so the foot leaves the floor before it travels.
+      const reached: IAutoMovieVector3 = time <= to ? hip : stopped;
       const behind: IAutoMovieVector3 = {
-        ...Vector3.subtract(hip, Vector3.scale(direction, back)),
+        ...Vector3.subtract(reached, Vector3.scale(direction, back)),
         y: height,
       };
-      const sweep: number = travel * (1 - recovery);
+      const sweep: number = travel * (1 - step);
       const trailingAnkle: IAutoMovieVector3 = {
         ...Vector3.add(
           stepped,
@@ -222,16 +257,31 @@ function plan(
         ),
         y: height,
       };
-      // The foot pitches toes down by the leg's forward lean over it, fading
-      // as the recovery plants it flat, and is raised until its toe clears
-      // the floor while it swings.
+      // The foot pitches toes down by its shank's forward lean over it, the
+      // line from the hip leaning and the bent knee tilting the shank on
+      // from that line (law of cosines over the thigh and the shank), so the
+      // unloaded ankle keeps the angle it stood with; the pitch fades only as
+      // the foot sets down, and the foot is raised until its toe clears the
+      // floor while it swings.
       const pitched: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: trailingAnkle,
         rotation: HumanFoot.rotation(
           HumanFoot.heading(feet[trail].rotation),
           HumanFoot.pitch(feet[trail].rotation) -
-            (lean(hip, trailingAnkle) - lean(rest, feet[trail].ankle)) *
-              (1 - step),
+            (lean(hip, trailingAnkle) +
+              tilt(hip, trailingAnkle) -
+              lean(rest, feet[trail].ankle) -
+              tilt(rest, feet[trail].ankle)) *
+              (1 -
+                minimumJerk.share(
+                  Math.min(
+                    1,
+                    Math.max(
+                      0,
+                      ((time - to) / (settle - to) - (1 - TERMINAL)) / TERMINAL,
+                    ),
+                  ),
+                )),
         ),
       };
       // In the slide the toe drags on the approach (its declared bearing
