@@ -210,7 +210,6 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     const instants: EquineFootwork.IInstant[] = [
       ...footwork.instants,
       ...QuadrupedStridePlan.events(
-        species,
         strides,
         departure !== undefined,
         footwork.slide?.contact ?? Infinity,

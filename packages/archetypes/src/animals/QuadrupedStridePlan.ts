@@ -256,7 +256,6 @@ export namespace QuadrupedStridePlan {
   /**
    * The ride's stride events: every hoof landing, `<limb>On`, and each change of gait or lead, `gait:<from>-<to>` and `lead:<from>-<to>`, at the stride start where it takes effect.
    *
-   * @param species The ride's species and table.
    * @param plan The built stride plan.
    * @param standing Whether the ride departs from standing, so the hooves' phase-zero landings are the neutral stance and not events.
    * @param slide Film second hind landings stop being events because an arena slide holds the hinds down; Infinity without one.
@@ -271,7 +270,6 @@ export namespace QuadrupedStridePlan {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list.
    */
   export function events(
-    species: createQuadruped.ISpecies,
     plan: IPlan,
     standing: boolean,
     slide: number,
