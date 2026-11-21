@@ -1,5 +1,7 @@
 export * from "./EquidSegments";
 export * from "./EquidEarProfiles";
+export * from "./EquineAirs";
+export * from "./EquineSpanishWalk";
 export * from "./EquineBodyPose";
 export * from "./EquineCare";
 export * from "./EquineStance";

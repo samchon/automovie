@@ -1,4 +1,4 @@
-import type { EquineExpressionCue } from "./EquineExpressionCue";
+﻿import type { EquineExpressionCue } from "./EquineExpressionCue";
 import type { QuadrupedBody } from "./QuadrupedBody";
 
 /**
@@ -185,6 +185,71 @@ export namespace EquineStanceCue {
   }
 
   /**
+   * A held school air on the hindquarters: the pesade, the forehand raised to 45 degrees, or the levade, to about 30 to 35 (Airs above the ground, Wikipedia; IFCE Equipedia).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names both airs and their sourced trunk angles.
+   * @evidence contracts/development/design.md#principled-representation Closed literals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The held air's name.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type Air = "pesade" | "levade";
+
+  /**
+   * Raise the forehand into a pesade or a levade and hold it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the air.
+   * @evidence contracts/development/design.md#principled-representation Phases and an air whose angle is its source's.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The held airs.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IAir extends IPhases {
+    /** Discriminator. */
+    kind: "air";
+
+    /** Which air. */
+    air: Air;
+  }
+
+  /**
+   * The courbette: from the levade, leaps forward on the hind legs without the forelegs touching down, then the forehand comes down where the leaps end.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the leap count; the hold is the leaping.
+   * @evidence contracts/development/design.md#principled-representation Phases and a positive whole number of leaps, three or four usual and five or more for strong horses (Airs above the ground).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The courbette.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ICourbette extends IPhases {
+    /** Discriminator. */
+    kind: "courbette";
+
+    /** How many leaps, a positive whole number. */
+    leaps: number;
+  }
+
+  /**
+   * The capriole: from a gathered halt, the whole horse leaps up, kicks out with the hind legs at the top and lands on all four.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The hold is the flight; its duration sets the ballistic height.
+   * @evidence contracts/development/design.md#principled-representation Phases only.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The capriole.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ICapriole extends IPhases {
+    /** Discriminator. */
+    kind: "capriole";
+  }
+
+  /**
+   * A school air: a held pesade or levade, a courbette or a capriole.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the airs.
+   * @evidence contracts/development/design.md#principled-representation A discriminated union.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What `EquineAirs.plan` takes.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type School = IAir | ICourbette | ICapriole;
+
+  /**
    * Any response.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The union of every response.
@@ -201,5 +266,6 @@ export namespace EquineStanceCue {
     | IRear
     | IBuck
     | ISpin
-    | ICrowHops;
+    | ICrowHops
+    | School;
 }
