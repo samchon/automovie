@@ -73,7 +73,9 @@ export namespace closeStrike {
    * The pelvis and trunk turn at contact, degrees toward bringing the
    * striking shoulder forward, for the rear arm; the lead arm's turn is the
    * opposite share (provisional readings of the coached hook and uppercut
-   * turns, `punchContact.TURN`).
+   * turns, `punchContact.TURN`). A spinning strike turns this far past its
+   * whole turn, so the striking shoulder comes round in front as the
+   * horizontal elbow's does.
    */
   export const TURN: Readonly<
     Record<IAutoMovieMotionHumanCloseStrike.Technique, number>
@@ -81,8 +83,8 @@ export namespace closeStrike {
     horizontalElbow: 50,
     risingElbow: 30,
     descendingElbow: 20,
-    spinningElbow: 0,
-    spinningBackfist: 0,
+    spinningElbow: 50,
+    spinningBackfist: 50,
     headbutt: 0,
   };
 
@@ -252,7 +254,7 @@ export namespace closeStrike {
       const contacts: IAutoMovieMotionHumanContactWindow[] = [
         {
           part: `${lead}Foot`,
-          kind: "plant",
+          kind: spinning ? "pivot" : "plant",
           from: 0,
           to: 1,
           support: { kind: "ground" },

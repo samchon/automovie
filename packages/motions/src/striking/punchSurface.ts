@@ -106,7 +106,10 @@ export function punchSurface(
           body,
           side,
           Vector3.normalize(
-            Vector3.subtract(up, Vector3.scale(straight, PALM_TILT)),
+            Vector3.subtract(
+              up,
+              Vector3.scale(straight, punchSurface.PALM_TILT),
+            ),
           ),
           straight,
         ),

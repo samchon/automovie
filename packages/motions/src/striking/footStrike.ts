@@ -392,7 +392,8 @@ export namespace footStrike {
             to,
           ]: readonly number[]): IAutoMovieMotionHumanContactWindow => ({
             part: `${support}Foot`,
-            kind: "plant",
+            // A spin or a back kick turns the support foot on its ball.
+            kind: whole !== 0 || away !== 0 ? "pivot" : "plant",
             from: from!,
             to: to!,
             support: { kind: "ground" },

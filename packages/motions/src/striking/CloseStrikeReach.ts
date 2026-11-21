@@ -147,7 +147,7 @@ export function CloseStrikeReach(
     );
     const from: IAutoMovieVector3 = shoulderAt(shift);
     if (Vector3.distance(target, from) > reach)
-      refuse("reach", Vector3.distance(target, shoulder), 0, reach + limit);
+      refuse("reach", Vector3.distance(target, from), 0, reach);
     return {
       lean: 0,
       shift,
