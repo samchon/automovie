@@ -6,12 +6,10 @@ import type {
 } from "@automovie/interface";
 import type { Matrix4, Object3D } from "three";
 
+import type { IAutoMoviePlacedObligation } from "./IAutoMoviePlacedObligation.js";
 import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
 import { inspectAutoMovieNativePlacement } from "./inspectAutoMovieNativePlacement.js";
-import {
-  type IAutoMoviePlacedObligation,
-  measureAutoMoviePlacedObligation,
-} from "./measureAutoMoviePlacedObligation.js";
+import { measureAutoMoviePlacedObligation } from "./measureAutoMoviePlacedObligation.js";
 
 type IReport = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
 type IFinding = IAutoMovieInspectionDiagnostics.IFinding;

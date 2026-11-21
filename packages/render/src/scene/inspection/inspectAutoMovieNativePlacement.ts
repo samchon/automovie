@@ -4,12 +4,12 @@ import type {
 } from "@automovie/interface";
 import type { Matrix4, Object3D } from "three";
 
+import { AUTOMOVIE_PLACED_FRAME_TOLERANCE } from "./AUTOMOVIE_PLACED_FRAME_TOLERANCE.js";
 import { autoMovieInspectionEntityPathOf } from "./autoMovieInspectionEntityPathOf.js";
+import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
+import { isAutoMovieFiniteVector } from "./isAutoMovieFiniteVector.js";
 
 type IFinding = IAutoMovieInspectionDiagnostics.IFinding;
-
-/** Largest admitted deviation of a unit quaternion's length from 1. */
-export const AUTOMOVIE_PLACED_FRAME_TOLERANCE: number = 1e-6;
 
 /** Check name of the native placement findings. */
 const NATIVE_CHECK: string = "placed-transform";
@@ -64,51 +64,6 @@ export function inspectAutoMovieNativePlacement(
     if (object !== camera) inspectNode(scene, object, false, findings);
   });
   inspectNode(scene, camera, true, findings);
-}
-
-/**
- * Whether a matrix is finite and affine, with bottom row (0, 0, 0, 1).
- *
- * @param matrix The matrix to check.
- * @returns True when every element is finite and the bottom row is affine.
- * @evidence contracts/development/common.md#meaningful-documentation States the finiteness and bottom-row conditions.
- * @evidence contracts/development/implementation.md#principled-implementation Three stores matrices column-major, so elements 3, 7, 11 and 15 form the bottom row.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One finiteness scan and four comparisons.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance hides a projective row.
- * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen element reads.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by native placement and native contact frames.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean and keeps nothing.
- */
-export function isAutoMovieAffineMatrix(matrix: Matrix4): boolean {
-  const elements: number[] = matrix.elements;
-  return (
-    elements.every(Number.isFinite) &&
-    elements[3] === 0 &&
-    elements[7] === 0 &&
-    elements[11] === 0 &&
-    elements[15] === 1
-  );
-}
-
-/**
- * Whether all three components of a vector are finite.
- *
- * @param point The vector to check.
- * @returns True when x, y and z are finite.
- * @evidence contracts/development/common.md#meaningful-documentation States the condition.
- * @evidence contracts/development/implementation.md#principled-implementation Uses Number.isFinite, which refuses NaN and both infinities.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three checks.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No component is coerced.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by native placement and witness points.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean and keeps nothing.
- */
-export function isAutoMovieFiniteVector(point: IAutoMovieVector3): boolean {
-  return (
-    Number.isFinite(point.x) &&
-    Number.isFinite(point.y) &&
-    Number.isFinite(point.z)
-  );
 }
 
 /**

@@ -12,37 +12,16 @@ import type {
 } from "@automovie/interface";
 import { type Matrix4, type Object3D, Vector3 } from "three";
 
+import { AUTOMOVIE_PLACED_FRAME_TOLERANCE } from "./AUTOMOVIE_PLACED_FRAME_TOLERANCE.js";
+import type { IAutoMoviePlacedObligation } from "./IAutoMoviePlacedObligation.js";
 import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
-import {
-  AUTOMOVIE_PLACED_FRAME_TOLERANCE,
-  isAutoMovieAffineMatrix,
-  isAutoMovieFiniteVector,
-} from "./inspectAutoMovieNativePlacement.js";
+import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
+import { isAutoMovieFiniteVector } from "./isAutoMovieFiniteVector.js";
 import { readAutoMovieNativeRigidFrame } from "./readAutoMovieNativeRigidFrame.js";
 
 type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
 type IMeasurement = IAutoMovieInspectionDiagnostics.IMeasurement;
 type IInput = IObserveAutoMoviePlacedScene.ICheck["input"];
-
-/**
- * The outcome of one placed obligation: measured with its violations and
- * witness, or unavailable with the coverage reason.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two outcomes and what each carries.
- * @evidence contracts/development/design.md#principled-representation A checked obligation keeps its violations and witness together; an unavailable one keeps only its coverage status and reason.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Carries exactly what the observer turns into findings and coverage.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An unavailable obligation has no violations to mistake for a pass.
- */
-export type IAutoMoviePlacedObligation =
-  | {
-      readonly status: "checked";
-      readonly violations: readonly IAutoMovieConstraintViolation[];
-      readonly witness: IWitness;
-    }
-  | {
-      readonly status: "unsupported" | "excluded";
-      readonly reason: string;
-    };
 
 /**
  * Measure one placed obligation with Engine's canonical predicates.
