@@ -2406,6 +2406,7 @@
         }
       }
     },
+    "facePinchNose": {},
     "faceRead": {
       "properties": {
         "seconds": {
@@ -5830,5 +5831,3 @@
     }
   }
 }
-    "facePinchNose": {},
-    "facePinchNose": {},
