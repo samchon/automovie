@@ -3,6 +3,7 @@ import {
   Box3,
   Camera,
   Frustum,
+  type Intersection,
   LessEqualDepth,
   Line,
   Material,
@@ -23,7 +24,6 @@ import {
   Vector4,
   WebGLCoordinateSystem,
 } from "three";
-import type { Intersection } from "three";
 
 /** A fixed projection-space sample grid inside the admitted bounds rectangle. */
 const SAMPLE_OFFSETS: readonly number[] = [0.2, 0.5, 0.8];

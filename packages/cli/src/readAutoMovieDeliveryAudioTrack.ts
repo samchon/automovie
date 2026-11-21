@@ -1,23 +1,6 @@
 import * as fs from "node:fs/promises";
 
-/**
- * The presented span of one MP4 audio track in its own media clock, or why the
- * container does not establish it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the clock, the span and the refusal branch.
- * @evidence contracts/development/design.md#principled-representation Keeps the container's integer ticks and clock rather than seconds, so the decoder's sample count compares exactly.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Carries only the clock and presented duration the audio decode trims with.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown timing is a separate reason-carrying branch, never a zero or estimated duration.
- */
-export type IAutoMovieDeliveryAudioTrack =
-  | {
-      status: "read";
-      /** Media ticks per second, which for audio is the sample rate. */
-      timescale: number;
-      /** Presented media ticks after the edit list and sample table are applied. */
-      duration: number;
-    }
-  | { status: "uncovered"; reason: string };
+import type { IAutoMovieDeliveryAudioTrack } from "./IAutoMovieDeliveryAudioTrack";
 
 /** Largest movie header read into memory; a sample table beyond it is refused. */
 const MAXIMUM_MOVIE_BOX = 64 * 1024 * 1024;

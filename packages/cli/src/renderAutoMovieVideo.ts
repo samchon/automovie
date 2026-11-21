@@ -141,6 +141,7 @@ export async function renderAutoMovieVideo(
     const writeReport = async (): Promise<void> =>
       fs.writeFile(pendingReport, JSON.stringify(attempt, null, 2) + "\n");
     let phase = "draw";
+    const soundtrack: string | null = intent?.audio?.path ?? null;
     try {
       const frameRoot = path.join(props.root, ".cache", "render");
       await fs.mkdir(frameRoot, { recursive: true });
@@ -151,9 +152,7 @@ export async function renderAutoMovieVideo(
         frameDir: scratch.split(path.sep).join("/"),
         outputPath: candidate,
         audio:
-          intent?.audio?.path == null
-            ? null
-            : path.resolve(props.root, intent.audio.path),
+          soundtrack === null ? null : path.resolve(props.root, soundtrack),
         write: (file, data) => fs.writeFile(file, data),
         encode: async (args, drawn) => {
           attempt.args = args;
@@ -270,13 +269,13 @@ async function publish(paths: {
   report: string;
   previous: string;
 }): Promise<void> {
-  const kept = await fs.rename(paths.video, paths.previous).then(
-    () => true,
-    (error: NodeJS.ErrnoException): false => {
-      if (error.code !== "ENOENT") throw error;
+  const kept = await fs
+    .rename(paths.video, paths.previous)
+    .then(() => true)
+    .catch((error: unknown): false => {
+      if (errorCode(error) !== "ENOENT") throw error;
       return false;
-    },
-  );
+    });
   try {
     await fs.rename(paths.candidate, paths.video);
     await fs.rename(paths.pendingReport, paths.report);
@@ -313,8 +312,8 @@ async function reserveOutput(
     } catch (cause) {
       const entries = await fs
         .readdir(reservation)
-        .catch((error: NodeJS.ErrnoException): string[] => {
-          if (error.code !== "ENOENT") throw cause;
+        .catch((error: unknown): string[] => {
+          if (errorCode(error) !== "ENOENT") throw cause;
           return [];
         });
       const owner = entries.length === 1 ? entries[0] : undefined;
@@ -358,20 +357,22 @@ async function releaseOutput(
 ): Promise<void> {
   await fs
     .unlink(path.join(reservation, ticket))
-    .catch((error: NodeJS.ErrnoException): void => {
-      if (error.code !== "ENOENT") throw error;
+    .catch((error: unknown): void => {
+      if (errorCode(error) !== "ENOENT") throw error;
     });
   await removeEmptyReservation(reservation);
 }
 
+/** Reads a Node file system error's code, if the value carries one. */
+function errorCode(error: unknown): unknown {
+  return error instanceof Error && "code" in error ? error.code : undefined;
+}
+
 /** A later invocation may already have installed its own ticket. */
 async function removeEmptyReservation(reservation: string): Promise<void> {
-  await fs.rmdir(reservation).catch((error: NodeJS.ErrnoException): void => {
-    if (
-      error.code !== "ENOENT" &&
-      error.code !== "ENOTEMPTY" &&
-      error.code !== "EEXIST"
-    )
+  await fs.rmdir(reservation).catch((error: unknown): void => {
+    const code: unknown = errorCode(error);
+    if (code !== "ENOENT" && code !== "ENOTEMPTY" && code !== "EEXIST")
       throw error;
   });
 }

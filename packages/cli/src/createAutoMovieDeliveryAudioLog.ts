@@ -1,23 +1,18 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
+import type { createAutoMovieDeliveryAudioScan } from "./createAutoMovieDeliveryAudioScan";
+
 type Observation = IAutoMovieDeliveryContentAudit.IObservation;
 type Stream = IAutoMovieDeliveryContentAudit.Stream;
 type Timestamp = IAutoMovieDeliveryContentAudit.ITimestamp;
+type PcmEvidence = ReturnType<
+  ReturnType<typeof createAutoMovieDeliveryAudioScan>["finish"]
+>;
 
+/** The decoded sample rate and interleaved channel count. */
 interface IAudioFormat {
   sampleRate: number;
   channels: number;
-}
-
-interface ISampleRange {
-  start: number;
-  end: number | null;
-}
-
-interface IPcmEvidence {
-  sampleFrames: number;
-  valid: boolean;
-  silent: ISampleRange[];
 }
 
 /**
@@ -98,7 +93,7 @@ export function createAutoMovieDeliveryAudioLog() {
     format: (): IAudioFormat | undefined => format,
     finish(
       index: number,
-      pcm: IPcmEvidence,
+      pcm: PcmEvidence,
       presented: { timescale: number; duration: number } | undefined,
     ): Stream {
       if (malformed || format === undefined)
@@ -143,106 +138,6 @@ export function createAutoMovieDeliveryAudioLog() {
                 }),
               )
             : [],
-      };
-    },
-  };
-}
-
-/**
- * Measures silence at exact sample frame boundaries in f32le PCM. Every channel
- * must be within the amplitude limit. Separate pipe chunks can split a float
- * or an interleaved sample frame. Sample frames from the presented count on
- * are counted for coverage but not measured, and an interval still open there
- * ends with the stream.
- *
- * @param format Decoded sample rate and interleaved channel count.
- * @param settings Maximum normalized amplitude and minimum qualifying duration.
- * @param presented Sample frames the container presents, after which decoded samples are padding.
- * @returns A byte stream consumer and its complete sample and interval evidence.
- * @evidence contracts/development/common.md#meaningful-documentation Gives the sample format, per-channel rule, presented range and exact interval boundary behavior.
- * @evidence contracts/development/implementation.md#principled-implementation Counts one sample frame per complete group of channels and checks any silence duration against the rational threshold rounded upward to the next sample.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses one small carry buffer for split floats and a single open silence interval across chunks.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite samples and partial floats or channel frames make evidence invalid, including in padding.
- * @evidence contracts/development/implementation.md#efficient-algorithms Visits each float once, retaining a single partial float and only threshold-qualifying intervals.
- */
-export function createAutoMovieDeliveryAudioScan(
-  format: IAudioFormat,
-  settings: IAutoMovieDeliveryContentAudit.IThresholds["silence"],
-  presented: number,
-) {
-  const floatBytes = 4;
-  const carry = Buffer.alloc(floatBytes);
-  let carryLength = 0;
-  let sampleFrames = 0;
-  let channel = 0;
-  let quiet = true;
-  let quietStart: number | undefined;
-  let valid = true;
-  const silent: ISampleRange[] = [];
-
-  const { maximumAmplitude, minimumDuration } = settings;
-  const [seconds, timeTicks] = minimumDuration.timeBase;
-  if (
-    ![format.channels, format.sampleRate, seconds, timeTicks, presented].every(
-      (value) => Number.isSafeInteger(value) && value > 0,
-    ) ||
-    !Number.isSafeInteger(minimumDuration.ticks) ||
-    minimumDuration.ticks < 0 ||
-    !Number.isFinite(maximumAmplitude) ||
-    maximumAmplitude < 0 ||
-    maximumAmplitude > 1
-  )
-    throw new Error("Invalid decoded audio format or silence thresholds");
-
-  const ticks = BigInt(timeTicks);
-  const rate = BigInt(format.sampleRate);
-  const minimumSamples = Number(
-    (BigInt(minimumDuration.ticks) * BigInt(seconds) * rate + ticks - 1n) /
-      ticks,
-  );
-
-  const flush = (end: number | null): void => {
-    if (
-      quietStart !== undefined &&
-      Math.min(sampleFrames, presented) - quietStart >= minimumSamples
-    )
-      silent.push({ start: quietStart, end });
-    quietStart = undefined;
-  };
-  const take = (sample: number): void => {
-    if (!Number.isFinite(sample)) valid = false;
-    quiet &&= Math.abs(sample) <= maximumAmplitude;
-    if (++channel !== format.channels) return;
-    if (sampleFrames < presented) {
-      if (quiet) quietStart ??= sampleFrames;
-      else flush(sampleFrames);
-    }
-    sampleFrames++;
-    channel = 0;
-    quiet = true;
-  };
-
-  return {
-    push(chunk: Buffer): void {
-      let offset = 0;
-      if (carryLength > 0) {
-        offset = Math.min(floatBytes - carryLength, chunk.length);
-        chunk.copy(carry, carryLength, 0, offset);
-        carryLength += offset;
-        if (carryLength !== floatBytes) return;
-        take(carry.readFloatLE(0));
-      }
-      for (; offset + floatBytes <= chunk.length; offset += floatBytes)
-        take(chunk.readFloatLE(offset));
-      carryLength = chunk.length - offset;
-      if (carryLength > 0) chunk.copy(carry, 0, offset);
-    },
-    finish(): IPcmEvidence {
-      flush(null);
-      return {
-        sampleFrames,
-        valid: valid && carryLength === 0 && channel === 0,
-        silent,
       };
     },
   };

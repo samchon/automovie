@@ -367,7 +367,7 @@ function observeContact(input: IAutoMoviePlacedContact.IProps): IObserved {
       ? input.sample?.point
       : input.sample?.prop?.position;
   const witness =
-    point !== undefined && point !== null && finiteVector(point)
+    point != null && finiteVector(point)
       ? { point: { x: point.x, y: point.y, z: point.z } }
       : {};
   if (result.status === "invalid")

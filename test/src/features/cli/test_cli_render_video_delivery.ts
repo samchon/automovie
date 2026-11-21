@@ -299,7 +299,9 @@ export async function test_cli_render_video_delivery(): Promise<void> {
     TestValidator.equals("every opened session closes", sessionsClosed, 7);
     TestValidator.equals(
       "no temporary output survives the attempts",
-      (await fs.readdir(path.dirname(report))).sort(),
+      (await fs.readdir(path.dirname(report))).sort((a, b) =>
+        a.localeCompare(b),
+      ),
       ["film.mp4", "render-report.json"],
     );
 
@@ -316,7 +318,9 @@ export async function test_cli_render_video_delivery(): Promise<void> {
       [
         unreported.includes("could not publish"),
         (await fs.readFile(video)).equals(soundtrack(1000)),
-        (await fs.readdir(path.dirname(report))).sort(),
+        (await fs.readdir(path.dirname(report))).sort((a, b) =>
+          a.localeCompare(b),
+        ),
       ],
       [true, true, ["film.mp4", "render-report.json"]],
     );
