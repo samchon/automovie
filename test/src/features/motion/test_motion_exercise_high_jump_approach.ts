@@ -136,7 +136,7 @@ export function test_motion_exercise_high_jump_approach(): void {
   };
   const leftCut: string = strike(course, "left");
   const film: HumanPerformance = take(course, leftCut);
-  const [, run, flop]: IAutoMovieMotionHumanSegment[] = film.segments("a");
+  const [, run, flop]: readonly IAutoMovieMotionHumanSegment[] = film.segments("a");
   TestValidator.predicate(
     "the run is cut into the flop",
     run?.name === "run" && flop?.name === "fosburyFlop",
