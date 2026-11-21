@@ -152,7 +152,7 @@ function hull(builder: Build, length: number, beam: number): void {
   );
   for (const [id, z] of [
     ["helmDeck", -0.1],
-    ["crewDeck", 0.5],
+    ["crewDeck", 0.8],
   ] as const)
     builder.affordance({
       id,
@@ -218,7 +218,7 @@ function mainRig(builder: Build, length: number): void {
   // Centre mainsheet: the sheet runs from the clew down to a floor block,
   // and its tail leads up from the block to the helm's forward hand.
   const block: IAutoMovieVector3 = v(0, FLOOR + 0.11, -0.05);
-  const take: IAutoMovieVector3 = v(0, 0.7, 0.3);
+  const take: IAutoMovieVector3 = v(0, 0.7, 0.45);
   builder.ball("sheet-block", 0.049, block, { color: SPARS });
   builder.affordance({
     id: "sheetBlock",

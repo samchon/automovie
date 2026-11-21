@@ -28,8 +28,8 @@ import { AquaticProp } from "./AquaticProp";
  */
 const CLOSE_HAULED: number = 12;
 
-/** Share of the maneuver at which the helm has taken its controls (`helmIn`). */
-const HELM_IN: number = 0.12;
+/** Share of the maneuver by which the sailors have crouched and taken their controls (`helmIn`). */
+const HELM_IN: number = 0.2;
 
 /** How far the reaching hand rises over the straight path, metres: provisional. */
 const REACH_UP: number = 0.15;
@@ -39,6 +39,9 @@ const REACH_OUT: number = 0.15;
 
 /** How far ahead of the trunk the reaching hand passes, metres: provisional. */
 const REACH_AHEAD: number = 0.2;
+
+/** How far the crouch lowers the pelvis, over stature: provisional, below a dinghy's boom. */
+const CROUCH: number = 0.2;
 
 /** A hand bone's placement in the hull frame entered by the action. */
 interface IHullLocal {
@@ -219,12 +222,12 @@ export namespace AquaticSail {
         travel: (t: number): number => {
           const u: number = t / duration;
           const sheeted: number =
-            entered + (trim - entered) * AquaticCrew.span(u, 0, 0.12);
+            entered + (trim - entered) * AquaticCrew.span(u, 0, HELM_IN);
           return aborted
             ? sheeted *
                 (1 -
                   0.65 *
-                    (AquaticCrew.span(u, 0.12, leadEnd) -
+                    (AquaticCrew.span(u, HELM_IN, leadEnd) -
                       AquaticCrew.span(u, trailStart, trailEnd)))
             : sheeted * (1 - 2 * AquaticCrew.span(u, leadStart, trailEnd));
         },
@@ -245,7 +248,7 @@ export namespace AquaticSail {
             start -
             initialSide *
               18 *
-              (AquaticCrew.span(u, 0.12, leadStart) -
+              (AquaticCrew.span(u, HELM_IN, leadStart) -
                 AquaticCrew.span(u, leadEnd, trailEnd))
           );
         },
@@ -285,8 +288,8 @@ export namespace AquaticSail {
               neck: -12 * lower,
             },
             {
-              hip: 23 + 32 * lower,
-              knee: 28 + 40 * lower,
+              hip: 23 + 60 * lower,
+              knee: 28 + 75 * lower,
               shoulder: 36,
               raise: 28,
               elbow: 65,
@@ -316,7 +319,7 @@ export namespace AquaticSail {
         const carriedHips: IAutoMovieVector3 = {
           ...hips,
           x: hips.x + cross * (aborted ? 0.48 : 1) * stride,
-          y: hips.y - body.measure.stature * 0.26 * lower,
+          y: hips.y - body.measure.stature * CROUCH * lower,
         };
         // The pelvis crosses the deck. Counter the offset from rotating the
         // floor-origin rig to duck, so pitch and yaw do not move it off that path.
