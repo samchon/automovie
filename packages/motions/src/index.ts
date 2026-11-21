@@ -235,6 +235,8 @@ export * from "./reaction/flinch";
 export * from "./reaction/knockdown";
 export * from "./reaction/collapse";
 export * from "./reaction/CollapseFold";
+export * from "./reaction/thrown";
+export * from "./reaction/wireFlight";
 export * from "./lexicon/HumanHorrorGait";
 export * from "./striking/knee";
 export * from "./reaction/stagger";

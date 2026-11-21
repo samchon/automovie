@@ -87,4 +87,13 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
 
   /** Swing out of a vehicle seat and stand clear. */
   getOut: IAutoMovieMotionHumanTravelCarExit.IParams;
+
+  /** A shamble: a dragged stiff leg stood on briefly, the trunk leaning and the arms hanging. */
+  shamble: IAutoMovieMotionHumanGait.ILimp;
+
+  /** A lurch: one knee held stiff at a slow cadence, the arms held still. */
+  lurch: IAutoMovieMotionHumanGait.ILimp;
+
+  /** A stalk: a hunched creep on deeply bent knees. */
+  stalk: IAutoMovieMotionHumanGait.IParams;
 }

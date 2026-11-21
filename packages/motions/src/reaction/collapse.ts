@@ -1,5 +1,5 @@
 import type {
-  AutoMovieMotionHumanActionName,
+  AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -48,7 +48,7 @@ import { knockdown } from "./knockdown";
  */
 export namespace collapse {
   /** The action's name. */
-  export const name: AutoMovieMotionHumanActionName = "collapse";
+  export const name: AutoMovieMotionHumanActionKey = "collapse";
 
   /** A collapse is a staged fall, so its balance is judged over the fall (`IAutoMovieMotionHumanActionLaw.physical`). */
   export const physical: boolean = true;

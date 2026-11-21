@@ -16,6 +16,8 @@ import { grapple } from "../grappling/grapple";
 import { button } from "../handling/button";
 import { drawFromCarrier } from "../handling/drawFromCarrier";
 import { collapse } from "../reaction/collapse";
+import { thrown } from "../reaction/thrown";
+import { wireFlight } from "../reaction/wireFlight";
 import { guitarChord } from "../handling/guitarChord";
 import { guitarNote } from "../handling/guitarNote";
 import { pianoPedal } from "../handling/pianoPedal";
@@ -157,7 +159,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   sportGym: [HumanSportGym],
   sportCarry: [HumanSportCarry],
   floorRoll: [HumanFloorRoll],
-  floorFall: [HumanFloorFall, { collapse }],
+  floorFall: [HumanFloorFall, { collapse, thrown, wireFlight }],
   support: [HumanSupportRows],
   sportSwing: [HumanSportSwing, HumanPrecisionSport],
   sportThrow: [HumanSportThrow, { stageCatch }],

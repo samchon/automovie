@@ -4,4 +4,6 @@ export type { IAutoMovieMotionHumanGive } from "./IAutoMovieMotionHumanGive";
 export type { IAutoMovieMotionHumanKnockdown } from "./IAutoMovieMotionHumanKnockdown";
 export type { IAutoMovieMotionHumanPerturb } from "./IAutoMovieMotionHumanPerturb";
 export type { IAutoMovieMotionHumanReaction } from "./IAutoMovieMotionHumanReaction";
+export type { IAutoMovieMotionHumanThrown } from "./IAutoMovieMotionHumanThrown";
+export type { IAutoMovieMotionHumanWireFlight } from "./IAutoMovieMotionHumanWireFlight";
 export type { IAutoMovieMotionHumanStagger } from "./IAutoMovieMotionHumanStagger";

@@ -62,6 +62,9 @@ export namespace HumanHorrorGait {
     swing: 0.15,
   };
 
+  /** How far a shambler's speed scatters about the shamble's, a share either way (provisional stage reading). */
+  export const SCATTER: number = 0.15;
+
   /** The lurch's factors (provisional). */
   export const LURCH: IFactors = {
     froude: 0.06,
@@ -88,8 +91,12 @@ export namespace HumanHorrorGait {
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.ILimp>,
       ): IAutoMovieMotionHumanWalkGait => {
         const side: "left" | "right" = context.params.side ?? "right";
+
+        // Each member drags at a pace of its own, so a crowd falls out of step.
+        const pace: number =
+          1 + SCATTER * (2 * context.random("shamble").float(0) - 1);
         return {
-          ...gait(SHAMBLE),
+          ...gait({ ...SHAMBLE, froude: SHAMBLE.froude * pace * pace }),
           stiff: side,
           limp: { side, share: 0.2 },
           unevenness: 2,

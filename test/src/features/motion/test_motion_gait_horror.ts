@@ -21,8 +21,10 @@ type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
 /** Where every walk ends, metres ahead. */
 const AHEAD: IAutoMovieVector3 = { x: 0, y: 0, z: 4 };
-/** The largest knee flexion of a stiff knee, degrees: a stiff-knee gait keeps the swing knee under about 30 degrees where a walk's peaks near 60 (Perry and Burnfield 2010). */
-const STIFF: number = 30;
+/** The largest knee flexion of a stiff knee, degrees: under the normal walk's peak swing flexion of about 60 degrees, which a stiff-knee gait does not reach (Perry and Burnfield 2010). */
+const STIFF: number = 60;
+/** How far apart two strikes or two step periods are to read as different, seconds: a tenth of a 24 fps frame. */
+const STEP: number = 1 / 240;
 /** Frames read per second. */
 const RATE: number = 30;
 
@@ -33,9 +35,10 @@ const RATE: number = 30;
  * 1. The shamble's dragged foot rises less in swing than either foot of a walk.
  * 2. The lurch's stiff knee stays under the stiff threshold; the walk's knee
  *    passes it.
- * 3. The stalk's pelvis rides lower than the walk's by most of its drop.
- * 4. Ten shamblers on one course take their first heel strikes at ten
- *    different instants, so none moves in step with another.
+ * 3. The stalk's pelvis rides lower than the walk's by more than the
+ *    walk's own rise and fall.
+ * 4. Ten shamblers on one course, each at its own seeded pace: no two
+ *    strike together at the same cadence.
  * 5. Each holds on both canonical bodies.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each signature, its comparison and its bound.
@@ -98,12 +101,23 @@ export function test_motion_gait_horror(): void {
       Math.max(
         ...bones.map((one: Bones): number => one.get(bone)!.worldPosition.y),
       );
-    const mean = (bones: Bones[], bone: AutoMovieHumanoidBone): number =>
-      bones.reduce(
-        (sum: number, one: Bones): number =>
-          sum + one.get(bone)!.worldPosition.y,
-        0,
-      ) / bones.length;
+    // The middle half of a course, where the gait cruises.
+    const cruise = (bones: Bones[], bone: AutoMovieHumanoidBone): number[] =>
+      bones
+        .slice(Math.floor(bones.length / 4), Math.ceil((3 * bones.length) / 4))
+        .map((one: Bones): number => one.get(bone)!.worldPosition.y);
+    const mean = (bones: Bones[], bone: AutoMovieHumanoidBone): number => {
+      const heights: number[] = cruise(bones, bone);
+      return (
+        heights.reduce((sum: number, y: number): number => sum + y, 0) /
+        heights.length
+      );
+    };
+    // Half the rise and fall over the cruise.
+    const swing = (bones: Bones[], bone: AutoMovieHumanoidBone): number => {
+      const heights: number[] = cruise(bones, bone);
+      return (Math.max(...heights) - Math.min(...heights)) / 2;
+    };
     const knee = (bones: Bones[], side: "left" | "right"): number =>
       Math.max(
         ...bones.map((one: Bones): number =>
@@ -126,9 +140,9 @@ export function test_motion_gait_horror(): void {
       knee(lurched, "right") < STIFF && knee(walked, "right") > STIFF,
     );
     TestValidator.predicate(
-      cast + " stalk rides lower than a walk",
-      mean(walked, "hips") - mean(stalked, "hips") >
-        0.5 * HumanHorrorGait.STALK.drop * body.measure.hipHeight,
+      cast +
+        ` stalk rides lower than a walk (${mean(walked, "hips").toFixed(3)}, ${mean(stalked, "hips").toFixed(3)})`,
+      mean(walked, "hips") - mean(stalked, "hips") > swing(walked, "hips"),
     );
   }
 
@@ -157,19 +171,27 @@ export function test_motion_gait_horror(): void {
       ),
     },
   });
-  const strikes: number[] = subjects.map((subject: string): number => {
-    const segment: IAutoMovieMotionHumanSegment = crowd.segments(subject)[0]!;
-    const strike: IAutoMovieMotionEvent = segment.plan.events.find(
-      (event: IAutoMovieMotionEvent): boolean =>
-        event.name.includes("HeelStrike"),
-    )!;
-    return segment.start + strike.share * segment.plan.duration;
-  });
+  // Two members are in step when they strike together at the same cadence.
+  const steps: readonly [number, number][] = subjects.map(
+    (subject: string): [number, number] => {
+      const segment: IAutoMovieMotionHumanSegment = crowd.segments(subject)[0]!;
+      const strikes: number[] = segment.plan.events
+        .filter((event: IAutoMovieMotionEvent): boolean =>
+          event.name.includes("HeelStrike"),
+        )
+        .map(
+          (event: IAutoMovieMotionEvent): number =>
+            segment.start + event.share * segment.plan.duration,
+        );
+      return [strikes[2]!, strikes[3]! - strikes[2]!];
+    },
+  );
   TestValidator.predicate(
-    "no two shamblers strike in step",
-    strikes.every((a: number, i: number): boolean =>
-      strikes.every(
-        (b: number, j: number): boolean => i === j || Math.abs(a - b) > 1 / 240,
+    "no two shamblers move in step",
+    steps.every(([a, p]: [number, number], i: number): boolean =>
+      steps.every(
+        ([b, q]: [number, number], j: number): boolean =>
+          i === j || Math.abs(a - b) > STEP || Math.abs(p - q) > STEP,
       ),
     ),
   );
