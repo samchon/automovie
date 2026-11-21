@@ -142,7 +142,8 @@ export namespace HumanMountRider {
   /**
    * A hand holding a grip, a rein or a rim: where its wrist goes, how the
    * hand turns and how its fingers close, a share of the way from where
-   * the posture's own joints hold the hand.
+   * the posture shows the hand: its joints, or the arm goal it already
+   * gives, so a hand taken from rest leaves the place it rested.
    *
    * An articulated round handle uses the measured depth of the gripping palm.
    * On other supports the wrist stays `PALM` of the hand's length plus the grip's radius
@@ -165,7 +166,7 @@ export namespace HumanMountRider {
    * @returns The arm's goal and the hand's finger joints.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States where the wrist goes, how the hand turns, how the fingers close and what the first pass leaves out.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture's joints give.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture shows, so the hand leaves the place it held.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The target, the turn, the blend from the joints' hand, the fingers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports. The closure is the caller's, curled on the real colliders.
    * @evidence contracts/development/implementation.md#efficient-algorithms Holding fully needs no resolution; a partial hold observes the free wrist and its ancestors. A native read omits unrelated simple leg fits through the canonical goal selector; an incoming custom reader keeps the full fit. The fingers blend linearly over the closed joints given.
@@ -200,7 +201,7 @@ export namespace HumanMountRider {
    * Start both acquiring hands from the same unoccupied posture for one query.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the shared pre-grip pose and the query lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Both approaching hands use the seated FK with neither arm already guided by a grip.
+   * @evidence contracts/development/implementation.md#principled-implementation Both approaching hands start from the seated posture as shown, before either arm is guided by a grip.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read both origins together at first demand and use the ordinary grip interpolator for each hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The current seat, legs and other direct channels still enter forward resolution. Each actual grip supplies its own current position and turn.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most one seated fit for both approaching wrists, and none after acquisition.
@@ -287,7 +288,7 @@ export namespace HumanMountRider {
     };
   }
 
-  /** Resolve the unoccupied wrists from a single seated trunk, before either grip is assigned. */
+  /** Resolve the wrists as the posture shows them, before either grip is assigned: an arm the posture already places, such as a hand resting on a thigh, starts from there. */
   function freeHands(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -295,15 +296,12 @@ export namespace HumanMountRider {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    delete limbs.leftArm;
-    delete limbs.rightArm;
     const read = prepareHumanPoseResolution(resolution);
     return poseBones(
       body,
       resolveHumanPosture.seeded(
         body,
-        { ...posture, limbs },
+        posture,
         undefined,
         undefined,
         read,
