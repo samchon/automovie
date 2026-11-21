@@ -8,7 +8,7 @@ Read the installed [package API](../../automovie/SKILL.md#reading-a-package) fir
 
 <!-- @source [FIBA Level 1 coaching manual](https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-level-manuals-level-1-eng.pdf), §2.1.1, illustrates an off-ball cut that opens space for a teammate. -->
 
-For each thing a person does in the beat, settle these axes from the beat record and its [performance study](../../story/planning/research.md#performance-study), top to bottom, because each narrows the next:
+For each beat element a person performs, as [reading the scene](../staging.md#reading-the-scene) lists them, settle these axes from the beat record and its [performance study](../../story/planning/research.md#performance-study), top to bottom, because each narrows the next:
 
 | Axis | Settle |
 | --- | --- |
