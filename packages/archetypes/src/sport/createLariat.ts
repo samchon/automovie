@@ -224,4 +224,64 @@ export namespace createLariat {
     spoke: ArchetypeBand.metres(0.9, 1.5, UNREAD, true),
     mass: ArchetypeBand.of("kg", 0.6, 1.2, UNREAD, true),
   };
+
+  /**
+   * The lariat's standing part between two held ends.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation points: The rope's points from one end to the other, world metres. taut: Whether the ends are as far apart as the rope is long. sag: How far its middle hangs below the straight line, metres.
+   * @evidence contracts/development/design.md#principled-representation A polyline and its tension state.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `standing`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IStanding {
+    /** The rope's points from one end to the other, world metres. */
+    points: IAutoMovieVector3[];
+
+    /** Whether the ends are as far apart as the rope is long: straight and tensioned. */
+    taut: boolean;
+
+    /** How far its middle hangs below the straight line, metres; 0 when taut. */
+    sag: number;
+  }
+
+  /**
+   * Lay the standing part of a caught lariat between its two held ends, the horn (or the hand) and the catch on the animal: straight and tensioned once the ends are as far apart as the rope is long, sagging in a parabola of the same length when they are closer.
+   *
+   * @param from One end, world metres.
+   * @param to The other end, world metres.
+   * @param length The standing part's length, metres.
+   * @param segments How many straight pieces it is laid in.
+   * @returns The laid rope.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both shapes and when each holds.
+   * @evidence contracts/development/implementation.md#principled-implementation A shallow parabola's arc length is the chord plus 8 d^2 / 3 D, so the sag d for a rope of length L over a chord D is the square root of 3 D (L - D) / 8; a chord at least L is straight.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One sag, one loop.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A chord longer than the rope is laid straight and reported taut; nothing stretches it further.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the segments.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns new points.
+   */
+  export function standing(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    length: number,
+    segments: number = SEGMENTS,
+  ): IStanding {
+    const chord: number = Vector3.distance(from, to);
+    const taut: boolean = chord >= length;
+    const sag: number =
+      taut || chord === 0 ? 0 : Math.sqrt((3 * chord * (length - chord)) / 8);
+    const points: IAutoMovieVector3[] = [];
+    for (let k: number = 0; k <= segments; ++k) {
+      const u: number = k / segments;
+      points.push(
+        Vector3.add(Vector3.lerp(from, to, u), {
+          x: 0,
+          y: -4 * sag * u * (1 - u),
+          z: 0,
+        }),
+      );
+    }
+    return { points, taut, sag };
+  }
 }

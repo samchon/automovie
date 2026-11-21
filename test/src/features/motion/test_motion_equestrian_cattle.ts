@@ -39,7 +39,7 @@ const HOLD: number = 0.15;
  * Cattle work from the saddle (#3952): tie-down roping, steer wrestling and team roping, composed of the lasso, unseat and clasp laws over a running ox.
  *
  * Scenarios:
- * 1. Tie-down: the roper catches the calf's head, steps off the stopping horse onto the feet (hips at standing height within 30 mm), and holds the calf's hind leg with both hands, each wrist within 0.15 m of it.
+ * 1. Tie-down: the roper catches the calf's head and dallies; the standing rope, laid by `createLariat.standing` between the horn and the calf's head with 0.5 m of slack at the catch, keeps both ends at every sample, hangs slack just after the catch and is taut while the stopped horse sets back; the roper steps off onto the feet (hips at standing height within 30 mm), runs down the rope (hips within 0.6 m of its line) and holds the calf's hind leg (each wrist within 0.15 m).
  * 2. Steer wrestling: from the galloping horse the bulldogger takes the running steer's head with both hands (each wrist within 0.15 m of it), slides off onto the feet and keeps both hands on the head.
  * 3. Team roping: the header's loop meets the steer's head and the heeler's loop its hind legs at their catches within 50 mm, each read from its own launch under standard gravity.
  *
@@ -104,16 +104,62 @@ export function test_motion_equestrian_cattle(): void {
     }),
   };
 
-  // 1. Tie-down: catch, step off, hold the hind leg.
+  // 1. Tie-down: catch, the horse stops and sets back on the rope, the roper steps off, runs down the rope and holds the hind leg.
+  const stopping: mountedHorseScene.Ride = rideHorse(horse, {
+    start: { x: 0, z: 0, heading: 0 },
+    legs: [{ kind: "straight", length: 30 }],
+    cruise: 5,
+    startSpeed: 5,
+    endSpeed: 0,
+    acceleration: 2,
+    deceleration: 2.5,
+  });
+  const tieCourse: mountedHorseScene.Ride = EquineStance.after(
+    horse,
+    stopping,
+    [
+      {
+        kind: "setBack",
+        pitch: 12,
+        from: stopping.duration + 0.2,
+        entry: 0.5,
+        hold: 4,
+        exit: 0.5,
+      },
+    ],
+  );
+  const fleeing = rideQuadruped(ox, {
+    start: { x: -1.6, z: 3, heading: 0 },
+    legs: [{ kind: "straight", length: 40 }],
+    cruise: 5,
+    startSpeed: 5,
+    endSpeed: 0,
+    acceleration: 1,
+    deceleration: 1.5,
+  } as Parameters<typeof rideQuadruped>[1]);
+  const fleeAt = (at: number): number =>
+    Math.max(0, Math.min(fleeing.duration, at - WAIT));
+  const fleePlace = (at: number): IAutoMovieRigidTransform => {
+    const frame: IAutoMovieTransform = fleeing.at(fleeAt(at)).placement;
+    return { position: frame.translation, rotation: frame.rotation };
+  };
+  const fleePart = (id: string, at: number): IAutoMovieTransform =>
+    fleeing
+      .at(fleeAt(at))
+      .archetype.parts.find((p) => p.id.toLowerCase().includes(id))!
+      .transform as IAutoMovieTransform;
+  const calfStop: IAutoMovieVector3 = fleePlace(
+    WAIT + fleeing.duration,
+  ).position;
   const tie: mountedHorseScene.IScene = mountedHorseScene.build({
     horse,
     body,
     gait: "canter",
     wait: WAIT,
-    course,
+    course: tieCourse,
     laws: [holding, HumanLasso, HumanUnseat, HumanClasp],
     props: [
-      HumanObject.prop("calf", ox, place(0), place, part),
+      HumanObject.prop("calf", ox, fleePlace(0), fleePlace, fleePart),
       HumanObject.prop("lariat", lariat, {
         position: { x: -0.3, y: 2, z: 0.2 },
         rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -141,9 +187,10 @@ export function test_motion_equestrian_cattle(): void {
           on: "horse",
           frame: "seat",
           fall: "clear",
-          side: "right",
+          side: "left",
           release: 0.2,
         })
+        .walk({ to: { x: calfStop.x + 0.6, y: 0, z: calfStop.z - 0.8 } })
         .registered("clasp", {
           seconds: 2,
           left: { subject: "calf", contact: "hind" },
@@ -153,18 +200,86 @@ export function test_motion_equestrian_cattle(): void {
   assertTakeClean("tie-down roping", tie.film);
   const tied: IAutoMovieMotionHumanSegment[] =
     tie.segments as IAutoMovieMotionHumanSegment[];
-  const off: IAutoMovieMotionHumanSegment = tied[tied.length - 2]!;
+  const roped: IAutoMovieMotionHumanSegment = tied.find((s) =>
+    s.plan.events.some((e) => e.name === "catch"),
+  )!;
+  const caught: number =
+    roped.start +
+    roped.plan.events.find((e) => e.name === "catch")!.share *
+      (roped.end - roped.start);
+  const head = (at: number): IAutoMovieVector3 =>
+    fleePart("head", at).translation;
+  const length: number =
+    Vector3.distance(tie.part("horn", caught), head(caught)) + 0.5;
+  // The rope: its ends on the horn and the catch at every sample, slack just after the catch, taut while the horse sets back.
+  for (let k: number = 0; k <= 20; ++k) {
+    const at: number = caught + ((tie.film.duration - caught) * k) / 20;
+    const rope: createLariat.IStanding = createLariat.standing(
+      tie.part("horn", at).translation,
+      head(at),
+      length,
+    );
+    if (
+      Vector3.distance(rope.points[0]!, tie.part("horn", at).translation) >
+        1e-9 ||
+      Vector3.distance(rope.points.at(-1)!, head(at)) > 1e-9
+    )
+      findings.push(`tie-down: the rope leaves its ends at ${at.toFixed(2)} s`);
+  }
+  if (
+    createLariat.standing(
+      tie.part("horn", caught + 0.1).translation,
+      head(caught + 0.1),
+      length,
+    ).taut
+  )
+    findings.push("tie-down: the rope is taut before the horse sets back");
+  const holdBack: number = WAIT + stopping.duration + 2;
+  if (
+    !createLariat.standing(
+      tie.part("horn", holdBack).translation,
+      head(holdBack),
+      length,
+    ).taut
+  )
+    findings.push("tie-down: the rope is slack while the horse sets back");
+  // The roper steps off onto the feet and runs down the rope: the hips stay within 0.6 m of the rope's line.
+  const off: IAutoMovieMotionHumanSegment = tied[tied.length - 3]!;
   const stood: number = tie.film.bones("rider", off.end - 0.01).get("hips")!
     .worldPosition.y;
   if (Math.abs(stood - body.measure.hipHeight) > 0.03)
     findings.push(
       `tie-down: the roper steps off with the hips at ${stood.toFixed(3)} m`,
     );
+  const runDown: IAutoMovieMotionHumanSegment = tied[tied.length - 2]!;
+  for (let k: number = 1; k <= 8; ++k) {
+    const at: number = runDown.start + ((runDown.end - runDown.start) * k) / 8;
+    const a: IAutoMovieVector3 = tie.part("horn", at).translation;
+    const b: IAutoMovieVector3 = head(at);
+    const p: IAutoMovieVector3 = tie.film
+      .bones("rider", at)
+      .get("hips")!.worldPosition;
+    const ab: IAutoMovieVector3 = { x: b.x - a.x, y: 0, z: b.z - a.z };
+    const u: number = Math.max(
+      0,
+      Math.min(
+        1,
+        ((p.x - a.x) * ab.x + (p.z - a.z) * ab.z) / (ab.x * ab.x + ab.z * ab.z),
+      ),
+    );
+    const off2: number = Math.hypot(
+      p.x - (a.x + u * ab.x),
+      p.z - (a.z + u * ab.z),
+    );
+    if (off2 > 0.6)
+      findings.push(
+        `tie-down: running down the rope the roper is ${off2.toFixed(3)} m off it at ${at.toFixed(2)} s`,
+      );
+  }
   const holdAt: number = tied[tied.length - 1]!.end - 0.5;
   for (const w of wrists(tie, "rider", holdAt))
-    if (Vector3.distance(w, point("hind", holdAt)) > HOLD)
+    if (Vector3.distance(w, fleePart("hind", holdAt).translation) > HOLD)
       findings.push("tie-down: a hand is off the calf's hind leg");
-
   // 2. Steer wrestling: hands on the head from the saddle, off onto the feet, hands still on the head.
   const wrestle: mountedHorseScene.IScene = mountedHorseScene.build({
     horse,

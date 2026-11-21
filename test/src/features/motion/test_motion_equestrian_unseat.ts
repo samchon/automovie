@@ -1,4 +1,9 @@
-import { EquineStance, createHorse, rideHorse } from "@automovie/archetypes";
+import {
+  EquineFall,
+  EquineStance,
+  createHorse,
+  rideHorse,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -40,6 +45,7 @@ const RELEASE: number = 1;
  * 5. Slump staying on: the seat window holds to the end and the right hand's grip on the mane opens once slumped; the displayed right wrist is within 0.7 hand lengths of the mane after the slump.
  * 6. Seeking back to the landing after a later second gives the same hips.
  * 7. A sideways fall pushed too gently to clear the flank is refused on `push`.
+ * 9. Fall with the horse: as a trained horse goes down on its left from a canter, the rider steps clear on its right, landing on the feet more than 0.5 m to the right of the saddle's line at the fall and clear of the fallen horse.
  * 8. Thrown by a buck at a halt: the release at the buck's lift-off instant hands the rider to the fall, and the rider lands.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States every fall checked, its bounds and their sources.
@@ -306,6 +312,71 @@ export function test_motion_equestrian_unseat(): void {
     );
   if (!(hips(thrown, thrown.film.duration - 0.05).y < 0.4))
     findings.push("thrown: the rider does not come to lie on the floor");
+
+  // 9. A fall with the horse: the trained horse goes down on its left; the rider steps clear on the high, right, side as it starts down.
+  const canter: mountedHorseScene.Ride = mountedHorseScene.course(
+    horse,
+    "canter",
+  );
+  const trunk = horse.parts.find((part) => part.id === "trunk")!;
+  const quarters = horse.parts.find((part) => part.id === "hindquarters")!;
+  const down: number = canter.duration / 2;
+  const falling: mountedHorseScene.Ride = EquineFall.after(horse, canter, {
+    from: down,
+    drop: 0.6,
+    slide: 3,
+    prepared: true,
+    rest: {
+      loweringSeconds: 2,
+      restingSeconds: 1,
+      risingSeconds: 2,
+      restPitch:
+        (Math.atan2(
+          trunk.transform!.translation.y - quarters.transform!.translation.y,
+          trunk.transform!.translation.z - quarters.transform!.translation.z,
+        ) *
+          180) /
+        Math.PI,
+      tailDirection: -90,
+      folded: { fore: [90, 0], hind: [-90, 0] },
+      windows: { body: [0, 1], fore: [0, 1], hind: [0, 1] },
+    },
+    lateral: {
+      side: "left",
+      rollDegrees: 90,
+      tuckDegrees: 35,
+      turnSeconds: 1,
+      holdSeconds: 0.8,
+      offset: 0.08,
+    },
+    away: { length: 2, speed: 1.2 },
+  });
+  const goingDown: number = WAIT + down;
+  const clearOf: mountedHorseScene.IScene = stage(
+    horse,
+    body,
+    falling,
+    { fall: "clear", side: "right", cue: "fall" },
+    { fall: [{ name: "fall", seconds: goingDown }] },
+  );
+  assertTakeClean("stepping clear of a falling horse", clearOf.film);
+  const atFall = clearOf.part("seat", goingDown);
+  const end: number = clearOf.film.duration - 0.05;
+  const aside: number = Vector3.dot(
+    Vector3.subtract(hips(clearOf, end), atFall.translation),
+    Quaternion.rotateVector(atFall.rotation, { x: 1, y: 0, z: 0 }),
+  );
+  if (!(aside < -0.5))
+    findings.push(
+      `fall with the horse: the rider lands ${aside.toFixed(3)} m along the horse's left, not clear on its right`,
+    );
+  if (Math.abs(hips(clearOf, end).y - body.measure.hipHeight) > 0.03)
+    findings.push("fall with the horse: the rider does not land on the feet");
+  const lying: IAutoMovieVector3 = clearOf.part("seat", end).translation;
+  if (
+    Vector3.distance({ ...hips(clearOf, end), y: 0 }, { ...lying, y: 0 }) < 0.5
+  )
+    findings.push("fall with the horse: the rider ends under the fallen horse");
 
   TestValidator.equals("a rider released from a moving saddle", findings, []);
 }
