@@ -45,7 +45,9 @@ type BodyKey = "m-average" | "f-small";
  *    the snow's surface, and the walk takes more steps and longer than on
  *    rigid ground; a steady side wind leans the trunk by `atan(F/(m g))`.
  * 5. A stuck foot in mud stays sunk for the hold after its plant ends.
- * 6. A steady wind beyond the feet's static balance is refused.
+ * 6. A gust after the walk produces a capture step through the existing
+ *    perturbation, and a steady wind beyond the feet's static balance is
+ *    refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the media, bodies and checked quantities.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed ankles, wrists, pelvis and trunk, and the plans' durations and plant windows.
@@ -231,6 +233,81 @@ function mediums(key: BodyKey, failures: string[]): void {
         `${key}: the stuck ${side} foot moves ${stuck.toFixed(3)} m during the hold`,
       );
   }
+  // A gust beyond what the lean balances: the existing perturbation takes a
+  // capture step after the walk into the steady wind.
+  // The perturbation reads impulses only, not the steady wind the lean
+  // balances, so the gust follows a breeze light for this body.
+  const steady: IAutoMovieVector3 = {
+    x: 0.05 * body.profile.mass * AutoMovieGravity.STANDARD,
+    y: 0,
+    z: 0,
+  };
+  const walked: number = perform(body, undefined, steady).duration;
+  // The step band depends on the body and the walk's end velocity, so the
+  // gust is the first of a ladder of speeds the perturbation steps for.
+  const gusted = (speed: number): HumanPerformance =>
+    new HumanPerformance({
+      seed: "medium walk",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      laws: [HumanSurface.mediumWalk],
+      forces: [
+        {
+          kind: "impulse",
+          subject: "a",
+          at: "sternum",
+          seconds: walked - 0.05,
+          impulse: { x: 0, y: 0, z: -speed * body.profile.mass },
+        },
+      ],
+      composition: HumanChain.subject("a")
+        .registered("mediumWalk", { to: TARGET, wind: steady })
+        .perturb({ outcome: "step" }).node,
+    });
+  let gust: HumanPerformance | undefined;
+  for (let speed: number = 0.6; speed <= 1.0; speed += 0.02) {
+    try {
+      gust = gusted(speed);
+      gust.duration;
+      break;
+    } catch (error) {
+      if (!(error instanceof HumanRefusal && error.axis === "outcome"))
+        throw error;
+      gust = undefined;
+    }
+  }
+  if (gust === undefined) {
+    failures.push(`${key}: no gust in the ladder produces a capture step`);
+    return;
+  }
+  const caught: IAutoMovieMotionHumanSegment | undefined = gust
+    .segments("a")
+    .find(
+      (segment: IAutoMovieMotionHumanSegment): boolean =>
+        segment.name === "perturb",
+    );
+  const stepped: number =
+    caught === undefined
+      ? 0
+      : Math.max(
+          ...SIDES.map((side: AutoMovieHumanSide): number =>
+            Vector3.distance(
+              ankle(gust, side, caught.start),
+              ankle(gust, side, caught.start + caught.plan.duration),
+            ),
+          ),
+        );
+  if (!(stepped > 0.1))
+    failures.push(
+      `${key}: the gust does not produce a capture step (${stepped.toFixed(3)} m)`,
+    );
   let gale: unknown;
   try {
     perform(body, undefined, {
