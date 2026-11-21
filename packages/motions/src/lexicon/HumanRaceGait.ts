@@ -1,7 +1,7 @@
 import type {
+  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanGait,
   IAutoMovieMotionHumanWalkGait,
 } from "@automovie/interface";
@@ -36,7 +36,9 @@ export namespace HumanRaceGait {
   export const SWING: number = 0.94;
 
   /** The pelvis's mean drop below a walk's and its vertical oscillation, hip heights (provisional: race walkers flatten the centre of mass's path). */
-  export const BOB: Readonly<NonNullable<IAutoMovieMotionHumanWalkGait["bob"]>> = {
+  export const BOB: Readonly<
+    NonNullable<IAutoMovieMotionHumanWalkGait["bob"]>
+  > = {
     mean: -0.015,
     amplitude: 0.01,
   };

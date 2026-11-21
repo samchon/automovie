@@ -8,12 +8,12 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanDance,
+  IAutoMovieMotionHumanDanceBeats,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionManner,
-  IAutoMovieScheduleCue,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -24,10 +24,10 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareDanceBeats } from "./prepareDanceBeats";
 import { prepareDanceSteps } from "./prepareDanceSteps";
 import { prepareWaltzBox } from "./prepareWaltzBox";
 
@@ -116,47 +116,20 @@ export namespace dance {
       body.measure;
     const bpm: number = p.bpm ?? BPM;
     const beats: number = p.beats ?? 8;
-    HumanBound.above("bpm", bpm, 0, "beats per minute");
-    HumanBound.whole("beats", beats);
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     // The beats: the locked track's instants from the start, at their mean
-    // interval, or the tempo's from one period after the start.
-    const locked: readonly number[] | null =
-      p.lock === undefined
-        ? null
-        : context
-            .cue(p.lock.of)
-            .filter(
-              (c: IAutoMovieScheduleCue): boolean =>
-                c.name === (p.lock!.event ?? "beat") &&
-                c.seconds >= context.start - 1e-9,
-            )
-            .slice(0, beats)
-            .map(
-              (c: IAutoMovieScheduleCue): number => c.seconds - context.start,
-            );
-    if (locked !== null && locked.length < Math.min(2, beats))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "lock",
-        value: p.lock,
-        feasible: null,
-        reason: `the track ${p.lock!.of} has ${locked.length} ${p.lock!.event ?? "beat"} instants after the step starts, fewer than the ${Math.min(2, beats)} a tempo needs`,
-        fix: "lock to a track with beats after the step's start, or give bpm instead",
-      });
-    // A single locked beat has no interval of its own, so it keeps the
-    // tempo's: its offset from the start is a lead, not a period, and is
-    // zero when the beat falls on the start.
-    const period: number =
-      locked === null || locked.length < 2
-        ? 60 / bpm
-        : (locked[locked.length - 1]! - locked[0]!) / (locked.length - 1);
-    HumanBound.above("beat interval", period, 0, "s");
-    const lead: number = locked === null ? period : locked[0]!;
-    const beatAt: (k: number) => number = (k: number): number =>
-      (p.waltz === undefined ? undefined : locked?.[k - 1]) ??
-      lead + (k - 1) * period;
+    // interval (each its own under a waltz), or the tempo's.
+    const clocked: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
+      context,
+      bpm,
+      beats,
+      p.lock,
+      p.waltz !== undefined,
+    );
+    const period: number = clocked.period;
+    const lead: number = clocked.lead;
+    const beatAt: (k: number) => number = clocked.at;
     const instants: IAutoMovieMotionClockInstant[] = [];
     for (let k: number = 1; k <= beats; k++)
       instants.push({ name: `beat${k}`, seconds: beatAt(k) });

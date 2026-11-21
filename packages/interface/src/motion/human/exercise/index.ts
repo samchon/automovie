@@ -1,4 +1,5 @@
 export type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
+export type { IAutoMovieMotionHumanDanceBeats } from "./IAutoMovieMotionHumanDanceBeats";
 export type { IAutoMovieMotionHumanLineWalk } from "./IAutoMovieMotionHumanLineWalk";
 export type { IAutoMovieMotionHumanWorkoutDance } from "./IAutoMovieMotionHumanWorkoutDance";
 export type { IAutoMovieMotionHumanExercise } from "./IAutoMovieMotionHumanExercise";

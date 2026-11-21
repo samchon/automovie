@@ -92,6 +92,8 @@ export namespace IAutoMovieMotionHumanDance {
       turn?: number;
       /** Shared pivot in world metres. Omitted uses this performer's starting origin. */
       pivot?: IAutoMovieVector3;
+      /** World displacement of the pivot over the figure, metres: the line of dance a led couple travels down the floor. Omitted keeps the pivot in place. */
+      travel?: IAutoMovieVector3;
       /** Step back on beat one, for the dancer facing the forward-stepping role. */
       reverse?: boolean;
     };
