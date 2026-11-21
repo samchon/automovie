@@ -41,7 +41,7 @@ export namespace HumanBallPlay {
    * @returns The play; empty events for a ball never held or launched.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the event sources, the film clock and the empty result.
-   * @evidence contracts/development/implementation.md#principled-implementation Possessions join one performer's overlapping or touching hand grips on the ball in film order, so a change of hands is not a change of custody; launches and contacts are each flight's projectile start, first contact and continuation-leg contacts, which the flight already limits to its custody.
+   * @evidence contracts/development/implementation.md#principled-implementation Possessions join one performer's overlapping or touching hand grips on the ball in film order, so a change of hands is not a change of custody; launches and contacts are each flight's projectile start, first contact (film seconds) and continuation-leg contacts (timed from the launch, so offset by it), which the flight already limits to its custody.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Grip and flight ownership stay with HumanPerformanceRead and HumanPropFlight; this function only projects and orders their records.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Records no contact the flight did not resolve and infers no possession from proximity.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(G log G) to order G grips, O(F + K) projection for F flights and K contacts, then one O(E log E) sort of the E events.
@@ -108,9 +108,11 @@ export namespace HumanBallPlay {
       });
       if (flight.contact !== undefined)
         events.push(contact(flight.end, flight.contact));
+
+      // A continuation leg is timed from its flight's launch.
       for (const leg of flight.legs ?? [])
         if (leg.contact !== undefined)
-          events.push(contact(leg.end, leg.contact));
+          events.push(contact(flight.launch + leg.end, leg.contact));
     }
     events.sort(
       (
