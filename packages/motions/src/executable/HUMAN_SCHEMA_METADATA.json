@@ -234,6 +234,24 @@
     "knee": {},
     "closeStrike": {},
     "footStrike": {},
+    "chiSau": {
+      "properties": {
+        "cycles": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "kneel": {
       "properties": {
         "hold": {
@@ -483,9 +501,6 @@
     "mounted": {},
     "unseat": {},
     "polo": {},
-    "board": {},
-    "clasp": {},
-    "drape": {},
     "boardRide": {},
     "supportStep": {},
     "swingPump": {},
@@ -951,7 +966,6 @@
       }
     },
     "write": {},
-    "workHeld": {},
     "zip": {},
     "advance": {},
     "aim": {
@@ -5633,6 +5647,12 @@
     "legSweep": {},
     "spinningHookKick": {},
     "jumpingSideKick": {},
+    "chainPunch": {},
+    "rearChainPunch": {},
+    "meiaLuaDeFrente": {},
+    "armada": {},
+    "esquiva": {},
+    "au": {},
     "switchKick": {},
     "pushKick": {},
     "teep": {},
@@ -5797,6 +5817,3 @@
   }
 }
     "wallRun": {},
-    "wallRun": {},
-    "rope": {},
-    "stuntFall": {},

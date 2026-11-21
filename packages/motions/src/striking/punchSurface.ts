@@ -22,6 +22,8 @@ import { StrikingBody } from "./StrikingBody";
  *   toward the target, which extends the wrist.
  * - `backfist` swings the back of the fist (the `handBack` region) out across
  *   the line, the fingers forward and the back of the hand toward its travel.
+ * - `verticalFist` lands the knuckles along the line with the fist upright,
+ *   the palm in, wing chun's centreline punch.
  * - `hammerfist` brings the fist's little-finger edge down, the fist upright
  *   with the palm in; the edge is read halfway from the wrist to the little
  *   finger's knuckle on the rest skeleton, inside the hand by its soft
@@ -89,6 +91,12 @@ export function punchSurface(
         fist,
       );
     }
+    case "verticalFist":
+      return placed(
+        straight,
+        StrikingBody.fist(body, side, straight, Vector3.scale(outward, -1)),
+        fist,
+      );
     case "palmHeel":
       return placed(
         straight,

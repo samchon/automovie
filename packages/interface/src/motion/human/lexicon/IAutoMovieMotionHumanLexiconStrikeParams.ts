@@ -33,6 +33,27 @@ export interface IAutoMovieMotionHumanLexiconStrikeParams {
   /** An uppercut with the rear hand. */
   rearUppercut: Omit<IAutoMovieMotionHumanPunch.IParams, "technique" | "hand">;
 
+  /** A wing chun chain punch with the lead hand: a vertical fist along the centreline. */
+  chainPunch: Omit<IAutoMovieMotionHumanPunch.IParams, "technique" | "hand">;
+
+  /** A wing chun chain punch with the rear hand. */
+  rearChainPunch: Omit<
+    IAutoMovieMotionHumanPunch.IParams,
+    "technique" | "hand"
+  >;
+
+  /** Capoeira's meia-lua de frente: the rear leg's straight sweep inward across the front. */
+  meiaLuaDeFrente: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
+
+  /** Capoeira's armada: a whole turn, then the rear leg's straight sweep outward. */
+  armada: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
+
   /** A backfist with the lead hand: the back of the fist swung out across the line. */
   backfist: Omit<IAutoMovieMotionHumanPunch.IParams, "technique" | "hand">;
 

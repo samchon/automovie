@@ -29,9 +29,9 @@ import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 
 /** The linked phrases offered by the martial-art law. */
-type Kind = Extract<
+type Kind = Exclude<
   IAutoMovieMotionHumanMartialArt.Kind,
-  `${string}${"Transfer" | "StanceReset"}`
+  "horseStance" | "chokuZuki" | "taiChiPush"
 >;
 
 /** Provisional blocking values for the shared entry, transfer and reset. */
@@ -56,6 +56,12 @@ interface IForm {
 
   /** The style's upper body path or held guard. */
   arms: Carriage;
+
+  /** The moving foot's arc height in statures; 0.025 when absent. */
+  lift?: number;
+
+  /** Whether the moving foot steps out to the side instead of along the line. */
+  lateral?: boolean;
 }
 
 /**
@@ -65,7 +71,7 @@ interface IForm {
 type Carriage = "karate" | "taiChi" | GuardCarriage;
 
 /** A carriage that holds a fighting guard through the phrase. */
-type GuardCarriage = "highGuard" | "lowGuard";
+type GuardCarriage = "highGuard" | "lowGuard" | "centreline";
 
 /** One side of the body, as the stance names its lead and rear. */
 type Side = "left" | "right";
@@ -108,6 +114,10 @@ const GUARDS: Record<GuardCarriage, IGuard> = {
     lead: { inward: 0.35, up: -0.55, forward: 0.5 },
     rear: { inward: 0.6, up: -0.4, forward: 0.3 },
   },
+  centreline: {
+    lead: { inward: 1, up: -0.35, forward: 0.62 },
+    rear: { inward: 1, up: -0.45, forward: 0.32 },
+  },
 };
 
 /** The four screen forms share a clock and sole fit, with independent blocking. */
@@ -139,6 +149,35 @@ const FORM: Record<Kind, IForm> = {
     turn: [2, 16],
     arms: "lowGuard",
   },
+  capoeiraGinga: {
+    stride: -0.18,
+    knee: 38,
+    step: 0.5,
+    shift: [0.5, 0.5],
+    weight: [0.5, 0.2, 0.2],
+    turn: [10, 0],
+    arms: "highGuard",
+  },
+  sumoShiko: {
+    stride: 0.2,
+    knee: 55,
+    step: 1.2,
+    shift: [0.6, 0.6],
+    weight: [0.5, 0, 0],
+    turn: [0, 0],
+    arms: "lowGuard",
+    lift: 0.4,
+    lateral: true,
+  },
+  wingChunStance: {
+    stride: 0.12,
+    knee: 25,
+    step: 0.6,
+    shift: [0.4, 0.4],
+    weight: [0.3, 0.1, 0.1],
+    turn: [0, 0],
+    arms: "centreline",
+  },
   muayThaiStanceReset: {
     stride: 0.28,
     knee: 41,
@@ -158,7 +197,10 @@ const FORM: Record<Kind, IForm> = {
  * stepping study and the tai chi push case study distinguish the movement
  * families. The taekwondo reset turns a bladed, upright stance under a low
  * sparring guard; the Muay Thai reset keeps a square, lower stance under a
- * high guard. A guard rises with the lead step, holds through both
+ * high guard. The capoeira ginga steps the lead foot back behind the middle
+ * of the stance, the third corner of its triangle, and returns; the sumo
+ * shiko lifts the foot high to the side and stamps it down wide; the wing
+ * chun stance takes a short step under the centreline guard. A guard rises with the lead step, holds through both
  * transfers and lowers on the return. All blocking values are provisional
  * choices for the take.
  * @see https://pubmed.ncbi.nlm.nih.gov/34269821/
@@ -200,12 +242,29 @@ export function MartialArtStancePhrase(
     yaw: start.yaw,
   };
   const oldLead: IAutoMovieVector3 = HumanFrame.local(axis, feet[lead].ankle);
-  const stride: number = Math.max(
-    oldLead.z,
-    form.stride * m.stature * manner.extent,
-  );
+  // A backward form (the ginga) steps the foot behind the other; a lateral
+  // one (the shiko) widens the stance to the side.
+  const reach: number = form.stride * m.stature * manner.extent;
+  const stride: number =
+    form.stride < 0
+      ? reach
+      : form.lateral === true
+        ? oldLead.z
+        : Math.max(oldLead.z, reach);
+  const outward: number = lead === "left" ? 1 : -1;
   const finish: IAutoMovieMotionHumanFoot.IPlacement = {
-    ankle: HumanFrame.point(axis, { ...oldLead, z: stride }),
+    ankle: HumanFrame.point(axis, {
+      ...oldLead,
+      // The ginga's back foot lands behind the middle of the stance, the
+      // triangle's third corner.
+      x:
+        form.lateral === true
+          ? oldLead.x + outward * reach
+          : form.stride < 0
+            ? oldLead.x / 2
+            : oldLead.x,
+      z: stride,
+    }),
     rotation: HumanFoot.rotation(
       start.yaw,
       HumanFoot.pitch(feet[lead].rotation),
@@ -273,7 +332,7 @@ export function MartialArtStancePhrase(
         [lead]: AutoMovieMotionHumanLeg.arc(
           feet[lead],
           finish,
-          0.025 * m.stature,
+          (form.lift ?? 0.025) * m.stature,
           shown,
         ),
       };

@@ -105,6 +105,9 @@ export interface IAutoMovieMotionHumanLexiconStageFightParams {
   /** A duck under a threat with no strike to answer: a short partial crouch (0.3 s held, provisional). */
   duck: Omit<IAutoMovieMotionHumanCrouch.IParams, "depth" | "hold">;
 
+  /** Capoeira's esquiva baixa: a full crouch under a kick, held while it passes. */
+  esquiva: Omit<IAutoMovieMotionHumanCrouch.IParams, "depth" | "hold">;
+
   /** A dodge with no strike to answer: one quick step to the right out of a threat's line. */
   dodge: Omit<IAutoMovieMotionHumanStep.IParams, "direction" | "steps">;
 

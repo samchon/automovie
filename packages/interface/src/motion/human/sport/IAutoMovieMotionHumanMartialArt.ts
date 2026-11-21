@@ -26,8 +26,12 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * placement. The tai chi phrase carries both open hands through gradual
  * forward and backward weight transfers. The taekwondo reset turns a
  * bladed, upright stance under a low sparring guard, and the Muay Thai reset
- * keeps a square, lower stance under a high guard. Both return to the
- * entry and have no partner or contact target.
+ * keeps a square, lower stance under a high guard. The capoeira ginga steps
+ * one foot back behind the other, low, under a high guard, so alternating
+ * leads trace its triangle; the sumo shiko raises the foot high to the side
+ * and stamps it down into a wide, deep stance; the wing chun stance takes a
+ * short step under the centreline guard, both hands forward on the midline.
+ * All return to the entry and have no partner or contact target.
  *
  * @evidence contracts/development/common.md#meaningful-documentation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
@@ -81,5 +85,8 @@ export namespace IAutoMovieMotionHumanMartialArt {
     | "karateStanceTransfer"
     | "taiChiTransfer"
     | "taekwondoStanceReset"
-    | "muayThaiStanceReset";
+    | "muayThaiStanceReset"
+    | "capoeiraGinga"
+    | "sumoShiko"
+    | "wingChunStance";
 }

@@ -64,6 +64,7 @@ export namespace punchContact {
     palmHeel: [5, 25],
     backfist: [10, 45],
     hammerfist: [30, 90],
+    verticalFist: [5, 25],
   };
 
   /**
@@ -89,6 +90,7 @@ export namespace punchContact {
     palmHeel: { lead: 8, rear: 60 },
     backfist: { lead: -15, rear: 45 },
     hammerfist: { lead: 10, rear: 40 },
+    verticalFist: { lead: 0, rear: 10 },
   };
 
   /**

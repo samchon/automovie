@@ -180,6 +180,14 @@ export namespace HumanStageFight {
     hold: 0.3,
   });
 
+  /** Capoeira's esquiva baixa: a full crouch under a kick, held while it passes. */
+  export const esquiva: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["stageFight"]["esquiva"]
+  > = HumanActionRow.of("esquiva", crouch, {
+    depth: "full",
+    hold: 0.6,
+  });
+
   /** A dodge with no strike to answer: one quick step to the right out of a threat's line. */
   export const dodge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["dodge"]

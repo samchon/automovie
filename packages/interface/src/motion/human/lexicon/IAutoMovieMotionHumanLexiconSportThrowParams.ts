@@ -75,6 +75,9 @@ export interface IAutoMovieMotionHumanLexiconSportThrowParams {
   /** A cartwheel to the performer's left: one sideways turn over a foot, the two hands and the other foot. */
   cartwheelLeft: Omit<IAutoMovieMotionHumanCartwheel.IParams, "to">;
 
+  /** Capoeira's aú: a cartwheel to the left through both hands, low and kept facing the partner. */
+  au: Omit<IAutoMovieMotionHumanCartwheel.IParams, "to">;
+
   /** A cartwheel to the performer's right. */
   cartwheelRight: Omit<IAutoMovieMotionHumanCartwheel.IParams, "to">;
 

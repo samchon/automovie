@@ -32,6 +32,7 @@ import {
   createRhythmicBall,
   createStillRings,
   createUnevenBars,
+  createWoodenDummy,
 } from "../gym";
 import { createInstrument, createMicrophone } from "../music";
 import { createFireRing, createRock, createTent, createTree } from "../nature";
@@ -315,6 +316,7 @@ export function archetypeCaptureCatalog(): Readonly<
       rings: rings.articulate({ leftPivot: -15, rightPivot: 30 }),
     }),
     "uneven-bars": still({ bars: createUnevenBars() }),
+    "wooden-dummy": still({ dummy: createWoodenDummy() }),
     "rhythmic-ball": still({ ball: createRhythmicBall() }),
     nature: still({
       ...kinds(

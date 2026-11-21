@@ -9,6 +9,7 @@ import type {
 import { getUp } from "../floor/getUp";
 import { lieDown } from "../floor/lieDown";
 import { clinch } from "./clinch";
+import { grappleSumo } from "./grappleSumo";
 
 /**
  * Floor support keys and hand regions for preplanned grappling performances.
@@ -58,7 +59,9 @@ export namespace grappleStances {
   }
 
   /** Illustrative poses separate moving silhouettes within the same rules family. */
-  const rows: Readonly<Record<IAutoMovieMotionHumanGrapple.Kind, IRow>> = {
+  const rows: Readonly<
+    Record<Exclude<IAutoMovieMotionHumanGrapple.Kind, grappleSumo.Kind>, IRow>
+  > = {
     seoiNage: {
       seconds: 3.5,
       initiator: { turn: 80, pitch: 25, roll: 0, twist: -15, depth: 34 },
@@ -212,7 +215,9 @@ export namespace grappleStances {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure numeric lookup.
    */
   export function seconds(kind: IAutoMovieMotionHumanGrapple.Kind): number {
-    return rows[kind].seconds;
+    return grappleSumo.is(kind)
+      ? grappleSumo.seconds(kind)
+      : rows[kind].seconds;
   }
 
   /**
@@ -230,6 +235,7 @@ export namespace grappleStances {
     kind: IAutoMovieMotionHumanGrapple.Kind,
     side: AutoMovieHumanSide,
   ): Readonly<Partial<Record<AutoMovieHumanSide, AutoMovieHumanoidRegion>>> {
+    if (grappleSumo.is(kind)) return grappleSumo.regions(kind);
     const opposite: AutoMovieHumanSide = other(side);
     const grip: IRow["grip"] = rows[kind].grip;
     switch (grip) {
@@ -269,7 +275,10 @@ export namespace grappleStances {
   export function keys(
     p: IAutoMovieMotionHumanGrapple.IParams,
     duration: number,
+    stature: number,
   ): readonly IAutoMovieMotionHumanSupport.IStance[] {
+    if (grappleSumo.is(p.kind))
+      return grappleSumo.keys({ ...p, kind: p.kind }, duration, stature);
     if (p.kind === "seoiNage" && p.outcome !== "denied")
       return shoulderKeys(p.role, p.side ?? "right", duration);
     const row: IRow = rows[p.kind];

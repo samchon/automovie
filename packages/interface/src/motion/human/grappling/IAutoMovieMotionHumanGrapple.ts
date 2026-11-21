@@ -11,10 +11,13 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 export namespace IAutoMovieMotionHumanGrapple {
   /**
    * Staged entries and mat exchanges distinguished by their displayed movement.
+   * The sumo bouts crouch at the shikiri lines, charge at the tachiai and end
+   * with a push out of the ring (`oshiDashi`), a belt-grip force-out
+   * (`yoriKiri`) or an overarm belt throw (`uwateNage`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each literal names one selectable judo, wrestling or mat scene.
    * @evidence contracts/development/design.md#principled-representation Closed scene kinds select the named staging rows and their corresponding support movements.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The scene input uses these eleven names to select its choreography.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The scene input uses these fourteen names to select its choreography.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Scene kind and scene outcome are separate inputs.
    */
   export type Kind =
@@ -28,7 +31,10 @@ export namespace IAutoMovieMotionHumanGrapple {
     | "judoHold"
     | "wrestlingFall"
     | "guardPass"
-    | "mmaReset";
+    | "mmaReset"
+    | "oshiDashi"
+    | "yoriKiri"
+    | "uwateNage";
 
   /**
    * The two parts of a scene played on the same clock.

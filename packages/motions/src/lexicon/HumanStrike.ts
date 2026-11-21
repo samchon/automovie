@@ -25,6 +25,8 @@ import { punch } from "../striking/punch";
  * | `horizontalElbow`, `risingElbow`, `descendingElbow` | `closeStrike` | the elbow's path, rear arm |
  * | `spinningElbow`, `spinningBackfist` | `closeStrike` | a whole turn, rear arm |
  * | `headbutt` | `closeStrike` | the forehead |
+ * | `chainPunch`, `rearChainPunch` | `punch` | the vertical fist, lead or rear |
+ * | `meiaLuaDeFrente`, `armada` | `footStrike` | crescent, or hook spun, rear leg |
  * | `sideKick`, `hookKick`, `legSweep`, `jumpingSideKick` | `footStrike` | technique, lead leg, the jump |
  * | `backKick`, `crescentKick`, `axeKick`, `stomp`, `spinningHookKick` | `footStrike` | technique, rear leg, the spin |
  * | `roundKick`, `switchKick` | `kick` | round, rear or lead leg |
@@ -89,6 +91,39 @@ export namespace HumanStrike {
   > = HumanActionRow.of("rearUppercut", punch, {
     technique: "uppercut",
     hand: "rear",
+  });
+
+  /** A wing chun chain punch with the lead hand: a vertical fist along the centreline. */
+  export const chainPunch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["chainPunch"]
+  > = HumanActionRow.of("chainPunch", punch, {
+    technique: "verticalFist",
+    hand: "lead",
+  });
+
+  /** A wing chun chain punch with the rear hand. */
+  export const rearChainPunch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["rearChainPunch"]
+  > = HumanActionRow.of("rearChainPunch", punch, {
+    technique: "verticalFist",
+    hand: "rear",
+  });
+
+  /** Capoeira's meia-lua de frente: the rear leg's straight sweep inward across the front. */
+  export const meiaLuaDeFrente: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["meiaLuaDeFrente"]
+  > = HumanActionRow.of("meiaLuaDeFrente", footStrike, {
+    technique: "crescent",
+    leg: "rear",
+  });
+
+  /** Capoeira's armada: a whole turn, then the rear leg's straight sweep outward. */
+  export const armada: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["armada"]
+  > = HumanActionRow.of("armada", footStrike, {
+    technique: "hook",
+    leg: "rear",
+    spin: true,
   });
 
   /** A backfist with the lead hand. */

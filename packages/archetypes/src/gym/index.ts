@@ -20,3 +20,4 @@ export * from "./createSled";
 export * from "./createSpringboard";
 export * from "./createStillRings";
 export * from "./createUnevenBars";
+export * from "./createWoodenDummy";

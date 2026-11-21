@@ -30,7 +30,9 @@ import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHum
  * the arm nearly extended like the straight; `backfist` swings the back of
  * the fist out across the line onto the target with the arm nearly
  * extended; `hammerfist` brings the fist's little-finger edge down onto the
- * target with the elbow bent 30 to 90 degrees. No located study gives their
+ * target with the elbow bent 30 to 90 degrees; `verticalFist` drives the
+ * knuckles along the centreline with the fist upright, the palm in, as wing
+ * chun's chain punches do, the arm nearly extended. No located study gives their
  * delivery times, so they keep the punch's measured timing. A rear-hand
  * punch turns the trunk through to bring the rear shoulder forward and
  * pivots the rear foot on its ball; a lead hook turns the other way. A body
@@ -109,5 +111,6 @@ export namespace IAutoMovieMotionHumanPunch {
     | "uppercut"
     | "palmHeel"
     | "backfist"
-    | "hammerfist";
+    | "hammerfist"
+    | "verticalFist";
 }

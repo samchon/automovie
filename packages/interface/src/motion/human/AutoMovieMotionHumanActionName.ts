@@ -64,6 +64,7 @@
  * - `dance`: a solo dance step locked to a declared beat (bounce, sway, step-touch).
  * - `athletics`: the sprint start's crouch into the set position, held to the gun.
  * - `gymnastics`: a handstand kicked up from standing, held and stepped down.
+ * - `chiSau`: wing chun's rolling sticky hands with a partner.
  * - `martialArt`: a martial-art technique (horse stance, choku-zuki, tai chi push).
  * - `ballSport`: a team ball skill with an implied ball (dribble, dig, set, throw-in).
  * - `baseball`: a baseball position (catcher's crouch, ground ball, batting stance).
@@ -138,6 +139,7 @@ export type AutoMovieMotionHumanActionName =
   | "athletics"
   | "gymnastics"
   | "martialArt"
+  | "chiSau"
   | "ballSport"
   | "baseball"
   | "racket"

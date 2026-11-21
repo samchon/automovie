@@ -5,6 +5,7 @@ export type { IAutoMovieMotionHumanBallSport } from "./IAutoMovieMotionHumanBall
 export type { IAutoMovieMotionHumanBaseball } from "./IAutoMovieMotionHumanBaseball";
 export type { IAutoMovieMotionHumanBowlingSlide } from "./IAutoMovieMotionHumanBowlingSlide";
 export type { IAutoMovieMotionHumanCartwheel } from "./IAutoMovieMotionHumanCartwheel";
+export type { IAutoMovieMotionHumanChiSau } from "./IAutoMovieMotionHumanChiSau";
 export type { IAutoMovieMotionHumanGymnastics } from "./IAutoMovieMotionHumanGymnastics";
 export type { IAutoMovieMotionHumanGymnasticsFlight } from "./IAutoMovieMotionHumanGymnasticsFlight";
 export type { IAutoMovieMotionHumanGymnasticsMat } from "./IAutoMovieMotionHumanGymnasticsMat";

@@ -44,6 +44,7 @@ import type { IAutoMovieMotionHumanBallSport } from "./sport/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanBaseball } from "./sport/IAutoMovieMotionHumanBaseball";
 import type { IAutoMovieMotionHumanGymnastics } from "./sport/IAutoMovieMotionHumanGymnastics";
 import type { IAutoMovieMotionHumanMartialArt } from "./sport/IAutoMovieMotionHumanMartialArt";
+import type { IAutoMovieMotionHumanChiSau } from "./sport/IAutoMovieMotionHumanChiSau";
 import type { IAutoMovieMotionHumanRacket } from "./sport/IAutoMovieMotionHumanRacket";
 import type { IAutoMovieMotionHumanSwim } from "./sport/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanDefend } from "./striking/IAutoMovieMotionHumanDefend";
@@ -267,6 +268,9 @@ export interface IAutoMovieMotionHumanActionParams {
 
   /** A martial-art technique. */
   martialArt: IAutoMovieMotionHumanMartialArt.IParams;
+
+  /** Wing chun's rolling chi sau with a partner. */
+  chiSau: IAutoMovieMotionHumanChiSau.IParams;
 
   /** A team ball skill. */
   ballSport: IAutoMovieMotionHumanBallSport.IParams;

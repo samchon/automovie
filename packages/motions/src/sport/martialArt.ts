@@ -115,7 +115,10 @@ export namespace martialArt {
       p.kind === "karateStanceTransfer" ||
       p.kind === "taiChiTransfer" ||
       p.kind === "taekwondoStanceReset" ||
-      p.kind === "muayThaiStanceReset"
+      p.kind === "muayThaiStanceReset" ||
+      p.kind === "capoeiraGinga" ||
+      p.kind === "sumoShiko" ||
+      p.kind === "wingChunStance"
     )
       return MartialArtStancePhrase(context, p.kind, hold, modifiers);
 

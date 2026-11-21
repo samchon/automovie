@@ -33,6 +33,7 @@ import { poseBones } from "../posture/poseBones";
 import { clinch } from "./clinch";
 import { grappleMatRoll } from "./grappleMatRoll";
 import { grappleStances } from "./grappleStances";
+import { grappleSumo } from "./grappleSumo";
 
 /**
  * One role of a scripted judo, wrestling or mat grappling scene. The actors
@@ -91,6 +92,7 @@ export namespace grapple {
 
   /** Timing of the visible partner contact relative to the shared floor transfer. */
   function window(p: IAutoMovieMotionHumanGrapple.IParams): IWindow {
+    if (grappleSumo.is(p.kind)) return grappleSumo.window();
     // A thigh contact is staged at the lowered entry. The upright approach's grip
     // window leaves its target below the available shoulder-to-wrist reach.
     if (p.kind === "singleLeg" || p.kind === "doubleLeg")
@@ -115,6 +117,7 @@ export namespace grapple {
       case "oGoshi":
       case "oSotoGari":
       case "deAshiHarai":
+      default:
         return { reach: 0.02, take: 0.15, release: 0.23, rest: 0.48 };
     }
   }
@@ -155,6 +158,7 @@ export namespace grapple {
     const keys: ReturnType<typeof grappleStances.keys> = grappleStances.keys(
       p,
       duration,
+      context.body.measure.stature,
     );
     const supportPlan: IAutoMovieMotionHumanActionPlan = support.plan({
       ...context,

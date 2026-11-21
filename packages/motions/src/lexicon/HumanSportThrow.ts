@@ -148,6 +148,13 @@ export namespace HumanSportThrow {
     to: "left",
   });
 
+  /** Capoeira's aú: a cartwheel to the left through both hands. */
+  export const au: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["au"]
+  > = HumanActionRow.of("au", cartwheel, {
+    to: "left",
+  });
+
   /** A cartwheel to the performer's right. */
   export const cartwheelRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["cartwheelRight"]
