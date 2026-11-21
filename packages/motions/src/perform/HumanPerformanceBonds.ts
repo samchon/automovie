@@ -115,9 +115,9 @@ export namespace HumanPerformanceBonds {
             HumanPerformanceLayers.window(self, bound, {
               layer: layer(self, wearer, wear, wear.link, limbs, from),
               from,
-              ...(span === undefined || span.to === Infinity
-                ? {}
-                : { to: span.to }),
+              // A binding no grip takes off holds to the film's end, not
+              // fading out before it as a window ending there would.
+              to: span?.to ?? Infinity,
               fade: HumanSegment.FADE,
             }),
           );

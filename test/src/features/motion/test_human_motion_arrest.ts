@@ -1,10 +1,10 @@
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
@@ -29,8 +29,8 @@ const FRISK: readonly AutoMovieHumanoidRegion[] = [
   "shoulderRight",
   "shoulderLeft",
 ];
-/** A pat lands within this of its region's bone, metres: a limb's radius and a palm's thickness. */
-const PAT: number = 0.12;
+/** A pat lands within this of its region's surface point, metres: a palm's half width. */
+const PAT: number = 0.05;
 /** The handcuffs' chain: the most the cuffed wrists part, metres. */
 const CHAIN: number = 0.08;
 /** The wrist bones' spread across one cuff ring each, metres: two cuff radii. */
@@ -134,10 +134,13 @@ export function test_human_motion_arrest(): void {
         "palm",
         "flat",
       ).point;
-      const bone: AutoMovieHumanoidBone = subject.surfaces.regions[region].bone;
-      const target: IAutoMovieVector3 = film
-        .bones("s", at)
-        .get(bone)!.worldPosition;
+      // The region's own surface point, as the pat aims at it.
+      const reader: IAutoMovieMotionHumanPosture = film.posture("o", at);
+      const target: IAutoMovieVector3 = film.aim(
+        { kind: "person", subject: "s", region },
+        at,
+        { root: reader.root, yaw: reader.yaw },
+      ).point;
       checks.check(
         `the pat reaches ${region} (${Vector3.distance(palm, target).toFixed(3)} m) in order`,
         Vector3.distance(palm, target) <= PAT && at > last,
