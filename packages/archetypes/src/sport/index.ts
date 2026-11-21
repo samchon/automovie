@@ -46,6 +46,7 @@ export * from "./createLacrosseCrosse";
 export * from "./createOvalBall";
 export * from "./createPuck";
 export * from "./createPoloMallet";
+export * from "./createLariat";
 export * from "./createSphericalBall";
 export * from "./createTennisNet";
 export * from "./createVolleyballNet";
