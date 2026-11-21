@@ -342,6 +342,7 @@ export * from "./lexicon/HumanDrape";
 export * from "./lexicon/HumanTrick";
 export * from "./lexicon/HumanRoman";
 export * from "./lexicon/HumanLasso";
+export * from "./lexicon/HumanSabre";
 export * from "./lexicon/HumanBoard";
 export * from "./lexicon/HumanClasp";
 export * from "./lexicon/HumanDrape";

@@ -103,7 +103,7 @@ export function createPoloMallet(
       v(0, 1, 0),
     ),
     extent: null,
-    grip: "one-hand",
+    grip: "power",
     aperture: d.gripDiameter,
     length: hold,
   });
@@ -113,7 +113,7 @@ export function createPoloMallet(
     symmetry: "round",
     frame: ArchetypeFrame.facing(v(0, top - s / 2, 0), v(0, 0, -1), v(0, 1, 0)),
     extent: null,
-    grip: "one-hand",
+    grip: "power",
     aperture: s,
     length: s,
   });

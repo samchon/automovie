@@ -14,6 +14,7 @@ import type { IAutoMovieMotionHumanDrape } from "./IAutoMovieMotionHumanDrape";
 import type { IAutoMovieMotionHumanTrick } from "./IAutoMovieMotionHumanTrick";
 import type { IAutoMovieMotionHumanRoman } from "./IAutoMovieMotionHumanRoman";
 import type { IAutoMovieMotionHumanLasso } from "./IAutoMovieMotionHumanLasso";
+import type { IAutoMovieMotionHumanSabre } from "./IAutoMovieMotionHumanSabre";
 import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 
 /**
@@ -76,4 +77,7 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
 
   /** Swing, throw and dally a lariat from the saddle at a moving animal. */
   HumanLasso: IAutoMovieMotionHumanLasso;
+
+  /** Carry a cavalry sabre at the slope from the saddle and bring it to the engage at the charge. */
+  HumanSabre: IAutoMovieMotionHumanSabre;
 }

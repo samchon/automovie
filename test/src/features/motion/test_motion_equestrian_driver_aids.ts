@@ -2,6 +2,7 @@ import {
   ArchetypeRide,
   createCart,
   createHorse,
+  prepareTowedCartDriver,
   rideHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -20,7 +21,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRide,
-  prepareTowedCartDriver,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

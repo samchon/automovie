@@ -78,7 +78,7 @@ export namespace HumanUnseatDrag {
   }
 
   /**
-   * A drag: from the release the body is drawn over `DRAW` onto its back behind the stirrup, the foot held in it and the head away from the carrier, sliding as the carrier goes; a breakaway stirrup lets the foot go at `free` and the body slides to a stop.
+   * A drag: from the release the body is drawn over `HumanUnseatPose.DRAW` onto its back behind the stirrup, the foot held in it and the head away from the carrier, sliding as the carrier goes; a breakaway stirrup lets the foot go at `free` and the body slides to a stop.
    *
    * @param props The inputs.
    * @returns The plan.
@@ -207,7 +207,7 @@ export namespace HumanUnseatDrag {
           : mixHumanPosture(
               seatedAt(release),
               shown,
-              minimumJerk.share((t - release) / DRAW),
+              minimumJerk.share((t - release) / HumanUnseatPose.DRAW),
             );
       },
     };
