@@ -101,11 +101,12 @@ export namespace EquineHeadReach {
    * @param target The target, model space.
    * @param gap The held clearance, metres, nonnegative.
    * @param archetype The animal's producer name, for a refusal.
+   * @param under Whether the poll bends down under the line from the root to the target, as a foal reaches up to an udder; it bends up otherwise.
    * @returns The neck's and head's turns.
    * @throws {ArchetypeRefusal} When the target lies outside the two links' band from the neck's root.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the clearance and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation In the trunk's frame, the target's bearing yaws both links and the law of cosines on the neck's length a, the head's link b plus the gap and the root-to-target distance D gives the neck's elevation with the poll bent upward; the head then points from the moved poll at the target.
+   * @evidence contracts/development/implementation.md#principled-implementation In the trunk's frame, the target's bearing yaws both links and the law of cosines on the neck's length a, the head's link b plus the gap and the root-to-target distance D gives the neck's elevation with the poll bent upward, or downward when `under`; the head then points from the moved poll at the target.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the band, solve the triangle, decompose each bar's change into yaw and pitch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target outside [|a-b|, a+b] is refused with the band, never clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -117,6 +118,7 @@ export namespace EquineHeadReach {
     target: IAutoMovieVector3,
     gap: number,
     archetype: string,
+    under: boolean = false,
   ): ITurn {
     const local: IAutoMovieVector3 = toBody(
       bars,
@@ -141,15 +143,16 @@ export namespace EquineHeadReach {
     const bearing: number = Math.atan2(local.x, local.z);
     const elevation: number =
       Math.atan2(local.y, horizontal) +
-      Math.acos(
-        Math.max(
-          -1,
-          Math.min(
-            1,
-            (a * a + distance * distance - b * b) / (2 * a * distance),
+      (under ? -1 : 1) *
+        Math.acos(
+          Math.max(
+            -1,
+            Math.min(
+              1,
+              (a * a + distance * distance - b * b) / (2 * a * distance),
+            ),
           ),
-        ),
-      );
+        );
     const forward: IAutoMovieVector3 = {
       x: Math.sin(bearing),
       y: 0,

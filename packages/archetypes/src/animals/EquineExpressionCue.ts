@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { ArchetypeRide } from "../core";
+
 /**
  * The authored cues of an equid's expression layer: where it looks and puts its muzzle, how each ear and the tail are carried, what the jaw does, and when it calls.
  *

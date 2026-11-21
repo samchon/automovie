@@ -167,6 +167,10 @@ export namespace EquineEncounter {
               at: (seconds: number): IAutoMovieVector3 =>
                 bitten(biter, other.at(seconds), act.region),
             },
+            around: {
+              at: (seconds: number): ArchetypeRide.IPose<Id, D> =>
+                other.at(seconds),
+            },
           });
         } else if (act.horse !== horse) {
           if (act.kind === "threat") continue;

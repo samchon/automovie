@@ -18,9 +18,11 @@ import {
   ArchetypeRefusal,
   type ArchetypeRide,
 } from "../core";
+import { EquineExpressionAdmission } from "./EquineExpressionAdmission";
 import type { EquineExpressionCue } from "./EquineExpressionCue";
 import { EquineExpressionPose } from "./EquineExpressionPose";
 import { EquineHeadClearance } from "./EquineHeadClearance";
+import { EquineHeadCourse } from "./EquineHeadCourse";
 import { EquineHeadReach } from "./EquineHeadReach";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedSkeleton } from "./QuadrupedSkeleton";
@@ -83,30 +85,14 @@ const TAILS: Readonly<Record<EquineExpressionCue.TailCarriage, number>> = {
   swish: 0,
 };
 
-/** Acts whose muzzle touches its target. */
-const TOUCHING: ReadonlySet<EquineExpressionCue.Act> =
-  new Set<EquineExpressionCue.Act>([
-    "greet",
-    "graze",
-    "hay",
-    "drink",
-    "rub",
-    "groom",
-    "bite",
-    "suckle",
-  ]);
-
-/** A cue that poses nothing and only marks an instant. */
-type Marked = EquineExpressionCue.IVocalize | EquineExpressionCue.ITwitch;
-
 /** A held cue with its channel. */
-type Held = Exclude<EquineExpressionCue.Cue, Marked>;
+type Held = EquineExpressionAdmission.Held;
 
 /** A cue on the head channel that faces a target. */
-type Facing = EquineExpressionCue.IAttend | EquineExpressionCue.IReach;
+type Facing = EquineExpressionAdmission.Facing;
 
 /** Any cue on the head channel. */
-type Heading = Facing | EquineExpressionCue.ICarriage;
+type Heading = EquineExpressionAdmission.Heading;
 
 /** A named instant of a ride. */
 type Instant = ArchetypeRide.IRide<string, string>["instants"][number];
@@ -114,7 +100,7 @@ type Instant = ArchetypeRide.IRide<string, string>["instants"][number];
 /**
  * An equid's expression layer over any of its rides: attention, muzzle reaches for sniffing, greeting, feeding, drinking, rubbing and grooming, held head carriages (doze, flehmen, yawn), each ear, the jaw, the lips, a neck shake and the tail, and vocal and skin-twitch marks.
  *
- * The layer is a pose layer in the motion skill's sense: it samples the base ride and re-poses only the neck and head, the ears, the jaw and the tail through the animal's actual rig (`EquineExpressionPose`), so the base's stride, hooves, trunk, tack and contacts are kept exactly and its timing and instants are kept. Each held cue blends in and out on a minimum-jerk share over its `ease`; outside every cue a sample is the base ride's own. A muzzle reach solves the neck and head in closed form (`EquineHeadReach`) against the target read at that sample, in the horse's current frame, so a moving partner is tracked; a target out of reach, or one the head or neck could only reach through a forelimb (`EquineHeadClearance`), is refused. A carriage pitches the neck and head by authored angles (`EquineHeadReach.pitched`); a curled upper lip turns about its root and a slack lower lip drops the jaw a little; a shake rolls the neck about its own bar. Each vocalization adds exactly one mark, `vocal:<call>`, to the instants and to `marks`, and each skin twitch one instant `twitch:<region>`; each reach adds `<act>On` and `<act>Off` where it is fully held.
+ * The layer is a pose layer in the motion skill's sense: it samples the base ride and re-poses only the neck and head, the ears, the jaw and the tail through the animal's actual rig (`EquineExpressionPose`), so the base's stride, hooves, trunk, tack and contacts are kept exactly and its timing and instants are kept. Each held cue blends in and out on a minimum-jerk share over its `ease`; outside every cue a sample is the base ride's own. On the head channel a cue that starts where the one before it ends blends from that cue's turns rather than from rest, and the one before holds until it hands over; a reach given another body to go around plans its neck and head course around that body's bars (`EquineHeadCourse`), refusing when none clears. A muzzle reach solves the neck and head in closed form (`EquineHeadReach`), a suckling foal's with its poll bent down so it reaches up under the belly, its head first dipped low and then raised to the udder (`EquineHeadReach.dipping`, `rising`), against the target read at that sample, in the horse's current frame, so a moving partner is tracked; a target out of reach, or one the head or neck could only reach through a forelimb (`EquineHeadClearance`), is refused. A carriage pitches the neck and head by authored angles (`EquineHeadReach.pitched`); a curled upper lip turns about its root and a slack lower lip drops the jaw a little; a shake rolls the neck about its own bar. Each vocalization adds exactly one mark, `vocal:<call>`, to the instants and to `marks`, and each skin twitch one instant `twitch:<region>`; each reach adds `<act>On` and `<act>Off` where it is fully held.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is layered, what is kept, the blending, the reach solve and its refusals, and the instants added.
  * @evidence contracts/development/design.md#principled-representation A ride in, a ride out with its marks, on the same film clock.
@@ -171,7 +157,10 @@ export namespace EquineExpression {
         reason: `a ${animal.archetype} has no equid's bridled head`,
         fix: "Layer equine expression over a horse, pony, donkey or mule.",
       });
-    const held: readonly Held[] = admit(animal.archetype, cues);
+    const held: readonly Held[] = EquineExpressionAdmission.admit(
+      animal.archetype,
+      cues,
+    );
     const rest: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
       prepareArticulatedRig(QuadrupedSkeleton.of(animal)).read();
     const nodding: ReadonlySet<string> = new Set(species.nodding);
@@ -206,6 +195,30 @@ export namespace EquineExpression {
       head.geometry.shape.type === "capsule"
         ? head.geometry.shape.height + head.geometry.shape.radius
         : NaN;
+    const radius = (id: string): number => {
+      const part: IAutoMovieModelPart = animal.parts.find(
+        (each: IAutoMovieModelPart): boolean => each.id === id,
+      )!;
+      return part.geometry.type === "primitive" &&
+        (part.geometry.shape.type === "capsule" ||
+          part.geometry.shape.type === "cylinder")
+        ? part.geometry.shape.radius
+        : 0;
+    };
+    const radii: EquineHeadCourse.IRadii = {
+      neck: radius("neck"),
+      head: radius("head"),
+    };
+
+    // The head channel's cues in time order, one at a time: a cue that starts where the one before ends takes over from it.
+    const heads: readonly Heading[] = held
+      .filter(
+        (cue: Held): cue is Heading =>
+          cue.kind === "attend" ||
+          cue.kind === "reach" ||
+          cue.kind === "carriage",
+      )
+      .sort((p: Heading, q: Heading): number => p.from - q.from);
 
     /** The layered sample at a film second. */
     const at = (seconds: number): ArchetypeRide.ISample<Id, D> => {
@@ -217,19 +230,20 @@ export namespace EquineExpression {
         roll: 0,
         tail: { raise: 0, swing: 0 },
       };
-      let turning: Heading | undefined;
-      let turned: number = 0;
+      const index: number = heads.findIndex(
+        (cue: Heading): boolean => seconds > cue.from && seconds < cue.to,
+      );
+      const turning: Heading | undefined = heads[index];
       for (const cue of held) {
-        const share: number = envelope(cue, seconds);
+        const share: number = EquineExpressionAdmission.envelope(cue, seconds);
         if (share === 0) continue;
         if (
           cue.kind === "attend" ||
           cue.kind === "reach" ||
           cue.kind === "carriage"
-        ) {
-          turning = cue;
-          turned = share;
-        } else if (cue.kind === "ear")
+        )
+          continue;
+        else if (cue.kind === "ear")
           channels.ears[cue.side] = {
             direction: EARS[cue.carriage],
             share,
@@ -276,8 +290,8 @@ export namespace EquineExpression {
         prepareArticulatedRig(QuadrupedSkeleton.of(base.archetype)).read();
       if (turning !== undefined)
         channels.head = {
-          turn: turn(base, current, turning, seconds),
-          share: turned,
+          turn: course(base, current, index, seconds),
+          share: 1,
         };
       const posed: ArchetypeRide.IPose<Id, D> = EquineExpressionPose.pose(
         base,
@@ -289,21 +303,60 @@ export namespace EquineExpression {
         EquineHeadClearance(
           animal.archetype,
           posed.archetype,
-          local(base, target(turning, seconds)),
+          EquineExpressionAdmission.local(
+            base,
+            EquineExpressionAdmission.target(turning, seconds),
+          ),
         );
       return { ...posed, course: base.course };
     };
 
-    /** The full turns of the head channel's cue at a second. */
-    function turn(
+    /**
+     * The head channel's turns at a second: the active cue's full turns, eased in along a course from rest, or from an adjacent cue's turns that it takes over, and eased out to rest unless an adjacent cue takes over; a reach around another body plans its course around it (`EquineHeadCourse`).
+     */
+    function course(
       base: ArchetypeRide.ISample<Id, D>,
       current: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-      cue: Heading,
+      index: number,
       seconds: number,
     ): EquineHeadReach.ITurn {
+      const cue: Heading = heads[index]!;
+      const before: Heading | undefined = heads[index - 1];
+      const after: Heading | undefined = heads[index + 1];
+      const rising: number = (seconds - cue.from) / cue.ease;
+      const falling: number =
+        after !== undefined && after.from === cue.to
+          ? Infinity
+          : (cue.to - seconds) / cue.ease;
+      const goal: EquineHeadReach.ITurn = turn(base, current, cue, seconds);
+      if (rising >= 1 && falling >= 1) return goal;
+      const start: EquineHeadReach.ITurn =
+        rising < falling && before !== undefined && before.to === cue.from
+          ? turn(base, current, before, seconds)
+          : EquineHeadCourse.rest();
+      const share: number = minimumJerk.share(
+        Math.max(0, Math.min(1, rising, falling)),
+      );
+      const path: EquineHeadCourse.IPath =
+        cue.kind === "reach" && cue.around !== undefined
+          ? EquineHeadCourse.plan(
+              barsOf(current),
+              radii,
+              start,
+              goal,
+              obstacles(base, cue.around.at(seconds)),
+            )
+          : { direct: true, via: start };
+      return EquineHeadCourse.shown(path, start, goal, share);
+    }
+
+    /** The current neck and head bars. */
+    function barsOf(
+      current: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
+    ): EquineHeadReach.IBars {
       const neck: IAutoMovieTransform = current.get("neck")!;
       const poll: IAutoMovieTransform = current.get("head")!;
-      const bars: EquineHeadReach.IBars = {
+      return {
         root: neck.translation,
         neck: neck.rotation,
         poll: poll.translation,
@@ -314,12 +367,70 @@ export namespace EquineExpression {
           Quaternion.inverse(prepared.trunk),
         ),
       };
+    }
+
+    /** Another body's bars in this sample's model space. */
+    function obstacles(
+      base: ArchetypeRide.ISample<Id, D>,
+      other: ArchetypeRide.IPose<string, string>,
+    ): EquineHeadCourse.IObstacle[] {
+      return other.archetype.parts.flatMap(
+        (part: IAutoMovieModelPart): EquineHeadCourse.IObstacle[] => {
+          const geometry: IAutoMovieModelPart["geometry"] = part.geometry;
+          if (
+            part.transform === undefined ||
+            part.transform === null ||
+            geometry.type !== "primitive" ||
+            (geometry.shape.type !== "capsule" &&
+              geometry.shape.type !== "cylinder")
+          )
+            return [];
+          const half: IAutoMovieVector3 = Quaternion.rotateVector(
+            part.transform.rotation,
+            { x: 0, y: geometry.shape.height / 2, z: 0 },
+          );
+          const end = (sign: number): IAutoMovieVector3 =>
+            EquineExpressionAdmission.local(
+              base,
+              ArchetypeFrame.point(
+                other.placement,
+                Vector3.addScaled(part.transform!.translation, half, sign),
+              ),
+            );
+          return [
+            {
+              id: part.id,
+              from: end(-1),
+              to: end(1),
+              radius: geometry.shape.radius,
+            },
+          ];
+        },
+      );
+    }
+
+    /** The full turns of a head-channel cue at a second. */
+    function turn(
+      base: ArchetypeRide.ISample<Id, D>,
+      current: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
+      cue: Heading,
+      seconds: number,
+    ): EquineHeadReach.ITurn {
+      const bars: EquineHeadReach.IBars = barsOf(current);
       if (cue.kind === "carriage")
         return EquineHeadReach.pitched(bars, ...CARRIAGES[cue.carriage]);
-      const point: IAutoMovieVector3 = local(base, target(cue, seconds));
-      return cue.kind === "attend"
-        ? EquineHeadReach.face(bars, point)
-        : EquineHeadReach.reach(bars, point, cue.gap, animal.archetype);
+      const point: IAutoMovieVector3 = EquineExpressionAdmission.local(
+        base,
+        EquineExpressionAdmission.target(cue, seconds),
+      );
+      if (cue.kind === "attend") return EquineHeadReach.face(bars, point);
+      return EquineHeadReach.reach(
+        bars,
+        point,
+        cue.gap,
+        animal.archetype,
+        cue.act === "suckle",
+      );
     }
 
     // A fixed target is solved where it is first fully held, so an unreachable one refuses at admission.
@@ -379,106 +490,5 @@ export namespace EquineExpression {
         );
       },
     };
-  }
-
-  /** A cue's minimum-jerk share at a second: zero outside its window, one when fully held. */
-  function envelope(cue: Held, seconds: number): number {
-    if (!(seconds > cue.from && seconds < cue.to)) return 0;
-    return minimumJerk.share(
-      Math.min(
-        1,
-        (seconds - cue.from) / cue.ease,
-        (cue.to - seconds) / cue.ease,
-      ),
-    );
-  }
-
-  /** A target's world point at a second. */
-  function target(cue: Facing, seconds: number): IAutoMovieVector3 {
-    return cue.target.kind === "point"
-      ? cue.target.point
-      : cue.target.at(seconds);
-  }
-
-  /** A world point in a sample's model space. */
-  function local(
-    sample: ArchetypeRide.IPose<string, string>,
-    point: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-      sample.placement.rotation,
-    );
-    return Quaternion.rotateVector(
-      inverse,
-      Vector3.subtract(point, sample.placement.translation),
-    );
-  }
-
-  /** Admit the cues: finite windows, one cue at a time per channel, and clearances that agree with their acts. */
-  function admit(
-    archetype: string,
-    cues: readonly EquineExpressionCue.Cue[],
-  ): readonly Held[] {
-    const refuse = (axis: string, value: unknown, reason: string): never => {
-      throw new ArchetypeRefusal({
-        kind: "parameter",
-        archetype,
-        axis,
-        value,
-        feasible: null,
-        reason,
-        fix: "Give each cue a finite window longer than twice its ease, one cue at a time per channel, and a clearance its act allows.",
-      });
-    };
-    const held: Held[] = [];
-    for (const cue of cues) {
-      if (cue.kind === "vocalize" || cue.kind === "twitch") {
-        if (!Number.isFinite(cue.at))
-          refuse("at", cue.at, `a ${cue.kind} needs a finite second`);
-        continue;
-      }
-      if (
-        ![cue.from, cue.to, cue.ease].every(Number.isFinite) ||
-        !(cue.ease > 0 && 2 * cue.ease <= cue.to - cue.from)
-      )
-        refuse("ease", cue.ease, `a ${cue.kind} cue needs from + 2 ease <= to`);
-      if (cue.kind === "reach") {
-        const touching: boolean = TOUCHING.has(cue.act);
-        if (
-          !(
-            Number.isFinite(cue.gap) && (touching ? cue.gap === 0 : cue.gap > 0)
-          )
-        )
-          refuse(
-            "gap",
-            cue.gap,
-            touching
-              ? `a ${cue.act} touches its target, so its clearance is zero`
-              : "a sniff keeps a positive clearance",
-          );
-      }
-      held.push(cue);
-    }
-    const channel = (cue: Held): string =>
-      cue.kind === "attend" || cue.kind === "reach" || cue.kind === "carriage"
-        ? "head"
-        : cue.kind === "ear"
-          ? `${cue.side}Ear`
-          : cue.kind;
-    const ordered: Held[] = [...held].sort(
-      (p: Held, q: Held): number => p.from - q.from,
-    );
-    const last: Map<string, Held> = new Map();
-    for (const cue of ordered) {
-      const before: Held | undefined = last.get(channel(cue));
-      if (before !== undefined && cue.from < before.to)
-        refuse(
-          "cues",
-          channel(cue),
-          `two cues overlap on the ${channel(cue)} channel at ${cue.from} s`,
-        );
-      last.set(channel(cue), cue);
-    }
-    return held;
   }
 }

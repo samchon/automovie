@@ -10,7 +10,7 @@ import {
   rideHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { Vector3, closestPointsBetweenSegments } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -39,7 +39,7 @@ type Instant = Ride["instants"][number];
  * 1. At birth and at weaning the foal's withers height is 60% and 84% of the mature height and its cannon 0.85 and 1 / 1.06 of the mature horse's, the cited growth rows; its distal limb is longer for its trunk than an adult's at both ages; the adult horse keeps its own fractions; an age past weaning refuses.
  * 2. A foal following its mare keeps to her flank within 0.3 m and changes gait as she does.
  * 3. A suckling foal's muzzle meets the standing mare's udder, both keeping their hooves planted.
- * 4. The newborn rises from lying without going under the floor, and replays.
+ * 4. The mare foals on her side with her limbs extended; the newborn rises from lying without going under the floor, walks round to the risen mare's flank without entering her and makes its first suckling attempt on her udder, and replays.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names every scenario and what it checks.
  * @evidence contracts/development/testing.md#behavioral-verification Builds the public foal and plays the public following, suckling and foaling over public rides, reading displayed parts.
@@ -169,7 +169,7 @@ export function test_archetype_equine_reaction_foal(): void {
   const approach: Ride = rideQuadruped(
     foal,
     {
-      start: { x: 0.55, z: udder.z - 2.8, heading: 0 },
+      start: { x: 1.12 + 2, z: udder.z, heading: -90 },
       cruise: 1.2,
       startSpeed: 0,
       endSpeed: 0,
@@ -235,23 +235,96 @@ export function test_archetype_equine_reaction_foal(): void {
     folded: { fore: [fold, 0], hind: [-fold, 0] },
     windows: { body: [0, 1], fore: [0, 1], hind: [0, 1] },
   });
-  const [, born] = EquineFoal.foaling(mare, standing, newborn, {
+  const foaling: EquineFoal.IFoaling = {
     from: t,
-    mare: {
-      rest: rest(mare, 90),
-      lateral: {
-        side: "left",
-        rollDegrees: 90,
-        tuckDegrees: 35,
-        turnSeconds: 1,
-        holdSeconds: 6,
-        offset: 0.08,
-      },
-    },
+    mare: { side: "left", down: 3, hold: 6 },
     delivery: t + 6,
     foal: rest(newborn, 70),
-    behind: 1.6,
+    behind: 3,
+  };
+  const [lying] = EquineFoal.foaling(mare, standing, newborn, foaling);
+  const [, born] = EquineFoal.foaling(mare, standing, newborn, {
+    ...foaling,
+    suckle: { side: "left", seconds: 3 },
   });
+  const onSide: number = lying.instants.find(
+    (instant: Instant): boolean => instant.label === "lie:down",
+  )!.seconds;
+  TestValidator.predicate(
+    "the mare foals on her side, her barrel down on the floor",
+    Floor.body(lying.at(onSide + 1)) >= -1e-9 &&
+      Floor.part(lying.at(onSide + 1), "trunk") <= 0.03,
+  );
+  for (const limb of ["leftFore", "leftHind"] as const)
+    TestValidator.predicate(
+      `the mare's lower ${limb} stays extended`,
+      Math.abs(
+        Look.degrees(
+          Look.axis(lying.at(onSide + 1), QuadrupedBody.BONES[limb][0]),
+          Look.axis(lying.at(onSide + 1), QuadrupedBody.BONES[limb][1]),
+        ) -
+          Look.degrees(
+            Look.axis(
+              standing.at(standing.duration),
+              QuadrupedBody.BONES[limb][0],
+            ),
+            Look.axis(
+              standing.at(standing.duration),
+              QuadrupedBody.BONES[limb][1],
+            ),
+          ),
+      ) <= 1,
+    );
+  const latch: number = born.instants.find(
+    (instant: Instant): boolean => instant.label === "suckleOn",
+  )!.seconds;
+  const nursing: Sample = born.at(latch);
+  const muzzle: Look.IBar = Look.bar(nursing, "head");
+  TestValidator.predicate(
+    "the newborn's first suckling meets the udder",
+    Math.abs(
+      Vector3.distance(muzzle.to, EquineFoal.udder(lying.at(latch))) -
+        muzzle.radius,
+    ) <= 2e-3,
+  );
+
+  // Neither body enters the other while the foal suckles; a cylinder is read as the capsule inside it.
+  const bars = (sample: Sample): Look.IBar[] =>
+    sample.archetype.parts
+      .filter(
+        (part: IAutoMovieModelPart): boolean =>
+          part.geometry.type === "primitive" &&
+          (part.geometry.shape.type === "capsule" ||
+            part.geometry.shape.type === "cylinder"),
+      )
+      .map((part: IAutoMovieModelPart): Look.IBar => {
+        const shown: Look.IBar = Look.bar(sample, part.id);
+        if (
+          part.geometry.type !== "primitive" ||
+          part.geometry.shape.type !== "cylinder"
+        )
+          return shown;
+        const length: number = Vector3.distance(shown.from, shown.to);
+        const inset: number = Math.min(shown.radius, length / 2) / length;
+        return {
+          ...shown,
+          from: Vector3.lerp(shown.from, shown.to, inset),
+          to: Vector3.lerp(shown.to, shown.from, inset),
+        };
+      });
+  for (let at: number = lying.duration; at <= latch + 2; at += 0.25)
+    TestValidator.predicate(
+      `the foal does not enter the mare as it goes to suckle at ${at}`,
+      bars(born.at(at)).every((a: Look.IBar): boolean =>
+        bars(lying.at(at)).every(
+          (b: Look.IBar): boolean =>
+            closestPointsBetweenSegments(a.from, a.to, b.from, b.to).distance -
+              a.radius -
+              b.radius >=
+            -2e-3,
+        ),
+      ),
+    );
   for (let at: number = t + 6; at <= born.duration; at += 0.1)
     TestValidator.predicate(
       `the newborn stays on the floor at ${at}`,
