@@ -1,5 +1,4 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
-import type { IAutoMovieMotionHumanWater } from "../perform/IAutoMovieMotionHumanWater";
 
 /**
  * A rider sliding off a swimming horse to its upstream side and floating
@@ -12,8 +11,8 @@ import type { IAutoMovieMotionHumanWater } from "../perform/IAutoMovieMotionHuma
  * blocked upstream side, a held part out of reach from the surface and a
  * sample whose displayed hand misses it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the horse, the upstream side, the held part, the water, the blocked sides, the film-second duration and the slide-off interval.
- * @evidence contracts/development/design.md#principled-representation One named contact on one prop for the near hand over the whole action; the side is the horse's, the water the shared water record.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the horse, the upstream side, the held part, the water's surface, the blocked sides, the film-second duration and the slide-off interval.
+ * @evidence contracts/development/design.md#principled-representation One named contact on one prop for the near hand over the whole action; the side is the horse's, the water the shared surface height of the aquatic laws.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The horse prop owns its course and the held part's frame; this record names only what the floating rider does.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No body position or horse course is supplied here; the float is placed from the held part and the water.
  */
@@ -27,8 +26,8 @@ export interface IAutoMovieMotionHumanFloatBeside {
   /** The horse's affordance id the near hand keeps hold of, a round bar such as the mane; `mane` when absent. The entry already holds it with the hand nearer the horse. */
   hold?: string;
 
-  /** The water floated in: its surface height, world metres, and its density. */
-  water: IAutoMovieMotionHumanWater;
+  /** The water's surface, world height in metres, as the aquatic law takes it; fresh water. */
+  water: number;
 
   /** The horse's sides whose water is blocked (a bank, a snag, another horse); none when absent. Floating on a blocked side is refused. */
   blocked?: AutoMovieHumanSide[];

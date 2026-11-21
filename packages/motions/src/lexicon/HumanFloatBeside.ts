@@ -1,8 +1,14 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieHumanoidSurfaceRays,
+  Quaternion,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -57,7 +63,7 @@ const TRAIL: number = 20;
 /** Metres the slide-off path rises at its middle, clearing the saddle's side: provisional. */
 const ARC: number = 0.15;
 
-/** The displayed wrist's largest admitted miss of its hold, metres: the lead's and the handles' contact tolerance. */
+/** The displayed palm skin's largest admitted miss of the held part's skin, metres: the lead's and the handles' contact tolerance. */
 const REACH: number = 0.01;
 
 /** The root of the float shape measured once, before it is placed. */
@@ -81,7 +87,7 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
      * Place the floating body beside the horse's moving held part and verify the displayed hand on it.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines the refusals, the trim, the placement, the kick and the grip check.
-     * @evidence contracts/development/implementation.md#principled-implementation The float shape is measured once at a fixed root: its trim, its mouth and its near shoulder; each second places that shoulder from the held part's actual frame and fits the near arm to it, whose displayed wrist must then reach the hold's goal.
+     * @evidence contracts/development/implementation.md#principled-implementation The float shape is measured once at a fixed root: its trim, its mouth and its near shoulder; each second places that shoulder from the held part's actual frame and fits the near arm to it; the displayed palm's skin, found on the body's own surface under its palm socket, must then lie on the part's skin.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the timing, the side and the part; measure the shape; then each second places, kicks, slides and holds.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A side named blocked, a part higher than the arm reaches from the surface and a displayed hand off the part are refused, never moved.
      * @evidence contracts/development/implementation.md#efficient-algorithms The trim, mouth and shoulder are read once; each sample reads one horse frame, one grip and one selected-bone FK for the check.
@@ -113,14 +119,14 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
           reason: "a float needs a positive slide-off shorter than the action",
           fix: "Give a transition shorter than the total seconds.",
         });
-      if (!Number.isFinite(water?.surface))
+      if (!Number.isFinite(water))
         throw new HumanRefusal({
           kind: "parameter",
-          axis: "water.surface",
-          value: water?.surface ?? null,
+          axis: "water",
+          value: water,
           feasible: null,
           reason: "the surface must give a finite world height",
-          fix: "Set water.surface in metres.",
+          fix: "Set water to the surface's world height in metres.",
         });
       if (blocked.includes(side))
         throw new HumanRefusal({
@@ -195,11 +201,11 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       const trim: number | null = HumanWater.float(
         body,
         poseBones(body, resolveHumanPosture(body, still)),
-        water,
+        { surface: water },
       );
       const height: number = Math.max(
         trim ?? -Infinity,
-        water.surface + CLEAR - HumanTrunk.region(body, still, "mouth").point.y,
+        water + CLEAR - HumanTrunk.region(body, still, "mouth").point.y,
       );
       const reach: number = REACH_SHARE * length;
       const rise: number =
@@ -221,8 +227,37 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       };
       const slide: ReturnType<typeof prepareHumanShapeBlend> =
         prepareHumanShapeBlend(entry.joints, still.joints);
+      // The palm's skin under its socket, found once on the body's own surface at rest, in the socket bone's frame.
+      const socket: IAutoMovieHumanoidSurfaces.IFrame =
+        body.surfaces.sockets[near === "left" ? "palmLeft" : "palmRight"];
+      const rays: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> =
+        AutoMovieHumanoidSurfaceRays.tools(body.skeleton, body.profile);
+      const rest: IAutoMovieResolvedBone = rays.at(socket.bone);
+      const palm: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(rest.worldRotation),
+        Vector3.subtract(
+          rays.exit(
+            socket.bone,
+            Vector3.add(
+              rest.worldPosition,
+              Quaternion.rotateVector(rest.worldRotation, socket.point),
+            ),
+            Quaternion.rotateVector(rest.worldRotation, socket.normal),
+          ),
+          rest.worldPosition,
+        ),
+      );
+      const run: number = (part.length ?? 0) / 2;
+      // The palm socket's own offset from the wrist (`HumanHand.offset`): its depth along the palm's normal, which the hold keeps the wrist off the part's skin, and its reach along the fingers.
+      const socketed: ReturnType<typeof HumanHand.offset> = HumanHand.offset(
+        body,
+        near,
+        "palm",
+      );
+      const depth: number = Vector3.dot(socketed.point, socketed.normal);
+      const ahead: number = Vector3.dot(socketed.point, socketed.forward);
       const requested: ReadonlySet<AutoMovieHumanoidBone> =
-        new Set<AutoMovieHumanoidBone>([`${near}Hand`]);
+        new Set<AutoMovieHumanoidBone>([socket.bone]);
 
       /** The float placed beside the held part at a film second, its legs at a share of their flutter. */
       const float = (
@@ -323,12 +358,35 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
                 Math.sin((2 * Math.PI * kicking) / KICK),
             );
           }
+          // The hold seats its palm station (`CENTRE` hand lengths along the fingers) on the part; the grip it is given is moved round the part so this hand's own palm socket lands there instead.
+          const across: IAutoMovieVector3 | undefined =
+            grip.axis === undefined
+              ? undefined
+              : Vector3.cross(grip.axis, grip.normal);
+          const turn: number =
+            across !== undefined &&
+            Vector3.dot(across, HumanFrame.forward(torso.yaw)) < 0
+              ? -1
+              : 1;
+          const seated: HumanRideHands.IMaterialGrip =
+            across === undefined || Vector3.length(across) < 1e-6
+              ? { ...grip, palmDepth: depth }
+              : {
+                  ...grip,
+                  palmDepth: depth,
+                  across: turn,
+                  point: Vector3.addScaled(
+                    grip.point,
+                    Vector3.scale(Vector3.normalize(across), turn),
+                    HumanMountRider.CENTRE * body.measure.hand - ahead,
+                  ),
+                };
           const hand: ReturnType<typeof HumanMountRider.hold> =
             HumanMountRider.hold(
               body,
               near,
               torso,
-              grip,
+              seated,
               1,
               closures[near] ?? {},
               resolution,
@@ -355,10 +413,25 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
             );
           const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             poseBones(body, pose.pose, read(), requested);
-          // The hold puts the wrist where the palm's measured depth wraps the part (`HumanMountRider.hold`); the displayed wrist must reach that goal.
-          const miss: number = Vector3.distance(
-            bones.get(`${near}Hand`)!.worldPosition,
-            hand.arm.point,
+          // The displayed palm's skin, carried by its bone, must lie on the held part's skin about its run.
+          const bone: IAutoMovieResolvedBone = bones.get(socket.bone)!;
+          const skin: IAutoMovieVector3 = Vector3.add(
+            bone.worldPosition,
+            Quaternion.rotateVector(bone.worldRotation, palm),
+          );
+          const axis: IAutoMovieVector3 =
+            grip.axis ??
+            Quaternion.rotateVector(
+              Quaternion.multiply(frame.rotation, part.frame.rotation),
+              { x: 1, y: 0, z: 0 },
+            );
+          const along: number = Math.max(
+            -run,
+            Math.min(run, Vector3.dot(Vector3.subtract(skin, grip.point), axis)),
+          );
+          const miss: number = Math.abs(
+            Vector3.distance(skin, Vector3.addScaled(grip.point, axis, along)) -
+              part.aperture! / 2,
           );
           if (!(miss <= REACH))
             throw new HumanRefusal({
