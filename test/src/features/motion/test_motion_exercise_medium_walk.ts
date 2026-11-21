@@ -16,6 +16,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The two feet. */
@@ -41,8 +42,8 @@ type BodyKey = "m-average" | "f-small";
  *    (`HumanWater.sum`) against the 1.2 m measurement says, and the
  *    wrists stay above the surface.
  * 3. Water above the chest is refused.
- * 4. In snow each planted ankle is sunk by the depth, each swing clears
- *    the snow's surface, and the walk takes more steps and longer than on
+ * 4. In snow each planted ankle bears on the firm ground under the layer,
+ *    each swing clears the snow's surface, and the walk takes more steps and longer than on
  *    rigid ground; a steady side wind leans the trunk by `atan(F/(m g))`.
  * 5. A stuck foot in mud stays sunk for the hold after its plant ends.
  * 6. A gust after the walk produces a capture step through the existing
@@ -112,6 +113,7 @@ function mediums(key: BodyKey, failures: string[]): void {
         failures.push(
           `${key}: the ${side} wrist is under the water at ${at.toFixed(2)} s`,
         );
+  clean(`${key} water`, water, failures);
   let refusal: unknown;
   try {
     perform(body, { kind: "water", depth: body.measure.chestHeight + 0.1 });
@@ -146,6 +148,7 @@ function mediums(key: BodyKey, failures: string[]): void {
       manner: { pace: 1 / Math.sqrt(1 + 13 * snow) },
     }).node,
   });
+  clean(`${key} snow`, trudge, failures);
   const segment: IAutoMovieMotionHumanSegment = trudge.segments("a")[0]!;
   const plants: readonly IAutoMovieMotionHumanContactWindow[] =
     segment.plan.contacts.filter(
@@ -167,11 +170,10 @@ function mediums(key: BodyKey, failures: string[]): void {
       window.part === "leftFoot" ? "left" : "right";
     const middle: number =
       segment.start + ((window.from + window.to) / 2) * segment.plan.duration;
-    const sunk: number =
-      ankle(trudge, side, middle).y - (planted(paced) - snow);
+    const sunk: number = ankle(trudge, side, middle).y - planted(paced);
     if (Math.abs(sunk) > SLIP)
       failures.push(
-        `${key}: the planted ${side} ankle is ${sunk.toFixed(3)} m off the sunk depth`,
+        `${key}: the planted ${side} ankle is ${sunk.toFixed(3)} m off the firm ground under the snow`,
       );
   }
   for (const side of SIDES) {
@@ -181,7 +183,7 @@ function mediums(key: BodyKey, failures: string[]): void {
         highest,
         ankle(trudge, side, at).y - body.measure.ankleHeight,
       );
-    if (highest < 0)
+    if (highest < snow)
       failures.push(`${key}: the ${side} foot never clears the snow's surface`);
   }
   const lean: number = Math.atan(
@@ -214,6 +216,7 @@ function mediums(key: BodyKey, failures: string[]): void {
     depth: 0.1,
     hold,
   });
+  clean(`${key} mud`, mud, failures);
   const muddy: IAutoMovieMotionHumanSegment = mud.segments("a")[0]!;
   const first: IAutoMovieMotionHumanContactWindow | undefined =
     muddy.plan.contacts.find(
@@ -389,4 +392,23 @@ function joint(
   at: number,
 ): IAutoMovieVector3 {
   return film.bones("a", at).get(bone)!.worldPosition;
+}
+
+/**
+ * The shipped take verdicts over a take, as a complaint.
+ *
+ * @param label What the take is.
+ * @param take The take.
+ * @param failures Where a fault is recorded.
+ */
+function clean(
+  label: string,
+  take: HumanPerformance,
+  failures: string[],
+): void {
+  try {
+    assertTakeClean(label, take);
+  } catch (error) {
+    failures.push(error instanceof Error ? error.message : String(error));
+  }
 }

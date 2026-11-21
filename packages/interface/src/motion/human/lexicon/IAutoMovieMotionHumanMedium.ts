@@ -20,13 +20,13 @@ export namespace IAutoMovieMotionHumanMedium {
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
    * @evidence contracts/development/design.md#principled-representation A kind and a depth, with mud's hold.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanMediumWalk`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Water's depth is its surface; a yielding ground's depth is how far a foot sinks.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Water's depth is its surface; a yielding layer's depth is how far a foot sinks through it to the firm ground.
    */
   export interface IMedium {
     /** The medium. */
     kind: Kind;
 
-    /** Water's surface above the ground, or how far a stance foot sinks into snow, sand or mud, metres. */
+    /** Water's surface above the ground, or the depth of the snow, sand or mud layer over the firm ground a stance foot sinks through to, metres. */
     depth: number;
 
     /** Seconds a foot stuck in mud takes to pull free at each toe-off; mud only, zero when absent. */

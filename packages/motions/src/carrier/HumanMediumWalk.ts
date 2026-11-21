@@ -19,6 +19,8 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanWater } from "../perform/HumanWater";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { shankTilt } from "./shankTilt";
 
 type Params = IAutoMovieMotionHumanMedium.IWalkParams;
 type Plan = IAutoMovieMotionHumanActionPlan;
@@ -64,8 +66,9 @@ const SNOW_PER_METRE: number = 13;
  * (`HumanWater.sum`) rises with depth, calibrated so that water 1.2 m deep
  * gives the measured 40 % slower walk, and the arms rise above the surface
  * at hip depth or deeper. Water deeper than the chest is refused: the body
- * swims there. In snow, sand or mud each stance sole sinks to the medium's
- * depth and each swing clears its surface; the speed follows the terrain
+ * swims there. In snow, sand or mud, a layer as deep as the medium's depth
+ * over the firm ground, each stance sole sinks through the layer to the
+ * ground and each swing lifts clear of its surface; the speed follows the terrain
  * factor of the walking-energy equation at equal metabolic power,
  * `1/sqrt(eta)`, and a foot stuck in mud halts the walk for the authored
  * delay at each toe-off while it is pulled free. A steady wind leans the body into it until gravity's
@@ -215,11 +218,6 @@ export function HumanMediumWalk(
         ...window,
         from: filmTime(window.from * walked.duration, false) / duration,
         to: filmTime(window.to * walked.duration, true) / duration,
-        ...(sink > 0 &&
-        window.kind === "plant" &&
-        window.support.kind === "ground"
-          ? { support: { kind: "ground", height: ground - sink } }
-          : {}),
       }),
     ),
     posture: (at: number): Posture => {
@@ -227,22 +225,52 @@ export function HumanMediumWalk(
       const posture: Posture = walked.posture(time);
       const share: number = time / walked.duration;
       const limbs: Posture["limbs"] = { ...posture.limbs };
-      for (const side of ["left", "right"] as const) {
-        const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
-        if (goal === undefined || sink === 0) continue;
-        const swing: number = swingShare(windows[side], share);
-        const rise: number =
-          -sink + (sink + CLEARANCE) * Math.sin(Math.PI * swing);
-        limbs[`${side}Leg`] = {
-          ...goal,
-          point: { ...goal.point, y: goal.point.y + rise },
-          bend: { ...goal.bend, y: goal.bend.y + rise },
-        };
-      }
       const facing: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.fromAxisAngle(UP, posture.yaw),
         { x: 0, y: 0, z: 1 },
       );
+      const left: IAutoMovieVector3 = Vector3.cross(UP, facing);
+      const pelvis: IAutoMovieVector3 = Vector3.add(
+        posture.root,
+        Quaternion.rotateVector(
+          resolveHumanPosture.heading(posture),
+          body.rest.get("hips")!,
+        ),
+      );
+      for (const side of ["left", "right"] as const) {
+        const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
+        if (goal === undefined || sink === 0) continue;
+        const swing: number = swingShare(windows[side], share);
+        const rise: number = (sink + CLEARANCE) * Math.sin(Math.PI * swing);
+        const point: IAutoMovieVector3 = {
+          ...goal.point,
+          y: goal.point.y + rise,
+        };
+        // The lifted foot turns with its shank, so the ankle keeps its angle.
+        const hip: IAutoMovieVector3 = Vector3.add(
+          pelvis,
+          Vector3.scale(
+            left,
+            (side === "left" ? 1 : -1) * body.measure.hipHalfWidth,
+          ),
+        );
+        const tilt: number =
+          shankTilt(body, hip, point, facing) -
+          shankTilt(body, hip, goal.point, facing);
+        limbs[`${side}Leg`] = {
+          ...goal,
+          point,
+          bend: { ...goal.bend, y: goal.bend.y + rise },
+          ...(goal.rotation === undefined
+            ? {}
+            : {
+                rotation: Quaternion.multiply(
+                  Quaternion.fromAxisAngle(left, tilt),
+                  goal.rotation,
+                ),
+              }),
+        };
+      }
       if (
         medium?.kind === "water" &&
         surface >= ground + body.measure.hipHeight
@@ -251,11 +279,16 @@ export function HumanMediumWalk(
           const out: number =
             (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth;
           const across: IAutoMovieVector3 = Vector3.cross(UP, facing);
+          // Held forward of the chest the trunk's wading lean carries
+          // forward at the hands' height, clear of it by an upper arm.
+          const hips: number = posture.root.y + body.rest.get("hips")!.y;
+          const ahead: number =
+            body.measure.chestDepth / 2 +
+            body.measure.upperArm +
+            Math.max(0, surface + ARMS_ABOVE - hips) *
+              Math.tan(WADE_LEAN * Quaternion.DEG2RAD);
           const hand: IAutoMovieVector3 = Vector3.add(
-            Vector3.add(
-              posture.root,
-              Vector3.scale(facing, body.measure.upperArm),
-            ),
+            Vector3.add(posture.root, Vector3.scale(facing, ahead)),
             Vector3.scale(across, 1.5 * out),
           );
           limbs[`${side}Arm`] = {
@@ -266,15 +299,37 @@ export function HumanMediumWalk(
             },
           };
         }
-      const wading: number = medium?.kind === "water" ? WADE_LEAN : 0;
+      // Wading bends the trunk forward over the hips; the wind leans the
+      // whole body about its feet, which the root's turn about the
+      // skeleton's origin on the ground gives.
+      const spine: readonly [number, number, number] = posture.joints.spine ?? [
+        0, 0, 0,
+      ];
       const windward: number = lean / Quaternion.DEG2RAD;
+      const joints: Posture["joints"] = { ...posture.joints };
+      if (medium?.kind === "water")
+        joints.spine = [spine[0] + WADE_LEAN, spine[1], spine[2]];
+      // The arm on the windward side, which the lean brings in over its
+      // thigh, abducts by the lean, so it hangs plumb clear of the leg.
+      if (force > 0)
+        for (const side of ["left", "right"] as const) {
+          const arm: readonly [number, number, number] | undefined =
+            joints[`${side}UpperArm`];
+          if (arm === undefined) continue;
+          const outward: IAutoMovieVector3 = Vector3.scale(
+            Vector3.cross(UP, facing),
+            side === "left" ? 1 : -1,
+          );
+          joints[`${side}UpperArm`] = [
+            arm[0],
+            arm[1] + windward * Math.max(0, Vector3.dot(outward, into)),
+            arm[2],
+          ];
+        }
       return {
         ...posture,
-        root: Vector3.add(
-          { ...posture.root, y: posture.root.y - sink },
-          Vector3.scale(into, body.measure.hipHeight * Math.tan(lean)),
-        ),
-        pitch: posture.pitch + wading + windward * Vector3.dot(into, facing),
+        joints,
+        pitch: posture.pitch + windward * Vector3.dot(into, facing),
         roll:
           posture.roll -
           windward * Vector3.dot(into, Vector3.cross(UP, facing)),
