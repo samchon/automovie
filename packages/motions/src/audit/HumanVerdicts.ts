@@ -360,8 +360,10 @@ const shifted = (
 
 /**
  * Whether an action carries a person in water at a film second: the action
- * that has taken the body over then names the water in its params (a swim,
- * a float), so the water, not a floor, bears the body.
+ * that has taken the body over names its water in its params, as the
+ * surface's world height (`IAutoMovieMotionHumanAquatic.IParams.water`) or
+ * as the water itself (`IAutoMovieMotionHumanSwimImmersed.IParams.water`),
+ * so the water, not a floor, bears the body.
  */
 const inWater = (
   performance: IAutoMovieMotionHumanPerformance,
@@ -371,19 +373,21 @@ const inWater = (
   const active = [...performance.segments(subject)]
     .reverse()
     .find((s): boolean => s.entryTime <= seconds + 1e-9);
-  if (active === undefined) return false;
-  const water: Partial<IAutoMovieMotionHumanWater> | undefined = (
-    active.params as IWatered
-  ).water;
-  return typeof water?.surface === "number";
+  return active !== undefined && surface((active.params as IWatered).water);
 };
 
-/** An action's params as the water reading sees them: a swim or a float names its water. */
+/** Whether a params' water names a surface: a height, or a water with one. */
+const surface = (water: IWatered["water"]): boolean =>
+  typeof water === "number" || typeof water?.surface === "number";
+
+/** An action's params as the water reading sees them. */
 interface IWatered {
-  /** The water the action is performed in, when it is. */
-  water?: Partial<IAutoMovieMotionHumanWater>;
+  /** The water, by its surface's world height or as the water itself. */
+  water?: WaterParam;
 }
 
+/** The two shipped ways an action names its water. */
+type WaterParam = number | Partial<IAutoMovieMotionHumanWater>;
 /**
  * The key of one person's instant: the second rounded to a microsecond, so
  * grids that reach the same instant by different float arithmetic (i / rate

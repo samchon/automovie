@@ -1,10 +1,20 @@
-import { ANKLE_DORSIFLEXION } from "@automovie/engine";
+import { createPoolEdge } from "@automovie/archetypes";
+import {
+  ANKLE_DORSIFLEXION,
+  Quaternion,
+  resolveHydrodynamicForce,
+} from "@automovie/engine";
 import type {
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanAuditRange,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanVerdicts,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -12,6 +22,12 @@ import {
   AutoMovieMotionHumanAuditContact,
   AutoMovieMotionHumanAuditGround,
   AutoMovieMotionHumanAuditRange,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanVerdicts,
+  aquatic,
+  swimImmersed,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -74,7 +90,10 @@ const spans = (
  * 3. A swimmer 1 m under the surface: no floor finding while the water carries them, and about 1 m read against the world plane otherwise.
  * 4. A swimmer's feet sweeping at the surface at 1 m/s: no skate in the water, a skate on a floor.
  * 5. Feet planted on a bank 0.3 m high read as on level ground, and 0.1 m sunk into it reads as 0.1 m sunk into the floor; on a slope the lower foot's ground is the floor; a rider seated on a wading horse 0.6 m below the plane has no floor under them, while the same body with nothing bearing it is 0.6 m under the floor.
- * 6. An ankle dorsiflexed 10 degrees past the unloaded limit: no overshoot while a plant on a prop holds the foot, 10 degrees with no plant.
+ * 6. A foot riding an escalator tread at 0.5 m/s past its plant window, level with the other foot's planted landing: no skate on the tread, a 0.5 m/s skate read in the world.
+ * 7. An ankle dorsiflexed 10 degrees past the unloaded limit: no overshoot while a plant on a prop holds the foot, 10 degrees with no plant.
+ * 8. A crawl of the shipped aquatic law, read by the shipped verdicts under the surface: the swimmer is below the world plane and draws no floor or skate finding.
+ * 9. A float of the shipped immersed law in water twice its density, its water named as the water itself: partly under the world plane, no floor or skate finding.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Slip, loose, floor, skate and unloaded readings on supports and in water.
  * @evidence contracts/development/testing.md#independent-expectations The deck's travel, the feet's extra 0.1 m, the 1 m depth, the 1 m/s sweep and the 10 degree overshoot are written into the motion in closed form.
@@ -277,7 +296,71 @@ export function test_motion_audit_moving_support(): void {
     "the same body with nothing bearing it is under the floor",
     ford(false) > 0.5,
   );
-  // 6. A loaded ankle on a prop.
+  // 6. A foot riding a tread past its window, level with a planted landing.
+  const tread = (seconds: number): IAutoMovieRigidTransform => ({
+    position: { x: 0, y: 0, z: 0.5 * seconds },
+    rotation: QUARTER,
+  });
+  const riding = motionAuditMoved(
+    stance,
+    1,
+    (bone: string, seconds: number): IAutoMovieVector3 => ({
+      x: 0,
+      y: 0,
+      z: bone === "rightFoot" || bone === "rightToes" ? 0.5 * seconds : 0,
+    }),
+    [
+      {
+        name: "board",
+        start: 0,
+        entryTime: 0,
+        end: 1,
+        plan: {
+          duration: 1,
+          contacts: [
+            {
+              part: "leftFoot",
+              kind: "plant",
+              from: 0,
+              to: 1,
+              support: { kind: "ground" },
+            },
+            {
+              part: "rightFoot",
+              kind: "plant",
+              from: 0,
+              to: 0.5,
+              support: { kind: "prop", subject: "tread" },
+            },
+          ],
+        },
+      },
+    ],
+  );
+  TestValidator.predicate(
+    "a foot riding its tread past its window does not skate",
+    AutoMovieMotionHumanAuditContact.measure(
+      {
+        ...riding,
+        support: (
+          _support: IAutoMovieMotionHumanContactWindow.Support,
+          seconds: number,
+        ): IAutoMovieRigidTransform => tread(seconds),
+      },
+      "a",
+      body,
+    ).skate.value < 1e-9,
+  );
+  TestValidator.predicate(
+    "read in the world, the tread's travel is a skate",
+    nclose(
+      AutoMovieMotionHumanAuditContact.measure(riding, "a", body).skate.value,
+      0.5,
+      1e-9,
+    ),
+  );
+
+  // 7. A loaded ankle on a prop.
   const posed: IAutoMovieMotionHumanAuditRange.IPosed = {
     duration: 1,
     pose: () => ({
@@ -311,6 +394,101 @@ export function test_motion_audit_moving_support(): void {
       ).overshoot.value,
       10,
       1e-9,
+    ),
+  );
+
+  // 8. A swimmer of the shipped aquatic law under the surface.
+  const block: ReturnType<typeof createPoolEdge> = createPoolEdge(
+    { kind: "startingPlatform" },
+    4,
+  );
+  const surface: number = block.affordance("water").frame.translation.y;
+  const swim: HumanPerformance = new HumanPerformance({
+    seed: "audit-aquatic",
+    laws: [aquatic],
+    performers: [
+      {
+        subject: "swimmer",
+        body,
+        at: block.affordance("platform").frame.translation,
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    props: [
+      HumanObject.prop("block", block, {
+        position: { x: 0, y: 0, z: 0 },
+        rotation: Quaternion.identity(),
+      }),
+    ],
+    composition: HumanChain.subject("swimmer").registered("aquatic", {
+      kind: "crawlStartTurn",
+      water: surface,
+    }).node,
+  });
+  const segment: IAutoMovieMotionHumanSegment = swim.segments("swimmer")[0]!;
+  const entry: number =
+    segment.start +
+    segment.plan.events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === "waterEntry",
+    )!.share *
+      segment.plan.duration;
+  const span: IAutoMovieMotionHumanVerdicts.IOfSpan = {
+    from: entry + 0.2,
+    to: Math.min(swim.duration, entry + 0.8),
+  };
+  TestValidator.predicate(
+    "the aquatic swimmer is under the world plane",
+    swim.bones("swimmer", (span.from + span.to) / 2).get("hips")!.worldPosition
+      .y < 0,
+  );
+  TestValidator.predicate(
+    "no floor finding for the aquatic swimmer in the water",
+    HumanVerdicts.of(swim, 24, span).findings.every(
+      (f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
+        f.check !== "floor" && f.check !== "skate",
+    ),
+  );
+
+  // 9. A swimmer of the shipped immersed law floating in its water.
+  const Chain: IAutoMovieMotionHumanChain.IExtension<{
+    swimImmersed: typeof swimImmersed;
+  }> = HumanChain.extend({ swimImmersed });
+  const floating: HumanPerformance = new HumanPerformance({
+    seed: "audit-immersed",
+    performers: [
+      {
+        subject: "swimmer",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 90,
+        proficiency: { level: "trained" },
+      },
+    ],
+    laws: [swimImmersed],
+    composition: Chain.subject("swimmer").swimImmersed({
+      water: {
+        surface: 0,
+        density:
+          (2 * body.profile.mass) /
+          body.profile.segments
+            .map(resolveHydrodynamicForce.volume)
+            .reduce((sum: number, volume: number): number => sum + volume, 0),
+      },
+      seconds: 0.4,
+    }).node,
+  });
+  TestValidator.predicate(
+    "the immersed swimmer is partly under the world plane",
+    [...floating.bones("swimmer", 0.2).values()].some(
+      (bone: IAutoMovieResolvedBone): boolean => bone.worldPosition.y < 0,
+    ),
+  );
+  TestValidator.predicate(
+    "no floor finding for the immersed swimmer in the water",
+    HumanVerdicts.of(floating).findings.every(
+      (f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
+        f.check !== "floor" && f.check !== "skate",
     ),
   );
 }

@@ -144,6 +144,27 @@ export namespace AutoMovieMotionHumanAuditContact {
           (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
             w.contact.part === part,
         );
+      // The support a foot is carried by at an instant: the one its bearing
+      // window declares there, else the one its last bearing window ended
+      // on, so a foot that rides a tread or a deck between its windows is
+      // read on that support, never against a floor it is level with.
+      const carriers: IAutoMovieMotionHumanAuditMotion.IWindow[] =
+        declared.filter(
+          (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+            w.contact.kind !== "grip" && w.contact.kind !== "strike",
+        );
+      const carrier = (
+        seconds: number,
+      ): IAutoMovieMotionHumanContactWindow.Support => {
+        let found: IAutoMovieMotionHumanAuditMotion.IWindow | undefined;
+        for (const w of carriers)
+          if (
+            w.from <= seconds + 1e-9 &&
+            (found === undefined || w.to >= found.to)
+          )
+            found = w;
+        return found?.contact.support ?? GROUND;
+      };
       let before: IAutoMovieMotionHumanFoot.ISocket[] | null = null;
       for (let i: number = 0; i < frames.length; i++) {
         const t: number = frames[i]!;
@@ -161,15 +182,6 @@ export namespace AutoMovieMotionHumanAuditContact {
               );
         const span: number = before === null ? 0 : t - frames[i - 1]!;
         if (before !== null && span > 1e-9) {
-          const speed = (socket: IAutoMovieMotionHumanFoot.ISocket): number => {
-            const was: IAutoMovieVector3 = before!.find(
-              (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
-                s.socket === socket.socket,
-            )!.point;
-            return (
-              Math.hypot(socket.point.x - was.x, socket.point.z - was.z) / span
-            );
-          };
           const height = (socket: IAutoMovieMotionHumanFoot.ISocket): number =>
             before!.find(
               (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
@@ -194,7 +206,20 @@ export namespace AutoMovieMotionHumanAuditContact {
                 height(socket) - was > HEIGHT
               )
                 continue;
-              const v: number = speed(socket);
+              const on: IAutoMovieMotionHumanContactWindow.Support = carrier(
+                frames[i - 1]!,
+              );
+              const then: IAutoMovieVector3 = local(
+                on,
+                frames[i - 1]!,
+                before!.find(
+                  (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+                    s.socket === socket.socket,
+                )!.point,
+              );
+              const now: IAutoMovieVector3 = local(on, t, socket.point);
+              const v: number =
+                Math.hypot(now.x - then.x, now.z - then.z) / span;
               if (v > SPEED) skated[i] = true;
               if (v > out.skate.value)
                 out.skate = {
@@ -248,3 +273,6 @@ const lowest = (
     if (socket.point.y < contact.point.y - 1e-6) contact = socket;
   return contact;
 };
+
+/** The world floor, the support of a foot that no window has declared one for. */
+const GROUND: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };

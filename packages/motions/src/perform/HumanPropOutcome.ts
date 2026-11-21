@@ -43,9 +43,10 @@ import { HumanRefusal } from "../law/HumanRefusal";
  *
  * An explicit launch sphere supplies its radius. Otherwise it is the body's
  * least round shape's radius, or half the least extent of its boxes. A body
- * with no measurable shape does not bounce. A roll is on the ground and meets
- * nothing on its way; a body
- * that rebounds and flies is swept again by the flight's one sweep.
+ * with no measurable shape does not bounce. A roll is swept, while it lasts,
+ * as the projectile it is (its rolling deceleration its only acceleration),
+ * so it meets what stands on the ground in its way; a body that rebounds and
+ * flies is swept again by the flight's one sweep.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each outcome, the datum that grants it, the bounce's settling rule and what a roll does not meet.
  * @evidence contracts/development/design.md#principled-representation A leg is an engine continuation segment timed from the launch with the contact that ends it.
@@ -206,8 +207,56 @@ export namespace HumanPropOutcome {
       );
       if (next.kind === "rest") return out;
       if (next.kind === "roll") {
-        out.push({ from: next.from, segment: next, end: Infinity });
-        return out;
+        // While it lasts a roll is a projectile whose only acceleration is
+        // its rolling deceleration against its velocity, exact up to `until`,
+        // so the flight's one sweep meets what stands in its way (a keeper's
+        // pad, a stick, a person) as it would a flight. The ground it rolls on
+        // is left behind; a meeting at or after `until` is not on the roll.
+        const speed: number = Vector3.length(next.velocity);
+        const rolling: IAutoMovieProjectile | undefined =
+          speed > 0 && next.from < props.horizon
+            ? {
+                origin: next.origin,
+                velocity: next.velocity,
+                gravity: Vector3.scale(
+                  next.velocity,
+                  -next.deceleration / speed,
+                ),
+              }
+            : undefined;
+        const met: IAutoMovieMotionHumanPropOutcome.IMeeting | null =
+          rolling === undefined
+            ? null
+            : props.meet(rolling, next.from, undefined, meeting.collider);
+        const end: number = met === null ? Infinity : next.from + met.hit.time;
+        if (
+          met === null ||
+          !(end < next.until) ||
+          !(end > next.from + CONTACT_SECOND)
+        ) {
+          out.push({ from: next.from, segment: next, end: Infinity });
+          return out;
+        }
+        out.push({
+          from: next.from,
+          segment: next,
+          end,
+          contact: props.settle(met, rolling!, next.from),
+        });
+        // The contact goes on as a flight under the prop's own gravity from
+        // the roll's state there.
+        const state: IAutoMovieProjectileState = projectileContinue.at(
+          next,
+          end,
+        );
+        projectile = {
+          ...props.projectile,
+          origin: state.position,
+          velocity: state.velocity,
+        };
+        meeting = { ...met, hit: { ...met.hit, time: 0 } };
+        base = end;
+        continue;
       }
 
       // A gravity-return height applies only when acceleration presses inward.

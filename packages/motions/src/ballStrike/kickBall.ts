@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanKickBall,
@@ -236,7 +237,15 @@ export namespace kickBall {
           z: 0,
         }),
       ),
-      rotation: hit.rotation,
+      // The shank swings back about the knee from hanging under it at the
+      // strike to the chamber, tilting by atan2(back, 1 - up); the foot turns
+      // with it, so the ankle keeps the strike's pointed plantarflexion
+      // instead of dorsiflexing an unloaded foot on the backswing.
+      rotation: HumanFoot.rotation(
+        HumanFoot.heading(hit.rotation),
+        HumanFoot.pitch(hit.rotation) -
+          (Math.atan2(CHAMBER.back, 1 - CHAMBER.up) * 180) / Math.PI,
+      ),
     };
 
     const duration: number = clock.duration;
@@ -250,6 +259,9 @@ export namespace kickBall {
     );
     const plan: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
+        // The kicking foot stands on its stance at the two ends of the swing
+        // (`AutoMovieMotionHumanLegPhrase.swing`), so it is planted there:
+        // the action after the kick keeps it where it landed.
         base: AutoMovieMotionHumanBase.still(duration, base.posture(0), [
           {
             part: support === "left" ? "leftFoot" : "rightFoot",
@@ -258,6 +270,15 @@ export namespace kickBall {
             to: 1,
             support: { kind: "ground" },
           },
+          ...[0, 1].map(
+            (at: number): IAutoMovieMotionHumanContactWindow => ({
+              part: side === "left" ? "leftFoot" : "rightFoot",
+              kind: "plant",
+              from: at,
+              to: at,
+              support: { kind: "ground" },
+            }),
+          ),
         ]),
         clock,
         contact: "stroke",

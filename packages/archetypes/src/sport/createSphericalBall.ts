@@ -55,8 +55,16 @@ export function createSphericalBall(
   // takes 1.035 to 1.085 m back; ITF Rules of Tennis, Appendix I, drops the
   // tennis ball 254 cm onto a rigid base and takes 135 to 147 cm back; the
   // FIFA Quality Programme drops the football 2 m and takes 1.35 to 1.65 m
-  // back. The basketball's rubber slides as rubber on dry concrete, an outdoor court;
-  // the tennis ball's felt slides on a hard court's medium pace rating.
+  // back. ITTF Technical Leaflet T3 (2018) drops the table tennis ball
+  // 305 mm onto a steel block and takes 240 to 265 mm back; the FIP drops
+  // the padel ball 2.54 m onto a hard surface and takes 1.35 to 1.45 m
+  // back; the WSF drops the double-yellow squash ball 254 cm and takes 25 to
+  // 30 % back at its 45 degree playing temperature. The cricket ball's and
+  // the field hockey ball's are measured: 0.609 and 0.653 dropped 1.5 m onto
+  // steel (Haron and Ismail 2012, IOP Conf. Ser.: Mater. Sci. Eng. 36
+  // 012038, table 3). The basketball's rubber slides as rubber on dry
+  // concrete, an outdoor court; the tennis ball's felt slides on a hard
+  // court's medium pace rating.
   return builder.build(
     d.mass!,
     kind === "basketball"
@@ -67,7 +75,17 @@ export function createSphericalBall(
           ? { outcome: { rolling: GREEN } }
           : kind === "football"
             ? { restitution: Math.sqrt(1.5 / 2) }
-            : undefined,
+            : kind === "tableTennis"
+              ? { restitution: Math.sqrt(0.2525 / 0.305) }
+              : kind === "padel"
+                ? { restitution: Math.sqrt(1.4 / 2.54) }
+                : kind === "squash"
+                  ? { restitution: Math.sqrt(0.275) }
+                  : kind === "cricket"
+                    ? { restitution: 0.609 }
+                    : kind === "fieldHockey"
+                      ? { restitution: 0.653 }
+                      : undefined,
   );
 }
 
