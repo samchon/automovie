@@ -7,6 +7,9 @@ import type {
 import { type Archetype, ArchetypeFrame, ArchetypeRefusal } from "../core";
 import { createEscalator } from "./createEscalator";
 
+/** A unit scale: the rides move rigid frames. */
+const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
+
 /** The identity rotation of a level tread. */
 const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
 
@@ -42,7 +45,11 @@ export function rideEscalator(
   const profile: createEscalator.IProfile = createEscalator.profile(escalator);
   const sign: number = direction === "up" ? 1 : -1;
   const at = (offset: IAutoMovieVector3): IAutoMovieTransform =>
-    ArchetypeFrame.compose(placement, { translation: offset, rotation: LEVEL });
+    ArchetypeFrame.compose(placement, {
+      translation: offset,
+      rotation: LEVEL,
+      scale: ONE,
+    });
   const along = (station: number, seconds: number): IAutoMovieVector3 =>
     createEscalator.station(profile, station + sign * profile.speed * seconds);
   return {

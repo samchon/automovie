@@ -354,35 +354,36 @@ export namespace createEscalator {
   export function profile(
     escalator: Pick<Archetype<Affordance, Dimension>, "dimensions">,
   ): IProfile {
-    const d: Readonly<Record<Dimension, number>> = escalator.dimensions;
-    const angle: number = d.incline * Quaternion.DEG2RAD;
+    const d: Readonly<Partial<Record<Dimension, number>>> =
+      escalator.dimensions;
+    const angle: number = d.incline! * Quaternion.DEG2RAD;
     const curves: number =
-      (d.lowerRadius + d.upperRadius) * (1 - Math.cos(angle));
-    const straight: number = (d.rise - curves) / Math.sin(angle);
+      (d.lowerRadius! + d.upperRadius!) * (1 - Math.cos(angle));
+    const straight: number = (d.rise! - curves) / Math.sin(angle);
     if (!(straight > 0))
       throw new ArchetypeRefusal({
         kind: "parameter",
         archetype: "escalator",
         axis: "rise",
-        value: d.rise,
+        value: d.rise!,
         feasible: { kind: "range", minimum: curves, maximum: null, unit: "m" },
         reason:
           "the rise does not leave a straight run between the transition curves",
         fix: "give a rise above the two transitions' combined height",
       });
-    const flat: number = d.level * PITCH;
+    const flat: number = d.level! * PITCH;
     return {
       pitch: PITCH,
       angle,
       flat,
-      lower: d.lowerRadius,
-      upper: d.upperRadius,
+      lower: d.lowerRadius!,
+      upper: d.upperRadius!,
       straight,
-      length: 2 * flat + (d.lowerRadius + d.upperRadius) * angle + straight,
-      rise: d.rise,
-      speed: d.speed,
-      handrail: d.handrail,
-      rail: d.width / 2 + RAIL_OFFSET,
+      length: 2 * flat + (d.lowerRadius! + d.upperRadius!) * angle + straight,
+      rise: d.rise!,
+      speed: d.speed!,
+      handrail: d.handrail!,
+      rail: d.width! / 2 + RAIL_OFFSET,
     };
   }
 
@@ -445,8 +446,8 @@ export namespace createEscalator {
   export function tread(
     escalator: Pick<Archetype<Affordance, Dimension>, "dimensions">,
   ): Archetype<TreadAffordance, TreadDimension> {
-    const { width, handrail }: Readonly<Record<Dimension, number>> =
-      escalator.dimensions;
+    const width: number = escalator.dimensions.width!;
+    const handrail: number = escalator.dimensions.handrail!;
     const draw: ArchetypeDrawSession<TreadDimension> = new ArchetypeDrawSession(
       "escalatorTread",
       { width: "m", depth: "m", mass: "kg" },

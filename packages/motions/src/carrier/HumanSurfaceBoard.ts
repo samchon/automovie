@@ -9,7 +9,9 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSurface,
   IAutoMovieQuaternion,
@@ -20,6 +22,7 @@ import type {
 import { stand } from "../actions/stand";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanMountRider } from "../lexicon/HumanMountRider";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { prepareSkateboardPhrase } from "./prepareSkateboardPhrase";
@@ -27,6 +30,21 @@ import { prepareSurfboardPhrase } from "./prepareSurfboardPhrase";
 
 /** Vertical in the deck frame. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** The axis a handle is wrapped about: its affordance frame's local +X. */
+const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+
+/** Seconds over which a riding hand reaches its grip on the support (provisional staging). */
+const REACH: number = 0.4;
+
+/** One riding hand and where it holds the support as the ride starts. */
+interface IRideGrip {
+  /** The holding hand. */
+  side: AutoMovieHumanSide;
+
+  /** The held point, its normal and wrapped axis, world, at the ride's start. */
+  grip: IAutoMovieMotionHumanMountRider.IHoldGrip;
+}
 
 /** Hand subsequent actions a settled stance after the board transfer. */
 const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
@@ -39,14 +57,18 @@ const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
  * measurements distinguish hand contact, foot acquisition and settled stance.
  * The board ride enters after acquisition, on an already placed stance.
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC7961430/
+ * A named hand grips a point of the same support, such as an escalator
+ * handrail that moves with the steps: it reaches the point where it is at
+ * the start over `REACH` seconds, and the support carries the grip with
+ * the feet.
  *
  * @param context The placed feet, the board id and the ride duration.
  * @returns The transferred deck-local plants and carried posture.
- * @throws {HumanRefusal} When either foot is unsupported by the selected board
- * or the duration is invalid.
+ * @throws {HumanRefusal} When either foot is unsupported by the selected board,
+ * a hand names a point the support lacks, or the duration is invalid.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the entry, frame, source, return and refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Stores displayed foot locations, reconstructs planted world goals and uses the engine's rigid support carry to keep both on the prop.
+ * @evidence contracts/development/implementation.md#principled-implementation Stores displayed foot locations, reconstructs planted world goals and uses the engine's rigid support carry to keep both on the prop. A grip is fitted at the support point's start pose, which the same carry moves, so it stays on a point rigidly attached to the support.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One support check, one two-foot goal snapshot and one carried plan.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No assumed board speed, water displacement or ground-to-deck acquisition.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two goals are placed once and the common rigid carrier owns each frame evaluation.
@@ -79,7 +101,53 @@ export function HumanSurfaceBoard(
         reason: `board ride needs the ${side} foot on ${params.on} at entry`,
         fix: "place both feet on the named board before riding it",
       });
-  context.prop(params.on);
+  const support: IAutoMovieMotionHumanPropReader = context.prop(params.on);
+  const grips: IRideGrip[] = sides.flatMap(
+    (side: AutoMovieHumanSide): IRideGrip[] => {
+      const id: string | undefined = params.hands?.[side];
+      if (id === undefined) return [];
+      if (!Object.hasOwn(support.prop.points, id))
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: `hands.${side}`,
+          value: id,
+          feasible: {
+            kind: "alternatives",
+            values: Object.keys(support.prop.points),
+          },
+          reason: `${params.on} has no point named ${id}`,
+          fix: "name a point of the support the hand holds",
+        });
+      const placed: IAutoMovieMotionHumanProp.IPlacedPoint = context.aim(
+        { kind: "prop", subject: params.on, point: id },
+        context.start,
+      );
+      const affordance: IAutoMovieAffordance | undefined =
+        support.prop.affordances?.find(
+          (item: IAutoMovieAffordance): boolean => item.id === id,
+        );
+      const rotation: IAutoMovieQuaternion | undefined =
+        affordance === undefined
+          ? undefined
+          : Quaternion.multiply(
+              support.frame(context.start).rotation,
+              affordance.frame.rotation,
+            );
+      return [
+        {
+          side,
+          grip: {
+            point: placed.point,
+            normal: placed.normal,
+            radius: (affordance?.aperture ?? 0) / 2,
+            ...(rotation === undefined
+              ? {}
+              : { axis: Quaternion.rotateVector(rotation, HANDLE) }),
+          },
+        },
+      ];
+    },
+  );
 
   const ankles: Record<"left" | "right", IAutoMovieVector3> = {
     left: entry.feet.left.ankle,
@@ -109,6 +177,30 @@ export function HumanSurfaceBoard(
       support: { kind: "ground" },
     }),
   );
+  const reach: number = Math.min(REACH, duration);
+  for (const { side } of grips)
+    contacts.push({
+      part: `${side}Hand`,
+      kind: "grip",
+      from: reach / duration,
+      to: 1,
+      support: { kind: "prop", subject: params.on },
+    });
+  const holding = (at: number): IAutoMovieMotionHumanPosture => {
+    if (grips.length === 0) return posture;
+    const share: number = minimumJerk.share(at / reach);
+    let held: IAutoMovieMotionHumanPosture = posture;
+    for (const { side, grip } of grips) {
+      const arm: IAutoMovieMotionHumanMountRider.IHoldResult =
+        HumanMountRider.hold(body, side, held, grip, share, {});
+      held = {
+        ...held,
+        joints: { ...held.joints, ...arm.fingers },
+        limbs: { ...held.limbs, [`${side}Arm`]: arm.arm },
+      };
+    }
+    return held;
+  };
   return HumanSupportCarry.on(
     context,
     {
@@ -116,7 +208,7 @@ export function HumanSurfaceBoard(
       events: [{ name: "ride", share: 0 }],
       contacts,
       physicalWindow: null,
-      posture: (): IAutoMovieMotionHumanPosture => posture,
+      posture: holding,
     },
     params.on,
   );
