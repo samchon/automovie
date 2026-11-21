@@ -109,6 +109,10 @@ import { HumanTravelCarExit } from "./HumanTravelCarExit";
 import { HumanTravelDoor } from "./HumanTravelDoor";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
 import { HumanTraversal } from "./HumanTraversal";
+import { HumanCover } from "./HumanCover";
+import { HumanWallRun } from "./HumanWallRun";
+import { HumanRope } from "./HumanRope";
+import { HumanStuntFall } from "./HumanStuntFall";
 import { HumanUpperRows } from "./HumanUpperRows";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
@@ -134,6 +138,10 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
     HumanGait,
     HumanTravelDoor,
     HumanTraversal,
+    HumanCover,
+    HumanWallRun,
+    HumanRope,
+    HumanStuntFall,
     HumanEnvironmentRecovery,
     HumanTravelCar,
     HumanTravelLeaf,
@@ -223,17 +231,3 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   revolver: [HumanRevolver],
   archery: [HumanArchery],
 } as const;
-import { HumanCover } from "./HumanCover";
-    HumanCover,
-import { HumanCover } from "./HumanCover";
-import { HumanWallRun } from "./HumanWallRun";
-    HumanCover,
-    HumanWallRun,
-import { HumanCover } from "./HumanCover";
-import { HumanWallRun } from "./HumanWallRun";
-import { HumanRope } from "./HumanRope";
-import { HumanStuntFall } from "./HumanStuntFall";
-    HumanCover,
-    HumanWallRun,
-    HumanRope,
-    HumanStuntFall,

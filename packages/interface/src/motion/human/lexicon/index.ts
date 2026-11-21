@@ -93,6 +93,10 @@ export type { IAutoMovieMotionHumanTravelCar } from "./IAutoMovieMotionHumanTrav
 export type { IAutoMovieMotionHumanTravelCarExit } from "./IAutoMovieMotionHumanTravelCarExit";
 export type { IAutoMovieMotionHumanTravelDoor } from "./IAutoMovieMotionHumanTravelDoor";
 export type { IAutoMovieMotionHumanCrossing } from "./IAutoMovieMotionHumanCrossing";
+export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
+export type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
+export type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
+export type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";
 export type { IAutoMovieMotionHumanEnvironmentRecovery } from "./IAutoMovieMotionHumanEnvironmentRecovery";
 export type { IAutoMovieMotionHumanTravelLeaf } from "./IAutoMovieMotionHumanTravelLeaf";
 export type { IAutoMovieMotionHumanWeaponHeld } from "./IAutoMovieMotionHumanWeaponHeld";
@@ -101,13 +105,3 @@ export type { IAutoMovieMotionHumanWeaponTrack } from "./IAutoMovieMotionHumanWe
 export type { AutoMovieMotionHumanTuckHairParams } from "./AutoMovieMotionHumanTuckHairParams";
 export type { IAutoMovieMotionHumanAidWalk } from "./IAutoMovieMotionHumanAidWalk";
 export type { IAutoMovieMotionHumanAssistedTransfer } from "./IAutoMovieMotionHumanAssistedTransfer";
-export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
-export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
-export type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
-export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
-export type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
-export type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
-export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
-export type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
-export type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
-export type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";

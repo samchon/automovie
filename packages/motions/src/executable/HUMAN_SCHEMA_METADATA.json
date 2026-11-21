@@ -656,6 +656,9 @@
       ]
     },
     "moveInCover": {},
+    "wallRun": {},
+    "rope": {},
+    "stuntFall": {},
     "crossObstacle": {
       "alternatives": [
         {
@@ -5816,4 +5819,3 @@
     }
   }
 }
-    "wallRun": {},
