@@ -421,6 +421,7 @@ export * from "./exercise/WorkoutSupport";
 export * from "./sport/SwimStroke";
 export * from "./sport/swimImmersed";
 export * from "./sport/scoreWaterPoloGoal";
+export * from "./sport/AquaticDistress";
 export * from "./spacecraft/spacecraftGlide";
 export * from "./exercise/WorkoutEquipment";
 export * from "./exercise/WorkoutPlace";
