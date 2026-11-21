@@ -52,6 +52,8 @@ export function EquineJointLimits(
       break;
     case "head":
     case "hindquarters":
+    case "leftForeScapula":
+    case "rightForeScapula":
     case "leftForeHumerus":
     case "leftHindFemur":
     case "neck":

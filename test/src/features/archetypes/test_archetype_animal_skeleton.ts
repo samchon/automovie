@@ -24,7 +24,7 @@ import { nclose } from "../internal/nclose";
  *
  * Scenarios:
  * 1. Every generic neutral frame matches the actual horse bar's upper joint
- *    and orientation, with21 quadruped names and no dummy humanoid slot.
+ *    and orientation, with 23 quadruped names and no dummy humanoid slot.
  * 2. A neck turn carries explicitly bound bridle parts and rein/lead frames;
  *    their neck-local coordinates stay fixed and their world positions move.
  * 3. Independently binding the same held origins to the trunk keeps the hands
@@ -35,7 +35,7 @@ import { nclose } from "../internal/nclose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States actual source bars, independent neutral-frame comparison, carried-contact invariants and preservation of original horse bytes.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public horse producer, generic engine reader and actual QuadrupedSkeleton.pose output. Both rigid head-carried and independently trunk-held contact cases observe real parts and full flexible held runs instead of an isolated matrix.
- * @evidence contracts/development/testing.md#independent-expectations Original built geometry is the neutral oracle. Head-bound contacts preserve inverse-neck coordinates; trunk-held origins preserve inverse-trunk coordinates while span distal points preserve inverse-head coordinates and contact +X follows actual rod +Y. Expected bone count21 is five axial links plus four times four limb links.
+ * @evidence contracts/development/testing.md#independent-expectations Original built geometry is the neutral oracle. Head-bound contacts preserve inverse-neck coordinates; trunk-held origins preserve inverse-trunk coordinates while span distal points preserve inverse-head coordinates and contact +X follows actual rod +Y. Expected bone count 23 is five axial links, two shoulder blades and four times four limb links.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts neutral and articulated geometry, bone and accessory parts, root-carried and neck-carried contacts, complete versus missing bindings and current posed output versus untouched original serialization.
  * @evidence contracts/development/testing.md#execution-ownership One portable synchronous unit owns its producer, maps and posed outputs; no process, renderer, compiler or foreign runtime replacement is used.
  */
@@ -52,7 +52,7 @@ export function test_archetype_animal_skeleton(): void {
   const rest: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
     reader.read();
   const findings: string[] = [];
-  if (rest.size !== 21 || skeleton.bones[0]!.bone !== "trunk")
+  if (rest.size !== 23 || skeleton.bones[0]!.bone !== "trunk")
     findings.push("the actual quadruped vocabulary was not preserved");
   for (const [bone, frame] of rest) {
     const actual: IAutoMovieModelPart = animal.parts.find(

@@ -54,7 +54,7 @@ export namespace QuadrupedScapula {
   }
 
   /**
-   * The drawn bar of a blade: from its rotation centre halfway to the shoulder joint, so it stays within the trunk; the humerus hangs from the blade at the shoulder joint.
+   * The drawn bar of a blade: from its rotation centre halfway to the shoulder joint, on the body's midline, so it stays within the trunk in any posture, standing or lying on a side; the humerus hangs from the blade at the shoulder joint. A turn about the model X axis is the same turn at any lateral offset, so the midline bar turns the shoulder joint exactly as the blade would.
    *
    * @param glenoid The shoulder joint at rest, model space.
    * @param withers The height at the withers, metres.
@@ -72,14 +72,14 @@ export namespace QuadrupedScapula {
     const reach: number = (1 - CENTRE) * LENGTH * withers;
     const slope: number = (SLOPE * Math.PI) / 180;
     const from: IAutoMovieVector3 = {
-      x: glenoid.x,
+      x: 0,
       y: glenoid.y + reach * Math.sin(slope),
       z: glenoid.z - reach * Math.cos(slope),
     };
     return {
       from,
       to: {
-        x: glenoid.x,
+        x: 0,
         y: (from.y + glenoid.y) / 2,
         z: (from.z + glenoid.z) / 2,
       },
