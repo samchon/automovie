@@ -4,12 +4,12 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanStand,
   IAutoMovieMotionHumanWalkParams,
   IAutoMoviePhysicalShape,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -383,7 +383,7 @@ function fixture(
     shapes: walls(),
   };
   if (worn) {
-    const neutral: IAutoMovieMotionHumanPosture = resolveHumanPosture(
+    const neutral: IAutoMoviePose = resolveHumanPosture(
       body,
       stand.posture(body, ZERO, 0),
     );
