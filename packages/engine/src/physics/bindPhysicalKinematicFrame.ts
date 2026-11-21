@@ -6,25 +6,33 @@ import type {
   IAutoMoviePhysicalSegmentState,
   IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePoses,
   IAutoMoviePreparePhysicalGeometry,
   IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
+import { AutoMoviePhysicalCoupledTargetError } from "./AutoMoviePhysicalCoupledTargetError";
+import {
+  type IPhysicalKinematicCoupling,
+  fitPhysicalCoupledTargetGroup,
+} from "./fitPhysicalCoupledTargetGroup";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { planPhysicalContactTargets } from "./planPhysicalContactTargets";
+import type { IPhysicalCoupledTargetGroup } from "./preparePhysicalSimulationInput";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
- * Evaluate the same surface relationships without a dynamics world. Geometric receipts retain null impulse and cannot trigger physical withdrawal. All receivers use one simultaneous pre-binding snapshot.
+ * Evaluate one frame's coupled and ordinary relationships against the same
+ * pre-binding snapshot. Geometric receipts retain null impulse.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Evaluate the same surface relationships without a dynamics world) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Evaluate the same surface relationships without a dynamics world) directly over its typed inputs (`input`, `step`, `frame`, `previous`, `geometry`, `contacts`, `profiles`) as nested iteration of depth 4 (for-of over input.bodies; map over Object.entries(planned); for-of over input.bodies), delegating to `planPhysicalContactTargets`, `physicalContactSupportGoals`, `Object.fromEntries`, `Object.entries(planned).map`, `Object.entries`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 92 lines and 6 top-level statements that reuses `planPhysicalContactTargets`, `physicalContactSupportGoals`, `Object.fromEntries`, `Object.entries(planned).map`, `Object.entries` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 13 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`, `step`, `frame`, `previous`, `geometry`, `contacts`, `profiles`; the dominant cost is nested iteration of depth 4 (for-of over input.bodies; map over Object.entries(planned); for-of over input.bodies), performed once per call with 10 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 10 allocation sites become the returned value or die with the call, so nothing grows.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the simultaneous source snapshot and relationship and receipt ownership.
+ * @evidence contracts/development/implementation.md#principled-implementation Prepares all requested groups before producing poses. The old receiver and support relationships still read their actual frame.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Group fitting precedes placement and receipt collection, which still run on the completed frame.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A coupled declaration without admitted group poses refuses instead of selecting unilateral targets.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Groups reuse one solve per step and skip the ordinary body fit for their members.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same geometric support selection and frame sampler for both target paths.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Intermediate motor targets remain local. A complete frame sends only report data to its sink.
  */
 export function bindPhysicalKinematicFrame(
   input: IAutoMoviePhysicalSimulationInput.IInput,
@@ -40,19 +48,98 @@ export function bindPhysicalKinematicFrame(
       ): [string, IAutoMoviePhysicalProfile] => [body.id, body.profile],
     ),
   ),
+  coupling?: IPhysicalKinematicCoupling,
 ): IAutoMoviePhysicalFrame {
   const actual: IAutoMoviePhysicalFrame["bodies"] = frame.bodies;
+  const fits: ReturnType<typeof fitPhysicalCoupledTargetGroup>[] | undefined =
+    coupling?.schedule
+      .get(step)
+      ?.map(
+        (
+          group: IPhysicalCoupledTargetGroup,
+        ): ReturnType<typeof fitPhysicalCoupledTargetGroup> => {
+          if (
+            group.step !== step ||
+            group.bodies.some(
+              (body: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
+                !input.bodies.includes(body) ||
+                body.targets[step]?.coupledGroup !== group.group,
+            )
+          )
+            throw new AutoMoviePhysicalCoupledTargetError({
+              step,
+              group: group.group,
+              members: group.members,
+              kind: "refused",
+              reason: "declaration",
+              detail:
+                "The admitted group does not match this frame's authored targets.",
+            });
+          return fitPhysicalCoupledTargetGroup(group, {
+            scene: input,
+            actual,
+            geometry,
+            floor: input.floor - input.contactTolerance!,
+            members: group.bodies.map(
+              (
+                body: IAutoMoviePhysicalSimulationInput.IBody,
+              ): Parameters<
+                typeof fitPhysicalCoupledTargetGroup
+              >[1]["members"][number] => {
+                const target: IAutoMoviePhysicalSimulationInput.ITarget =
+                  body.targets[step]!;
+                return {
+                  body: body.id,
+                  target,
+                  supports: physicalContactSupportGoals(
+                    body,
+                    target,
+                    input.floor,
+                    input.contactTolerance!,
+                    step / input.rate,
+                    input.rate,
+                    step,
+                  ),
+                };
+              },
+            ),
+          });
+        },
+      );
+  const grouped: Map<string, IAutoMoviePoses> | undefined =
+    fits === undefined
+      ? undefined
+      : new Map(
+          fits.flatMap(
+            (
+              fit: ReturnType<typeof fitPhysicalCoupledTargetGroup>,
+            ): [string, IAutoMoviePoses][] => Object.entries(fit.targets),
+          ),
+        );
   const bodies: IAutoMoviePhysicalFrame["bodies"] = { ...actual };
   for (const body of input.bodies) {
     const target: IAutoMoviePhysicalSimulationInput.ITarget =
       body.targets[step]!;
+    const coupled: IAutoMoviePoses | undefined = grouped?.get(body.id);
+    if (target.coupledGroup !== undefined && coupled === undefined)
+      throw new AutoMoviePhysicalCoupledTargetError({
+        step,
+        group:
+          typeof target.coupledGroup === "string" ? target.coupledGroup : "",
+        members: [body.id],
+        kind: "refused",
+        reason: "declaration",
+        detail: "The frame requires an admitted coupled target group.",
+      });
     if (
+      coupled === undefined &&
       !target.bindings?.length &&
       !target.pointBounds?.length &&
       !body.selfAvoidance
     )
       continue;
-    const planned: Record<string, IAutoMovieRigidTransform> =
+    const planned: IAutoMoviePoses =
+      coupled ??
       planPhysicalContactTargets({
         body: body.id,
         profiles,
@@ -140,5 +227,11 @@ export function bindPhysicalKinematicFrame(
         found.add(receipt.id);
       }
     }
+  if (fits !== undefined)
+    coupling?.record(
+      fits.map(
+        (fit: ReturnType<typeof fitPhysicalCoupledTargetGroup>) => fit.report,
+      ),
+    );
   return { ...frame, bodies };
 }

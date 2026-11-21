@@ -1,351 +1,63 @@
 import type {
   IAutoMovieLinearizePhysicalTargetRows,
-  IAutoMoviePhysicalContactBinding,
-  IAutoMoviePhysicalContactBindingRows,
-  IAutoMoviePhysicalJoint,
-  IAutoMoviePhysicalPointBound,
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalSegment,
-  IAutoMoviePhysicalShape,
   IAutoMoviePlanPhysicalContactTargets,
   IAutoMoviePoses,
-  IAutoMoviePreparePhysicalGeometry,
-  IAutoMovieRigidTransform,
   IAutoMovieSolvePhysicalArticulationTargets,
 } from "@automovie/interface";
 
-import { admitPhysicalPointBounds } from "./admitPhysicalPointBounds";
-import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
-import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
-import { linearizePhysicalSeparation } from "./linearizePhysicalSeparation";
 import { linearizePhysicalTargetRows } from "./linearizePhysicalTargetRows";
-import { memoizePhysicalTransformValue } from "./memoizePhysicalTransformValue";
-import { physicalContactBindingRows } from "./physicalContactBindingRows";
-import { physicalContactSupportRows } from "./physicalContactSupportRows";
-import { physicalPointProjection } from "./physicalPointProjection";
-import { projectPhysicalTargets } from "./projectPhysicalTargets";
-import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
+import {
+  physicalContactTargetBones,
+  preparePhysicalContactTargetRows,
+} from "./preparePhysicalContactTargetRows";
 import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTargets";
 
-/** One immutable candidate read, scoped to the owning fit. */
-type PoseRead<Value> = (poses: IAutoMoviePoses) => Value;
-
 /**
- * Fit relationships in one bounded articulation solve. Actual receiver surfaces,
- * declared supports, the floor and enabled self contacts share one residual
- * vector. The root stays at its actual pose; joint limits and anchors remain
- * intact. No actual body, impulse or receipt changes. Unreachable intent remains
- * a residual, rather than becoming a claimed successful contact.
+ * Fit one body's contact, support, floor and avoidance goals at its actual
+ * root. An external receiver stays at the simultaneous actual placement.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Fit relationships in one bounded articulation solve) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Fit relationships in one bounded articulation solve) directly over its typed inputs (`input`) as nested iteration of depth 3 (map over input.bindings; find over profile.segments; some over profile.joints), delegating to `physicalContactSupportRows`, `admitPhysicalPointBounds`, `projectPhysicalTargets`, `rebasePhysicalTargets`, `shapes.flatMap`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 263 lines and 23 top-level statements that reuses `physicalContactSupportRows`, `admitPhysicalPointBounds`, `projectPhysicalTargets`, `rebasePhysicalTargets`, `shapes.flatMap` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 14 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 3 (map over input.bindings; find over profile.segments; some over profile.joints), performed once per call with 43 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 43 allocation sites become the returned value or die with the call, so nothing grows.
+ * @evidence contracts/development/common.md#meaningful-documentation States the fixed-root, actual receiver and shared geometric target behavior.
+ * @evidence contracts/development/implementation.md#principled-implementation Projects the same authored seed, prepares the body rows and fits the selected coordinates with the shared bounded optimizer.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation owns pose dependencies and geometry. This function selects the single-body path and returns its established residual norms.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Zero-weight binding and empty-coordinate behavior remain part of the original fit.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Prepares geometry rows once and linearizes only moved dependencies. Reports named residuals once at the returned target.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares seed, rows and numerical operations with simultaneous coupling.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns the returned targets and norms. Prepared row closures remain local.
  */
 export function planPhysicalContactTargets(
   input: IAutoMoviePlanPhysicalContactTargets.IInput,
 ): IAutoMoviePlanPhysicalContactTargets.IResult {
-  const profile: IAutoMoviePhysicalProfile = input.profiles[input.body]!;
-  const supports: IAutoMovieLinearizePhysicalTargetRows.IRows[] =
-    physicalContactSupportRows({
-      profile,
-      supports: input.supports ?? [],
-      body: input.body,
-      geometry: input.geometry,
-      floor: input.floor,
-    });
-  const pointBounds: readonly IAutoMoviePhysicalPointBound[] =
-    input.pointBounds ?? [];
-  admitPhysicalPointBounds(
-    input.profiles,
-    input.body,
-    pointBounds,
-    new Set(
-      input.bindings.map(
-        (binding: IAutoMoviePhysicalContactBinding): string => binding.id,
-      ),
-    ),
-  );
-  const root: string = profile.segments.find(
-    (segment: IAutoMoviePhysicalSegment): boolean =>
-      !profile.joints.some(
-        (joint: IAutoMoviePhysicalJoint): boolean =>
-          joint.child === segment.bone,
-      ),
-  )!.bone;
-  const coherent: Record<string, IAutoMovieRigidTransform> =
-    projectPhysicalTargets(profile, input.targets).targets;
-  const initial: Record<string, IAutoMovieRigidTransform> =
-    rebasePhysicalTargets(coherent, root, input.actual[input.body]![root]!);
-  const bindings: IAutoMoviePhysicalContactBinding[] = input.bindings.filter(
-    (binding: IAutoMoviePhysicalContactBinding): boolean => binding.weight > 0,
-  );
-  const shapes: { bone: string; shape: IAutoMoviePhysicalShape }[] =
-    profile.segments.flatMap(
-      (
-        segment: IAutoMoviePhysicalSegment,
-      ): { bone: string; shape: IAutoMoviePhysicalShape }[] =>
-        segment.shapes.map(
-          (
-            shape: IAutoMoviePhysicalShape,
-          ): { bone: string; shape: IAutoMoviePhysicalShape } => ({
-            bone: segment.bone,
-            shape,
-          }),
-        ),
-    );
-  const pairs: { a: (typeof shapes)[number]; b: (typeof shapes)[number] }[] =
-    input.selfAvoidance
-      ? shapes.flatMap(
-          (
-            a: (typeof shapes)[number],
-            index: number,
-          ): { a: typeof a; b: typeof a }[] =>
-            shapes
-              .slice(index + 1)
-              .filter(
-                (b: typeof a): boolean =>
-                  !isPhysicalProfilePairExcluded(profile, a.bone, b.bone),
-              )
-              .map((b: typeof a): { a: typeof a; b: typeof a } => ({ a, b })),
-        )
-      : [];
-  const relationships: IAutoMoviePhysicalContactBindingRows.IResult =
-    physicalContactBindingRows({ ...input, bindings, initial });
-  const pointValues: PoseRead<number[]>[] = pointBounds.map(
-    (bound: IAutoMoviePhysicalPointBound): PoseRead<number[]> =>
-      remember(
-        [
-          bound.source.bone,
-          ...(bound.reference.body === input.body
-            ? [bound.reference.bone]
-            : []),
-        ],
-        (poses: IAutoMoviePoses): number[] => pointRelationship(bound, poses),
-        bound.reference.body === input.body
-          ? undefined
-          : (): IAutoMovieRigidTransform =>
-              input.actual[bound.reference.body]![bound.reference.bone]!,
-      ),
-  );
-  const pairContacts: PoseRead<
-    ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>
-  >[] = pairs.map(
-    (
-      pair: (typeof pairs)[number],
-    ): PoseRead<
-      ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>
-    > =>
-      remember(
-        [pair.a.bone, pair.b.bone],
-        (
-          poses: IAutoMoviePoses,
-        ): ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =>
-          input.geometry.contact(
-            collider(pair.a, poses),
-            collider(pair.b, poses),
-            0,
-          ),
-      ),
-  );
-  const rows: IAutoMovieLinearizePhysicalTargetRows.IRows[] = [
-    ...relationships.map(
-      (
-        relationship: (typeof relationships)[number],
-      ): IAutoMovieLinearizePhysicalTargetRows.IRows => relationship.rows,
-    ),
-    ...pointBounds.map(
-      (
-        bound: IAutoMoviePhysicalPointBound,
-        index: number,
-      ): IAutoMovieLinearizePhysicalTargetRows.IRows => ({
-        bones: new Set([
-          bound.source.bone,
-          ...(bound.reference.body === input.body
-            ? [bound.reference.bone]
-            : []),
-        ]),
-        measure: pointValues[index]!,
-        linearize: (poses: IAutoMoviePoses): PoseRead<number[]> => {
-          const interval: (value: number) => number[] =
-            linearizePhysicalInterval(
-              physicalPointProjection(
-                input.body,
-                input.profiles,
-                input.actual,
-                bound,
-                poses,
-              ),
-              bound.minimum,
-              bound.maximum,
-            );
-          return (probe: IAutoMoviePoses): number[] =>
-            interval(
-              physicalPointProjection(
-                input.body,
-                input.profiles,
-                input.actual,
-                bound,
-                probe,
-              ),
-            );
-        },
-      }),
-    ),
-    ...pairs.map(
-      (
-        pair: (typeof pairs)[number],
-        index: number,
-      ): IAutoMovieLinearizePhysicalTargetRows.IRows => ({
-        bones: new Set([pair.a.bone, pair.b.bone]),
-        rigidInvariant: true,
-        measure: (poses: IAutoMoviePoses): number[] => [
-          Math.min(0, pairContacts[index]!(poses)?.separation ?? 0),
-        ],
-        linearize: (poses: IAutoMoviePoses): PoseRead<number[]> => {
-          const model: (
-            first: IAutoMovieRigidTransform,
-            second: IAutoMovieRigidTransform,
-          ) => number = linearizePhysicalSeparation(
-            input.geometry,
-            collider(pair.a, poses),
-            collider(pair.b, poses),
-            pairContacts[index]!(poses),
-          );
-          return (probe: IAutoMoviePoses): number[] => [
-            model(probe[pair.a.bone]!, probe[pair.b.bone]!),
-          ];
-        },
-      }),
-    ),
-    ...supports,
-  ];
-  const bones: string[] = input.selfAvoidance
-    ? profile.joints.map(
-        (joint: IAutoMoviePhysicalJoint): string => joint.child,
-      )
-    : [
-        ...new Set([
-          ...bindings.flatMap(
-            (binding: IAutoMoviePhysicalContactBinding): string[] =>
-              binding.chain,
-          ),
-          ...pointBounds.flatMap(
-            (bound: IAutoMoviePhysicalPointBound): string[] => bound.chain,
-          ),
-        ]),
-      ];
+  const prepared: ReturnType<typeof preparePhysicalContactTargetRows> =
+    preparePhysicalContactTargetRows(input);
+  const bones: string[] = physicalContactTargetBones(input);
   if (!bones.length)
-    return { targets: initial, residuals: Object.create(null) };
+    return { targets: prepared.initial, residuals: Object.create(null) };
   const result: IAutoMovieSolvePhysicalArticulationTargets.IResult =
     solvePhysicalArticulationTargets({
-      profile,
-      targets: initial,
+      profile: input.profiles[input.body]!,
+      targets: prepared.initial,
       bones,
-      iterations: Math.max(
-        input.selfAvoidance?.iterations ?? 1,
-        ...bindings.map(
-          (binding: IAutoMoviePhysicalContactBinding): number =>
-            binding.iterations,
+      iterations: prepared.iterations,
+      tolerance: prepared.tolerance,
+      measure: (poses: IAutoMoviePoses): number[] =>
+        prepared.rows.flatMap(
+          (row: IAutoMovieLinearizePhysicalTargetRows.IRows): number[] =>
+            row.measure(poses),
         ),
-        ...pointBounds.map(
-          (bound: IAutoMoviePhysicalPointBound): number => bound.iterations,
-        ),
-      ),
-      tolerance: Math.min(
-        input.selfAvoidance?.tolerance ?? Infinity,
-        ...bindings.map(
-          (binding: IAutoMoviePhysicalContactBinding): number =>
-            binding.tolerance,
-        ),
-        ...pointBounds.map(
-          (bound: IAutoMoviePhysicalPointBound): number => bound.tolerance,
-        ),
-      ),
-      measure,
       linearize: (
         poses: IAutoMoviePoses,
       ): ((probe: IAutoMoviePoses, moved?: ReadonlySet<string>) => number[]) =>
-        linearizePhysicalTargetRows(rows, poses),
+        linearizePhysicalTargetRows(prepared.rows, poses),
     });
-  const residuals: Record<string, number> = Object.fromEntries([
-    ...relationships.map(
-      (relationship: (typeof relationships)[number]): [string, number] => [
-        relationship.id,
-        Math.hypot(...relationship.rows.measure(result.targets)),
-      ],
+  return {
+    targets: result.targets,
+    residuals: Object.fromEntries(
+      [...prepared.bindings, ...prepared.points].map(
+        (entry: (typeof prepared.bindings)[number]): [string, number] => [
+          entry.id,
+          Math.hypot(...entry.rows.measure(result.targets)),
+        ],
+      ),
     ),
-    ...pointBounds.map(
-      (
-        bound: IAutoMoviePhysicalPointBound,
-        index: number,
-      ): [string, number] => [
-        bound.id,
-        Math.hypot(...pointValues[index]!(result.targets)),
-      ],
-    ),
-  ]);
-  return { targets: result.targets, residuals };
-
-  /** Same-body references move coherently with shared ancestors; other bodies remain the simultaneous actual snapshot. */
-  function pointRelationship(
-    bound: IAutoMoviePhysicalPointBound,
-    poses: IAutoMoviePoses,
-  ): number[] {
-    const value: number = physicalPointProjection(
-      input.body,
-      input.profiles,
-      input.actual,
-      bound,
-      poses,
-    );
-    return [
-      ...(bound.minimum !== undefined
-        ? [Math.min(0, value - bound.minimum)]
-        : []),
-      ...(bound.maximum !== undefined
-        ? [Math.max(0, value - bound.maximum)]
-        : []),
-    ];
-  }
-
-  /** Exact merit retains every row, including those invariant in a local probe. */
-  function measure(poses: IAutoMoviePoses): number[] {
-    return rows.flatMap(
-      (row: IAutoMovieLinearizePhysicalTargetRows.IRows): number[] =>
-        row.measure(poses),
-    );
-  }
-
-  /** Reuse values by actual scalar dependencies within this invocation only. */
-  function remember<Value>(
-    bones: readonly string[],
-    compute: PoseRead<Value>,
-    external?: () => IAutoMovieRigidTransform,
-  ): PoseRead<Value> {
-    const names: string[] = [...new Set(bones)];
-    return memoizePhysicalTransformValue(
-      (poses: IAutoMoviePoses): IAutoMovieRigidTransform[] => [
-        ...names.map((bone: string): IAutoMovieRigidTransform => poses[bone]!),
-        ...(external ? [external()] : []),
-      ],
-      compute,
-    );
-  }
-
-  /** Borrow an admitted shape at the selected candidate bone pose. */
-  function collider(
-    entry: (typeof shapes)[number],
-    poses: IAutoMoviePoses,
-  ): IAutoMoviePreparePhysicalGeometry.ICollider {
-    return {
-      body: input.body,
-      bone: entry.bone,
-      shape: entry.shape,
-      pose: poses[entry.bone]!,
-    };
-  }
+  };
 }
