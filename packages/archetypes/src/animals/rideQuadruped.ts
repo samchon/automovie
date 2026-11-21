@@ -112,12 +112,55 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   // A timed plan is ridden as given: one leg naming no gait, so each stride's
   // gait follows the plan's speed, and one span at the plan's peak, so the
   // speed admission covers its fastest second.
+  // Its halts and restarts at zero-speed marks become `stop<k>` and
+  // `depart<k>` instants, and its ramps through the slowest gait's least speed
+  // set the rate whose vMin^2/(2a) bridge the clock already keeps for a stop.
+  const least: number = QuadrupedGait.range(
+    species,
+    species.table.order[0]!,
+    withers,
+  ).minimum;
+  const halts: ArchetypeCourse.IPlan["instants"][number][] = [];
+  let ramp: number = Infinity;
+  if (route.kind === "plan" && route.course.kind === "timed")
+    route.course.samples.forEach(
+      (mark: ArchetypeCourse.ISample, k: number): void => {
+        if (route.at(mark.seconds).speed !== 0) return;
+        for (const [label, sign] of [
+          ["stop", -1],
+          ["depart", 1],
+        ] as const) {
+          const near: number = mark.seconds + sign * 1e-6;
+          if (near < 0 || near > route.duration || route.at(near).speed === 0)
+            continue;
+          let edge: number = mark.seconds;
+          while (
+            edge + sign * 0.01 >= 0 &&
+            edge + sign * 0.01 <= route.duration &&
+            route.at(edge + sign * 0.01).speed < least
+          )
+            edge += sign * 0.01;
+          const span: number = Math.abs(
+            route.at(edge + sign * 0.01).distance -
+              route.at(mark.seconds).distance,
+          );
+          if (span > 0) ramp = Math.min(ramp, least ** 2 / (2 * span));
+          halts.push({ seconds: mark.seconds, label: `${label}${k}` });
+        }
+      },
+    );
   const plan: ArchetypeCourse.IPlan =
     route.kind === "plan"
       ? route.legSpans.length > 0
         ? route
         : {
             ...route,
+            instants: [...route.instants, ...halts].sort(
+              (
+                a: ArchetypeCourse.IPlan["instants"][number],
+                b: ArchetypeCourse.IPlan["instants"][number],
+              ): number => a.seconds - b.seconds,
+            ),
             legSpans: [{ from: 0, span: route.length, fastest: route.peak }],
           }
       : ArchetypeCourse.plan(species.archetype, route);
@@ -131,6 +174,9 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           },
           legs: [{ kind: "straight", length: Math.max(route.length, 1e-9) }],
           cruise: Math.max(route.peak, 1e-9),
+          ...(ramp === Infinity
+            ? {}
+            : { acceleration: ramp, deceleration: ramp }),
         }
       : route;
   const departure: ArchetypeCourse.IState | undefined =
