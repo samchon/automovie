@@ -19,6 +19,21 @@ export interface IAutoMovieMotionHumanLexiconPrecisionSportParams {
   /** A one-handed tennis racket stroke that returns the live ball. */
   tennisForehandReturn: IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke;
 
+  /** A one-handed table tennis forehand drive that returns the live ball. */
+  tableTennisForehand: IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke;
+
+  /** A one-handed squash drive played off the front wall. */
+  squashDrive: IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke;
+
+  /** A one-handed padel forehand that returns the live ball. */
+  padelForehand: IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke;
+
+  /** A one-handed overhead badminton clear lifting the shuttle deep. */
+  badmintonClear: IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke;
+
+  /** A two-handed field hockey hit along the ground. */
+  fieldHockeyHit: IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke;
+
   /** A full golf drive from a teed ball. */
   golfDrive: IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke;
 

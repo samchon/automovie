@@ -59,6 +59,75 @@ export namespace HumanPrecisionSport {
     oneHand: true,
   });
 
+  /** A one-handed table tennis forehand drive through the bat's face (provisional angles). */
+  export const tableTennisForehand: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconPrecisionSportParams["tableTennisForehand"]
+  > = createPrecisionSportStroke("tableTennisForehand", {
+    point: "face",
+    down: -10,
+    sweep: 60,
+    draw: 0,
+    turn: 20,
+    loft: 10,
+    impact: 0.3,
+    oneHand: true,
+  });
+
+  /** A one-handed squash drive along the side wall through the racket face (provisional angles). */
+  export const squashDrive: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconPrecisionSportParams["squashDrive"]
+  > = createPrecisionSportStroke("squashDrive", {
+    point: "face",
+    down: 10,
+    sweep: 70,
+    draw: 0,
+    turn: 20,
+    loft: 8,
+    impact: 0.45,
+    oneHand: true,
+  });
+
+  /** A one-handed padel forehand through the solid racket's face (provisional angles). */
+  export const padelForehand: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconPrecisionSportParams["padelForehand"]
+  > = createPrecisionSportStroke("padelForehand", {
+    point: "face",
+    down: -15,
+    sweep: 55,
+    draw: 0,
+    turn: 15,
+    loft: 12,
+    impact: 0.5,
+    oneHand: true,
+  });
+
+  /** A one-handed overhead badminton clear lifting the shuttle deep (provisional angles). */
+  export const badmintonClear: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconPrecisionSportParams["badmintonClear"]
+  > = createPrecisionSportStroke("badmintonClear", {
+    point: "face",
+    down: -70,
+    sweep: 80,
+    draw: 0,
+    turn: 20,
+    loft: 40,
+    impact: 0.45,
+    oneHand: true,
+  });
+
+  /** A two-handed field hockey hit along the ground through the stick's blade (provisional angles). */
+  export const fieldHockeyHit: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconPrecisionSportParams["fieldHockeyHit"]
+  > = createPrecisionSportStroke("fieldHockeyHit", {
+    point: "blade",
+    down: 70,
+    sweep: 60,
+    draw: 0,
+    turn: 15,
+    loft: 0,
+    impact: 0.45,
+  });
+
   /** A two-handed full drive through the club face. */
   export const golfDrive: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["golfDrive"]
