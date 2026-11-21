@@ -54,7 +54,6 @@ export function createSwing(
     pivot,
     clearance,
     seatWidth,
-    seatDepth,
     mass,
   }: Record<createSwing.Dimension, number> = draw.dimensions(createSwing.BANDS);
   if (!(pivot - clearance > GRIP))
