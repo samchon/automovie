@@ -1,8 +1,14 @@
+import { ArchetypeFrame } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieCapsuleShape,
+  IAutoMovieModelPart,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -20,30 +26,31 @@ const TOLERANCE: number = 0.01;
 /** How far a foot lifted out of its stirrup has left it: the ankle joint more than this from the stirrup's tread, metres, an authored bound beyond an ankle's height over a tread it stands on. */
 const STIRRUP: number = 0.15;
 
-/** Seconds the take follows the horse swimming after it floats: the swim's entry. */
-const SWIMMING: number = 2.5;
+/** Seconds a figure change takes: the stirrups let go at the float and retaken at the landing. */
+const TRANSFER: number = 0.6;
 
 /** The rider's head region kept over the water: the head bone's centre at least this far above it, metres, an authored margin for the jaw below the head joint. */
 const HEAD: number = 0.12;
 
 /**
- * A rider stays seated on a horse wading a ford and into its swim.
+ * A rider stays seated on a horse wading a ford, swimming it with the feet out of the stirrups, and taking the stirrups back as the horse lands on the far shelf.
  *
  * Scenarios:
- * 1. While wading, the rider's seat socket stays within 10 mm of the saddle's seat, the left wrist holds the mane (within 0.7 hand lengths of it, slipping less than 10 mm, the vault spec's handle criterion) and the right palm stays within 10 mm of its rein's skin. While the horse swims, the seat and both holds stay, each ankle is more than 0.15 m from its stirrup's tread, and the head bone's centre is at least 0.12 m above the water. The figures change on the crossing's float second; the swim's first 2.5 s are read.
- * 2. The take passes the shipped take verdicts: no tangle, jump, turn, reversal, skate, floor or unloaded fault.
+ * 1. While wading and after the landing, the rider's seat socket stays within 10 mm of the saddle's seat, the left wrist holds the mane (within 0.7 hand lengths of it, slipping less than 10 mm, the vault spec's handle criterion), the right palm stays within 10 mm of its rein's skin and each ankle within 0.15 m of its stirrup's tread. While the horse swims, the seat and both holds stay, each ankle is more than 0.15 m from its stirrup's tread (a swimming horse's rider takes the feet out, so a rolling horse cannot trap them), and the head bone's centre is at least 0.12 m above the water. At every read instant each ankle lies outside the horse's barrel (its trunk capsule).
+ * 2. The mounted law's stirrup windows close at the float, stay closed through the swim and reopen within the landing figure's transfer, held to the halt.
+ * 3. The take passes the shipped take verdicts: no tangle, jump, turn, reversal, skate, floor or unloaded fault.
  * The far bank's unreachable shelf is refused by the crossing itself, pinned by test_archetype_equine_ford; the floating crossing belongs to test_archetype_equine_ford_float and the mounted climb out with the lead-out to test_archetype_equine_ford_leadout.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the mounted laws on the public crossing and reads the displayed seat, palms, feet and head against the horse's moving saddle, mane, rein, stirrups and the authored water; a rider left behind at a cut, a hand off its hold or a submerged head fails.
  * @evidence contracts/development/testing.md#independent-expectations The 10 mm tolerance is the seated rider specs'; contacts are the horse's own affordances on the posed horse; the water is the stage's authored height.
- * @evidence contracts/development/testing.md#distinguishing-cases Wading and swimming figures on one clock; the horse's own crossing belongs to test_archetype_equine_ford.
+ * @evidence contracts/development/testing.md#distinguishing-cases Wading, swimming and landing figures on one clock; the horse's own crossing belongs to test_archetype_equine_ford.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name.
  */
 export function test_archetype_equine_ford_rider(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-tall");
   const staged: equineFordRider.IStage = equineFordRider.stage();
-  const { float } = staged;
+  const { float, land, halt } = staged;
   const settled: number = equineFordRider.settled(staged, body);
   const film: HumanPerformance = equineFordRider.perform(
     staged,
@@ -57,12 +64,50 @@ export function test_archetype_equine_ford_rider(): void {
       },
       {
         seat: "entered",
-        transfer: 0.6,
-        seconds: SWIMMING - 0.6,
+        transfer: TRANSFER,
+        seconds: land - float - TRANSFER,
         supports: equineFordRider.SWIMMING,
       },
+      {
+        seat: "entered",
+        transfer: TRANSFER,
+        seconds: halt - land - TRANSFER,
+        supports: equineFordRider.WADING,
+      },
     ]),
-  );  const issues: string[] = [];
+  );
+  const issues: string[] = [];
+
+  // The horse's barrel: its trunk capsule carried by its placement.
+  const trunk: IAutoMovieModelPart = staged.horse.parts.find(
+    (part: IAutoMovieModelPart): boolean => part.id === "trunk",
+  )!;
+  const geometry: IAutoMovieModelPart["geometry"] = trunk.geometry;
+  if (geometry.type !== "primitive" || geometry.shape.type !== "capsule")
+    throw new Error("The horse's trunk is a capsule");
+  const capsule: IAutoMovieCapsuleShape = geometry.shape;
+  const barrel = (point: IAutoMovieVector3, at: number): number => {
+    const placed: IAutoMovieRigidTransform = staged.place(at);
+    const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+      {
+        translation: placed.position,
+        rotation: placed.rotation,
+        scale: ArchetypeFrame.UNIT,
+      },
+      trunk.transform!,
+    );
+    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(frame.rotation),
+      Vector3.subtract(point, frame.translation),
+    );
+    const along: number = Math.max(
+      -capsule.height / 2,
+      Math.min(capsule.height / 2, local.y),
+    );
+    return (
+      Math.hypot(local.x, local.y - along, local.z) - capsule.radius
+    );
+  };
 
   // 1. Seated through the crossing.
   const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
@@ -74,8 +119,9 @@ export function test_archetype_equine_ford_rider(): void {
   let grasped: IAutoMovieVector3 | undefined;
   const instants: readonly [number, string][] = [
     [float - 1.5, "wading"],
-    [float + 1, "swimming"],
-    [float + SWIMMING - 0.2, "swimming"],
+    [float + 1.5, "swimming"],
+    [land - 1, "swimming"],
+    [land + TRANSFER + 0.3, "climbing"],
   ];
   for (const [at, phase] of instants) {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -118,17 +164,22 @@ export function test_archetype_equine_ford_rider(): void {
       issues.push(
         `${phase} ${at.toFixed(2)}: right palm ${(held * 1000).toFixed(1)} mm from rightRein`,
       );
-    if (phase !== "swimming") continue;
     for (const side of ["left", "right"] as const) {
+      const ankle: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
       const foot: number = Vector3.distance(
-        bones.get(`${side}Foot`)!.worldPosition,
+        ankle,
         staged.part(`${side}Stirrup`, at).translation,
       );
-      if (!(foot > STIRRUP))
+      if (phase === "swimming" ? !(foot > STIRRUP) : !(foot <= STIRRUP))
         issues.push(
-          `${phase} ${at.toFixed(2)}: the ${side} foot stays ${foot} m from its stirrup`,
+          `${phase} ${at.toFixed(2)}: the ${side} ankle is ${foot} m from its stirrup`,
+        );
+      if (!(barrel(ankle, at) > 0))
+        issues.push(
+          `${phase} ${at.toFixed(2)}: the ${side} ankle is inside the horse's barrel`,
         );
     }
+    if (phase !== "swimming") continue;
     const head: number =
       bones.get("head")!.worldPosition.y - equineFordRider.WATER;
     if (!(head >= HEAD))
@@ -137,12 +188,49 @@ export function test_archetype_equine_ford_rider(): void {
       );
   }
 
+  // 2. The stirrup windows: closed through the swim, reopened at the landing's seat-in.
+  const mounted: IAutoMovieMotionHumanSegment = film
+    .segments("rider")
+    .find(
+      (segment: IAutoMovieMotionHumanSegment): boolean =>
+        segment.law.name === "mounted",
+    )!;
+  const span: number = mounted.end - mounted.start;
+  for (const side of ["left", "right"] as const) {
+    const windows: readonly [number, number][] = mounted.plan.contacts
+      .filter(
+        (contact: IAutoMovieMotionHumanContactWindow): boolean =>
+          contact.part === `${side}Foot` && contact.support.kind === "prop",
+      )
+      .map(
+        (contact: IAutoMovieMotionHumanContactWindow): [number, number] => [
+          mounted.start + contact.from * span,
+          mounted.start + contact.to * span,
+        ],
+      );
+    if (
+      windows.some(
+        ([from, to]: [number, number]): boolean =>
+          from < land && to > float + TRANSFER,
+      )
+    )
+      issues.push(`the ${side} stirrup window stays open through the swim`);
+    if (
+      !windows.some(
+        ([from, to]: [number, number]): boolean =>
+          from >= land && from <= land + TRANSFER && to >= halt - TRANSFER,
+      )
+    )
+      issues.push(
+        `the ${side} stirrup window does not reopen at the landing's seat-in`,
+      );
+  }
   TestValidator.equals(
     "the rider crosses seated with the head out of the water",
     issues,
     [],
   );
 
-  // 2. The take's verdicts.
+  // 3. The take's verdicts.
   assertTakeClean("the seated crossing", film);
 }

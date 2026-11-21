@@ -1,10 +1,15 @@
 import { Quaternion, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
+import { EquineBank } from "./EquineBank";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
 import type { QuadrupedBody } from "./QuadrupedBody";
+import type { QuadrupedFooting } from "./QuadrupedFooting";
 import type { QuadrupedGait } from "./QuadrupedGait";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import type { rideQuadruped } from "./rideQuadruped";
@@ -30,7 +35,8 @@ export namespace EquineFootwork {
     | IReinBack
     | ISlideStop
     | EquineLateral.Technique
-    | EquineJump.Technique;
+    | EquineJump.Technique
+    | EquineBank.ISlide;
 
   /**
    * A named film-second cue a technique adds to the ride.
@@ -108,6 +114,8 @@ export namespace EquineFootwork {
     readonly lateral: readonly EquineLateral.IWindow[];
     /** The admitted jump, when a leg names one. */
     readonly jump?: EquineJump.IRequest;
+    /** Admitted slides down steep banks, in leg order. */
+    readonly bank: readonly EquineBank.IWindow[];
   }
 
   /**
@@ -140,6 +148,7 @@ export namespace EquineFootwork {
   ): IPlan {
     const backing: Set<number> = new Set();
     const lateral: EquineLateral.IWindow[] = [];
+    const bank: EquineBank.IWindow[] = [];
     const cues: IInstant[] = [];
     let jump: EquineJump.IRequest | undefined;
     let slide: ISlide | undefined;
@@ -192,6 +201,25 @@ export namespace EquineFootwork {
           );
         else if (jump !== undefined) refuse(index, "One ride plans one jump");
         else jump = request;
+        continue;
+      }
+      if (technique.kind === "bank-slide") {
+        const window: EquineBank.IWindow = EquineBank.admit(
+          archetype,
+          index,
+          leg,
+          technique,
+          course.legs.length,
+          plan,
+          course.footing,
+        );
+        bank.push(window);
+        cues.push(
+          { seconds: window.from, label: "bankSlideStart" },
+          { seconds: window.from + window.entry, label: "bankSlideSat" },
+          { seconds: window.to - window.exit, label: "bankSlideRise" },
+          { seconds: window.to, label: "bankSlideEnd" },
+        );
         continue;
       }
       if (leg.kind !== "straight" || (leg.rise ?? 0) !== 0)
@@ -258,6 +286,7 @@ export namespace EquineFootwork {
       ],
       slide,
       lateral,
+      bank,
       ...(jump === undefined ? {} : { jump }),
     };
 
@@ -339,5 +368,64 @@ export namespace EquineFootwork {
       lift: (1 - amount) * goal.lift,
       fold: (1 - amount) * goal.fold,
     };
+  }
+
+  /**
+   * The trunk's pitch a technique adds at a film second, degrees, positive nose-down: a bank slide sits the horse back on its haunches by `EquineBank.SIT`.
+   *
+   * @param plan The admitted technique plan.
+   * @param second The film second.
+   * @returns The pitch, zero outside a slide.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit, sign and source of the pitch.
+   * @evidence contracts/development/implementation.md#principled-implementation The sit's share of `EquineBank.SIT`, nose-up.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the few slides.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `EquineBank.share`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
+   */
+  export function sit(plan: IPlan, second: number): number {
+    return -EquineBank.SIT * EquineBank.share(plan.bank, second);
+  }
+
+  /**
+   * A hind hoof's goal under the admitted techniques: an arena slide's moving contact, then a bank slide's sliding seat.
+   *
+   * @param plan The admitted technique plan.
+   * @param second The film second.
+   * @param neutral The hoof's neutral point, model metres.
+   * @param attachment The limb's attachment, model metres.
+   * @param goal The gait's goal.
+   * @param placement The body's world placement.
+   * @param footing The course's prepared footing.
+   * @returns The goal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frames and the order the techniques apply in.
+   * @evidence contracts/development/implementation.md#principled-implementation Each technique replaces the gait's goal only inside its own window.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two compositions.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work outside a slide.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `slideGoal` and `EquineBank.goal`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
+   */
+  export function hindGoal(
+    plan: IPlan,
+    second: number,
+    neutral: IAutoMovieVector3,
+    attachment: IAutoMovieVector3,
+    goal: QuadrupedRidePose.IGoal,
+    placement: IAutoMovieTransform,
+    footing: QuadrupedFooting.IPlan | undefined,
+  ): QuadrupedRidePose.IGoal {
+    return EquineBank.goal(
+      plan.bank,
+      second,
+      neutral,
+      attachment,
+      slideGoal(plan.slide, second, neutral, goal),
+      placement,
+      footing,
+    );
   }
 }

@@ -283,7 +283,8 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         phase,
         timing,
       );
-      const lean: number = course.lean?.(seconds) ?? 0;
+      const lean: number =
+        (course.lean?.(seconds) ?? 0) + EquineFootwork.sit(footwork, seconds);
       const placement: IAutoMovieTransform = EquinePitch.place(
         EquinePitch.place(body(state, seconds), 0, lame?.tilt),
         0,
@@ -377,11 +378,14 @@ export function rideQuadruped<Affordance extends string, D extends string>(
               )
             : fore
               ? goal
-              : EquineFootwork.slideGoal(
-                  footwork.slide,
+              : EquineFootwork.hindGoal(
+                  footwork,
                   seconds,
                   rest[4]!,
+                  rest[0]!,
                   goal,
+                  placement,
+                  ground,
                 ),
         );
       }
