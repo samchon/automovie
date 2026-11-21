@@ -4,9 +4,10 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanSignature,
   IAutoMovieMotionTarget,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieScheduleEntry,
@@ -36,10 +37,7 @@ interface IBout {
   /** The first performer's lead foot. */
   lead: AutoMovieHumanSide;
 
-  /** The performers' opening separation along the piste, metres: the sabre, whose cut lands short of its point, starts closer. */
-  opening: number;
-
-  /** The first performer's forward mark shift, metres. */
+  /** The first performer's approach from its on-guard line, metres. */
   distance: number;
 
   /** The region of the second the first performer's attack aims at. */
@@ -59,13 +57,12 @@ type Touch = readonly [
   region: AutoMovieHumanoidRegion,
 ];
 
-/** One bout per weapon, each with its own result, lead and distance. */
+/** One bout per weapon, each with its own result, lead and approach. */
 const BOUTS: readonly IBout[] = [
   {
     kind: "foil",
     lead: "right",
-    opening: 1.5,
-    distance: 0.14,
+    distance: 1.2,
     attack: "chestLeft",
     answer: "chestRight",
     result: "first",
@@ -73,8 +70,7 @@ const BOUTS: readonly IBout[] = [
   {
     kind: "epee",
     lead: "left",
-    opening: 1.5,
-    distance: 0.1,
+    distance: 1.1,
     attack: "thighFrontRight",
     answer: "chestLeft",
     result: "first",
@@ -82,16 +78,24 @@ const BOUTS: readonly IBout[] = [
   {
     kind: "sabre",
     lead: "right",
-    opening: 1.35,
-    distance: 0.18,
+    distance: 1.3,
     attack: "shoulderRight",
     answer: "crown",
     result: "second",
   },
 ];
 
-/** Duration of the mark shifts, seconds. */
-const SECONDS: number = 1.2;
+/**
+ * The performers' opening separation, metres: the FIE piste's on-guard lines
+ * stand 2 m either side of its centre line.
+ */
+const OPENING: number = 4;
+
+/** The second performer's approach from its on-guard line, metres. */
+const ANSWERING: number = 1;
+
+/** Duration of each advance, seconds. */
+const SECONDS: number = 0.6;
 
 /** A touch lands within this of its target, metres: the blade strokes spec's bound. */
 const TOUCH: number = 0.015;
@@ -99,28 +103,33 @@ const TOUCH: number = 0.015;
 /** Planted support and a held grip hold within this, metres. */
 const HOLD: number = 0.005;
 
+/** A foot settles on its mark within this, metres: the stage footwork spec's bound. */
+const MARK: number = 0.008;
+
 /**
- * A fencing bout per weapon: both performers shift to their marks in the
- * weapon's footwork, the first attacks, and the scripted result decides the
- * exchange and is announced at the decisive instant of the touch.
+ * A fencing bout per weapon from the piste's on-guard lines: both performers
+ * close in advances of the weapon's footwork, the first attacks, and the
+ * scripted result decides the exchange and is announced at the touch.
  *
  * Scenarios:
  * 1. The foil's lunge lands on the trunk and the epee's on the thigh, each
  *    scoring for the first; the sabre's cut is parried and the second's
  *    riposte cut lands, scoring for the second.
- * 2. In each shift the first's lead foot leaves first while the rear holds,
- *    and the pelvis follows the mark; each performer keeps its blade's grip.
+ * 2. Over the approach the first's lead foot leaves first while the rear
+ *    holds, both feet settle the approach's distance forward and the pelvis
+ *    follows; each performer keeps its blade's grip.
  * 3. The attacker recovers from the lunge to the stance it lunged from.
- * 4. The epee's double touch places the counter's decisive instant on the
- *    attack's and is announced there, and not once the counter lands later
- *    than the epee's 40 ms window.
+ * 4. The epee's double touch: both performers lunge at once, each blade
+ *    following the other as it lunges, and both land at one instant, where
+ *    the double is announced, and not once the counter lands later than the
+ *    epee's 40 ms window.
  * 5. The rules refuse a double touch in foil, a foil touch on the thigh and
  *    a sabre touch below the waist, and admit an epee touch on the thigh.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three weapons' bouts, their results, the support, grip and recovery checks, the double touch's window and the rule refusals.
- * @evidence contracts/development/testing.md#behavioral-verification Places the public bout, samples both performers' displayed feet, pelvis and regions and the blades' displayed points and edges, and reads the announced result from the placed schedule.
- * @evidence contracts/development/testing.md#independent-expectations The results and targets are script inputs; the valid targets are the FIE's; a touch lands within the blade strokes spec's 15 mm of its target region, and the planted foot and the grip hold within the stage footwork spec's 5 mm. Recovery returns the attacker's feet to where they stood before the attack, within the same 15 mm. The double-touch window is the FIE's 40 ms. The double touch's landing is not measured: each blade action reads its target once, at its start, so two simultaneous lunges aim where the other stood.
- * @evidence contracts/development/testing.md#distinguishing-cases Three weapons with different leads, distances and results, a single and a parried touch, a double touch inside and outside its window, and the adjacent inadmissible and admitted targets. Checks are at sampled instants, not swept.
+ * @evidence contracts/development/common.md#meaningful-documentation States the three weapons' bouts, their results, the approach, grip and recovery checks, the double touch and the rule refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Places the public bout, samples both performers' displayed feet, pelvis and regions and the blades' displayed points and axes, and reads the announced result from the placed schedule.
+ * @evidence contracts/development/testing.md#independent-expectations The opening is the FIE's on-guard lines; the results and targets are script inputs; the valid targets and the 40 ms double-touch window are the FIE's; a touch lands within the blade strokes spec's 15 mm of its target region, a foot settles within the stage footwork spec's 8 mm and the planted foot and the grip hold within its 5 mm. Recovery returns the attacker's feet within the same 15 mm.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three weapons with different leads, approaches and results, a single, a parried and a double touch, whose two blades each follow a moving target, the window's inside and outside, and the adjacent inadmissible and admitted targets. Checks are at sampled instants, not swept.
  * @evidence contracts/development/testing.md#execution-ownership Public in-memory placement and pose sampling on canonical bodies and archetype props. No viewer or native host is invoked.
  */
 export function test_motion_exercise_staged_piste(): void {
@@ -141,64 +150,6 @@ export function test_motion_exercise_staged_piste(): void {
   complaints.assert("Staged piste bouts");
 }
 
-/**
- * The epee's double touch: the second's counter lunge is placed with its
- * decisive instant on the attack's, and the result is announced only while
- * the two touches lie within the epee's window.
- */
-function double(
-  body: IAutoMovieMotionHumanBody,
-  complaints: motionComplaints.IGatherer,
-): void {
-  const { placed, film }: IStaged = stage(body, {
-    kind: "epee",
-    lead: "right",
-    opening: 1.5,
-    distance: 0.1,
-    attack: "chestRight",
-    answer: "chestLeft",
-    result: "both",
-  });
-  const attack: IAutoMovieScheduleEntry | undefined =
-    film.schedule.entries.find(
-      (row): boolean => row.intent.anchor === "bout.attack",
-    );
-  const counter: IAutoMovieScheduleEntry | undefined =
-    film.schedule.entries.find(
-      (row): boolean => row.intent.anchor === "bout.counter",
-    );
-  const announced: HumanStagePiste.IAnnouncement | undefined = placed.announced(
-    film.schedule,
-  );
-  complaints.check(
-    "epee/both: the counter's touch meets the attack's and the double is announced there",
-    attack?.contact !== undefined &&
-      counter?.contact !== undefined &&
-      nclose(attack.contact, counter.contact) &&
-      announced?.result === "both" &&
-      nclose(announced.seconds, attack.contact),
-  );
-
-  // A counter landing outside the window scores no double touch.
-  const late: number = HumanStagePiste.DOUBLE + 0.01;
-  complaints.check(
-    "epee/both: a counter later than the epee's window is not announced",
-    placed.announced({
-      ...film.schedule,
-      entries: film.schedule.entries.map(
-        (row): IAutoMovieScheduleEntry =>
-          row === counter
-            ? {
-                ...row,
-                contact: (row.contact ?? 0) + late,
-                end: row.end + late,
-              }
-            : row,
-      ),
-    }) === undefined,
-  );
-}
-
 /** A placed bout and its performance. */
 interface IStaged {
   /** The composed bout. */
@@ -208,37 +159,49 @@ interface IStaged {
   film: HumanPerformance;
 }
 
-/** Arm both performers, compose the bout and place it. */
+/** Arm both performers on the on-guard lines, compose the bout and place it. */
 function stage(body: IAutoMovieMotionHumanBody, bout: IBout): IStaged {
   const blade = createStageBladeProp({ kind: bout.kind, id: "blade" });
   const grip: IAutoMovieVector3 = blade.affordance("grip").frame.translation;
+
+  // A thrusting point continues the forearm; the sabre's grip lies across
+  // the palm (`IAutoMovieMotionHumanGraspUse`).
+  const use: IAutoMovieMotionHumanGraspUse.IUse = {
+    tip: "point",
+    line: bout.kind === "sabre" ? "oblique" : "forearm",
+  };
   const held = (
     subject: string,
     root: IAutoMovieVector3,
     yaw: number,
   ): IAutoMovieMotionHumanProp => {
-    // The blade lies at the right hand's side, at the waist, ahead.
-    const side: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-      {
-        x: -body.measure.shoulderHalfWidth,
-        y: body.measure.waistHeight - grip.y,
-        z: 0.6 * (body.measure.upperArm + body.measure.forearm),
-      },
-    );
-    return HumanObject.prop(`${subject}.blade`, blade, {
-      at: Vector3.add(root, side),
+    // The blade lies level before the right hand, its point ahead, so the
+    // hand takes it with the point along the line, as the blade specs lay
+    // their swords.
+    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      { x: 0, y: 1, z: 0 },
       yaw,
+    );
+    const stature: number = body.measure.stature;
+    return HumanObject.prop(`${subject}.blade`, blade, {
+      position: Vector3.add(
+        root,
+        Quaternion.rotateVector(turn, {
+          x: -0.1 * stature,
+          y: 0.6 * stature,
+          z: 0.18 * stature - grip.y,
+        }),
+      ),
+      rotation: Quaternion.multiply(
+        turn,
+        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+      ),
     });
   };
   const at: Readonly<Record<string, IAutoMovieVector3>> = {
     a: { x: 0, y: 0, z: 0 },
-    b: { x: 0, y: 0, z: bout.opening },
+    b: { x: 0, y: 0, z: OPENING },
   };
-  const props: IAutoMovieMotionHumanProp[] = [
-    held("a", at.a!, 0),
-    held("b", at.b!, 180),
-  ];
   const take: HumanStagePiste.ITake = {
     anchor: "bout",
     kind: bout.kind,
@@ -247,6 +210,7 @@ function stage(body: IAutoMovieMotionHumanBody, bout: IBout): IStaged {
         prop: "a.blade",
         handle: "grip",
         hand: "right",
+        use,
       }),
       direction: "forward",
       distance: bout.distance,
@@ -259,9 +223,10 @@ function stage(body: IAutoMovieMotionHumanBody, bout: IBout): IStaged {
         prop: "b.blade",
         handle: "grip",
         hand: "right",
+        use,
       }),
       direction: "forward",
-      distance: 0.1,
+      distance: ANSWERING,
       lead: "right",
       blade: "b.blade",
       target: { kind: "person", subject: "a", region: bout.answer },
@@ -271,7 +236,7 @@ function stage(body: IAutoMovieMotionHumanBody, bout: IBout): IStaged {
   };
   const placed: HumanStagePiste.IPlaced = HumanStagePiste.compose(take);
   const film: HumanPerformance = new HumanPerformance({
-    seed: `piste-${bout.kind}`,
+    seed: `piste-${bout.kind}-${bout.result}`,
     laws: [stageBladeFootwork, ...Object.values(HumanBlade)],
     performers: ["a", "b"].map((subject: string) => ({
       subject,
@@ -280,10 +245,59 @@ function stage(body: IAutoMovieMotionHumanBody, bout: IBout): IStaged {
       yaw: subject === "a" ? 0 : 180,
       proficiency: { level: "trained" as const },
     })),
-    props,
+    props: [held("a", at.a!, 0), held("b", at.b!, 180)],
     composition: placed.composition,
   });
   return { placed, film };
+}
+
+/** The placed action of an anchor. */
+function entry(
+  film: HumanPerformance,
+  anchor: string,
+): IAutoMovieScheduleEntry | undefined {
+  return film.schedule.entries.find(
+    (row): boolean => row.intent.anchor === anchor,
+  );
+}
+
+/**
+ * How far a scoring touch lands from its region at its decisive instant:
+ * a thrust's point, or for a cut the nearest place on the blade's axis.
+ */
+function missed(
+  body: IAutoMovieMotionHumanBody,
+  film: HumanPerformance,
+  bout: IBout,
+  touch: Touch,
+): number {
+  const [anchor, struck, region] = touch;
+  const action: IAutoMovieScheduleEntry | undefined = entry(film, anchor);
+  if (action?.contact === undefined) return Number.POSITIVE_INFINITY;
+  const point: IAutoMovieVector3 = createStageBladeProp({
+    kind: bout.kind,
+  }).affordance("point").frame.translation;
+  const frame: IAutoMovieRigidTransform = film.prop(
+    `${action.subject}.blade`,
+    action.contact,
+  );
+  const tip: IAutoMovieVector3 = Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(frame.rotation, point),
+  );
+  const aimed: IAutoMovieVector3 = HumanSignature.region(
+    HumanSignature.of(film, struck, body, struck === "a" ? 0 : 180),
+    region,
+    action.contact,
+  );
+  let gap: number = Vector3.distance(tip, aimed);
+  if (bout.kind === "sabre")
+    for (let share: number = 0; share <= 1; share += 0.01)
+      gap = Math.min(
+        gap,
+        Vector3.distance(Vector3.lerp(frame.position, tip, share), aimed),
+      );
+  return gap;
 }
 
 /** Play one weapon's bout and check what it shows. */
@@ -293,67 +307,39 @@ function play(
   complaints: motionComplaints.IGatherer,
 ): void {
   const { placed, film }: IStaged = stage(body, bout);
-  const blade = createStageBladeProp({ kind: bout.kind, id: "blade" });
-  const grip: IAutoMovieVector3 = blade.affordance("grip").frame.translation;
-  const point: IAutoMovieVector3 = blade.affordance("point").frame.translation;
-  const entry = (anchor: string): IAutoMovieScheduleEntry | undefined =>
-    film.schedule.entries.find((row): boolean => row.intent.anchor === anchor);
-  const reader = (subject: string): IAutoMovieMotionHumanSignature.IReader =>
-    HumanSignature.of(film, subject, body, subject === "a" ? 0 : 180);
+  const grip: IAutoMovieVector3 = createStageBladeProp({
+    kind: bout.kind,
+  }).affordance("grip").frame.translation;
   const label: string = `${bout.kind}/${bout.result}`;
 
   // 1. The announced result at the decisive instant of the scoring touch.
   const announced: HumanStagePiste.IAnnouncement | undefined = placed.announced(
     film.schedule,
   );
-  const scoring: readonly Touch[] =
+  const touch: Touch =
     bout.result === "first"
-      ? [["bout.attack", "b", bout.attack]]
-      : [["bout.reply", "a", bout.answer]];
+      ? ["bout.attack", "b", bout.attack]
+      : ["bout.reply", "a", bout.answer];
+  const gap: number = missed(body, film, bout, touch);
   complaints.check(
-    `${label}: announces its result at the scoring touch`,
-    announced?.result === bout.result &&
-      nclose(announced.seconds, entry(scoring[0]![0])?.contact ?? Number.NaN),
+    `${label}: ${touch[0]} lands ${gap} m from the ${touch[2]} and the result is announced there`,
+    gap <= TOUCH &&
+      announced?.result === bout.result &&
+      nclose(announced.seconds, entry(film, touch[0])?.contact ?? Number.NaN),
   );
-  for (const [anchor, struck, region] of scoring) {
-    const action: IAutoMovieScheduleEntry | undefined = entry(anchor);
-    if (action?.contact === undefined) {
-      complaints.list.push(`${label}: ${anchor} has no decisive instant`);
-      continue;
-    }
-    const striker: string = action.subject;
-    const frame: IAutoMovieRigidTransform = film.prop(
-      `${striker}.blade`,
-      action.contact,
-    );
-    const tip: IAutoMovieVector3 = Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, point),
-    );
-    const aimed: IAutoMovieVector3 = HumanSignature.region(
-      reader(struck),
-      region,
-      action.contact,
-    );
 
-    // A thrust lands its point; a cut lands somewhere along the blade.
-    let missed: number = Vector3.distance(tip, aimed);
-    if (bout.kind === "sabre")
-      for (let share: number = 0; share <= 1; share += 0.01)
-        missed = Math.min(
-          missed,
-          Vector3.distance(Vector3.lerp(frame.position, tip, share), aimed),
-        );
-    complaints.check(
-      `${label}: ${anchor} lands ${missed} m from the ${region}`,
-      missed <= TOUCH,
-    );
-  }
-
-  // 2. The shift: the lead leaves first, the rear holds, the pelvis follows.
-  const shift: IAutoMovieScheduleEntry | undefined = entry("bout.first");
-  if (shift === undefined) {
-    complaints.list.push(`${label}: the shift was not placed`);
+  // 2. The approach: the lead leaves first, the rear holds, both feet settle
+  // the approach's distance forward and the pelvis follows.
+  const count: number = Math.ceil(
+    Math.max(bout.distance, ANSWERING) / HumanStagePiste.ADVANCE,
+  );
+  const first: IAutoMovieScheduleEntry | undefined = entry(film, "bout.first");
+  const last: IAutoMovieScheduleEntry | undefined = entry(
+    film,
+    count === 1 ? "bout.first" : `bout.${count - 1}.first`,
+  );
+  if (first === undefined || last === undefined) {
+    complaints.list.push(`${label}: the approach was not placed`);
     return;
   }
   const sole = (
@@ -369,23 +355,31 @@ function play(
     });
   };
   const rear: AutoMovieHumanSide = bout.lead === "left" ? "right" : "left";
-  const early: number = shift.start + 0.27 * SECONDS;
+  const early: number = first.start + 0.27 * SECONDS;
   complaints.check(
-    `${label}: the lead foot leaves first, the rear holds and the pelvis follows the mark`,
-    sole(bout.lead, early).z - sole(bout.lead, shift.start).z > 0.02 &&
-      Vector3.distance(sole(rear, early), sole(rear, shift.start)) <= HOLD &&
-      nclose(
-        sole(bout.lead, shift.end).z - sole(bout.lead, shift.start).z,
-        bout.distance,
-        0.008,
+    `${label}: the lead foot leaves first, the rear holds, both settle ${bout.distance} m ahead and the pelvis follows`,
+    sole(bout.lead, early).z - sole(bout.lead, first.start).z > 0.02 &&
+      Vector3.distance(sole(rear, early), sole(rear, first.start)) <= HOLD &&
+      (["left", "right"] as const).every((side: AutoMovieHumanSide): boolean =>
+        nclose(
+          sole(side, last.end).z - sole(side, first.start).z,
+          bout.distance,
+          MARK,
+        ),
       ) &&
-      film.bones("a", shift.end).get("hips")!.worldPosition.z -
-        film.bones("a", shift.start).get("hips")!.worldPosition.z >
-        0.04,
+      nclose(
+        film.bones("a", last.end).get("hips")!.worldPosition.z -
+          film.bones("a", first.start).get("hips")!.worldPosition.z,
+        bout.distance,
+        MARK,
+      ),
   );
 
   // 3. The attacker recovers to the stance it attacked from.
-  const attack: IAutoMovieScheduleEntry | undefined = entry("bout.attack");
+  const attack: IAutoMovieScheduleEntry | undefined = entry(
+    film,
+    "bout.attack",
+  );
   if (attack !== undefined)
     complaints.check(
       `${label}: the attacker recovers to its stance`,
@@ -419,10 +413,73 @@ function play(
     };
     complaints.check(
       `${label}: ${subject} keeps its grip`,
-      Vector3.distance(gripped(shift.start), gripped(film.schedule.duration)) <=
+      Vector3.distance(gripped(first.start), gripped(film.schedule.duration)) <=
         HOLD,
     );
   }
+}
+
+/**
+ * The epee's double touch: both lunge at once, each blade following the
+ * other performer as it lunges, and both land at one instant, where the
+ * double is announced, and not once the counter lands outside the window.
+ */
+function double(
+  body: IAutoMovieMotionHumanBody,
+  complaints: motionComplaints.IGatherer,
+): void {
+  const bout: IBout = {
+    kind: "epee",
+    lead: "right",
+    distance: 1.1,
+    attack: "chestRight",
+    answer: "chestRight",
+    result: "both",
+  };
+  const { placed, film }: IStaged = stage(body, bout);
+  const attack: IAutoMovieScheduleEntry | undefined = entry(
+    film,
+    "bout.attack",
+  );
+  const counter: IAutoMovieScheduleEntry | undefined = entry(
+    film,
+    "bout.counter",
+  );
+  const announced: HumanStagePiste.IAnnouncement | undefined = placed.announced(
+    film.schedule,
+  );
+  const gaps: readonly number[] = [
+    missed(body, film, bout, ["bout.attack", "b", bout.attack]),
+    missed(body, film, bout, ["bout.counter", "a", bout.answer]),
+  ];
+  complaints.check(
+    `epee/both: both blades land, ${gaps.join(" and ")} m from their targets, at one instant announced as the double`,
+    gaps.every((gap: number): boolean => gap <= TOUCH) &&
+      attack?.contact !== undefined &&
+      counter?.contact !== undefined &&
+      nclose(attack.contact, counter.contact) &&
+      announced?.result === "both" &&
+      nclose(announced.seconds, attack.contact),
+  );
+
+  // A counter landing outside the window scores no double touch.
+  const late: number = HumanStagePiste.DOUBLE + 0.01;
+  complaints.check(
+    "epee/both: a counter later than the epee's window is not announced",
+    placed.announced({
+      ...film.schedule,
+      entries: film.schedule.entries.map(
+        (row): IAutoMovieScheduleEntry =>
+          row === counter
+            ? {
+                ...row,
+                contact: (row.contact ?? 0) + late,
+                end: row.end + late,
+              }
+            : row,
+      ),
+    }) === undefined,
+  );
 }
 
 /** The weapons' rules refuse off-target and double touches before placement. */

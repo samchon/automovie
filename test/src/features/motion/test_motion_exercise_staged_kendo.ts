@@ -46,11 +46,15 @@ const ARMOUR: readonly IWorn[] = [
   { kind: "do", region: "solarPlexus", axis: { x: 0, y: 0, z: 1 } },
 ];
 
-/** The performers' opening separation, metres. */
-const OPENING: number = 1.6;
+/**
+ * The performers' opening separation, metres: the shiai-jo's two starting
+ * lines lie 1.4 m apart, the toes on them and each pelvis about 0.15 m
+ * behind its toes.
+ */
+const OPENING: number = 1.7;
 
 /** Each performer's glide toward the other, metres. */
-const GLIDE: number = 0.12;
+const GLIDE: number = 0.15;
 
 /** Duration of the glides, seconds. */
 const SECONDS: number = 1.5;
@@ -135,6 +139,7 @@ function take(point: string): HumanStagePiste.ITake {
         prop: "a.shinai",
         handle: "grip",
         hand: "right",
+        use: { tip: "point", line: "oblique" },
       }),
       direction: "forward",
       lead: "right",
@@ -147,6 +152,7 @@ function take(point: string): HumanStagePiste.ITake {
         prop: "b.shinai",
         handle: "grip",
         hand: "right",
+        use: { tip: "point", line: "oblique" },
       }),
       direction: "forward",
       lead: "right",
