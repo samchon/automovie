@@ -10,6 +10,7 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPerformerReader,
@@ -19,12 +20,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
+
+/** Seconds a support contact blends in before its grip and out after its release. */
+const CONTACT_BLEND: number = 0.22;
 
 /**
  * An artistic figure with optional team support. Flat and vertical sculls
@@ -222,7 +229,7 @@ export namespace AquaticTeam {
             }),
           );
 
-    return {
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "flatScull", share: 0 },
@@ -279,8 +286,8 @@ export namespace AquaticTeam {
             0,
             Math.min(
               1,
-              (t - gripStart + 0.22) / 0.22,
-              (gripEnd + 0.22 - t) / 0.22,
+              (t - gripStart + CONTACT_BLEND) / CONTACT_BLEND,
+              (gripEnd + CONTACT_BLEND - t) / CONTACT_BLEND,
             ),
           ),
         );
@@ -341,6 +348,35 @@ export namespace AquaticTeam {
         };
       },
     };
+    // A base's support arm is laid as one admitted course: from its sculling
+    // arm into the offered palm and back out (`courseArmGoal`).
+    if (!base) return plan;
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+      start: gripStart - CONTACT_BLEND,
+      ready: gripStart,
+      relax: gripEnd,
+      end: gripEnd + CONTACT_BLEND,
+    };
+    const before: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(
+      body,
+      plan.posture(span.start),
+    );
+    return (
+      params.side === undefined ? (["left", "right"] as const) : [params.side]
+    ).reduce(
+      (
+        laid: IAutoMovieMotionHumanActionPlan,
+        side: AutoMovieHumanSide,
+      ): IAutoMovieMotionHumanActionPlan =>
+        courseArmGoal({
+          body,
+          plan: laid,
+          side,
+          rest: AutoMovieMotionHumanArm.angles(before, side),
+          span,
+        }),
+      plan,
+    );
   }
 }
 

@@ -8,6 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -74,14 +76,12 @@ export namespace AquaticPaddle {
       : [AquaticCrew.bear(hull.id, "seat", "seat", 0, 1)];
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...seatsOrKnee,
-      ...(["left", "right"] as const)
-        .filter(
-          (side: AquaticCrew.Side): boolean => !canoe || side !== staticSide,
-        )
-        .map(
-          (side: AquaticCrew.Side): IAutoMovieMotionHumanContactWindow =>
-            AquaticCrew.bear(hull.id, `${side}Foot`, "plant", 0, 1),
-        ),
+      // Both feet bear: the front sole, and behind a kneeling canoeist the
+      // instep of the kneeling leg rests on the floor.
+      ...(["left", "right"] as const).map(
+        (side: AquaticCrew.Side): IAutoMovieMotionHumanContactWindow =>
+          AquaticCrew.bear(hull.id, `${side}Foot`, "plant", 0, 1),
+      ),
       ...(actual?.hands.map((window) => ({
         ...window,
         from: lead / duration,
@@ -101,7 +101,7 @@ export namespace AquaticPaddle {
           events.push({ name: `${name}${i + 1}`, share });
       }
     events.push({ name: "relax", share: 1 });
-    return {
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts,
@@ -229,6 +229,25 @@ export namespace AquaticPaddle {
         );
       },
     };
+    // With a native paddle the hands hold its grips through the strokes:
+    // each arm is laid as one admitted course from the entered arm to its
+    // grip by the paddle-ready instant, held with branch and swivel
+    // continuity (`courseArmGoal`).
+    if (actual === undefined) return plan;
+    return (["left", "right"] as const).reduce(
+      (
+        laid: IAutoMovieMotionHumanActionPlan,
+        side: AquaticCrew.Side,
+      ): IAutoMovieMotionHumanActionPlan =>
+        courseArmGoal({
+          body,
+          plan: laid,
+          side,
+          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+          span: { start: 0, ready: lead, relax: duration, end: duration },
+        }),
+      plan,
+    );
   }
 
   /** Keep the entered hip height on the rail and bound its rear travel by both braced legs. */

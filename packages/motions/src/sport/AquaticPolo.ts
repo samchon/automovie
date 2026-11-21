@@ -63,7 +63,8 @@ export namespace AquaticPolo {
       spread: 27 + 9 * Math.sin(phase),
       turn: 16 + 12 * Math.cos(phase),
       knee: 82 + 21 * Math.sin(phase + 0.8),
-      ankle: 10 + 14 * Math.cos(phase - 0.5),
+      // Kept within the dorsiflexion an unloaded ankle takes (20 degrees).
+      ankle: 6 + 14 * Math.cos(phase - 0.5),
     });
     const tuck: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,
@@ -96,8 +97,9 @@ export namespace AquaticPolo {
       elbow: number;
       wrist: number;
     } = {
-      shoulder: 152,
-      raise: 22,
+      shoulder: 140,
+      // Spread wide enough that the raised forearms do not cross overhead.
+      raise: 60,
       elbow: keeper ? 15 : 20,
       wrist: -10,
     };

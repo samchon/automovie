@@ -49,8 +49,9 @@ interface IRing {
  * and +Z points at the bow. Two standing areas share the footwell, the helm's
  * aft of the crew's. The boom pivots about the mast and carries the mainsail
  * and clew; the visible sheet runs from the clew to a floor block and its
- * tail up to the helm's hand end, which stays fixed in the hull. The tiller,
- * its extension and the rudder pivot together about the stern.
+ * tail up to the helm's hand end, which stays fixed in the hull. The tiller
+ * and the rudder pivot together about the stern, and the tiller extension
+ * swings and lifts on a universal joint at the tiller's end.
  * Hull envelope and club sail area follow the Feva Mk2. Intermediate
  * sections, the spars and prepared part dimensions are staged estimates.
  *
@@ -260,14 +261,18 @@ function mainRig(builder: Build, length: number): void {
   );
 }
 
-/** Stern pivot carries both the below-water blade and the helm's actual handle. */
+/**
+ * The stern pivot carries the below-water blade and the tiller. At the
+ * tiller's end a universal joint carries the extension: it swings about the
+ * end's vertical (`extensionSwing`) and lifts about its horizontal
+ * (`extensionLift`), so the helm's hand carries the extension's grip where
+ * it holds it, as a real hinged tiller extension does.
+ */
 function helm(builder: Build, length: number): void {
-  // The tiller runs forward from the stern pivot; its extension rises from
-  // the tiller's end toward the helm's aft hand.
   const pivot: IAutoMovieVector3 = v(0, 0.32, -length / 2);
   const end: IAutoMovieVector3 = v(0, 0.42, -0.95);
-  const extension: IAutoMovieVector3 = v(0, 1, -0.5);
-  const grip: IAutoMovieVector3 = Vector3.lerp(end, extension, 0.8);
+  const tip: IAutoMovieVector3 = v(0, end.y, end.z + createDinghy.EXTENSION);
+  const grip: IAutoMovieVector3 = Vector3.lerp(end, tip, 0.85);
   builder.box(
     "rudder-blade",
     v(0.049, 0.72, 0.29),
@@ -277,7 +282,7 @@ function helm(builder: Build, length: number): void {
     },
   );
   builder.rod("tiller", 0.021, pivot, end, { color: SPARS });
-  builder.rod("tiller-extension", 0.017, end, extension, { color: "#30353b" });
+  builder.rod("tiller-extension", 0.017, end, tip, { color: "#30353b" });
   builder.affordance({
     id: "rudder",
     kind: "hinge",
@@ -285,25 +290,45 @@ function helm(builder: Build, length: number): void {
     extent: null,
     reverse: 40,
     travel: 40,
-    parts: ["rudder-blade", "tiller", "tiller-extension"],
+    parts: ["rudder-blade", "tiller"],
+  });
+  builder.affordance({
+    id: "tillerEnd",
+    kind: "socket",
+    frame: ArchetypeFrame.upright(end),
+    extent: null,
+    rides: "rudder",
+  });
+  builder.affordance({
+    id: "extensionSwing",
+    kind: "wheel",
+    frame: ArchetypeFrame.facing(end, v(0, 1, 0), v(0, 0, 1)),
+    extent: null,
+    travel: 120,
+    rides: "rudder",
+  });
+  builder.affordance({
+    id: "extensionLift",
+    kind: "hinge",
+    frame: ArchetypeFrame.facing(end, v(-1, 0, 0), v(0, 0, 1)),
+    extent: null,
+    reverse: 20,
+    travel: 70,
+    parts: ["tiller-extension"],
+    rides: "extensionSwing",
   });
   builder.affordance({
     id: "tiller",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
-      grip,
-      v(0, 0, -1),
-      Vector3.subtract(grip, end),
-    ),
+    frame: ArchetypeFrame.facing(grip, v(0, 1, 0), v(0, 0, 1)),
     extent: null,
     grip: "power",
-    aperture: 0.034,
+    aperture: 0.025,
     length: 0.165,
-    rides: "rudder",
+    rides: "extensionLift",
   });
 }
-
 /**
  * Reference dimensions and the model's named crew and rig contacts.
  *
@@ -319,10 +344,16 @@ export namespace createDinghy {
     | "crewDeck"
     | "boom"
     | "rudder"
+    | "tillerEnd"
+    | "extensionSwing"
+    | "extensionLift"
     | "tiller"
     | "mainSheet"
     | "clew"
     | "sheetBlock";
+  /** The tiller extension's length from its joint to its tip, metres: a staged estimate. */
+  export const EXTENSION: number = 0.75;
+
   /** Overall length, beam and estimated rigged mass. */
   export type Dimension = "length" | "beam" | "mass";
   /** Scene identity and published dimension overrides. */

@@ -36,6 +36,12 @@ const HELM_IN: number = 0.2;
 /** The crouch key's knee flexion beyond its hip flexion at full crouch, degrees: the shank's lean over a flat foot. */
 const KNEE_OVER_HIP: number = 15;
 
+/** The point ahead of the chest that a carried tiller extension aims at, over stature: provisional. */
+const FORE: number = 0.17;
+
+/** The chest above the pelvis that a carried tiller extension aims at, over stature: provisional. */
+const CHEST: number = 0.25;
+
 /** How far the crouch lowers the pelvis, over stature: provisional, below a dinghy's boom. */
 const CROUCH: number = 0.2;
 
@@ -216,6 +222,96 @@ export namespace AquaticSail {
           );
         },
       });
+    }
+    // A hinged tiller extension: the helm's hand carries its grip toward the
+    // chest. Its swing and lift aim the extension from the tiller's end at a
+    // point CHEST above the moving pelvis, read in the rudder-carried frame.
+    if (
+      helm &&
+      params.rudder !== undefined &&
+      ["tillerEnd", "extensionSwing", "extensionLift"].every((id: string) =>
+        affordances.some((a: IAutoMovieAffordance): boolean => a.id === id),
+      ) &&
+      carrier.prop.articulate !== undefined
+    ) {
+      const rudder: IAutoMovieMotionPropDrive = drives.at(-1)!;
+      const facing: IAutoMovieVector3 = AquaticCrew.direction(context, hull, {
+        x: 0,
+        y: 0,
+        z: 1,
+      });
+      const grip = (
+        state: Readonly<Record<string, number>>,
+      ): IAutoMovieVector3 =>
+        carrier.prop.articulate!(state).affordances.find(
+          (a: IAutoMovieAffordance): boolean => a.id === "tiller",
+        )!.frame.translation;
+
+      // The articulations' signs are read from the model's own posing.
+      const rest: IAutoMovieVector3 = grip({});
+      const swingSign: number =
+        Math.sign(grip({ extensionSwing: 10 }).x - rest.x) || 1;
+      const liftSign: number =
+        Math.sign(grip({ extensionLift: 10 }).y - rest.y) || 1;
+      const aim = (t: number): IAutoMovieVector3 => {
+        const u: number = t / duration;
+        const stride: number = aborted
+          ? AquaticCrew.span(u, leadStart, leadEnd) -
+            AquaticCrew.span(u, trailStart, trailEnd)
+          : (AquaticCrew.span(u, leadStart, leadEnd) +
+              AquaticCrew.span(u, trailStart, trailEnd)) /
+            2;
+        const chest: IAutoMovieVector3 = Vector3.add(
+          {
+            x: hips.x + cross * (aborted ? 0.48 : 1) * stride,
+            y:
+              hips.y -
+              body.measure.stature * CROUCH +
+              CHEST * body.measure.stature,
+            z: hips.z,
+          },
+          Vector3.scale(facing, FORE * body.measure.stature),
+        );
+        const turn: number = rudder.travel(t);
+        const posed: AquaticProp.IContact = AquaticProp.at(
+          carrier,
+          context.start + t,
+          { [params.rudder!]: turn },
+        ).require("tillerEnd", "socket");
+        const frame: IAutoMovieRigidTransform = hull.frame(t);
+        const world: IAutoMovieVector3 = Vector3.add(
+          frame.position,
+          Quaternion.rotateVector(frame.rotation, chest),
+        );
+        return Quaternion.rotateVector(
+          Quaternion.inverse(posed.world.rotation),
+          Vector3.subtract(world, posed.world.translation),
+        );
+      };
+      drives.push(
+        {
+          prop: hull.id,
+          articulation: "extensionSwing",
+          from: 0,
+          to: 1,
+          travel: (t: number): number => {
+            const d: IAutoMovieVector3 = aim(t);
+            return (swingSign * Math.atan2(d.x, d.z) * 180) / Math.PI;
+          },
+        },
+        {
+          prop: hull.id,
+          articulation: "extensionLift",
+          from: 0,
+          to: 1,
+          travel: (t: number): number => {
+            const d: IAutoMovieVector3 = aim(t);
+            return (
+              (liftSign * Math.atan2(d.y, Math.hypot(d.x, d.z)) * 180) / Math.PI
+            );
+          },
+        },
+      );
     }
     const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
