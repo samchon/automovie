@@ -452,19 +452,20 @@ export namespace QuadrupedRidePose {
           normal,
         );
         const x: number = goal.x ?? attachment.x;
-        let y: number = goal.lift + support.clearance;
+        const offset: number = goal.lift + support.clearance;
+        let endpoint: IAutoMovieVector3 = { x, y: offset, z: goal.z };
         if (surface !== undefined) {
           const { normal, point } = surface;
           if (!(normal.y > 0 && Number.isFinite(point.y)))
-            throw new RangeError(
-              `The ${limb} support plane does not face the actual body up axis`,
-            );
-          y =
-            point.y +
-            (y - normal.x * (x - point.x) - normal.z * (goal.z - point.z)) /
-              normal.y;
+            throw new RangeError(`The ${limb} support plane faces down`);
+          const run: number =
+            normal.x * (x - point.x) + normal.z * (goal.z - point.z);
+          endpoint = Vector3.addScaled(
+            { x, y: point.y - run / normal.y, z: goal.z },
+            normal,
+            offset,
+          );
         }
-        const endpoint: IAutoMovieVector3 = { x, y, z: goal.z };
         const blade: QuadrupedScapula.Bone | undefined =
           limb === "leftFore" || limb === "rightFore"
             ? QuadrupedScapula.BONES[limb]
