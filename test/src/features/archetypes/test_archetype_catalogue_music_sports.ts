@@ -23,18 +23,22 @@ import {
   projectileFirstContact,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieHit,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFrame,
   IAutoMoviePhysicalShape,
   IAutoMovieProjectile,
   IAutoMovieProjectileContinue,
   IAutoMovieProjectileFirstContact,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
+import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 
@@ -53,12 +57,15 @@ const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  *    panel. An otherwise equal throw above the net clears it.
  * 3. A basketball's published restitution gives a FIBA-range floor rebound.
  *    A staged oval ball at ninety degrees rotates its long playing axis.
- * 4. Saved kinds route to canonical factories and still refuse a length from
+ * 4. An oval ball picked up by its grip keeps its long axis within one degree
+ *    in the gripping hand through a still hold, and the saved and named
+ *    producer forms are held in identical displayed frames.
+ * 5. Saved kinds route to canonical factories and still refuse a length from
  *    another ball shape, a fixed volleyball class height and a foreign bat
  *    model.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the public staging, physical observations and malformed saved settings.
- * @evidence contracts/development/testing.md#behavioral-verification Read the actual models through HumanObject.prop, then resolve real projectile contacts and continue a floor rebound. Assert the compatibility dispatcher still diagnoses the given field.
+ * @evidence contracts/development/testing.md#behavioral-verification Read the actual models through HumanObject.prop, then resolve real projectile contacts and continue a floor rebound. Hold an oval ball in a native performance and read its displayed frame in the hand's posed frame. Assert the compatibility dispatcher still diagnoses the given field.
  * @evidence contracts/development/testing.md#independent-expectations The basketball ring and net witnesses use FIBA and ITF placements, the FIBA drop interval determines the rebound interval, and the IIHF puck dimensions set its edge and top. Shaft and yaw axes follow the stated model frames.
  * @evidence contracts/development/testing.md#distinguishing-cases Positive contacts and a cleared net separate material from empty space, and three adjacent saved settings test distinct refusal sources. The music and field-sport performance tests cover the individual actor's contacts.
  * @evidence contracts/development/testing.md#execution-ownership The named in-memory test uses the shipped staging and physics readers with local props and no host.
@@ -166,6 +173,22 @@ export function test_archetype_catalogue_music_sports(): void {
       ),
   );
 
+  const named: IHeldAxis = heldLongAxis(createOvalBall({ kind: "rugby" }, 7));
+  const saved: IHeldAxis = heldLongAxis(createBall({ kind: "rugby" }, 7));
+  TestValidator.predicate(
+    "the held oval ball keeps one long-axis attitude in the gripping hand",
+    named.spread <= Math.PI / 180 && named.samples.length >= 5,
+  );
+  TestValidator.predicate(
+    "the saved and named oval balls are held in the same displayed frames",
+    named.samples.length === saved.samples.length &&
+      named.samples.every(
+        (frame: IAutoMovieRigidTransform, i: number): boolean =>
+          vclose(frame.position, saved.samples[i]!.position, 1e-9) &&
+          Quaternion.angle(frame.rotation, saved.samples[i]!.rotation) <= 1e-9,
+      ),
+  );
+
   TestValidator.equals(
     "saved keys select canonical factories",
     [
@@ -239,6 +262,81 @@ function rebound(ball: Archetype, radius: number): number {
   if (bounce.kind !== "flight") throw new Error("The ball did not rebound");
   const apex: number = bounce.projectile.velocity.y / 9.80665;
   return projectileAt(bounce.projectile, apex).position.y - radius;
+}
+
+/** The displayed ball frames through a still hold and the long axis's spread in the gripping hand. */
+interface IHeldAxis {
+  /** The ball's displayed frames at the hold samples, world. */
+  samples: IAutoMovieRigidTransform[];
+
+  /** The greatest angle between the first and any later long axis in the hand's frame, radians. */
+  spread: number;
+}
+
+/**
+ * Pick an oval ball up by its grip, hold it still, and read its long `+X`
+ * axis in the frame of the hand nearer the ball through the hold.
+ */
+function heldLongAxis(model: Archetype): IHeldAxis {
+  const performance: HumanPerformance = new HumanPerformance({
+    seed: "oval-hold",
+    performers: [
+      {
+        subject: "player",
+        body: motionHumanBody("m-average"),
+        at: ORIGIN,
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    props: [
+      HumanObject.prop("ball", model, {
+        at: { x: -0.25, y: 0.9, z: 0.35 },
+        yaw: 0,
+      }),
+    ],
+    composition: HumanChain.subject("player")
+      .pickUp({ prop: "ball", handle: "grip" })
+      .stand({ seconds: 0.6, sway: 0 }).node,
+  });
+  const start: number = performance.segments("player")[0]!.end;
+  const end: number = performance.duration;
+  const times: number[] = [0, 0.25, 0.5, 0.75, 1].map(
+    (u: number): number => start + u * (end - start),
+  );
+  const samples: IAutoMovieRigidTransform[] = times.map(
+    (time: number): IAutoMovieRigidTransform => performance.prop("ball", time),
+  );
+  const hands: AutoMovieHumanoidBone[] = ["leftHand", "rightHand"];
+  const first: ReadonlyMap<string, IAutoMovieMotionHumanPropFrame> =
+    performance.bones("player", start);
+  const hand: AutoMovieHumanoidBone = hands.reduce(
+    (
+      best: AutoMovieHumanoidBone,
+      bone: AutoMovieHumanoidBone,
+    ): AutoMovieHumanoidBone =>
+      Vector3.distance(first.get(bone)!.worldPosition, samples[0]!.position) <
+      Vector3.distance(first.get(best)!.worldPosition, samples[0]!.position)
+        ? bone
+        : best,
+  );
+  const axes: IAutoMovieVector3[] = times.map(
+    (time: number, i: number): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
+        Quaternion.inverse(
+          performance.bones("player", time).get(hand)!.worldRotation,
+        ),
+        Quaternion.rotateVector(samples[i]!.rotation, { x: 1, y: 0, z: 0 }),
+      ),
+  );
+  return {
+    samples,
+    spread: Math.max(
+      ...axes.map((axis: IAutoMovieVector3): number =>
+        Math.acos(Math.min(1, Math.max(-1, Vector3.dot(axis, axes[0]!)))),
+      ),
+    ),
+  };
 }
 
 /** Treat both ends of the long axis as equivalent. */

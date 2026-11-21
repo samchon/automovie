@@ -247,6 +247,15 @@ export function archetypeCatalogueRideContact(
       "outcomes",
       "a car seed was neither admitted nor validly refused",
     );
+
+  // The interval must exercise both branches, so the low-cushion refusal row
+  // of the actor contact matrix is observed rather than merely permitted.
+  if (admitted === 0 || refused.length === 0)
+    record(
+      failures,
+      "coverage",
+      `sedan seeds [${first}, ${last}) need an admitted ride and a low-cushion refusal, observed ${admitted} and ${refused.length}`,
+    );
   if (first === 0) {
     try {
       rideFilm(body, createCar({ kind: "sedan" }, 0), false).segments("a");

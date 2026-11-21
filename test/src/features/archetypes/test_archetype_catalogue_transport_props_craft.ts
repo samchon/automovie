@@ -22,6 +22,7 @@ import {
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanSeated,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -51,10 +52,16 @@ const COURSE: ArchetypeCourse.ICourse = {
 /**
  * The canonical land and water forms preserve saved geometry and real motion support.
  *
+ * Scenarios:
+ * 1. Every saved cart and boat kind builds the same model through its named producer.
+ * 2. A towed cart's wheels meet the floor and its hitch follows a separately moving leader through both producer forms.
+ * 3. The rowboat seats its rower facing aft with oars on their locks, the canoe faces its paddlers forward without oarlocks, and every pulling-boat thwart faces aft without an oarlock.
+ * 4. A moving double-scull crew reads back the same stations from the saved and named rowboat.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Covers the seeded legacy selector, public detached producer, model-space wheels and tow hitch, and visible stations on a moving hull.
  * @evidence contracts/development/testing.md#behavioral-verification Builds all saved cart and boat variants through both SDK inputs and makes actual towing and row-crew reads.
  * @evidence contracts/development/testing.md#independent-expectations Pulls the wheel edge from rendered collider geometry, compares the hitch from a separately moving leader, and measures crew travel at named action events.
- * @evidence contracts/development/testing.md#distinguishing-cases The cart rotates its wheels while keeping its hitch aligned, and the rower travels while the canoe retains forward-facing seats without rowboat oar locks.
+ * @evidence contracts/development/testing.md#distinguishing-cases The cart rotates its wheels while keeping its hitch aligned, and the rower travels while the canoe retains forward-facing seats without rowboat oar locks. The pulling boat's thwart count comes from its own profile.
  * @evidence contracts/development/testing.md#execution-ownership The in-memory feature runner owns all generated archetypes, tracks and performances.
  */
 export function test_archetype_catalogue_transport_props_craft(): void {
@@ -170,6 +177,20 @@ export function test_archetype_catalogue_transport_props_craft(): void {
         0.99 &&
       rowboat.affordance("leftOar").rides === "leftOarlock" &&
       !hulls.canoe.affordances.some((contact) => contact.id === "leftOarlock"),
+  );
+  const thwarts: IAutoMovieAffordance[] = hulls.launch.affordances.filter(
+    (contact: IAutoMovieAffordance): boolean => /^thwart\d+$/.test(contact.id),
+  );
+  TestValidator.predicate(
+    "every pulling-boat thwart seats a rower facing aft, without an oarlock",
+    thwarts.length === createBoat.LAUNCH.thwarts &&
+      thwarts.every(
+        (contact: IAutoMovieAffordance): boolean =>
+          ArchetypeFrame.axis(contact.frame, "z").z < -0.99,
+      ) &&
+      !hulls.launch.affordances.some((contact: IAutoMovieAffordance): boolean =>
+        /Oarlock$/.test(contact.id),
+      ),
   );
   TestValidator.equals(
     "both rowboat inputs support the same moving crew readbacks",
