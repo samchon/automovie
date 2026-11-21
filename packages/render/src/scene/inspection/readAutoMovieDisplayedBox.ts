@@ -29,8 +29,8 @@ const IDENTITY = {
  * @evidence contracts/development/implementation.md#principled-implementation Eight corner identities, outward triangle winding and a common diagonal on each face prove complete box topology. The actual affine matrix places the box or its eight-corner hull.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Tests the local triangles before converting one admitted geometric representation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not trust the geometry constructor, requested dimensions or a bounding box alone. A cut draw range, stray vertex, missing face or invalid transformation refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most 36 vertices and twelve triangles are inspected before generating at most eight world corners.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the current buffers and transform; no geometry history is required.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most 36 vertices and twelve triangles are inspected once per buffer version before generating at most eight world corners.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The topology proof is cached per geometry and buffer version, so every instance of a batch places the same proven box.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the plain solid and placement, with no Three geometry or renderer resource retained.
  */
 export function readAutoMovieDisplayedBox(
@@ -38,7 +38,36 @@ export function readAutoMovieDisplayedBox(
   id: string,
   placement: THREE.Matrix4 = mesh.matrixWorld,
 ): Geometry.ICollider | null {
-  const geometry: THREE.BufferGeometry = mesh.geometry;
+  const box: THREE.Box3 | null = readLocalBox(mesh.geometry);
+  return box === null ? null : placeBox(id, box, placement);
+}
+
+/** Proven local boxes per geometry, revalidated when its buffers change. */
+const LOCAL_BOXES: WeakMap<
+  THREE.BufferGeometry,
+  { key: string; box: THREE.Box3 | null }
+> = new WeakMap();
+
+/** Prove the twelve local triangles form one closed box, once per buffer version. */
+function readLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
+  const position = geometry.getAttribute("position");
+  const index: THREE.BufferAttribute | null = geometry.getIndex();
+  const key: string = JSON.stringify([
+    position instanceof THREE.BufferAttribute ? position.version : -1,
+    index?.version ?? -1,
+    geometry.drawRange.start,
+    geometry.drawRange.count,
+    geometry.morphAttributes.position?.length ?? 0,
+  ]);
+  const cached = LOCAL_BOXES.get(geometry);
+  if (cached?.key === key) return cached.box;
+  const box: THREE.Box3 | null = proveLocalBox(geometry);
+  LOCAL_BOXES.set(geometry, { key, box });
+  return box;
+}
+
+/** The box topology proof itself. */
+function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   const points = geometry.getAttribute("position");
   const indices: THREE.BufferAttribute | null = geometry.getIndex();
   if (
@@ -98,7 +127,7 @@ export function readAutoMovieDisplayedBox(
     const start: number = 31 - Math.clz32(common);
     if (common !== ((1 << start) | (1 << (start ^ diagonal)))) return null;
   }
-  return placeBox(id, box, placement);
+  return box;
 }
 
 /** Represent the actual affine box corners even under a sheared parent. */

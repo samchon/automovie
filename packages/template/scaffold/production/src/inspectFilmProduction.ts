@@ -87,6 +87,9 @@ export function inspectFilmProduction(props: {
     time: sample.time,
     layers,
     geometry,
+    // Region bounds gave the same findings and coverage as group bounds and
+    // were faster on sparse and 2,048 and 8,192 member formation scenes.
+    refinement: "region",
     limits: COLLISION_LIMITS[sample.mode],
   });
   const targets: Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"] =
