@@ -239,6 +239,7 @@ export * from "./reaction/thrown";
 export * from "./reaction/wireFlight";
 export * from "./lexicon/HumanHorrorGait";
 export * from "./striking/knee";
+export * from "./striking/closeStrike";
 export * from "./reaction/stagger";
 export * from "./reaction/ReactionSource";
 export * from "./reaction/HumanReaction";

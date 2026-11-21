@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanCloseStrike } from "../striking/IAutoMovieMotionHumanCloseStrike";
 import type { IAutoMovieMotionHumanKick } from "../striking/IAutoMovieMotionHumanKick";
 import type { IAutoMovieMotionHumanKnee } from "../striking/IAutoMovieMotionHumanKnee";
 import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHumanPunch";
@@ -30,6 +31,48 @@ export interface IAutoMovieMotionHumanLexiconStrikeParams {
 
   /** An uppercut with the rear hand. */
   rearUppercut: Omit<IAutoMovieMotionHumanPunch.IParams, "technique" | "hand">;
+
+  /** A backfist with the lead hand: the back of the fist swung out across the line. */
+  backfist: Omit<IAutoMovieMotionHumanPunch.IParams, "technique" | "hand">;
+
+  /** A hammerfist with the rear hand: the fist's little-finger edge brought down. */
+  hammerfist: Omit<IAutoMovieMotionHumanPunch.IParams, "technique" | "hand">;
+
+  /** A palm-heel strike with the rear hand: the heel of the open palm driven along the line. */
+  palmHeel: Omit<IAutoMovieMotionHumanPunch.IParams, "technique" | "hand">;
+
+  /** A horizontal elbow with the rear arm, swept across the line. */
+  horizontalElbow: Omit<
+    IAutoMovieMotionHumanCloseStrike.IParams,
+    "technique" | "arm"
+  >;
+
+  /** A rising elbow with the rear arm, brought up under the target. */
+  risingElbow: Omit<
+    IAutoMovieMotionHumanCloseStrike.IParams,
+    "technique" | "arm"
+  >;
+
+  /** A descending elbow with the rear arm, brought down onto the target. */
+  descendingElbow: Omit<
+    IAutoMovieMotionHumanCloseStrike.IParams,
+    "technique" | "arm"
+  >;
+
+  /** A spinning elbow: a whole turn on the lead ball, the rear elbow landing as it comes past. */
+  spinningElbow: Omit<
+    IAutoMovieMotionHumanCloseStrike.IParams,
+    "technique" | "arm"
+  >;
+
+  /** A spinning backfist: a whole turn on the lead ball, the back of the rear fist landing as it comes past. */
+  spinningBackfist: Omit<
+    IAutoMovieMotionHumanCloseStrike.IParams,
+    "technique" | "arm"
+  >;
+
+  /** A headbutt: the forehead driven onto the target, the hands on a person's neck. */
+  headbutt: Omit<IAutoMovieMotionHumanCloseStrike.IParams, "technique" | "arm">;
 
   /** A rear round kick. */
   roundKick: Omit<IAutoMovieMotionHumanKick.IParams, "technique" | "leg">;

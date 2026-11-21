@@ -49,6 +49,7 @@ import { swim } from "../sport/swim";
 import { defend } from "../striking/defend";
 import { guard } from "../striking/guard";
 import { kick } from "../striking/kick";
+import { closeStrike } from "../striking/closeStrike";
 import { knee } from "../striking/knee";
 import { punch } from "../striking/punch";
 import { step } from "../striking/step";
@@ -97,6 +98,7 @@ export const HUMAN_ACTIONS: Readonly<
   knockdown,
   perturb,
   knee,
+  closeStrike,
   sit,
   rise,
   shift,

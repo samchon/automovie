@@ -1,3 +1,4 @@
+export type { IAutoMovieMotionHumanCloseStrike } from "./IAutoMovieMotionHumanCloseStrike";
 export type { IAutoMovieMotionHumanDefenceOutcome } from "./IAutoMovieMotionHumanDefenceOutcome";
 export type { IAutoMovieMotionHumanDefend } from "./IAutoMovieMotionHumanDefend";
 export type { IAutoMovieMotionHumanGuard } from "./IAutoMovieMotionHumanGuard";
