@@ -21,6 +21,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The horse producer's model. */
@@ -111,6 +112,7 @@ export function test_world_mounted_rider_envelope(): void {
         feet: { left: "leftStirrup", right: "rightStirrup" },
       }).node,
   });
+  assertTakeClean("seated rider on a timed ride", film);
   const reads: number[] = Array.from(
     { length: Math.floor(ride.duration / STEP) + 1 },
     (_: unknown, k: number): number => k * STEP,

@@ -24,6 +24,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The horse producer's model. */
@@ -74,6 +75,7 @@ const SAMPLES: number = 120;
 export function test_world_mounted_reset(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const take: ITake = stage(body, 0);
+  assertTakeClean("mounted reset", take.film);
 
   // 1. The second rider stays seated.
   const offsets: number[] = take.window.map((at: number): number =>
