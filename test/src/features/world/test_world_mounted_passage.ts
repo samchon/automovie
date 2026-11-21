@@ -346,7 +346,7 @@ export function test_world_mounted_passage(): void {
         (found: ArchetypePassage.IConflict): string =>
           `${found.subject}/${found.other}/${found.required}`,
       )
-      .sort(),
+      .sort((a: string, b: string): number => a.localeCompare(b)),
     [
       `hazel/dais/${Math.max(MOUNT_MARGIN, DAIS_MARGIN)}`,
       `indigo/dais/${Math.max(MOUNT_MARGIN, DAIS_MARGIN)}`,

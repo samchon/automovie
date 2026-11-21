@@ -6,6 +6,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieComputeModelRestExtent,
+  IAutoMovieCrowdAgent,
   IAutoMovieModel,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -279,6 +280,59 @@ export namespace ArchetypePassage {
   }
 
   /**
+   * A participant as a moving obstacle crowd steering walks round: its footprint's hull in its own frame, carried by its plan.
+   *
+   * @param participant The participant; its footprint's radius must be 0, since a steering obstacle is a bare polygon.
+   * @returns The obstacle; its motion reads the plan's position and heading at a film second.
+   * @throws {ArchetypeRefusal} On `footprint.radius` when the radius is not 0.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, the motion and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The hull of the outline is the convex footprint the steering pass reads in the body's frame, and the yaw is the plan's forward axis seen from above, the same convention.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One hull and one reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rounded footprint is refused rather than shrunk to its core. The margin is not carried; the steered courses are verified afterwards with `conflicts`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One hull; constant work per reading.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one participant.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The motion keeps the participant's plan for as long as the obstacle is held.
+   */
+  export function obstacle(
+    participant: IParticipant,
+  ): IAutoMovieCrowdAgent.IObstacle {
+    if (participant.footprint.radius !== 0)
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: participant.id,
+        axis: "footprint.radius",
+        value: participant.footprint.radius,
+        feasible: { kind: "range", minimum: 0, maximum: 0, unit: "m" },
+        reason:
+          "a steering obstacle is a bare polygon and cannot carry a radius",
+        fix: "give the participant an outline that already holds its rounding",
+      });
+    return {
+      footprint: convexHull2D(
+        participant.footprint.outline.map(
+          (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+            x: p.x,
+            y: 0,
+            z: p.z,
+          }),
+        ),
+      ),
+      motion: (seconds: number): IObstaclePlacement => {
+        const state: ArchetypeCourse.IState = participant.plan.at(seconds);
+        const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+          state.placement.rotation,
+          { x: 0, y: 0, z: 1 },
+        );
+        return {
+          position: { ...state.placement.translation },
+          yaw: (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI,
+        };
+      },
+    };
+  }
+
+  /**
    * Admit a passage: refuse its first conflict.
    *
    * @param archetype The name the refusal carries.
@@ -319,6 +373,11 @@ export namespace ArchetypePassage {
     });
   }
 }
+
+/** Where a steering obstacle stands at a second: its world position and its yaw in degrees. */
+type IObstaclePlacement = ReturnType<
+  NonNullable<IAutoMovieCrowdAgent.IObstacle["motion"]>
+>;
 
 /** Halvings that place an interval's end, and golden-section steps that place a minimum: forty shrink a one-frame bracket below a picosecond, past which a film second carries no meaning. */
 const REFINE: number = 40;

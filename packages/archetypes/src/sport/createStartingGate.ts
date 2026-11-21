@@ -10,10 +10,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** The gate the stall pitch is read from. */
-const DERBY: string =
-  'Daily Racing Form, "Churchill to debut new 20-stall starting gate for 2020 Kentucky Derby": "The 20-stall gate is 65 feet wide" (https://www.drf.com/news/churchill-debut-new-20-stall-starting-gate-2020-kentucky-derby)';
-
 /** No source read gives a stall's depth, height or doors: estimates that hold a saddle horse of 1.58 to 1.80 m at the withers standing in the stall with its head over the front doors and a seated rider above. */
 const ESTIMATE: string =
   "an estimate sized to a saddle horse in the stall, no source read gives it";
@@ -237,7 +233,7 @@ export namespace createStartingGate {
     mass: "kg",
   };
 
-  /** The stall pitch, metres: the 20-stall Derby gate's 65 feet over its 20 stalls (`DERBY`). */
+  /** The stall pitch, metres: the 20-stall Derby gate's 65 feet over its 20 stalls (Daily Racing Form, "Churchill to debut new 20-stall starting gate for 2020 Kentucky Derby": "The 20-stall gate is 65 feet wide", https://www.drf.com/news/churchill-debut-new-20-stall-starting-gate-2020-kentucky-derby). */
   export const PITCH: number = (65 * 0.3048) / 20;
 
   /** The most stalls a racing gate carries: "up to twenty stalls for racing gates" (US RE40763, Horse race starting gate, https://patents.google.com/patent/USRE40763). */
