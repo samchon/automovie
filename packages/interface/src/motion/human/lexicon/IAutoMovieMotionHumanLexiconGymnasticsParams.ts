@@ -1,5 +1,6 @@
 import type { IAutoMovieMotionHumanHandspring } from "../sport/IAutoMovieMotionHumanHandspring";
 import type { IAutoMovieMotionHumanHighJump } from "../sport/IAutoMovieMotionHumanHighJump";
+import type { IAutoMovieMotionHumanHorizontalJump } from "../sport/IAutoMovieMotionHumanHorizontalJump";
 import type { IAutoMovieMotionHumanPoleVault } from "../sport/IAutoMovieMotionHumanPoleVault";
 import type { IAutoMovieMotionHumanRoundOff } from "../sport/IAutoMovieMotionHumanRoundOff";
 import type { IAutoMovieMotionHumanSquatVault } from "../sport/IAutoMovieMotionHumanSquatVault";
@@ -36,4 +37,7 @@ export interface IAutoMovieMotionHumanLexiconGymnasticsParams {
 
   /** A vault on the pole the hand holds, out of a run. */
   vaultOnPole: IAutoMovieMotionHumanPoleVault.IParams;
+
+  /** A long jump out of a run into the sand of the pit the composition names, to the distance it gives. */
+  longJump: IAutoMovieMotionHumanHorizontalJump.IParams;
 }

@@ -10,6 +10,7 @@ export type { IAutoMovieMotionHumanGymnasticsTakeoff } from "./IAutoMovieMotionH
 export type { IAutoMovieMotionHumanGymnasticsWheel } from "./IAutoMovieMotionHumanGymnasticsWheel";
 export type { IAutoMovieMotionHumanHandspring } from "./IAutoMovieMotionHumanHandspring";
 export type { IAutoMovieMotionHumanHighJump } from "./IAutoMovieMotionHumanHighJump";
+export type { IAutoMovieMotionHumanHorizontalJump } from "./IAutoMovieMotionHumanHorizontalJump";
 export type { IAutoMovieMotionHumanMartialArt } from "./IAutoMovieMotionHumanMartialArt";
 export type { IAutoMovieMotionHumanPoleVault } from "./IAutoMovieMotionHumanPoleVault";
 export type { IAutoMovieMotionHumanRacket } from "./IAutoMovieMotionHumanRacket";

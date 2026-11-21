@@ -6,6 +6,7 @@ import type {
 import { HumanActionRow } from "../law/HumanActionRow";
 import { handspring } from "../sport/handspring";
 import { highJump } from "../sport/highJump";
+import { horizontalJump } from "../sport/horizontalJump";
 import { poleVault } from "../sport/poleVault";
 import { roundOff } from "../sport/roundOff";
 import { squatVault } from "../sport/squatVault";
@@ -69,4 +70,9 @@ export namespace HumanGymnastics {
   export const vaultOnPole: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["vaultOnPole"]
   > = HumanActionRow.of("vaultOnPole", poleVault, {});
+
+  /** A long jump out of a run into the sand of the pit the composition names, to the distance it gives. */
+  export const longJump: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["longJump"]
+  > = HumanActionRow.of("longJump", horizontalJump, {});
 }
