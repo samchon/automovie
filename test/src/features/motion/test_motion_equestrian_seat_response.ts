@@ -47,6 +47,7 @@ const HOLD: IAutoMovieMotionHumanMounted.ISupports = {
  * 2b. A ridden levade and pesade (#3939): the horse's pitch exceeds 25 degrees in the levade and more in the pesade, the trunk leans forward against the saddle in both, and at the halt 0.6 s after the pesade it is back within 1 degree of its lean before the events.
  * 3. Through both events, a sideways step aside (a shy), three crow hops (each lifting the left hind) a 90-degree spin on the haunches (turning the saddle within 5 degrees of it), a levade, a pesade and the halt after them, the seat region stays within 10 mm of the saddle, both balls of the feet within 10 mm of their stirrups and both wrists within 0.7 hand lengths of their reins, moving less than 10 mm against them.
  * 3b. No hoof slides more than 5 mm while planted through the crow hops and the spin, read between each hoof's own landing and lift events; a pose sought again after a later one is the same; crow hops asked of the horse while it walks are refused.
+ * 3c. Each event recovers to the stand continuously: across the end of every event the horse's root, each hoof and the rider's hips change velocity by less than 2 mm per frame squared at 60 frames a second, and every hoof stays within 5 mm of its place over the half second after.
  * 4. A take that lets the left foot go as the buck begins and takes the stirrup again after it: halfway through the loss the left ball is more than 50 mm from its tread, half a second after the regain it is back within 30 mm, and the left stirrup's window closes when the loss begins and opens again when the regain arrives.
  * 5. A response share outside 0 to 1 is refused on `respond`.
  *
@@ -340,6 +341,51 @@ export function test_motion_equestrian_seat_response(): void {
     findings.push(
       `crow hops at a walk must be refused, got ${String(walking)}`,
     );
+
+  // 3c. Each event recovers to the stand continuously: across its end the horse's root and hooves and the rider's hips carry no jump in velocity, and in the half second after it every hoof stays planted.
+  const ends: number[] = [
+    rear + 3.2,
+    buck + 1.5,
+    shy + 2,
+    hops + 2.4,
+    spun + 4.1,
+    levade + 3.4,
+    pesade + 3.4,
+  ];
+  const step: number = 1 / 60;
+  const kink = (read: (at: number) => IAutoMovieVector3, at: number): number =>
+    Vector3.length(
+      Vector3.add(
+        Vector3.subtract(read(at + step), read(at)),
+        Vector3.subtract(read(at - step), read(at)),
+      ),
+    );
+  for (const end of ends) {
+    const at: number = WAIT + end;
+    const root: number = kink(
+      (s: number): IAutoMovieVector3 => responding.place(s).position,
+      at,
+    );
+    const hipsKink: number = kink(
+      (s: number): IAutoMovieVector3 =>
+        responding.film.bones("rider", s).get("hips")!.worldPosition,
+      at,
+    );
+    if (root > 0.002 || hipsKink > 0.002)
+      findings.push(
+        `recovery at ${at.toFixed(2)} s: the horse's root bends ${(root * 1000).toFixed(1)} mm and the rider's hips ${(hipsKink * 1000).toFixed(1)} mm per frame squared`,
+      );
+    for (const limb of QuadrupedBody.LIMBS) {
+      const hoof = (s: number): IAutoMovieVector3 =>
+        archetypeHorseRide.hoof(course, limb, s - WAIT);
+      if (kink(hoof, at) > 0.002)
+        findings.push(`recovery at ${at.toFixed(2)} s: the ${limb} hoof jumps`);
+      if (Vector3.distance(hoof(at + 0.5), hoof(at + 0.05)) > 0.005)
+        findings.push(
+          `recovery at ${at.toFixed(2)} s: the ${limb} hoof slides after the stand`,
+        );
+    }
+  }
 
   // 4. The left stirrup is lost as the buck begins and taken again after it.
   const begun: number = rigid.segments[rigid.segments.length - 1]!.start;

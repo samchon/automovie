@@ -32,12 +32,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 const LATENCY: number = 0.4;
 
 /**
- * A driver's aids on a horse-drawn cart (#3963): a shake of the lines before the horse moves off and a whip touch, with the driving lines ending at the driver's palms.
+ * A driver's aids on a horse-drawn cart (#3963): a shake of the lines before the horse moves off, a whip touch and a take-up of the lines, with the driving lines ending at the driver's palms.
  *
  * Scenarios:
  * 1. The shake's event lies `LATENCY` before the horse's first footfall after its departure, and through the shake both palms rise and fall by more than 20 mm against the cart.
  * 2. The whip touch carries the right palm forward along the cart by more than 30 mm and brings it back within 10 mm half a second after its transition.
- * 3. Laid with their held ends at the driver's palms, both driving lines end exactly at the displayed palm through both aids: the lines stay connected.
+ * 2b. A take-up before a third transition draws both palms back along the cart by more than 20 mm and gives the lines back within 10 mm half a second after it.
+ * 3. Laid with their held ends at the driver's palms, both driving lines end exactly at the displayed palm through all three aids: the lines stay connected.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the take, its three scenarios and each bound's source.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the mounted law's driver aids on an actual towed cart and reads the displayed palms against the cart and the lines laid to them; an aid at the wrong time, no visible movement or a line off the palm fails.
@@ -95,12 +96,14 @@ export function test_motion_equestrian_driver_aids(): void {
     .footfalls(leader, "leftFore")
     .find((s: number): boolean => s > departs)!;
   const touch: number = go + 3;
+  const gather: number = touch + 2;
   const film: HumanPerformance = new HumanPerformance({
     seed: "driver-aids",
     laws: [HumanRide.ride, HumanMounted],
     cues: {
       go: [{ name: "go", seconds: go }],
       touch: [{ name: "touch", seconds: touch }],
+      gather: [{ name: "gather", seconds: gather }],
     },
     props: [
       HumanObject.prop("cart", cart, place(0), binding.motion, binding.point),
@@ -138,12 +141,13 @@ export function test_motion_equestrian_driver_aids(): void {
         aids: [
           { kind: "shake", cue: "go", latency: LATENCY },
           { kind: "whipTouch", side: "right", cue: "touch", latency: LATENCY },
+          { kind: "takeUp", cue: "gather", latency: LATENCY },
         ],
         figures: [
           {
             seat: "entered",
             transfer: 0.3,
-            seconds: touch + 1.5,
+            seconds: gather + 1.5,
             supports: { leftHand: "leftLineGrip", rightHand: "rightLineGrip" },
           },
         ],
@@ -198,6 +202,18 @@ export function test_motion_equestrian_driver_aids(): void {
       findings.push("whip touch: the right palm does not come back");
   } else findings.push("whip touch: no event");
 
+  // 2b. The take-up gathers the lines: each palm travels back along the cart by more than 20 mm and comes forward again after the transition.
+  for (const side of ["left", "right"] as const) {
+    const before: IAutoMovieVector3 = local(side, gather - LATENCY - 0.1);
+    const drawn: number = before.z - local(side, gather).z;
+    if (!(drawn > 0.02))
+      findings.push(
+        `take-up: the ${side} palm draws back only ${drawn.toFixed(3)} m`,
+      );
+    if (Vector3.distance(local(side, gather + 0.5), before) > 0.01)
+      findings.push(`take-up: the ${side} palm does not give the line back`);
+  }
+
   // 3. The lines laid to the palms end at them.
   const held: ArchetypeRide.ITowedRide<
     createCart.Affordance,
@@ -206,7 +222,7 @@ export function test_motion_equestrian_driver_aids(): void {
     lines: createCart.lines(cart, (side, at: number) => palm(side, at)),
     support: createCart.towing(cart),
   });
-  for (const at of [go - 0.2, touch]) {
+  for (const at of [go - 0.2, touch, gather]) {
     for (const side of ["left", "right"] as const) {
       const line = held
         .at(at)
