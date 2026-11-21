@@ -235,13 +235,13 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * Whether a figure names either foot's support.
+   * Whether a figure names its supports: a figure that names any is held by those alone, so a foot it does not name leaves its stirrup in the figure's transfer (its window closes where the transfer starts) and hangs; a figure that names none keeps the entry's feet as they were.
    *
    * @param figure The figure.
-   * @returns True when it names `leftFoot` or `rightFoot`.
+   * @returns True when it names any support.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the test.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Two reads.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation One read.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
@@ -250,8 +250,7 @@ export namespace HumanMountedPaths {
    */
   export function names(figure: IAutoMovieMotionHumanMounted.IFigure): boolean {
     return (
-      figure.supports?.leftFoot !== undefined ||
-      figure.supports?.rightFoot !== undefined
+      figure.supports !== undefined && Object.keys(figure.supports).length !== 0
     );
   }
 

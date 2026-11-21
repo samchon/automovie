@@ -264,8 +264,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         HumanMountedFrame.LOCAL,
         carrier(film),
       );
-      const point: IAutoMovieVector3 | undefined =
-        t <= LET_GO * flight ? held(film) : undefined;
+      const point: IAutoMovieVector3 | undefined = held(
+        context.start + Math.min(t, LET_GO * flight),
+      );
       return point === undefined || hand === undefined
         ? world
         : HumanUnseatPose.reach(world, hand.side, point, 1);

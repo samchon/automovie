@@ -299,7 +299,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         leaned,
         share,
       );
-      if (share <= 0)
+      // Before the lean begins the arm is the entry's; from it on the plan writes the swing's goal to the end, so the course reads it everywhere it lays the arm.
+      if (t < takeAway - PHASES.lean)
         return HumanMountedFrame.move(local, HumanMountedFrame.LOCAL, now);
       const at: IAutoMovieVector3 = head(theta(t));
       const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame =

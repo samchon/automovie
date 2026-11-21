@@ -269,7 +269,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       return shown;
     },
   };
-  // A pickup's arms, the horn hand and the reaching hand, are laid as planned courses over its figure: the reach in its transfer, the hold, the return in the next transfer.
+  // A pickup's arms, the horn hand and the reaching hand, are laid as planned courses over its figure: the reach in its transfer and the hold; after the hold the arms keep the angles their course ended with, carried into the next figure.
   const pickups: number[] = figures.flatMap((figure, i: number): number[] =>
     figure.kind === "pickup" ? [i] : [],
   );
@@ -290,10 +290,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     start: starts[p]!,
     ready,
     relax,
-    end:
-      p + 1 < figures.length
-        ? starts[p + 1]! + figures[p + 1]!.transfer
-        : duration,
+    end: relax,
   };
   const side: AutoMovieHumanSide = figures[p]!.side ?? "left";
   const other: AutoMovieHumanSide = side === "left" ? "right" : "left";

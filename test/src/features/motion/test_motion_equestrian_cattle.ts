@@ -146,7 +146,7 @@ export function test_motion_equestrian_cattle(): void {
     [
       {
         kind: "setBack",
-        pitch: 12,
+        pitch: 6,
         from: stopping.duration + 0.2,
         entry: 0.5,
         hold: 4,
