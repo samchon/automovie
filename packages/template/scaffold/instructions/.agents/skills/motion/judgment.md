@@ -18,7 +18,7 @@ Do the participants' preparation, support, movement and recovery produce the res
 
 ### Pace
 
-Do each participant's speed, effort, spacing and timing perform the beat's manner and, for skilled practice, the study's cues, responses and elapsed times? Measure distances and intervals on the posed performance under [frame evaluation](frame-evaluation.md).
+Do each participant's speed, effort, spacing and timing perform what the beat shows? For skilled practice, do the cues, spacing, simultaneous responses and elapsed times match the study? Measure intervals and spacing at times sampled under [frame evaluation](frame-evaluation.md).
 
 ### Staging
 
@@ -36,6 +36,6 @@ Record the time or frames, the failed requirement and the repair owner. Trace th
 
 <!-- @source [Disney Animation](https://disneyanimation.com/process/layout/) on staging with the camera. Blender Studio on the [timed edit](https://studio.blender.org/tools/pipeline-overview/pre-production/editorial) and [blocking pass](https://studio.blender.org/tools/artist-guide/shot-production/animation). -->
 
-Stage the passage on which the commission depends with its coarse cast, props and obstacles. Play it at delivery speed in the intended camera and edit, including its lead-in and consequence. Include a temporary line or sound cue if it determines the timing.
+Stage the passage on which the commission depends with its coarse cast, props and obstacles. Play it at delivery speed in the intended camera and edit, including its lead-in and consequence. Include a temporary line or sound cue if it determines the timing. Judge it under Questions.
 
 If the preview drops frames, use a timed export. Keep the pace judgment open until someone watches the passage at speed. Measure evaluation and capture cost for the [whole-film plan](../production/stage-caches.md) and check new performance conditions as they enter the film.
