@@ -107,13 +107,21 @@ export namespace IObserveAutoMoviePlacedScene {
     /** Ordered entity paths, in addition to the failed field when applicable. */
     readonly paths?: readonly string[];
 
+    /**
+     * The obligation's observations and limits: a canonical contact or
+     * continuity input, a contact bound to displayed native nodes, or the raw
+     * clip findings of an authored track.
+     */
     readonly input:
       | IAutoMoviePlacedContact.IProps
       | IAutoMoviePlacedContinuity.IProps
       | INativeSupport
       | INativeGrip
       | {
+          /** Selects the authored track admission result. */
           readonly kind: "track";
+
+          /** Source path of the authored track. */
           readonly path: string;
 
           /** Canonical raw clip findings prepared once by the source owner. */
