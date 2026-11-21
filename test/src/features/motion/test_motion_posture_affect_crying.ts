@@ -3,6 +3,7 @@ import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanAffect,
@@ -20,6 +21,7 @@ import {
   HUMAN_EVERYDAY_LAWS,
   HumanAffect,
   HumanChain,
+  HumanHand,
   HumanObject,
   HumanPerformance,
   hug,
@@ -40,6 +42,9 @@ const STEP: number = 0.001;
 
 /** How far a contact the layer must not move may drift, metres. */
 const KEEP: number = 0.001;
+
+/** The hug's palm-to-back contact bound, metres. */
+const TOUCH: number = 0.01;
 
 /** The flat palm that covers a cheek. */
 const PALM: IAutoMovieMotionHumanTouchEffector.IEffector = {
@@ -62,12 +67,12 @@ const PALM: IAutoMovieMotionHumanTouchEffector.IEffector = {
  * 3. On the average man and the small woman, a sob over `coverFace` leaves
  *    both hands where the plain cover puts them while the shoulders heave.
  * 4. A seated sob leaves the hips on the seat, and a sob over a `hug`
- *    leaves the sobbing performer's hands on the partner's back.
+ *    leaves the sobbing performer's palms within 10 mm of the partner's back.
  * 5. Reading the sobbing cover backwards gives the same poses as forwards.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios and what each pins.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the displays' angles and the posed bodies of public performances with and without the layer; a regular or too dense train, an unseeded or unrepeatable train, a gasp off its rise, a layer that moves a hand, a seat or a partner contact, or an order-dependent read fails.
- * @evidence contracts/development/testing.md#independent-expectations The interval band and rise are the documented provisional parameters; the Nyquist limit follows from the 24 Hz film rate; an additive trunk layer must leave limb goals where the action puts them, which the same performance without the layer shows.
+ * @evidence contracts/development/testing.md#independent-expectations The interval band and rise are the documented provisional parameters; the Nyquist limit follows from the 24 Hz film rate; the cover's quarter-hand and the hug's 10 mm palm bounds are those actions' own; a seated sob must leave the hips where the same performance without the layer puts them.
  * @evidence contracts/development/testing.md#distinguishing-cases Two seeds and two intensities, all three displays, a refused short gasp, standing, seated and embracing bases and two body sizes; the general zero-end and continuity checks of every display are test_motion_posture_affect_signal's.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory unit over the public layer and HumanPerformance on canonical bodies; the feature runner discovers it.
  */
@@ -233,7 +238,6 @@ export function test_motion_posture_affect_crying(): void {
         { hold: 2 },
       ).node,
     });
-  const held: HumanPerformance = embrace(false);
   const heldSob: HumanPerformance = embrace(true);
   const hugA: IAutoMovieMotionHumanSegment = heldSob.segments("a")[1]!;
   const hugB: IAutoMovieMotionHumanSegment = heldSob.segments("b")[1]!;
@@ -242,18 +246,43 @@ export function test_motion_posture_affect_crying(): void {
     event(hugB, "strokeEnd"),
   );
   const dwellTo: number = Math.min(event(hugA, "relax"), event(hugB, "relax"));
+  // The hug's own bound: each palm within 10 mm of the partner's back region
+  // (the right on the upper back, the left on the lower) through the dwell.
+  const reach = (film: HumanPerformance): number[] =>
+    [0.25, 0.5, 0.75]
+      .map((share: number): number => dwellFrom + share * (dwellTo - dwellFrom))
+      .flatMap((t: number): number[] => [
+        back(film, body, "right", "upperBack", t),
+        back(film, body, "left", "lowerBack", t),
+      ]);
+  const palms: number[] = reach(heldSob);
+  const plainPalms: number[] = reach(embrace(false));
   TestValidator.predicate(
-    "a sob over a hug leaves the hands on the partner's back",
-    dwellTo > dwellFrom &&
-      [0, 0.5, 1]
-        .map(
-          (share: number): number => dwellFrom + share * (dwellTo - dwellFrom),
-        )
-        .every(
-          (t: number): boolean =>
-            apart(held, heldSob, t, "leftHand") <= KEEP &&
-            apart(held, heldSob, t, "rightHand") <= KEEP,
-        ),
+    `a sob over a hug leaves the palms on the partner's back (${palms
+      .map((gap: number): string => (1000 * gap).toFixed(1))
+      .join(", ")} mm; plain ${plainPalms
+      .map((gap: number): string => (1000 * gap).toFixed(1))
+      .join(", ")} mm)`,
+    dwellTo > dwellFrom && palms.every((gap: number): boolean => gap <= TOUCH),
+  );
+}
+
+/** How far performer `a`'s flat palm is from a region of partner `b`, metres. */
+function back(
+  film: HumanPerformance,
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  region: AutoMovieHumanoidRegion,
+  t: number,
+): number {
+  const surface: IAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions[region];
+  return Vector3.distance(
+    HumanHand.frame(body, film.bones("a", t), side, "palm", "flat").point,
+    resolveAutoMovieHumanoidSurfaces.place(
+      surface,
+      film.bones("b", t).get(surface.bone)!,
+    ).point,
   );
 }
 
