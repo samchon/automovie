@@ -136,6 +136,7 @@ function pass(
     HumanFirefight.pass(HumanChain.subject("actor").stand(), {
       prop: "extinguisher",
       target: TARGET,
+      sweeps: 1,
     }),
     Object.values(HUMAN_LEXICON).flat(),
   );
@@ -227,7 +228,7 @@ function hose(
       chain: HumanChain.subject("backup").stand(),
       at: { x: 0, y: 0, z: -1.1 },
     },
-    { prop: "hose", target: TARGET },
+    { prop: "hose", target: TARGET, sweeps: 1 },
   );
   const take: HumanPerformance = everydayTake.perform(
     `firefight-${label}`,
@@ -338,7 +339,7 @@ function flames(
       prop: "sack",
       partner: "victim",
       region: "sternum",
-      count: 3,
+      count: 2,
     });
   const take: HumanPerformance = everydayTake.perform(
     `firefight-${label}`,

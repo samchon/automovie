@@ -95,13 +95,13 @@ function stage(): IStage {
       everydayTake.prop(
         "table",
         table,
-        { x: 0, y: 0, z: CHAIR.z + 0.1 + top.depth! / 2 },
+        { x: 0, y: 0, z: CHAIR.z + 0.05 + top.depth! / 2 },
         undefined,
         true,
       ),
     ],
     height: top.frame.translation.y,
-    near: CHAIR.z + 0.1,
+    near: CHAIR.z + 0.05,
   };
 }
 

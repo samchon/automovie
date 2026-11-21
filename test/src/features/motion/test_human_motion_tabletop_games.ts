@@ -98,7 +98,7 @@ function stage(): IStage {
   const top: IAutoMovieAffordance = table.affordances!.find(
     (a: IAutoMovieAffordance): boolean => a.id === "top",
   )!;
-  const centre: number = CHAIR.z + 0.1 + top.depth! / 2;
+  const centre: number = CHAIR.z + 0.05 + top.depth! / 2;
   return {
     seat: HumanObject.seat(chair, placement),
     props: [
@@ -112,7 +112,7 @@ function stage(): IStage {
       ),
     ],
     height: top.frame.translation.y,
-    near: CHAIR.z + 0.1,
+    near: CHAIR.z + 0.05,
   };
 }
 
