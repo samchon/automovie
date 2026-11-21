@@ -1,21 +1,18 @@
 import {
+  type Archetype,
   ArchetypeFrame,
   EquineFord,
   type EquineFordPlan,
   type QuadrupedFooting,
   createHorse,
-  rideHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanMounted,
   IAutoMovieMotionHumanSeated,
-  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -24,7 +21,6 @@ import {
   HumanChain,
   HumanFloatBeside,
   HumanFrame,
-  HumanHand,
   HumanLeadHorse,
   HumanMounted,
   HumanObject,
@@ -35,11 +31,11 @@ import {
 import { equineFordScene } from "./equineFordScene";
 
 /**
- * The compact ford of the ford rider and float specs: a horse that the rider mounts on a level near bank, which wades, swims a few strokes, lands on a submerged far shelf and climbs a steep exit to a dry top where it halts, then, when a lead is laid, walks on led; its prop readers on the film clock, the rider's seat, mount chain and performance, and the contact readers the specs measure with.
+ * The mounted rider's horse stages of the ford rider, float and lead-out specs: a horse clip carried on the film clock after the rider sits on, its prop readers, the rider's mount chain and performance, and the compact ford: a level shallow bed where the rider mounts, a descent to just under the floating horse's standing sole level, a few strokes' swim and a halt on the submerged far shelf.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the staged crossing, the led walk and who reads it.
- * @evidence contracts/development/design.md#principled-representation A stage record and its builders.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by test_archetype_equine_ford_rider and test_archetype_equine_ford_float.
+ * @evidence contracts/development/common.md#meaningful-documentation States the stages and who reads them.
+ * @evidence contracts/development/design.md#principled-representation A mount record, the ford stage and their builders.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by test_archetype_equine_ford_rider, test_archetype_equine_ford_float and equineLeadOut.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace equineFordRider {
@@ -47,71 +43,62 @@ export namespace equineFordRider {
   export const WAIT: number = 4;
 
   /** Seconds of the ordinary ride that settles the seat in the saddle before the mounted figures, as the mounted specs stage it. */
-  export const SETTLE: number = 3;
+  const SETTLE: number = 3;
 
-  /** Seconds the sit onto the saddle takes. */
-  export const SAT: number = 0.5;
+  /** Seconds the rider stays seated after sitting on, before the settling ride. */
+  const SAT: number = 0.5;
 
-  /** The level near bank the rider mounts on, metres along +Z before the ford descends. */
+  /** The level near bed the rider mounts on, metres along +Z before the ford descends. */
   const BANK: number = 3;
 
-  /** The water's surface, world metres: just under the dry banks at zero. */
+  /** The near bed's height, world metres: a ford's shallows the rider stands in to mount, so the wading to swimming depth is short. */
+  const BED: number = -0.9;
+
+  /** The water's surface, world metres: 0.8 m over the near bed. */
   export const WATER: number = -0.1;
 
   /** The near ford's descent: under the 0.11 at which the shared crossing's tail met the slope. */
   const DESCENT: number = 0.1;
 
-  /** The wading course's end below the floating horse's standing sole level, metres: the shared scene's margin, so the bed under the last wading hooves lies below the stroke. */
-  const DEPTH_MARGIN: number = 0.11;
+  /** The wading course's end below the floating horse's standing sole level, metres: the descent over the 1.6 m a hind hoof stands behind the course point, and a centimetre more, so the bed under the last wading hooves lies below the stroke. */
+  const DEPTH_MARGIN: number = 1.6 * DESCENT + 0.01;
 
   /** Metres the horse swims: a few strokes, longer than the rider's slide off. */
   const SWIM: number = 6;
 
-  /** The far exit's grade up to the dry top, a steep river bank a horse climbs out on: authored. */
-  const GRADE: number = 0.25;
-
-  /** Metres the climbing horse walks on the submerged shelf before the exit. */
-  const SHORE: number = 1;
-
-  /** Metres the horse walks on the dry top before it halts. */
-  const TOP: number = 3;
+  /** Metres the climbing horse walks on the submerged far shelf before it halts: more than its braking distance. */
+  const SHORE: number = 2;
 
   /** The horse producer's model. */
   export type Horse = ReturnType<typeof createHorse>;
 
-  /** A horse ride along a course. */
-  export type Ride = ReturnType<typeof rideHorse>;
-
   /**
-   * A led walk laid after the crossing: the ride and the film second it starts.
+   * A horse clip's displayed instant: its placement and its posed model.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The ride and its start.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `stage`.
+   * @evidence contracts/development/design.md#principled-representation The two parts of a ride's or a crossing's sample the prop reads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `carry`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export interface ILed {
-    /** The led ride, from the halt. */
-    ride: Ride;
+  export interface IInstant {
+    /** The horse's world placement. */
+    placement: IAutoMovieTransform;
 
-    /** The film second it starts. */
-    start: number;
+    /** The posed horse. */
+    archetype: Archetype<string, string>;
   }
 
   /**
-   * One staged crossing on the film clock.
+   * A horse the rider mounts, carried on the film clock.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The horse, the crossing, its readers and the rider's seat.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ford rider spec.
+   * @evidence contracts/development/design.md#principled-representation The horse, its prop and readers, the seat and the ground the rider mounts from.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ford rider, float and lead-out specs.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export interface IStage {
+  export interface IMount {
     /** The horse. */
     horse: Horse;
-
-    /** The crossing, started at `WAIT`. */
-    crossing: EquineFordPlan.IClip<string, string>;
 
     /** The horse prop. */
     prop: ReturnType<typeof HumanObject.prop>;
@@ -125,31 +112,90 @@ export namespace equineFordRider {
     /** The saddle's seat where the rider sits on. */
     seat: IAutoMovieMotionHumanSeated.ISeat;
 
+    /** The ground's height where the rider stands to sit on, world metres. */
+    floor: number;
+
+    /** The film second the horse halts. */
+    halt: number;
+  }
+
+  /**
+   * The compact ford on the film clock.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member.
+   * @evidence contracts/development/design.md#principled-representation The mount and the crossing's two cuts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ford rider and float specs.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IStage extends IMount {
     /** The film second the horse starts floating. */
     float: number;
 
     /** The film second the horse lands on the far shelf. */
     land: number;
-
-    /** The film second the horse halts on the dry top. */
-    halt: number;
   }
 
   /**
-   * Stage the crossing, with the led walk when given.
+   * Carry a horse clip on the film clock: it stands at its first instant for `WAIT` while the rider sits on, then plays.
    *
-   * @param led The led walk after the halt, absent while it is rehearsed.
+   * @param horse The horse.
+   * @param sample The clip's instant at one of its own seconds.
+   * @param duration The clip's length, seconds.
+   * @param floor The ground's height where the rider stands to sit on.
+   * @returns The mount.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the clock and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Every contact is the posed horse's own affordance composed with its placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A clock, two readers and the prop.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One clip sample per read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the ford and the lead-out stages.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The mount holds the clip for the caller.
+   */
+  export function carry(
+    horse: Horse,
+    sample: (seconds: number) => IInstant,
+    duration: number,
+    floor: number,
+  ): IMount {
+    const at = (film: number): IInstant =>
+      sample(Math.max(0, Math.min(duration, film - WAIT)));
+    const place = (film: number): IAutoMovieRigidTransform => {
+      const frame: IAutoMovieTransform = at(film).placement;
+      return { position: frame.translation, rotation: frame.rotation };
+    };
+    const part = (id: string, film: number): IAutoMovieTransform => {
+      const instant: IInstant = at(film);
+      return ArchetypeFrame.compose(
+        instant.placement,
+        instant.archetype.affordance(id).frame,
+      );
+    };
+    return {
+      horse,
+      prop: HumanObject.prop("horse", at(0).archetype, place(0), place, part),
+      place,
+      part,
+      seat: HumanObject.seat(at(0).archetype, place(0)),
+      floor,
+      halt: WAIT + duration,
+    };
+  }
+
+  /**
+   * Stage the compact ford.
+   *
    * @returns The stage.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the stage returned.
-   * @evidence contracts/development/implementation.md#principled-implementation A compact ford: a level near bank where the rider mounts, a descent to just under the floating horse's standing sole level, a short swim, the crossing's admitted far shelf and a steep exit from it to a dry top level with the near bank.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Horse, footing, crossing, readers.
+   * @evidence contracts/development/common.md#meaningful-documentation States the stage returned.
+   * @evidence contracts/development/implementation.md#principled-implementation A level shallow bed where the rider mounts, a descent from it to just under the floating horse's standing sole level, a short swim and the crossing's admitted far shelf, on which the horse halts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Horse, footing, crossing, mount.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms One crossing is planned; sampling is the caller's.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared ford scene supplies the immersion, the swim's speed and cycle and the courses' speeds.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The stage holds its rides for the caller.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The stage holds its crossing for the caller.
    */
-  export function stage(led?: ILed): IStage {
+  export function stage(): IStage {
     const horse: Horse = createHorse(
       { withersHeight: 1.65, stirrupDrop: 0.575, tempo: 0 },
       8,
@@ -157,11 +203,9 @@ export namespace equineFordRider {
     // The floating horse's standing sole level: the water less the immersion and the back (0.95 of the withers).
     const level: number = WATER - equineFordScene.IMMERSION - 0.95 * 1.65;
     const shelf: number = level - 0.05;
-    // The wading course descends to just under that level, as the shared scene's does, then the swim and a shore's walk.
-    const wade: number = (DEPTH_MARGIN - level) / DESCENT;
+    // The wading course descends to just under that level, as the shared scene's does.
+    const wade: number = (BED + DEPTH_MARGIN - level) / DESCENT;
     const float: number = BANK + wade;
-    const ramp: number = float + SWIM + SHORE;
-    const climb: number = -shelf / GRADE;
     const plane = (
       id: string,
       y: number,
@@ -181,12 +225,10 @@ export namespace equineFordRider {
       water: WATER,
       footing: {
         planes: [
-          plane("bank", 0, -6, BANK, 0),
-          plane("ford", 0, BANK, float + 1.5, -DESCENT),
+          plane("bank", BED, -6, BANK, 0),
+          plane("ford", BED, BANK, float + 1.5, -DESCENT),
           plane("channel", -3, float + 1.5, float + 3, 0),
-          plane("shelf", shelf, float + 3, ramp, 0),
-          plane("ramp", shelf, ramp, ramp + climb, GRADE),
-          plane("top", 0, ramp + climb, ramp + climb + 30, 0),
+          plane("shelf", shelf, float + 3, float + SWIM + 30, 0),
         ],
       },
       entry: {
@@ -199,59 +241,25 @@ export namespace equineFordRider {
       swim: { ...authored.swim, length: SWIM },
       recovery: {
         ...authored.recovery,
-        legs: [
-          { kind: "straight", length: SHORE },
-          { kind: "straight", length: climb, rise: -shelf },
-          { kind: "straight", length: TOP },
-        ],
+        legs: [{ kind: "straight", length: SHORE }],
       },
-    });    const local = (at: number): number =>
-      Math.max(0, Math.min(crossing.duration, at - WAIT));
-    const placed = (frame: IAutoMovieTransform): IAutoMovieRigidTransform => ({
-      position: frame.translation,
-      rotation: frame.rotation,
     });
-    const place = (at: number): IAutoMovieRigidTransform =>
-      led !== undefined && at >= led.start
-        ? placed(led.ride.at(Math.min(led.ride.duration, at - led.start)).placement)
-        : placed(crossing.sample(local(at)).placement);
-    const part = (id: string, at: number): IAutoMovieTransform => {
-      if (led !== undefined && at >= led.start)
-        return led.ride.frame(
-          id as createHorse.Affordance,
-          Math.min(led.ride.duration, at - led.start),
-        );
-      const sample: EquineFordPlan.ISample<string, string> = crossing.sample(
-        local(at),
-      );
-      return ArchetypeFrame.compose(
-        sample.placement,
-        sample.archetype.affordance(id).frame,
-      );
-    };
     return {
-      horse,
-      crossing,
-      prop: HumanObject.prop(
-        "horse",
-        crossing.sample(0).archetype,
-        place(0),
-        place,
-        part,
+      ...carry(
+        horse,
+        (seconds: number): IInstant => crossing.sample(seconds),
+        crossing.duration,
+        BED,
       ),
-      place,
-      part,
-      seat: HumanObject.seat(crossing.sample(0).archetype, place(0)),
       float: WAIT + crossing.events.float,
       land: WAIT + crossing.events.land,
-      halt: WAIT + crossing.duration,
     };
   }
 
   /**
    * The rider's mount: sitting on beside the standing horse, the settling ride with the left hand on the mane and the right on its rein, then the mounted figures.
    *
-   * @param staged The stage.
+   * @param staged The mount.
    * @param figures The mounted figures from the settled seat.
    * @returns The chain.
    *
@@ -264,10 +272,19 @@ export namespace equineFordRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The chain is the caller's.
    */
   export function mount(
-    staged: IStage,
+    staged: IMount,
     figures: IAutoMovieMotionHumanMounted.IFigure[],
   ): IAutoMovieMotionHumanChain {
-    return HumanChain.subject("rider")
+    return settle(staged).registered("mounted", {
+      on: "horse",
+      frame: "seat",
+      figures,
+    });
+  }
+
+  /** The sit and the settling ride before the mounted figures. */
+  const settle = (staged: IMount): IAutoMovieMotionHumanChain =>
+    HumanChain.subject("rider")
       .sit({ seat: staged.seat, seconds: SAT })
       .registered("ride", {
         on: "horse",
@@ -275,9 +292,7 @@ export namespace equineFordRider {
         seat: "seat",
         feet: { left: "leftStirrup", right: "rightStirrup" },
         hands: { left: "mane", right: "rightRein" },
-      })
-      .registered("mounted", { on: "horse", frame: "seat", figures });
-  }
+      });
 
   /** The mounted supports while wading and climbing: the feet in the stirrups, the left hand on the mane, the right on its rein. */
   export const WADING: IAutoMovieMotionHumanMounted.ISupports = {
@@ -294,32 +309,31 @@ export namespace equineFordRider {
   };
 
   /**
-   * The wading figure from the settled seat to the float.
+   * The film second the mounted figures begin: the sit's lowering and the settling ride timed by a rehearsal of them, so a figure can end on a horse's cue.
    *
-   * @param staged The stage.
-   * @returns The figure.
+   * @param staged The mount.
+   * @param body The rider.
+   * @returns The film second.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the figure.
-   * @evidence contracts/development/implementation.md#principled-implementation The figure ends at the float on the film clock.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the timing.
+   * @evidence contracts/development/implementation.md#principled-implementation Read from the rehearsed settling ride's segment, not from the authored seconds seated, which exclude the sit's lowering.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rehearsal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by both variants.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The rehearsal is planned, never sampled.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every spec.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources None retained.
    */
-  export function wading(staged: IStage): IAutoMovieMotionHumanMounted.IFigure {
-    return {
-      seat: "entered",
-      transfer: 0.4,
-      seconds: staged.float - SAT - SETTLE - 0.4,
-      supports: WADING,
-    };
+  export function settled(
+    staged: IMount,
+    body: IAutoMovieMotionHumanBody,
+  ): number {
+    return perform(staged, body, settle(staged)).segments("rider").at(-1)!.end;
   }
 
   /**
-   * The rider's performance on the stage: the rider beside the standing horse's saddle, the riding, lead and float laws.
+   * The rider's performance: the rider beside the standing horse's saddle on the ground it mounts from, with the riding, lead and float laws.
    *
-   * @param staged The stage.
+   * @param staged The mount.
    * @param body The rider.
    * @param chain The rider's chain.
    * @returns The performance.
@@ -329,11 +343,11 @@ export namespace equineFordRider {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Sampling is the caller's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by both specs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every spec.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The performance is the caller's.
    */
   export function perform(
-    staged: IStage,
+    staged: IMount,
     body: IAutoMovieMotionHumanBody,
     chain: IAutoMovieMotionHumanChain,
   ): HumanPerformance {
@@ -346,7 +360,10 @@ export namespace equineFordRider {
           subject: "rider",
           body,
           at: HumanFrame.point(
-            { origin: { ...staged.seat.at, y: 0 }, yaw: staged.seat.yaw },
+            {
+              origin: { ...staged.seat.at, y: staged.floor },
+              yaw: staged.seat.yaw,
+            },
             { x: 0.6, y: 0, z: -0.2 },
           ),
           yaw: staged.seat.yaw,
@@ -360,7 +377,7 @@ export namespace equineFordRider {
   /**
    * The horse's declaration of a contact.
    *
-   * @param staged The stage.
+   * @param staged The mount.
    * @param id The contact.
    * @returns Its declaration.
    *
@@ -369,10 +386,10 @@ export namespace equineFordRider {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by both specs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every spec.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources None retained.
    */
-  export function affordance(staged: IStage, id: string): IAutoMovieAffordance {
+  export function affordance(staged: IMount, id: string): IAutoMovieAffordance {
     return staged.horse.affordances.find(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     )!;
@@ -381,7 +398,7 @@ export namespace equineFordRider {
   /**
    * A displayed point in the horse's frame at a film second, its +X the horse's left.
    *
-   * @param staged The stage.
+   * @param staged The mount.
    * @param point The world point.
    * @param at The film second.
    * @returns The point in the horse's frame.
@@ -391,11 +408,11 @@ export namespace equineFordRider {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One transform.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms One placement read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by both specs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every spec.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources None retained.
    */
   export function local(
-    staged: IStage,
+    staged: IMount,
     point: IAutoMovieVector3,
     at: number,
   ): IAutoMovieVector3 {
@@ -403,82 +420,6 @@ export namespace equineFordRider {
     return Quaternion.rotateVector(
       Quaternion.inverse(frame.rotation),
       Vector3.subtract(point, frame.position),
-    );
-  }
-  /**
-   * How far a held round contact is from the palm: the palm frame's centre against the contact's axis less its radius, metres, as the lead and the handles are checked.
-   *
-   * @param body The body.
-   * @param bones The displayed bones.
-   * @param side The hand.
-   * @param contact The contact's world frame.
-   * @param affordance The contact's declaration.
-   * @returns The miss, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the measure and its unit.
-   * @evidence contracts/development/implementation.md#principled-implementation A round bar seats across the palm's middle anywhere round its axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One distance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One palm frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanHand.frame`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources None retained.
-   */
-  export function bar(
-    body: IAutoMovieMotionHumanBody,
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: AutoMovieHumanSide,
-    contact: IAutoMovieTransform,
-    affordance: IAutoMovieAffordance,
-  ): number {
-    return Math.abs(
-      Vector3.distance(
-        HumanHand.frame(body, bones, side, "palm").point,
-        contact.translation,
-      ) -
-        (affordance.aperture ?? 0) / 2,
-    );
-  }
-
-  /**
-   * How far a rein-kind contact's skin is from the palm's own contact point, metres, as the seated rider specs check a rein.
-   *
-   * @param body The body.
-   * @param bones The displayed bones.
-   * @param side The hand.
-   * @param contact The contact's world frame.
-   * @param affordance The contact's declaration.
-   * @returns The miss, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the measure and its unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The rein's skin lies along the contact's +Y by its radius.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One distance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One palm offset.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanHand.offset`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources None retained.
-   */
-  export function rein(
-    body: IAutoMovieMotionHumanBody,
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: AutoMovieHumanSide,
-    contact: IAutoMovieTransform,
-    affordance: IAutoMovieAffordance,
-  ): number {
-    const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-    const palm: IAutoMovieVector3 = Vector3.add(
-      hand.worldPosition,
-      Quaternion.rotateVector(
-        hand.worldRotation,
-        HumanHand.offset(body, side, "palm").point,
-      ),
-    );
-    return Vector3.distance(
-      palm,
-      Vector3.addScaled(
-        contact.translation,
-        Quaternion.rotateVector(contact.rotation, { x: 0, y: 1, z: 0 }),
-        (affordance.aperture ?? 0) / 2,
-      ),
     );
   }
 }

@@ -1,4 +1,10 @@
-import { rideHorse } from "@automovie/archetypes";
+import {
+  type ArchetypeRide,
+  QuadrupedDatumRide,
+  type QuadrupedFooting,
+  createHorse,
+  rideHorse,
+} from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -7,16 +13,16 @@ import type {
 } from "@automovie/interface";
 import type { HumanPerformance } from "@automovie/motions";
 
-import type { equineFordRider } from "./equineFordRider";
+import { equineFordRider } from "./equineFordRider";
 
 /**
- * Leading a horse on foot in the equestrian specs: where a handler stands at the horse's head, the trapezoidal course matched to a handler's rehearsed walk so that the horse's progress follows the handler's hips, and the far-bank lead-out of `test_archetype_equine_ford_rider` laid with it.
+ * Leading a horse on foot in the equestrian specs: where a handler stands at the horse's head, the trapezoidal course matched to a handler's rehearsed walk so that the horse's progress follows the handler's hips, and the far-bank exit of `test_archetype_equine_ford_leadout`, where a rider climbs out mounted, dismounts and leads the horse out.
  *
  * A handler keeping station on the horse's moving lead would trail it by the cruise speed over the station gain (`walkStation`, 1.2 m/s over 1.87 per second, 0.64 m), beyond the arm's slack on the rope, so the led horse follows its handler instead, as a led horse does.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stance, the matched walk and why the horse follows.
  * @evidence contracts/development/design.md#principled-representation A stance record and two builders.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one owner of the stance and the matching, read by the ford rider, lifecycle and handler takes.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The one owner of the stance and the matching, read by the lead-out, lifecycle and handler takes.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace equineLeadOut {
@@ -154,9 +160,112 @@ export namespace equineLeadOut {
   }
 
   /**
+   * The lead-out's led walk, laid after the rider's rehearsed walk: the ride and the film second it starts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member.
+   * @evidence contracts/development/design.md#principled-representation The ride and its start.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `stage`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ILed {
+    /** The led ride, from the halt. */
+    ride: ReturnType<typeof rideHorse>;
+
+    /** The film second it starts. */
+    start: number;
+  }
+
+  /** The step at the exit's foot the rider mounts from, metres below the dry top at zero: a low far-bank landing. */
+  const STEP: number = 0.3;
+
+  /** Metres the horse walks on the step before the exit. */
+  const FOOT: number = 1;
+
+  /** The exit's grade up to the dry top, authored: 0.15 put a climbing fore pastern into the top at the exit's convex crest, while the compact ford's convex crest passes at 0.1. */
+  const GRADE: number = 0.08;
+
+  /** Metres the horse walks on the dry top before it halts: more than its braking distance. */
+  const TOP: number = 2;
+
+  /**
+   * Stage the far bank's exit: the rider sits on at its foot, the horse climbs to the dry top and halts, and, when a led walk is given, walks on led.
+   *
+   * @param led The led walk after the halt, absent while it is rehearsed.
+   * @returns The mount.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the stage and its input.
+   * @evidence contracts/development/implementation.md#principled-implementation The climb rides the authored step, exit and top (`QuadrupedDatumRide` lifts the course to the step's height); the led walk starts where the climb halts on the top at zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Footing, climb, clip, mount.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One climb is planned; sampling is the caller's.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `equineFordRider.carry` carries it on the film clock.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The mount holds its rides for the caller.
+   */
+  export function stage(led?: ILed): equineFordRider.IMount {
+    const horse: equineFordRider.Horse = createHorse(
+      { withersHeight: 1.65, stirrupDrop: 0.575, tempo: 0 },
+      8,
+    );
+    const climb: number = STEP / GRADE;
+    const plane = (
+      id: string,
+      y: number,
+      from: number,
+      to: number,
+      slope: number,
+    ): QuadrupedFooting.IPlane => ({
+      id,
+      origin: { x: 0, y, z: from },
+      x: [-6, 6],
+      z: [from, to],
+      slope: { x: 0, z: slope },
+    });
+    const ride: ArchetypeRide.IRide<
+      createHorse.Affordance,
+      createHorse.Dimension
+    > = QuadrupedDatumRide(
+      horse,
+      {
+        start: { x: 0, z: 0, heading: 0 },
+        cruise: 1.2,
+        startSpeed: 0,
+        endSpeed: 0,
+        acceleration: 0.5,
+        deceleration: 0.5,
+        startFromStanding: true,
+        legs: [
+          { kind: "straight", length: FOOT },
+          { kind: "straight", length: climb, rise: STEP },
+          { kind: "straight", length: TOP },
+        ],
+        footing: {
+          planes: [
+            plane("step", -STEP, -6, FOOT, 0),
+            plane("exit", -STEP, FOOT, FOOT + climb, GRADE),
+            plane("top", 0, FOOT + climb, FOOT + climb + 30, 0),
+          ],
+        },
+      },
+      "walk",
+    );
+    const offset: number =
+      led === undefined ? Infinity : led.start - equineFordRider.WAIT;
+    const mount: equineFordRider.IMount = equineFordRider.carry(
+      horse,
+      (seconds: number): equineFordRider.IInstant =>
+        seconds >= offset
+          ? led!.ride.at(Math.min(led!.ride.duration, seconds - offset))
+          : ride.at(Math.min(ride.duration, seconds)),
+      led === undefined ? ride.duration : offset + led.ride.duration,
+      -STEP,
+    );
+    return { ...mount, halt: equineFordRider.WAIT + ride.duration };
+  }
+
+  /**
    * Lay the led walk from the halt after the rider's rehearsed walk: a straight trapezoidal course along +Z whose steady progress and start and stop lags equal the hips' displayed progress.
    *
-   * @param staged The halted crossing.
+   * @param staged The halted horse.
    * @param rehearsal The performance with the handler's walk and the horse halted.
    * @param walking The handler's leading walk in it.
    * @returns The led walk.
@@ -170,10 +279,10 @@ export namespace equineLeadOut {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The ride is the caller's.
    */
   export function led(
-    staged: equineFordRider.IStage,
+    staged: equineFordRider.IMount,
     rehearsal: HumanPerformance,
     walking: IAutoMovieMotionHumanSegment,
-  ): equineFordRider.ILed {
+  ): ILed {
     const step: number = (walking.end - walking.start) / SAMPLES;
     const hips = (at: number): number =>
       rehearsal.bones("rider", at).get("hips")!.worldPosition.z;
