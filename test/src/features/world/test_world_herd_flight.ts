@@ -2,7 +2,9 @@ import {
   ArchetypeCourse,
   ArchetypeManoeuvre,
   ArchetypePassage,
+  type ArchetypeRide,
   createHorse,
+  rideQuadruped,
 } from "@automovie/archetypes";
 import { steerAutoMovieCrowd } from "@automovie/engine";
 import type {
@@ -30,7 +32,8 @@ const OPENING: number = 1.6;
  * 2. The band's spread contracts as it bunches toward the gate.
  * 3. The band passes the gate one at a time: no two horses are in the opening together.
  * 4. No two horses touch, each a disc as wide as its own footprint.
- * 5. The stallion drives from behind, following the band's centroid path a fixed distance back without meeting a mare.
+ * 6. Each mare rides her own steered course as a real ride, every second riding and no two posed bodies meeting.
+ * 5. The stallion drives from behind, following the rearmost mare's line a fixed distance back, behind every mare and without meeting one.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the band, the alarm, the gate and the four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Steers real horse-sized agents with the engine's crowd steering from their seeded grazing places to a gate and reads their courses.
@@ -76,6 +79,8 @@ export function test_world_herd_flight(): void {
     ),
     from: 0,
     to: 20,
+    // A horse takes its pace over about a second, not a walker's half second: an authored relaxation for the band.
+    law: { relaxation: 1, horizon: 3 },
   });
   const at: (k: number, seconds: number) => IAutoMovieVector3 = (
     k: number,
@@ -158,11 +163,22 @@ export function test_world_herd_flight(): void {
         }),
       ),
   );
-  const DRIVE: number = 6;
+  const DRIVE: number = 4;
+  const rear: number = grazing.length - 1;
   const stallion: ArchetypeCourse.IPlan = ArchetypeCourse.timed(
     "stallion",
     ArchetypeManoeuvre.follow(
-      centroid,
+      ArchetypeCourse.timed(
+        "rear",
+        times.map(
+          (seconds: number): ArchetypeCourse.ISample => ({
+            seconds,
+            x: at(rear, seconds).x,
+            y: 0,
+            z: at(rear, seconds).z,
+          }),
+        ),
+      ),
       DRIVE,
       ALARM + REACTION + 2,
       ALARM + 6,
@@ -172,14 +188,12 @@ export function test_world_herd_flight(): void {
   const behind: boolean = Array.from(
     { length: 11 },
     (_: unknown, i: number): number => ALARM + REACTION + 2 + i * 0.3,
-  ).every((seconds: number): boolean => {
-    const ahead: IAutoMovieVector3 = centroid.at(seconds).placement.translation;
-    const self: IAutoMovieVector3 = stallion.at(seconds).placement.translation;
-    return (
-      self.z < ahead.z &&
-      Math.hypot(ahead.x - self.x, ahead.z - self.z) >= DRIVE * 0.5
-    );
-  });
+  ).every((seconds: number): boolean =>
+    grazing.every(
+      (_: IAutoMovieVector3, k: number): boolean =>
+        stallion.at(seconds).placement.translation.z < at(k, seconds).z,
+    ),
+  );
   const driven: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
     "drive",
     {
@@ -220,5 +234,62 @@ export function test_world_herd_flight(): void {
   TestValidator.predicate(
     `the stallion drives from behind the band without meeting a mare: behind ${behind}, met ${JSON.stringify(driven.slice(0, 1))}`,
     behind && driven.length === 0,
+  );
+  // 6. Each mare rides her own steered course: every second rides, and no two posed bodies meet.
+  const mare: ReturnType<typeof createHorse> = createHorse(
+    { withersHeight: 1.6, tempo: 0 },
+    "mare",
+  );
+  const rides: ArchetypeRide.IRide<string, string>[] = grazing.map(
+    (_: IAutoMovieVector3, k: number): ArchetypeRide.IRide<string, string> =>
+      rideQuadruped(
+        mare,
+        ArchetypeCourse.timed(
+          `mare${k}`,
+          Array.from(
+            { length: 41 },
+            (__: unknown, i: number): ArchetypeCourse.ISample => {
+              const seconds: number = i * 0.5;
+              return {
+                seconds,
+                x: at(k, seconds).x,
+                y: 0,
+                z: at(k, seconds).z,
+              };
+            },
+          ),
+        ),
+      ),
+  );
+  let refused: string = "none";
+  for (const [k, ride] of rides.entries())
+    for (
+      let seconds: number = 0;
+      seconds <= 20 && refused === "none";
+      seconds += 0.25
+    )
+      try {
+        ride.at(seconds);
+      } catch (error) {
+        refused = `mare ${k} at ${seconds} s: ${error instanceof Error ? error.message : String(error)}`;
+      }
+  TestValidator.equals("every mare rides her course", refused, "none");
+  TestValidator.equals(
+    "no two mares' posed bodies meet",
+    ArchetypePassage.conflicts("band", {
+      participants: rides.map(
+        (
+          ride: ArchetypeRide.IRide<string, string>,
+          k: number,
+        ): ArchetypePassage.IParticipant => ({
+          id: `mare${k}`,
+          plan: ride.plan,
+          footprint: ArchetypePassage.envelope(ride, 0, 20, 0.25),
+          margin: 0,
+        }),
+      ),
+      step: 0.1,
+    }),
+    [],
   );
 }
