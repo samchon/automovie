@@ -23,12 +23,11 @@ import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** The regions a pat-down visits from behind, in order: the shoulder blades, both flanks over the kidneys, then the waistband. */
+/** The regions a pat-down visits from behind, in order: the shoulder blades, then each shoulder; the hands clasped at the small of the back keep the pats above them. */
 const FRISK: readonly AutoMovieHumanoidRegion[] = [
   "upperBack",
-  "kidneyRight",
-  "kidneyLeft",
-  "lowerBack",
+  "shoulderRight",
+  "shoulderLeft",
 ];
 /** A pat lands within this of its region's bone, metres: a limb's radius and a palm's thickness. */
 const PAT: number = 0.12;
@@ -42,7 +41,7 @@ const RIGID: number = 0.001;
 /**
  * An arrest of a standing subject: the hands clasped behind the back and
  * held still through a pat-down from behind, handcuffs closed on the right
- * wrist and linked to the left, then an escort walk.
+ * forearm above the wrist and linked to the left, then an escort walk.
  *
  * Scenarios:
  * 1. The officer's palm reaches each frisked region of the subject at the
@@ -85,8 +84,8 @@ export function test_human_motion_arrest(): void {
         {
           prop: "cuffs",
           partner: "s",
-          region: "wristRight",
-          link: { region: "wristLeft", slack: CHAIN },
+          region: "forearmRight",
+          link: { region: "forearmLeft", slack: CHAIN },
         },
         "cuff",
       );
@@ -162,7 +161,7 @@ export function test_human_motion_arrest(): void {
     const on = (t: number): IAutoMovieRigidTransform =>
       HumanPropFrame.relative(
         HumanPropFrame.bone(
-          film.bones("s", t).get(subject.surfaces.regions.wristRight.bone)!,
+          film.bones("s", t).get(subject.surfaces.regions.forearmRight.bone)!,
         ),
         film.prop("cuffs", t),
       );

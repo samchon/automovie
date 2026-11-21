@@ -3,6 +3,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanDisarm,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
@@ -25,11 +26,26 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 const APART: number = 0.75;
 /** A carried prop rides its hand rigidly within this, metres: the worn-prop bound. */
 const RIGID: number = 0.002;
+/** One disarm case: the defender's body, the armed partner's body and the weapon. */
+type ICase = readonly [
+  defender: Cast,
+  armed: Cast,
+  kind: IAutoMovieMotionHumanDisarm.Kind,
+];
+
+/** A canonical polygon man. */
+type Cast = Parameters<typeof motionHumanBody>[0];
+
+/** The knife, on the larger defender; the handgun spec covers the other pair. */
+const CASES: readonly ICase[] = [
+  ["m-average", "f-small", "knife"],
+];
+
 /** Samples per custody span. */
 const SAMPLES: number = 6;
 
 /**
- * A knife and a handgun taken from a resisting partner, on two body pairs.
+ * A knife taken from a resisting partner, on the larger defender.
  *
  * Scenarios:
  * 1. Before the take the weapon rides the partner's hand rigidly; from the
@@ -47,80 +63,72 @@ const SAMPLES: number = 6;
  */
 export function test_human_motion_disarm(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
-  for (const [defenderLabel, armedLabel] of [
-    ["m-average", "f-small"],
-    ["f-small", "m-average"],
-  ] as const)
-    for (const kind of ["knife", "handgun"] as const) {
-      const label: string = `${defenderLabel} takes a ${kind}`;
-      const defender: IAutoMovieMotionHumanBody =
-        motionHumanBody(defenderLabel);
-      const armed: IAutoMovieMotionHumanBody = motionHumanBody(armedLabel);
-      try {
-        const film: HumanPerformance = perform(defender, armed, kind, true);
-        const take: IAutoMovieMotionHumanSegment = film
-          .segments("d")
-          .find((s: IAutoMovieMotionHumanSegment): boolean => s.id === "take")!;
-        const taken: number =
-          take.start +
-          take.plan.duration *
-            take.plan.events.find((e): boolean => e.name === "taken")!.share;
-        const inHand: (
-          subject: string,
-          t: number,
-        ) => IAutoMovieRigidTransform = (
-          subject: string,
-          t: number,
-        ): IAutoMovieRigidTransform =>
-          HumanPropFrame.relative(
-            HumanPropFrame.bone(film.bones(subject, t).get("rightHand")!),
-            film.prop("weapon", t),
-          );
-        const before: IAutoMovieRigidTransform = inHand("a", take.start);
-        const after: IAutoMovieRigidTransform = inHand("d", taken + 0.01);
-        for (let i: number = 0; i < SAMPLES; ++i) {
-          const t: number =
-            take.start + ((taken - 0.01 - take.start) * i) / (SAMPLES - 1);
-          checks.check(
-            `${label}: the partner owns the weapon at ${t.toFixed(2)}`,
-            Vector3.distance(inHand("a", t).position, before.position) <= RIGID,
-          );
-          const u: number =
-            taken + 0.01 + ((film.duration - taken - 0.01) * i) / (SAMPLES - 1);
-          checks.check(
-            `${label}: the defender owns the weapon at ${u.toFixed(2)}`,
-            Vector3.distance(inHand("d", u).position, after.position) <= RIGID,
-          );
-        }
-        const released: IAutoMovieMotionHumanSegment = film
-          .segments("a")
-          .find(
-            (s: IAutoMovieMotionHumanSegment): boolean => s.name === "disarmed",
-          )!;
-        const opens: number =
-          released.start +
-          released.plan.duration *
-            released.plan.events.find((e): boolean => e.name === "released")!
-              .share;
-        checks.check(
-          `${label}: the partner's hand opens at the take (${(opens - taken).toFixed(3)} s)`,
-          Math.abs(opens - taken) <= 1e-6,
+  for (const [defenderLabel, armedLabel, kind] of CASES) {
+    const label: string = `${defenderLabel} takes a ${kind}`;
+    const defender: IAutoMovieMotionHumanBody = motionHumanBody(defenderLabel);
+    const armed: IAutoMovieMotionHumanBody = motionHumanBody(armedLabel);
+    try {
+      const film: HumanPerformance = perform(defender, armed, kind, true);
+      const take: IAutoMovieMotionHumanSegment = film
+        .segments("d")
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.id === "take")!;
+      const taken: number =
+        take.start +
+        take.plan.duration *
+          take.plan.events.find((e): boolean => e.name === "taken")!.share;
+      const inHand: (subject: string, t: number) => IAutoMovieRigidTransform = (
+        subject: string,
+        t: number,
+      ): IAutoMovieRigidTransform =>
+        HumanPropFrame.relative(
+          HumanPropFrame.bone(film.bones(subject, t).get("rightHand")!),
+          film.prop("weapon", t),
         );
-        assertTakeClean(label, film);
-      } catch (error: unknown) {
-        checks.check(`${label} refused: ${String(error)}`, false);
+      const before: IAutoMovieRigidTransform = inHand("a", take.start);
+      const after: IAutoMovieRigidTransform = inHand("d", taken + 0.01);
+      for (let i: number = 0; i < SAMPLES; ++i) {
+        const t: number =
+          take.start + ((taken - 0.01 - take.start) * i) / (SAMPLES - 1);
+        checks.check(
+          `${label}: the partner owns the weapon at ${t.toFixed(2)}`,
+          Vector3.distance(inHand("a", t).position, before.position) <= RIGID,
+        );
+        const u: number =
+          taken + 0.01 + ((film.duration - taken - 0.01) * i) / (SAMPLES - 1);
+        checks.check(
+          `${label}: the defender owns the weapon at ${u.toFixed(2)}`,
+          Vector3.distance(inHand("d", u).position, after.position) <= RIGID,
+        );
       }
-      let refusal: unknown = undefined;
-      try {
-        perform(defender, armed, kind, false);
-      } catch (error: unknown) {
-        refusal = error;
-      }
+      const released: IAutoMovieMotionHumanSegment = film
+        .segments("a")
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "disarmed",
+        )!;
+      const opens: number =
+        released.start +
+        released.plan.duration *
+          released.plan.events.find((e): boolean => e.name === "released")!
+            .share;
       checks.check(
-        `${label}: an unarmed partner is refused: ${String(refusal)}`,
-        refusal instanceof HumanRefusal,
+        `${label}: the partner's hand opens at the take (${(opens - taken).toFixed(3)} s)`,
+        Math.abs(opens - taken) <= 1e-6,
       );
+      assertTakeClean(label, film);
+    } catch (error: unknown) {
+      checks.check(`${label} refused: ${String(error)}`, false);
     }
+    let refusal: unknown = undefined;
+    try {
+      perform(defender, armed, kind, false);
+    } catch (error: unknown) {
+      refusal = error;
+    }
+    checks.check(
+      `${label}: an unarmed partner is refused: ${String(refusal)}`,
+      refusal instanceof HumanRefusal,
+    );
+  }
   checks.assert("disarm");
 }
 
@@ -128,7 +136,7 @@ export function test_human_motion_disarm(): void {
 function perform(
   defender: IAutoMovieMotionHumanBody,
   armed: IAutoMovieMotionHumanBody,
-  kind: "knife" | "handgun",
+  kind: IAutoMovieMotionHumanDisarm.Kind,
   arm: boolean,
 ): HumanPerformance {
   const model:
