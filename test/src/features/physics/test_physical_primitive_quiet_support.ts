@@ -15,10 +15,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
-import {
-  PhysicalSupportLoads,
-  type PhysicalSupportSide,
-} from "../internal/PhysicalSupportLoads";
+import { PhysicalSupportLoads } from "../internal/PhysicalSupportLoads";
 import { createPhysicalBalanceInput } from "../internal/createPhysicalBalanceInput";
 
 /** Native seconds simulated per stance. */
@@ -164,7 +161,7 @@ async function stance(
         (sum: number, segment): number => sum + segment.neutral.position.x,
         0,
       ) / 4;
-  const sideOf = (bone: string): PhysicalSupportSide | undefined => {
+  const sideOf = (bone: string): PhysicalSupportLoads.Side | undefined => {
     const segment = profile.segments.find(
       (candidate) => candidate.bone === bone,
     );
@@ -182,7 +179,7 @@ async function stance(
     sideOf,
     (
       poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
-      side: PhysicalSupportSide,
+      side: PhysicalSupportLoads.Side,
     ): IAutoMovieVector3 => {
       const pair: IAutoMovieVector3[] = profile.segments
         .filter((segment) => sideOf(segment.bone) === side)
@@ -209,7 +206,7 @@ async function stance(
   const last: Readonly<Record<string, IAutoMovieRigidTransform>> =
     run.cache.frames.at(-1)!.bodies[subject.id]!;
   const center: number = PhysicalSupportLoads.center(profile, last).x;
-  const footprint = (side: PhysicalSupportSide): [number, number] => {
+  const footprint = (side: PhysicalSupportLoads.Side): [number, number] => {
     let low: number = Infinity;
     let high: number = -Infinity;
     for (const segment of profile.segments) {

@@ -7,9 +7,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** One side's supports of a two-sided stance. */
-export type PhysicalSupportSide = "left" | "right";
-
 /**
  * The floor's support of one simulated body over a late window: the load
  * the floor's solver receipts delivered, how it split between two sides,
@@ -17,6 +14,9 @@ export type PhysicalSupportSide = "left" | "right";
  * between them, and how far the mass center moved.
  */
 export namespace PhysicalSupportLoads {
+  /** One side's supports of a two-sided stance. */
+  export type Side = "left" | "right";
+
   /** The window's readings. */
   export interface IResult {
     /** Mean upward floor load, newtons. */
@@ -45,14 +45,14 @@ export namespace PhysicalSupportLoads {
     profile: IAutoMoviePhysicalProfile,
     body: string,
     start: number,
-    side: (bone: string) => PhysicalSupportSide | undefined,
+    side: (bone: string) => Side | undefined,
     centroid: (
       poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
-      side: PhysicalSupportSide,
+      side: Side,
     ) => IAutoMovieVector3,
   ): IResult {
     const window: number = run.cache.duration - start;
-    const loads: Record<PhysicalSupportSide, number> = { left: 0, right: 0 };
+    const loads: Record<Side, number> = { left: 0, right: 0 };
     for (const receipt of run.cache.contacts) {
       if (receipt.source !== "solver") continue;
       const end: "a" | "b" | undefined =
@@ -62,7 +62,7 @@ export namespace PhysicalSupportLoads {
             ? "b"
             : undefined;
       if (!end) continue;
-      const owner: PhysicalSupportSide | undefined = side(receipt[end].bone);
+      const owner: Side | undefined = side(receipt[end].bone);
       if (!owner) continue;
       for (const sample of receipt.samples ?? []) {
         if (sample.seconds <= start) continue;

@@ -21,10 +21,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
-import {
-  PhysicalSupportLoads,
-  type PhysicalSupportSide,
-} from "../internal/PhysicalSupportLoads";
+import { PhysicalSupportLoads } from "../internal/PhysicalSupportLoads";
 import { createPhysicalBalanceInput } from "../internal/createPhysicalBalanceInput";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
@@ -182,13 +179,13 @@ async function stance(
     profile,
     subject.id,
     DURATION - WINDOW,
-    (bone: string): PhysicalSupportSide | undefined =>
+    (bone: string): PhysicalSupportLoads.Side | undefined =>
       bone.startsWith("left")
         ? "left"
         : bone.startsWith("right")
           ? "right"
           : undefined,
-    (poses, side: PhysicalSupportSide): IAutoMovieVector3 => {
+    (poses, side: PhysicalSupportLoads.Side): IAutoMovieVector3 => {
       // A foot's contact centroid: its hull vertices on the floor.
       const points: IAutoMovieVector3[] = profile.segments
         .filter(
