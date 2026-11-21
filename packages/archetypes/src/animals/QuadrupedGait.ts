@@ -27,6 +27,11 @@ export namespace QuadrupedGait {
     | "trot"
     | "tolt"
     | "pace"
+    | "runningWalk"
+    | "rack"
+    | "foxTrot"
+    | "pasoLlano"
+    | "pasoCorto"
     | "canter"
     | "gallop"
     | "passage"
@@ -35,12 +40,17 @@ export namespace QuadrupedGait {
   /** The gaits that have a lead, whose right lead mirrors the left: the canter and the gallop; the walk and the trot are symmetric. */
   export const LEADED: readonly Gait[] = ["canter", "gallop"];
 
-  /** How many times a stride the trunk sinks: twice in the symmetric walk, trot, pace, passage and piaffe, and once in the canter and gallop. The tölt uses the same two-cycle coarse carriage proxy as the walk. Species supply the actual oscillation range. */
+  /** How many times a stride the trunk sinks: twice in the symmetric walk, trot, pace, ambling stepping gaits (`GaitedHorseProfile`), passage and piaffe, and once in the canter and gallop. The tölt uses the same two-cycle coarse carriage proxy as the walk. Species supply the actual oscillation range. */
   export const BEATS: Readonly<Record<Gait, number>> = {
     walk: 2,
     trot: 2,
     tolt: 2,
     pace: 2,
+    runningWalk: 2,
+    rack: 2,
+    foxTrot: 2,
+    pasoLlano: 2,
+    pasoCorto: 2,
     canter: 1,
     gallop: 1,
     passage: 2,

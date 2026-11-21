@@ -7,6 +7,7 @@ import { DeerBody } from "./DeerBody";
 import { DeerGait } from "./DeerGait";
 import { DogBody } from "./DogBody";
 import { DogGait } from "./DogGait";
+import { GaitedHorseProfile } from "./GaitedHorseProfile";
 import { HorseGait } from "./HorseGait";
 import { HorseHarness } from "./HorseHarness";
 import { IcelandicHorseProfile } from "./IcelandicHorseProfile";
@@ -307,6 +308,13 @@ export namespace createQuadruped {
     }
     if (kind === "horse" && animal.provenance?.models.breed === "icelandic")
       return { ...SPECIES.horse, table: IcelandicHorseProfile.TABLE };
+    const gaited: GaitedHorseProfile.Breed | undefined =
+      GaitedHorseProfile.BREEDS.find(
+        (breed: GaitedHorseProfile.Breed): boolean =>
+          breed === animal.provenance?.models.breed,
+      );
+    if (kind === "horse" && gaited !== undefined)
+      return { ...SPECIES.horse, table: GaitedHorseProfile.table(gaited) };
     return SPECIES[kind];
   }
 }
