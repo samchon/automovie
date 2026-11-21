@@ -39,6 +39,9 @@ export namespace IAutoMovieMotionHumanHeldWork {
     /** A prop set on one of the held prop's sockets at the work's end. */
     take?: IMount;
 
+    /** The other hand's grip kept on a contact riding a driven articulation, moving it: the free hand pushing an umbrella's runner up the shaft. Not with `at`: the holding hand stays still while the other works. */
+    push?: string;
+
     /** Seconds of the work before tempo scaling; positive. */
     seconds: number;
   }

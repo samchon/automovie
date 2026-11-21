@@ -32,6 +32,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { heldDigits } from "./heldDigits";
+import { workHeldPush } from "./workHeldPush";
 import { writeWith } from "./writeWith";
 
 /**
@@ -41,7 +42,9 @@ import { writeWith } from "./writeWith";
  * may first carry it to a place in the performer's floor frame (a tray on
  * the palm at shoulder height, an umbrella over the head, kept level when
  * asked), and the prop may take another prop onto one of its sockets at
- * the end (a morsel pinched between chopstick tips). Register as
+ * the end (a morsel pinched between chopstick tips). The free hand may push
+ * a part the drive moves while the holding hand keeps still (an umbrella's
+ * runner pushed up its shaft, workHeldPush). Register as
  * `workHeld`.
  *
  * The grip never opens, so the prop rides the palm's frame throughout and
@@ -116,21 +119,37 @@ function plan(
     context,
     held,
   );
+  if (p.push !== undefined && p.at !== undefined)
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "push",
+      value: p.push,
+      feasible: null,
+      reason:
+        "the free hand pushes a part of a prop the other hand holds still",
+      fix: "carry the prop to its place first, then push",
+    });
   const goal: IGoal | undefined =
     p.at === undefined ? undefined : place(context, p.prop, side, p.at);
+  const push: workHeldPush.IPush | undefined =
+    p.push === undefined
+      ? undefined
+      : workHeldPush(context, p.prop, p.push, side, p.drive ?? []);
   const tempo: number = context.tempo ?? 1;
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare:
-      goal === undefined
-        ? 0
-        : tempo * AutoMovieMotionHumanTiming.transport(goal.travel),
+      tempo *
+      AutoMovieMotionHumanTiming.transport(
+        Math.max(goal?.travel ?? 0, push?.travel ?? 0),
+      ),
     attack: tempo * p.seconds,
-    retract: 0,
+    retract:
+      push === undefined
+        ? 0
+        : tempo * AutoMovieMotionHumanTiming.transport(push.travel),
   });
   const ready: number = clock.at("strokeStart");
   const done: number = clock.at("strokeEnd");
-  const primitives: IAutoMovieMotionHumanPrimitive[] =
-    goal === undefined ? [] : [arm(context, side, clock, ready, goal)];
   const toolDrives: IAutoMovieMotionPropDrive[] = writeWith.drives(
     context,
     p.prop,
@@ -139,6 +158,10 @@ function plan(
     ready,
     done,
   );
+  const primitives: IAutoMovieMotionHumanPrimitive[] = [
+    ...(goal === undefined ? [] : [arm(context, side, clock, ready, goal)]),
+    ...(push === undefined ? [] : [push.arm(clock, toolDrives)]),
+  ];
   const digits: (
     seconds: number,
   ) => Partial<Record<AutoMovieHumanDigit, IAutoMovieHumanDigitGoal>> =
@@ -166,8 +189,12 @@ function plan(
     });
   return {
     ...composed,
-    hands: [side],
-    contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
+    hands: push === undefined ? [side] : [side, push.side],
+    contacts: [
+      ...composed.contacts,
+      AutoMovieMotionHumanHeld.grip(held),
+      ...(push === undefined ? [] : [push.contact(clock)]),
+    ],
     holds: [...(composed.holds ?? []), { ...kept, from: 1 }],
     drives: toolDrives,
     mounts:

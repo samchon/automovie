@@ -39,7 +39,7 @@ const HOLD: number = 0.005;
 /** A bite reaches the mouth within this, metres: the lips' half width. */
 const MOUTH: number = 0.06;
 /** The seated diner's chair. */
-const CHAIR: IAutoMovieVector3 = { x: 0, y: 0, z: -0.3 };
+const CHAIR: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /**
  * Two-utensil eating and serving (#4005), seated at a table.
@@ -95,13 +95,13 @@ function stage(): IStage {
       everydayTake.prop(
         "table",
         table,
-        { x: 0, y: 0, z: CHAIR.z + 0.3 + top.depth! / 2 },
+        { x: 0, y: 0, z: CHAIR.z + 0.1 + top.depth! / 2 },
         undefined,
         true,
       ),
     ],
     height: top.frame.translation.y,
-    near: CHAIR.z + 0.3,
+    near: CHAIR.z + 0.1,
   };
 }
 
@@ -155,7 +155,7 @@ function cut(
   const sign: number = side === "right" ? 1 : -1;
   const steak = createFoodPortion({ id: "steak", kind: "steak" });
   const piece = createFoodPortion({ id: "piece", kind: "piece" });
-  const plate: IAutoMovieVector3 = on(s, 0, 0.2);
+  const plate: IAutoMovieVector3 = on(s, 0, 0.14);
   // The piece abuts the steak's end on the knife's side.
   const props: IAutoMovieMotionHumanProp[] = [
     ...s.props,
@@ -167,12 +167,12 @@ function cut(
     everydayTake.prop(
       "knife",
       createTableKnife({ id: "knife" }),
-      on(s, sign * 0.22, 0.12),
+      on(s, sign * 0.18, 0.07),
     ),
     everydayTake.prop(
       "fork",
       createFork({ id: "fork" }),
-      on(s, -sign * 0.22, 0.12),
+      on(s, -sign * 0.18, 0.07),
     ),
   ];
   const edge: number = sign * 0.06;
@@ -208,7 +208,7 @@ function cut(
       side: other,
       take: { prop: "piece", point: "face" },
     })
-    .registered("eatWith", { held: "fork", point: "face" });
+    .registered("eatWith", { held: "fork", point: "face", side: other });
   const take: HumanPerformance = play(`${label} cut`, body, props, chain);
   const writes: IAutoMovieMotionHumanSegment[] = named(take, "write");
   const saw: IAutoMovieMotionHumanSegment = writes[0]!;
@@ -320,7 +320,7 @@ function chopsticks(
   const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
   const sign: number = side === "right" ? 1 : -1;
   const sticks = createChopsticks({ id: "sticks" });
-  const rice: IAutoMovieVector3 = on(s, sign * 0.05, 0.2);
+  const rice: IAutoMovieVector3 = on(s, sign * 0.1, 0.08);
   const props: IAutoMovieMotionHumanProp[] = [
     ...s.props,
     everydayTake.prop(
@@ -335,11 +335,11 @@ function chopsticks(
       createFoodPortion({ id: "morsel", kind: "morsel" }),
       { ...rice, y: rice.y + 0.02 },
     ),
-    everydayTake.prop("sticks", sticks, on(s, sign * 0.22, 0.1)),
+    everydayTake.prop("sticks", sticks, on(s, sign * 0.18, 0.07)),
     everydayTake.prop(
       "bowl",
       createBowl({ id: "bowl" }),
-      on(s, -sign * 0.2, 0.15),
+      on(s, -sign * 0.17, 0.1),
     ),
   ];
   const chin: number = body.measure.shoulderHeight + 0.1;
@@ -372,7 +372,7 @@ function chopsticks(
       at: { out: 0.05, up: chin - 0.15, forward: 0.2, level: true },
       seconds: 0.5,
     })
-    .registered("eatWith", { held: "sticks", point: "tips" });
+    .registered("eatWith", { held: "sticks", point: "tips", side });
   const take: HumanPerformance = play(
     `${label} chopsticks`,
     body,
@@ -434,8 +434,8 @@ function serve(
 ): void {
   const s: IStage = stage();
   const sign: number = side === "right" ? 1 : -1;
-  const platter: IAutoMovieVector3 = on(s, 0, 0.25);
-  const plate: IAutoMovieVector3 = on(s, sign * 0.28, 0.15);
+  const platter: IAutoMovieVector3 = on(s, 0, 0.17);
+  const plate: IAutoMovieVector3 = on(s, sign * 0.2, 0.1);
   const props: IAutoMovieMotionHumanProp[] = [
     ...s.props,
     everydayTake.prop(
@@ -460,7 +460,7 @@ function serve(
     everydayTake.prop(
       "spoon",
       createSpoon({ id: "spoon" }),
-      on(s, sign * 0.2, 0.05),
+      on(s, sign * 0.15, 0.04),
     ),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")

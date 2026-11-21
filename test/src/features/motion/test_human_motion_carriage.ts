@@ -203,7 +203,7 @@ function arrival(
     .pickUp({ prop: "case", handle: "pull", hand: "left", lift: 0 })
     .walk({ to: { x: 0, y: 0, z: 1.5 } })
     .walk({ to: { x: 1.2, y: 0, z: 2.2 } })
-    .putDown({ prop: "case", at: { x: 1.0, y: 0, z: 1.95 }, hand: "left" })
+    .putDown({ prop: "case", at: { x: 1.05, y: 0, z: 2.46 }, hand: "left" })
     .pickUp({ prop: "pack", handle: "handle", hand: "right", lift: 0 })
     .putDown({ prop: "pack", at: OFF, hand: "right" });
   const take: HumanPerformance = play(`${label} arrival`, body, props, chain);
@@ -437,13 +437,7 @@ function changeHands(
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()
-    .pickUp({ prop: "tote", handle: "handle", hand: "right", lift: 0.2 })
-    .registered("workHeld", {
-      prop: "tote",
-      side: "right",
-      at: { out: -0.05, up: 0.95, forward: 0.3 },
-      seconds: 0.5,
-    })
+    .pickUp({ prop: "tote", handle: "handle", hand: "right", lift: 0.3 })
     .pickUp({ prop: "tote", handle: "strap", hand: "left", lift: 0 })
     .release({ hand: "right" });
   const take: HumanPerformance = play(

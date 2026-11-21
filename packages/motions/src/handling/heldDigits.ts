@@ -95,35 +95,11 @@ export function heldDigits(
     > = {};
     for (const w of worked) {
       const travel: number = w.drive.travel(seconds);
-      const rest: IAutoMovieVector3 = w.site.frame.translation;
-      const pivot: IAutoMovieVector3 = w.joint.frame.translation;
-      const local: IAutoMovieVector3 =
-        w.joint.kind === "hinge"
-          ? Vector3.add(
-              pivot,
-              Quaternion.rotateVector(
-                Quaternion.fromAxisAngle(
-                  Quaternion.rotateVector(w.joint.frame.rotation, {
-                    x: 0,
-                    y: 1,
-                    z: 0,
-                  }),
-                  travel,
-                ),
-                Vector3.subtract(rest, pivot),
-              ),
-            )
-          : Vector3.add(
-              rest,
-              Vector3.scale(
-                Quaternion.rotateVector(w.joint.frame.rotation, {
-                  x: 1,
-                  y: 0,
-                  z: 0,
-                }),
-                travel,
-              ),
-            );
+      const local: IAutoMovieVector3 = heldDigits.posed(
+        w.joint,
+        w.site,
+        travel,
+      );
       goals[w.digit] = {
         point: Vector3.add(
           grip,
@@ -139,6 +115,57 @@ export function heldDigits(
     }
     return goals;
   };
+}
+
+/**
+ * The companion reader of {@link heldDigits}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the posed-contact reader.
+ * @evidence contracts/development/design.md#principled-representation Prop-local metres from a declared joint, contact and travel.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What `heldDigits` and `workHeld` read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Only a hinge or a slider moves the contact.
+ */
+export namespace heldDigits {
+  /**
+   * Where a contact riding a hinge or a slider lies at a travel, in its
+   * prop's frame: turned about the hinge's `+Y` through its pivot by the
+   * travel in degrees, or slid along the slider's `+X` by it in metres.
+   *
+   * @param joint The articulation the contact rides.
+   * @param site The contact.
+   * @param travel The articulation's travel.
+   * @returns Prop-local metres.
+   */
+  export function posed(
+    joint: IAutoMovieAffordance,
+    site: IAutoMovieAffordance,
+    travel: number,
+  ): IAutoMovieVector3 {
+    const rest: IAutoMovieVector3 = site.frame.translation;
+    const pivot: IAutoMovieVector3 = joint.frame.translation;
+    return joint.kind === "hinge"
+      ? Vector3.add(
+          pivot,
+          Quaternion.rotateVector(
+            Quaternion.fromAxisAngle(
+              Quaternion.rotateVector(joint.frame.rotation, {
+                x: 0,
+                y: 1,
+                z: 0,
+              }),
+              travel,
+            ),
+            Vector3.subtract(rest, pivot),
+          ),
+        )
+      : Vector3.add(
+          rest,
+          Vector3.scale(
+            Quaternion.rotateVector(joint.frame.rotation, { x: 1, y: 0, z: 0 }),
+            travel,
+          ),
+        );
+  }
 }
 
 /** Each hand's digits by name. */

@@ -42,7 +42,7 @@ const SEAT: number = 0.03;
 /** A displayed prop moves at most this between frames 1/24 s apart, metres. */
 const STEP: number = 0.08;
 /** The seated actor's chair, ahead of the origin facing the table. */
-const CHAIR: IAutoMovieVector3 = { x: 0, y: 0, z: -0.3 };
+const CHAIR: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 /** Face down: a card's back up. */
 const DOWN: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 /** Face up: turned over about its long side. */
@@ -53,7 +53,7 @@ const UP: IAutoMovieQuaternion = { x: 0, y: 0, z: 1, w: 0 };
  * prop tracked from its start through each hand and support to its place.
  *
  * Scenarios, on m-average and f-small:
- * 1. Chess: a white pawn moves e2 to e4, then captures a black pawn on d5,
+ * 1. Chess: a white pawn moves e2 to e3, then captures a black pawn on d3,
  *    which is lifted off the board first; each lands on its target
  *    square's centre or its aside point, held still in the hand between.
  *    An occupied target without its capture is refused before anything
@@ -98,7 +98,7 @@ function stage(): IStage {
   const top: IAutoMovieAffordance = table.affordances!.find(
     (a: IAutoMovieAffordance): boolean => a.id === "top",
   )!;
-  const centre: number = CHAIR.z + 0.3 + top.depth! / 2;
+  const centre: number = CHAIR.z + 0.1 + top.depth! / 2;
   return {
     seat: HumanObject.seat(chair, placement),
     props: [
@@ -112,7 +112,7 @@ function stage(): IStage {
       ),
     ],
     height: top.frame.translation.y,
-    near: CHAIR.z + 0.3,
+    near: CHAIR.z + 0.1,
   };
 }
 
@@ -169,7 +169,7 @@ function chess(
 ): void {
   const s: IStage = stage();
   const board = createChessBoard({ id: "board" });
-  const centre: IAutoMovieVector3 = onTable(s, 0, 0.3);
+  const centre: IAutoMovieVector3 = onTable(s, 0, 0.24);
   const square: (id: string) => IAutoMovieVector3 = (
     id: string,
   ): IAutoMovieVector3 => {
@@ -180,25 +180,25 @@ function chess(
   };
   const white = createChessPiece({ id: "wp", kind: "pawn", side: "white" });
   const black = createChessPiece({ id: "bp", kind: "pawn", side: "black" });
-  const aside: IAutoMovieVector3 = onTable(s, 0.3, 0.08);
+  const aside: IAutoMovieVector3 = onTable(s, 0.2, 0.04);
   const props: IAutoMovieMotionHumanProp[] = [
     ...s.props,
     everydayTake.prop("board", board, centre, undefined, true),
     everydayTake.prop("wp", white, square("e2")),
-    everydayTake.prop("bp", black, square("d5")),
+    everydayTake.prop("bp", black, square("d3")),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanTabletop.chessMove(
     HumanTabletop.chessMove(seated(s), {
       board: "board",
       piece: "wp",
-      to: "e4",
-      occupancy: { e2: "wp", d5: "bp" },
+      to: "e3",
+      occupancy: { e2: "wp", d3: "bp" },
     }),
     {
       board: "board",
       piece: "wp",
-      to: "d5",
-      occupancy: { e4: "wp", d5: "bp" },
+      to: "d3",
+      occupancy: { e3: "wp", d3: "bp" },
       capture: "bp",
       aside,
     },
@@ -222,8 +222,8 @@ function chess(
       (x: IAutoMovieMotionHumanSegment): boolean => x.law.name === "pickUp",
     );
   checks.check(
-    `${label}: the pawn lands on e4's centre`,
-    Vector3.distance(take.prop("wp", moves[0]!.end).position, square("e4")) <=
+    `${label}: the pawn lands on e3's centre`,
+    Vector3.distance(take.prop("wp", moves[0]!.end).position, square("e3")) <=
       LAND,
   );
   checks.check(
@@ -231,8 +231,8 @@ function chess(
     Vector3.distance(take.prop("bp", take.duration).position, aside) <= LAND,
   );
   checks.check(
-    `${label}: the capture lands on d5's centre`,
-    Vector3.distance(take.prop("wp", take.duration).position, square("d5")) <=
+    `${label}: the capture lands on d3's centre`,
+    Vector3.distance(take.prop("wp", take.duration).position, square("d3")) <=
       LAND,
   );
   checks.check(
@@ -254,8 +254,8 @@ function chess(
     HumanTabletop.chessMove(seated(s), {
       board: "board",
       piece: "wp",
-      to: "d5",
-      occupancy: { e4: "wp", d5: "bp" },
+      to: "d3",
+      occupancy: { e3: "wp", d3: "bp" },
     }),
   );
   checks.check(
@@ -272,7 +272,7 @@ function cards(
 ): void {
   const s: IStage = stage();
   const thickness: number = 0.0003;
-  const deck: IAutoMovieVector3 = onTable(s, 0.05, 0.1);
+  const deck: IAutoMovieVector3 = onTable(s, 0.05, 0.06);
   const card: (
     id: string,
     k: number,
@@ -289,9 +289,9 @@ function cards(
       DOWN,
     );
   const seats: IAutoMovieVector3[] = [
-    onTable(s, -0.2, 0.15),
-    onTable(s, 0, 0.25),
-    onTable(s, 0.2, 0.15),
+    onTable(s, -0.15, 0.1),
+    onTable(s, 0, 0.16),
+    onTable(s, 0.15, 0.1),
   ];
   // The deck's top card is the highest one: deal from the top down.
   const dealt: string[] = ["c3", "c2", "c1"];
@@ -413,10 +413,10 @@ function tokens(
   const chip: number = 0.0033;
   const note: number = 0.00011;
   const stack: IAutoMovieVector3 = onTable(s, 0.1, 0.05);
-  const pot: IAutoMovieVector3 = onTable(s, 0, 0.3);
+  const pot: IAutoMovieVector3 = onTable(s, 0, 0.17);
   const bills: IAutoMovieVector3 = onTable(s, -0.15, 0.05);
-  const pile: IAutoMovieVector3 = onTable(s, -0.15, 0.2);
-  const roll: IAutoMovieVector3 = onTable(s, 0.15, 0.25);
+  const pile: IAutoMovieVector3 = onTable(s, -0.15, 0.15);
+  const roll: IAutoMovieVector3 = onTable(s, 0.12, 0.17);
   const props: IAutoMovieMotionHumanProp[] = [
     ...s.props,
     everydayTake.prop("k0", createGamingChip({ id: "k0" }), stack),
@@ -439,7 +439,7 @@ function tokens(
       ...bills,
       y: bills.y + note,
     }),
-    everydayTake.prop("die", createDie({ id: "die" }), onTable(s, 0.2, 0.05)),
+    everydayTake.prop("die", createDie({ id: "die" }), onTable(s, 0.18, 0.05)),
   ];
   let chain: IAutoMovieMotionHumanChain = HumanTabletop.push(seated(s), {
     stack: "k0",

@@ -60,7 +60,7 @@ const SHUT: number = 0.5;
  * penetration: no blade passes through the holding hand.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each scenario, the bodies, the handedness and the refusals.
- * @evidence contracts/development/testing.md#behavioral-verification Composes pickUp, workHeld, operate, write and walk and reads displayed hands, props and articulation states.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes pickUp, workHeld with a pushing hand, operate, write and walk and reads displayed hands, props and articulation states.
  * @evidence contracts/development/testing.md#independent-expectations The open angle and the line are the archetype's and the author's; tolerances are named.
  * @evidence contracts/development/testing.md#distinguishing-cases Right against left hand, furled against open, open against closed, reachable against distant runner, held against unheld scissors.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
@@ -135,16 +135,15 @@ function umbrella(
     .pickUp({ prop: "umbrella", handle: "grip", hand: "right", lift: 0.05 })
     .registered("workHeld", {
       prop: "umbrella",
-      at: { out: 0.15, up: shoulder - 0.45, forward: 0.3, level: true },
+      // Held low before the body, the runner within the free arm.
       seconds: 0.4,
     })
-    .operate({
-      hand: "left",
-      mechanism: {
-        kind: "slider",
-        at: { kind: "prop", subject: "umbrella", point: "runner" },
-        travel: runner.travel!,
-      },
+    .registered("workHeld", {
+      prop: "umbrella",
+      side: "right",
+      drive: [{ articulation: "runner", to: runner.travel! }],
+      push: "runner",
+      seconds: 0.8,
     })
     .registered("workHeld", {
       prop: "umbrella",
@@ -155,14 +154,14 @@ function umbrella(
   const partner: everydayTake.IOther = {
     subject: "partner",
     body,
-    at: { x: 0.45, y: 0, z: 0 },
+    at: { x: -0.45, y: 0, z: 0 },
     yaw: 0,
     chain: HumanChain.subject("partner")
       .stand({ seconds: 3.5, sway: 0 })
-      .walk({ to: { x: 0.45, y: 0, z: 2 } }),
+      .walk({ to: { x: -0.45, y: 0, z: 2 } }),
   };
   const take: HumanPerformance = play(label, body, props, chain, [partner]);
-  const operate: IAutoMovieMotionHumanSegment = named(take, "operate")[0]!;
+  const operate: IAutoMovieMotionHumanSegment = named(take, "workHeld")[1]!;
   let last: number = -1;
   let follows: boolean = true;
   let stays: number = 0;
@@ -244,23 +243,29 @@ function umbrella(
     everydayTake.perform(
       `handheld-${label}-far`,
       body,
-      [everydayTake.prop("umbrella", model, { x: 0, y: 0.9, z: 1.6 })],
+      props,
+      // Raised overhead first, the runner rises beyond the free arm.
       HumanChain.subject("actor")
         .stand()
-        .operate({
-          hand: "left",
-          mechanism: {
-            kind: "slider",
-            at: { kind: "prop", subject: "umbrella", point: "runner" },
-            travel: runner.travel!,
-          },
+        .pickUp({ prop: "umbrella", handle: "grip", hand: "right", lift: 0.05 })
+        .registered("workHeld", {
+          prop: "umbrella",
+          at: { out: 0.05, up: shoulder + 0.25, forward: 0.15, level: true },
+          seconds: 0.4,
+        })
+        .registered("workHeld", {
+          prop: "umbrella",
+          side: "right",
+          drive: [{ articulation: "runner", to: runner.travel! }],
+          push: "runner",
+          seconds: 0.8,
         }),
       Object.values(HUMAN_LEXICON).flat(),
     ),
   );
   checks.check(
     `${label}: a runner beyond the hand's reach is refused`,
-    far !== undefined,
+    far !== undefined && far.kind === "reach",
   );
 }
 
