@@ -39,7 +39,7 @@ import { standingLegs } from "./standingLegs";
  * progression angle (Perry and Burnfield, Gait Analysis, 2nd ed.). Arms hang
  * relaxed (`relaxed`): 12° of elbow flexion, the hand in its position of rest
  * (`HumanHand.shape`, relaxed), and the least shoulder abduction that hangs
- * the hand beside the thigh, the arm and its digits clear of the body. Postural sway moves the root on two
+ * the hand beside the thigh, its digits clear of the body. Postural sway moves the root on two
  * seeded smooth signals below 1 Hz, side to side and front to back in the
  * body's frame, with an RMS of 3 mm for an elite and 4.8
  * mm for a novice: quiet-stance centre-of-pressure sway of healthy adults is a
@@ -142,9 +142,7 @@ export namespace stand {
    * flexion, each hand in its position of rest (`HumanHand.shape`, relaxed),
    * and the least shoulder abduction at which those relaxed hands lie beside
    * the thighs, every digit clear of the rest of the body
-   * (`HumanDigitFit.depth` no more than zero) and no upper arm, forearm or
-   * palm inside another part of the body but where the profile declares the
-   * pair overlapping at a pivot, in the quiet stance. The
+   * (`HumanDigitFit.depth` no more than zero) in the quiet stance. The
    * abduction is found once per body by bisection between none and the
    * shoulder's range, the depth falling as the arm swings out, until the
    * bracket is no wider than the resolution to which a solver resolves a

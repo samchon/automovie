@@ -22,7 +22,12 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanFoot } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanPerformance,
+  shiftStandingWeight,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -42,6 +47,14 @@ const FIT_TOLERANCE: number = 0.000025;
  * range back inside it.
  */
 const LEG_TURN: number = 0.001;
+
+/**
+ * How much less of a drop a leg must need than the other for the handoff to
+ * bend it, metres: a micrometre, far above the fit's 1e-9 m reach roundoff,
+ * past which a leg left unbent would miss its ankle and fail the native
+ * anchor check.
+ */
+const REACH: number = 0.000001;
 
 /** One independently transformed hull vertex and its source shape. */
 interface IVertex {
@@ -72,11 +85,15 @@ interface IVertex {
  *    original pose untouched.
  * 4. A tall body and a large body, whose forearms hang against a wider
  *    waist, settle and transfer the same way.
+ * 5. After a planted 80 mm weight shift the legs need different drops: the
+ *    body goes down by the deeper need, computed from the authored knee and
+ *    the planted ankle, and the other leg bends its knee further to reach its
+ *    planted ankle, with every other check of scenario 3.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the public producer, independent observations and differing world frames.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public film's displayed rigid transforms at entry, during settling, at the event and after settling. It observes support, slip and clinical angles before the handoff. The public physical handoff supplies a separate pose for native limits and retained world support.
  * @evidence contracts/development/testing.md#independent-expectations Transforms each source vertex directly and compares it with the declared world plane. The combined mass center uses actual segment masses and placed local centers.
- * @evidence contracts/development/testing.md#distinguishing-cases Detects a tilted or floating socket sole, a nonzero floor interpreted in a different heading, a handoff that leaves the heel hull up, turns or shifts the pelvis sideways, turns a thigh or moves a bearing point, an undeclared self-overlap at the native start, and a large body's forearm against the waist.
+ * @evidence contracts/development/testing.md#distinguishing-cases Detects a tilted or floating socket sole, a nonzero floor interpreted in a different heading, a handoff that leaves the heel hull up, turns or shifts the pelvis sideways, turns a thigh in a symmetric stance, sets the body down by other than the deeper leg need, leaves the shorter leg unbent in an asymmetric stance, or moves a bearing point, an undeclared self-overlap at the native start, and a large body's forearm against the waist.
  * @evidence contracts/development/testing.md#execution-ownership Uses in-memory motion evaluation and the real Human profile. It opens no render or simulated physics world.
  */
 export function test_human_motion_stand_support_geometry(): void {
@@ -175,6 +192,34 @@ export function test_human_motion_stand_support_geometry(): void {
       }
     checkTransfer(body, hold, floor, failures);
   }
+
+  // An asymmetric stance: after a planted 80 mm weight shift the two legs
+  // need different drops, so the leg left nearer its ankle bends.
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const shifted: HumanPerformance = new HumanPerformance({
+    seed: "stand-support-shift",
+    performers: [
+      {
+        subject: "standing",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    laws: [shiftStandingWeight],
+    composition: HumanChain.subject("standing")
+      .stand({ seconds: 0.6, sway: 0 })
+      .registered("shiftStandingWeight", { by: -0.08, seconds: 0.8, hold: 0.6 })
+      .node,
+  });
+  checkTransfer(
+    body,
+    shifted.bones("standing", shifted.segments("standing")[1]!.start + 1.1),
+    0,
+    failures,
+    true,
+  );
   TestValidator.equals("displayed quiet Stand support", failures, []);
 }
 
@@ -184,6 +229,7 @@ function checkTransfer(
   bones: motionHumanLaw.Bones,
   floor: number,
   failures: string[],
+  asymmetric: boolean = false,
 ): void {
   const profile: IAutoMovieMotionHumanBody["profile"] = body.profile;
   const goals: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
@@ -262,6 +308,8 @@ function checkTransfer(
         `${profile.id} transfer moved the pelvis ${JSON.stringify(moved)}`,
       );
   }
+  const thighs: Record<"left" | "right", number> = { left: 0, right: 0 };
+  const knees: Record<"left" | "right", number> = { left: 0, right: 0 };
   for (const side of ["left", "right"] as const) {
     const source: IVertex[] = vertices(
       body,
@@ -283,15 +331,44 @@ function checkTransfer(
     );
     const from: IAutoMovieVector3 = source[index]!.point;
     const to: IAutoMovieVector3 = fitted[index]!.point;
-    const thigh: number = turnAngle(
+    thighs[side] = turnAngle(
       goals[`${side}UpperLeg`]!.rotation,
       native[`${side}UpperLeg`]!.rotation,
     );
-    if (Math.hypot(to.x - from.x, to.z - from.z) > CONTACT || thigh > LEG_TURN)
+    knees[side] = knee(native, side) - knee(goals, side);
+    if (Math.hypot(to.x - from.x, to.z - from.z) > CONTACT)
       failures.push(
-        `${profile.id} transfer ${side}: bearing point moved ${Math.hypot(to.x - from.x, to.z - from.z)} m sideways, thigh turned ${thigh} rad`,
+        `${profile.id} transfer ${side}: bearing point moved ${Math.hypot(to.x - from.x, to.z - from.z)} m sideways`,
       );
   }
+
+  // Each leg needs the body set down until its authored knee stands a
+  // shank's length from its planted ankle; the body goes down by the larger
+  // need. A symmetric stance's legs need it alike and keep their thighs. In
+  // an asymmetric one the other leg is left nearer its ankle than a straight
+  // reach, so it bends its knee further than the leg that set the drop.
+  const needs: Record<"left" | "right", number> = {
+    left: need(profile, goals, native, "left"),
+    right: need(profile, goals, native, "right"),
+  };
+  const drop: number = goals.hips!.position.y - native.hips!.position.y;
+  const deeper: "left" | "right" = needs.left >= needs.right ? "left" : "right";
+  const other: "left" | "right" = deeper === "left" ? "right" : "left";
+  if (Math.abs(drop - needs[deeper]) > CONTACT)
+    failures.push(
+      `${profile.id} transfer: body set down ${drop} m, the legs need ${JSON.stringify(needs)} m`,
+    );
+  if (
+    asymmetric
+      ? !(
+          needs[deeper] - needs[other] > REACH &&
+          knees[other] - knees[deeper] > LEG_TURN
+        )
+      : thighs.left > LEG_TURN || thighs.right > LEG_TURN
+  )
+    failures.push(
+      `${profile.id} transfer: legs need ${JSON.stringify(needs)} m, thighs turned ${JSON.stringify(thighs)} rad, knees bent ${JSON.stringify(knees)} rad more`,
+    );
 
   const nativeSupport: IAutoMovieVector3[] = [];
   for (const side of ["left", "right"] as const) {
@@ -351,6 +428,59 @@ function checkTransfer(
     failures.push(
       `${profile.id}: transfer changed the owned goals or exceeded residual accuracy`,
     );
+}
+
+/**
+ * How far the body must be set straight down for a leg's authored knee to
+ * stand a shank's length from its planted ankle, metres: the smaller root
+ * of |knee − drop·up − ankle| = shank.
+ */
+function need(
+  profile: IAutoMovieMotionHumanBody["profile"],
+  goals: Readonly<Record<string, IAutoMovieRigidTransform>>,
+  native: Readonly<Record<string, IAutoMovieRigidTransform>>,
+  side: "left" | "right",
+): number {
+  const anchor = (
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
+    child: string,
+  ): IAutoMovieVector3 => {
+    const joint: IAutoMovieMotionHumanBody["profile"]["joints"][number] =
+      profile.joints.find((candidate): boolean => candidate.child === child)!;
+    return Vector3.add(
+      poses[child]!.position,
+      Quaternion.rotateVector(
+        poses[child]!.rotation,
+        joint.childFrame.position,
+      ),
+    );
+  };
+  const knee: IAutoMovieVector3 = anchor(goals, `${side}LowerLeg`);
+  const shank: number = Vector3.length(
+    Vector3.subtract(anchor(goals, `${side}Foot`), knee),
+  );
+  const v: IAutoMovieVector3 = Vector3.subtract(
+    knee,
+    anchor(native, `${side}Foot`),
+  );
+  return v.y - Math.sqrt(v.y * v.y - Vector3.dot(v, v) + shank * shank);
+}
+
+/** A knee's bend: the angle between the thigh and the shank at their anchors, radians. */
+function knee(
+  poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
+  side: "left" | "right",
+): number {
+  const hip: IAutoMovieVector3 = poses[`${side}UpperLeg`]!.position;
+  const middle: IAutoMovieVector3 = poses[`${side}LowerLeg`]!.position;
+  const ankle: IAutoMovieVector3 = poses[`${side}Foot`]!.position;
+  const thigh: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(middle, hip),
+  );
+  const shank: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(ankle, middle),
+  );
+  return Math.acos(Math.max(-1, Math.min(1, Vector3.dot(thigh, shank))));
 }
 
 /** The angle of the rotation from one orientation to another, radians. */

@@ -13,7 +13,8 @@ export namespace IAutoMovieFitHumanPhysicalStandingPose {
   /**
    * One articulated standing pose whose soles bear on a horizontal ground
    * plane as the motion foot model reads them; the transfer plants the
-   * collider soles on it.
+   * collider soles on it and opens an arm resting on the body clear of the
+   * rigid colliders.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the provider and world/metre premises and the bounded solve settings.
    * @evidence contracts/development/design.md#principled-representation Each declared provider segment has one actual authored world transform.

@@ -1,17 +1,23 @@
+import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditLimits } from "../audit/AutoMovieMotionHumanAuditLimits";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** The interior shares of a key-to-key blend read once to find whether any arm leaves its room. */
+/** The fewest shares of a key-to-key blend read once to find whether any arm leaves its room. */
 const SCAN: number = 16;
 
 /** Arm rooms by side, degrees. */
@@ -39,16 +45,18 @@ export namespace floorArmRoom {
    * Prepare the clearance of one floor law's key-to-key blends.
    *
    * The first interior query of a blend reads the rooms of its two keys and
-   * of `SCAN` evenly spaced blends between them; a blend whose arms stay
-   * within their allowance at every one of those is then left exactly as
-   * blended with no further reading, so only a blend that carries an arm
-   * through the body pays a posture resolve per query.
+   * of evenly spaced blends between them, as many as `samples` shows keep
+   * any dip between two readings within the audit's self-penetration
+   * allowance; a blend whose arms stay within their allowance at every one
+   * of those is then left exactly as blended with no further reading, so
+   * only a blend that carries an arm through the body pays a posture resolve
+   * per query.
    *
    * @param body The body.
    * @returns The blend at a weight with its arms kept within the keys' blended room.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The keys' rooms and the scan are read once per blend; a flagged blend reads each queried posture's rooms and turns an arm only past its allowance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A blend that never leaves its room costs `SCAN + 2` resolves once and nothing per query; a flagged one costs one resolve and two room readings per query plus the clearance search where an arm is past its allowance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A blend that never leaves its room costs its scan's resolves once (at least `SCAN + 1`) and nothing per query; a flagged one costs one resolve and two room readings per query plus the clearance search where an arm is past its allowance.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains, per blend index, two room records and a flag for the law plan's lifetime.
    */
   export function prepare(
@@ -75,9 +83,10 @@ export namespace floorArmRoom {
           from: rooms(body, posed(body, keyed(0), read, project)),
           to: rooms(body, posed(body, keyed(1), read, project)),
         };
+        const count: number = samples(body, keyed(0), keyed(1));
         let flagged: boolean = false;
-        for (let i: number = 1; i < SCAN && !flagged; i++) {
-          const w: number = i / SCAN;
+        for (let i: number = 1; i < count && !flagged; i++) {
+          const w: number = i / count;
           const at: Rooms = rooms(body, posed(body, keyed(w), read, project));
           const limit: Rooms = allowed(ends, w);
           flagged = at.left > limit.left || at.right > limit.right;
@@ -92,6 +101,152 @@ export namespace floorArmRoom {
   }
 }
 
+/**
+ * The shares a blend's scan reads, enough that no arm can sink, between
+ * two of them, more than the audit's self-penetration allowance
+ * (`AutoMovieMotionHumanAuditLimits.tangle`, 10 mm) deeper into the trunk, a
+ * thigh or the other arm than it lies at the nearer one; never fewer than
+ * `SCAN`.
+ *
+ * A floor law blends its keys linearly in clinical joint angles
+ * (`prepareHumanShapeBlend`) and carries the whole body rigidly, which moves
+ * nothing against itself. Over the whole blend a joint turns by at most the
+ * sum of its three angle differences, and its turn moves a point it carries,
+ * relative to every point it does not, no faster than that turn times the
+ * point's distance from the joint. That distance never exceeds the joint's
+ * reach: the sum of the joint-to-joint lengths down the chain to the
+ * farthest arm or obstacle collider it carries, plus that collider's extent
+ * from its own joint, the same in every pose. So the depth of any arm
+ * collider in any obstacle changes, per unit of blend weight, by at most the
+ * sum over the joints of turn times reach, `L`, and between readings 1/N
+ * apart a dip is at most L/(2N) deeper than the shallower reading around
+ * it: N is the least count that keeps that within the allowance.
+ */
+function samples(
+  body: IAutoMovieMotionHumanBody,
+  from: IAutoMovieMotionHumanPosture,
+  to: IAutoMovieMotionHumanPosture,
+): number {
+  let rate: number = 0;
+  for (const { bone, reach } of reaches(body)) {
+    const a: readonly [number, number, number] = from.joints[bone] ?? ZERO;
+    const b: readonly [number, number, number] = to.joints[bone] ?? ZERO;
+    rate +=
+      (((Math.abs(a[0] - b[0]) +
+        Math.abs(a[1] - b[1]) +
+        Math.abs(a[2] - b[2])) *
+        Math.PI) /
+        180) *
+      reach;
+  }
+  return Math.max(
+    SCAN,
+    Math.ceil(rate / (2 * AutoMovieMotionHumanAuditLimits.tangle)),
+  );
+}
+
+/** The angles of a joint a posture leaves out. */
+const ZERO: readonly [0, 0, 0] = [0, 0, 0];
+
+/** The colliders the arm room reads: the trunk, the thighs and both arms. */
+const READ: ReadonlySet<string> = new Set<string>([
+  ...HumanArmObstacleBones.TRUNK,
+  "leftUpperLeg",
+  "rightUpperLeg",
+  "leftUpperArm",
+  "leftLowerArm",
+  "leftHand",
+  "rightUpperArm",
+  "rightLowerArm",
+  "rightHand",
+]);
+
+/** Each body's joint reaches, read once. */
+const REACHES: WeakMap<
+  IAutoMovieMotionHumanBody,
+  { bone: AutoMovieHumanoidBone; reach: number }[]
+> = new WeakMap();
+
+/**
+ * Read a body's joint reaches from its profile at rest: for each joint that
+ * carries some but not all of the read colliders, the longest chain length
+ * from it to a read collider's farthest bound, metres.
+ */
+function reaches(
+  body: IAutoMovieMotionHumanBody,
+): { bone: AutoMovieHumanoidBone; reach: number }[] {
+  const known: { bone: AutoMovieHumanoidBone; reach: number }[] | undefined =
+    REACHES.get(body);
+  if (known) return known;
+  const profile: IAutoMovieMotionHumanBody["profile"] = body.profile;
+  const pose = (bone: string): IAutoMovieRigidTransform =>
+    profile.segments.find((segment): boolean => segment.bone === bone)!.neutral;
+  const anchor = (bone: string): IAutoMovieVector3 => {
+    const joint = profile.joints.find(
+      (candidate): boolean => candidate.child === bone,
+    )!;
+    return Vector3.add(
+      pose(bone).position,
+      Quaternion.rotateVector(pose(bone).rotation, joint.childFrame.position),
+    );
+  };
+  // A segment's own reach: the farthest corner of its colliders' bounds
+  // from its joint.
+  const extent = (bone: string): number => {
+    const from: IAutoMovieVector3 = anchor(bone);
+    let out: number = 0;
+    for (const shape of profile.segments.find(
+      (segment): boolean => segment.bone === bone,
+    )!.shapes) {
+      const box = physicalShapeBounds(pose(bone), shape);
+      for (const x of [box.min.x, box.max.x])
+        for (const y of [box.min.y, box.max.y])
+          for (const z of [box.min.z, box.max.z])
+            out = Math.max(out, Vector3.distance(from, { x, y, z }));
+    }
+    return out;
+  };
+  // The reach of the joint into `bone`: its read collider's extent and,
+  // through each child joint, the length to it plus that joint's reach.
+  const memo: Map<string, number> = new Map();
+  const reach = (bone: string): number => {
+    const cached: number | undefined = memo.get(bone);
+    if (cached !== undefined) return cached;
+    let out: number = READ.has(bone) ? extent(bone) : 0;
+    for (const joint of profile.joints) {
+      if (joint.parent !== bone) continue;
+      const below: number = reach(joint.child);
+      if (below > 0)
+        out = Math.max(
+          out,
+          Vector3.distance(anchor(bone), anchor(joint.child)) + below,
+        );
+    }
+    memo.set(bone, out);
+    return out;
+  };
+  const carried = (bone: string): number =>
+    [...READ].filter((read: string): boolean => {
+      for (let at: string | undefined = read; at !== undefined; )
+        if (at === bone) return true;
+        else
+          at = profile.joints.find(
+            (joint): boolean => joint.child === at,
+          )?.parent;
+      return false;
+    }).length;
+  const out: { bone: AutoMovieHumanoidBone; reach: number }[] = [];
+  for (const joint of profile.joints) {
+    const count: number = carried(joint.child);
+    if (count === 0 || count === READ.size) continue;
+    out.push({
+      bone: joint.child as AutoMovieHumanoidBone,
+      reach: reach(joint.child),
+    });
+  }
+  REACHES.set(body, out);
+  return out;
+}
 /** The posture with each arm kept within its allowed room. */
 function cleared(
   body: IAutoMovieMotionHumanBody,

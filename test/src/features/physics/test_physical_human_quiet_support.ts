@@ -1,6 +1,5 @@
 import {
   AutoMoviePhysicalSimulation,
-  Quaternion,
   Vector3,
   physicalSupportPoint,
 } from "@automovie/engine";
@@ -22,6 +21,10 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
+import {
+  PhysicalSupportLoads,
+  type PhysicalSupportSide,
+} from "../internal/PhysicalSupportLoads";
 import { createPhysicalBalanceInput } from "../internal/createPhysicalBalanceInput";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
@@ -174,115 +177,63 @@ async function stance(
     failures.push(`${label}: quiet stance stepped or lost support`);
 
   const weight: number = profile.mass * -input.gravity.y;
-  const start: number = DURATION - WINDOW;
-  const loads: Record<"left" | "right", number> = { left: 0, right: 0 };
-  for (const receipt of run.cache.contacts) {
-    if (receipt.source !== "solver") continue;
-    const side: "a" | "b" | undefined =
-      receipt.a.body === subject.id && receipt.b.body === "floor"
-        ? "a"
-        : receipt.b.body === subject.id && receipt.a.body === "floor"
-          ? "b"
-          : undefined;
-    if (!side) continue;
-    const foot: "left" | "right" = receipt[side].bone.startsWith("left")
-      ? "left"
-      : "right";
-    for (const sample of receipt.samples ?? [])
-      if (sample.seconds > start)
-        loads[foot] +=
-          ((sample.appliedImpulse?.[side] ?? sample.impulse) *
-            (side === "a" ? -sample.normal.y : sample.normal.y)) /
-          WINDOW;
-  }
-  const total: number = loads.left + loads.right;
-  if (Math.abs(total - weight) > weight * LOAD)
-    failures.push(`${label}: floor load ${total} N against ${weight} N`);
-
-  const frames = run.cache.frames.filter((frame) => frame.seconds >= start);
-  const centers: IAutoMovieVector3[] = frames.map((frame) =>
-    center(profile, frame.bodies[subject.id]!),
+  const read: PhysicalSupportLoads.IResult = PhysicalSupportLoads.measure(
+    run,
+    profile,
+    subject.id,
+    DURATION - WINDOW,
+    (bone: string): PhysicalSupportSide | undefined =>
+      bone.startsWith("left")
+        ? "left"
+        : bone.startsWith("right")
+          ? "right"
+          : undefined,
+    (poses, side: PhysicalSupportSide): IAutoMovieVector3 => {
+      // A foot's contact centroid: its hull vertices on the floor.
+      const points: IAutoMovieVector3[] = profile.segments
+        .filter(
+          (segment: IAutoMoviePhysicalSegment): boolean =>
+            segment.bone === `${side}Foot` || segment.bone === `${side}Toes`,
+        )
+        .flatMap((segment: IAutoMoviePhysicalSegment): IAutoMovieVector3[] =>
+          segment.shapes.flatMap((shape): IAutoMovieVector3[] =>
+            shape.kind === "hull"
+              ? shape.points
+                  .map(
+                    (point: IAutoMovieVector3): IAutoMovieVector3 =>
+                      physicalSupportPoint(
+                        poses[segment.bone]!,
+                        physicalSupportPoint(shape.transform, point),
+                      ),
+                  )
+                  .filter(
+                    (point: IAutoMovieVector3): boolean => point.y < 0.001,
+                  )
+              : [],
+          ),
+        );
+      return Vector3.scale(
+        points.reduce(
+          (
+            sum: IAutoMovieVector3,
+            point: IAutoMovieVector3,
+          ): IAutoMovieVector3 => Vector3.add(sum, point),
+          { x: 0, y: 0, z: 0 },
+        ),
+        1 / points.length,
+      );
+    },
   );
-  const drift: number = Math.max(
-    ...centers.map((c: IAutoMovieVector3): number =>
-      Vector3.length(Vector3.subtract(c, centers[0]!)),
-    ),
-  );
-  if (drift > DRIFT) failures.push(`${label}: mass center drifted ${drift} m`);
+  if (Math.abs(read.total - weight) > weight * LOAD)
+    failures.push(`${label}: floor load ${read.total} N against ${weight} N`);
+  if (read.drift > DRIFT)
+    failures.push(`${label}: mass center drifted ${read.drift} m`);
 
   // Moment balance about the line between the feet: each foot carries the
   // share of the weight the mass center's place between them gives it.
-  const last = frames.at(-1)!.bodies[subject.id]!;
-  const sole = (side: "left" | "right"): IAutoMovieVector3 => {
-    const points: IAutoMovieVector3[] = profile.segments
-      .filter(
-        (segment) =>
-          segment.bone === `${side}Foot` || segment.bone === `${side}Toes`,
-      )
-      .flatMap((segment) =>
-        segment.shapes.flatMap((shape) =>
-          shape.kind === "hull"
-            ? shape.points
-                .map((point) =>
-                  physicalSupportPoint(
-                    last[segment.bone]!,
-                    physicalSupportPoint(shape.transform, point),
-                  ),
-                )
-                .filter((point) => point.y < 0.001)
-            : [],
-        ),
-      );
-    return Vector3.scale(
-      points.reduce((sum, point) => Vector3.add(sum, point), {
-        x: 0,
-        y: 0,
-        z: 0,
-      }),
-      1 / points.length,
-    );
-  };
-  const left: IAutoMovieVector3 = sole("left");
-  const right: IAutoMovieVector3 = sole("right");
-  const across: IAutoMovieVector3 = {
-    x: left.x - right.x,
-    y: 0,
-    z: left.z - right.z,
-  };
-  const lever: number =
-    Vector3.dot(Vector3.subtract(centers.at(-1)!, right), across) /
-    Vector3.dot(across, across);
-  const share: number = loads.left / total;
-  if (Math.abs(share - lever) > SHARE)
+  if (Math.abs(read.left - read.lever) > SHARE)
     failures.push(
-      `${label}: left foot carries ${share} of the load, its lever share is ${lever}`,
+      `${label}: left foot carries ${read.left} of the load, its lever share is ${read.lever}`,
     );
-  return { left: share, lever };
-}
-
-/** The mass center of a cache frame's segments, metres. */
-function center(
-  profile: IAutoMovieMotionHumanBody["profile"],
-  poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
-): IAutoMovieVector3 {
-  return profile.segments.reduce(
-    (
-      sum: IAutoMovieVector3,
-      segment: IAutoMoviePhysicalSegment,
-    ): IAutoMovieVector3 =>
-      Vector3.add(
-        sum,
-        Vector3.scale(
-          Vector3.add(
-            poses[segment.bone]!.position,
-            Quaternion.rotateVector(
-              poses[segment.bone]!.rotation,
-              segment.centerOfMass,
-            ),
-          ),
-          segment.mass / profile.mass,
-        ),
-      ),
-    { x: 0, y: 0, z: 0 },
-  );
+  return { left: read.left, lever: read.lever };
 }

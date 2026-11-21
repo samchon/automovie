@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPhysicalArmRoom } from "./HumanPhysicalArmRoom";
 import { HumanPhysicalSolePlant } from "./HumanPhysicalSolePlant";
 
 /** Arithmetic allowance for coincident double-precision anchors, metres. */
@@ -62,23 +63,41 @@ type IVertex = HumanPhysicalSolePlant.IVertex;
  * 38 mm lower and 15 mm further back (m-average; 44 mm lower m-tall, 32 mm
  * f-small). A standing leg is within a few millimetres of full extension and
  * cannot reach that ankle from the authored pelvis, so the body above the
- * feet is set straight down until each knee stands a shank's length from its
- * planted ankle, about 41 mm (m-average; 46 mm m-tall, 34 mm f-small), and
- * only the shanks turn, by about 2 degrees, to reach them;
- * the pelvis keeps its orientation and horizontal place, and the thighs,
- * trunk, arms and head keep their authored shape. Keeping the bearing point,
- * not the ankle, keeps the mass center where the authored stance holds it
+ * feet is set straight down by the drop the most demanding leg needs to
+ * stand its knee a shank's length from its planted ankle, about 41 mm
+ * (m-average; 46 mm m-tall, 34 mm f-small). That leg turns only its shank,
+ * by about 2 degrees, keeping its thigh; in a symmetric stance both legs do.
+ * A leg the drop brings nearer its ankle than that, as the unloaded leg of a
+ * weight shift, also bends its knee forward in the plane of its own bend,
+ * turning its thigh, until it reaches. The joint solver then gives each
+ * shank's turn to the knee's native axes, which turns a thigh mostly about
+ * its own length once the shift is wide: after an 80 mm shift by up to 0.8
+ * degrees, its knee moving 0.3 degrees about the hip. The pelvis keeps its
+ * orientation and horizontal place, and the trunk and head keep their
+ * authored shape. Keeping the bearing point, not the ankle, keeps the mass
+ * center where the authored stance holds it
  * over the forefoot: turned about the ankle instead, the planted contacts
  * move 15 mm forward under it and m-tall steps out of its stance within a
- * quarter second. The physical pose therefore differs from the authored one by that
- * turn at the feet, that tilt of the shanks and that drop of the body; the
- * difference is this handoff's correction of the foot model mismatch, not
- * motion, and it vanishes when the drawn heel reaches the sockets' plane.
+ * quarter second.
+ *
+ * The arms are opened at this handoff too. The displayed arm hangs with its
+ * forearm resting on the waist, which the motion audit admits as the skin's
+ * give, 2 mm inside the spine's hull (m-average; 10 mm m-large). A rigid
+ * hull has no give, and a pair the profile does not exclude would be pushed
+ * apart on the first substep, so each arm keeps its own shape and turns
+ * outward about its shoulder's abduction axis by the least angle that
+ * leaves it the fit's tolerance clear of every collider outside it, 0.5 degrees (m-average; 2.1 degrees
+ * m-large, under 0.01 degrees f-small and m-tall; `HumanPhysicalArmRoom`).
+ *
+ * The physical pose therefore differs from the authored one by that turn at
+ * the feet, those leg turns, that drop of the body and that opening of the
+ * arms; the difference is this handoff's correction of the rigid colliders'
+ * mismatch with the drawn feet and the soft body, not motion.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the actual sole witnesses, the bounded transfer and the preserved frames.
  * @evidence contracts/development/implementation.md#principled-implementation Fits both articulated legs against measured hull points in metres. Independently checks anchor closure, all native joint coordinates, whole-body clearance and the projected mass center.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses the Engine articulation solver and its geometry and joint readers with Human's canonical support carriers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unavailable support region, a sole above its bearing allowance or below the floor, a missed fit or an inadmissible resulting pose returns a refusal and supplies no motor goals; the body is set down only as far as the planted ankles require, and the pelvis neither turns nor moves sideways.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unavailable support region, a sole above its bearing allowance or below the floor, a missed fit or an inadmissible resulting pose returns a refusal and supplies no motor goals; the body is set down only as far as the planted ankles require, an arm opens only as far as its clearance requires, and the pelvis neither turns nor moves sideways.
  * @evidence contracts/development/implementation.md#efficient-algorithms Reads each sole once before the bounded leg solve. The residual only moves six fixed local points across its probes.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each invocation fits the supplied authored pose and retains no cached targets.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources All point geometry, poses and residual callbacks are local. No native world is created.
@@ -246,9 +265,11 @@ export function fitHumanPhysicalStandingPose(
 
   // A planted ankle lies lower than the authored one, beyond the reach of a
   // standing leg from the authored pelvis. The body above the feet is set
-  // straight down until each knee stands a shank's length from its planted
-  // ankle, and only the shanks turn to reach the ankles: the thighs keep their
-  // place against the hanging hands. A nearly straight standing knee gives a
+  // straight down by the drop the most demanding leg needs to stand its knee
+  // a shank's length from its planted ankle. That leg turns only its shank,
+  // keeping its thigh against the hanging hand; a leg the drop brings nearer
+  // its ankle bends its knee and turns its thigh to reach
+  // (`HumanPhysicalSolePlant.swing`). A nearly straight standing knee gives a
   // joint solver no first-order way along the leg, so this seed is built here
   // and the solver refines it in native axes.
   const drop: number = Math.max(
@@ -289,7 +310,15 @@ export function fitHumanPhysicalStandingPose(
   const residual: number = fit.residual;
   if (residual > tolerance)
     return { kind: "unresolved", reason: "fit", residual };
-  const posed: Poses = fit.targets;
+  // A forearm resting on the waist is admitted as the skin's give in the
+  // display but would start inside a rigid hull: each arm opens at the
+  // shoulder by the least abduction that clears it. It opens after the
+  // solve, which still turns the thighs the hands hang beside, and turns
+  // only the whole arm about its shoulder anchor, so every anchor stays
+  // closed; the checks below read the result.
+  const posed: Record<string, IAutoMovieRigidTransform> = { ...fit.targets };
+  if (!HumanPhysicalArmRoom.open(profile, posed, tolerance))
+    return { kind: "unresolved", reason: "fit", residual };
   if (!anchors(profile, posed))
     return { kind: "unresolved", reason: "anchor", residual };
   if (
@@ -344,7 +373,7 @@ export function fitHumanPhysicalStandingPose(
     resolveAutoMovieCenterOfMass.margin(center, base) < 0
   )
     return { kind: "unresolved", reason: "balance", residual };
-  return { kind: "fitted", targets: fit.targets, residual };
+  return { kind: "fitted", targets: posed, residual };
 }
 
 /** Validate one complete world transform before passing it to the solver. */
