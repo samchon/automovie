@@ -51,3 +51,6 @@ export * from "./createSphericalBall";
 export * from "./createTennisNet";
 export * from "./createVolleyballNet";
 export * from "./createThrowingCircle";
+export * from "./createPadelCourt";
+export * from "./createSquashCourt";
+export * from "./createTableTennisTable";
