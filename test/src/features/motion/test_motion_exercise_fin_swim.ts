@@ -12,6 +12,7 @@ import type {
 import {
   HumanChain,
   HumanEmblem,
+  HumanHandToFaceRows,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
@@ -38,7 +39,7 @@ const TRIM: number = 15;
  *    and ascends with the raised hand above the head; a depth beyond the
  *    breath hold is refused with the reachable depth.
  * 3. Snorkelling keeps the worn snorkel's top above the surface.
- * 4. The OK and up hand signals ride the fin swim, and the worn fin stays
+ * 4. The equalizing nose pinch and the OK and up hand signals ride the fin swim, and the worn fin stays
  *    on its foot.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the three acts, the gear and the bounds.
@@ -92,7 +93,12 @@ export function test_motion_exercise_fin_swim(): void {
     // Hand signals over the swim, and the worn fin on its foot.
     const signals: HumanPerformance = new HumanPerformance({
       seed: "fin-signals",
-      laws: [aquatic, HumanEmblem.okSign, HumanEmblem.thumbsUp],
+      laws: [
+        aquatic,
+        HumanHandToFaceRows.facePinchNose,
+        HumanEmblem.okSign,
+        HumanEmblem.thumbsUp,
+      ],
       performers: [diverAt(body)],
       props: [fin("fin", "leftFoot", 0.35)],
       composition: HumanChain.subject("diver")
@@ -104,15 +110,18 @@ export function test_motion_exercise_fin_swim(): void {
           prop: "fin",
         })
         .over((u: ReturnType<typeof HumanChain.subject>) =>
-          u.registered("okSign", {}).registered("thumbsUp", {}),
+          u
+            .registered("facePinchNose", {})
+            .registered("okSign", {})
+            .registered("thumbsUp", {}),
         ).node,
     });
     TestValidator.predicate(
-      `${profile}: the OK and up signals ride the fin swim`,
+      `${profile}: the equalizing pinch and the OK and up signals ride the fin swim`,
       signals
         .overlays("diver")
         .map((o): string => o.name)
-        .join(",") === "okSign,thumbsUp",
+        .join(",") === "facePinchNose,okSign,thumbsUp",
     );
     const mount: number[] = [1, 3, 5].map((seconds: number): number =>
       Vector3.distance(

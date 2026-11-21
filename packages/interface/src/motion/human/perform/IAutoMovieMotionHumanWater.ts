@@ -14,6 +14,9 @@ export interface IAutoMovieMotionHumanWater {
 
   /** The density, kg/m³; fresh water when absent. */
   density?: number;
+
+  /** The blade area of a fin worn on each foot, square metres: a plate along the sole that the water drags on across its face. No fins when absent. */
+  fins?: number;
 }
 
 /** Operation-local contracts supporting IAutoMovieMotionHumanWater. */

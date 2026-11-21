@@ -187,5 +187,18 @@ export namespace handToFaceRows {
       head: 0,
       at: "atMouth",
     },
+    // Equalizing a diver's ears: thumb and forefinger pinch the nose
+    // through the mask's nose pocket and hold while the diver blows
+    // gently (PADI Open Water Diver Manual).
+    pinchNose: {
+      region: "nose",
+      effector: { surface: "palm", shape: "point" },
+      kind: "hold",
+      count: 1,
+      hold: 1,
+      tangent: "up",
+      head: 0,
+      at: "atNose",
+    },
   };
 }

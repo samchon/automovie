@@ -84,4 +84,11 @@ export namespace HumanHandToFaceRows {
   > = HumanActionRow.of("faceWipeMouth", handToFace, {
     task: "wipeMouth",
   });
+
+  /** `handToFace` doing `pinchNose`: a diver equalizing through the mask. */
+  export const facePinchNose: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["facePinchNose"]
+  > = HumanActionRow.of("facePinchNose", handToFace, {
+    task: "pinchNose",
+  });
 }

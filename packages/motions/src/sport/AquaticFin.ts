@@ -10,6 +10,9 @@ import type {
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanWater } from "../perform/HumanWater";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 
 /** Fin kick frequency, hertz: provisional until a measured fin-swimming study is read. */
@@ -21,11 +24,8 @@ const HEAVE: number = 0.15;
 /** Thrust coefficient of a kicking fin blade: provisional. */
 const THRUST: number = 0.5;
 
-/** Drag coefficient of a diver trimmed horizontal: provisional, a streamlined swimmer. */
-const DRAG: number = 0.9;
-
-/** Frontal area of a trimmed diver over stature squared: provisional. */
-const FRONTAL: number = 0.035;
+/** Fresh water's density, kg/m^3. */
+const WATER_DENSITY: number = 1000;
 
 /** Descent and ascent speeds of a breath-hold dive, metres per second: provisional. */
 const DESCENT: number = 1;
@@ -47,7 +47,7 @@ const TURN: number = 1;
  * lifts the legs vertical above it, kicks down to the authored depth and
  * ascends with one hand overhead (`duckDive`). The cruising speed balances
  * the fins' thrust, 0.5 ρ C_T A w² for both blades heaving at the kick, with
- * the trimmed body's drag, 0.5 ρ C_D A v², so the density cancels. Kick frequency and coefficients
+ * the trimmed body's drag as HumanWater sums it with the fins worn. Kick frequency and coefficients
  * are provisional. A dive deeper than the breath-hold reaches is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three kinds, the source, the speed balance and its provisional coefficients, and the refusal.
@@ -64,10 +64,6 @@ export namespace AquaticFin {
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
     const area: number = blade(context);
-    const speed: number = Math.sqrt(
-      (THRUST * 2 * area * (2 * Math.PI * KICK * HEAVE) ** 2) /
-        (DRAG * FRONTAL * body.measure.stature ** 2),
-    );
     const prone: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,
       ExerciseKey.from(
@@ -78,6 +74,35 @@ export namespace AquaticFin {
     );
     const hipsAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["hips"]);
+
+    // The cruising speed balances both blades' thrust with the trimmed
+    // body's drag as HumanWater sums it, fins included: drag grows with the
+    // square of speed, so one reading at 1 m/s gives the balance.
+    const deep: IAutoMovieMotionHumanPosture = AquaticPosture.translate(prone, {
+      ...prone.root,
+      y: water - body.measure.stature,
+    });
+    const ahead: IAutoMovieVector3 = Vector3.subtract(
+      AquaticPosture.along(entry.posture, 1, 0),
+      AquaticPosture.along(entry.posture, 0, 0),
+    );
+    const resistance: number = -Vector3.dot(
+      HumanWater.sum(
+        body,
+        poseBones(body, resolveHumanPosture(body, deep)),
+        ahead,
+        { surface: water, fins: area },
+      ).drag,
+      ahead,
+    );
+    const thrust: number =
+      0.5 *
+      WATER_DENSITY *
+      THRUST *
+      2 *
+      area *
+      (2 * Math.PI * KICK * HEAVE) ** 2;
+    const speed: number = Math.sqrt(thrust / resistance);
     const kick = (
       posture: IAutoMovieMotionHumanPosture,
       t: number,
