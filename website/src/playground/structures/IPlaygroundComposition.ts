@@ -1,3 +1,4 @@
+import type { ArchetypeCourse } from "@automovie/archetypes";
 import type { IAutoMovieMotionHumanImpulse } from "@automovie/interface";
 
 /**
@@ -40,14 +41,14 @@ export namespace IPlaygroundComposition {
     /** The producer's export name in `@automovie/archetypes`, such as `createSeat`. */
     producer: string;
 
-    /** The producer's kind or frame, when it has variants. */
+    /** The producer's kind, frame or format when it has variants. */
     kind?: string;
 
     /** The seed its free dimensions are drawn with; the middle of every band when absent. */
     seed?: string;
 
-    /** Dimensions stated outright, by the producer's own names (such as `height`), each within its band; drawn from the seed when absent. */
-    params?: Record<string, number>;
+    /** Dimensions stated outright, by the producer's own names (such as `height`), each within its band, and named read models (such as a sword's `model` or a scabbard's `blade`); drawn from the seed when absent. */
+    params?: Record<string, number | string>;
 
     /** Floor point, world metres: x to the left of a person facing +Z. */
     x: number;
@@ -69,6 +70,51 @@ export namespace IPlaygroundComposition {
 
     /** Whether it is a fixture, such as a fixed ladder or a wall bar, which hands grip and never carry (`IAutoMovieMotionHumanProp.fixed`); a free object when absent. */
     fixed?: boolean;
+
+    /** A native vehicle course starting at this placement. */
+    course?: Omit<ArchetypeCourse.ICourse, "start">;
+
+    /** Native joint states named at film seconds, interpolated between keys. */
+    joints?: Record<string, readonly IJointKey[]>;
+
+    /** The performer whose opening aidWalk action moves this floor aid. */
+    aidWalk?: IAidWalk;
+
+    /** The carrier this blade starts seated in, such as a sword in a worn scabbard, as `HumanSheath.of` stages it; free when absent. A sheathed object takes no `worn`. */
+    sheath?: IPlaygroundComposition.ISheath;
+  }
+
+  /** The walker of a floor aid. */
+  export interface IAidWalk {
+    /** The performer's subject. */
+    subject: string;
+  }
+
+  /** A film-time value in an articulation's own unit. */
+  export interface IJointKey {
+    /** Film seconds. */
+    seconds: number;
+
+    /** The articulation's travel, in its own unit. */
+    value: number;
+  }
+
+  /** A blade seated in a carrier object, as `IAutoMovieMotionHumanSheath.IParams` takes it with the carrier's subject. */
+  export interface ISheath {
+    /** The carrier object's subject id. */
+    carrier: string;
+
+    /** The carrier's mouth socket id, such as `mouth`. */
+    mouth: string;
+
+    /** The blade's tip affordance id, such as `point`. */
+    tip: string;
+
+    /** The blade's handle affordance id, such as `grip`. */
+    handle: string;
+
+    /** How far the drawn tip clears the mouth, metres; positive. */
+    clearance: number;
   }
 
   /** A rotation as a unit quaternion. */

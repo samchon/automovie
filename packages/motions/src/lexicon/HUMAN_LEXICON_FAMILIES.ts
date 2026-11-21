@@ -14,6 +14,8 @@ import { swipeTouchscreen } from "../everyday/swipeTouchscreen";
 import { ropeSkip } from "../exercise/ropeSkip";
 import { grapple } from "../grappling/grapple";
 import { button } from "../handling/button";
+import { drawFromCarrier } from "../handling/drawFromCarrier";
+import { collapse } from "../reaction/collapse";
 import { guitarChord } from "../handling/guitarChord";
 import { guitarNote } from "../handling/guitarNote";
 import { pianoPedal } from "../handling/pianoPedal";
@@ -33,14 +35,18 @@ import { sideDrumStrike } from "../tasks/sideDrumStrike";
 import { stageCatch } from "../throwing/stageCatch";
 import { HumanArchery } from "./HumanArchery";
 import { HumanBicycleEffort } from "./HumanBicycleEffort";
+import { HumanBikeGuide } from "./HumanBikeGuide";
 import { HumanBikeTransfer } from "./HumanBikeTransfer";
 import { HumanBlade } from "./HumanBlade";
 import { HumanBoltAction } from "./HumanBoltAction";
 import { HumanCarried } from "./HumanCarried";
+import { HumanCarrierCustody } from "./HumanCarrierCustody";
+import { HumanHorrorGait } from "./HumanHorrorGait";
 import { HumanDefence } from "./HumanDefence";
 import { HumanDressRows } from "./HumanDressRows";
 import { HumanDrill } from "./HumanDrill";
 import { HumanEmblem } from "./HumanEmblem";
+import { HumanEnvironmentRecovery } from "./HumanEnvironmentRecovery";
 import { HumanFirearm } from "./HumanFirearm";
 import { HumanFloorFall } from "./HumanFloorFall";
 import { HumanFloorRoll } from "./HumanFloorRoll";
@@ -52,7 +58,10 @@ import { HumanHabit } from "./HumanHabit";
 import { HumanHandToFaceRows } from "./HumanHandToFaceRows";
 import { HumanHandrimStroke } from "./HumanHandrimStroke";
 import { HumanLabour } from "./HumanLabour";
+import { HumanHoldHandles } from "./HumanHoldHandles";
+import { HumanLeadHorse } from "./HumanLeadHorse";
 import { HumanManipulate } from "./HumanManipulate";
+import { HumanMounted } from "./HumanMounted";
 import { HumanMusketDrill } from "./HumanMusketDrill";
 import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
@@ -88,6 +97,7 @@ import { HumanTravelCar } from "./HumanTravelCar";
 import { HumanTravelCarExit } from "./HumanTravelCarExit";
 import { HumanTravelDoor } from "./HumanTravelDoor";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
+import { HumanTraversal } from "./HumanTraversal";
 import { HumanUpperRows } from "./HumanUpperRows";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
@@ -112,9 +122,12 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   gait: [
     HumanGait,
     HumanTravelDoor,
+    HumanTraversal,
+    HumanEnvironmentRecovery,
     HumanTravelCar,
     HumanTravelLeaf,
     HumanTravelCarExit,
+    HumanHorrorGait,
   ],
   pursuit: [HumanPursuit],
   social: [HumanSocial, HumanPartner, { curtsy }],
@@ -125,7 +138,15 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   labour: [HumanLabour],
   ride: [
     HumanRide,
-    { HumanHandrimStroke, HumanBicycleEffort, HumanBikeTransfer },
+    {
+      HumanHandrimStroke,
+      HumanBicycleEffort,
+      HumanBikeTransfer,
+      HumanBikeGuide,
+      HumanLeadHorse,
+      HumanHoldHandles,
+      HumanMounted,
+    },
   ],
   carried: [HumanCarried, { spacecraftGlide }],
   sport: [
@@ -136,7 +157,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   sportGym: [HumanSportGym],
   sportCarry: [HumanSportCarry],
   floorRoll: [HumanFloorRoll],
-  floorFall: [HumanFloorFall],
+  floorFall: [HumanFloorFall, { collapse }],
   support: [HumanSupportRows],
   sportSwing: [HumanSportSwing, HumanPrecisionSport],
   sportThrow: [HumanSportThrow, { stageCatch }],
@@ -153,6 +174,8 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
       pour,
       pickUpMoving,
       putDownAperture,
+      takeFromCarrier: HumanCarrierCustody,
+      drawFromCarrier,
       bowViolin,
       playWindInstrument,
       guitarNote,

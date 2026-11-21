@@ -95,7 +95,12 @@ export const SCENES_GESTURES: readonly IScene[] = [
           use: { tip: "screen", line: "across", at: { region: "noseBridge" } },
         }),
         act("photograph", { prop: "camera" }, { anchor: "sn-shot1" }),
-        act("gesture", { kind: "shakeHead" }, { anchor: "sn-no" }),
+        // Keep the camera steady as Fay silently asks for a different pose.
+        act(
+          "stand",
+          { seconds: 2.05, sway: 0 },
+          { anchor: "sn-no", over: [act("gesture", { kind: "shakeHead" })] },
+        ),
         act("photograph", { prop: "camera" }, { anchor: "sn-shot2" }),
         act("comeHere", { side: "left" }, { anchor: "sn-come" }),
         act("look", { target: at("gil", "face"), seconds: 1 }),
@@ -131,7 +136,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
     ],
     [
       object("counter", "createTable", "counter", 0, 0.65, 180),
-      object("camera", "createDevice", "camera", -0.18, 0.42, 0, 0.914),
+      object("camera", "createCamera", undefined, -0.18, 0.42, 0, 0.914),
     ],
   ),
   scene(
@@ -179,7 +184,6 @@ export const SCENES_GESTURES: readonly IScene[] = [
       setting: "everyday",
       roles: { kas: "player", lin: "player", mia: "player", ned: "player" },
       needs: [],
-      refusedUntil: 3552,
     },
     "schoolyard-games",
     [
@@ -203,7 +207,6 @@ export const SCENES_GESTURES: readonly IScene[] = [
       setting: "everyday",
       roles: { ora: "host", pia: "guest", raf: "friend", sia: "friend" },
       needs: [],
-      refusedUntil: 3552,
     },
     "toasts",
     [

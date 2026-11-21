@@ -77,6 +77,29 @@ export function createSurfboard(
     depth: length,
   });
   builder.affordance({
+    id: "prone",
+    kind: "surface",
+    frame: ArchetypeFrame.upright(v(0, thickness, length / 12)),
+    extent: null,
+    width,
+    depth: length / 3,
+  });
+  // The two palm patches sit inside the material rails, ahead of the prone hips.
+  for (const [id, sign] of [
+    ["leftPalm", -1],
+    ["rightPalm", 1],
+  ] as const)
+    builder.affordance({
+      id,
+      kind: "surface",
+      frame: ArchetypeFrame.upright(
+        v((sign * width) / 3, thickness, -length / 6),
+      ),
+      extent: null,
+      width: width / 3,
+      depth: length / 6,
+    });
+  builder.affordance({
     id: "rail",
     kind: "handle",
     symmetry: "none",
@@ -173,11 +196,16 @@ export namespace createSurfboard {
    *
    * - `deck`: the top, the surface the feet and the chest meet.
    * - `rail`: the `+X` edge at the board's middle and half its thickness, a handle whose `+X` runs along the edge and whose aperture is the thickness.
+   * - `prone`: the central deck patch used when mounting from water.
+   * - `leftPalm`, `rightPalm`: the opposing material patches for a surfer facing the nose.
    * - `frontStance`, `rearStance`: provisional deck sites for the feet.
    * - `leftRail`, `rightRail`: the lower long edges for pose readings.
    */
   export type Affordance =
     | "deck"
+    | "prone"
+    | "leftPalm"
+    | "rightPalm"
     | "rail"
     | "frontStance"
     | "rearStance"

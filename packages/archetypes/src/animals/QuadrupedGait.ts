@@ -22,18 +22,29 @@ export namespace QuadrupedGait {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; a parameter of `rideQuadruped` and the key of every species' table.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
    */
-  export type Gait = "walk" | "trot" | "pace" | "canter" | "gallop";
+  export type Gait =
+    | "walk"
+    | "trot"
+    | "tolt"
+    | "pace"
+    | "canter"
+    | "gallop"
+    | "passage"
+    | "piaffe";
 
   /** The gaits that have a lead, whose right lead mirrors the left: the canter and the gallop; the walk and the trot are symmetric. */
   export const LEADED: readonly Gait[] = ["canter", "gallop"];
 
-  /** How many times a stride the trunk sinks: twice in the symmetric walk, trot and pace, and once in the canter and gallop. Species supply the actual oscillation range. */
+  /** How many times a stride the trunk sinks: twice in the symmetric walk, trot, pace, passage and piaffe, and once in the canter and gallop. The tölt uses the same two-cycle coarse carriage proxy as the walk. Species supply the actual oscillation range. */
   export const BEATS: Readonly<Record<Gait, number>> = {
     walk: 2,
     trot: 2,
+    tolt: 2,
     pace: 2,
     canter: 1,
     gallop: 1,
+    passage: 2,
+    piaffe: 2,
   };
 
   /**
@@ -116,6 +127,25 @@ export namespace QuadrupedGait {
 
     /** How high a swinging foot rises at the middle of its swing, fore and hind, as a fraction of the height at the withers. */
     lift: Readonly<{ fore: number; hind: number }>;
+
+    /** Optional landmark elevation replacing `lift`: the swinging toe rises to this coordinate along the supporting limb's own neutral cannon, 0 at the fetlock and 1 at the carpus or hock. */
+    elevation?: IElevation;
+  }
+
+  /**
+   * A swing height named by the limb's own anatomical landmarks rather than by a share of the withers height.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the coordinate, its two ends and that the ride reads it from the actual rig.
+   * @evidence contracts/development/design.md#principled-representation One unitless coordinate per limb end along the neutral cannon, so the height scales with the animal's own segments.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read only by the ride's swing lift for gaits whose source states heights by landmark, such as the FEI passage and piaffe.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Admission keeps each coordinate inside zero to one; no withers fraction is fitted to stand in for the landmark.
+   */
+  export interface IElevation {
+    /** Fore toe height along the fore cannon, 0 at the fetlock and 1 at the carpus. */
+    fore: number;
+
+    /** Hind toe height along the hind cannon, 0 at the fetlock and 1 at the hock. */
+    hind: number;
   }
 
   /**
@@ -127,10 +157,16 @@ export namespace QuadrupedGait {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ITable {
-    /** The species' gaits, slowest first. */
+    /** The species' automatically selected gaits, slowest first. */
     order: readonly Gait[];
 
-    /** Each gait in `order`. */
+    /** Optional gait names available only when the take names them. */
+    explicit?: readonly Gait[];
+
+    /** Explicit gaits collected out of an ordered gait: while decelerating into one from its parent's speeds, its clock holds its fastest declared row. */
+    collected?: Readonly<Partial<Record<Gait, Gait>>>;
+
+    /** The declared automatic and explicit-only gait rows. */
     gaits: Readonly<Partial<Record<Gait, IGait>>>;
 
     /** Declared reference withers height, metres, for the table's stated dynamic-similarity assumption. With absolute scaling this is only the default query height and no measured-height claim is implied. */

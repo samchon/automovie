@@ -39,6 +39,8 @@ export namespace grappleStances {
     twist: number;
     /** Hip and knee flexion of the entry. */
     depth: number;
+    /** Additional outward arm angle for free hands during the staged pose. */
+    armSpread?: number;
   }
 
   /** Paired preferences and contact family for a staged scene. */
@@ -105,7 +107,14 @@ export namespace grappleStances {
     grecoRoman: {
       seconds: 3.8,
       initiator: { turn: 54, pitch: 10, roll: 7, twist: -24, depth: 22 },
-      receiver: { turn: -34, pitch: -12, roll: 10, twist: 16, depth: 19 },
+      receiver: {
+        turn: -34,
+        pitch: -12,
+        roll: 10,
+        twist: 16,
+        depth: 19,
+        armSpread: 28,
+      },
       finish: "back",
       grip: "shoulders",
     },
@@ -172,6 +181,7 @@ export namespace grappleStances {
     share: number,
   ): IAutoMovieMotionHumanLieDown.IPose {
     const depth: number = entry.depth * share;
+    const armSpread: number = 12 + (entry.armSpread ?? 0) * share;
     return {
       pitch: entry.pitch * share,
       roll: direction * entry.roll * share,
@@ -182,8 +192,8 @@ export namespace grappleStances {
         rightUpperLeg: [depth, 7, 0],
         leftLowerLeg: [depth, 0, 0],
         rightLowerLeg: [depth, 0, 0],
-        leftUpperArm: [16 * share, 12, 0],
-        rightUpperArm: [16 * share, 12, 0],
+        leftUpperArm: [16 * share, armSpread, 0],
+        rightUpperArm: [16 * share, armSpread, 0],
         leftLowerArm: [35 * share, 0, 0],
         rightLowerArm: [35 * share, 0, 0],
       },
@@ -249,7 +259,7 @@ export namespace grappleStances {
    * Author the support keys over the two actors' shared scene duration.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Returns five ordered stances, with a shared shoulder-exchange clock for the completed shoulder scene and the ordinary floor shares for other scenes.
-   * @evidence contracts/development/implementation.md#principled-implementation The completed shoulder scene keeps the original foot bearings under its small turn and prepares the seat and back roll endpoints. The other entries step and either recover standing or add floor contacts.
+   * @evidence contracts/development/implementation.md#principled-implementation The completed shoulder scene keeps the original foot bearings under its small turn and prepares the seat and back roll endpoints. The other entries step and either recover standing or add floor contacts. The staged shoulder-profile receiver carries free arms outward while the pair separates.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the stance family and creates the common entry, transfer, settle and release keys.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Floor fitting belongs to support. An interrupted scene has no fall or award event.
    * @evidence contracts/development/implementation.md#efficient-algorithms Five keys per role, independent of duration or the number of playback queries.

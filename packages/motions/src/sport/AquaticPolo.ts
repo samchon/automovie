@@ -1,5 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
@@ -34,7 +36,7 @@ export namespace AquaticPolo {
     water: number,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, params, entry } = context;
-    const side: "left" | "right" = params.side ?? "right";
+    const side: AutoMovieHumanSide = params.side ?? "right";
     const handed: number = side === "left" ? 1 : -1;
     const attack: boolean =
       params.role !== "defend" && params.role !== "keeper";
@@ -183,6 +185,20 @@ export namespace AquaticPolo {
         params.prop,
       );
       const ball: IAutoMovieRigidTransform = ballProp.frame(context.start);
+      // A round grip whose aperture is the ball's diameter, centred on the
+      // model origin, declares the collision sphere the flight owner and the
+      // goal rule read. There the origin is the centre, so the aimed origin
+      // and the sphere's centre take the same path. A ball modelled from
+      // another origin keeps the point flight its aim describes.
+      const socket: IAutoMovieAffordance | undefined =
+        ballProp.prop.affordances?.find(
+          (site: IAutoMovieAffordance): boolean =>
+            site.id === "grip" &&
+            site.kind === "handle" &&
+            site.symmetry === "round" &&
+            (site.aperture ?? 0) > 0 &&
+            Vector3.length(site.frame.translation) === 0,
+        );
       const turn: IAutoMovieQuaternion = Quaternion.multiply(
         last.rotation,
         Quaternion.inverse(first.rotation),
@@ -223,6 +239,14 @@ export namespace AquaticPolo {
           seconds: release,
           point,
           velocity,
+          ...(socket?.aperture === undefined
+            ? {}
+            : {
+                sphere: {
+                  centre: socket.frame.translation,
+                  radius: socket.aperture / 2,
+                },
+              }),
           ...(ballProp.prop.body?.drag === undefined
             ? { aim: { point: target, seconds: flightSeconds } }
             : {}),
@@ -234,6 +258,9 @@ export namespace AquaticPolo {
       : [];
     return {
       duration,
+      ...(!attack
+        ? { yields: ["leftArm", "leftHand", "rightArm", "rightHand"] }
+        : {}),
       events: [
         { name: "support", share: 0 },
         { name: attack ? "draw" : "raise", share: draw / duration },

@@ -82,6 +82,18 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
     /** The point of the tool that must stay on its path where the wrist cannot turn as asked, metres behind the working point. */
     back: number;
 
+    /**
+     * A displacement added to the path's hand point at a second since the
+     * action's start, world metres: the landing's following of a target that
+     * moves after the stroke is planned. The arm's reference at the decisive
+     * pose is planned on the path alone, so two strokes that follow each
+     * other never wait on each other's plan. None when absent.
+     *
+     * @param seconds Seconds since the action's start.
+     * @returns The displacement, world metres.
+     */
+    follow?(seconds: number): IAutoMovieVector3;
+
     /** Where the other hand holds the tool, or null when one hand holds it. */
     support: IAutoMovieMotionHumanStrikingBlade.ISupport | null;
 

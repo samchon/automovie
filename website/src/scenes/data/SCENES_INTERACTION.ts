@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanSupport } from "@automovie/interface";
+
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
@@ -11,20 +13,20 @@ const { act, counter, object, person, scene }: typeof SceneBuild = SceneBuild;
  * @param z Forward.
  * @returns The target.
  */
-const point = (x: number, y: number, z: number): Record<string, unknown> => ({
+const point = (x: number, y: number, z: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",
 });
 
 /** The floor below the counter's edge where the right hand's mug lands. */
-const FLOOR_RIGHT: Record<string, unknown> = point(-0.2, 0, 0.3);
+const FLOOR_RIGHT: SceneBuild.PointTarget = point(-0.2, 0, 0.3);
 
 /** The floor below the counter's edge where the left hand's mug lands. */
-const FLOOR_LEFT: Record<string, unknown> = point(0.2, 0, 0.3);
+const FLOOR_LEFT: SceneBuild.PointTarget = point(0.2, 0, 0.3);
 
 /** A support stance on both feet. */
-const FEET: Record<string, unknown> = {
+const FEET: IAutoMovieMotionHumanSupport.IStance = {
   contacts: [
     { part: "leftFoot", kind: "bear" },
     { part: "rightFoot", kind: "bear" },
@@ -32,7 +34,7 @@ const FEET: Record<string, unknown> = {
 };
 
 /** A support stance on both feet and both palms. */
-const FEET_AND_HANDS: Record<string, unknown> = {
+const FEET_AND_HANDS: IAutoMovieMotionHumanSupport.IStance = {
   contacts: [
     { part: "leftFoot", kind: "bear" },
     { part: "rightFoot", kind: "bear" },

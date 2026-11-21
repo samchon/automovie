@@ -1,5 +1,7 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 
 /**
  * Samples the car exit's ankle path. The ankle lifts inside, crosses above the
@@ -26,17 +28,20 @@ export function carExitAnkleAt(
       ? Vector3.lerp(
           start,
           sill,
-          minimumJerk((phase - liftShare) / (0.5 - liftShare)).s,
+          AutoMovieMotionInterval.progress(liftShare, 0.5, phase),
         )
       : Vector3.lerp(
           sill,
           end,
-          minimumJerk((phase - 0.5) / (0.5 - liftShare)).s,
+          AutoMovieMotionInterval.progress(0.5, 1 - liftShare, phase),
         );
   const high: number = Math.max(start.y, end.y, clearanceHeight);
   const height: number =
     phase < 0.5
-      ? start.y + (high - start.y) * minimumJerk(phase / liftShare).s
-      : end.y + (high - end.y) * minimumJerk((1 - phase) / liftShare).s;
+      ? start.y +
+        (high - start.y) * AutoMovieMotionInterval.progress(0, liftShare, phase)
+      : end.y +
+        (high - end.y) *
+          (1 - AutoMovieMotionInterval.progress(1 - liftShare, 1, phase));
   return { ...at, y: height };
 }

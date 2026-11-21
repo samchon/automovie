@@ -25,7 +25,14 @@ import {
   createStorage,
   createTable,
 } from "../furniture";
-import { createBoxingGlove, createHeavyBag } from "../gym";
+import {
+  createBalanceBeam,
+  createBoxingGlove,
+  createHeavyBag,
+  createRhythmicBall,
+  createStillRings,
+  createUnevenBars,
+} from "../gym";
 import { createInstrument, createMicrophone } from "../music";
 import { createFireRing, createRock, createTent, createTree } from "../nature";
 import {
@@ -133,6 +140,7 @@ export function archetypeCaptureCatalog(): Readonly<
   const car: ReturnType<typeof createCar> = createCar({ kind: "sedan" });
   const bicycle: ReturnType<typeof createBicycle> = createBicycle();
   const horse: ReturnType<typeof createHorse> = createHorse();
+  const rings: ReturnType<typeof createStillRings> = createStillRings();
   const carbine: ReturnType<typeof createLongGun> = createLongGun({
     kind: "carbine",
   });
@@ -301,6 +309,13 @@ export function archetypeCaptureCatalog(): Readonly<
       deck: createDeck(createDeck.REFERENCE),
     }),
     horse: still({ horse }),
+    "balance-beam": still({ beam: createBalanceBeam() }),
+    "still-rings": still({ rings }),
+    "still-rings-posed": still({
+      rings: rings.articulate({ leftPivot: -15, rightPivot: 30 }),
+    }),
+    "uneven-bars": still({ bars: createUnevenBars() }),
+    "rhythmic-ball": still({ ball: createRhythmicBall() }),
     nature: still({
       ...kinds(
         "rock",

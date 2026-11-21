@@ -12,14 +12,22 @@ export namespace IAutoMovieMotionHumanStageBladeFootwork {
   /**
    * Selects the stage shift's timing, foot clearance and spinal follow.
    * Fencing uses a lifted step, kendo a low glide, and the armoured style a
-   * deliberate lifted shift.
+   * deliberate lifted shift. The foil, epee and sabre styles give each
+   * fencing weapon its own cadence: the foil the general fencing step, the
+   * epee a shorter, more measured step and the sabre a longer, quicker one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes the profile selected by each literal and the visible motion it controls.
    * @evidence contracts/development/design.md#principled-representation The closed union selects a dimensionless profile name. The runtime profile supplies normalized footfall windows and distances and timing scaled to the body.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The members match the profiles owned by `stageBladeFootwork`, which validates the name against its profile table before planning.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Every style selects a complete stage profile. None implies a sport rule, target or equipment contact.
    */
-  export type Style = "fencing" | "kendo" | "armoured";
+  export type Style =
+    | "fencing"
+    | "foil"
+    | "epee"
+    | "sabre"
+    | "kendo"
+    | "armoured";
 
   /**
    * A horizontal travel direction in the performer's entry frame. Forward

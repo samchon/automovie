@@ -203,14 +203,19 @@ export namespace GymnasticsWheel {
    * @returns Seconds since the turn's start.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the method.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's minimum-jerk share is monotone on [0, 1], so its inverse is found by bisection.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's minimum-jerk share is monotone on [0, 1], so its inverse is found by bisection; its two ends map exactly to the turn's start and end, where the flat progress would leave a bisection short.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts 30 halvings: a share within 1e-9 of the root.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts 30 halvings: a share within 1e-9 of the root inside the turn; the ends are exact rather than approximated.
    * @evidence contracts/development/implementation.md#efficient-algorithms 30 evaluations.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's `minimumJerk`, the progress the wheels turn on.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function when(angle: number, until: number, duration: number): number {
+    // The ends are exact: minimum-jerk progress is flat at both, so a
+    // bisection lands short of them, and a window that ends with the roll
+    // must end at the action's own last instant for what follows to read it.
+    if (angle <= 0) return 0;
+    if (angle >= until) return duration;
     let low: number = 0;
     let high: number = 1;
     for (let i: number = 0; i < 30; i++) {
