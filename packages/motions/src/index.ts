@@ -343,6 +343,8 @@ export * from "./lexicon/HUMAN_LEXICON";
 export * from "./lexicon/HUMAN_LEXICON_FAMILIES";
 export * from "./lexicon/HUMAN_LEXICON_SCHEMAS";
 export * from "./lexicon/HumanTravelDoor";
+export * from "./lexicon/HumanTraversal";
+export * from "./lexicon/HumanEnvironmentRecovery";
 export * from "./lexicon/HumanTravelCar";
 export * from "./lexicon/HumanTravelCarExit";
 export * from "./lexicon/HumanTravelLeaf";

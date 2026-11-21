@@ -41,6 +41,7 @@ import { HumanDefence } from "./HumanDefence";
 import { HumanDressRows } from "./HumanDressRows";
 import { HumanDrill } from "./HumanDrill";
 import { HumanEmblem } from "./HumanEmblem";
+import { HumanEnvironmentRecovery } from "./HumanEnvironmentRecovery";
 import { HumanFirearm } from "./HumanFirearm";
 import { HumanFloorFall } from "./HumanFloorFall";
 import { HumanFloorRoll } from "./HumanFloorRoll";
@@ -88,6 +89,7 @@ import { HumanTravelCar } from "./HumanTravelCar";
 import { HumanTravelCarExit } from "./HumanTravelCarExit";
 import { HumanTravelDoor } from "./HumanTravelDoor";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
+import { HumanTraversal } from "./HumanTraversal";
 import { HumanUpperRows } from "./HumanUpperRows";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
@@ -112,6 +114,8 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   gait: [
     HumanGait,
     HumanTravelDoor,
+    HumanTraversal,
+    HumanEnvironmentRecovery,
     HumanTravelCar,
     HumanTravelLeaf,
     HumanTravelCarExit,
