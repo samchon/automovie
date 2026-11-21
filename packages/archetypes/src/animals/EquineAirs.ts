@@ -60,6 +60,41 @@ export namespace EquineAirs {
   }
 
   /**
+   * A held air or a courbette, from the rear the stance rows plan at the air's pitch.
+   *
+   * @param body The prepared solver.
+   * @param cue The air or the courbette.
+   * @param rear The stance rows' rear planner from the same start.
+   * @returns The air's plan: the rear at its pitch for a held air, the leaps from a levade for a courbette.
+   * @throws {RangeError} As `courbette` refuses.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A held air is the rear at `pitch` with the air as its cue; a courbette leaps from the levade's rear.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rear, one branch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One rear plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the stance's own rear.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the rear's plan.
+   */
+  export function held<Id extends string, D extends string>(
+    body: EquineBodyPose.IPrepared<Id, D>,
+    cue: EquineStanceCue.IAir | EquineStanceCue.ICourbette,
+    rear: (cue: EquineStanceCue.IRear) => EquineStanceRows.IPlan,
+  ): EquineStanceRows.IPlan {
+    const levade: EquineStanceRows.IPlan = rear({
+      kind: "rear",
+      pitch: pitch(cue.kind === "air" ? cue.air : "levade"),
+      from: cue.from,
+      entry: cue.entry,
+      hold: cue.hold,
+      exit: cue.exit,
+    });
+    return cue.kind === "air"
+      ? { ...levade, cue }
+      : courbette(body, cue, levade);
+  }
+
+  /**
    * The courbette, from the levade it starts and ends with.
    *
    * @param body The prepared solver.

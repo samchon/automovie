@@ -133,6 +133,19 @@ export namespace EquineBodyPose {
     ): readonly IAutoMovieVector3[];
 
     /**
+     * How far a limb's terminal part reaches below its endpoint when its bar points along a direction.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Metres; the direction runs from the bar's start to its endpoint.
+     * @evidence contracts/development/implementation.md#principled-implementation A capsule's cap reaches its radius below its endpoint; a cylinder's end disc reaches its radius times the bar's horizontal share, the rim's lowest point.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per primitive.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the actual terminal part.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The terminal parts are read once when prepared.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+     */
+    sole(limb: QuadrupedBody.Limb, direction: IAutoMovieVector3): number;
+
+    /**
      * The posed equid in the base model's space.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Returns the model; refuses an unreachable limb or a part under the floor at the given placement.
@@ -238,11 +251,38 @@ export namespace EquineBodyPose {
           state.fold,
         );
     };
+    const terminal = (limb: QuadrupedBody.Limb): IAutoMovieModelPart =>
+      animal.parts.find(
+        (part: IAutoMovieModelPart): boolean =>
+          part.id === QuadrupedBody.BONES[limb][3],
+      )!;
+    const soles: Readonly<Record<QuadrupedBody.Limb, IAutoMovieModelPart>> = {
+      leftFore: terminal("leftFore"),
+      rightFore: terminal("rightFore"),
+      leftHind: terminal("leftHind"),
+      rightHind: terminal("rightHind"),
+    };
     return {
       chains,
       centre: animal.properties.centerOfMass,
       trunk: rest.get("trunk")!,
       chain,
+      sole: (
+        limb: QuadrupedBody.Limb,
+        direction: IAutoMovieVector3,
+      ): number => {
+        const geometry: IAutoMovieModelPart["geometry"] = soles[limb].geometry;
+        if (
+          geometry.type !== "primitive" ||
+          (geometry.shape.type !== "capsule" &&
+            geometry.shape.type !== "cylinder")
+        )
+          throw new RangeError(`The ${limb}'s terminal part is not a bar`);
+        const unit: IAutoMovieVector3 = Vector3.normalize(direction);
+        return geometry.shape.type === "capsule"
+          ? geometry.shape.radius
+          : geometry.shape.radius * Math.hypot(unit.x, unit.z);
+      },
       solve: (
         goal: IGoal,
         placement: IAutoMovieTransform,
@@ -311,7 +351,7 @@ export namespace EquineBodyPose {
    * @returns The motion.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each argument's unit, axis and sign.
-   * @evidence contracts/development/implementation.md#principled-implementation A turn about X by minus the pitch raises +Z, a turn about Z by minus the roll raises +X, conjugated into the heading's frame, composed about the pivot and followed by the shift.
+   * @evidence contracts/development/implementation.md#principled-implementation A turn about X by minus the pitch raises +Z, a turn about Z by the roll raises +X, conjugated into the heading's frame, composed about the pivot and followed by the shift.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two axis-angle turns and one translation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -326,7 +366,7 @@ export namespace EquineBodyPose {
     heading?: IAutoMovieQuaternion,
   ): ArchetypeFrame.IMotion {
     const local: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -roll),
+      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll),
       Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
     );
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(

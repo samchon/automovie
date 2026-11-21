@@ -267,9 +267,10 @@ export namespace createHorse {
       nose: { drop: 0.31, ahead: 0.18 },
       radius: 0.06,
       mouth: 0.03,
-      // Krebs et al. 2021's measured ear length with a transferred breadth (`EquidEarProfiles.horse`), and an authored coarse jaw inside the head: half its radius, hinged 0.15 of the head's length below the poll.
+      // Krebs et al. 2021's measured ear length with a transferred breadth (`EquidEarProfiles.horse`), an authored coarse jaw inside the head (half its radius, hinged 0.15 of the head's length below the poll) and an authored coarse upper lip (0.4 of its radius from 0.75 of its length to the nose).
       ears: EquidEarProfiles.horse(),
       jaw: { radius: 0.5, hinge: 0.15 },
+      lip: { radius: 0.4, root: 0.75 },
     },
     tail: { radius: 0.02, drop: 0.4, back: 0.1, dock: 0.65 },
     bones: [0.055, 0.035, 0.022, 0.022],

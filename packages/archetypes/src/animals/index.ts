@@ -80,3 +80,7 @@ export * from "./createPony";
 export * from "./createQuadruped";
 export * from "./rideHorse";
 export * from "./rideQuadruped";
+export * from "./EquineComfort";
+export * from "./EquineComfortCue";
+export * from "./EquineComfortRows";
+export * from "./QuadrupedLip";

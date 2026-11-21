@@ -171,6 +171,34 @@ export namespace EquineHeadReach {
     };
   }
 
+  /**
+   * Pitch the neck and the head in the trunk's sagittal plane by held angles, a carriage rather than a target.
+   *
+   * @param bars The current bars.
+   * @param neck Degrees the neck turns about the trunk's lateral axis at its root, positive lowering it.
+   * @param head Degrees the head turns further about the same axis at the moved poll, positive lowering the muzzle.
+   * @returns The turns.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each angle's axis, pivot and sign.
+   * @evidence contracts/development/implementation.md#principled-implementation Both turns are about the trunk's lateral axis, so the head never rolls or yaws; the head's delta carries the neck's turn plus its own.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two axis-angle turns.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the turn convention of `face` and `reach`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function pitched(bars: IBars, neck: number, head: number): ITurn {
+    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(bars.body, {
+      x: 1,
+      y: 0,
+      z: 0,
+    });
+    return {
+      neck: Quaternion.fromAxisAngle(lateral, neck),
+      head: Quaternion.fromAxisAngle(lateral, neck + head),
+    };
+  }
+
   /** A bar's +Y axis. */
   function axis(rotation: IAutoMovieQuaternion): IAutoMovieVector3 {
     return Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 });

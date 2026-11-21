@@ -1,3 +1,4 @@
+import type { EquineComfortCue } from "./EquineComfortCue";
 import type { EquineExpressionCue } from "./EquineExpressionCue";
 import type { QuadrupedBody } from "./QuadrupedBody";
 
@@ -267,5 +268,6 @@ export namespace EquineStanceCue {
     | IBuck
     | ISpin
     | ICrowHops
-    | School;
+    | School
+    | EquineComfortCue.Row;
 }

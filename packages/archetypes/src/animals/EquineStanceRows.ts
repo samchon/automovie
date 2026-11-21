@@ -7,6 +7,7 @@ import type {
 import { ArchetypeFrame } from "../core";
 import { EquineAirs } from "./EquineAirs";
 import { EquineBodyPose } from "./EquineBodyPose";
+import { EquineComfortRows } from "./EquineComfortRows";
 import type { EquineExpressionCue } from "./EquineExpressionCue";
 import type { EquineStanceCue } from "./EquineStanceCue";
 import { EquineStanceMoves } from "./EquineStanceMoves";
@@ -262,19 +263,12 @@ export namespace EquineStanceRows {
     if (cue.kind === "crowHops")
       return EquineStanceMoves.crowHops(body, start, cue);
     if (cue.kind === "capriole") return EquineAirs.capriole(body, start, cue);
-    if (cue.kind === "air" || cue.kind === "courbette") {
-      const levade: IPlan = pitch(body, start, {
-        kind: "rear",
-        pitch: EquineAirs.pitch(cue.kind === "air" ? cue.air : "levade"),
-        from: cue.from,
-        entry: cue.entry,
-        hold: cue.hold,
-        exit: cue.exit,
-      });
-      return cue.kind === "air"
-        ? { ...levade, cue }
-        : EquineAirs.courbette(body, cue, levade);
-    }
+    if (cue.kind === "air" || cue.kind === "courbette")
+      return EquineAirs.held(body, cue, (rear: EquineStanceCue.IRear) =>
+        pitch(body, start, rear),
+      );
+    if (EquineComfortRows.owns(cue))
+      return EquineComfortRows.plan(body, start, cue);
     return pitch(body, start, cue);
   }
 

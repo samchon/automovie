@@ -148,14 +148,14 @@ export namespace EquineExpressionCue {
   export type Side = "left" | "right";
 
   /**
-   * An ear's carriage: pricked forward (EAD101), turned out to the side or back (EAD104), or pinned flat (EAD103).
+   * An ear's carriage: pricked forward (EAD101), turned out to the side or back (EAD104), drooped out to the side and down as in a doze, or pinned flat (EAD103).
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names each carriage with its EquiFACS action unit.
    * @evidence contracts/development/design.md#principled-representation Closed literals.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The ear cue's carriage.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export type EarCarriage = "forward" | "lateral" | "back" | "pinned";
+  export type EarCarriage = "forward" | "lateral" | "droop" | "back" | "pinned";
 
   /**
    * Carry one ear, independently of the other.
@@ -203,14 +203,14 @@ export namespace EquineExpressionCue {
   }
 
   /**
-   * What the jaw does: chew in a rhythm, or hold open.
+   * What the jaw does: chew in a rhythm, hold open, or open wide in a yawn.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names both actions.
    * @evidence contracts/development/design.md#principled-representation Closed literals.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The jaw cue's action.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export type JawAction = "chew" | "open";
+  export type JawAction = "chew" | "open" | "yawn";
 
   /**
    * Move the jaw, independently of the head's carriage.
@@ -258,14 +258,117 @@ export namespace EquineExpressionCue {
   }
 
   /**
-   * Any cue.
+   * A held carriage of the neck and head: lowered toward horizontal in a doze, raised with the muzzle up for the flehmen, or stretched forward in a yawn.
    *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each carriage.
+   * @evidence contracts/development/design.md#principled-representation Closed literals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The carriage cue's carriage.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type HeadCarriage = "doze" | "flehmen" | "yawn";
+
+  /**
+   * Carry the neck and head in a held carriage, on the head channel.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the carriage.
+   * @evidence contracts/development/design.md#principled-representation A window and a carriage.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The carriage cue; it shares the head channel with attention and reaches.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ICarriage extends IWindow {
+    /** Discriminator. */
+    kind: "carriage";
+
+    /** The carriage. */
+    carriage: HeadCarriage;
+  }
+
+  /**
+   * What the lips do: the upper lip curled up (EquiFACS AU10, the flehmen) or the lower lip hanging slack (AU16-like relaxation, as in a doze).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names both actions with their action units.
+   * @evidence contracts/development/design.md#principled-representation Closed literals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lip cue's action.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type LipAction = "curl" | "slack";
+
+  /**
+   * Move the lips.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the action.
+   * @evidence contracts/development/design.md#principled-representation A window and an action.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lip cue; a slack lower lip adds to the jaw's opening.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ILip extends IWindow {
+    /** Discriminator. */
+    kind: "lip";
+
+    /** What the lips do. */
+    action: LipAction;
+  }
+
+  /**
+   * Shake the neck and head: a roll about the neck that leads a whole-body shake.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what rolls.
+   * @evidence contracts/development/design.md#principled-representation A window.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The shake cue; the trunk's shake is the stance's.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IShake extends IWindow {
+    /** Discriminator. */
+    kind: "shake";
+  }
+
+  /**
+   * A body region whose skin can twitch.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each region.
+   * @evidence contracts/development/design.md#principled-representation Closed literals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The twitch cue's region.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type Region = "neck" | "shoulder" | "barrel" | "flank" | "croup";
+
+  /**
+   * A local skin twitch (the panniculus reflex at an insect): one mark at its onset, `twitch:<region>`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the region and its onset second.
+   * @evidence contracts/development/design.md#principled-representation A region and one film second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The twitch cue.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It poses nothing: the coarse body has no skin surface to ripple, so the twitch is a named mark for the take, not a deformation.
+   */
+  export interface ITwitch {
+    /** Discriminator. */
+    kind: "twitch";
+
+    /** Where the skin twitches. */
+    region: Region;
+
+    /** Film second of the twitch. */
+    at: number;
+  }
+
+  /**
+   * Any cue.   *
    * @evidence contracts/development/common.md#meaningful-documentation The union of every cue.
    * @evidence contracts/development/design.md#principled-representation Discriminated by `kind`.
    * @evidence contracts/development/design.md#minimal-and-owned-surface What `EquineExpression.layer` takes.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export type Cue = IAttend | IReach | IEar | ITail | IJaw | IVocalize;
+  export type Cue =
+    | IAttend
+    | IReach
+    | ICarriage
+    | IEar
+    | ITail
+    | IJaw
+    | ILip
+    | IShake
+    | IVocalize
+    | ITwitch;
 
   /**
    * An audio synchronization mark.

@@ -132,6 +132,7 @@ export function test_archetype_animal_rest(): void {
       leftEar: "head",
       rightEar: "head",
       jaw: "head",
+      lip: "head",
     },
     contacts: {
       seat: "trunk",
@@ -141,7 +142,6 @@ export function test_archetype_animal_rest(): void {
       rightStirrup: "trunk",
       leftRein: "head",
       rightRein: "head",
-      mane: "trunk",
       lead: "head",
     },
   };
@@ -168,6 +168,7 @@ export function test_archetype_animal_rest(): void {
       leftEar: "head",
       rightEar: "head",
       jaw: "head",
+      lip: "head",
     },
     contacts: {},
   };

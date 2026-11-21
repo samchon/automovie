@@ -35,6 +35,30 @@ const CHEW_DEGREES: number = 6;
 /** A held-open jaw, degrees: authored. */
 const OPEN_DEGREES: number = 15;
 
+/** A yawn's jaw opening, degrees: authored. */
+const YAWN_DEGREES: number = 35;
+
+/** A slack lower lip's drop of the jaw, degrees: authored. */
+const SLACK_DEGREES: number = 4;
+
+/** A curled upper lip's turn, degrees: authored. */
+const CURL_DEGREES: number = 45;
+
+/** A neck shake's rate, Hz, and roll, degrees: authored. */
+const SHAKE: Readonly<{ hertz: number; degrees: number }> = {
+  hertz: 3,
+  degrees: 25,
+};
+
+/** Each head carriage's neck and head pitch, degrees, positive lowering: authored poses. */
+const CARRIAGES: Readonly<
+  Record<EquineExpressionCue.HeadCarriage, readonly [number, number]>
+> = {
+  doze: [25, 10],
+  flehmen: [-10, -40],
+  yawn: [5, -25],
+};
+
 /** A tail swish's rate, Hz, and swing, degrees: authored. */
 const SWISH: Readonly<{ hertz: number; degrees: number }> = {
   hertz: 1,
@@ -47,6 +71,7 @@ const EARS: Readonly<
 > = {
   forward: { x: 0.15, y: 0.75, z: 0.65 },
   lateral: { x: 1, y: 0.45, z: 0 },
+  droop: { x: 1, y: -0.15, z: 0.15 },
   back: { x: 0.3, y: 0.6, z: -0.75 },
   pinned: { x: 0.2, y: 0.2, z: -1 },
 };
@@ -69,19 +94,25 @@ const TOUCHING: ReadonlySet<EquineExpressionCue.Act> =
     "groom",
   ]);
 
-/** A held cue with its channel. */
-type Held = Exclude<EquineExpressionCue.Cue, EquineExpressionCue.IVocalize>;
+/** A cue that poses nothing and only marks an instant. */
+type Marked = EquineExpressionCue.IVocalize | EquineExpressionCue.ITwitch;
 
-/** A cue on the head channel. */
+/** A held cue with its channel. */
+type Held = Exclude<EquineExpressionCue.Cue, Marked>;
+
+/** A cue on the head channel that faces a target. */
 type Facing = EquineExpressionCue.IAttend | EquineExpressionCue.IReach;
+
+/** Any cue on the head channel. */
+type Heading = Facing | EquineExpressionCue.ICarriage;
 
 /** A named instant of a ride. */
 type Instant = ArchetypeRide.IRide<string, string>["instants"][number];
 
 /**
- * An equid's expression layer over any of its rides: attention, muzzle reaches for sniffing, greeting, feeding, drinking, rubbing and grooming, each ear, the jaw and the tail, and vocal marks.
+ * An equid's expression layer over any of its rides: attention, muzzle reaches for sniffing, greeting, feeding, drinking, rubbing and grooming, held head carriages (doze, flehmen, yawn), each ear, the jaw, the lips, a neck shake and the tail, and vocal and skin-twitch marks.
  *
- * The layer is a pose layer in the motion skill's sense: it samples the base ride and re-poses only the neck and head, the ears, the jaw and the tail through the animal's actual rig (`EquineExpressionPose`), so the base's stride, hooves, trunk, tack and contacts are kept exactly and its timing and instants are kept. Each held cue blends in and out on a minimum-jerk share over its `ease`; outside every cue a sample is the base ride's own. A muzzle reach solves the neck and head in closed form (`EquineHeadReach`) against the target read at that sample, in the horse's current frame, so a moving partner is tracked; a target out of reach, or one the head or neck could only reach through a forelimb (`EquineHeadClearance`), is refused. Each vocalization adds exactly one mark, `vocal:<call>`, to the instants and to `marks`; each reach adds `<act>On` and `<act>Off` where it is fully held.
+ * The layer is a pose layer in the motion skill's sense: it samples the base ride and re-poses only the neck and head, the ears, the jaw and the tail through the animal's actual rig (`EquineExpressionPose`), so the base's stride, hooves, trunk, tack and contacts are kept exactly and its timing and instants are kept. Each held cue blends in and out on a minimum-jerk share over its `ease`; outside every cue a sample is the base ride's own. A muzzle reach solves the neck and head in closed form (`EquineHeadReach`) against the target read at that sample, in the horse's current frame, so a moving partner is tracked; a target out of reach, or one the head or neck could only reach through a forelimb (`EquineHeadClearance`), is refused. A carriage pitches the neck and head by authored angles (`EquineHeadReach.pitched`); a curled upper lip turns about its root and a slack lower lip drops the jaw a little; a shake rolls the neck about its own bar. Each vocalization adds exactly one mark, `vocal:<call>`, to the instants and to `marks`, and each skin twitch one instant `twitch:<region>`; each reach adds `<act>On` and `<act>Off` where it is fully held.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is layered, what is kept, the blending, the reach solve and its refusals, and the instants added.
  * @evidence contracts/development/design.md#principled-representation A ride in, a ride out with its marks, on the same film clock.
@@ -180,14 +211,20 @@ export namespace EquineExpression {
       const channels: EquineExpressionPose.IChannels = {
         ears: {},
         jaw: 0,
+        lip: 0,
+        roll: 0,
         tail: { raise: 0, swing: 0 },
       };
-      let turning: Facing | undefined;
+      let turning: Heading | undefined;
       let turned: number = 0;
       for (const cue of held) {
         const share: number = envelope(cue, seconds);
         if (share === 0) continue;
-        if (cue.kind === "attend" || cue.kind === "reach") {
+        if (
+          cue.kind === "attend" ||
+          cue.kind === "reach" ||
+          cue.kind === "carriage"
+        ) {
           turning = cue;
           turned = share;
         } else if (cue.kind === "ear")
@@ -196,12 +233,22 @@ export namespace EquineExpression {
             share,
           };
         else if (cue.kind === "jaw")
-          channels.jaw =
+          channels.jaw +=
             share *
             (cue.action === "open"
               ? OPEN_DEGREES
-              : (CHEW_DEGREES / 2) *
-                (1 - Math.cos(2 * Math.PI * CHEW_HZ * (seconds - cue.from))));
+              : cue.action === "yawn"
+                ? YAWN_DEGREES
+                : (CHEW_DEGREES / 2) *
+                  (1 - Math.cos(2 * Math.PI * CHEW_HZ * (seconds - cue.from))));
+        else if (cue.kind === "lip") {
+          if (cue.action === "curl") channels.lip = share * CURL_DEGREES;
+          else channels.jaw += share * SLACK_DEGREES;
+        } else if (cue.kind === "shake")
+          channels.roll =
+            share *
+            SHAKE.degrees *
+            Math.sin(2 * Math.PI * SHAKE.hertz * (seconds - cue.from));
         else
           channels.tail = {
             raise: share * TAILS[cue.carriage],
@@ -216,6 +263,8 @@ export namespace EquineExpression {
       if (
         turning === undefined &&
         channels.jaw === 0 &&
+        channels.lip === 0 &&
+        channels.roll === 0 &&
         channels.tail.raise === 0 &&
         channels.tail.swing === 0 &&
         Object.keys(channels.ears).length === 0
@@ -247,7 +296,7 @@ export namespace EquineExpression {
     function turn(
       base: ArchetypeRide.ISample<Id, D>,
       current: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-      cue: Facing,
+      cue: Heading,
       seconds: number,
     ): EquineHeadReach.ITurn {
       const neck: IAutoMovieTransform = current.get("neck")!;
@@ -263,6 +312,8 @@ export namespace EquineExpression {
           Quaternion.inverse(prepared.trunk),
         ),
       };
+      if (cue.kind === "carriage")
+        return EquineHeadReach.pitched(bars, ...CARRIAGES[cue.carriage]);
       const point: IAutoMovieVector3 = local(base, target(cue, seconds));
       return cue.kind === "attend"
         ? EquineHeadReach.face(bars, point)
@@ -297,6 +348,11 @@ export namespace EquineExpression {
           seconds: mark.seconds,
           label: mark.label,
         }),
+      ),
+      ...cues.flatMap((cue: EquineExpressionCue.Cue): Instant[] =>
+        cue.kind === "twitch"
+          ? [{ seconds: cue.at, label: `twitch:${cue.region}` }]
+          : [],
       ),
       ...held.flatMap((cue: Held): Instant[] =>
         cue.kind === "reach"
@@ -374,9 +430,9 @@ export namespace EquineExpression {
     };
     const held: Held[] = [];
     for (const cue of cues) {
-      if (cue.kind === "vocalize") {
+      if (cue.kind === "vocalize" || cue.kind === "twitch") {
         if (!Number.isFinite(cue.at))
-          refuse("at", cue.at, "a call needs a finite second");
+          refuse("at", cue.at, `a ${cue.kind} needs a finite second`);
         continue;
       }
       if (
@@ -402,7 +458,7 @@ export namespace EquineExpression {
       held.push(cue);
     }
     const channel = (cue: Held): string =>
-      cue.kind === "attend" || cue.kind === "reach"
+      cue.kind === "attend" || cue.kind === "reach" || cue.kind === "carriage"
         ? "head"
         : cue.kind === "ear"
           ? `${cue.side}Ear`

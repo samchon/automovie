@@ -1,4 +1,4 @@
-﻿import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -12,6 +12,7 @@ import type { EquineExpressionCue } from "./EquineExpressionCue";
 import type { EquineHeadReach } from "./EquineHeadReach";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
+import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /** The rig's own bones, which carry themselves. */
 const BONES: ReadonlySet<string> = new Set<string>([
@@ -20,6 +21,7 @@ const BONES: ReadonlySet<string> = new Set<string>([
   "neck",
   "head",
   "tail",
+  ...Object.values(QuadrupedScapula.BONES),
   ...QuadrupedBody.LIMBS.flatMap(
     (limb: QuadrupedBody.Limb): readonly string[] => QuadrupedBody.BONES[limb],
   ),
@@ -29,7 +31,7 @@ const BONES: ReadonlySet<string> = new Set<string>([
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
 /**
- * Re-pose one sample of an equid's ride through its actual rig: the neck and head, each ear about its root, the jaw about its hinge and the tail about its dock.
+ * Re-pose one sample of an equid's ride through its actual rig: the neck and head, each ear about its root, the jaw about its hinge, the upper lip about its root and the tail about its dock.
  *
  * The sample's own bone frames are read by the shared FK reader; the neck, head and tail get new frames and every other bone keeps its own, and a part or contact whose carrier keeps its frame keeps its own transform untouched, so the limbs, the trunk and everything they carry are the base sample's exactly. Each non-bone part rides its declared carrier (`QuadrupedSkeleton.apply`'s rigid delta), the head's tack, ears and jaw riding the head; an ear is then turned about its root and the jaw about its hinge. Spans such as the lead and the reins are laid again by the model between their ends, so a rope stays on its halter and its held point.
  *
@@ -44,7 +46,7 @@ export namespace EquineExpressionPose {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member's unit and frame.
    * @evidence contracts/development/design.md#principled-representation Optional per channel: absent leaves that channel as the base sample has it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The five channels the layer drives.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The seven channels the layer drives.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IChannels {
@@ -56,6 +58,12 @@ export namespace EquineExpressionPose {
 
     /** The jaw's opening about its hinge, degrees, ventral positive. */
     jaw: number;
+
+    /** The upper lip's curl about its root on the head's lateral axis, degrees, dorsal positive. */
+    lip: number;
+
+    /** The neck's roll about its own bar at its root, carrying the head, degrees. */
+    roll: number;
 
     /** The tail's raise about the trunk's lateral axis and its swing about the trunk's long axis, degrees. */
     tail: ITail;
@@ -142,7 +150,7 @@ export namespace EquineExpressionPose {
    * @throws {RangeError} As the shared FK reader and carrier deltas refuse a malformed model.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusal owner.
-   * @evidence contracts/development/implementation.md#principled-implementation Read the sample's FK frames, pre-multiply the neck's and head's rotations by the shown share of their turns (slerp from identity) with the poll carried about the neck's root, turn the tail about its dock in the trunk's frame, move every part by its carrier's rigid delta, then turn each ear about its root toward its carriage in the current head's frame and the jaw about its hinge on the head's lateral axis.
+   * @evidence contracts/development/implementation.md#principled-implementation Read the sample's FK frames, pre-multiply the neck's and head's rotations by the shown share of their turns (slerp from identity) with the poll carried about the neck's root, turn the tail about its dock in the trunk's frame, move every part by its carrier's rigid delta, then turn each ear about its root toward its carriage in the current head's frame and the jaw about its hinge and the upper lip about its root on the head's lateral axis; a roll turns the neck about its own bar and carries the head.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Bone frames, carrier deltas, per-part local turns, one emission.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Limbs, trunk and contacts keep the base sample's frames exactly; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(B) deltas over the caller's one rig read, and O(P+A) part and contact moves, only for those whose carrier changed, as the carrier emitter does.
@@ -166,18 +174,35 @@ export namespace EquineExpressionPose {
     );
 
     // The neck turns about its root and carries the poll; the head turns about the moved poll.
-    if (channels.head !== undefined && channels.head.share > 0) {
+    if (
+      (channels.head !== undefined && channels.head.share > 0) ||
+      channels.roll !== 0
+    ) {
       const neck: IAutoMovieTransform = current.get("neck")!;
       const head: IAutoMovieTransform = current.get("head")!;
-      const turnNeck: IAutoMovieQuaternion = Quaternion.slerp(
+      const turned: IAutoMovieQuaternion = Quaternion.slerp(
         IDENTITY,
-        channels.head.turn.neck,
-        channels.head.share,
+        channels.head?.turn.neck ?? IDENTITY,
+        channels.head?.share ?? 0,
       );
-      const turnHead: IAutoMovieQuaternion = Quaternion.slerp(
-        IDENTITY,
-        channels.head.turn.head,
-        channels.head.share,
+
+      // A roll turns the turned neck about its own bar and carries the head with it.
+      const roll: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        Quaternion.rotateVector(Quaternion.multiply(turned, neck.rotation), {
+          x: 0,
+          y: 1,
+          z: 0,
+        }),
+        channels.roll,
+      );
+      const turnNeck: IAutoMovieQuaternion = Quaternion.multiply(roll, turned);
+      const turnHead: IAutoMovieQuaternion = Quaternion.multiply(
+        roll,
+        Quaternion.slerp(
+          IDENTITY,
+          channels.head?.turn.head ?? IDENTITY,
+          channels.head?.share ?? 0,
+        ),
       );
       posed.set("neck", {
         ...neck,
@@ -253,6 +278,15 @@ export namespace EquineExpressionPose {
             Quaternion.fromAxisAngle(
               Quaternion.rotateVector(head, { x: 1, y: 0, z: 0 }),
               channels.jaw,
+            ),
+          );
+        else if (part.id === "lip" && channels.lip !== 0)
+          frame = about(
+            frame,
+            start(part, frame),
+            Quaternion.fromAxisAngle(
+              Quaternion.rotateVector(head, { x: 1, y: 0, z: 0 }),
+              -channels.lip,
             ),
           );
         return { ...structuredClone(part), transform: frame };

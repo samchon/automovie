@@ -165,6 +165,36 @@ export namespace EquineStanceSupport {
   }
 
   /**
+   * A point on a lifted hoof path between two places: their blend raised by a half-sine of the given height.
+   *
+   * @param from The place at share 0, metres.
+   * @param to The place at share 1, metres.
+   * @param share The share.
+   * @param height The path's rise at its middle, metres.
+   * @returns The point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the rise's shape.
+   * @evidence contracts/development/implementation.md#principled-implementation A linear blend plus a half-sine lift that is zero at both ends, so the hoof leaves and meets the floor at its places.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the comfort rows' swings.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function arc(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    share: number,
+    height: number,
+  ): IAutoMovieVector3 {
+    return Vector3.add(Vector3.lerp(from, to, share), {
+      x: 0,
+      y: height * Math.sin(Math.PI * share),
+      z: 0,
+    });
+  }
+
+  /**
    * Two trunk motions of one rotation blended by their translations.
    *
    * @param from The motion at share 0.
