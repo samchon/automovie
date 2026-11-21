@@ -126,10 +126,9 @@ export function affectHeldHands(
         after.joints[bone];
       if (layered === undefined) continue;
       const own: readonly number[] = before.joints[bone] ?? [0, 0, 0];
-      joints[bone] = [0, 1, 2].map(
-        (i: number): number =>
-          layered[i]! + (own[i]! - layered[i]!) * hold.weight,
-      ) as NonNullable<typeof layered>;
+      const blend: (i: number) => number = (i: number): number =>
+        layered[i]! + (own[i]! - layered[i]!) * hold.weight;
+      joints[bone] = [blend(0), blend(1), blend(2)];
     }
     return false;
   });

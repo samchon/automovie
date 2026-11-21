@@ -5,6 +5,7 @@ import { coverFace } from "../daily/coverFace";
 import { playWindInstrument } from "../daily/playWindInstrument";
 import { wipeTears } from "../daily/wipeTears";
 import { tipHat } from "../dressing/tipHat";
+import { wardrobe } from "../dressing/wardrobe";
 import { crossAnkleOverKnee } from "../everyday/crossAnkleOverKnee";
 import { curtsy } from "../everyday/curtsy";
 import { headTilt } from "../everyday/headTilt";
@@ -44,7 +45,9 @@ import { cymbalStrike } from "../tasks/cymbalStrike";
 import { sideDrumStrike } from "../tasks/sideDrumStrike";
 import { stageCatch } from "../throwing/stageCatch";
 import { stageDeflect } from "../throwing/stageDeflect";
+import { HumanAidWalk } from "./HumanAidWalk";
 import { HumanArchery } from "./HumanArchery";
+import { HumanAssistedTransfer } from "./HumanAssistedTransfer";
 import { HumanBicycleEffort } from "./HumanBicycleEffort";
 import { HumanBikeGuide } from "./HumanBikeGuide";
 import { HumanBikeTransfer } from "./HumanBikeTransfer";
@@ -214,7 +217,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   sportCarry: [HumanSportCarry],
   floorRoll: [HumanFloorRoll],
   floorFall: [HumanFloorFall, { collapse, thrown, wireFlight, wireArrest, stopDropRoll }],
-  support: [HumanSupportRows],
+  support: [HumanSupportRows, { HumanAidWalk, HumanAssistedTransfer }],
   sportSwing: [HumanSportSwing, HumanPrecisionSport],
   sportThrow: [HumanSportThrow, { stageCatch, stageDeflect }],
   sportWorkout: [HumanSportWorkout, { ropeSkip }],
@@ -255,7 +258,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   upperRest: [HumanRestRows],
   upperTouch: [HumanTouchRows, HumanSelfActionRows, { tuckHair }],
   upperFace: [HumanHandToFaceRows, { coverFace, wipeTears }],
-  upperDress: [HumanDressRows, { tipHat, button, zip }],
+  upperDress: [HumanDressRows, { tipHat, button, zip, wardrobe }],
   upperTool: [HumanToolRows],
   strike: [HumanStrike],
   defence: [HumanDefence],

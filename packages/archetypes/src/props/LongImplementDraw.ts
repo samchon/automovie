@@ -358,6 +358,9 @@ export namespace LongImplementDraw {
    */
   export type GroundToolContact = "face" | "shaft" | "grip";
 
+  /** The contacts `groundTool` itself builds, which a tool's own contacts join: one grip, or an upper and a lower grip for a two-handed push. */
+  export type GroundToolBuilt = "face" | "shaft";
+
   /**
    * A ground implement's head block.
    *
@@ -414,8 +417,8 @@ export namespace LongImplementDraw {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The three producers share the same shaft and face construction.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
    */
-  export function groundTool(
-    builder: ArchetypeBuilder<GroundToolContact, Dimension>,
+  export function groundTool<Contact extends string>(
+    builder: ArchetypeBuilder<Contact | GroundToolBuilt, Dimension>,
     head: IGroundHead,
     shaft: IGroundShaft,
   ): void {

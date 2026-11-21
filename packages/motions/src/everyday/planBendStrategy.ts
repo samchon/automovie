@@ -107,7 +107,7 @@ export function planBendStrategy(
   );
   const fixedWrist: IAutoMovieVector3 | undefined =
     region === undefined ? goal(upright).point : undefined;
-  const wristAt: AutoMovieBendWrist =
+  const wristAt: bendLower.WristAt =
     fixedWrist === undefined
       ? (
           lowered: IAutoMovieMotionHumanPosture,

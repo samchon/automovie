@@ -1,5 +1,6 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
+import type { IAutoMovieMotionHumanTiming } from "../compose/IAutoMovieMotionHumanTiming";
 
 /**
  * Put a held wearable on another performer (#4015): a ring onto a finger, a
@@ -29,6 +30,6 @@ export interface IAutoMovieMotionHumanDressPartner {
   /** The item's point brought to the region, such as its `wear` socket; the hand's palm when absent. */
   point?: string;
 
-  /** Seconds the hand rests at the region before letting go; the phrase's own hold when absent. */
-  hold?: number;
+  /** How long the hand stays at the region before letting go: a pause of the arm phrase's visit; a beat when absent. */
+  hold?: IAutoMovieMotionHumanTiming.Pause;
 }
