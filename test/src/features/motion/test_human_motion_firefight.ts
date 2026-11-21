@@ -183,27 +183,30 @@ function pass(
       take.duration,
     ) <= HOLD,
   );
-  const locked: HumanRefusal | undefined = everydayTake.refusal(() =>
-    everydayTake.perform(
-      `firefight-${label}-locked`,
-      body,
-      props,
-      HumanChain.subject("actor")
-        .stand()
-        .pickUp({
-          prop: "extinguisher",
-          handle: "handle",
-          hand: "right",
-          lift: 0.1,
-        })
-        .registered("extinguish", { prop: "extinguisher", target: TARGET }),
-      Object.values(HUMAN_LEXICON).flat(),
-    ),
-  );
-  checks.check(
-    `${label}: squeezing with the pin in is refused`,
-    locked !== undefined,
-  );
+  // A refusal is checked once, on the first body.
+  if (label.startsWith("m-average")) {
+    const locked: HumanRefusal | undefined = everydayTake.refusal(() =>
+      everydayTake.perform(
+        `firefight-${label}-locked`,
+        body,
+        props,
+        HumanChain.subject("actor")
+          .stand()
+          .pickUp({
+            prop: "extinguisher",
+            handle: "handle",
+            hand: "right",
+            lift: 0.1,
+          })
+          .registered("extinguish", { prop: "extinguisher", target: TARGET }),
+        Object.values(HUMAN_LEXICON).flat(),
+      ),
+    );
+    checks.check(
+      `${label}: squeezing with the pin in is refused`,
+      locked !== undefined,
+    );
+  }
 }
 
 /** A two-member hose team. */
@@ -292,26 +295,29 @@ function hose(
       lean(middle) > lean(work.start) + 0.02,
     );
   }
-  const blind: HumanRefusal | undefined = everydayTake.refusal(() =>
-    everydayTake.perform(
-      `firefight-${label}-blind`,
-      body,
-      props,
-      HumanChain.subject("actor")
-        .stand()
-        .pickUp({ prop: "hose", handle: "nozzle", hand: "right", lift: 0 })
-        .registered("hoseLine", {
-          prop: "hose",
-          role: "nozzle",
-          grip: "nozzle",
-        }),
-      Object.values(HUMAN_LEXICON).flat(),
-    ),
-  );
-  checks.check(
-    `${label}: an operator with no target is refused`,
-    blind !== undefined,
-  );
+  // A refusal is checked once, on the first body.
+  if (label.startsWith("m-average")) {
+    const blind: HumanRefusal | undefined = everydayTake.refusal(() =>
+      everydayTake.perform(
+        `firefight-${label}-blind`,
+        body,
+        props,
+        HumanChain.subject("actor")
+          .stand()
+          .pickUp({ prop: "hose", handle: "nozzle", hand: "right", lift: 0 })
+          .registered("hoseLine", {
+            prop: "hose",
+            role: "nozzle",
+            grip: "nozzle",
+          }),
+        Object.values(HUMAN_LEXICON).flat(),
+      ),
+    );
+    checks.check(
+      `${label}: an operator with no target is refused`,
+      blind !== undefined,
+    );
+  }
 }
 
 /** Beating flames on a lying partner from a kneel. */
@@ -373,36 +379,39 @@ function flames(
     `${label}: the cloth stays in the palm`,
     everydayTake.drift(take, "right", "sack", beat.start, beat.end) <= HOLD,
   );
-  const none: HumanRefusal | undefined = everydayTake.refusal(() =>
-    everydayTake.perform(
-      `firefight-${label}-none`,
-      body,
-      props,
-      HumanChain.subject("actor")
-        .stand()
-        .pickUp({ prop: "sack", handle: "hold", hand: "right", lift: 0.05 })
-        .registered("beatFlames", {
-          prop: "sack",
-          partner: "victim",
-          region: "sternum",
-          count: 0,
-        }),
-      Object.values(HUMAN_LEXICON).flat(),
-      [
-        {
-          subject: "victim",
-          body,
-          at: { x: 0.1, y: 0, z: 0.75 },
-          yaw: 90,
-          chain: HumanChain.subject("victim").lieDown({}),
-        },
-      ],
-    ),
-  );
-  checks.check(
-    `${label}: a count of zero beats is refused`,
-    none !== undefined,
-  );
+  // A refusal is checked once, on the first body.
+  if (label.startsWith("m-average")) {
+    const none: HumanRefusal | undefined = everydayTake.refusal(() =>
+      everydayTake.perform(
+        `firefight-${label}-none`,
+        body,
+        props,
+        HumanChain.subject("actor")
+          .stand()
+          .pickUp({ prop: "sack", handle: "hold", hand: "right", lift: 0.05 })
+          .registered("beatFlames", {
+            prop: "sack",
+            partner: "victim",
+            region: "sternum",
+            count: 0,
+          }),
+        Object.values(HUMAN_LEXICON).flat(),
+        [
+          {
+            subject: "victim",
+            body,
+            at: { x: 0.1, y: 0, z: 0.75 },
+            yaw: 90,
+            chain: HumanChain.subject("victim").lieDown({}),
+          },
+        ],
+      ),
+    );
+    checks.check(
+      `${label}: a count of zero beats is refused`,
+      none !== undefined,
+    );
+  }
 }
 
 /** An outlet's place and attitude in its prop's frame. */

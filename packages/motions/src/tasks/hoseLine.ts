@@ -41,6 +41,9 @@ import { rotationBetween } from "./rotationBetween";
  */
 const REACTION: number = 0.0505 * 150 * Math.sqrt(100) * 4.448;
 
+/** The film rate the backup reads the line's grip at, frames per second. */
+const FRAME: number = 24;
+
 /** Both hands. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
@@ -318,17 +321,32 @@ function backup(
     });
   const ready: number = clock.at("strokeStart");
   const done: number = clock.at("strokeEnd");
-  // Where the line's grip is at a second of this action, as its carrier holds it.
+  // Where the line's grip is at a second of this action, as its carrier
+  // holds it: read once per film frame and interpolated between, since each
+  // read resolves the carrier's pose.
+  const sampled: Map<number, IAutoMovieVector3> = new Map();
+  const frameAt: (k: number) => IAutoMovieVector3 = (
+    k: number,
+  ): IAutoMovieVector3 => {
+    let found: IAutoMovieVector3 | undefined = sampled.get(k);
+    if (found === undefined) {
+      const frame: IAutoMovieRigidTransform = context
+        .prop(p.prop)
+        .frame(context.start + Math.min(clock.duration, k / FRAME));
+      found = Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, grip.frame.translation),
+      );
+      sampled.set(k, found);
+    }
+    return found;
+  };
   const at: (seconds: number) => IAutoMovieVector3 = (
     seconds: number,
   ): IAutoMovieVector3 => {
-    const frame: IAutoMovieRigidTransform = context
-      .prop(p.prop)
-      .frame(context.start + seconds);
-    return Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, grip.frame.translation),
-    );
+    const s: number = Math.min(clock.duration, Math.max(0, seconds)) * FRAME;
+    const k: number = Math.floor(s);
+    return Vector3.lerp(frameAt(k), frameAt(k + 1), s - k);
   };
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(context.body, context.entry.pose);
