@@ -38,7 +38,7 @@ const OPENING: number = 1.6;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the band, the alarm, the gate and the four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Steers real horse-sized agents with the engine's crowd steering from their seeded grazing places to a gate and reads their courses.
  * @evidence contracts/development/testing.md#independent-expectations Each agent starts at the alarm plus the declared reaction. The opening is narrower than two horse breadths, so two in it together would touch. The discs' radius is half the horse footprint's breadth.
- * @evidence contracts/development/testing.md#distinguishing-cases Before and after the alarm, the scattered band and the bunch, the gate and the open field. Each horse's ridden gait over these courses uses the timed ride pinned by test_archetype_ride_course_timed_horse.
+ * @evidence contracts/development/testing.md#distinguishing-cases Before and after the alarm, the scattered band and the bunch, the gate and the open field. Each mare's steered course is ridden as a real timed ride in scenario 6; stride timing against the gait rows is pinned by equine's ride specs.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec.
  */
 export function test_world_herd_flight(): void {
