@@ -314,6 +314,7 @@ export * from "./lexicon/HumanGait";
 export * from "./lexicon/HumanLabour";
 export * from "./lexicon/HumanStance";
 export * from "./lexicon/HumanSupportRows";
+export * from "./lexicon/HumanLeadHorse";
 export * from "./lexicon/HumanRide";
 export * from "./lexicon/HumanHandrimStroke";
 export * from "./lexicon/HumanBicycleEffort";

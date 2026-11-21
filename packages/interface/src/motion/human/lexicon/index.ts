@@ -70,6 +70,7 @@ export type { IAutoMovieMotionHumanLexiconWeaponFirearmParams } from "./IAutoMov
 export type { IAutoMovieMotionHumanLexiconWeaponMeleeParams } from "./IAutoMovieMotionHumanLexiconWeaponMeleeParams";
 export type { IAutoMovieMotionHumanMountRider } from "./IAutoMovieMotionHumanMountRider";
 export type { IAutoMovieMotionHumanPursuit } from "./IAutoMovieMotionHumanPursuit";
+export type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
 export type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 export type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHumanHandrimStroke";
 export type { IAutoMovieMotionHumanSocial } from "./IAutoMovieMotionHumanSocial";
