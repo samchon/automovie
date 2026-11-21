@@ -2,6 +2,7 @@ export * from "./AutoMovieAir";
 export * from "./AutoMovieGravity";
 export * from "./AutoMovieMotionAudit";
 export * from "./AutoMoviePhysicalBalance";
+export * from "./AutoMoviePhysicalCoupledTargetError";
 export * from "./AutoMoviePhysicalPlayback";
 export * from "./AutoMoviePhysicalSimulation";
 export * from "./AutoMoviePhysicalTracking";
