@@ -456,10 +456,8 @@ export namespace AquaticSail {
                   contact.from <= u &&
                   u <= contact.to,
               );
-            // The foot keeps its toes' joint as the heel's pivot through its
-            // swing, so it leaves and meets the deck without a jump, and a
-            // heel the fit raises turns about it with the toes flat and
-            // still. Unloaded, it
+            // The foot bears on its ball through its swing, so it leaves and
+            // meets the deck without a jump. Unloaded, it
             // turns toes down as far as its ankle would otherwise dorsiflex
             // past a weightless ankle's limit. The heel rises into that turn
             // over the last `EASE` of a plant before a lift and lowers out
@@ -477,7 +475,7 @@ export namespace AquaticSail {
             const mtp: IAutoMovieVector3 = HumanFoot.offset(body, side, "mtp");
             const goal: IAutoMovieHumanLimbGoal = {
               ...posture.limbs[leg]!,
-              contact: mtp,
+              contact: HumanFoot.offset(body, side, "ball"),
               planted: window !== undefined,
             };
             if (weight === 0 || goal.rotation === undefined) {

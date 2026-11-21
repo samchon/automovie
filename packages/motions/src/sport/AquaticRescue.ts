@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformerReader,
@@ -200,7 +201,15 @@ export namespace AquaticRescue {
           },
           limbs: {
             ...placed.limbs,
-            rightArm: { point: chest, bend: { ...chest, y: chest.y - 0.25 } },
+            // The upper arm of the side-lying rescuer drapes over the
+            // victim's shoulder, the elbow back toward the rescuer.
+            leftArm: {
+              point: chest,
+              bend: Vector3.add(
+                Vector3.subtract(chest, Vector3.scale(tow.toward, 0.25)),
+                { x: 0, y: 0.1, z: 0 },
+              ),
+            },
           },
         };
       },
@@ -212,8 +221,19 @@ export namespace AquaticRescue {
     return courseArmGoal({
       body,
       plan: swimming,
-      side: "right",
-      rest: AquaticPosture.rest(body, opening, "right"),
+      side: "left",
+      rest: AquaticPosture.rest(body, opening, "left"),
+      // The victim moves with the tow: the hand follows its displayed
+      // sternum on the hold, read as the rescuer perceives it.
+      perceived: (
+        _posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieHumanLimbGoal =>
+        swimming.posture(seconds, undefined, resolution, projection).limbs
+          .leftArm!,
+      tracked: true,
       span: { start: arrive, ready: hold, relax: duration, end: duration },
     });
   }

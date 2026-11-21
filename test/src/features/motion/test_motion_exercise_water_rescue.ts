@@ -175,7 +175,7 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
     hold = Math.max(
       hold,
       Vector3.distance(
-        HumanHand.frame(body, film.bones("rescuer", seconds), "right", "palm")
+        HumanHand.frame(body, film.bones("rescuer", seconds), "left", "palm")
           .point,
         film.bones("victim", seconds).get("upperChest")!.worldPosition,
       ),

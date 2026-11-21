@@ -192,11 +192,15 @@ export namespace handToFaceRows {
     // gently (PADI Open Water Diver Manual).
     pinchNose: {
       region: "nose",
-      effector: { surface: "palm", shape: "point" },
+      // The forefinger's tip closes on the nose pocket, the thumb opposite.
+      effector: { surface: "indexTip", shape: "point" },
       kind: "hold",
       count: 1,
       hold: 1,
       tangent: "up",
+      // The nose's surface faces down as well as forward: read it level, so
+      // the finger stands on the world's up beside it.
+      level: true,
       head: 0,
       at: "atNose",
     },

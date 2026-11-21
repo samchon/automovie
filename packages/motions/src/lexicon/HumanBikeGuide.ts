@@ -16,7 +16,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
@@ -291,34 +293,13 @@ export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
             support: { kind: "ground" },
           });
 
-      // The hand starts from the entered hand and reaches the grip.
-      const hand: ReturnType<typeof poseBones> = poseBones(
-        body,
-        entry.pose,
-        undefined,
-        new Set([`${side}Hand` as const]),
-      );
-      const enteredHand: IAutoMovieRigidTransform = {
-        position: Quaternion.rotateVector(
-          inverse,
-          Vector3.subtract(
-            hand.get(`${side}Hand`)!.worldPosition,
-            origin.position,
-          ),
-        ),
-        rotation: Quaternion.multiply(
-          inverse,
-          hand.get(`${side}Hand`)!.worldRotation,
-        ),
-      };
-
       // The sole ball in each foot's frame, the axis the heel rises about.
       const balls: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
         left: HumanFoot.offset(body, "left", "ball"),
         right: HumanFoot.offset(body, "right", "ball"),
       };
 
-      return {
+      const plan: IAutoMovieMotionHumanActionPlan = {
         duration,
         events,
         contacts,
@@ -380,38 +361,41 @@ export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
           }
 
           // The near hand holds the grip on the bicycle as posed now.
-          const target: IAutoMovieHumanLimbGoal = AquaticProp.hold(
+          posture.limbs[`${side}Arm`] = AquaticProp.hold(
             body,
             posture,
             side,
             AquaticProp.at(bicycle, start + t).require(grip, "handle").world,
           );
-          const reachShare: number = minimumJerk.share(Math.min(1, t / REACH));
-          posture.limbs[`${side}Arm`] =
-            reachShare >= 1
-              ? target
-              : {
-                  ...target,
-                  point: Vector3.lerp(
-                    Vector3.add(
-                      frame.position,
-                      Quaternion.rotateVector(
-                        frame.rotation,
-                        enteredHand.position,
-                      ),
-                    ),
-                    target.point,
-                    reachShare,
-                  ),
-                  rotation: Quaternion.slerp(
-                    Quaternion.multiply(frame.rotation, enteredHand.rotation),
-                    target.rotation!,
-                    reachShare,
-                  ),
-                };
           return posture;
         },
       };
+
+      // The near arm reaches from the entered arm to the grip by `REACH`
+      // and holds it as one admitted course (`courseArmGoal`).
+      return courseArmGoal({
+        body,
+        plan,
+        side,
+        rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
+        span: { start: 0, ready: REACH, relax: duration, end: duration },
+        // The bicycle rolls and the walk sways: the hand follows the grip
+        // as posed at each second on the hold.
+        perceived: (
+          _posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+          resolution?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[2],
+          projection?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[3],
+        ): IAutoMovieHumanLimbGoal =>
+          plan.posture(seconds, undefined, resolution, projection).limbs[
+            `${side}Arm`
+          ]!,
+        tracked: true,
+      });
     },
   };
 

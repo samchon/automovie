@@ -20,7 +20,7 @@ const RISE: number = 0.04;
 
 /** The offered palm outside the shoulder, over the shoulder's half-width, and the share of the arm's length it extends to: provisional, a pressing arm short of straight. */
 const OUTSIDE: number = 0.25;
-const EXTENSION: number = 0.8;
+const EXTENSION: number = 0.9;
 
 /** A supporting base's elbow out from, below and behind its offered palm, over stature: provisional, a pressing arm. */
 const ELBOW_OUT: number = 0.12;
@@ -124,18 +124,8 @@ export namespace AquaticTeamBase {
         side,
         contact: HumanHand.offset(body, side, "palm").point,
         at: offer(side),
-        // A supinated hand under a load points its fingers inward and
-        // forward, as a tray is carried, not straight ahead.
         rotation: HumanHand.rotation(side, {
-          fingers: Vector3.normalize(
-            Vector3.add(
-              fingers,
-              HumanFrame.point(
-                { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
-                { x: side === "left" ? -1 : 1, y: 0, z: 0 },
-              ),
-            ),
-          ),
+          fingers,
           palm: UP,
         }),
       }),
