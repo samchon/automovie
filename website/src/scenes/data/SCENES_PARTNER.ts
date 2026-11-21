@@ -26,8 +26,8 @@ const SQUADRON: readonly ITrooper[] = [0, 1].flatMap(
 /** Seconds the troopers take to mount before the squadron moves off. */
 const CHARGE_MOUNT: number = 5;
 
-/** Seconds each trooper rides: the course's walk, trot and canter. */
-const CHARGE_RIDE: number = 24;
+/** Seconds each trooper rides: the course's walk, trot, canter and gallop. */
+const CHARGE_RIDE: number = 30;
 /**
  * A work point on a bench top, just behind its front edge.
  *
@@ -530,7 +530,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "cavalry-charge",
       title: "Cavalry squadron, walk to charge",
       summary:
-        "A squadron of two ranks advances knee to knee from the walk through the trot to the canter, each horse taking its gait on the course's marks.",
+        "A squadron of two ranks advances knee to knee from the walk through the trot and canter to the gallop, each horse taking its gait on the course's marks.",
       setting: "ride",
       roles: Object.fromEntries(
         SQUADRON.map((_: ITrooper, k: number): [string, string] => [
@@ -563,9 +563,10 @@ export const SCENES_PARTNER: readonly IScene[] = [
           { kind: "straight" as const, length: 12, gait: "walk" },
           { kind: "straight" as const, length: 16, gait: "trot" },
           { kind: "straight" as const, length: 30, gait: "canter" },
+          { kind: "straight" as const, length: 40, gait: "gallop" },
         ],
-        cruise: 5.5,
-        speeds: [1.6, 3.4, 5.5],
+        cruise: 8,
+        speeds: [1.6, 3.4, 5.5, 8],
         acceleration: 1.2,
         deceleration: 1.2,
         startFromStanding: true as const,
