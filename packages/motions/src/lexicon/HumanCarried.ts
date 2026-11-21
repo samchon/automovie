@@ -224,12 +224,11 @@ export namespace HumanCarried {
       legs: [70, 90, 30],
       straddles: true,
       clings: ["templeLeft", "templeRight"],
+      // The shins hang a thigh's reach ahead and out from the nape, knees
+      // bent square, so they fall before the carrier's chest at its height.
       holds: [
-        { region: "chestLeft", offset: { out: 0.08, up: 0.05, forward: 0.15 } },
-        {
-          region: "chestRight",
-          offset: { out: 0.08, up: 0.05, forward: 0.15 },
-        },
+        { region: "chestLeft", offset: { out: 0.18, up: 0, forward: 0.3 } },
+        { region: "chestRight", offset: { out: 0.18, up: 0, forward: 0.3 } },
       ],
     },
     ...HumanCarriedDrag.CARRIES,

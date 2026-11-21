@@ -2,17 +2,21 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieHumanDigitGoal,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanHeldWork,
   IAutoMovieMotionPropDrive,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * The holding hand's digits kept on the moving contacts of a held prop's
@@ -20,10 +24,11 @@ import { HumanHand } from "../posture/HumanHand";
  * swings, a fingertip on a chopstick as it pinches.
  *
  * A held prop is rigid in the hand, so a contact riding one of its
- * articulations lies, in the hand's own frame, where the articulation's
- * travel puts it: turned about a hinge's axis through its pivot, or slid
- * along a slider's `+X`, from its declared place, then carried by the
- * grip's fixed offset from the wrist. The goal is written in that frame
+ * articulations moves, in the hand's own frame, by the articulation's
+ * travel: turned about a hinge's axis through its pivot, or slid along a
+ * slider's `+X`. The digit's pad starts where the entry pose has it, in its
+ * grip on the contact, and moves by the contact's displacement since the
+ * work began, so it keeps that grip with no jump as the work starts. The goal is written in that frame
  * (`IAutoMovieHumanDigitGoal.on`), so it holds whatever the arm does, and
  * the digit's pad bears on it.
  *
@@ -50,11 +55,9 @@ export function heldDigits(
 ): (
   seconds: number,
 ) => Partial<Record<AutoMovieHumanDigit, IAutoMovieHumanDigitGoal>> {
-  const grip: IAutoMovieVector3 = HumanHand.offset(
-    context.body,
-    held.side,
-    "grip",
-  ).point;
+  const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    poseBones(context.body, context.entry.pose);
+  const hand: IAutoMovieResolvedBone = bones.get(`${held.side}Hand`)!;
   const worked: IWorked[] = [];
   drive.forEach((d: IAutoMovieMotionHumanHeldWork.IDrive, k: number): void => {
     if (d.by === undefined) return;
@@ -85,7 +88,22 @@ export function heldDigits(
         fix: "name a contact riding the driven hinge or slider",
       });
     const digit: AutoMovieHumanDigit = DIGITS[held.side][d.by.digit];
-    worked.push({ digit, joint, site, drive: drives[k]! });
+    // The pad's place in the hand's frame as the work begins.
+    const pad: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(hand.worldRotation),
+      Vector3.subtract(
+        HumanHand.frame(context.body, bones, held.side, PADS[d.by.digit]).point,
+        hand.worldPosition,
+      ),
+    );
+    worked.push({
+      digit,
+      joint,
+      site,
+      drive: drives[k]!,
+      pad,
+      start: drives[k]!.travel(0),
+    });
   });
   return (
     seconds: number,
@@ -94,19 +112,16 @@ export function heldDigits(
       Record<AutoMovieHumanDigit, IAutoMovieHumanDigitGoal>
     > = {};
     for (const w of worked) {
-      const travel: number = w.drive.travel(seconds);
-      const local: IAutoMovieVector3 = heldDigits.posed(
-        w.joint,
-        w.site,
-        travel,
+      // The pad keeps its grip in the contact: it starts where it is and
+      // moves by the contact's displacement since the work began.
+      const moved: IAutoMovieVector3 = Vector3.subtract(
+        heldDigits.posed(w.joint, w.site, w.drive.travel(seconds)),
+        heldDigits.posed(w.joint, w.site, w.start),
       );
       goals[w.digit] = {
         point: Vector3.add(
-          grip,
-          Vector3.add(
-            held.frame.position,
-            Quaternion.rotateVector(held.frame.rotation, local),
-          ),
+          w.pad,
+          Quaternion.rotateVector(held.frame.rotation, moved),
         ),
         surface: "pad",
         on: `${held.side}Hand`,
@@ -204,4 +219,21 @@ interface IWorked {
 
   /** The planned drive of the articulation. */
   drive: IAutoMovieMotionPropDrive;
+
+  /** The digit's pad in the hand's frame as the work begins. */
+  pad: IAutoMovieVector3;
+
+  /** The articulation's travel as the work begins. */
+  start: number;
 }
+
+/** Each digit's pad, the hand surface that bears on its contact. */
+const PADS: Readonly<
+  Record<IAutoMovieMotionHumanHeldWork.Digit, IAutoMovieMotionHumanHand.Surface>
+> = {
+  thumb: "thumbPad",
+  index: "indexPad",
+  middle: "middlePad",
+  ring: "ringPad",
+  little: "littleTip",
+};
