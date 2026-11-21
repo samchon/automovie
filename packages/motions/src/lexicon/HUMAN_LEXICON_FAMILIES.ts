@@ -89,6 +89,7 @@ import { HumanRide } from "./HumanRide";
 import { HumanSelfActionRows } from "./HumanSelfActionRows";
 import { HumanSittingVolley } from "./HumanSittingVolley";
 import { HumanSocial } from "./HumanSocial";
+import { HumanDanceStyles } from "./HumanDanceStyles";
 import { HumanSport } from "./HumanSport";
 import { HumanSportCarry } from "./HumanSportCarry";
 import { HumanSportGym } from "./HumanSportGym";
@@ -183,6 +184,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   carried: [HumanCarried, { spacecraftGlide }],
   sport: [
     HumanSport,
+    HumanDanceStyles,
     HumanSurface,
     { aquatic, HumanSittingVolley, stickBall, swimImmersed },
   ],

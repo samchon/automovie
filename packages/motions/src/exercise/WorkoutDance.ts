@@ -1,6 +1,5 @@
 import type {
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanWorkoutDance,
   IAutoMovieMotionHumanWorkoutKind,
 } from "@automovie/interface";
@@ -8,6 +7,7 @@ import type {
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
+import { balletStep } from "./balletStep";
 
 /**
  * The dance steps of the workout law (#3879, #3991, #4010): ballet's plié,
@@ -28,31 +28,8 @@ import { WorkoutStance } from "./WorkoutStance";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres; the turnout is a hip rotation the range of motion admits or refuses.
  */
 export namespace WorkoutDance {
-  /** The ballet turnout, degrees of hip external rotation each side (provisional: about the hip's measured range). */
-  export const TURNOUT: number = 40;
-
-  /** Feet turned out, knees straight, arms in a low rounded preparation. */
-  function first(
-    body: IAutoMovieMotionHumanBody,
-    knee: number,
-    ankle: number,
-    toes: number,
-  ): IAutoMovieMotionHumanExerciseKey.IKey {
-    return ExerciseKey.from(
-      body,
-      {},
-      {
-        turn: TURNOUT,
-        hip: knee / 2,
-        knee,
-        ankle,
-        toes,
-        shoulder: 30,
-        raise: 25,
-        elbow: 30,
-      },
-    );
-  }
+  /** The ballet turnout, degrees of hip external rotation each side: the ballet law's. */
+  export const TURNOUT: number = balletStep.TURNOUT;
 
   /** The steps. */
   export const KINDS: Readonly<
@@ -61,34 +38,6 @@ export namespace WorkoutDance {
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /** A plié: the knees bend over the turned-out feet and straighten, twice. */
-    plie: WorkoutStance.of(
-      WorkoutStance.ANKLES,
-      WorkoutStance.FEET,
-      1,
-      2,
-      (
-        body: IAutoMovieMotionHumanBody,
-      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(first(body, 0, 0, 0), 1.5, "rise", "up"),
-        WorkoutKind.step(first(body, 70, 25, 0), 1.5, "bend", "plie"),
-      ],
-    ),
-
-    /** A relevé: the heels rise onto the balls of the feet, the toes staying down, and lower, twice. */
-    releve: WorkoutStance.of(
-      ["leftToes", "rightToes"],
-      WorkoutStance.FEET,
-      1,
-      2,
-      (
-        body: IAutoMovieMotionHumanBody,
-      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(first(body, 0, 0, 0), 1, "lower", "flat"),
-        WorkoutKind.step(first(body, 0, -35, 45), 1, "rise", "releve", 0.5),
-      ],
-    ),
-
     /** An arabesque: on the left foot, the right leg raised straight behind, the arms out, held 3 s. */
     arabesque: WorkoutStance.of(
       ["leftFoot"],

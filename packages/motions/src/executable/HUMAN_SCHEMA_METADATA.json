@@ -1205,6 +1205,54 @@
       }
     },
     "backwardRoll": {},
+    "ballet": {
+      "properties": {
+        "position": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "x-unit": ""
+          }
+        },
+        "turnout": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "degrees"
+          }
+        },
+        "turns": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2,
+            "x-unit": ""
+          }
+        },
+        "split": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "degrees"
+          }
+        },
+        "bpm": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "beats/min"
+          }
+        },
+        "beats": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        }
+      }
+    },
     "barSwing": {
       "properties": {
         "reps": {
@@ -4037,24 +4085,6 @@
       }
     },
     "play": {},
-    "plie": {
-      "properties": {
-        "reps": {
-          "numeric": {
-            "type": "integer",
-            "minimum": 1,
-            "x-unit": ""
-          }
-        },
-        "hold": {
-          "numeric": {
-            "type": "number",
-            "minimum": 0,
-            "x-unit": "s"
-          }
-        }
-      }
-    },
     "pnfHamstring": {
       "properties": {
         "reps": {
@@ -4265,24 +4295,6 @@
     "regrip": {},
     "relayIncoming": {},
     "relayOutgoing": {},
-    "releve": {
-      "properties": {
-        "reps": {
-          "numeric": {
-            "type": "integer",
-            "minimum": 1,
-            "x-unit": ""
-          }
-        },
-        "hold": {
-          "numeric": {
-            "type": "number",
-            "minimum": 0,
-            "x-unit": "s"
-          }
-        }
-      }
-    },
     "reloadFirearm": {},
     "restBehindHead": {
       "properties": {
@@ -5168,6 +5180,24 @@
     },
     "takeAKnee": {},
     "takeCover": {},
+    "tap": {
+      "properties": {
+        "bpm": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "beats/min"
+          }
+        },
+        "repeats": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        }
+      }
+    },
     "tapOn": {},
     "teethBrushing": {},
     "thighTrap": {

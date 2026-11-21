@@ -1,9 +1,11 @@
 import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHumanBend";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHumanKneel";
+import type { IAutoMovieMotionHumanBallet } from "../exercise/IAutoMovieMotionHumanBallet";
 import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
 import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
 import type { IAutoMovieMotionHumanStretch } from "../exercise/IAutoMovieMotionHumanStretch";
+import type { IAutoMovieMotionHumanTapDance } from "../exercise/IAutoMovieMotionHumanTapDance";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanAquatic } from "../sport/IAutoMovieMotionHumanAquatic";
 import type { IAutoMovieMotionHumanAthletics } from "../sport/IAutoMovieMotionHumanAthletics";
@@ -152,4 +154,10 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
 
   /** Swim immersed in a staged water volume. */
   swimImmersed: IAutoMovieMotionHumanSwimImmersed;
+
+  /** Tap steps whose strikes sound on the beat's subdivisions. */
+  tap: IAutoMovieMotionHumanTapDance.IParams;
+
+  /** A ballet position, pirouette or grand jete. */
+  ballet: IAutoMovieMotionHumanBallet.IParams;
 }
