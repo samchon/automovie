@@ -24,6 +24,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanPrecisionSport,
+  PrecisionStrokeForms,
   bakePrecisionDeck,
   pocketedBalls,
   stand,
@@ -69,11 +70,31 @@ export async function test_motion_exercise_golf_putt(): Promise<void> {
   });
   const ball: ReturnType<typeof createBall> = createBall({ kind: "golf" });
   const green: ReturnType<typeof createPuttingGreen> = createPuttingGreen();
+  const centre: IAutoMovieVector3 = ball.affordance("grip").frame.translation;
+  const radius: number = ball.affordance("grip").aperture! / 2;
+  const resting: IAutoMovieVector3 = { x: 0, y: radius, z: 0.24 };
+  const cup: IAutoMovieVector3 = { x: resting.x, y: 0, z: resting.z + 1.5 };
+
+  // The golfer stands at the putt's own address for the ball (`PrecisionStrokeForms.address`).
   const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] = [
     {
       subject: "golfer",
       body,
-      at: { x: 0, y: 0, z: 0 },
+      at: PrecisionStrokeForms.address({
+        body,
+        row: "golfPutt",
+        side: "right",
+        yaw: 0,
+        ball: resting,
+        radius,
+        toward: cup,
+        tool: Vector3.length(
+          Vector3.subtract(
+            putter.affordance("face").frame.translation,
+            putter.affordance("grip").frame.translation,
+          ),
+        ),
+      }),
       yaw: 0,
       proficiency: { level: "trained" },
     },
@@ -98,18 +119,6 @@ export async function test_motion_exercise_golf_putt(): Promise<void> {
     { x: 0, y: 0, z: 1 },
     90 - 79,
   );
-  const working: IAutoMovieVector3 = Quaternion.rotateVector(
-    shaft,
-    Vector3.subtract(putter.affordance("face").frame.translation, grip),
-  );
-  const centre: IAutoMovieVector3 = ball.affordance("grip").frame.translation;
-  const radius: number = ball.affordance("grip").aperture! / 2;
-  const resting: IAutoMovieVector3 = {
-    x: 0.6 * hand.x + working.x,
-    y: radius,
-    z: 0.24,
-  };
-  const cup: IAutoMovieVector3 = { x: resting.x, y: 0, z: resting.z + 1.5 };
 
   const hold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {

@@ -22,6 +22,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanPrecisionSport,
+  PrecisionStrokeForms,
   stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -115,13 +116,31 @@ export function test_motion_exercise_tennis_point(): void {
     y: 1.28 * scale,
     z: 0.55 * scale,
   };
-  const place = (point: IAutoMovieVector3, yaw: number): IAutoMovieVector3 => {
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-      reach,
-    );
-    return { x: point.x - offset.x, y: 0, z: point.z - offset.z };
-  };
+  // A hitter stands at the forehand's own address for the ball, facing the
+  // shot (`PrecisionStrokeForms.address`).
+  const length: number = Vector3.length(
+    Vector3.subtract(
+      racket.affordance("face").frame.translation,
+      racket.affordance("grip").frame.translation,
+    ),
+  );
+  const place = (point: IAutoMovieVector3, yaw: number): IAutoMovieVector3 =>
+    PrecisionStrokeForms.address({
+      body,
+      row: "tennisForehandReturn",
+      side: "right",
+      yaw,
+      ball: point,
+      radius,
+      toward: Vector3.add(
+        point,
+        Quaternion.rotateVector(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+          { x: 0, y: 0, z: 10 },
+        ),
+      ),
+      tool: length,
+    });
   const face = (from: IAutoMovieVector3, to: IAutoMovieVector3): number =>
     (Math.atan2(to.x - from.x, to.z - from.z) * 180) / Math.PI;
 
