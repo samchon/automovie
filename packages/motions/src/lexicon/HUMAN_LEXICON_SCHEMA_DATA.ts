@@ -17657,7 +17657,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "additionalItems": false
           },
           "offset": {
-            "$ref": "#/components/schemas/Readonlyxnumberznumber",
+            "$ref": "#/components/schemas/ReadonlyIStepOffset",
             "description": "Metres of displacement along the moving stance's +X and forward +Z."
           },
           "clearance": {
@@ -17674,14 +17674,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "additionalProperties": false,
         "description": "One supported skate step, including a crossover when the offset reaches\nthe opposite side. The other skate glides throughout."
       },
-      "Readonlyxnumberznumber": {
+      "ReadonlyIStepOffset": {
         "type": "object",
         "properties": {
           "x": {
-            "type": "number"
+            "type": "number",
+            "description": "Metres along the moving stance's +X."
           },
           "z": {
-            "type": "number"
+            "type": "number",
+            "description": "Metres along the moving stance's forward +Z."
           }
         },
         "required": [
@@ -17918,14 +17920,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "description": "The foot that reaches the front stance first."
           },
           "transfer": {
-            "oneOf": [
-              {
-                "const": "flight"
-              },
-              {
-                "const": "overlap"
-              }
-            ],
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.SurfboardTransfer",
             "description": "Whether a foot settles before both hands release or after a free interval."
           },
           "water": {
@@ -17941,6 +17936,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "A surfboard entry, paddle and timed transfer from palms to the stance feet."
+      },
+      "IAutoMovieMotionHumanSurface.SurfboardTransfer": {
+        "oneOf": [
+          {
+            "const": "flight"
+          },
+          {
+            "const": "overlap"
+          }
+        ],
+        "description": "The order of a surfboard pop-up's palm release and stance acquisition:\n`overlap` sets a foot down before both palms release, `flight` releases\nboth palms before a foot lands."
       },
       "IAutoMovieMotionHumanAquatic.IParams": {
         "type": "object",
