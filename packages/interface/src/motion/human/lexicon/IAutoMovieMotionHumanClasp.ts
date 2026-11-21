@@ -1,4 +1,4 @@
-import type { AutoMovieHumanoidBone } from "../../../human/AutoMovieHumanoidBone";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 
 /**
  * Hold on to a partner or another carrier with the hands while keeping one's own support (#3951): a passenger on the pillion holding the rider's waist, a rider leading a second horse by its lead rope (ponying), a helper on the ground cupping a rider's lower leg for a leg-up. The body is carried by its own carrier's contact when `on` is named, and stays where it stands otherwise.
