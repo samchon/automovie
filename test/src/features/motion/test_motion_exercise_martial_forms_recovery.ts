@@ -1,5 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanMartialArt,
   IAutoMovieResolvedBone,
@@ -27,6 +29,13 @@ const CONTACT: number = 0.005;
 /** The scripted time for the second pose to read before recovery, in seconds. */
 const HOLD: number = 0.24;
 
+/**
+ * Least height of a guard's wrist from its shoulder joint, metres, six times
+ * the 5 mm contact tolerance, so an arm resting near shoulder height reads as
+ * neither a high nor a low guard.
+ */
+const GUARD: number = 0.03;
+
 /** Displayed pose changes observed for one form. */
 interface IObservation {
   /** Seconds spent in the two-foot transfer before the authored hold. */
@@ -47,8 +56,11 @@ interface IObservation {
   /** Smaller of the entry and recovery midpoint clearances of the travelling ball, in metres. */
   step: number;
 
-  /** Largest world distance between entry and recovery at three visible landmarks. */
+  /** Largest world distance between entry and recovery at five visible landmarks, both hands included. */
   reset: number;
+
+  /** Each hand's height above its own shoulder joint at the first marked pose, metres, lower first. */
+  hands: readonly [lower: number, higher: number];
 }
 
 /**
@@ -58,14 +70,17 @@ interface IObservation {
  * Scenarios:
  * 1. Four forms run on the same stage marks and camera for each of two mirrored
  *    staging/body combinations.
- * 2. The quiet turn and the low transfer show different screen heights and
- *    heading changes. The two inherited forms retain their timing contrast.
+ * 2. The taekwondo turn and the Muay Thai transfer show different screen
+ *    heights and heading changes, and the Muay Thai fists hold above the
+ *    shoulders while the taekwondo fists hold below them. The two inherited
+ *    forms retain their timing contrast.
  * 3. Every take holds its visibly planted support and returns to the opening
- *    body and foot positions without publishing a partner contact or result.
+ *    body, foot and hand positions without publishing a partner contact or
+ *    result.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the takes, displayed landmarks, stage frame and recovery.
  * @evidence contracts/development/testing.md#behavioral-verification Builds the four takes through public HumanChain and HumanPerformance, measures world FK soles and hips at the film's editing marks, and projects the hips through one native camera.
- * @evidence contracts/development/testing.md#independent-expectations Checks fixed floor marks, the author-supplied 0.24 second hold, return to the opening pose and visible differences between styles. The 5 mm contact tolerance comes from the maintained sole-pivot witness. The marked low pose must read more than 2 cm below the high pose at the hips, with over one percent of the camera's half-height separating the respective drops. Contact is sampled at boundaries and intermediate points.
+ * @evidence contracts/development/testing.md#independent-expectations Checks fixed floor marks, the author-supplied 0.24 second hold, return to the opening pose and visible differences between styles. The 5 mm contact tolerance comes from the maintained sole-pivot witness. The marked low pose must read more than 2 cm below the high pose at the hips, with over one percent of the camera's half-height separating the respective drops. The coached Muay Thai guard holds the fists at ear height and the taekwondo sparring guard below the chest line, so both wrists must stand more than 3 cm above or below their shoulder joints. Contact is sampled at boundaries and intermediate points.
  * @evidence contracts/development/testing.md#distinguishing-cases A fixed rear ball and travelling lead ball distinguish holding from sliding during entry, while contrasting hip orientation and camera height distinguish two screen silhouettes. Two proportional bodies use opposite leads.
  * @evidence contracts/development/testing.md#execution-ownership Portable motion and camera math only. No canvas, playback host or rendering is invoked by this named test.
  */
@@ -130,6 +145,13 @@ export function test_motion_exercise_martial_forms_recovery(): void {
       defects.push(
         `${name}: staged reset contrast: ${JSON.stringify({ high, low })}`,
       );
+
+    // The Muay Thai guard holds both fists at ear height, above the
+    // shoulder joints; the taekwondo sparring guard carries both below them.
+    if (high && low && (low.hands[0] <= GUARD || high.hands[1] >= -GUARD))
+      defects.push(
+        `${name}: expected Muay Thai fists over ${GUARD} m above and taekwondo fists over ${GUARD} m below the shoulders; got ${JSON.stringify({ muayThai: low.hands, taekwondo: high.hands })}`,
+      );
   }
 
   TestValidator.predicate(
@@ -141,7 +163,7 @@ export function test_motion_exercise_martial_forms_recovery(): void {
 /** Sample actual posed bones, independent of the planned stance positions. */
 function observe(
   body: IAutoMovieMotionHumanBody,
-  lead: "left" | "right",
+  lead: AutoMovieHumanSide,
   form: IAutoMovieMotionHumanMartialArt.Kind,
   camera: PerspectiveCamera,
   defects: string[],
@@ -188,8 +210,8 @@ function observe(
   )
     defects.push(`${form}: unexpected phase order, hold or contact`);
 
-  const rear: "left" | "right" = lead === "left" ? "right" : "left";
-  const sole = (at: number, side: "left" | "right"): IAutoMovieVector3 => {
+  const rear: AutoMovieHumanSide = lead === "left" ? "right" : "left";
+  const sole = (at: number, side: AutoMovieHumanSide): IAutoMovieVector3 => {
     const foot = film.bones("form", at).get(`${side}Foot`)!;
     return HumanFoot.point(body, side, "ball", {
       ankle: foot.worldPosition,
@@ -198,6 +220,13 @@ function observe(
   };
   const hips = (at: number): IAutoMovieResolvedBone =>
     film.bones("form", at).get("hips")!;
+  const joint = (at: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+    film.bones("form", at).get(bone)!.worldPosition;
+  const raised = (side: AutoMovieHumanSide): number =>
+    joint(first, `${side}Hand`).y - joint(first, `${side}UpperArm`).y;
+  const heights: readonly number[] = [raised("left"), raised("right")].sort(
+    (a: number, b: number): number => a - b,
+  );
   const y = (position: IAutoMovieVector3): number =>
     new ScreenPoint(position.x, position.y, position.z).project(camera).y;
   const heading = (at: number): number => {
@@ -245,6 +274,15 @@ function observe(
       ),
       Vector3.distance(sole(track.end, lead), sole(track.start, lead)),
       Vector3.distance(sole(track.end, rear), entryRear),
+      Vector3.distance(
+        joint(track.end, "leftHand"),
+        joint(track.start, "leftHand"),
+      ),
+      Vector3.distance(
+        joint(track.end, "rightHand"),
+        joint(track.start, "rightHand"),
+      ),
     ),
+    hands: [heights[0]!, heights[1]!],
   };
 }

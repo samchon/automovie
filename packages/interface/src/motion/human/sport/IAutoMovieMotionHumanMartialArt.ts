@@ -24,9 +24,10 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * Karate and tai chi also have separate linked stance phrases. The karate
  * phrase moves between front and back stances with paired chamber and arm
  * placement. The tai chi phrase carries both open hands through gradual
- * forward and backward weight transfers. Two additional screen forms
- * return from a higher, turning pose and a lower, near-forward pose.
- * The resets use neutral arms and have no partner or contact target.
+ * forward and backward weight transfers. The taekwondo reset turns a
+ * bladed, upright stance under a low sparring guard, and the Muay Thai reset
+ * keeps a square, lower stance under a high guard. Both return to the
+ * entry and have no partner or contact target.
  *
  * @evidence contracts/development/common.md#meaningful-documentation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
