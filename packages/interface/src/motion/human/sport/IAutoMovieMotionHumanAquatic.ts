@@ -13,7 +13,8 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 export namespace IAutoMovieMotionHumanAquatic {
   /**
    * Aquatic sequence selected by the caller. The two race kinds include a
-   * start and turn, and the two sailing kinds distinguish completion and abort.
+   * start and turn, the two sailing kinds distinguish completion and abort,
+   * and `waterExit` stands a swimmer up in the shallows onto the ground.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the named variants select and distinguishes the authored outcomes.
    * @evidence contracts/development/design.md#principled-representation Closed choices identify distinct motions or outcomes without requiring combinations of flags.
@@ -30,7 +31,8 @@ export namespace IAutoMovieMotionHumanAquatic {
     | "canoeStroke"
     | "kayakStroke"
     | "sailTack"
-    | "sailAbort";
+    | "sailAbort"
+    | "waterExit";
 
   /**
    * Seat of a rower in a two-person racing shell. The bow seat is nearest the

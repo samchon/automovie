@@ -26,6 +26,7 @@ export * from "./createSnowboard";
 export * from "./createStartingBlock";
 export * from "./createStick";
 export * from "./createSurfboard";
+export * from "./createTransitionRack";
 export * from "./createVaultingPole";
 export * from "./createVaultingTable";
 export * from "./createWaterPoloBall";

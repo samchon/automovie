@@ -33,6 +33,7 @@ import { sideDrumStrike } from "../tasks/sideDrumStrike";
 import { stageCatch } from "../throwing/stageCatch";
 import { HumanArchery } from "./HumanArchery";
 import { HumanBicycleEffort } from "./HumanBicycleEffort";
+import { HumanBikeGuide } from "./HumanBikeGuide";
 import { HumanBikeTransfer } from "./HumanBikeTransfer";
 import { HumanBlade } from "./HumanBlade";
 import { HumanBoltAction } from "./HumanBoltAction";
@@ -125,7 +126,12 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   labour: [HumanLabour],
   ride: [
     HumanRide,
-    { HumanHandrimStroke, HumanBicycleEffort, HumanBikeTransfer },
+    {
+      HumanHandrimStroke,
+      HumanBicycleEffort,
+      HumanBikeTransfer,
+      HumanBikeGuide,
+    },
   ],
   carried: [HumanCarried, { spacecraftGlide }],
   sport: [

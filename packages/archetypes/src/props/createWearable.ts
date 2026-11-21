@@ -23,13 +23,17 @@ const STETSON: string =
 const RAYBAN: string =
   "Ray-Ban RB2140 Original Wayfarer 50-22-150: 50 mm lenses 41 mm high, a 22 mm bridge, 150 mm temples (https://www.lenscrafters.com/lc-us/ray-ban/805289126577)";
 
+/** A road cycling helmet: no maker's page was read. */
+const HELMET: string =
+  "a medium road cycling helmet for heads about 55 to 59 cm round: the shell's across, length, height and weight are provisional estimates, no maker's page was read";
+
 /** What no source read gives. */
 const UNREAD: string = "the makers' pages read do not give it";
 
 /**
- * A small thing worn on the body and put on or taken off by hand: a wristwatch, a hat or a pair of spectacles.
+ * A small thing worn on the body and put on or taken off by hand: a wristwatch, a hat, a pair of spectacles or a cycling helmet.
  *
- * Each rests at the origin as it would lie on a table, its front toward `+Z`. A watch lies dial up with its strap straight along `Z`; a hat sits on its brim, crown up; spectacles stand open on the lenses' bottom edge with the temples back along `-Z`. `hold` is where the fingers take it: the watch's case, the hat's brim at its right side (`-X`), pinched from above with the thumb toward the front, where a right hand puts it on by the side of the head, the spectacles' bridge. `wear` is the socket the body part goes into or onto, `+Y` out toward it: the strap's inside under the case for the wrist, the crown's inside top for the head, which rests on the head's crown, the bridge's back for the nose. `face` is a watch's dial, facing up, read by a glance.
+ * Each rests at the origin as it would lie on a table, its front toward `+Z`. A watch lies dial up with its strap straight along `Z`; a hat sits on its brim, crown up; spectacles stand open on the lenses' bottom edge with the temples back along `-Z`; a helmet sits on its rim, shell up. `hold` is where the fingers take it: the watch's case, the hat's brim or the helmet's rim at its right side (`-X`), pinched from above with the thumb toward the front, where a right hand puts it on by the side of the head, the spectacles' bridge. `wear` is the socket the body part goes into or onto, `+Y` out toward it: the strap's inside under the case for the wrist, the crown's or the shell's inside top for the head, which rests on the head's crown, the bridge's back for the nose. `face` is a watch's dial, facing up, read by a glance.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -150,6 +154,50 @@ export function createWearable(
       ),
       extent: null,
     });
+  } else if (kind === "helmet") {
+    // A ventilated shell as a dome over its rim: an ellipse of rim points and
+    // two rings rising to the crown, one convex part.
+    const shell: ReturnType<typeof v>[] = [];
+    for (const [rise, scale] of [
+      [0, 1],
+      [0.55, 0.86],
+      [0.85, 0.55],
+      [1, 0.12],
+    ] as const)
+      for (let k: number = 0; k < 12; ++k) {
+        const angle: number = (2 * Math.PI * k) / 12;
+        shell.push(
+          v(
+            (Math.cos(angle) * scale * d.width) / 2,
+            rise * d.height,
+            (Math.sin(angle) * scale * d.depth) / 2,
+          ),
+        );
+      }
+    builder.convex("shell", shell, undefined, { color: "#d33f2f" });
+    builder.affordance({
+      id: "hold",
+      kind: "handle",
+      symmetry: "none",
+      frame: ArchetypeFrame.facing(
+        v(-(d.width / 2 - 0.01), thin / 2, 0),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
+      extent: null,
+      grip: "precision",
+      aperture: thin,
+    });
+    builder.affordance({
+      id: "wear",
+      kind: "socket",
+      frame: ArchetypeFrame.facing(
+        v(0, d.height - createWearable.SHELL, 0),
+        v(0, -1, 0),
+        v(0, 0, 1),
+      ),
+      extent: null,
+    });
   } else {
     // The front standing on its lenses' bottom edge, the temples back from its ends.
     builder.box("front", v(d.width, d.height, thin), v(0, d.height / 2, 0), {
@@ -197,16 +245,24 @@ export function createWearable(
  * Companion types, constants and bands of {@link createWearable}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the three things and one band per dimension each; the dimensions' meanings per kind are listed.
+ * @evidence contracts/development/design.md#principled-representation A closed union of the four things and one band per dimension each; the dimensions' meanings per kind are listed.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The hold a hand takes, the socket a body part goes into and a watch's dial.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read, the hat's from its brim, crown and head size; what no page read gives is provisional; the strap's width and every thickness are named estimates.
  */
 export namespace createWearable {
   /** The kinds. */
-  export type Kind = "watch" | "hat" | "spectacles";
+  export type Kind = "watch" | "hat" | "spectacles" | "helmet";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["watch", "hat", "spectacles"];
+  export const KINDS: readonly Kind[] = [
+    "watch",
+    "hat",
+    "spectacles",
+    "helmet",
+  ];
+
+  /** A helmet shell's thickness of foam over the head's crown, metres: an estimate. */
+  export const SHELL: number = 0.02;
 
   /** A strap's, a brim's and a spectacle frame's thickness, metres: an estimate. */
   export const THIN: number = 0.004;
@@ -226,9 +282,9 @@ export namespace createWearable {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `width`: a watch case's across, a brim's diameter, the spectacles' front across.
-   * - `depth`: a strap's length, a crown's diameter, a temple's length.
-   * - `height`: a case's thickness, a hat's height, the front's height.
+   * - `width`: a watch case's across, a brim's diameter, the spectacles' front across, a helmet shell's across.
+   * - `depth`: a strap's length, a crown's diameter, a temple's length, a helmet shell's length.
+   * - `height`: a case's thickness, a hat's height, the front's height, a helmet shell's height.
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
@@ -289,6 +345,12 @@ export namespace createWearable {
         `the hat's weight: ${UNREAD}`,
         true,
       ),
+    },
+    helmet: {
+      width: ArchetypeBand.metres(0.2, 0.22, HELMET, true),
+      depth: ArchetypeBand.metres(0.26, 0.28, HELMET, true),
+      height: ArchetypeBand.metres(0.14, 0.16, HELMET, true),
+      mass: ArchetypeBand.of("kg", 0.22, 0.3, HELMET, true),
     },
     spectacles: {
       width: ArchetypeBand.metres(

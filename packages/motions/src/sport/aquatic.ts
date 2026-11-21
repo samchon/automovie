@@ -8,6 +8,7 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 import { AquaticDive } from "./AquaticDive";
+import { AquaticExit } from "./AquaticExit";
 import { AquaticPaddle } from "./AquaticPaddle";
 import { AquaticPolo } from "./AquaticPolo";
 import { AquaticPool } from "./AquaticPool";
@@ -59,6 +60,8 @@ export namespace aquatic {
       case "sailTack":
       case "sailAbort":
         return AquaticSail.plan(context, context.params.kind === "sailAbort");
+      case "waterExit":
+        return AquaticExit.plan(context, water);
     }
   }
 }
