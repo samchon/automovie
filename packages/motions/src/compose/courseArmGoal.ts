@@ -40,6 +40,9 @@ import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHuman
  * the performer perceived it when the plan starts (`perceived`), so the
  * course never reads the other performer ahead of that second, and may
  * follow the live goal on the hold by a bounded correction (`tracked`).
+ * Two arms on one implement, or an arm and its support, are laid in one
+ * course (`with`) as one trajectory problem, the hands on the implement
+ * excused from each other by their declared `grasp`.
  * After the span the arm keeps the angles its course ended with, carried by
  * the body: a hand that holds what it lifted rides up with a body that
  * straightens, with no goal left to solve.
@@ -61,11 +64,17 @@ import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHuman
 export function courseArmGoal(
   props: courseArmGoal.IProps,
 ): IAutoMovieMotionHumanActionPlan {
-  const { plan, side, span }: courseArmGoal.IProps = props;
-  const limb: courseArmGoal.Limb = `${side}Arm`;
+  const { plan }: courseArmGoal.IProps = props;
+  const arms: readonly courseArmGoal.IArm[] = [props, ...(props.with ?? [])];
+  // Arms coursed together are one trajectory problem: one group, solved
+  // when the first of them is prepared.
+  const group: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
+    props.together ??
+    (arms.length > 1 ? AutoMovieMotionHumanArm.together() : undefined);
   let last: courseArmGoal.IRead | undefined;
   let composed: IAutoMovieMotionHumanActionPlan | undefined;
-  let kept: IAutoMovieMotionHumanPosture["joints"] | undefined;
+  const kept: Map<courseArmGoal.Limb, IAutoMovieMotionHumanPosture["joints"]> =
+    new Map();
   const read = (
     seconds: number,
     resolution?: courseArmGoal.Resolution,
@@ -101,60 +110,78 @@ export function courseArmGoal(
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
         ...posture.limbs,
       };
-      delete limbs[limb];
-      if (seconds <= span.end) return { ...posture, limbs };
+      let joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints;
+      for (const arm of arms) {
+        const limb: courseArmGoal.Limb = `${arm.side}Arm`;
+        delete limbs[limb];
+        const span: IAutoMovieMotionHumanArmPlanned.ISpan =
+          arm.span ?? props.span;
+        if (seconds <= span.end) continue;
 
-      // After its course the arm keeps the angles the course ended with,
-      // carried by the body as it moves on.
-      if (kept === undefined) {
-        const ended: IAutoMovieMotionHumanPosture["joints"] = composed!.posture(
-          span.end,
-        ).joints;
-        kept = {};
-        for (const bone of courseArmGoal.bones(side))
-          if (ended[bone] !== undefined) kept[bone] = ended[bone];
+        // After its course the arm keeps the angles the course ended with,
+        // carried by the body as it moves on.
+        let angles: IAutoMovieMotionHumanPosture["joints"] | undefined =
+          kept.get(limb);
+        if (angles === undefined) {
+          const ended: IAutoMovieMotionHumanPosture["joints"] =
+            composed!.posture(span.end).joints;
+          angles = {};
+          for (const bone of courseArmGoal.bones(arm.side))
+            if (ended[bone] !== undefined) angles[bone] = ended[bone];
+          kept.set(limb, angles);
+        }
+        joints = { ...joints, ...angles };
       }
-      return { ...posture, limbs, joints: { ...posture.joints, ...kept } };
+      return { ...posture, limbs, joints };
     },
   };
-  const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried({
-    ...(props.together === undefined ? {} : { together: props.together }),
-    ...(props.beside === undefined ? {} : { beside: props.beside }),
-    ...(props.disc === undefined ? {} : { disc: props.disc }),
-    ...(props.skinDistance === undefined
-      ? {}
-      : { skinDistance: props.skinDistance }),
-    ...(props.pace === undefined ? {} : { pace: props.pace }),
-    ...(props.perceived === undefined ? {} : { perceived: props.perceived }),
-    ...(props.tracked === undefined ? {} : { tracked: props.tracked }),
-    body: props.body,
-    side,
-    from: span.start,
-    to: span.end,
-    span,
-    rest: props.rest,
-    weight: (seconds: number): number =>
-      seconds <= span.relax
-        ? AutoMovieMotionInterval.progress(span.start, span.ready, seconds)
-        : 1 - AutoMovieMotionInterval.progress(span.relax, span.end, seconds),
-    goal: (
-      _posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-      resolution?: courseArmGoal.Resolution,
-      projection?: courseArmGoal.Projection,
-    ): IAutoMovieHumanLimbGoal => {
-      const goal: IAutoMovieHumanLimbGoal | undefined = read(
-        seconds,
-        resolution,
-        projection,
-      ).limbs[limb];
-      if (goal === undefined)
-        throw new Error(
-          `The plan writes no ${limb} goal at ${seconds} s for its course to read`,
-        );
-      return goal;
+  const primitives: IAutoMovieMotionHumanPrimitive[] = arms.map(
+    (arm: courseArmGoal.IArm): IAutoMovieMotionHumanPrimitive => {
+      const limb: courseArmGoal.Limb = `${arm.side}Arm`;
+      const span: IAutoMovieMotionHumanArmPlanned.ISpan =
+        arm.span ?? props.span;
+      return AutoMovieMotionHumanArm.carried({
+        ...(group === undefined ? {} : { together: group }),
+        ...(props.beside === undefined ? {} : { beside: props.beside }),
+        ...(arm.disc === undefined ? {} : { disc: arm.disc }),
+        ...(arm.skinDistance === undefined
+          ? {}
+          : { skinDistance: arm.skinDistance }),
+        ...(arm.grasp === undefined ? {} : { grasp: arm.grasp }),
+        ...(props.pace === undefined ? {} : { pace: props.pace }),
+        ...(arm.perceived === undefined ? {} : { perceived: arm.perceived }),
+        ...(arm.tracked === undefined ? {} : { tracked: arm.tracked }),
+        body: props.body,
+        side: arm.side,
+        from: span.start,
+        to: span.end,
+        span,
+        rest: arm.rest,
+        weight: (seconds: number): number =>
+          seconds <= span.relax
+            ? AutoMovieMotionInterval.progress(span.start, span.ready, seconds)
+            : 1 -
+              AutoMovieMotionInterval.progress(span.relax, span.end, seconds),
+        goal: (
+          _posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+          resolution?: courseArmGoal.Resolution,
+          projection?: courseArmGoal.Projection,
+        ): IAutoMovieHumanLimbGoal => {
+          const goal: IAutoMovieHumanLimbGoal | undefined = read(
+            seconds,
+            resolution,
+            projection,
+          ).limbs[limb];
+          if (goal === undefined)
+            throw new Error(
+              `The plan writes no ${limb} goal at ${seconds} s for its course to read`,
+            );
+          return goal;
+        },
+      });
     },
-  });
+  );
   composed = composeAutoMovieMotionHumanAction({
     base,
     clock: AutoMovieMotionClock.of(
@@ -166,7 +193,7 @@ export function courseArmGoal(
         }),
       ),
     ),
-    primitives: [arm],
+    primitives,
   });
   const coursed: IAutoMovieMotionHumanActionPlan = {
     ...plan,
@@ -208,41 +235,65 @@ export namespace courseArmGoal {
   }
 
   /**
-   * A plan whose arm goal is to be planned as one course.
+   * One arm a course lays: its side, its rest, its span and the carry's own
+   * per-arm members.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The law's plan, the arm and the four instants of its course, with the carry's own optional members by `Pick`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the course reads; the goal and the weight come from the plan and the span.
+   * @evidence contracts/development/design.md#principled-representation An arm's task in the carry's own terms, by `Pick`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what each carry reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional members are the carry's own, not restated.
    */
-  export interface IProps extends Partial<
+  export interface IArm extends Partial<
     Pick<
       IAutoMovieMotionHumanArmCarry.ICarry,
-      | "together"
-      | "beside"
-      | "disc"
-      | "skinDistance"
-      | "pace"
-      | "perceived"
-      | "tracked"
+      "disc" | "skinDistance" | "grasp" | "perceived" | "tracked"
     >
   > {
-    /** The body. */
-    body: IAutoMovieMotionHumanBody;
-
-    /** The law's plan, whose posture writes the arm's goal at every second the course reads. */
-    plan: IAutoMovieMotionHumanActionPlan;
-
     /** The arm. */
     side: AutoMovieHumanSide;
 
     /** The arm's angles before the span, which the reach leaves. */
     rest: IAutoMovieMotionHumanArmAngles.IAngles;
 
-    /** The course's instants, seconds since the plan's start: the reach from `start` to `ready`, the hold on the plan's goal to `relax`, the return to `end`. */
-    span: IAutoMovieMotionHumanArmPlanned.ISpan;
+    /** The arm's own instants, for an arm of `with` whose span differs; the course's `span` when absent. */
+    span?: IAutoMovieMotionHumanArmPlanned.ISpan;
   }
 
+  /**
+   * A plan whose arm goals are to be planned as one course.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation The law's plan, its first arm and the four instants of its course, the arms laid with it, and the carry's own group members by `Pick`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the course reads; the goals and the weights come from the plan and the spans.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional members are the carry's own, not restated.
+   */
+  export interface IProps
+    extends
+      Omit<IArm, "span">,
+      Partial<
+        Pick<
+          IAutoMovieMotionHumanArmCarry.ICarry,
+          "together" | "beside" | "pace"
+        >
+      > {
+    /** The body. */
+    body: IAutoMovieMotionHumanBody;
+
+    /** The law's plan, whose posture writes every coursed arm's goal at every second the course reads. */
+    plan: IAutoMovieMotionHumanActionPlan;
+
+    /** The course's instants, seconds since the plan's start: the reach from `start` to `ready`, the hold on the plan's goal to `relax`, the return to `end`. */
+    span: IAutoMovieMotionHumanArmPlanned.ISpan;
+
+    /**
+     * The other arm, laid in the same course as one trajectory problem: a
+     * support hand, or the second hand on one implement (a two-handed blade,
+     * a club, a bat, a putter), whose closing segments name each other in
+     * `grasp` so the hands on the implement are its contact, not a
+     * collision. None when absent.
+     */
+    with?: readonly IArm[];
+  }
   /**
    * The last posture of the plan read, and what it was read with.
    *
