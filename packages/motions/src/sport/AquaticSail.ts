@@ -13,6 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
@@ -31,32 +33,11 @@ const CLOSE_HAULED: number = 12;
 /** Share of the maneuver by which the sailors have crouched and taken their controls (`helmIn`). */
 const HELM_IN: number = 0.2;
 
-/** How far the reaching hand rises over the straight path, metres: provisional. */
-const REACH_UP: number = 0.15;
-
-/** How far out to its own side the reaching hand passes, metres: provisional. */
-const REACH_OUT: number = 0.15;
-
-/** How far ahead of the trunk the reaching hand passes, metres: provisional. */
-const REACH_AHEAD: number = 0.2;
-
 /** The crouch key's knee flexion beyond its hip flexion at full crouch, degrees: the shank's lean over a flat foot. */
 const KNEE_OVER_HIP: number = 15;
 
 /** How far the crouch lowers the pelvis, over stature: provisional, below a dinghy's boom. */
 const CROUCH: number = 0.2;
-
-/** A hand bone's placement in the hull frame entered by the action. */
-interface IHullLocal {
-  /** Hull-local elbow position, metres, the bend the reach starts from. */
-  elbow: IAutoMovieVector3;
-
-  /** Hull-local position, metres. */
-  point: IAutoMovieVector3;
-
-  /** Hull-local rotation. */
-  rotation: IAutoMovieQuaternion;
-}
 
 /** One hand on one of the craft's declared handle controls. */
 interface IControl {
@@ -111,8 +92,6 @@ export namespace AquaticSail {
     );
     const hipsAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["hips"]);
-    const shouldersAt: ReturnType<typeof AquaticPosture.markers> =
-      AquaticPosture.markers(body, ["leftUpperArm", "rightUpperArm"]);
     const duration: number = 3.65;
     const helm: boolean = params.role !== "crew";
 
@@ -189,25 +168,6 @@ export namespace AquaticSail {
       ),
     ];
 
-    // The entered hands, held in the hull frame, start each reach to a control.
-    const enteredHands: ReturnType<typeof poseBones> = poseBones(
-      body,
-      entry.pose,
-      undefined,
-      new Set(["leftHand", "rightHand", "leftLowerArm", "rightLowerArm"]),
-    );
-    const reachFrom: Readonly<Record<AquaticCrew.Side, IHullLocal>> = {
-      left: hullLocal(
-        hull,
-        enteredHands.get("leftHand")!,
-        enteredHands.get("leftLowerArm")!,
-      ),
-      right: hullLocal(
-        hull,
-        enteredHands.get("rightHand")!,
-        enteredHands.get("rightLowerArm")!,
-      ),
-    };
     const upright: IAutoMovieMotionHumanPosture = entry.posture;
     const drives: IAutoMovieMotionPropDrive[] = [];
     if (helm && params.boom !== undefined) {
@@ -257,7 +217,7 @@ export namespace AquaticSail {
         },
       });
     }
-    return {
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       contacts,
       drives,
@@ -397,102 +357,42 @@ export namespace AquaticSail {
                   ),
                 ),
           );
-          const frame: IAutoMovieRigidTransform = hull.frame(t);
-          const shoulders: ReturnType<
-            ReturnType<typeof AquaticPosture.markers>
-          > = shouldersAt(posture);
-          for (const control of controls) {
-            const held: IAutoMovieHumanLimbGoal = AquaticProp.hold(
+          // Each hand's goal is the handle where the drives put it; the arm's
+          // course to it and along it is planned once (`courseArmGoal`).
+          for (const control of controls)
+            posture.limbs[`${control.side}Arm`] = AquaticProp.hold(
               body,
               posture,
               control.side,
               rig.require(control.handle, "handle").world,
-              shoulders.get(`${control.side}UpperArm`)!.worldPosition,
             );
-            const entered: IHullLocal = reachFrom[control.side];
-            const world = (local: IAutoMovieVector3): IAutoMovieVector3 =>
-              Vector3.add(
-                frame.position,
-                Quaternion.rotateVector(frame.rotation, local),
-              );
-            posture.limbs[`${control.side}Arm`] =
-              u < HELM_IN
-                ? blendGoal(
-                    {
-                      ...held,
-                      point: world(entered.point),
-                      rotation: Quaternion.multiply(
-                        frame.rotation,
-                        entered.rotation,
-                      ),
-                      bend: world(entered.elbow),
-                    },
-                    held,
-                    AquaticCrew.span(u, 0, HELM_IN),
-                    // The hand comes up, out to its own side and forward,
-                    // clear of the thigh.
-                    Vector3.add(
-                      { x: 0, y: REACH_UP, z: 0 },
-                      Quaternion.rotateVector(
-                        resolveHumanPosture.heading(posture),
-                        {
-                          x: (control.side === "left" ? 1 : -1) * REACH_OUT,
-                          y: 0,
-                          z: REACH_AHEAD,
-                        },
-                      ),
-                    ),
-                  )
-                : held;
-          }
         }
         return posture;
       },
     };
-  }
 
-  /** A hand goal moving from one placement to another: position along the line, rotation on the shorter arc. */
-  function blendGoal(
-    from: IAutoMovieHumanLimbGoal,
-    to: IAutoMovieHumanLimbGoal,
-    share: number,
-    bow: IAutoMovieVector3,
-  ): IAutoMovieHumanLimbGoal {
-    if (share >= 1) return to;
-
-    // A quadratic Bezier through the midpoint displaced by the bow.
-    const via: IAutoMovieVector3 = Vector3.add(
-      Vector3.lerp(from.point, to.point, 0.5),
-      Vector3.scale(bow, 2),
+    // Lay each controlled arm as one admitted course: it reaches from the
+    // entered arm to its handle by the helm-in instant and holds it with
+    // branch and swivel continuity through the maneuver.
+    return controls.reduce(
+      (
+        laid: IAutoMovieMotionHumanActionPlan,
+        control: IControl,
+      ): IAutoMovieMotionHumanActionPlan =>
+        courseArmGoal({
+          body,
+          plan: laid,
+          side: control.side,
+          rest: AutoMovieMotionHumanArm.angles(entry.pose, control.side),
+          span: {
+            start: 0,
+            ready: HELM_IN * duration,
+            relax: duration,
+            end: duration,
+          },
+        }),
+      plan,
     );
-    return {
-      ...to,
-      point: Vector3.lerp(
-        Vector3.lerp(from.point, via, share),
-        Vector3.lerp(via, to.point, share),
-        share,
-      ),
-      bend: Vector3.lerp(from.bend, to.bend, share),
-      rotation: Quaternion.slerp(from.rotation!, to.rotation!, share),
-    };
-  }
-  /** A displayed hand bone expressed in the entered hull frame. */
-  function hullLocal(
-    hull: AquaticCrew.IHull,
-    bone: IAutoMovieResolvedBone,
-    elbow: IAutoMovieResolvedBone,
-  ): IHullLocal {
-    return {
-      elbow: Quaternion.rotateVector(
-        hull.inverse,
-        Vector3.subtract(elbow.worldPosition, hull.origin.position),
-      ),
-      point: Quaternion.rotateVector(
-        hull.inverse,
-        Vector3.subtract(bone.worldPosition, hull.origin.position),
-      ),
-      rotation: Quaternion.multiply(hull.inverse, bone.worldRotation),
-    };
   }
 
   /** An ankle's clearance pulse between release and replant. */

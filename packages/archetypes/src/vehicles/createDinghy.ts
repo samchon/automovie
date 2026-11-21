@@ -151,7 +151,7 @@ function hull(builder: Build, length: number, beam: number): void {
     },
   );
   for (const [id, z] of [
-    ["helmDeck", -0.1],
+    ["helmDeck", -0.3],
     ["crewDeck", 0.8],
   ] as const)
     builder.affordance({
@@ -266,7 +266,7 @@ function helm(builder: Build, length: number): void {
   // the tiller's end toward the helm's aft hand.
   const pivot: IAutoMovieVector3 = v(0, 0.32, -length / 2);
   const end: IAutoMovieVector3 = v(0, 0.42, -0.95);
-  const extension: IAutoMovieVector3 = v(0, 0.85, -0.55);
+  const extension: IAutoMovieVector3 = v(0, 1, -0.5);
   const grip: IAutoMovieVector3 = Vector3.lerp(end, extension, 0.8);
   builder.box(
     "rudder-blade",
