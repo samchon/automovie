@@ -29,6 +29,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { ballPossessions } from "../internal/ballPossessions";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
@@ -545,4 +546,10 @@ export function test_motion_exercise_baseball_play(): void {
             event.kind === "launch" && event.subject === "batter",
         ),
   );
+
+  // The takes pass the shipped verdicts a viewer would show.
+  assertTakeClean("fly-out", caught);
+  assertTakeClean("taken pitch", strikeOut);
+  assertTakeClean("softball hit", softHit);
+  assertTakeClean("run to first", runner);
 }

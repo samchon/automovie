@@ -369,8 +369,21 @@ export function ballCourt(
               : target,
         };
   const point: IAutoMovieVector3 = ball.reader.frame(context.start).position;
+
+  // A dribble pushes the ball down hard enough that its rebound comes back
+  // to the hand: from e^2 (v^2 + 2 g d) = 2 g d over the held centre's drop
+  // d to the floor, v = sqrt(2 g d (1 / e^2 - 1)). A ball that declares no
+  // restitution keeps the provisional push of 1.3 sqrt(g arm).
+  const restitution: number | undefined = ball.reader.prop.body?.restitution;
+  const drop: number = point.y + ball.sphere.centre.y - ball.sphere.radius;
+  const push: number =
+    restitution !== undefined && restitution > 0 && restitution < 1
+      ? Math.sqrt(
+          2 * AutoMovieGravity.STANDARD * drop * (1 / restitution ** 2 - 1),
+        )
+      : 1.3 * Math.sqrt(AutoMovieGravity.STANDARD * arm);
   const velocity: IAutoMovieVector3 = dribble
-    ? { x: 0, y: -1.3 * Math.sqrt(AutoMovieGravity.STANDARD * arm), z: 0 }
+    ? { x: 0, y: -push, z: 0 }
     : { x: 0, y: 0, z: 0 };
   const launch: IAutoMovieMotionPropLaunch = {
     prop,

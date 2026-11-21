@@ -15,6 +15,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -140,4 +141,7 @@ export function test_motion_exercise_hockey_goal(): void {
     "the soft shot stops on the ice short of the goal line",
     scored(soft) === undefined && rest.z < line && rest.y < 0.05,
   );
+
+  // The takes pass the shipped verdicts a viewer would show.
+  assertTakeClean("hockey goal", hard);
 }

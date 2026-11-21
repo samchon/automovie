@@ -16,6 +16,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { ballPossessions } from "../internal/ballPossessions";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
@@ -227,4 +228,8 @@ export function test_motion_exercise_basketball_possession(): void {
     "a receiver off the pass line refuses the gather",
     refusal instanceof HumanRefusal && refusal.kind === "reach",
   );
+
+  // The takes pass the shipped verdicts a viewer would show.
+  assertTakeClean("made possession", made);
+  assertTakeClean("short possession", short);
 }

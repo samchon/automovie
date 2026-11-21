@@ -39,6 +39,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { qclose, vclose } from "../internal/predicates";
@@ -484,4 +485,7 @@ export async function test_motion_bowling_deck(): Promise<void> {
       playback.at(seconds).bodies,
       replay.cache.at(seconds).bodies,
     );
+
+  // The takes pass the shipped verdicts a viewer would show.
+  assertTakeClean("bowling approach and slide", take);
 }

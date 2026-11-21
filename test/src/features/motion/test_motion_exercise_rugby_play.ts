@@ -1,5 +1,5 @@
 import { createBall } from "@automovie/archetypes";
-import { AutoMovieComposition } from "@automovie/engine";
+import { AutoMovieComposition, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
   IAutoMovieMotionHumanBallPlay,
@@ -18,6 +18,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import type { IBallStation } from "../internal/IBallStation";
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { ballPossessions } from "../internal/ballPossessions";
 import { ballStation } from "../internal/ballStation";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -47,6 +48,9 @@ interface IStations {
  *    ball.
  * 3. The play reads hooker, jumper, scrum-half and fly-half possessions
  *    with three launches between them.
+ * 4. The fly-half breaks upfield with the ball past a defender standing
+ *    off the line, keeping the hips 0.35 m apart, two hip half-widths of
+ *    the standard body: an avoided contact.
  *
  * World Rugby Laws: the lineout forms between the 5 m and 15 m lines and
  * the throw goes straight along the line of touch (Law 18); a pass must
@@ -67,6 +71,8 @@ export function test_motion_exercise_rugby_play(): void {
   const throwTo: IAutoMovieVector3 = { x: 7, y: 1.8, z: 0 };
   const halfTo: IAutoMovieVector3 = { x: 8, y: 1, z: -3.5 };
   const flyTo: IAutoMovieVector3 = { x: 13, y: 1, z: -6 };
+  const breakTo: IAutoMovieVector3 = { x: 13.5, y: 0, z: 0 };
+  const defenderAt: IAutoMovieVector3 = { x: 12, y: 0, z: -2.5 };
 
   const take = (seed: string, stations: IStations): HumanPerformance => {
     const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] = [
@@ -113,7 +119,7 @@ export function test_motion_exercise_rugby_play(): void {
         .sync({ of: from });
       parts.push(
         (next === undefined
-          ? caught
+          ? caught.run({ to: breakTo, pace: "run" })
           : caught
               .registered(
                 "rugbyPass",
@@ -131,6 +137,20 @@ export function test_motion_exercise_rugby_play(): void {
     receive("jumper", stations.jumper, "lineout", halfTo, "jumperPass");
     receive("half", stations.half, "jumperPass", flyTo, "halfPass");
     receive("fly", stations.fly, "halfPass", undefined, "flyHold");
+
+    // The fly-half's break runs past a defender standing off its line.
+    if (stations.fly !== undefined) {
+      performers.push({
+        subject: "defender",
+        body,
+        at: defenderAt,
+        yaw: 180,
+        proficiency: { level: "trained" },
+      });
+      parts.push(
+        HumanChain.subject("defender").stand({ seconds: 6, sway: 0 }).node,
+      );
+    }
     return new HumanPerformance({
       seed,
       laws: [HumanSportThrow.rugbyPass, stageCatch],
@@ -217,4 +237,24 @@ export function test_motion_exercise_rugby_play(): void {
       "hold:fly:true",
     ],
   );
+  const carrier: IAutoMovieMotionHumanBallPlay.Event | undefined = film
+    .play("ball")
+    .events.at(-1);
+  TestValidator.predicate(
+    "the fly-half carries the ball on the break past the defender without contact",
+    carrier?.kind === "hold" &&
+      carrier.subject === "fly" &&
+      carrier.to >= film.duration - 1e-6 &&
+      [0.5, 0.6, 0.7, 0.8, 0.9, 1].every(
+        (share: number): boolean =>
+          Vector3.distance(
+            film.bones("fly", share * film.duration).get("hips")!.worldPosition,
+            film.bones("defender", share * film.duration).get("hips")!
+              .worldPosition,
+          ) >= 0.35,
+      ),
+  );
+
+  // The takes pass the shipped verdicts a viewer would show.
+  assertTakeClean("lineout into open play", film);
 }

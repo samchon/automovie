@@ -22,6 +22,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { ballPossessions } from "../internal/ballPossessions";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
@@ -220,11 +221,12 @@ export function test_motion_exercise_volleyball_rally(): void {
           const station: IStation | undefined = touches.find(
             (touch: ITouch): boolean => touch.player === player,
           )?.station;
+          const start: IAutoMovieVector3 = starts[player]!;
           return {
             subject: player,
             body,
-            at: station?.at ?? starts[player]!,
-            yaw: station?.yaw ?? (starts[player]!.z < 0 ? 0 : 180),
+            at: station?.at ?? start,
+            yaw: station?.yaw ?? (start.z < 0 ? 0 : 180),
             proficiency: { level: "trained" },
           };
         },
@@ -409,4 +411,8 @@ export function test_motion_exercise_volleyball_rally(): void {
             ),
         ),
   );
+
+  // The takes pass the shipped verdicts a viewer would show.
+  assertTakeClean("volleyball rally", open);
+  assertTakeClean("defended rally", saved);
 }

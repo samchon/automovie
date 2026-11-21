@@ -19,6 +19,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { ballPossessions } from "../internal/ballPossessions";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
@@ -242,4 +243,9 @@ export function test_motion_exercise_football_goal(): void {
       centre,
     ) === undefined,
   );
+
+  // The takes pass the shipped verdicts a viewer would show.
+  assertTakeClean("penalty goal", open);
+  assertTakeClean("penalty catch", saved);
+  assertTakeClean("penalty parry", parried);
 }

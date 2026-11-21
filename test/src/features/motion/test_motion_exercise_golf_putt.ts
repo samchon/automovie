@@ -30,6 +30,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { rigidProfile } from "../internal/rigidProfile";
 import { vclose } from "../internal/vclose";
@@ -260,4 +261,7 @@ export async function test_motion_exercise_golf_putt(): Promise<void> {
       missed,
     ).length === 0,
   );
+
+  // The takes pass the shipped verdicts a viewer would show.
+  assertTakeClean("holed putt", holed);
 }

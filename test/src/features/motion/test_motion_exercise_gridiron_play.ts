@@ -17,6 +17,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import type { IBallStation } from "../internal/IBallStation";
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { ballPossessions } from "../internal/ballPossessions";
 import { ballStation } from "../internal/ballStation";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -213,4 +214,8 @@ export function test_motion_exercise_gridiron_play(): void {
           event.kind !== "hold",
       ),
   );
+
+  // The takes pass the shipped verdicts a viewer would show.
+  assertTakeClean("completed pass", complete);
+  assertTakeClean("incomplete pass", incomplete);
 }
