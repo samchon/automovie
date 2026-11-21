@@ -14,29 +14,50 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
+  HumanStageFight,
   HumanStrike,
 } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+/** A close strike row, or a stage-fight row that exposes one. */
+type Row =
+  | IAutoMovieMotionHumanCloseStrike.Technique
+  | "stagePalmStrike"
+  | "stageHeadbutt";
 
 /** A close strike row and how its effector must arrive. */
 interface IRow {
   /** The row's name in `HumanStrike`. */
-  row: IAutoMovieMotionHumanCloseStrike.Technique;
+  row: Row;
 
   /** The region of the other person it is thrown at. */
   at: AutoMovieHumanoidRegion;
+
+  /** The partner's distance, a share of stature: inside the strike's own band. */
+  distance: number;
 }
+
+/**
+ * The two performers' separation for the close strikes, a share of
+ * stature: about 0.6 m for the average man, where the two guards' heads
+ * stand clear of each other.
+ */
+const DISTANCE: number = 0.34;
+
+/** The clinch range of the elbows and the headbutt, a share of stature: about 0.5 m for the average man. */
+const CLINCH: number = 0.28;
 
 /** The six close strikes at the head. */
 const ROWS: readonly IRow[] = [
-  { row: "horizontalElbow", at: "chin" },
-  { row: "risingElbow", at: "chin" },
-  { row: "descendingElbow", at: "noseBridge" },
-  { row: "spinningElbow", at: "chin" },
-  { row: "spinningBackfist", at: "chin" },
-  { row: "headbutt", at: "chin" },
+  { row: "horizontalElbow", at: "chin", distance: CLINCH },
+  { row: "risingElbow", at: "chin", distance: CLINCH },
+  { row: "descendingElbow", at: "noseBridge", distance: CLINCH },
+  { row: "spinningElbow", at: "chin", distance: CLINCH },
+  { row: "spinningBackfist", at: "chin", distance: DISTANCE },
+  { row: "headbutt", at: "chin", distance: CLINCH },
 ];
 
 /** A landing lies within this of its target, metres: the blade strokes spec's bound. */
@@ -47,13 +68,6 @@ const HOLD: number = 0.005;
 
 /** A held hand stays within this of the partner's neck, metres: the grapple specs' 1 cm contact bound. */
 const GRIP: number = 0.01;
-
-/**
- * The two performers' separation for the close strikes, a share of
- * stature: about 0.6 m for the average man, where the two guards' heads
- * stand clear of each other.
- */
-const DISTANCE: number = 0.34;
 
 /** One film frame at 240 Hz, seconds. */
 const STEP: number = 1 / 240;
@@ -77,11 +91,14 @@ const TOLERANCE: number = 10;
  * 4. The headbutt's hands hold either side of the partner's neck from before
  *    the impact to the end.
  * 5. An elbow thrown at a person at punching range is refused with its band.
+ * 6. The stage-fight palm strike and headbutt are placed as feints with no
+ *    impact.
+ * 7. Every take passes the shipped verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the six strikes, their effectors and paths, the spin, the hold and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Plays each public strike row through HumanPerformance and reads the displayed elbow, hand and forehead regions, the pelvis heading, the lead ball and the partner's neck at the impact event and one 240 Hz frame before it.
  * @evidence contracts/development/testing.md#independent-expectations The 120 degree fold and the paths are the issue's; a landing is the blade strokes spec's 15 mm, a planted ball the support checks' 5 mm, a hand hold the grapple specs' 1 cm, and the elbow band is read back within the punch signature spec's 10 degrees. Punching range is the striking captures' 1.3 arms.
- * @evidence contracts/development/testing.md#distinguishing-cases Three elbow paths, two spins and a held headbutt on a small and an average body, and the adjacent out-of-band target. The partner holds a guard the strike passes; first-surface stops against a guard belong to the punch spec.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three elbow paths, two spins and a held headbutt on a small and an average body at their own band's distance, the stage-fight feints and the adjacent out-of-band target. The partner stands relaxed; first-surface stops against a guard belong to the close hand strike spec.
  * @evidence contracts/development/testing.md#execution-ownership Public in-memory performances through the strike rows, with no host or capture.
  */
 export function test_motion_exercise_close_strikes(): void {
@@ -89,7 +106,7 @@ export function test_motion_exercise_close_strikes(): void {
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const partner: IAutoMovieMotionHumanBody = body;
-    for (const { row, at } of ROWS) {
+    for (const { row, at, distance } of ROWS) {
       const cell: string = `${name} ${row}`;
       try {
         play(
@@ -97,7 +114,7 @@ export function test_motion_exercise_close_strikes(): void {
           partner,
           row,
           at,
-          DISTANCE * body.measure.stature,
+          distance * body.measure.stature,
           cell,
           complaints,
         );
@@ -106,15 +123,58 @@ export function test_motion_exercise_close_strikes(): void {
       }
     }
 
-    // An elbow at punching range is out of its band.
+    // The stage-fight rows show the palm strike and the headbutt as feints
+    // that land nothing.
+    for (const row of ["stagePalmStrike", "stageHeadbutt"] as const)
+      try {
+        const film: HumanPerformance = perform(
+          body,
+          partner,
+          row,
+          "chin",
+          DISTANCE * body.measure.stature,
+        );
+        assertTakeClean(`${name} ${row}`, film);
+        const placed: IAutoMovieScheduleEntry | undefined =
+          film.schedule.entries.find(
+            (entry: IAutoMovieScheduleEntry): boolean =>
+              entry.intent.anchor === "strike",
+          );
+        complaints.check(
+          `${name} ${row}: placed with no impact`,
+          placed !== undefined && placed.contact === undefined,
+        );
+      } catch (error) {
+        complaints.list.push(`${name} ${row}: ${String(error)}`);
+      }
+
+    // An elbow at punching range is out of its band; the refusal comes
+    // when the strike's geometry is first read.
     try {
       const arm: number =
         body.measure.upperArm + body.measure.forearm + body.measure.hand;
-      perform(body, partner, "horizontalElbow", "jawLeft", 1.3 * arm);
+      const film: HumanPerformance = perform(
+        body,
+        partner,
+        "horizontalElbow",
+        "jawLeft",
+        1.3 * arm,
+      );
+      HumanSignature.bones(
+        HumanSignature.of(film, "a", body, 0),
+        film.schedule.entries.find(
+          (entry: IAutoMovieScheduleEntry): boolean =>
+            entry.intent.anchor === "strike",
+        )?.end ?? 0,
+      );
       complaints.list.push(`${name}: an elbow at punching range was admitted`);
     } catch (error) {
-      if (!(error instanceof HumanRefusal) || error.axis !== "at")
-        complaints.list.push(`${name}: unexpected ${String(error)}`);
+      complaints.check(
+        `${name}: the punching-range elbow's refusal ${String(error)} names the band`,
+        error instanceof HumanRefusal &&
+          error.axis === "at" &&
+          /feasible/.test(error.message),
+      );
     }
   }
   complaints.assert("Close strikes");
@@ -124,13 +184,13 @@ export function test_motion_exercise_close_strikes(): void {
 function perform(
   body: IAutoMovieMotionHumanBody,
   partner: IAutoMovieMotionHumanBody,
-  row: IAutoMovieMotionHumanCloseStrike.Technique,
+  row: Row,
   at: AutoMovieHumanoidRegion,
   distance: number,
 ): HumanPerformance {
   const film: HumanPerformance = new HumanPerformance({
     seed: `close-${row}`,
-    laws: Object.values(HumanStrike),
+    laws: [...Object.values(HumanStrike), ...Object.values(HumanStageFight)],
     performers: [
       {
         subject: "a",
@@ -154,8 +214,8 @@ function perform(
         { at: { kind: "person", subject: "b", region: at } },
         "strike",
       )
-      .with(HumanChain.subject("b").guard({ seconds: 3, style: "kickboxing" }))
-      .node,
+      .guard({ seconds: 0.5, style: "kickboxing" })
+      .with(HumanChain.subject("b").stand({ seconds: 3, sway: 0 })).node,
   });
   if (film.schedule.entries.length === 0) throw new Error("nothing was placed");
   return film;
@@ -165,13 +225,14 @@ function perform(
 function play(
   body: IAutoMovieMotionHumanBody,
   partner: IAutoMovieMotionHumanBody,
-  row: IAutoMovieMotionHumanCloseStrike.Technique,
+  row: Row,
   at: AutoMovieHumanoidRegion,
   distance: number,
   cell: string,
   complaints: motionComplaints.IGatherer,
 ): void {
   const film: HumanPerformance = perform(body, partner, row, at, distance);
+  assertTakeClean(cell, film);
   const strike: IAutoMovieScheduleEntry | undefined =
     film.schedule.entries.find(
       (entry): boolean => entry.intent.anchor === "strike",

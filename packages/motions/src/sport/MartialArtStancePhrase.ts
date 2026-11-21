@@ -403,7 +403,9 @@ export function MartialArtStancePhrase(
   };
   const primitives: IAutoMovieMotionHumanPrimitive[] = [legs];
   const guard: IGuard | undefined =
-    form.arms === "highGuard" || form.arms === "lowGuard"
+    form.arms === "highGuard" ||
+    form.arms === "lowGuard" ||
+    form.arms === "centreline"
       ? GUARDS[form.arms]
       : undefined;
   const fist: boolean = karate || guard !== undefined;

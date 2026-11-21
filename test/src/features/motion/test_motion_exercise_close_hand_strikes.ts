@@ -12,6 +12,7 @@ import type {
 } from "@automovie/interface";
 import { HumanColliders, HumanSignature } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanSignature as M } from "../internal/motionHumanSignature";
@@ -58,12 +59,11 @@ const STEP: number = 1 / 240;
  *    the backfist forward, the backfist outward across the line, the
  *    hammerfist downward.
  * 3. The elbow lands within the technique's band.
- * 4. A feint shows a share of the palm heel and lands nothing.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three strikes, the surfaces, the directions, the bands and the feint.
+ * @evidence contracts/development/common.md#meaningful-documentation States the three strikes, the surfaces, the directions, and the bands; the feint is pinned by the stage-fight rows in the close strike spec.
  * @evidence contracts/development/testing.md#behavioral-verification Stages each row through the law sweep's striking stage and reads the displayed hand, its surface and the other body's colliders at the impact event and one 240 Hz frame before it.
  * @evidence contracts/development/testing.md#independent-expectations The surfaces are the body's own palm socket, back-of-hand region and little-finger knuckle; the bands are the coached ones the law states with the punch signature spec's 10 degree read-back; a touch is the blade strokes spec's 15 mm.
- * @evidence contracts/development/testing.md#distinguishing-cases Three surfaces and three arrival directions on a small and an average body, a guarded target whose guard may be met first, and a feint that lands nothing. Spinning variants and the elbows belong to the close strike spec.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three surfaces and three arrival directions on a small and an average body and a guarded target whose guard may be met first. Spinning variants and the elbows belong to the close strike spec.
  * @evidence contracts/development/testing.md#execution-ownership Public in-memory performances through the shared law staging, with no host or capture.
  */
 export function test_motion_exercise_close_hand_strikes(): void {
@@ -74,6 +74,7 @@ export function test_motion_exercise_close_hand_strikes(): void {
       const cell: string = `${name} ${technique}`;
       try {
         const s: M.IStaged = M.stage("punch", `technique=${technique}`, name);
+        assertTakeClean(cell, s.film);
         const impact: number | undefined = M.event(s, "impact");
         if (impact === undefined) {
           complaints.list.push(`${cell}: no impact`);
@@ -144,16 +145,6 @@ export function test_motion_exercise_close_hand_strikes(): void {
       }
     }
 
-  // A feint lands nothing.
-  try {
-    const s: M.IStaged = M.stage("punch", "feint=0.5", "m-average");
-    complaints.check(
-      "a feinted punch shows its share and has no impact",
-      M.event(s, "impact") === undefined && M.event(s, "shown") !== undefined,
-    );
-  } catch (error) {
-    complaints.list.push(`feint: ${String(error)}`);
-  }
   complaints.assert("Close hand strikes");
 }
 

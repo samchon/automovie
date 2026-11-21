@@ -17,9 +17,11 @@ import type {
   IAutoMovieMotionHumanGuard,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingStance,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanFoot } from "../posture/HumanFoot";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingGuardYield } from "./StrikingGuardYield";
@@ -29,7 +31,8 @@ import { strikingStepSupport } from "./strikingStepSupport";
 
 /**
  * The fighting stance taken and held: from whatever the performer stands in,
- * each foot steps to its stance place in turn (the rear foot first, so the
+ * each foot steps to its stance place in turn, cleared from the floor before
+ * it travels and pointed in the air (the rear foot first, so the
  * lead foot stays a support), the root sinks until both knees soften and
  * turns to the stance heading, and the gloves come up to the guard, then the
  * stance holds with a light bounce through the knees.
@@ -72,6 +75,15 @@ export namespace guard {
 
   /** Seconds to step into the stance. */
   export const SET: number = 0.6;
+
+  /** A stepping foot's clearance at mid-step, a share of stature (provisional). */
+  export const STEP_LIFT: number = 0.03;
+
+  /** The shares of a step between which the foot travels, after it clears the floor and before it lands (provisional). */
+  export const STEP_TRAVEL: readonly [number, number] = [0.25, 0.75];
+
+  /** A stepping foot's toes-down pitch at mid-step, degrees (provisional). */
+  export const STEP_POINT: number = 20;
 
   /** Bounce rate, per second (provisional). */
   export const BOUNCE_RATE: number = 2;
@@ -265,7 +277,7 @@ export namespace guard {
       bearing === "left"
         ? { left: second, right: first }
         : { left: first, right: second };
-    const lift: number = 0.02 * body.measure.stature;
+    const lift: number = STEP_LIFT * body.measure.stature;
     const rotations: Partial<
       Record<"left" | "right", ReturnType<typeof Quaternion.prepareSlerp>>
     > = {};
@@ -275,7 +287,14 @@ export namespace guard {
     ): IAutoMovieMotionHumanFoot.IPlacement => {
       if (!moving[side]) return from[side];
       const [a, b] = window[side];
-      const s: number = minimumJerk.share((t - a) / (b - a));
+      // The foot clears the floor before it travels and travels before it
+      // lands, so it never skates; its toes point down in the air, the ankle
+      // easing out of the stance's dorsiflexion while it bears nothing.
+      const raw: number = Math.min(1, Math.max(0, (t - a) / (b - a)));
+      const s: number = minimumJerk.share(
+        (raw - STEP_TRAVEL[0]) / (STEP_TRAVEL[1] - STEP_TRAVEL[0]),
+      );
+      const bump: number = Math.sin(Math.PI * raw) ** 2;
       const ankle: IAutoMovieVector3 = Vector3.lerp(
         from[side].ankle,
         to[side].ankle,
@@ -284,9 +303,13 @@ export namespace guard {
       const rotation: ReturnType<typeof Quaternion.prepareSlerp> = (rotations[
         side
       ] ??= Quaternion.prepareSlerp(from[side].rotation, to[side].rotation));
+      const turned: IAutoMovieQuaternion = rotation(s);
       return {
-        ankle: { ...ankle, y: ankle.y + lift * 4 * s * (1 - s) },
-        rotation: rotation(s),
+        ankle: { ...ankle, y: ankle.y + lift * bump },
+        rotation: HumanFoot.rotation(
+          HumanFoot.heading(turned),
+          HumanFoot.pitch(turned) - STEP_POINT * bump,
+        ),
       };
     };
     const contacts: IAutoMovieMotionHumanContactWindow[] = (
@@ -372,19 +395,22 @@ export namespace guard {
           !moving[side] ||
           (support?.landings[side] === undefined && t <= window[side][0]) ||
           t >= window[side][1];
-        const legs = StrikingStance.legs(body, feet, {
-          left: down("left"),
-          right: down("right"),
-        });
-
-        // The root lowered until each planted leg reaches its foot, as the
+        // The root lowered until each leg reaches its foot, the stepping one
+        // included, so the root does not drop when that foot lands, as the
         // stance turns and travels over feet that have not moved yet.
-        const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        const reached: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
           body,
-          { ...posture, limbs: legs },
+          { ...posture, limbs: StrikingStance.legs(body, feet) },
           resolveHumanPosture.KNEE,
           resolution,
         );
+        const lowered: IAutoMovieMotionHumanPosture = {
+          ...reached,
+          limbs: StrikingStance.legs(body, feet, {
+            left: down("left"),
+            right: down("right"),
+          }),
+        };
         const hands: ReturnType<typeof StrikingStance.guard> = guardAt(
           lowered,
           resolution,

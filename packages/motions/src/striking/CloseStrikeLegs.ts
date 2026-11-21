@@ -11,6 +11,8 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
+import { StrikingTarget } from "./StrikingTarget";
+import { punchFootwork } from "./punchFootwork";
 
 /**
  * The lower body of a close strike: the pelvis turned about the vertical
@@ -18,20 +20,23 @@ import { StrikingStance } from "./StrikingStance";
  * whole stance turned about the ball of the lead foot, which pivots in
  * place while the rear foot travels round it on a low arc.
  *
- * The turn, the lean and the shift follow one share in [0, 1] of the strike
- * out and back, so the stance returns to the entry's when the share does.
- * The root is lowered until both legs reach their feet
- * (`resolveHumanPosture.lower`).
+ * The turn, the lean, the shift and the drop follow one share in [0, 1] of
+ * the strike out and back, so the stance returns to the entry's when the
+ * share does. A planted turn may pivot the rear foot on its ball by half the
+ * turn with the heel raised, as a rear-hand punch does; a drop lowers the
+ * hips for a low target; a jump lifts both feet and the root. The root is
+ * lowered until both legs reach their feet (`resolveHumanPosture.lower`). A
+ * leg another primitive writes (a kick's) is left out.
  *
  * @param body The body.
  * @param entry The entry posture.
  * @param feet The entry's feet.
- * @param lead The stance's lead side.
- * @param motion The turn, lean, shift and spin and their share by second.
- * @returns The primitive writing the root, the trunk and both legs.
+ * @param lead The pivoting side: the stance's lead, or a kick's support foot.
+ * @param motion The turn, lean, shift, spin, hop and drop by second, the rear pivot and the free leg.
+ * @returns The primitive writing the root, the trunk and the legs it owns.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two kinds of carriage, the pivot, the return and the lowering.
- * @evidence contracts/development/implementation.md#principled-implementation A planted turn changes only the root's heading and place; a spin rotates the root and the rear foot rigidly about the lead ball and turns the lead foot about that ball, the forefoot rocker of a pivot.
+ * @evidence contracts/development/common.md#meaningful-documentation States the kinds of carriage, the pivots, the drop, the jump, the return, the lowering and the free leg.
+ * @evidence contracts/development/implementation.md#principled-implementation A planted turn changes the root's heading and place and may pivot the rear foot about its ball; a spin rotates the root and the rear foot rigidly about the lead ball and turns the lead foot about that ball, the forefoot rocker of a pivot.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One share, then the feet, the root and the lowered posture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pivot ball is held exactly; the rear foot's arc height is a named share of the stance length.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the lowering fit.
@@ -53,8 +58,15 @@ export function CloseStrikeLegs(
     feet[lead],
   );
   const lift: number = CloseStrikeLegs.LIFT * StrikingStance.length(body);
+  const free: AutoMovieHumanSide | undefined = motion.free;
   return {
-    channels: ["root", "trunk", "leftLeg", "rightLeg"],
+    channels: [
+      "root",
+      "trunk",
+      ...(["leftLeg", "rightLeg"] as const).filter(
+        (leg: "leftLeg" | "rightLeg"): boolean => leg !== `${free}Leg`,
+      ),
+    ],
     from: 0,
     to: motion.duration,
     write: (
@@ -85,7 +97,18 @@ export function CloseStrikeLegs(
       });
 
       // The rear foot rises on its way round and settles back.
-      const swing: IAutoMovieMotionHumanFoot.IPlacement = turnFoot(feet[rear]);
+      // A planted turn pivots the rear foot on its ball by half the turn,
+      // the heel raised, as a rear-hand punch's (`punchFootwork`).
+      const swing: IAutoMovieMotionHumanFoot.IPlacement =
+        motion.pivot === true && spun === 0
+          ? StrikingTarget.pivot(
+              body,
+              rear,
+              feet[rear],
+              0.5 * motion.turn * share,
+              punchFootwork.HEEL_RAISE * share,
+            )
+          : turnFoot(feet[rear]);
       const arc: number = spun === 0 ? 0 : Math.sin((Math.PI * spun) / 360);
       const risen: IAutoMovieMotionHumanFoot.IPlacement = {
         ...swing,
@@ -113,21 +136,25 @@ export function CloseStrikeLegs(
         turnAbout(entry.root),
         Vector3.scale(motion.shift, share),
       );
+      // A low target drops the hips by bending the support knee.
+      const drop: number = (motion.drop ?? 0) * share;
       const yaw: number = entry.yaw + spun + motion.turn * share;
       const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
         body,
         {
           ...posture,
-          root: { ...root, y: entry.root.y + hop },
+          root: { ...root, y: entry.root.y + hop - drop },
           yaw,
           pitch: entry.pitch + motion.lean * share,
           joints: StrikingStance.facing(posture.joints, yaw - entry.yaw),
           limbs: {
             ...posture.limbs,
-            ...StrikingStance.legs(body, placed, {
-              left: hop === 0 && !(rear === "left" && spun !== 0),
-              right: hop === 0 && !(rear === "right" && spun !== 0),
-            }),
+            ...legs(
+              StrikingStance.legs(body, placed, {
+                left: hop === 0 && !(rear === "left" && spun !== 0),
+                right: hop === 0 && !(rear === "right" && spun !== 0),
+              }),
+            ),
           },
         },
         resolveHumanPosture.KNEE,
@@ -136,6 +163,16 @@ export function CloseStrikeLegs(
       return lowered;
     },
   };
+
+  /** The leg goals less the free leg's, which another primitive writes. */
+  function legs(
+    goals: ReturnType<typeof StrikingStance.legs>,
+  ): ReturnType<typeof StrikingStance.legs> {
+    if (free === undefined) return goals;
+    const kept: ReturnType<typeof StrikingStance.legs> = { ...goals };
+    delete kept[`${free}Leg`];
+    return kept;
+  }
 }
 
 /**
@@ -172,5 +209,14 @@ export namespace CloseStrikeLegs {
 
     /** The height both feet and the root are lifted at an action second, metres; none when absent. */
     hop?: (seconds: number) => number;
+
+    /** The hips' drop at full share, metres, the support knee bending for a low target; none when absent. */
+    drop?: number;
+
+    /** Whether a planted turn pivots the rear foot on its ball by half the turn, the heel raised; it stays flat when absent. */
+    pivot?: boolean;
+
+    /** The leg another primitive writes, left out of this one's channels and goals; none when absent. */
+    free?: AutoMovieHumanSide;
   }
 }

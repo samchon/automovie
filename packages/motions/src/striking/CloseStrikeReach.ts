@@ -119,11 +119,11 @@ export function CloseStrikeReach(
     // The back of the hand on the target, the elbow bent out of the way of
     // the travel, the arm's reach from the shoulder.
     const reach: number = m.upperArm + m.forearm;
-    const shoulder: IAutoMovieVector3 = shoulderAt(0);
+    const shoulder: IAutoMovieVector3 = shoulderAt(still);
     const along: number = Vector3.dot(Vector3.subtract(target, shoulder), line);
-    const shift: number = Math.max(
-      -limit,
-      Math.min(limit, along - 0.9 * reach),
+    const shift: IAutoMovieVector3 = Vector3.scale(
+      line,
+      Math.max(-limit, Math.min(limit, along - 0.9 * reach)),
     );
     const rotation: IAutoMovieQuaternion = StrikingBody.fist(
       body,
@@ -179,13 +179,7 @@ export function CloseStrikeReach(
     };
     let distance: number = solve(shoulderAt(still));
     distance += solve(shoulderAt(Vector3.scale(toward, distance)));
-    if (Math.abs(distance) > limit)
-      refuse(
-        "reach",
-        Vector3.distance(elbow, shoulderAt(still)),
-        Math.max(0, m.upperArm - limit),
-        m.upperArm + limit,
-      );
+    if (Math.abs(distance) > limit) refuse("shift", distance, -limit, limit);
     const shift: IAutoMovieVector3 = Vector3.scale(toward, distance);
     const u: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(elbow, shoulderAt(shift)),
@@ -266,7 +260,9 @@ function refuse(
     reason:
       axis === "height"
         ? `the target stands at ${value.toFixed(3)} m, outside the heights the head reaches by its lean`
-        : `the close strike reaches ${minimum.toFixed(3)} to ${maximum.toFixed(3)} m, not ${value.toFixed(3)} m: an elbow lands inside the punch's band`,
+        : axis === "shift"
+          ? `the elbow needs the pelvis shifted ${value.toFixed(3)} m toward its place, outside the ${minimum.toFixed(3)} to ${maximum.toFixed(3)} m the stance allows: an elbow lands inside the punch's band`
+          : `the close strike reaches ${minimum.toFixed(3)} to ${maximum.toFixed(3)} m, not ${value.toFixed(3)} m: an elbow lands inside the punch's band`,
     fix: "stand closer, or throw a punch or a kick at a target that far",
   });
 }

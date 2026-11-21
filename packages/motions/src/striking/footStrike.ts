@@ -21,6 +21,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { CloseStrikeLegs } from "./CloseStrikeLegs";
 import { StrikingBody } from "./StrikingBody";
@@ -121,7 +122,8 @@ const FORMS: Readonly<
  * The ankle's goal is the contact point's: the foot turned to the
  * technique's attitude (`StrikingBody.foot`) and the ankle placed so the
  * heel or sole lands on the target; one beyond the leg's reach is moved
- * along the hip's line to the leg's full reach, where it lands short. The
+ * along the hip's line to the leg's full reach, where it lands short; a
+ * sweep that cannot reach the partner's ankle is refused with the distance. The
  * chamber folds the knee in front of the hip (above it for an axe kick, on
  * the far side of the travel for a hook or a crescent), and the extension
  * aims through the target so it meets it at 0.82 of its unit, after its peak
@@ -155,6 +157,12 @@ export namespace footStrike {
 
   /** The round kick's recoil, seconds (Gavagan and Sayers 2017). */
   export const RECOIL: number = 0.65;
+
+  /** The share of the leg's length a low target is reached at, short of straight (provisional). */
+  export const STRAIGHT: number = 0.97;
+
+  /** The most the hips drop for a low target, a share of the leg's length (provisional). */
+  export const DROP: number = 0.25;
 
   /** A jump's added time and its height, a share of the leg (provisional). */
   export const JUMP: readonly [seconds: number, height: number] = [0.15, 0.25];
@@ -208,183 +216,256 @@ export namespace footStrike {
         ? minimumJerk.share(seconds / shown)
         : 1 - minimumJerk.share((seconds - shown) / recoil);
 
-    // The target, the line and the form's directions.
-    const target: IAutoMovieVector3 = StrikingTarget.aim(
-      context,
-      p.at,
-      context.start,
-      (): number => m.hipHeight,
-    );
-    const line: IAutoMovieVector3 = StrikingTarget.line(
-      entry.root,
-      target,
-      entry.yaw,
-    );
-    const left: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(UP, line));
-    const outward: IAutoMovieVector3 = Vector3.scale(
-      left,
-      side === "left" ? 1 : -1,
-    );
-    const travel: IAutoMovieVector3 = form.travel(line, left, outward);
-    const rotation: IAutoMovieQuaternion = StrikingBody.foot(
-      form.toes(line, left, outward),
-      form.instep(line, left, outward),
-    );
-
-    // The lower body: a side kick turns the kicking hip to the target, a back
-    // kick turns away on the support ball, a spin turns a whole turn first.
-    const sign: number = side === "left" ? -1 : 1;
-    const turn: number = p.technique === "side" ? 90 * sign : 0;
-    const away: number = p.technique === "back" ? 180 * sign : 0;
-    const whole: number = p.spin === true ? 360 * sign : 0;
-    const spun = (seconds: number): number =>
-      whole *
-        minimumJerk.share(
-          Math.min(1, seconds / Math.max(1e-6, spinTime * strike)),
-        ) +
-      away * share(seconds);
-    const lift: number = JUMP[1] * (m.thigh + m.shank);
-    const hop = (seconds: number): number =>
-      p.jump === true && seconds > chamber && seconds < shown + 0.5 * JUMP[0]
-        ? lift *
-          Math.sin(
-            (Math.PI * (seconds - chamber)) / (shown + 0.5 * JUMP[0] - chamber),
-          )
-        : 0;
-    const feet: ReturnType<typeof StrikingTarget.feet> = StrikingTarget.feet(
-      context.entry,
-    );
-    const lower: IAutoMovieMotionHumanPrimitive = CloseStrikeLegs(
-      body,
-      entry,
-      feet,
-      support,
-      {
-        duration,
-        turn,
-        lean: 0,
-        shift: { x: 0, y: 0, z: 0 },
-        share,
-        spin: spun,
-        hop,
-      },
-    );
-
-    // The ankle's goal: the contact on the target, or the leg's full reach.
-    const hip: IAutoMovieVector3 = HumanTrunk.resolve(
-      body,
-      lower.write(entry, shown),
-      undefined,
-      undefined,
-      new Set<AutoMovieHumanoidBone>([`${side}UpperLeg`]),
-    ).get(`${side}UpperLeg`)!.worldPosition;
-    const offset: IAutoMovieVector3 = HumanFoot.point(
-      body,
-      side,
-      form.contact,
-      {
-        ankle: { x: 0, y: 0, z: 0 },
-        rotation,
-      },
-    );
-    let ankle: IAutoMovieVector3 = Vector3.subtract(target, offset);
-    const reach: number = m.thigh + m.shank;
-    if (Vector3.distance(ankle, hip) > reach)
-      ankle = Vector3.add(
-        hip,
-        Vector3.scale(Vector3.normalize(Vector3.subtract(ankle, hip)), reach),
+    // The geometry reads the target, which may only be read from settled
+    // placement, so it is built on first use and dropped when placement
+    // settles, as the close strike's is.
+    let built: IAutoMovieMotionHumanActionPlan | undefined;
+    const build = (): IAutoMovieMotionHumanActionPlan => {
+      if (built !== undefined) return built;
+      // The target, the line and the form's directions.
+      const target: IAutoMovieVector3 = StrikingTarget.aim(
+        context,
+        p.at,
+        context.start,
+        (): number => m.hipHeight,
+      );
+      const line: IAutoMovieVector3 = StrikingTarget.line(
+        entry.root,
+        target,
+        entry.yaw,
+      );
+      const left: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.cross(UP, line),
+      );
+      const outward: IAutoMovieVector3 = Vector3.scale(
+        left,
+        side === "left" ? 1 : -1,
+      );
+      const travel: IAutoMovieVector3 = form.travel(line, left, outward);
+      const rotation: IAutoMovieQuaternion = StrikingBody.foot(
+        form.toes(line, left, outward),
+        form.instep(line, left, outward),
       );
 
-    // The chamber: the knee folded before the hip, above it for an axe, on
-    // the far side of the travel for a sweep across the target.
-    const across: boolean =
-      p.technique === "hook" || p.technique === "crescent";
-    const folded: IAutoMovieVector3 =
-      p.technique === "axe"
-        ? Vector3.add(
-            hip,
-            Vector3.add(
-              Vector3.scale(UP, 0.6 * reach),
-              Vector3.scale(line, 0.3 * reach),
-            ),
-          )
-        : across
-          ? Vector3.subtract(ankle, Vector3.scale(travel, 0.5 * reach))
-          : Vector3.add(
+      // The lower body: a side kick turns the kicking hip to the target, a back
+      // kick turns away on the support ball, a spin turns a whole turn first.
+      const sign: number = side === "left" ? -1 : 1;
+      const turn: number = p.technique === "side" ? 90 * sign : 0;
+      const away: number = p.technique === "back" ? 180 * sign : 0;
+      const whole: number = p.spin === true ? 360 * sign : 0;
+      const spun = (seconds: number): number =>
+        whole *
+          minimumJerk.share(
+            Math.min(1, seconds / Math.max(1e-6, spinTime * strike)),
+          ) +
+        away * share(seconds);
+      const lift: number = JUMP[1] * (m.thigh + m.shank);
+      const hop = (seconds: number): number =>
+        p.jump === true && seconds > chamber && seconds < shown + 0.5 * JUMP[0]
+          ? lift *
+            Math.sin(
+              (Math.PI * (seconds - chamber)) /
+                (shown + 0.5 * JUMP[0] - chamber),
+            )
+          : 0;
+      const feet: ReturnType<typeof StrikingTarget.feet> = StrikingTarget.feet(
+        context.entry,
+      );
+      const lowerWith = (drop: number): IAutoMovieMotionHumanPrimitive =>
+        CloseStrikeLegs(body, entry, feet, support, {
+          duration,
+          turn,
+          lean: 0,
+          shift: { x: 0, y: 0, z: 0 },
+          share,
+          spin: spun,
+          hop,
+          drop,
+          free: side,
+        });
+      const hipOf = (
+        primitive: IAutoMovieMotionHumanPrimitive,
+      ): IAutoMovieVector3 =>
+        HumanTrunk.resolve(
+          body,
+          primitive.write(entry, shown),
+          undefined,
+          undefined,
+          new Set<AutoMovieHumanoidBone>([`${side}UpperLeg`]),
+        ).get(`${side}UpperLeg`)!.worldPosition;
+      const offset: IAutoMovieVector3 = HumanFoot.point(
+        body,
+        side,
+        form.contact,
+        {
+          ankle: { x: 0, y: 0, z: 0 },
+          rotation,
+        },
+      );
+      let ankle: IAutoMovieVector3 = Vector3.subtract(target, offset);
+      const reach: number = m.thigh + m.shank;
+
+      // A low target drops the hips, the support knee bending, until the leg
+      // reaches it a little short of straight, at most `DROP` of the leg.
+      const standing: IAutoMovieVector3 = hipOf(lowerWith(0));
+      const level: number = Math.hypot(
+        ankle.x - standing.x,
+        ankle.z - standing.z,
+      );
+      const straight: number = STRAIGHT * reach;
+      const drop: number =
+        level < straight && Vector3.distance(ankle, standing) > straight
+          ? Math.min(
+              DROP * reach,
+              Math.max(
+                0,
+                standing.y -
+                  ankle.y -
+                  Math.sqrt(straight * straight - level * level),
+              ),
+            )
+          : 0;
+      const lower: IAutoMovieMotionHumanPrimitive = lowerWith(drop);
+      const hip: IAutoMovieVector3 = drop === 0 ? standing : hipOf(lower);
+      // A sweep that cannot reach the partner's ankle is refused: it has no
+      // miss to show.
+      if (
+        p.technique === "sweep" &&
+        p.at.kind === "person" &&
+        Vector3.distance(ankle, hip) > reach
+      )
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "at",
+          value: Vector3.distance(ankle, hip),
+          reason: `the sweep needs ${Vector3.distance(ankle, hip).toFixed(3)} m from the hip to the partner's ankle, beyond the leg's ${reach.toFixed(3)} m`,
+          fix: "stand closer to the partner, or sweep a nearer leg",
+        });
+      if (Vector3.distance(ankle, hip) > reach)
+        ankle = Vector3.add(
+          hip,
+          Vector3.scale(Vector3.normalize(Vector3.subtract(ankle, hip)), reach),
+        );
+
+      // The chamber: the knee folded before the hip, above it for an axe, on
+      // the far side of the travel for a sweep across the target.
+      const across: boolean =
+        p.technique === "hook" || p.technique === "crescent";
+      const folded: IAutoMovieVector3 =
+        p.technique === "axe"
+          ? Vector3.add(
               hip,
               Vector3.add(
-                Vector3.scale(DOWN, 0.45 * reach),
-                Vector3.scale(line, 0.25 * reach),
+                Vector3.scale(UP, 0.6 * reach),
+                Vector3.scale(line, 0.3 * reach),
               ),
-            );
-    const through: IAutoMovieVector3 = Vector3.add(
-      folded,
-      Vector3.scale(
-        Vector3.subtract(ankle, folded),
-        1 / minimumJerk.share(MEET),
-      ),
-    );
-    const knee: IAutoMovieVector3 = Vector3.add(
-      Vector3.lerp(hip, ankle, 0.5),
-      Vector3.scale(UP, 0.25 * m.thigh),
-    );
-    const planted: IAutoMovieHumanLimbGoal | undefined =
-      entry.limbs[`${side}Leg`];
-    const start: IAutoMovieVector3 = planted?.point ?? feet[side].ankle;
-    const startBend: IAutoMovieVector3 =
-      planted?.bend ?? Vector3.add(hip, Vector3.scale(line, m.thigh));
-    const extend: number = (shown - chamber) / MEET;
-    const leg: IAutoMovieMotionHumanPrimitive = {
-      channels: [`${side}Leg`],
-      from: 0,
-      to: duration,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => {
-        let point: IAutoMovieVector3;
-        let bend: IAutoMovieVector3;
-        if (seconds <= chamber) {
-          const s: number = minimumJerk.share(seconds / chamber);
-          point = Vector3.lerp(start, folded, s);
-          bend = Vector3.lerp(startBend, knee, s);
-        } else if (seconds <= shown) {
-          point = Vector3.lerp(
-            folded,
-            through,
-            minimumJerk.share((seconds - chamber) / extend),
-          );
-          bend = knee;
-        } else {
-          const s: number = minimumJerk.share((seconds - shown) / recoil);
-          point = Vector3.lerp(ankle, start, s);
-          bend = Vector3.lerp(knee, startBend, s);
-        }
-        return {
-          ...posture,
-          limbs: {
-            ...posture.limbs,
-            [`${side}Leg`]: { point, bend, rotation, planted: false },
-          },
-        };
-      },
-    };
-
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      {
-        part: `${support}Foot`,
-        kind: "plant",
+            )
+          : across
+            ? Vector3.subtract(ankle, Vector3.scale(travel, 0.5 * reach))
+            : Vector3.add(
+                hip,
+                Vector3.add(
+                  Vector3.scale(DOWN, 0.45 * reach),
+                  Vector3.scale(line, 0.25 * reach),
+                ),
+              );
+      const through: IAutoMovieVector3 = Vector3.add(
+        folded,
+        Vector3.scale(
+          Vector3.subtract(ankle, folded),
+          1 / minimumJerk.share(MEET),
+        ),
+      );
+      const knee: IAutoMovieVector3 = Vector3.add(
+        Vector3.lerp(hip, ankle, 0.5),
+        Vector3.scale(UP, 0.25 * m.thigh),
+      );
+      const planted: IAutoMovieHumanLimbGoal | undefined =
+        entry.limbs[`${side}Leg`];
+      const start: IAutoMovieVector3 = planted?.point ?? feet[side].ankle;
+      const startBend: IAutoMovieVector3 =
+        planted?.bend ?? Vector3.add(hip, Vector3.scale(line, m.thigh));
+      const extend: number = (shown - chamber) / MEET;
+      const leg: IAutoMovieMotionHumanPrimitive = {
+        channels: [`${side}Leg`],
         from: 0,
-        to: 1,
-        support: { kind: "ground" },
-      },
-    ];
-    const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+        to: duration,
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture => {
+          let point: IAutoMovieVector3;
+          let bend: IAutoMovieVector3;
+          if (seconds <= chamber) {
+            const s: number = minimumJerk.share(seconds / chamber);
+            point = Vector3.lerp(start, folded, s);
+            bend = Vector3.lerp(startBend, knee, s);
+          } else if (seconds <= shown) {
+            point = Vector3.lerp(
+              folded,
+              through,
+              minimumJerk.share((seconds - chamber) / extend),
+            );
+            bend = knee;
+          } else {
+            const s: number = minimumJerk.share((seconds - shown) / recoil);
+            point = Vector3.lerp(ankle, start, s);
+            bend = Vector3.lerp(knee, startBend, s);
+          }
+          return {
+            ...posture,
+            limbs: {
+              ...posture.limbs,
+              [`${side}Leg`]: { point, bend, rotation, planted: false },
+            },
+          };
+        },
+      };
+
+      // The support foot is planted throughout, or around the jump's flight.
+      const flight: readonly [number, number] = [
+        chamber / duration,
+        (shown + 0.5 * JUMP[0]) / duration,
+      ];
+      const contacts: IAutoMovieMotionHumanContactWindow[] = (
+        p.jump === true
+          ? [
+              [0, flight[0]],
+              [flight[1], 1],
+            ]
+          : [[0, 1]]
+      ).map(
+        ([
+          from,
+          to,
+        ]: readonly number[]): IAutoMovieMotionHumanContactWindow => ({
+          part: `${support}Foot`,
+          kind: "plant",
+          from: from!,
+          to: to!,
+          support: { kind: "ground" },
+        }),
+      );
+      built = composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
         clock,
         primitives: [lower, leg],
       });
-    return { ...composed, contact: shown };
+      return built;
+    };
+    return {
+      duration,
+      events: clock.events(),
+      contact: shown,
+      get contacts(): IAutoMovieMotionHumanActionPlan["contacts"] {
+        return build().contacts;
+      },
+      posture: (
+        ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+      ): IAutoMovieMotionHumanPosture => build().posture(...args),
+      settle: (): void => {
+        built = undefined;
+      },
+    };
   }
 }

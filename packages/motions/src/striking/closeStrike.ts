@@ -88,6 +88,9 @@ export namespace closeStrike {
   /** How far behind the landing the effector's approach starts along its travel, metres (provisional). */
   export const APPROACH: number = 0.15;
 
+  /** The share of a headbutt's delivery by which both hands hold the neck, before the head drives (provisional). */
+  export const TAKE: number = 0.5;
+
   /** The share of a spin's delivery the arm waits at the guard before it extends (provisional). */
   export const SPIN_HOLD: number = 2 / 3;
 
@@ -142,6 +145,15 @@ export namespace closeStrike {
       seconds <= shown
         ? reached * minimumJerk.share(seconds / shown)
         : reached * (1 - minimumJerk.share((seconds - shown) / recoil));
+    // A headbutt's hands take the neck first; the head drives after.
+    const take: number = TAKE * shown;
+    const drive = (seconds: number): number =>
+      p.technique !== "headbutt"
+        ? share(seconds)
+        : seconds <= shown
+          ? reached *
+            minimumJerk.share(Math.max(0, seconds - take) / (shown - take))
+          : share(seconds);
 
     // The geometry reads the target, which may only be read from settled
     // postures: it is built on first use and dropped when the performance
@@ -188,6 +200,9 @@ export namespace closeStrike {
           : TURN[p.technique] *
             (side === rear ? 1 : -0.8) *
             (rear === "left" ? -1 : 1);
+      // A planted turn pivots the rear foot on its ball.
+      const pivoting: boolean =
+        !spinning && turn !== 0 && p.technique !== "headbutt";
       const spun = (seconds: number): number =>
         spin * minimumJerk.share(Math.min(1, seconds / shown));
       const motion = (
@@ -198,8 +213,9 @@ export namespace closeStrike {
         turn,
         lean,
         shift,
-        share,
+        share: drive,
         spin: spinning ? spun : (): number => 0,
+        pivot: pivoting,
       });
       const feet: ReturnType<typeof StrikingTarget.feet> = StrikingTarget.feet(
         context.entry,
@@ -244,7 +260,7 @@ export namespace closeStrike {
       if (!spinning)
         contacts.push({
           part: `${rear}Foot`,
-          kind: "plant",
+          kind: pivoting ? "pivot" : "plant",
           from: 0,
           to: 1,
           support: { kind: "ground" },
@@ -258,6 +274,14 @@ export namespace closeStrike {
         const limb: "leftArm" | "rightArm" =
           side === "left" ? "leftArm" : "rightArm";
         const from: IAutoMovieHumanLimbGoal | undefined = entry.limbs[limb];
+        // In the placed mode the bend is the elbow's own place, so the blend
+        // starts from the entry's displayed elbow joint, not its hint.
+        const guardElbow: IAutoMovieVector3 = poseBones(
+          body,
+          context.entry.pose,
+          undefined,
+          new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]),
+        ).get(`${side}LowerArm`)!.worldPosition;
         if (from !== undefined)
           primitives.push({
             channels: [limb],
@@ -286,7 +310,7 @@ export namespace closeStrike {
                       w,
                     ),
                     bend: Vector3.lerp(
-                      from.bend,
+                      guardElbow,
                       Vector3.add(arm.bend, back),
                       w,
                     ),
@@ -361,7 +385,6 @@ export namespace closeStrike {
         const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
           p.at.subject,
         );
-        const take: number = 0.6 * shown;
         for (const hand of ["left", "right"] as const) {
           const region: AutoMovieHumanoidRegion =
             hand === "left" ? "neckRight" : "neckLeft";
@@ -403,7 +426,7 @@ export namespace closeStrike {
                     region,
                     0,
                   ),
-                  { surface: "palm", shape: "relaxed", bend: "forward" },
+                  { surface: "palm", shape: "relaxed", bend: "tucked" },
                 ),
             }),
           );
