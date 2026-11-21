@@ -1,24 +1,21 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanUnseat,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { KnockdownFloor } from "../reaction/KnockdownFloor";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
+import { heelMountedFoot } from "./heelMountedFoot";
 
 /**
  * The shapes of a rider leaving a saddle (`HumanUnseat`): the slump over the neck, the flight's blend from the carried seat into the lie or the stand, a hand reaching the floor or the mane, the flank clearance a sideways fall must keep, and the drag behind a stirrup. Every angle and time is a provisional stage reading.
@@ -84,12 +81,13 @@ export namespace HumanUnseatPose {
   /**
    * The flying posture: the carried seat blended into a lie or a stand by a share, turned to its facing and placed at the root.
    *
+   * @param body The body.
    * @param from The posture at the release.
    * @param to The lie or stand.
    * @param facing The final heading, degrees.
    * @param root The root now.
    * @param share 0 at the release to 1 at the landing.
-   * @returns The posture, with no limb goals: the saddle's holds are let go.
+   * @returns The posture, its limb goals carried with the root's motion since the release and unplanted: the saddle's holds are let go without a jump.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the blend and the dropped holds.
    * @evidence contracts/development/implementation.md#principled-implementation Joint angles and the pitch interpolated, the heading by its shortest turn, the roll back to level.
@@ -100,6 +98,7 @@ export namespace HumanUnseatPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture.
    */
   export function flying(
+    body: IAutoMovieMotionHumanBody,
     from: IAutoMovieMotionHumanPosture,
     to: KnockdownFloor.IFold,
     facing: number,
@@ -128,7 +127,7 @@ export namespace HumanUnseatPose {
     }
     const turn: number =
       ((((facing - from.yaw + 180) % 360) + 360) % 360) - 180;
-    return {
+    const shown: IAutoMovieMotionHumanPosture = {
       ...from,
       root,
       yaw: from.yaw + turn * share,
@@ -137,6 +136,56 @@ export namespace HumanUnseatPose {
       joints,
       limbs: {},
     };
+    // The limbs that held the saddle let go but keep their place on the body: each goal is carried by the root's own motion since the release, unplanted, so nothing jumps.
+    const carry: IAutoMovieQuaternion = Quaternion.multiply(
+      resolveHumanPosture.heading(shown),
+      Quaternion.inverse(resolveHumanPosture.heading(from)),
+    );
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
+    for (const [limb, goal] of Object.entries(from.limbs) as [
+      keyof IAutoMovieMotionHumanPosture["limbs"],
+      IAutoMovieHumanLimbGoal,
+    ][])
+      limbs[limb] = {
+        ...goal,
+        point: Vector3.add(
+          root,
+          Quaternion.rotateVector(
+            carry,
+            Vector3.subtract(goal.point, from.root),
+          ),
+        ),
+        bend: Vector3.add(
+          root,
+          Quaternion.rotateVector(
+            carry,
+            Vector3.subtract(goal.bend, from.root),
+          ),
+        ),
+        ...(goal.rotation === undefined
+          ? {}
+          : { rotation: Quaternion.multiply(carry, goal.rotation) }),
+        planted: false,
+      };
+    // A foot let go of its stirrup bears no weight: it turns toes-down about its ball as far as the shank leans past the unloaded dorsiflexion.
+    const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
+      body,
+      shown.root,
+      resolveHumanPosture.heading(shown),
+      shown.joints.hips,
+    );
+    for (const side of ["left", "right"] as const) {
+      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
+      if (goal !== undefined)
+        limbs[`${side}Leg`] = heelMountedFoot(
+          body,
+          side,
+          goal,
+          hips[side],
+          ANKLE_DORSIFLEXION.unloaded,
+        );
+    }
+    return { ...shown, limbs };
   }
 
   /**
@@ -149,7 +198,7 @@ export namespace HumanUnseatPose {
    * @returns The posture with the arm's goal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the reach.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand's rest offset from the hips turned by the posture's heading, blended to the point; the elbow bends back and out.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand's rest offset from the hips turned by the posture's heading, blended to the point; the elbow bends toward a point back and out from where it hangs.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One goal.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
@@ -165,17 +214,26 @@ export namespace HumanUnseatPose {
     if (share <= 0) return posture;
     const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
     const sign: number = side === "left" ? 1 : -1;
-    const hanging: IAutoMovieVector3 = Vector3.add(
-      posture.root,
-      Quaternion.rotateVector(turn, { x: sign * 0.25, y: -0.1, z: 0 }),
-    );
+    // From where the hand is held now, or where it hangs by the hip.
+    const hanging: IAutoMovieVector3 =
+      posture.limbs[`${side}Arm`]?.point ??
+      Vector3.add(
+        posture.root,
+        Quaternion.rotateVector(turn, { x: sign * 0.25, y: -0.1, z: 0 }),
+      );
     return {
       ...posture,
       limbs: {
         ...posture.limbs,
+        // The held goal keeps its own elbow and turn; only its point moves, so the arm does not flip.
         [`${side}Arm`]: {
+          ...(posture.limbs[`${side}Arm`] ?? {
+            bend: Vector3.add(
+              hanging,
+              Quaternion.rotateVector(turn, { x: sign * 0.3, y: 0, z: -0.3 }),
+            ),
+          }),
           point: Vector3.lerp(hanging, point, share),
-          bend: Quaternion.rotateVector(turn, { x: sign, y: 0, z: -1 }),
           planted: share >= 1,
         },
       },
@@ -293,186 +351,5 @@ export namespace HumanUnseatPose {
           fix: "push the fall harder to the side, or fall backward or forward",
         });
     }
-  }
-
-  /**
-   * The drag's inputs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The law's context, carrier, seated sampler, release, stirrup, side, breakaway, lie, the fitted lie, its root height and the window builder.
-   * @evidence contracts/development/design.md#principled-representation The plan's shared state.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `drag`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IDrag {
-    /** The law's context. */
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUnseat>;
-
-    /** The carrier. */
-    support: IAutoMovieMotionHumanPropReader;
-
-    /** The carrier contact's frame reader. */
-    carrier: HumanMountedFrame.Reader;
-
-    /** The seated posture at a local second. */
-    seatedAt: (t: number) => IAutoMovieMotionHumanPosture;
-
-    /** The release, local seconds. */
-    release: number;
-
-    /** The stirrup contact. */
-    stirrup: string;
-
-    /** The dragged foot's side. */
-    side: AutoMovieHumanSide;
-
-    /** Seconds after the release the stirrup lets go; never when absent. */
-    free: number | undefined;
-
-    /** Seconds lying after the stop. */
-    lie: number;
-
-    /** The fitted lie. */
-    lying: KnockdownFloor.IFold;
-
-    /** The lying root's height. */
-    floor: number;
-
-    /** The contact window builder. */
-    window: (
-      part: string,
-      kind: IAutoMovieMotionHumanContactWindow["kind"],
-      from: number,
-      to: number,
-      on?: string,
-    ) => IAutoMovieMotionHumanContactWindow;
-  }
-
-  /**
-   * A drag: from the release the body is drawn over `DRAW` onto its back behind the stirrup, the foot held in it and the head away from the carrier, sliding as the carrier goes; a breakaway stirrup lets the foot go at `free` and the body slides to a stop.
-   *
-   * @param props The inputs.
-   * @returns The plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the drag, its release and its windows.
-   * @evidence contracts/development/implementation.md#principled-implementation The lying root a leg's length behind the stirrup along the carrier's level heading, the foot's goal the stirrup's own point; after the breakaway the root slides with the velocity it had (`HumanUnseatFlight`).
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Windows, then the sampler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stirrup is read where the carrier has it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One stirrup and one carrier reading per sample.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The breakaway slide is solved once.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the carrier reader.
-   */
-  export function drag(props: IDrag): IAutoMovieMotionHumanActionPlan {
-    const {
-      context,
-      support,
-      carrier,
-      seatedAt,
-      release,
-      side,
-      lie,
-      lying,
-      floor,
-    } = props;
-    const legLength: number =
-      context.body.measure.thigh + context.body.measure.shank;
-    const dragged = (film: number): IAutoMovieMotionHumanPosture => {
-      const foot: IAutoMovieVector3 = HumanMountedFrame.contact(
-        support,
-        props.stirrup,
-        film,
-      );
-      const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
-        carrier(film).rotation,
-        { x: 0, y: 0, z: 1 },
-      );
-      const level: IAutoMovieVector3 = Vector3.normalize({
-        x: ahead.x,
-        y: 0,
-        z: ahead.z,
-      });
-      const root: IAutoMovieVector3 = {
-        ...Vector3.subtract(foot, Vector3.scale(level, legLength)),
-        y: floor,
-      };
-      const yaw: number = (Math.atan2(level.x, level.z) * 180) / Math.PI;
-      const shown: IAutoMovieMotionHumanPosture = {
-        ...seatedAt(release),
-        root,
-        yaw,
-        pitch: lying.pitch,
-        roll: 0,
-        joints: { ...(lying.joints as IAutoMovieMotionHumanPosture["joints"]) },
-        limbs: {},
-      };
-      return {
-        ...shown,
-        limbs: {
-          [`${side}Leg`]: {
-            point: foot,
-            bend: { x: 0, y: 1, z: 0 },
-            planted: true,
-          },
-        },
-      };
-    };
-    const freed: number | undefined =
-      props.free === undefined ? undefined : release + props.free;
-    const slide: HumanUnseatFlight.IFlight | undefined =
-      freed === undefined
-        ? undefined
-        : HumanUnseatFlight.of(
-            dragged(context.start + freed).root,
-            Vector3.scale(
-              Vector3.subtract(
-                dragged(context.start + freed + 1 / 240).root,
-                dragged(context.start + freed - 1 / 240).root,
-              ),
-              120,
-            ),
-            { x: 0, y: 0, z: 0 },
-            floor,
-          );
-    const duration: number =
-      freed === undefined ? release + DRAW + lie : freed + slide!.stop + lie;
-    const on: string = context.params.on;
-    return {
-      duration,
-      events: [
-        { name: "release", share: release / duration },
-        ...(freed === undefined
-          ? []
-          : [{ name: "free", share: freed / duration }]),
-      ],
-      contacts: [
-        props.window("seat", "seat", 0, release / duration, on),
-        props.window(
-          `${side}Foot`,
-          "plant",
-          0,
-          freed === undefined ? 1 : freed / duration,
-          on,
-        ),
-        props.window("back", "lie", (release + DRAW) / duration, 1),
-      ],
-      base: { kind: "lying" },
-      posture: (time: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.max(0, Math.min(duration, time));
-        if (t <= release) return seatedAt(t);
-        if (freed !== undefined && t > freed)
-          return {
-            ...dragged(context.start + freed),
-            root: HumanUnseatFlight.at(slide!, t - freed),
-            limbs: {},
-          };
-        const shown: IAutoMovieMotionHumanPosture = dragged(context.start + t);
-        return t >= release + DRAW
-          ? shown
-          : mixHumanPosture(
-              seatedAt(release),
-              shown,
-              minimumJerk.share((t - release) / DRAW),
-            );
-      },
-    };
   }
 }

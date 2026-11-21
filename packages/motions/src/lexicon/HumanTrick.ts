@@ -48,24 +48,25 @@ interface IKey {
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every bound point is the carrier's own moving contact or the prop's own place.
  */
-export const HumanTrick: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTrick> = {
-  name: "trick",
-  interrupts: {},
-  /**
-   * Admit the figures, lay each key once, then sample.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the refusals: no figure or a last figure out of the seat, a bad time, a pickup without its prop, and a pickup whose prop lies beyond the leaning hand's reach.
-   * @evidence contracts/development/implementation.md#principled-implementation Keys from the body's measures in the seat's frame; bound limbs take their contact's point each sample; the pickup's reach is checked against the leaned shoulder at the figure's hold.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, keys, clock and windows, then the sampler.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable pickup is refused, never stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A sample blends two keys and reads one frame and at most four contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The keys are shared by every sample.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys and the carrier reader.
-   */
-  plan(context: Context): IAutoMovieMotionHumanActionPlan {
-    return plan(context);
-  },
-};
+export const HumanTrick: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTrick> =
+  {
+    name: "trick",
+    interrupts: {},
+    /**
+     * Admit the figures, lay each key once, then sample.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the refusals: no figure or a last figure out of the seat, a bad time, a pickup without its prop, and a pickup whose prop lies beyond the leaning hand's reach.
+     * @evidence contracts/development/implementation.md#principled-implementation Keys from the body's measures in the seat's frame; bound limbs take their contact's point each sample; the pickup's reach is checked against the leaned shoulder at the figure's hold.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, keys, clock and windows, then the sampler.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable pickup is refused, never stretched.
+     * @evidence contracts/development/implementation.md#efficient-algorithms A sample blends two keys and reads one frame and at most four contacts.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The keys are shared by every sample.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys and the carrier reader.
+     */
+    plan(context: Context): IAutoMovieMotionHumanActionPlan {
+      return plan(context);
+    },
+  };
 
 /** Admit, lay the keys and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
@@ -76,31 +77,40 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       axis: "figures",
       value: figures.map((f) => f.kind),
       feasible: null,
-      reason: "trick riding holds at least one figure and ends back in the seat",
+      reason:
+        "trick riding holds at least one figure and ends back in the seat",
       fix: "end on a seat figure",
     });
-  figures.forEach((figure: IAutoMovieMotionHumanTrick.IFigure, i: number): void => {
-    HumanBound.above(`figures.${i}.transfer`, figure.transfer, 0, "s");
-    HumanBound.least(`figures.${i}.seconds`, figure.seconds, 0, "s");
-    if (figure.kind === "pickup" && figure.object === undefined)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: `figures.${i}.object`,
-        value: undefined,
-        feasible: null,
-        reason: "a pickup takes a prop from the ground, and none is named",
-        fix: "name the prop the pickup takes",
-      });
-  });
+  figures.forEach(
+    (figure: IAutoMovieMotionHumanTrick.IFigure, i: number): void => {
+      HumanBound.above(`figures.${i}.transfer`, figure.transfer, 0, "s");
+      HumanBound.least(`figures.${i}.seconds`, figure.seconds, 0, "s");
+      if (figure.kind === "pickup" && figure.object === undefined)
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: `figures.${i}.object`,
+          value: undefined,
+          feasible: null,
+          reason: "a pickup takes a prop from the ground, and none is named",
+          fix: "name the prop the pickup takes",
+        });
+    },
+  );
   const support: IAutoMovieMotionHumanPropReader = context.prop(on);
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(support, on, frame);
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+    support,
+    on,
+    frame,
+  );
   const origin: IAutoMovieRigidTransform = carrier(context.start);
   const entry: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
     context.entry.posture,
     origin,
     HumanMountedFrame.LOCAL,
   );
-  const keys: IKey[] = figures.map((figure) => key(context.body, entry, figure));
+  const keys: IKey[] = figures.map((figure) =>
+    key(context.body, entry, figure),
+  );
 
   // The clock: each figure's transfer then its hold.
   const starts: number[] = [];
@@ -115,10 +125,16 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     while (index + 1 < figures.length && t >= starts[index + 1]!) ++index;
     return {
       index,
-      share: minimumJerk.share(Math.min(1, (t - starts[index]!) / figures[index]!.transfer)),
+      share: minimumJerk.share(
+        Math.min(1, (t - starts[index]!) / figures[index]!.transfer),
+      ),
     };
   };
-  const point = (contact: string, figure: IAutoMovieMotionHumanTrick.IFigure, film: number): IAutoMovieVector3 =>
+  const point = (
+    contact: string,
+    figure: IAutoMovieMotionHumanTrick.IFigure,
+    film: number,
+  ): IAutoMovieVector3 =>
     contact === "object"
       ? context.prop(figure.object!).frame(film).position
       : HumanMountedFrame.contact(support, contact, film);
@@ -127,11 +143,23 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   figures.forEach((figure, i: number): void => {
     if (figure.kind !== "pickup") return;
     const film: number = context.start + starts[i]! + figure.transfer;
-    const shown: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(keys[i]!.posture, HumanMountedFrame.LOCAL, carrier(film));
+    const shown: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
+      keys[i]!.posture,
+      HumanMountedFrame.LOCAL,
+      carrier(film),
+    );
     const m = context.body.measure;
-    const shoulder: IAutoMovieVector3 = Vector3.add(shown.root, { x: 0, y: m.shoulderHeight - m.hipHeight, z: 0 });
-    const gap: number = Vector3.distance(shoulder, point("object", figure, film));
-    const reach: number = m.upperArm + m.forearm + m.hand + (m.shoulderHeight - m.hipHeight);
+    const shoulder: IAutoMovieVector3 = Vector3.add(shown.root, {
+      x: 0,
+      y: m.shoulderHeight - m.hipHeight,
+      z: 0,
+    });
+    const gap: number = Vector3.distance(
+      shoulder,
+      point("object", figure, film),
+    );
+    const reach: number =
+      m.upperArm + m.forearm + m.hand + (m.shoulderHeight - m.hipHeight);
     if (gap > reach)
       throw new HumanRefusal({
         kind: "reach",
@@ -146,12 +174,25 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const contacts: IAutoMovieMotionHumanContactWindow[] = [];
   keys.forEach((k: IKey, i: number): void => {
     const from: number = (starts[i]! + figures[i]!.transfer) / duration;
-    const to: number = i + 1 < figures.length ? (starts[i + 1]!) / duration : 1;
+    const to: number = i + 1 < figures.length ? starts[i + 1]! / duration : 1;
     if (figures[i]!.kind === "seat")
-      contacts.push({ part: "seat", kind: "seat", from, to, support: { kind: "prop", subject: on } });
+      contacts.push({
+        part: "seat",
+        kind: "seat",
+        from,
+        to,
+        support: { kind: "prop", subject: on },
+      });
     for (const bind of k.binds)
       contacts.push({
-        part: bind.limb === "leftLeg" ? "leftFoot" : bind.limb === "rightLeg" ? "rightFoot" : bind.limb === "leftArm" ? "leftHand" : "rightHand",
+        part:
+          bind.limb === "leftLeg"
+            ? "leftFoot"
+            : bind.limb === "rightLeg"
+              ? "rightFoot"
+              : bind.limb === "leftArm"
+                ? "leftHand"
+                : "rightHand",
         kind: bind.limb.endsWith("Leg") ? "plant" : "grip",
         from,
         to,
@@ -173,7 +214,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       const t: number = Math.max(0, Math.min(duration, time));
       const film: number = context.start + t;
       const { index, share } = at(t);
-      const before: IAutoMovieMotionHumanPosture = index === 0 ? entry : keys[index - 1]!.posture;
+      const before: IAutoMovieMotionHumanPosture =
+        index === 0 ? entry : keys[index - 1]!.posture;
       const now: IAutoMovieRigidTransform = carrier(film);
       let shown: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
         mixHumanPosture(before, keys[index]!.posture, share),
@@ -184,17 +226,37 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       for (const bind of keys[index]!.binds) {
         const p: IAutoMovieVector3 = point(bind.contact, figures[index]!, film);
         if (bind.limb.endsWith("Arm"))
-          shown = HumanUnseatPose.reach(shown, bind.limb === "leftArm" ? "left" : "right", p, share);
+          shown = HumanUnseatPose.reach(
+            shown,
+            bind.limb === "leftArm" ? "left" : "right",
+            p,
+            share,
+          );
         else {
           const goal = shown.limbs[bind.limb];
-          const ankle: IAutoMovieVector3 = Vector3.add(p, { x: 0, y: context.body.measure.ankleHeight, z: 0 });
+          const ankle: IAutoMovieVector3 = Vector3.add(p, {
+            x: 0,
+            y: context.body.measure.ankleHeight,
+            z: 0,
+          });
           shown = {
             ...shown,
             limbs: {
               ...shown.limbs,
               [bind.limb]: {
-                point: goal === undefined ? ankle : Vector3.lerp(goal.point, ankle, share),
-                bend: Quaternion.rotateVector(now.rotation, { x: 0, y: 0, z: 1 }),
+                point:
+                  goal === undefined
+                    ? ankle
+                    : Vector3.lerp(goal.point, ankle, share),
+                // The knee bends toward a point ahead of the foot at the knee's height.
+                bend: Vector3.add(
+                  ankle,
+                  Quaternion.rotateVector(now.rotation, {
+                    x: 0,
+                    y: context.body.measure.shank,
+                    z: context.body.measure.shank,
+                  }),
+                ),
                 planted: share >= 1,
               },
             },
@@ -216,11 +278,21 @@ function key(
   const side: AutoMovieHumanSide = figure.side ?? "left";
   const sign: number = side === "left" ? 1 : -1;
   const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-  const base: IAutoMovieMotionHumanPosture = { ...entry, limbs: {}, joints: {} };
+  const base: IAutoMovieMotionHumanPosture = {
+    ...entry,
+    limbs: {},
+    joints: {},
+  };
   if (figure.kind === "seat") return { posture: entry, binds: [] };
   if (figure.kind === "hippodrome")
     return {
-      posture: { ...base, root: { x: 0, y: m.hipHeight, z: -0.15 }, yaw: 0, pitch: 0, roll: 0 },
+      posture: {
+        ...base,
+        root: { x: 0, y: m.hipHeight, z: -0.15 },
+        yaw: 0,
+        pitch: 0,
+        roll: 0,
+      },
       binds: [
         { limb: "leftLeg", contact: "hippodrome" },
         { limb: "rightLeg", contact: "hippodrome" },
@@ -239,7 +311,13 @@ function key(
     };
   if (figure.kind === "backDrag")
     return {
-      posture: { ...base, root: { x: 0, y: -0.1, z: -0.65 }, yaw: 0, pitch: -150, roll: 0 },
+      posture: {
+        ...base,
+        root: { x: 0, y: -0.1, z: -0.65 },
+        yaw: 0,
+        pitch: -150,
+        roll: 0,
+      },
       binds: [
         { limb: "leftLeg", contact: "leftStrap" },
         { limb: "rightLeg", contact: "rightStrap" },

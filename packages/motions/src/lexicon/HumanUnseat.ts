@@ -17,6 +17,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { KnockdownFloor } from "../reaction/KnockdownFloor";
 import { HumanMountedFrame } from "./HumanMountedFrame";
+import { HumanUnseatDrag } from "./HumanUnseatDrag";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
@@ -215,7 +216,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     : KnockdownFloor.prepareMeasure(context.body)(lying).floor;
 
   if (params.fall === "drag")
-    return HumanUnseatPose.drag({
+    return HumanUnseatDrag.drag({
       context,
       support,
       carrier,
@@ -295,6 +296,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         flight.land === 0 ? 1 : Math.min(1, u / flight.land),
       );
       const shown: IAutoMovieMotionHumanPosture = HumanUnseatPose.flying(
+        context.body,
         at,
         standing ? HumanUnseatPose.STAND : lying,
         facing,

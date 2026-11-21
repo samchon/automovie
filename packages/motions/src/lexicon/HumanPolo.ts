@@ -289,7 +289,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         ...shown,
         limbs: {
           ...shown.limbs,
-          rightArm: goal(frame, { x: -1, y: 0, z: -1 }),
+          rightArm: goal(
+            frame,
+            Vector3.add(shoulder, { x: -0.6, y: -0.3, z: -0.4 }),
+          ),
         },
       };
       return HumanMountedFrame.move(swung, HumanMountedFrame.LOCAL, now);

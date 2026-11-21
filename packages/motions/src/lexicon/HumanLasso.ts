@@ -282,7 +282,10 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
               ...shown,
               limbs: {
                 ...shown.limbs,
-                rightArm: goal(frame, { x: -1, y: -1, z: 0 }),
+                rightArm: goal(
+                  frame,
+                  Vector3.add(shown.root, { x: 0, y: -0.2, z: 0 }),
+                ),
               },
             };
           }

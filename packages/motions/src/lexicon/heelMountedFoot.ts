@@ -16,6 +16,7 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
  * @param side The leg.
  * @param goal The leg's goal, its point the ankle, with the ball as its contact.
  * @param hip The hip joint, in the goal's frame.
+ * @param limit The dorsiflexion the ankle may reach, degrees; the range table's loaded limit when absent, the unloaded one for a foot hanging free.
  * @returns The goal turned about its ball where the ankle would pass its range; the goal itself otherwise, or when it names no contact or rotation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the turn, its pivot, the knee's construction and when nothing changes.
@@ -31,11 +32,10 @@ export function heelMountedFoot(
   side: AutoMovieHumanSide,
   goal: IAutoMovieHumanLimbGoal,
   hip: IAutoMovieVector3,
+  limit?: number,
 ): IAutoMovieHumanLimbGoal {
-  const range: number | null = AutoMovieMotionHumanRange.limit(
-    `${side}Foot`,
-    "flexion",
-  );
+  const range: number | null =
+    limit ?? AutoMovieMotionHumanRange.limit(`${side}Foot`, "flexion");
   if (
     goal.contact === undefined ||
     goal.rotation === undefined ||
