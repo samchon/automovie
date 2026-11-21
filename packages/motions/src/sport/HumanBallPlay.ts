@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBallPlay,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceState,
@@ -90,7 +91,12 @@ export namespace HumanBallPlay {
       };
       events.push(open);
     }
-    for (const event of events) if (event.kind === "hold") event.hands.sort();
+    for (const event of events)
+      if (event.kind === "hold")
+        event.hands.sort(
+          (a: AutoMovieHumanSide, b: AutoMovieHumanSide): number =>
+            a.localeCompare(b),
+        );
     for (const flight of HumanPropFlight.flights(self, ball)) {
       events.push({
         kind: "launch",
