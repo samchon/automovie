@@ -32,6 +32,8 @@ Use the installed model and motion capabilities for other moving bodies. Extend 
 
 Confirm the [research](../../story/planning/research.md#what-needs-a-study) first. Put the extension in its [laws folder](../../development/source-layout.md#source) and answer the [behaviors contract](../../contracts/development/behaviors.md). [Test](../../development/testing.md#motion-checks) against the study and accept a [catalog case](../catalog-cases.md).
 
+Model the extension on the nearest shipped action in the installed `@automovie/motions` `src/`, or in its repository at the installed version's revision when source is absent. Follow that action's frames, units, ownership and validation conventions.
+
 A row takes only its study's values. A law follows the pages this skill's router lists.
 
 ## Sending it upstream
