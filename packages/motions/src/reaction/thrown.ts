@@ -142,17 +142,52 @@ export namespace thrown {
       (rise + Math.sqrt(rise * rise + 2 * g * (start - floor))) / g;
     const speed: number = distance / flight;
     const takeoff: number = WINDUP;
-    const land: number = takeoff + flight;
+
+    // A named wall in the path stops the flight where the back meets its
+    // face; the body then slides down it, braked to half of gravity, to sit
+    // on the floor against it.
+    const wall: ReturnType<typeof context.aim> | undefined =
+      context.params.wall === undefined
+        ? undefined
+        : context.aim(context.params.wall, context.start);
+    const back: number = body.measure.chestDepth / 2;
+    const closing: number =
+      wall === undefined ? 0 : speed * Vector3.dot(travel, wall.normal);
+    const reach: number =
+      wall === undefined || !(closing < 0)
+        ? Infinity
+        : (back -
+            Vector3.dot(
+              Vector3.subtract(entry.root, wall.point),
+              wall.normal,
+            )) /
+          closing;
+    const struck: boolean = reach > 0 && reach < flight;
+    const flown: number = struck ? reach : flight;
+    const contactHeight: number =
+      start + rise * flown - 0.5 * g * flown * flown;
+    const sitting: number = body.measure.thighRadius - body.measure.hipHeight;
+    const slide: number = struck
+      ? Math.sqrt((2 * Math.max(0, contactHeight - sitting)) / (0.5 * g))
+      : 0;
+    const impact: number = takeoff + flown;
+    const land: number = impact + slide;
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(land + lie, [
       { name: "takeoff", seconds: takeoff },
+      ...(struck ? [{ name: "impact", seconds: impact }] : []),
       { name: "land", seconds: land },
-      { name: "stroke", seconds: land },
+      { name: "stroke", seconds: struck ? impact : land },
     ]);
     const duration: number = clock.duration;
     const shape: KnockdownFloor.IFold = SHAPES[rig];
-    const blend = (seconds: number): KnockdownFloor.IFold => {
+    const blend: (seconds: number) => KnockdownFloor.IFold = (
+      seconds: number,
+    ): KnockdownFloor.IFold => {
       const a: number = Math.min(1, seconds / takeoff);
-      const b: number = Math.min(1, Math.max(0, (seconds - takeoff) / flight));
+      const b: number = Math.min(
+        1,
+        Math.max(0, (Math.min(seconds, impact) - takeoff) / flight),
+      );
       const joints: IAutoMovieMotionHumanJoints.Angles = {};
       for (const bone of Object.keys(
         lying.joints,
@@ -167,10 +202,32 @@ export namespace thrown {
           a * (from[2] + (to[2] - from[2]) * b),
         ];
       }
-      return {
+      const flying: KnockdownFloor.IFold = {
         pitch: a * (shape.pitch + (lying.pitch - shape.pitch) * b),
         joints,
       };
+      if (!struck || seconds <= impact) return flying;
+      // Against the wall: from the pose it struck in to sitting on the floor.
+      const u: number = slide > 0 ? Math.min(1, (seconds - impact) / slide) : 1;
+      const at: KnockdownFloor.IFold = blend(impact);
+      const out: IAutoMovieMotionHumanJoints.Angles = {};
+      for (const bone of new Set([
+        ...Object.keys(at.joints),
+        ...Object.keys(SITTING.joints),
+      ]) as Set<keyof IAutoMovieMotionHumanJoints.Angles>) {
+        const p: readonly [number, number, number] = at.joints[bone] ?? [
+          0, 0, 0,
+        ];
+        const q: readonly [number, number, number] = SITTING.joints[bone] ?? [
+          0, 0, 0,
+        ];
+        out[bone] = [
+          p[0] + (q[0] - p[0]) * u,
+          p[1] + (q[1] - p[1]) * u,
+          p[2] + (q[2] - p[2]) * u,
+        ];
+      }
+      return { pitch: at.pitch + (SITTING.pitch - at.pitch) * u, joints: out };
     };
 
     const plan: IAutoMovieMotionHumanActionPlan =
@@ -201,12 +258,16 @@ export namespace thrown {
                 to: takeoff / duration,
                 support: { kind: "ground" },
               },
+              // The back lies on the floor, or bears on the wall it struck.
               {
                 part: "back",
                 kind: "lie",
-                from: land / duration,
+                from: (struck ? impact : land) / duration,
                 to: 1,
-                support: { kind: "ground" },
+                support:
+                  struck && context.params.wall?.kind === "prop"
+                    ? { kind: "prop", subject: context.params.wall.subject }
+                    : { kind: "ground" },
               },
             ],
           ),
@@ -224,12 +285,19 @@ export namespace thrown {
               seconds: number,
               _before?: IAutoMovieMotionHumanPrimitive.Reader,
             ): IAutoMovieMotionHumanPosture => {
-              const t: number = Math.min(
-                flight,
-                Math.max(0, seconds - takeoff),
-              );
+              const t: number = Math.min(flown, Math.max(0, seconds - takeoff));
               const world: IAutoMovieVector3 = Vector3.scale(travel, speed * t);
-              const y: number = start + rise * t - 0.5 * g * t * t;
+              const sliding: number = Math.min(
+                slide,
+                Math.max(0, seconds - impact),
+              );
+              const y: number =
+                struck && seconds > impact
+                  ? Math.max(
+                      sitting,
+                      contactHeight - 0.25 * g * sliding * sliding,
+                    )
+                  : start + rise * t - 0.5 * g * t * t;
               return AutoMovieMotionHumanRoot.place(posture, {
                 point: {
                   ...HumanFrame.local(
@@ -295,6 +363,24 @@ export namespace thrown {
         leftLowerArm: [15, 0, 0],
         rightLowerArm: [15, 0, 0],
       },
+    },
+  };
+
+  /**
+   * Sitting on the floor against the wall the flight struck: the hips
+   * folded square with the legs out along the floor, the trunk upright
+   * against the face (provisional stage reading).
+   */
+  const SITTING: KnockdownFloor.IFold = {
+    pitch: 0,
+    joints: {
+      leftUpperLeg: [90, 5, 0],
+      rightUpperLeg: [90, 5, 0],
+      leftLowerLeg: [5, 0, 0],
+      rightLowerLeg: [5, 0, 0],
+      leftUpperArm: [10, 15, 0],
+      rightUpperArm: [10, 15, 0],
+      neck: [20, 0, 0],
     },
   };
 

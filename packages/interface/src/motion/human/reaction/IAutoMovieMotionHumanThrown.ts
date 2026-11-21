@@ -11,7 +11,9 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * the distance the body's root travels over the ground and the height its
  * flight rises above take-off. The root then flies the ballistic path
  * those give under standard gravity: it leaves the floor at `takeoff`,
- * rises and falls to the height it lies at, and lands at `land`. A
+ * rises and falls to the height it lies at, and lands at `land`. A named
+ * wall in the path stops the flight on its face at `impact`, and the body
+ * slides down it to sit against it. A
  * jerk-back folds the hips around the pulled pelvis before the feet leave;
  * a blast extends the body away from the source. The body turns over in
  * the air onto its back and lands into the knockdown's supine lie.
@@ -50,5 +52,8 @@ export namespace IAutoMovieMotionHumanThrown {
 
     /** How long the body lies after landing, seconds; 1 when absent. */
     seconds?: number;
+
+    /** A wall in the flight's path, a point on its face: the flight stops on it, the impact is the action's hit, and the body slides down it to sit on the floor; none when absent. */
+    wall?: IAutoMovieMotionTarget;
   }
 }
