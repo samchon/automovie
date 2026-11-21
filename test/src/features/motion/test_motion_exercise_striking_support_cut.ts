@@ -1,5 +1,6 @@
 import { AutoMovieComposition, Vector3, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanSegment,
@@ -24,10 +25,21 @@ type Sole = "ball" | "heel";
 
 /** A composed actor's world-pose reader at shares of the last action. */
 interface ITake {
+  /** The whole performance the actor was placed in. */
   film: HumanPerformance;
+
+  /** The actor's last placed action. */
   segment: IAutoMovieMotionHumanSegment;
+
+  /** The displayed world bones at a share of the last action. */
   bones(share: number): ReturnType<typeof poseBones>;
-  sole(share: number, side: "left" | "right", socket: Sole): IAutoMovieVector3;
+
+  /** A displayed sole point, world metres, at a share of the last action. */
+  sole(
+    share: number,
+    side: AutoMovieHumanSide,
+    socket: Sole,
+  ): IAutoMovieVector3;
 }
 
 /**
@@ -271,7 +283,11 @@ function verifyRecipientCuts(): void {
 }
 
 /** Whether a displayed take declares ground contact for the foot at a share. */
-function supports(take: ITake, share: number, side: "left" | "right"): boolean {
+function supports(
+  take: ITake,
+  share: number,
+  side: AutoMovieHumanSide,
+): boolean {
   return take.segment.plan.contacts.some(
     (contact) =>
       contact.part === `${side}Foot` &&
@@ -326,7 +342,7 @@ function take(
     bones,
     sole: (
       share: number,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       socket: Sole,
     ): IAutoMovieVector3 => {
       const foot = bones(share).get(`${side}Foot`)!;

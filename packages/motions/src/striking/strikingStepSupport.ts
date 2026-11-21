@@ -2,6 +2,7 @@ import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 
@@ -51,7 +52,7 @@ export function strikingStepSupport(
     bearing === undefined ? 0 : soleHeight(bearing, entry.feet[bearing]);
   const landings: strikingStepSupport.ISupport["landings"] = {};
   for (const side of ["left", "right"] as const) {
-    const foot: IAutoMovieMotionHumanFoot.IPlacement = entry.feet[side];
+    const foot: IAutoMovieMotionHumanEntryState.IFoot = entry.feet[side];
     if (foot.planted) continue;
     landings[side] = {
       ankle: {
