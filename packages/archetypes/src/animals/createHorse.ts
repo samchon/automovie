@@ -21,7 +21,7 @@ import { QuadrupedBody } from "./QuadrupedBody";
  *
  * The horse stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its body is the shared quadruped's (`QuadrupedBody`) drawn by the horse's proportions, `BODY`: its parts are its bones, named by `QuadrupedBody.Bone`, a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb. Each bone is a bar from joint to joint, so the horse is posed by moving joints; `createHorse.rig` gives the joints at rest and `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions of the height at the withers and each bone's share of the body's mass is the measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry the body on from the hip joint to the point of buttock, which Jensen et al. place behind the point of shoulder.
  *
- * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). A postilion's horse (`tack` `both`) wears the harness under the riding saddle and offers both's contacts. Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `HorsePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`. The alternative mounted supports keep the horse's body: a bareback bridle (`tack` `bareback`) offers only the two reins, the `lead` and a `seat` on the back itself; a side saddle (`tack` `sidesaddle`, `HorseSideSaddle`) offers a `seat` entered sideways from the near side, the `fixedHead` and `leapingHead`, the one `leftStirrup`, the reins and the `lead`; a vaulting surcingle (`tack` `surcingle`, `HorseSurcingle`) offers the `leftHandle` and `rightHandle`, the back `pad` and the basic `seat` astride on it.
+ * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). A postilion's horse (`tack` `both`) wears the harness under the riding saddle and offers both's contacts. Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `HorsePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`. The alternative mounted supports keep the horse's body: a bareback bridle (`tack` `bareback`) offers only the two reins, the `lead` and a `seat` on the back itself; a side saddle (`tack` `sidesaddle`, `HorseSideSaddle`) offers a `seat` entered sideways from the near side, the `fixedHead` and `leapingHead`, the one `leftStirrup`, the reins and the `lead`; a vaulting surcingle (`tack` `surcingle`, `HorseSurcingle`) offers the `leftHandle` and `rightHandle`, the back `pad` and the basic `seat` astride on it; a double saddle (`tack` `double`) is the riding saddle with a pillion pad behind its cantle, whose `pillion` seat a passenger rides double on.
  *
  * The default horse draws from the warmblood height band. Its girth follows the cohort's mean proportion and its mass follows the girth-squared-times-length law anchored on that cohort's mean (`mass`). An explicit Icelandic horse uses its own sourced profile and enables the two alternate gaits. The seat and reins are selected from their read sizes.
  *
@@ -79,10 +79,15 @@ export namespace createHorse {
     | "bare"
     | "bareback"
     | "sidesaddle"
-    | "surcingle";
+    | "surcingle"
+    | "double";
 
   /** The alternative mounted supports, which a profile may leave unnamed: the model then takes the producer's name. */
-  export type Alternative = "bareback" | "sidesaddle" | "surcingle";
+  export type Alternative =
+    | "bareback"
+    | "sidesaddle"
+    | "surcingle"
+    | "double";
 
   /** Every equipment configuration admitted by the equid producer. */
   export const TACKS: readonly Tack[] = [
@@ -94,6 +99,7 @@ export namespace createHorse {
     "bareback",
     "sidesaddle",
     "surcingle",
+    "double",
   ];
 
   /**
@@ -110,6 +116,7 @@ export namespace createHorse {
    * - `fixedHead`, `leapingHead`: on a side saddle, the upper pommel the right thigh goes over and the lower one over the left thigh (`HorseSideSaddle`).
    * - `leftHandle`, `rightHandle`, `pad`: on a vaulting surcingle, its two handles and the back pad's top (`HorseSurcingle`).
    * - `mane`: under a riding saddle, a handful of mane on the crest a rider grips (`HorseMane`).
+   * - `pillion`: under a riding saddle with a pillion pad (`tack` `double`), the passenger's seat astride on the loins behind the cantle (`HorseSaddle.pillion`).
    *
    * A tack lacks the ids of the others; the `lead` is the riding saddle's and the pack saddle's.
    */
@@ -131,7 +138,8 @@ export namespace createHorse {
     | "leftHandle"
     | "rightHandle"
     | "pad"
-    | "mane";
+    | "mane"
+    | "pillion";
 
   /**
    * The dimensions, metres unless stated:

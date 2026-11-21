@@ -10,7 +10,7 @@ import type { createHorse } from "./createHorse";
 /**
  * Lay an equid's tack on its laid body and give the tack's own read mass, which the equid producer adds on top of the equid's drawn mass.
  *
- * `saddle` lays the riding saddle and the lead (`HorseSaddle`), `both` adds the harness under it, `harness` the driving harness alone (`HorseHarness`), `pack` the pack saddle and the lead (`HorsePack`), `bareback` the bridle's reins and the back seat with the lead, `sidesaddle` the side saddle (`HorseSideSaddle`) with the lead, `surcingle` the vaulting surcingle and pad (`HorseSurcingle`), and `bare` nothing.
+ * `saddle` lays the riding saddle and the lead (`HorseSaddle`), `both` adds the harness under it, `harness` the driving harness alone (`HorseHarness`), `pack` the pack saddle and the lead (`HorsePack`), `bareback` the bridle's reins and the back seat with the lead, `sidesaddle` the side saddle (`HorseSideSaddle`) with the lead, `surcingle` the vaulting surcingle and pad (`HorseSurcingle`), `double` the riding saddle with a pillion pad behind it (`HorseSaddle.pillion`), and `bare` nothing.
  *
  * @param tack The admitted tack.
  * @param builder The equid under construction, its body laid.
@@ -33,8 +33,9 @@ export function HorseTack(
   rig: createHorse.IRig,
 ): number {
   const h: number = d.withersHeight;
-  if (tack === "saddle" || tack === "both") {
+  if (tack === "saddle" || tack === "both" || tack === "double") {
     HorseSaddle.lay(builder, d, rig);
+    if (tack === "double") HorseSaddle.pillion(builder, d, rig);
     HorseSaddle.lead(builder, rig.nose, h);
     HorseMane(builder, rig);
 

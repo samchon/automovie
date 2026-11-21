@@ -24,6 +24,15 @@ export namespace HorseSaddle {
     lead: 0.3,
   };
 
+  /** A pillion pad's depth along the back and its thickness, metres: estimates, no source read gives them. */
+  export const PILLION: Readonly<{ depth: number; thick: number }> = {
+    depth: 0.32,
+    thick: 0.03,
+  };
+
+  /** The gap between the cantle and a pillion pad's front, metres: an estimate. */
+  export const SADDLE_GAP: number = 0.02;
+
   /** The saddle's seat width, metres: an estimate, no source read gives it. */
   export const SEAT_WIDTH: number = 0.3;
 
@@ -223,6 +232,47 @@ export namespace HorseSaddle {
     });
     rein(builder, d, rig, "left");
     rein(builder, d, rig, "right");
+  }
+
+  /**
+   * Lay a pillion pad on the loins behind the riding saddle's cantle, with the passenger's `pillion` seat astride on it, entered from the near side. Lay the saddle first.
+   *
+   * @param builder The equid under construction, its saddle laid.
+   * @param d The equid's dimensions.
+   * @param rig The equid's rest rig.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it adds and where.
+   * @evidence contracts/development/implementation.md#principled-implementation The pad's front edge at the cantle, `SADDLE_GAP` behind it, its top `PILLION.thick` over the back; the seat's front edge at the pad's front.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One pad and one seat.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pad's sizes are named estimates; it carries no mass, none read.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one pad.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function pillion(
+    builder: ArchetypeBuilder<createHorse.Affordance, createHorse.Dimension>,
+    d: Readonly<Record<createHorse.Dimension, number>>,
+    rig: createHorse.IRig,
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const front: number = rig.hitch.z - d.seatSize / 2 - SADDLE_GAP;
+    const top: number = rig.back + PILLION.thick;
+    builder.box(
+      "pillionPad",
+      v(SEAT_WIDTH, PILLION.thick, PILLION.depth),
+      v(0, top - PILLION.thick / 2, front - PILLION.depth / 2),
+      { color: "#5b4030", share: 0 },
+    );
+    builder.affordance({
+      id: "pillion",
+      kind: "seat",
+      frame: ArchetypeFrame.upright(v(0, top, front)),
+      extent: null,
+      depth: PILLION.depth,
+      width: SEAT_WIDTH,
+      astride: true,
+      mount: "left",
+    });
   }
 
   /**

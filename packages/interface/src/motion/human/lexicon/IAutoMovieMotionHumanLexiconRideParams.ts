@@ -8,6 +8,9 @@ import type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLead
 import type { IAutoMovieMotionHumanMounted } from "./IAutoMovieMotionHumanMounted";
 import type { IAutoMovieMotionHumanUnseat } from "./IAutoMovieMotionHumanUnseat";
 import type { IAutoMovieMotionHumanPolo } from "./IAutoMovieMotionHumanPolo";
+import type { IAutoMovieMotionHumanBoard } from "./IAutoMovieMotionHumanBoard";
+import type { IAutoMovieMotionHumanClasp } from "./IAutoMovieMotionHumanClasp";
+import type { IAutoMovieMotionHumanDrape } from "./IAutoMovieMotionHumanDrape";
 import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 
 /**
@@ -52,4 +55,13 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
 
   /** Strike a ground ball with a polo mallet from the saddle, forehand or backhand, on either side. */
   HumanPolo: IAutoMovieMotionHumanPolo;
+
+  /** Board a moving carrier's seat at speed, from the ground, a height or another carrier. */
+  HumanBoard: IAutoMovieMotionHumanBoard;
+
+  /** Hold on to a partner's bone or another prop's contact while keeping one's own support. */
+  HumanClasp: IAutoMovieMotionHumanClasp;
+
+  /** Lie limp across a saddle, carried. */
+  HumanDrape: IAutoMovieMotionHumanDrape;
 }
