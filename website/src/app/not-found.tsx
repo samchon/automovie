@@ -27,11 +27,11 @@ export default function NotFound(): ReactElement {
         <a className="am-button" href={`${SITE_BASE}/docs/`}>
           Docs
         </a>
-        <a className="am-button" href={`${SITE_BASE}/scenes/`}>
-          Scenes
+        <a className="am-button" href={`${SITE_BASE}/reference/`}>
+          Reference
         </a>
-        <a className="am-button" href={`${SITE_BASE}/motions/`}>
-          Motions
+        <a className="am-button" href={`${SITE_BASE}/playground/`}>
+          Playground
         </a>
       </nav>
     </main>

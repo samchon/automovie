@@ -20,22 +20,7 @@ pnpm run review:setup
 pnpm run capture --subject catalog --from 12 --to 14 --events 13.1 --views "right;three-quarter@ortho"
 ```
 
-Every other option is a key of the capture request, written with `--` before it. The inspector page's address carries the same keys, so a picture found on the page repeats on the command line. These keys are used most:
-
-| Key | Asks for |
-| --- | --- |
-| `subject` | The film to draw, the module's only one by default |
-| `from`, `to`, `rate` | An even sampling, five stills per second by default |
-| `at` | Exact seconds separated by commas, instead of an even sampling |
-| `events`, `window` | Every frame within `window` frames, three by default, of each listed second |
-| `views` | View texts separated by `;`, such as `front`, `right@ortho` or `three-quarter@focus=<pattern>` |
-| `passes` | Several shades sharing each view's camera, such as `beauty,pose,depth` |
-| `marks` | Marks such as `joint`, `bone` and `contact` drawn over the picture |
-| `round`, `compare` | Keeping the capture as a named round, and comparing it cell by cell with an earlier round |
-
-The [render README](https://github.com/samchon/automovie/tree/master/packages/render#request-keys) lists every key with the requirement it serves. A request the subject cannot give, such as an unknown view or a time outside the film, is refused before anything is drawn.
-
-The record keeps the revision, the request as text, one row per planned cell with its hash, backend and resolved camera, or the cause it was not drawn. Capture exits 1 when a cell could not be drawn.
+Every other option is a key of the capture request, written with `--` before it. The inspector page's address carries the same keys, so a picture found on the page repeats on the command line. A request the subject cannot give, such as an unknown view or a time outside the film, is refused before anything is drawn. Capture exits 1 when a cell could not be drawn.
 
 ### Capturing a video file
 
@@ -45,7 +30,7 @@ The record keeps the revision, the request as text, one row per planned cell wit
 pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from 60 --to 70
 ```
 
-FFmpeg comes from `FFMPEG_PATH` or `ffmpeg-static`.
+Compared against a capture round of the source, the file's cells pair by second, and a second the file lacks stays as an unmatched cell with its cause.
 
 ## Render
 
@@ -69,8 +54,4 @@ pnpm run review --url "http://127.0.0.1:5173/?subject=<film>" --seconds 20
 
 The recording goes into `media/automovie/review/`, or into `--out <dir>`, for you to watch. Review exits 1 when the page reported a script error.
 
-## Backends
-
-Capture and render use SwiftShader through ANGLE, a software renderer, by default, so they need no GPU. `--backend gpu` uses the machine's GPU instead. Every still's record names the backend, the Chromium version and the WebGL renderer, and pixels are compared only between stills of one backend. `CHROME_PATH` selects another browser.
-
-[CLI](/reference/cli) lists every command and option.
+[CLI](/reference/cli) lists every command, option, request key and backend.
