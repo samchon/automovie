@@ -100,3 +100,6 @@ export type { IAutoMovieMotionHumanAssistedTransfer } from "./IAutoMovieMotionHu
 export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
 export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
 export type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
+export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
+export type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
+export type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";

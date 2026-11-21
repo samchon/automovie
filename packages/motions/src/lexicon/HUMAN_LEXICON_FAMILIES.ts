@@ -217,3 +217,9 @@ import { HumanCover } from "./HumanCover";
 import { HumanWallRun } from "./HumanWallRun";
     HumanCover,
     HumanWallRun,
+import { HumanCover } from "./HumanCover";
+import { HumanWallRun } from "./HumanWallRun";
+import { HumanRope } from "./HumanRope";
+    HumanCover,
+    HumanWallRun,
+    HumanRope,
