@@ -31,28 +31,48 @@ export namespace HumanSegmentCarry {
    * Select the original active holds that ride a carrier at this film second.
    * Earlier riding holds retain priority through their takeover fade.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines exact source/window/drive exclusions and ordered per-hand riding priority; returns a fresh array of original held references.
-   * @evidence contracts/development/implementation.md#principled-implementation The original active-window filter and subsequent riding-priority filter are independent ordered passes over unchanged internal hold records, so one pass can carry the same two side states without changing their decisions.
+   * Only a hold taken by an action that started before the carrier rides it.
+   * A carry is captured from its source action's last pose, so a hold that a
+   * later action takes at the carrier's boundary would make that capture
+   * evaluate the later action, whose own carries capture the first hold
+   * again: with a prop in each hand the two captures re-entered each other
+   * without bound (#4023).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines exact source/window/drive exclusions, the causal source order and ordered per-hand riding priority, with the recursion the order prevents; returns a fresh array of original held references.
+   * @evidence contracts/development/implementation.md#principled-implementation The original active-window filter and subsequent riding-priority filter are independent ordered passes over unchanged internal hold records, so one pass can carry the same two side states without changing their decisions. A carry depends on its source action's final pose, so admitting only holds whose source started strictly before the carrier orders every capture after the captures it reads; the dependency graph is then acyclic and each capture terminates. A tie in start is admitted neither way, so two simultaneous takers cannot read each other.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Active-window admission precedes lazy per-side drive lookup, then the original first-riding-hold priority; carry-frame capture remains separate in carries.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains inclusive starts, strict ends, source exclusion, riding fade and older-carrier cutoff exactly. Internal held producers own the closed two-side domain; no hold, contact or source pose is substituted.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains inclusive starts, strict ends, source exclusion, riding fade and older-carrier cutoff exactly; the causal order removes only holds taken by an action that had not started when the carrier did. Internal held producers own the closed two-side domain; no hold, contact or source pose is substituted.
    * @evidence contracts/development/implementation.md#efficient-algorithms One O(H) hold traversal and at most two original plan drive scans replace two arrays/passes and a set/object. Empty holds allocate only the fresh returned array and perform no drive/contact lookup.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only a fixed plan's per-side drive result is shared within this call; current hold windows and riding order are read at each exact second without retained selection or pose results.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Four scalar side states end with the call. The returned fresh array borrows the original holds, retains no reader or process, and lives only as long as its displayed evaluation.
    */
-  export function borne(person: IAutoMovieMotionHumanSegment.IPerson, segment: IAutoMovieMotionHumanSegment,
-    seconds: number): IAutoMovieMotionHumanSegment.IHeld[] {
+  export function borne(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
+    seconds: number,
+  ): IAutoMovieMotionHumanSegment.IHeld[] {
     const out: IAutoMovieMotionHumanSegment.IHeld[] = [];
     let left: boolean | undefined;
     let right: boolean | undefined;
     let ridingLeft: boolean = false;
     let ridingRight: boolean = false;
     for (const held of person.holds) {
-      if (!(held.source !== segment && held.from <= seconds &&
-        (seconds < held.until || (held.riding === true
-          ? seconds < held.until + HumanSegment.FADE : segment.entryTime < held.until)))) continue;
-      const driven: boolean = held.side === "left"
-        ? (left ??= HumanSegment.drives(segment.plan, held.side))
-        : (right ??= HumanSegment.drives(segment.plan, held.side));
+      if (
+        !(
+          held.source !== segment &&
+          held.source.start < segment.start &&
+          held.from <= seconds &&
+          (seconds < held.until ||
+            (held.riding === true
+              ? seconds < held.until + HumanSegment.FADE
+              : segment.entryTime < held.until))
+        )
+      )
+        continue;
+      const driven: boolean =
+        held.side === "left"
+          ? (left ??= HumanSegment.drives(segment.plan, held.side))
+          : (right ??= HumanSegment.drives(segment.plan, held.side));
       if (driven) continue;
       const earlier: boolean = held.side === "left" ? ridingLeft : ridingRight;
       if (held.riding === true) {
@@ -137,7 +157,12 @@ export namespace HumanSegmentCarry {
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMovieMotionHumanSegment.ICarry {
     const at: number = Math.max(held.from, held.source.end);
-    const pose: IAutoMoviePose = HumanSegmentPose.of(person, held.source, at, prepared);
+    const pose: IAutoMoviePose = HumanSegmentPose.of(
+      person,
+      held.source,
+      at,
+      prepared,
+    );
     const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
       person,
       pose,
