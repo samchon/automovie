@@ -8,6 +8,7 @@ import type {
   IAutoMovieComputeModelRestExtent,
   IAutoMovieCrowdAgent,
   IAutoMovieModel,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -190,6 +191,7 @@ export namespace ArchetypePassage {
    * @param from The first film second.
    * @param to The last film second, after `from`.
    * @param step Seconds between poses read, positive.
+   * @param carried The world points of a body the ride carries at a second, such as a seated rider's bones; none when absent.
    * @returns The rectangle's four corners in the root's frame, radius 0.
    * @throws {ArchetypeRefusal} When no posed model has portable geometry to measure.
    *
@@ -206,17 +208,43 @@ export namespace ArchetypePassage {
     from: number,
     to: number,
     step: number,
+    carried: (
+      seconds: number,
+    ) => readonly IAutoMovieVector3[] = (): readonly IAutoMovieVector3[] => [],
   ): IFootprint {
     const low: IAutoMovieVector3 = { x: Infinity, y: 0, z: Infinity };
     const high: IAutoMovieVector3 = { x: -Infinity, y: 0, z: -Infinity };
+    const grow: (x: number, z: number) => void = (
+      x: number,
+      z: number,
+    ): void => {
+      low.x = Math.min(low.x, x);
+      low.z = Math.min(low.z, z);
+      high.x = Math.max(high.x, x);
+      high.z = Math.max(high.z, z);
+    };
     for (let k: number = 0; from + k * step <= to; ++k) {
+      const seconds: number = from + k * step;
+      const sample: ArchetypeRide.ISample<string, string> = ride.at(seconds);
       const posed: IAutoMovieComputeModelRestExtent.IResult =
-        computeModelRestExtent(ride.at(from + k * step).archetype);
-      if (posed === null) continue;
-      low.x = Math.min(low.x, posed.min.x);
-      low.z = Math.min(low.z, posed.min.z);
-      high.x = Math.max(high.x, posed.max.x);
-      high.z = Math.max(high.z, posed.max.z);
+        computeModelRestExtent(sample.archetype);
+      if (posed !== null) {
+        grow(posed.min.x, posed.min.z);
+        grow(posed.max.x, posed.max.z);
+      }
+
+      // A carried body's world points, such as a seated rider's bones, brought into the root's frame.
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+        sample.placement.rotation,
+      );
+      for (const point of carried(seconds)) {
+        const local: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
+          x: point.x - sample.placement.translation.x,
+          y: point.y - sample.placement.translation.y,
+          z: point.z - sample.placement.translation.z,
+        });
+        grow(local.x, local.z);
+      }
     }
     if (!Number.isFinite(low.x))
       throw new ArchetypeRefusal({
