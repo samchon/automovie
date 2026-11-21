@@ -23,6 +23,7 @@ import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import { walkLeg } from "../actions/walkLeg";
 import { walkRoot } from "../actions/walkRoot";
+import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
@@ -467,12 +468,14 @@ export namespace climbStairs {
       }
     }
 
-    return composeAutoMovieMotionHumanAction({
+    // A flight on a moving prop, such as an escalator's inclined steps, is planned where it stood at the start and carried by the prop, as a walk on a moving support is.
+    const planned: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
       clock,
       contact: "arrived",
       primitives: [climb],
     });
+    return p.on !== undefined && context.prop(p.on).prop.motion !== undefined ? HumanSupportCarry.on(context, planned, p.on) : planned;
   }
 
   /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */

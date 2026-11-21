@@ -68,7 +68,7 @@ export namespace IAutoMovieMotionHumanClimbStairs {
     /** The foot that steps first; `right` when absent. */
     lead?: "left" | "right";
 
-    /** The prop the flight belongs to, its subject id, so a foot on a tread bears on it; the fixed floor frame when absent. */
+    /** The prop the flight belongs to, its subject id, so a foot on a tread bears on it; a prop that moves, such as an escalator's inclined steps, carries the climb planned where it stood at the start. The fixed floor frame when absent. */
     on?: string;
 
     /** How it is performed. */
