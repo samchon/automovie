@@ -26,15 +26,23 @@ const SETTLED: Parameters<typeof observeAutoMovieSceneCollision>[0]["limits"] =
  * Collision work per placed sample. Interactive playback may defer a pair it
  * cannot finish within a frame; a capture or delivery settles the same scene
  * without a work limit.
+ *
+ * The viewer limits give collision about 5 ms of a 60 Hz frame, leaving room
+ * for motion checks and the render: 2 ms of comparisons at 2.4 µs each, and
+ * 1.5 ms each of surface triangles at 0.24 µs and posed vertices at up to
+ * 0.49 µs, measured with unlimited work on a 1,024-member formation crossed by
+ * a growing barrier and on overlapping closed meshes of growing density. A
+ * real formation, wall, bed and rope film peaks at 384 comparisons, 221 posed
+ * vertices and no surface triangles. No measured scene spends swept cells.
  */
 const COLLISION_LIMITS: Record<
   IAutoMovieDrawScene.IPlacedSample["mode"],
   Parameters<typeof observeAutoMovieSceneCollision>[0]["limits"]
 > = {
   viewer: {
-    comparisons: 12_000,
-    posedVertices: 16_384,
-    surfaceTriangles: 400_000,
+    comparisons: 850,
+    posedVertices: 3_000,
+    surfaceTriangles: 6_300,
     sweptCells: 256,
   },
   capture: SETTLED,

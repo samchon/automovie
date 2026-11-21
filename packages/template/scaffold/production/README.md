@@ -55,7 +55,7 @@ Declare contact and continuity expectations by returning `selectAutoMoviePlacedC
 
 Nothing reads proximity, contact receipts or physics to choose a support, grip or holder.
 
-The inspector checks each picture under a time budget and marks what it could not finish as `deferred`. Capture and delivery both complete the checks the interactive preview deferred for time.
+The inspector checks each picture under a work budget sized to fit the checks into a 60 Hz frame, and marks a check that would exceed it as `deferred`. Large formations or dense touching surfaces can exceed it. Capture and delivery both complete the checks the interactive preview deferred.
 
 A finding has a stable check, key, code and entity paths, a confidence, and a witness with its film seconds and, on the delivery grid, its output frame. Each check also reports its coverage: `checked`, `excluded` with a reason, or `deferred` or `unsupported` with a reason.
 
