@@ -8,6 +8,7 @@ import type {
 import { ArchetypeFrame } from "../core";
 import { EquineSwimStroke } from "./EquineSwimStroke";
 import { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedScapula } from "./QuadrupedScapula";
 import type { QuadrupedWorldPose } from "./QuadrupedWorldPose";
 
 /** The model's lateral axis, about which every sagittal swim rotation turns. */
@@ -16,7 +17,7 @@ const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 /**
  * A floating horse's world pose at one second: the trunk carried level under a placement, the neck raised by an authored angle with the head riding it, and each limb at its own phase of its end's measured stroke (`EquineSwimStroke`).
  *
- * Each limb keeps its actual bar lengths and attachments. Its upper bone takes the stroke's slope, degrees from straight down toward the front; each lower bone then takes the included angle the stroke gives at the joint above it, in the source's landmark convention measured in the side view: the fore elbow on its dorsal side, the carpus and fetlock on their palmar side; the stifle on its caudal side, the tarsus on its dorsal side and the hind fetlock on its plantar side. A bar is turned only about the model's lateral axis, so a limb's lateral offset and the bar's own twist are unchanged.
+ * Each shoulder blade stays at rest, so the fore limb's stroke turns from the shoulder joint as before the blade existed. Each limb keeps its actual bar lengths and attachments. Its upper bone takes the stroke's slope, degrees from straight down toward the front; each lower bone then takes the included angle the stroke gives at the joint above it, in the source's landmark convention measured in the side view: the fore elbow on its dorsal side, the carpus and fetlock on their palmar side; the stifle on its caudal side, the tarsus on its dorsal side and the hind fetlock on its plantar side. A bar is turned only about the model's lateral axis, so a limb's lateral offset and the bar's own twist are unchanged.
  *
  * @param neutral The source's neutral model-space bone frames (`QuadrupedWorldPose`).
  * @param placement The trunk's carriage in the world: the neutral trunk frame placed by it.
@@ -29,7 +30,7 @@ const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @evidence contracts/development/implementation.md#principled-implementation Planar forward kinematics in the sagittal view: each bar's side-view direction is its parent's turned by the supplement of the included angle, and each actual bar is rotated about the lateral axis by the difference from its neutral direction, so lengths, attachments and twist are exact.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy the neutral frames, raise the neck, pose four limbs proximal to distal, then express parent-local rotations.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bar is stretched and no angle is clamped; the measured angles and authored slopes come from the stroke owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per bone, O(B) for the 21 bones.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per bone, O(B) for the 23 bones.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh pose and retains nothing.
  */
@@ -129,11 +130,15 @@ function PARENTS(bone: QuadrupedBody.Bone): QuadrupedBody.Bone | null {
   if (bone === "hindquarters" || bone === "neck") return "trunk";
   if (bone === "head") return "neck";
   if (bone === "tail") return "hindquarters";
+  if (bone === "leftForeScapula" || bone === "rightForeScapula") return "trunk";
   for (const limb of QuadrupedBody.LIMBS) {
     const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
     const index: number = chain.indexOf(bone);
     if (index > 0) return chain[index - 1]!;
-    if (index === 0) return limb.endsWith("Fore") ? "trunk" : "hindquarters";
+    if (index === 0)
+      return limb === "leftFore" || limb === "rightFore"
+        ? QuadrupedScapula.BONES[limb]
+        : "hindquarters";
   }
   throw new RangeError(`Unknown quadruped bone ${bone}`);
 }
