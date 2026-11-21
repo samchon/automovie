@@ -401,6 +401,16 @@ export namespace HandheldDevice {
   export type FaceContact = "screen" | "speaker";
 
   /**
+   * The grip together with the face contact a slab adds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contacts fullFace builds for one face.
+   * @evidence contracts/development/design.md#principled-representation The grip id joined with the generic face id the caller selects.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only fullFace and the tablet and radio producers read it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It adds no contact beyond the grip and the selected face.
+   */
+  export type FaceAndGrip<Face extends FaceContact> = "grip" | Face;
+
+  /**
    * The values {@link fullFace} accepts at this place in its signature.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of fullFace.
@@ -427,9 +437,9 @@ export namespace HandheldDevice {
     params: Omit<IParams, "kind">,
     seed: number | string | undefined,
     face: Face,
-  ): Archetype<"grip" | Face, Dimension> {
-    const { builder, size }: ReturnType<typeof draw<"grip" | Face>> = draw<
-      "grip" | Face
+  ): Archetype<FaceAndGrip<Face>, Dimension> {
+    const { builder, size }: ReturnType<typeof draw<FaceAndGrip<Face>>> = draw<
+      FaceAndGrip<Face>
     >(kind, name, params, seed);
     const { width, height, thickness: depth }: Record<Dimension, number> = size;
     caseBody(builder, width, height, depth);

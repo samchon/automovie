@@ -354,6 +354,47 @@ export namespace LongImplementDraw {
   export type GroundToolContact = "face" | "shaft" | "grip";
 
   /**
+   * A ground implement's head block.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the head block groundTool builds, in metres.
+   * @evidence contracts/development/design.md#principled-representation The block size, finish and relative density the construction reads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members groundTool reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
+   */
+  export interface IGroundHead {
+    /** Across the head, metres. */
+    width: number;
+
+    /** Up the head, metres. */
+    height: number;
+
+    /** Front to back, metres. */
+    depth: number;
+
+    /** The finish colour. */
+    color: string;
+
+    /** The density relative to the shaft. */
+    density: number;
+  }
+
+  /**
+   * A ground implement's shaft.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the shaft groundTool builds, in metres.
+   * @evidence contracts/development/design.md#principled-representation The radius and top height the construction reads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members groundTool reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
+   */
+  export interface IGroundShaft {
+    /** The shaft radius, metres. */
+    radius: number;
+
+    /** The shaft top above the bottom face, metres. */
+    top: number;
+  }
+
+  /**
    * Build the head and two-hand shaft of a ground-contact implement.
    *
    * @param builder The implement under construction.
@@ -370,14 +411,8 @@ export namespace LongImplementDraw {
    */
   export function groundTool(
     builder: ArchetypeBuilder<GroundToolContact, Dimension>,
-    head: {
-      width: number;
-      height: number;
-      depth: number;
-      color: string;
-      density: number;
-    },
-    shaft: { radius: number; top: number },
+    head: IGroundHead,
+    shaft: IGroundShaft,
   ): void {
     const top: number = shaft.top;
     const radius: number = shaft.radius;

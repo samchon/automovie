@@ -1,4 +1,4 @@
-import { createCar } from "@automovie/archetypes";
+import { type IArchetypeBand, createCar } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -89,7 +89,8 @@ export function archetypeCatalogueRideContact(
       minimum = Math.min(y.high, minimum);
       maximum = Math.max(y.high, maximum);
       const seatHeight: number = model.dimensions.seatHeight!;
-      const band = model.provenance.bands.seatHeight;
+      const band: IArchetypeBand | undefined =
+        model.provenance.bands.seatHeight;
       if (
         !(
           Number.isFinite(seatHeight) &&

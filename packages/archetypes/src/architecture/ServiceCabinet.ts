@@ -162,10 +162,24 @@ export namespace ServiceCabinet {
     return { builder, width, height, depth, mass: d.mass! };
   }
 
-  /** The contact ids {@link faces} builds or reads. */
+  /**
+   * The contact ids {@link faces} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of faces.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only faces and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type FacesContact = "front" | "side";
 
-  /** The values {@link faces} accepts at this place in its signature. */
+  /**
+   * The values {@link faces} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of faces.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only faces and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type FacesChoice = "width" | "height" | "depth";
 
   /**

@@ -1,4 +1,4 @@
-import { createDrinkware } from "@automovie/archetypes";
+import { type IArchetypeBand, createDrinkware } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -6,11 +6,13 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanProp,
   IAutoMoviePhysicalShape,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -22,6 +24,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { archetypeCatalogueRigidGrip } from "./archetypeCatalogueRigidGrip";
 import { archetypeExtent } from "./archetypeExtent";
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
@@ -34,6 +37,27 @@ type Vessel = "glass" | "mug";
 
 /** Legal relation and action pairs on a drinking vessel. */
 type Action = "hold" | "use" | "carry";
+
+/** The two surveyed bodies the vessel rows use. */
+type Actor = "m-average" | "f-average";
+
+/** The vessel part a hand closes on: a glass's or a mug's body, or a mug's handle. */
+type Handle = "body" | "handle";
+
+/** The hand part a grip gap is measured from: the palm or the bracing thumb. */
+type GripRole = "palm grip" | "thumb grip";
+
+/** The cause a refused vessel cell names. */
+type Refused = "handle" | "facing";
+
+/** The low and high bound of one measured axis, metres. */
+interface IBounds {
+  /** The lowest coordinate. */
+  low: number;
+
+  /** The highest coordinate. */
+  high: number;
+}
 
 /** A produced vessel before the actor moves it. */
 type Model = ReturnType<typeof createDrinkware>;
@@ -66,25 +90,31 @@ type Span = readonly [
 export function archetypeCatalogueVesselContact(
   kind: Vessel,
   action: Action,
-  name: "m-average" | "f-average",
+  name: Actor,
   first: number,
   last: number,
 ): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-  const handle: "body" | "handle" =
+  const handle: Handle =
     kind === "glass" || action === "use" ? "body" : "handle";
-  const profile = [...HumanColliders.bones(body)];
-  const hand = HumanColliders.preparePlaced(
-    body,
-    new Set(profile.filter((bone): boolean => /^right(Hand|Thumb)/.test(bone))),
-  );
-  const curlingDigit = handle === "handle" ? "rightLittle" : "rightIndex";
-  const joints = profile.filter((bone): boolean =>
+  const profile: AutoMovieHumanoidBone[] = [...HumanColliders.bones(body)];
+  const hand: ReturnType<typeof HumanColliders.preparePlaced> =
+    HumanColliders.preparePlaced(
+      body,
+      new Set(
+        profile.filter((bone: AutoMovieHumanoidBone): boolean =>
+          /^right(Hand|Thumb)/.test(bone),
+        ),
+      ),
+    );
+  const curlingDigit: string =
+    handle === "handle" ? "rightLittle" : "rightIndex";
+  const joints: AutoMovieHumanoidBone[] = profile.filter((bone): boolean =>
     bone.startsWith(curlingDigit),
   );
   const failures: Map<string, string> = new Map();
   const label: string = `${kind}/${action}/${name}`;
-  const extrema: Map<string, { low: number; high: number }> = new Map();
+  const extrema: Map<string, IBounds> = new Map();
   const worst: Map<string, IWorst> = new Map();
   for (let seed: number = first; seed < last; ++seed) {
     try {
@@ -130,19 +160,20 @@ export function archetypeCatalogueVesselContact(
         z: 0.03,
       });
       const closedBones: motionHumanLaw.Bones = film.bones(ACTOR, start);
-      const closedAngles = joints.map(
-        (bone) => closedBones.get(bone)!.localRotation,
+      const closedAngles: IAutoMovieQuaternion[] = joints.map(
+        (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion =>
+          closedBones.get(bone)!.localRotation,
       );
       const placed: IAutoMovieRigidTransform = film.performance.prop(
         "vessel",
         start,
       );
-      const initial: IAutoMovieRigidTransform = relative(
-        wristOf(closedBones),
-        placed,
-      );
+      const initial: IAutoMovieRigidTransform =
+        archetypeCatalogueRigidGrip.relative(wristOf(closedBones), placed);
       const idle: motionHumanLaw.Bones = film.bones(ACTOR, 0);
-      const fingerAngle = (bones: motionHumanLaw.Bones): number =>
+      const fingerAngle: (bones: motionHumanLaw.Bones) => number = (
+        bones: motionHumanLaw.Bones,
+      ): number =>
         (Math.max(
           ...joints.map((bone, i): number =>
             Quaternion.angle(bones.get(bone)!.localRotation, closedAngles[i]!),
@@ -157,7 +188,7 @@ export function archetypeCatalogueVesselContact(
           `${label} seed ${seed} never closes the ${curlingDigit} grasp from its idle pose`,
         );
       if (seed === 0 && kind === "glass" && action === "hold")
-        verifyTwistRejection(initial, mark, edge);
+        archetypeCatalogueRigidGrip.verifyTwistRejection(initial, mark, edge);
       const seam: number = film.performance.segments(ACTOR)[0]!.end;
       const meet: number | undefined =
         action === "use" ? motionHumanLaw.event(film, "atMouth") : undefined;
@@ -176,11 +207,14 @@ export function archetypeCatalogueVesselContact(
           "vessel",
           seconds,
         );
-        const current: IAutoMovieRigidTransform = relative(
-          wristOf(bones),
-          prop,
+        const current: IAutoMovieRigidTransform =
+          archetypeCatalogueRigidGrip.relative(wristOf(bones), prop);
+        const drift: number = archetypeCatalogueRigidGrip.drift(
+          initial,
+          current,
+          mark,
+          edge,
         );
-        const drift: number = heldDrift(initial, current, mark, edge);
         observe(worst, "rigid grip", drift, seed, seconds);
         observe(
           worst,
@@ -189,9 +223,13 @@ export function archetypeCatalogueVesselContact(
           seed,
           seconds,
         );
-        const gaps = { "palm grip": Infinity, "thumb grip": Infinity };
+        const gaps: Record<GripRole, number> = {
+          "palm grip": Infinity,
+          "thumb grip": Infinity,
+        };
         for (const part of hand(bones)) {
-          const role = part.bone === "rightHand" ? "palm grip" : "thumb grip";
+          const role: GripRole =
+            part.bone === "rightHand" ? "palm grip" : "thumb grip";
           gaps[role] = Math.min(
             gaps[role],
             ...part.shapes.map((shape: IAutoMoviePhysicalShape): number =>
@@ -213,7 +251,7 @@ export function archetypeCatalogueVesselContact(
           "vessel",
           meet,
         );
-        const rim: IAutoMovieVector3 = point(prop, {
+        const rim: IAutoMovieVector3 = archetypeCatalogueRigidGrip.point(prop, {
           x: 0,
           y: height,
           z: radius,
@@ -247,7 +285,7 @@ export function archetypeCatalogueVesselContact(
   if (first === 0 && last === 200)
     for (const [axis, bounds] of extrema) {
       const model: Model = createDrinkware({ kind }, 0);
-      const band =
+      const band: IArchetypeBand | undefined =
         model.provenance.bands[
           axis === "handle bar"
             ? "handleDiameter"
@@ -281,7 +319,7 @@ export namespace archetypeCatalogueVesselContact {
   /** A missing grip and a known unfit orientation must each name the actual constraint. */
   export function refusals(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-    const cases: readonly [Vessel, Action, "handle" | "facing", string][] = [
+    const cases: readonly [Vessel, Action, Refused, string][] = [
       ["glass", "hold", "handle", "catalogue/refused-handle"],
       ["mug", "use", "facing", "catalogue/mug/use/m-average"],
     ];
@@ -311,7 +349,7 @@ function vesselFilm(
   model: Model,
   body: IAutoMovieMotionHumanBody,
   action: Action,
-  handle: "body" | "handle",
+  handle: Handle,
   seed: string,
 ): motionHumanLaw.IFilm {
   const placement: IAutoMovieMotionHumanProp = HumanObject.prop(
@@ -350,78 +388,14 @@ function vesselFilm(
 
 /** Read the displayed right wrist, in world coordinates. */
 function wristOf(bones: motionHumanLaw.Bones): IAutoMovieRigidTransform {
-  const wrist = bones.get("rightHand")!;
+  const wrist: NonNullable<ReturnType<motionHumanLaw.Bones["get"]>> =
+    bones.get("rightHand")!;
   return { position: wrist.worldPosition, rotation: wrist.worldRotation };
-}
-
-/** Express the independently displayed prop in the displayed wrist frame. */
-function relative(
-  wrist: IAutoMovieRigidTransform,
-  prop: IAutoMovieRigidTransform,
-): IAutoMovieRigidTransform {
-  const inverse = Quaternion.inverse(wrist.rotation);
-  return {
-    position: Quaternion.rotateVector(
-      inverse,
-      Vector3.subtract(prop.position, wrist.position),
-    ),
-    rotation: Quaternion.multiply(inverse, prop.rotation),
-  };
-}
-
-/** Bound translation and every angular direction at the same 30 mm lever arm. */
-function heldDrift(
-  initial: IAutoMovieRigidTransform,
-  current: IAutoMovieRigidTransform,
-  mark: IAutoMovieVector3,
-  edge: IAutoMovieVector3,
-): number {
-  return Math.max(
-    Vector3.distance(point(initial, mark), point(current, mark)),
-    Vector3.distance(point(initial, edge), point(current, edge)),
-    0.06 * Math.sin(Quaternion.angle(initial.rotation, current.rotation) / 2),
-  );
-}
-
-/** A twist about the original two-point line leaves both points fixed. */
-function verifyTwistRejection(
-  initial: IAutoMovieRigidTransform,
-  mark: IAutoMovieVector3,
-  edge: IAutoMovieVector3,
-): void {
-  const rotation = Quaternion.multiply(
-    initial.rotation,
-    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 30),
-  );
-  const twisted: IAutoMovieRigidTransform = {
-    rotation,
-    position: Vector3.subtract(
-      point(initial, mark),
-      Quaternion.rotateVector(rotation, mark),
-    ),
-  };
-  TestValidator.predicate(
-    "a twist invisible to both markers exceeds the rigid grip bound",
-    Vector3.distance(point(initial, mark), point(twisted, mark)) <= 1e-9 &&
-      Vector3.distance(point(initial, edge), point(twisted, edge)) <= 1e-9 &&
-      heldDrift(initial, twisted, mark, edge) > 0.001,
-  );
-}
-
-/** Place a material point by the public rigid transform. */
-function point(
-  frame: IAutoMovieRigidTransform,
-  local: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  return Vector3.add(
-    frame.position,
-    Quaternion.rotateVector(frame.rotation, local),
-  );
 }
 
 /** Read a sourced dimension and update its observed spread. */
 function span(
-  extrema: Map<string, { low: number; high: number }>,
+  extrema: Map<string, IBounds>,
   failures: Map<string, string>,
   label: string,
   seed: number,
@@ -435,7 +409,7 @@ function span(
     );
     return;
   }
-  const bounds: { low: number; high: number } = extrema.get(axis) ?? {
+  const bounds: IBounds = extrema.get(axis) ?? {
     low: value,
     high: value,
   };

@@ -3,8 +3,20 @@ import { Vector3 } from "@automovie/engine";
 import { type Archetype, ArchetypeFrame } from "../core";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
+/** The shape of {@link CONE}. */
+interface ICone {
+  /** The `base` entry. */
+  base: number;
+
+  /** The `foot` entry. */
+  foot: number;
+
+  /** The `top` entry. */
+  top: number;
+}
+
 /** The Brimar 28 in cone's proportions to its height: its square base, its cone's foot and its top (13.4, 9.8 and 2.1 in of 28). */
-const CONE: Readonly<{ base: number; foot: number; top: number }> = {
+const CONE: Readonly<ICone> = {
   base: 13.4 / 28,
   foot: 9.8 / 28,
   top: 2.1 / 28,

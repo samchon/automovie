@@ -9,34 +9,74 @@ import {
 import { ServiceCabinet } from "./ServiceCabinet";
 import type { createMachine } from "./createMachine";
 
+/** The shape of {@link SHELF}. */
+interface IShelf {
+  /** The `height` entry. */
+  height: number;
+
+  /** The `out` entry. */
+  out: number;
+}
+
 /** An ATM's shelf, metres: its top 763 mm up, protruding 174 mm from the fascia (NCR SS32 p. 9). */
-const SHELF: Readonly<{ height: number; out: number }> = {
+const SHELF: Readonly<IShelf> = {
   height: 763 * ArchetypeUnits.MILLIMETRE,
   out: 174 * ArchetypeUnits.MILLIMETRE,
 };
 
+/** The fascia items NCR's guide places. */
+type AtmItem = "key5" | "cardReader" | "cash" | "receipt";
+
+/** One fascia item's placement, in millimetres and clock hours. */
+interface IAtmItem {
+  /** Height above the base. */
+  height: number;
+
+  /** Depth from the shelf's front. */
+  depth: number;
+
+  /** Distance from the No. 5 key on the front elevation. */
+  distance: number;
+
+  /** Clock position from the No. 5 key. */
+  clock: number;
+}
+
 /** An ATM's fascia items, from NCR's guide: each one's height from the base and depth from the shelf's front (pp. 14-15), and its distance on the front elevation and clock position from the No. 5 key (pp. 17-18), in millimetres and hours; the key itself is the origin, at no distance. */
-const ITEMS: Readonly<
-  Record<
-    "key5" | "cardReader" | "cash" | "receipt",
-    Readonly<{ height: number; depth: number; distance: number; clock: number }>
-  >
-> = {
+const ITEMS: Readonly<Record<AtmItem, Readonly<IAtmItem>>> = {
   key5: { height: 786, depth: 89, distance: 0, clock: 0 },
   cardReader: { height: 1039, depth: 152, distance: 388, clock: 2 },
   cash: { height: 822, depth: 152, distance: 152, clock: 9 },
   receipt: { height: 1154, depth: 170, distance: 472, clock: 1 },
 };
 
+/** The shape of {@link SCREEN}. */
+interface IScreen {
+  /** The `height` entry. */
+  height: number;
+
+  /** The `depth` entry. */
+  depth: number;
+
+  /** The `size` entry. */
+  size: number;
+}
+
 /** An ATM's 15 in touchscreen, from NCR's guide: its height from the base and depth from the shelf's front, millimetres (pp. 14-15), on the keypad's centre line as drawn. */
-const SCREEN: Readonly<{ height: number; depth: number; size: number }> = {
+const SCREEN: Readonly<IScreen> = {
   height: 1126,
   depth: 244,
   size: 381,
 };
 
+/** The shape of {@link ESTIMATES}. */
+interface IEstimates {
+  /** The `shelf` entry. */
+  shelf: number;
+}
+
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `shelf`, an ATM shelf's thickness. */
-const ESTIMATES: Readonly<{ shelf: number }> = { shelf: 0.03 };
+const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03 };
 
 /**
  * A cash machine with a shelf, keypad button, card, cash and receipt sockets and an exposed touchscreen.

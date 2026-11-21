@@ -35,6 +35,18 @@ import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
 import { vclose } from "../internal/vclose";
 
+/** The scene identity every named fixture accepts. */
+interface IIdentity {
+  /** The model's scene id. */
+  id?: string;
+}
+
+/** A named fixture producer reached through one import path. */
+type NamedProducer = (params?: IIdentity, seed?: string | number) => Archetype;
+
+/** A saved recipe replayed at one seed. */
+type SavedRecipe = (seed: string | number) => Archetype;
+
 /**
  * The 21 named architectural fixtures use the saved kinds' exact seeded recipes.
  *
@@ -51,10 +63,10 @@ import { vclose } from "../internal/vclose";
  */
 export function test_archetype_catalogue_architecture_compatibility(): void {
   const rows: readonly [
-    named: (params?: { id?: string }, seed?: string | number) => Archetype,
-    subpath: (params?: { id?: string }, seed?: string | number) => Archetype,
-    mapped: (params?: { id?: string }, seed?: string | number) => Archetype,
-    saved: (seed: string | number) => Archetype,
+    named: NamedProducer,
+    subpath: NamedProducer,
+    mapped: NamedProducer,
+    saved: SavedRecipe,
   ][] = [
     [
       createRefrigerator,

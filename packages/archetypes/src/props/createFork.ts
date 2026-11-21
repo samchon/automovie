@@ -41,7 +41,7 @@ export function createFork(
   });
 
   // The tines are one flat plate on the handle's end, ending the fork's drawn length.
-  const tines: Readonly<{ width: number; length: number }> = HandToolDraw.TINES;
+  const tines: Readonly<HandToolDraw.ITines> = HandToolDraw.TINES;
   builder.box(
     "tines",
     Vector3.create(tines.width, tines.length, 0.002),

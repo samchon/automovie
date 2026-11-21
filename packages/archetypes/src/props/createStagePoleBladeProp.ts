@@ -208,6 +208,9 @@ export namespace createStagePoleBladeProp {
   }
 }
 
+/** The two cutting edges a pole blade's helper records. */
+type BladeEdge = "edge" | "side-edge";
+
 /** Extrude one small convex cell between each pair of adjacent outline sections. */
 function addOutline(
   builder: ArchetypeBuilder<
@@ -235,7 +238,7 @@ function addEdge(
     createStageWeaponProp.Affordance,
     createStageWeaponProp.Dimension
   >,
-  id: "edge" | "side-edge",
+  id: BladeEdge,
   lower: Section,
   upper: Section,
   height: number,

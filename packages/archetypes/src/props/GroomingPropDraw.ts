@@ -58,8 +58,24 @@ export namespace GroomingPropDraw {
     "lipstick",
   ];
 
+  /**
+   * The shape of {@link CARTRIDGE}.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each entry of CARTRIDGE, in the constant's own units.
+   * @evidence contracts/development/design.md#principled-representation One named number per entry the constant records.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the entries the constant's readers use.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional entry; every entry is recorded.
+   */
+  export interface ICartridge {
+    /** The `width` entry. */
+    width: number;
+
+    /** The `depth` entry. */
+    depth: number;
+  }
+
   /** A razor's cartridge across and from front to back, metres: an estimate; the razors' pages read do not give it. */
-  export const CARTRIDGE: Readonly<{ width: number; depth: number }> = {
+  export const CARTRIDGE: Readonly<ICartridge> = {
     width: 0.04,
     depth: 0.015,
   };
@@ -312,6 +328,44 @@ export namespace GroomingPropDraw {
   export type AddHeadContact = "grip" | "face";
 
   /**
+   * A grooming prop's handle and head size.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the sizes addHead builds, in metres.
+   * @evidence contracts/development/design.md#principled-representation The handle and head lengths and widths.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members addHead reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
+   */
+  export interface IHead {
+    /** The whole prop length, metres. */
+    length: number;
+
+    /** The handle diameter, metres. */
+    width: number;
+
+    /** The head length, metres. */
+    head: number;
+
+    /** The head width, metres. */
+    across: number;
+  }
+
+  /**
+   * A grooming prop's two finishes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two finishes addHead applies.
+   * @evidence contracts/development/design.md#principled-representation One colour per built part.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members addHead reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
+   */
+  export interface IHeadColors {
+    /** The handle colour. */
+    handle: string;
+
+    /** The head colour. */
+    head: string;
+  }
+
+  /**
    * Add the handle and flat head of a grooming tool.
    *
    * @param builder The grooming prop under construction.
@@ -328,8 +382,8 @@ export namespace GroomingPropDraw {
    */
   export function addHead(
     builder: ArchetypeBuilder<AddHeadContact, Dimension>,
-    dimensions: { length: number; width: number; head: number; across: number },
-    colors: { handle: string; head: string },
+    dimensions: IHead,
+    colors: IHeadColors,
   ): void {
     const { length, width, head, across }: typeof dimensions = dimensions;
     builder.rod(

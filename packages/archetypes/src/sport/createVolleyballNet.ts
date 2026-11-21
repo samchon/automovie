@@ -22,8 +22,20 @@ const VOLLEYBALL_SIDE: number = 4.5;
 /** How far a volleyball antenna stands above the net, metres: FIVB 2.4, its top 80 cm; it reaches the net's lower edge below. */
 const ANTENNA_ABOVE: number = 0.8;
 
+/** The shape of {@link ESTIMATES}. */
+interface IEstimates {
+  /** The `post` entry. */
+  post: number;
+
+  /** The `mesh` entry. */
+  mesh: number;
+
+  /** The `antenna` entry. */
+  antenna: number;
+}
+
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `post`, a volleyball post's diameter; `mesh`, a net's thickness; `antenna`, half of FIVB's 10 mm antenna. */
-const ESTIMATES: Readonly<{ post: number; mesh: number; antenna: number }> = {
+const ESTIMATES: Readonly<IEstimates> = {
   post: 0.1,
   mesh: 0.005,
   antenna: 0.005,

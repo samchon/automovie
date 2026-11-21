@@ -184,16 +184,17 @@ export function test_archetype_catalogue_transport_props_craft(): void {
       contact.id.length > "thwart".length &&
       Number.isInteger(Number(contact.id.slice("thwart".length))),
   );
+  const withoutOarlock: boolean = hulls.launch.affordances.every(
+    (contact: IAutoMovieAffordance): boolean => !contact.id.endsWith("Oarlock"),
+  );
   TestValidator.predicate(
     "every pulling-boat thwart seats a rower facing aft, without an oarlock",
     thwarts.length === createBoat.LAUNCH.thwarts &&
       thwarts.every(
         (contact: IAutoMovieAffordance): boolean =>
-          ArchetypeFrame.axis(contact.frame, "z").z < -0.99,
+          -0.99 > ArchetypeFrame.axis(contact.frame, "z").z,
       ) &&
-      !hulls.launch.affordances.some((contact: IAutoMovieAffordance): boolean =>
-        contact.id.endsWith("Oarlock"),
-      ),
+      withoutOarlock,
   );
   TestValidator.equals(
     "both rowboat inputs support the same moving crew readbacks",

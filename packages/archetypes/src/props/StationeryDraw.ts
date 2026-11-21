@@ -281,6 +281,25 @@ export namespace StationeryDraw {
   }
 
   /**
+   * A paper panel's size.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the panel size addPanelContacts places contacts on, in metres.
+   * @evidence contracts/development/design.md#principled-representation The panel width, length and thickness.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members addPanelContacts reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
+   */
+  export interface IPanel {
+    /** Across the panel, metres. */
+    width: number;
+
+    /** Along the panel, metres. */
+    length: number;
+
+    /** The panel thickness, metres. */
+    thick: number;
+  }
+
+  /**
    * Register the edge pinch and working face of a writing surface.
    *
    * @param builder The prop under construction.
@@ -298,7 +317,7 @@ export namespace StationeryDraw {
    */
   export function addPanelContacts(
     builder: ArchetypeBuilder<Affordance, Dimension>,
-    dimensions: { width: number; length: number; thick: number },
+    dimensions: IPanel,
     gripInset: number,
     rides?: "fold",
   ): void {

@@ -28,8 +28,17 @@ const HEIGHT: Readonly<Record<Seat, readonly [number, number]>> = {
   barStool: [1.067 - 12 * 0.0254, 1.067 - 10 * 0.0254],
 };
 
+/** Where a seat stands: its floor point and its turn about +Y, degrees. */
+interface IPlacement {
+  /** The floor point, metres. */
+  at: IAutoMovieVector3;
+
+  /** The turn about +Y, degrees. */
+  yaw: number;
+}
+
 /** The fixed placement keeps the seat's analytic disc in the same floor frame. */
-const PLACEMENT: { at: IAutoMovieVector3; yaw: number } = {
+const PLACEMENT: IPlacement = {
   at: { x: 0, y: 0, z: -0.6 },
   yaw: 0,
 };

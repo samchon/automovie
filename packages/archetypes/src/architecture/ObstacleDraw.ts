@@ -83,7 +83,14 @@ export namespace ObstacleDraw {
     return { builder, d };
   }
 
-  /** The contact ids {@link ledge} builds or reads. */
+  /**
+   * The contact ids {@link ledge} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of ledge.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only ledge and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type LedgeContact = "top" | "edge";
 
   /**

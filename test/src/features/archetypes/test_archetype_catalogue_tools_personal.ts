@@ -19,6 +19,36 @@ import { TestValidator } from "@nestia/e2e";
 import { archetypeExtent } from "../internal/archetypeExtent";
 import { nclose, qclose, vclose } from "../internal/predicates";
 
+/** The identity and paper format a named producer accepts. */
+interface INamedParams {
+  /** The model's scene id. */
+  id?: string;
+
+  /** The paper format, read only by createPaper. */
+  format?: createPaper.Format;
+}
+
+/** A named producer as the loop calls it. */
+type NamedProducer = (
+  params: INamedParams,
+  seed?: number | string,
+) => Archetype;
+
+/** The saved kind a dispatcher reads, typed per family by the loop's caller. */
+interface ISavedParams {
+  /** The model's scene id. */
+  id?: string;
+
+  /** The saved kind, narrowed by each family's own table. */
+  kind: never;
+}
+
+/** A saved dispatcher as the loop calls it. */
+type SavedDispatcher = (
+  params: ISavedParams,
+  seed?: number | string,
+) => Archetype;
+
 /** The saved tool and personal-prop recipes checked through both SDK entry points. */
 const FAMILIES = [
   [
@@ -98,17 +128,8 @@ export function test_archetype_catalogue_tools_personal(): void {
     );
     for (const [index, name] of names.entries()) {
       const kind: string = family.KINDS[index]!;
-      const produce: (
-        params: {
-          id?: string;
-          format?: createPaper.Format;
-        },
-        seed?: number | string,
-      ) => Archetype = props[name];
-      const legacy: (
-        params: { id?: string; kind: never },
-        seed?: number | string,
-      ) => Archetype = family;
+      const produce: NamedProducer = props[name];
+      const legacy: SavedDispatcher = family;
       const format: createPaper.Format | undefined =
         name === "createPaper"
           ? kind === "paper"

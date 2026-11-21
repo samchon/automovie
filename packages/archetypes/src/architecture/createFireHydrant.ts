@@ -3,8 +3,20 @@ import { Vector3 } from "@automovie/engine";
 import { type Archetype, ArchetypeFrame, ArchetypeUnits } from "../core";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
+/** The shape of {@link HYDRANT}. */
+interface IHydrant {
+  /** The `pumper` entry. */
+  pumper: number;
+
+  /** The `hose` entry. */
+  hose: number;
+
+  /** The `nut` entry. */
+  nut: number;
+}
+
 /** The Mueller hydrant's nozzle bores, metres: the 4 1/2 in pumper and the 2 1/2 in hose nozzles; its 1 1/2 in operating nut. */
-const HYDRANT: Readonly<{ pumper: number; hose: number; nut: number }> = {
+const HYDRANT: Readonly<IHydrant> = {
   pumper: 4.5 * ArchetypeUnits.INCH,
   hose: 2.5 * ArchetypeUnits.INCH,
   nut: 1.5 * ArchetypeUnits.INCH,

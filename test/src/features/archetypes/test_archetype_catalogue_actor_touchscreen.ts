@@ -21,17 +21,46 @@ import { TestValidator } from "@nestia/e2e";
 import { archetypeExtent } from "../internal/archetypeExtent";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** One measured case dimension and its stated source bounds, metres. */
+interface IBand {
+  /** The phone dimension the band bounds. */
+  name: createPhone.Dimension;
+
+  /** The source band's lower bound. */
+  minimum: number;
+
+  /** The source band's upper bound. */
+  maximum: number;
+}
+
+/** The low and high value observed for one band across the seeds, metres. */
+interface IBounds {
+  /** The lowest observed value. */
+  low: number;
+
+  /** The highest observed value. */
+  high: number;
+}
+
+/** The touchscreen row the test adds to the chain, keyed by its registered name. */
+type SwipeRows = Record<"swipeTouchscreen", typeof swipeTouchscreen>;
+
 /** The contact-relevant case measurements and stated source bounds, metres. */
-const BANDS = [
+const BANDS: readonly IBand[] = [
   { name: "width", minimum: 0.0642, maximum: 0.078 },
   { name: "height", minimum: 0.1315, maximum: 0.1634 },
   { name: "thickness", minimum: 0.00564, maximum: 0.00875 },
-] as const;
+];
 
 /** The measured maximum and its exact replay coordinates. */
 interface IWorst {
+  /** The greatest fingertip gap, metres. */
   gap: number;
+
+  /** The model seed where it occurred. */
   seed: number;
+
+  /** The film time where it occurred, seconds. */
   seconds: number;
 }
 
@@ -51,9 +80,8 @@ interface IWorst {
  */
 export function test_archetype_catalogue_actor_touchscreen(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("f-average");
-  const Chain: ReturnType<
-    typeof HumanChain.extend<{ swipeTouchscreen: typeof swipeTouchscreen }>
-  > = HumanChain.extend({ swipeTouchscreen });
+  const Chain: ReturnType<typeof HumanChain.extend<SwipeRows>> =
+    HumanChain.extend({ swipeTouchscreen });
   const rotation: IAutoMovieQuaternion = Quaternion.multiply(
     Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 30),
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
@@ -64,7 +92,7 @@ export function test_archetype_catalogue_actor_touchscreen(): void {
     y: body.measure.shoulderHeight - 0.14,
     z: 0.48,
   };
-  const bounds: { low: number; high: number }[] = BANDS.map(() => ({
+  const bounds: IBounds[] = BANDS.map(() => ({
     low: Infinity,
     high: -Infinity,
   }));
@@ -179,7 +207,7 @@ export function test_archetype_catalogue_actor_touchscreen(): void {
     }
   }
   BANDS.forEach(({ name, minimum, maximum }, index: number): void => {
-    const { low, high }: (typeof bounds)[number] = bounds[index]!;
+    const { low, high }: IBounds = bounds[index]!;
     if (
       !(
         low >= minimum - 1e-9 &&

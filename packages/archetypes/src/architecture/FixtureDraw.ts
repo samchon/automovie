@@ -134,7 +134,14 @@ export namespace FixtureDraw {
     massPerMetre: "kg",
   };
 
-  /** The values {@link installed} accepts at this place in its signature. */
+  /**
+   * The values {@link installed} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of installed.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only installed and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type InstalledFamily = "appliance" | "sanitary";
 
   /**

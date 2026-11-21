@@ -28,8 +28,8 @@ export function createLaptop(
   const {
     builder,
     d,
-  }: ReturnType<typeof KeyboardHardware.draw<"screen" | "lid">> =
-    KeyboardHardware.draw<"screen" | "lid">("laptop", params, seed);
+  }: ReturnType<typeof KeyboardHardware.draw<createLaptop.Display>> =
+    KeyboardHardware.draw<createLaptop.Display>("laptop", params, seed);
   const v: typeof Vector3.create = Vector3.create;
   const tilt: number = KeyboardHardware.LID;
   const thick: number = KeyboardHardware.LID_THICKNESS;
@@ -91,7 +91,10 @@ export namespace createLaptop {
   export type Dimension = "depth" | "height" | "mass" | "width";
 
   /** The identifiers of contacts this producer builds. */
-  export type Affordance = "homeRow" | "keys" | "lid" | "screen";
+  export type Affordance = "homeRow" | "keys" | Display;
+
+  /** The display contacts the laptop adds to the shared keyboard deck: its screen and its lid hinge. */
+  export type Display = "screen" | "lid";
 
   /** The constructor input. */
   export interface IParams {

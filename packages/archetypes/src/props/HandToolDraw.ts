@@ -50,8 +50,24 @@ export namespace HandToolDraw {
   /** A table knife blade's thickness as a share of its read width from spine to edge: a construction estimate that no act reads and no band declares. */
   export const KNIFE_THICKNESS: number = 0.1;
 
+  /**
+   * The shape of {@link TINES}.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each entry of TINES, in the constant's own units.
+   * @evidence contracts/development/design.md#principled-representation One named number per entry the constant records.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the entries the constant's readers use.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional entry; every entry is recorded.
+   */
+  export interface ITines {
+    /** The `width` entry. */
+    width: number;
+
+    /** The `length` entry. */
+    length: number;
+  }
+
   /** A fork's tines as one plate, across and along, metres: an estimate, not read at a source. */
-  export const TINES: Readonly<{ width: number; length: number }> = {
+  export const TINES: Readonly<ITines> = {
     width: 0.025,
     length: 0.045,
   };
