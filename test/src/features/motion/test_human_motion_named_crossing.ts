@@ -158,13 +158,14 @@ export function test_human_motion_named_crossing(): void {
             ? prop.subject === "launch" || prop.subject === "landing"
             : prop.subject === (p.kind === "vault" ? "step" : "kerb"),
       );
-      const deepest: number = clearance(body, film, crossing, crossed);
+      const deepest: IEntry = clearance(body, film, crossing, crossed);
       all.check(
         label +
           ": no free segment enters a crossed prop beyond the skin give, deepest " +
-          deepest.toFixed(4) +
-          " m",
-        deepest <= SKIN,
+          deepest.depth.toFixed(4) +
+          " m at " +
+          deepest.at,
+        deepest.depth <= SKIN,
       );
       if (p.kind === "jump" || p.kind === "gap")
         all.check(
@@ -256,14 +257,23 @@ export function test_human_motion_named_crossing(): void {
   all.assert("named geometry bounds the complete staged crossing");
 }
 
+/** A displayed segment's entry into a prop. */
+interface IEntry {
+  /** Depth, metres. */
+  depth: number;
+
+  /** The bone and the crossing's second. */
+  at: string;
+}
+
 /** The deepest entry of a displayed segment into a crossed prop over the crossing, skipping a hand or foot while it bears on that prop. */
 function clearance(
   body: IAutoMovieMotionHumanBody,
   film: HumanPerformance,
   crossing: IAutoMovieMotionHumanSegment,
   props: readonly IAutoMovieMotionHumanProp[],
-): number {
-  let deepest: number = 0;
+): IEntry {
+  let deepest: IEntry = { depth: 0, at: "" };
   const frames: number = Math.ceil(crossing.plan.duration * 60);
   for (let i: number = 0; i <= frames; i++) {
     const share: number = i / frames;
@@ -291,11 +301,19 @@ function clearance(
           );
         if (bearing) continue;
         for (const shape of piece.shapes)
-          for (const solid of prop.shapes ?? [])
-            deepest = Math.max(
-              deepest,
-              -physicalShapePairDistance(piece.pose, shape, prop.frame, solid),
+          for (const solid of prop.shapes ?? []) {
+            const depth: number = -physicalShapePairDistance(
+              piece.pose,
+              shape,
+              prop.frame,
+              solid,
             );
+            if (depth > deepest.depth)
+              deepest = {
+                depth,
+                at: `${piece.bone} ${(share * crossing.plan.duration).toFixed(3)} s`,
+              };
+          }
       }
     }
   }

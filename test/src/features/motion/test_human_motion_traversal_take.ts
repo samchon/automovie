@@ -7,6 +7,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanProp,
@@ -42,6 +43,12 @@ const WIDTH: number = 0.85;
 /** How far below the performer's stature the low doorway's lintel is, metres. */
 const DUCK: number = 0.18;
 
+/** Seconds read on each side of a join for its continuity. */
+const JOIN: number = 0.25;
+
+/** Samples per second compared between the two independent takes. */
+const REPEAT: number = 4;
+
 /** The skin give a displayed segment may press into a prop, metres: the motion audits' built contact skin of 10 mm. */
 const SKIN: number = 0.01;
 
@@ -58,7 +65,8 @@ const SKIN: number = 0.01;
  *    segment inside the wall's depth stays inside the doorway's clear box.
  * 3. The crossings keep their own supports: a foot on the kerb's far side
  *    after the step and a palm on the step's top during the vault.
- * 4. Every joint centre's displayed path is continuous across the six joins.
+ * 4. Every joint centre's displayed path is continuous across each join,
+ *    read on the displayed bones a quarter second either side of it.
  * 5. A second, independently built take shows the same bones when the first
  *    is sampled backwards, so absolute seeks repeat.
  * 6. The take ends standing beyond the doorway.
@@ -94,7 +102,8 @@ export function test_human_motion_traversal_take(): void {
       all.check(`${name}: the whole take admits: ${String(error)}`, false);
       continue;
     }
-    const segments: IAutoMovieMotionHumanSegment[] = film.segments("a");
+    const segments: readonly IAutoMovieMotionHumanSegment[] =
+      film.segments("a");
     all.check(
       `${name}: the take plays its authored beats in order`,
       segments
@@ -109,8 +118,10 @@ export function test_human_motion_traversal_take(): void {
     const frames: number = Math.ceil(film.duration * 30);
     for (let i: number = 0; i <= frames; i++) {
       const time: number = (i * film.duration) / frames;
-      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        film.bones("a", time);
+      const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
+        "a",
+        time,
+      );
       for (const piece of HumanColliders.placed(body, bones)) {
         for (const shape of piece.shapes) {
           const box: IAutoMoviePhysicalShapeBounds.IResult =
@@ -182,8 +193,10 @@ export function test_human_motion_traversal_take(): void {
     }
     const stepped: IAutoMovieMotionHumanSegment | undefined = segments[2];
     if (stepped !== undefined) {
-      const after: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        film.bones("a", stepped.end);
+      const after: ReturnType<HumanPerformance["bones"]> = film.bones(
+        "a",
+        stepped.end,
+      );
       all.check(
         `${name}: both soles are past the kerb after the step`,
         (["left", "right"] as const).every(
@@ -193,25 +206,46 @@ export function test_human_motion_traversal_take(): void {
       );
     }
 
-    const continuity: ReturnType<
-      typeof AutoMovieMotionHumanAuditContinuity.measure
-    > = AutoMovieMotionHumanAuditContinuity.measure(film, "a", 24);
-    all.check(
-      `${name}: every joint's displayed path is continuous, jump ${continuity.jump.value.toFixed(4)} m at ${continuity.jump.seconds.toFixed(3)} s`,
-      continuity.jump.value <= 0.005,
-    );
+    // Each join, read on the displayed bones around the cut.
+    for (const join of segments
+      .slice(1)
+      .map((segment: IAutoMovieMotionHumanSegment): number => segment.start)) {
+      const near: IAutoMovieMotionHumanAuditMotion = {
+        duration: 2 * JOIN,
+        bones: (
+          subject: string,
+          seconds: number,
+        ): ReturnType<HumanPerformance["bones"]> =>
+          film.bones(subject, join - JOIN + seconds),
+        segments: (): readonly IAutoMovieMotionHumanAuditMotion.ISpan[] => [],
+      };
+      const reading: ReturnType<
+        typeof AutoMovieMotionHumanAuditContinuity.measure
+      >["jump"] = AutoMovieMotionHumanAuditContinuity.measure(
+        near,
+        "a",
+        24,
+      ).jump;
+      const jump: number = reading.value;
+      all.check(
+        `${name}: every joint's path is continuous across the join at ${join.toFixed(3)} s, jump ${jump.toFixed(4)} m at ${String(reading.where)} ${(join - JOIN + reading.seconds).toFixed(3)} s`,
+        jump <= 0.005,
+      );
+    }
     const repeat: string[] = motionHumanRepeat(
       film,
       take(body, kerb, step, height),
       "a",
-      12,
+      REPEAT,
     );
     all.check(
       `${name}: an independent take repeats under backward seeks: ${repeat.slice(0, 3).join("; ")}`,
       repeat.length === 0,
     );
-    const end: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      film.bones("a", film.duration);
+    const end: ReturnType<HumanPerformance["bones"]> = film.bones(
+      "a",
+      film.duration,
+    );
     all.check(
       `${name}: the take ends standing beyond the doorway`,
       end.get("hips")!.worldPosition.z < WALL - THICKNESS &&

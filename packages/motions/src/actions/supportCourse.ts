@@ -96,6 +96,28 @@ export namespace supportCourse {
   }
 
   /**
+   * One stepping foot's straight stretch between two course points.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member, its frame and unit.
+   * @evidence contracts/development/design.md#principled-representation The foot, its heading and two toe-joint points in world metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What carried needs to build the stretch's writer.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by swings.
+   */
+  export interface ILeg {
+    /** The stepping foot. */
+    side: AutoMovieHumanSide;
+
+    /** The heading the foot keeps, degrees. */
+    yaw: number;
+
+    /** The toe joint's start, world metres. */
+    from: IAutoMovieVector3;
+
+    /** The toe joint's end, world metres. */
+    to: IAutoMovieVector3;
+  }
+
+  /**
    * A solved key as the level bearings read it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each member.
@@ -203,14 +225,13 @@ export namespace supportCourse {
    * stretch 0 runs from the old place to the first waypoint, stretch k from
    * waypoint k to k + 1, and stretch `steps` to the new place.
    *
-   * @param body The canonical motion body.
    * @param yaw The heading the foot keeps, degrees.
    * @param crossings The step's moving limbs.
    * @param index The stretch.
    * @param steps The number of waypoints of the longest crossing.
    * @param from The old place lookup.
    * @param to The new place lookup.
-   * @returns One writer per foot that has waypoints and placed ends.
+   * @returns One stretch per foot that has waypoints and placed ends.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the stretch numbering, units and result.
    * @evidence contracts/development/implementation.md#principled-implementation A fitted key alone does not keep the swept foot above an edge between two keys; a straight toe-joint course between consecutive waypoints does, since each waypoint already clears the edge.
@@ -221,15 +242,14 @@ export namespace supportCourse {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The writers are retained by the plan for its lifetime.
    */
   export function swings(
-    body: IAutoMovieMotionHumanBody,
     yaw: number,
     crossings: readonly ICrossing[],
     index: number,
     steps: number,
     from: Place,
     to: Place,
-  ): Write[] {
-    const writes: Write[] = [];
+  ): ILeg[] {
+    const legs: ILeg[] = [];
     for (const crossing of crossings) {
       const waypoints: readonly IAutoMovieVector3[] = crossing.waypoints;
       if (waypoints.length === 0 || !crossing.contact.part.endsWith("Foot"))
@@ -243,13 +263,46 @@ export namespace supportCourse {
           ? to(crossing.contact)
           : waypoints[Math.min(index, waypoints.length - 1)]!;
       if (start === null || end === null) continue;
-      writes.push(
-        prepareSupportFootCourse(body, side(crossing.contact), yaw, start, end),
-      );
+      legs.push({ side: side(crossing.contact), yaw, from: start, to: end });
     }
-    return writes;
+    return legs;
   }
 
+  /**
+   * The free-foot writer of one stretch, carried by the root between the
+   * interval's two keys.
+   *
+   * @param body The canonical motion body.
+   * @param leg The stretch.
+   * @param rootFrom The root at the interval's first key, world metres.
+   * @param rootTo The root at its second key, world metres.
+   * @returns The writer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation While the root travels the stretch is expressed in the root's frame, so the foot's offset blends between two reachable offsets and stays reachable.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to prepareSupportFootCourse with both key roots.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stretch's ends are the course's own points.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per stretch.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each stretch is distinct.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The writer lives as long as the plan.
+   */
+  export function carried(
+    body: IAutoMovieMotionHumanBody,
+    leg: ILeg,
+    rootFrom: IAutoMovieVector3,
+    rootTo: IAutoMovieVector3,
+  ): Write {
+    return prepareSupportFootCourse(
+      body,
+      leg.side,
+      leg.yaw,
+      leg.from,
+      leg.to,
+      false,
+      rootFrom,
+      rootTo,
+    );
+  }
   /**
    * The flat-foot writers of the course's level feet at every key and over
    * every interval that holds them at both ends.

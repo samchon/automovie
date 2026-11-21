@@ -20,7 +20,6 @@ import type {
 import { stand } from "../actions/stand";
 import { support } from "../actions/support";
 import { supportCourse } from "../actions/supportCourse";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -42,21 +41,22 @@ const SWING_RISE: number = 0.59;
 /** The swing waypoints' distance outside the near and far edges, foot lengths (provisional). */
 const SWING_BUFFER: number = 0.58;
 
-/** Seconds over which the vault's arm and knee adjustments fade in at the start and out at the end (provisional). */
+/** Seconds over which the vault's arm adjustments fade in at the start and out at the end (provisional). */
 const EASE: number = 0.4;
 
-/** Seconds before and after the palm window over which the palm eases onto and off the top (provisional). */
-const PALM_REACH: number = 0.24;
+/** Height of the palm's arc over the top on its way to and from it, forearm lengths (provisional). */
+const ARC: number = 0.78;
 
 /** Seconds of the lift that takes the palm clear of the top at its release (provisional). */
 const PALM_PEEL: number = 0.05;
-
 /**
  * Cross a raised fixed top with one palm and the opposite foot bearing on
  * it: the step vault (`stepVaultSupport`) staged on the named surface. The
  * stepping foot passes waypoints above the near and far edges, the top
- * holds the stepping foot level, and the clearance of the whole displayed
- * body against the prop's shapes is checked (`crossingClearance`).
+ * holds the stepping foot level, a posture layer eases the palm onto its
+ * point, holds it flat through its window, peels it off after and lifts the
+ * free hand clear of the top, and the clearance of the whole displayed body
+ * against the prop's shapes is checked (`crossingClearance`).
  *
  * @param context The action's context.
  * @param frame The crossing frame at the entry.
@@ -66,11 +66,11 @@ const PALM_PEEL: number = 0.05;
  * @throws {HumanRefusal} If the top is out of the hand-and-foot range, a key misses its contact or the body enters the prop.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the support order, swing course, frame and refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The cited step vault's support order is fitted by the shared support law on points of the named top; a posture layer keeps the palm flat on its point through its window and the free arm and stepping knee clear of the top.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, support targets, the support plan, then one posture layer and the clearance check.
+ * @evidence contracts/development/implementation.md#principled-implementation The cited step vault's support order is fitted by the shared support law on points of the named top, which carries the stepping foot's course in the moving root's frame; a posture layer eases the palm onto and off its point from the displayed wrist, so it joins the support plan without a step.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, support targets and course, the support plan, then one posture layer and the clearance check.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every contact point is on the named top or the floor; a body that enters the prop is refused, not moved.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four stances fitted once; each sample resolves the support posture once more to read its arms and knee.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The palm and foot targets and their windows are prepared once per plan.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four stances and their lift keys fitted once; each sample resolves the support posture once more to read its arms.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The palm and foot targets are prepared once per plan.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan retains only its prepared targets for its lifetime.
  */
 export function planNamedVault(
@@ -87,7 +87,7 @@ export function planNamedVault(
   const body: IAutoMovieMotionHumanBody = context.body;
   const measure: IAutoMovieMotionHumanBody["measure"] = body.measure;
 
-  // The top must start ahead, within a stride, and stay below the hip by
+  // The top must start ahead, within a leg length, and stay below the hip by
   // half its height, the range a step vault's stepping foot reaches.
   if (
     deck.near <= 0 ||
@@ -212,8 +212,26 @@ export function planNamedVault(
     },
     course,
   );
+  // The palm already touches the top as it settles before its support
+  // window and still touches it while it peels off after, so its published
+  // contact spans both.
+  const peel: number = PALM_PEEL / supported.duration;
   const plan: IAutoMovieMotionHumanActionPlan = {
     ...supported,
+    contacts: supported.contacts.map(
+      (
+        window: IAutoMovieMotionHumanContactWindow,
+      ): IAutoMovieMotionHumanContactWindow =>
+        window.part === `${hand}Hand` &&
+        window.support.kind === "prop" &&
+        window.support.subject === ref.prop
+          ? {
+              ...window,
+              from: Math.max(0, window.from - peel),
+              to: Math.min(1, window.to + peel),
+            }
+          : window,
+    ),
     posture: prepareVaultLayer(
       body,
       frame,
@@ -230,10 +248,11 @@ export function planNamedVault(
 }
 
 /**
- * The posture layer over the support plan: the bearing palm laid flat on
- * its point through its window and eased on and off around it, the free
- * hand lifted clear of the top, and the stepping knee drawn aside and back
- * from the near face before that foot steps up.
+ * The posture layer over the support plan: the bearing palm eased onto its
+ * point from the displayed wrist before its window, held flat there through
+ * it and peeled off after it, and the free hand lifted clear of the top.
+ * Every goal starts from the displayed wrist, so it joins the support plan's
+ * arm without a step when its weight reaches zero.
  */
 function prepareVaultLayer(
   body: IAutoMovieMotionHumanBody,
@@ -246,8 +265,6 @@ function prepareVaultLayer(
   subject: string,
 ): IAutoMovieMotionHumanActionPlan["posture"] {
   const measure: IAutoMovieMotionHumanBody["measure"] = body.measure;
-  const sign: number = hand === "left" ? 1 : -1;
-  const opposite: AutoMovieHumanSide = hand === "left" ? "right" : "left";
   const palmPoint: IAutoMovieVector3 = HumanHand.offset(
     body,
     hand,
@@ -266,13 +283,21 @@ function prepareVaultLayer(
         window.support.kind === "prop" &&
         window.support.subject === subject,
     );
-  const raised: IAutoMovieMotionHumanContactWindow | undefined =
-    supported.contacts.find(
-      (window: IAutoMovieMotionHumanContactWindow): boolean =>
-        window.part === `${opposite}Foot` &&
-        window.support.kind === "prop" &&
-        window.support.subject === subject,
-    );
+  const landing: number =
+    palmWindows.length === 0 ? 0 : palmWindows[0]!.from * duration;
+  const landed: ReturnType<typeof poseBones> = poseBones(
+    body,
+    resolveHumanPosture.seeded(body, supported.posture(landing)).pose,
+  );
+  const toward: IAutoMovieVector3 = Vector3.subtract(
+    palm,
+    landed.get(`${hand}UpperArm`)!.worldPosition,
+  );
+  const level: IAutoMovieVector3 = { x: toward.x, y: 0, z: toward.z };
+  const fingers: IAutoMovieVector3 =
+    Vector3.length(level) < 0.012
+      ? HumanFrame.forward(yaw)
+      : Vector3.normalize(level);
   return (seconds, channels, resolution, projection) => {
     const posture: IAutoMovieMotionHumanPosture = supported.posture(
       seconds,
@@ -298,51 +323,27 @@ function prepareVaultLayer(
         ),
       ),
     );
-    const palmWeight: number = minimumJerk.share(
-      Math.max(0, 1 - handGap / PALM_REACH),
+    // The palm approaches its point from the vault's start and leaves it
+    // until the vault's end: its share of the way is 1 through its window.
+    const approach: number = minimumJerk.share(
+      palmWindows.length === 0
+        ? 0
+        : Math.min(
+            1,
+            Math.max(
+              0,
+              seconds < palmWindows[0]!.from * duration
+                ? seconds / (palmWindows[0]!.from * duration)
+                : (duration - seconds) /
+                    Math.max(
+                      1e-9,
+                      duration - palmWindows.at(-1)!.to * duration,
+                    ),
+            ),
+          ),
     );
+    const palmWeight: number = ease * approach;
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-
-    // Before the stepping foot leaves for the top, its knee would swing
-    // into the near face: draw the knee pole aside and back as the knee
-    // nears that face.
-    if (raised !== undefined && seconds < raised.from * duration) {
-      const foot: IAutoMovieResolvedBone = current.get(`${opposite}Foot`)!;
-      const knee: IAutoMovieVector3 = current.get(
-        `${opposite}LowerLeg`,
-      )!.worldPosition;
-      const at: IAutoMovieVector3 = frame.local(knee);
-      const margin: number = 0.23 * measure.shank;
-      const crowd: number = minimumJerk.share(
-        Math.min(1, Math.max(0, (at.z - (deck.near - margin)) / margin)),
-      );
-      const weight: number = ease * crowd;
-      if (weight > 0) {
-        const leg: AutoMovieHumanLimb = `${opposite}Leg`;
-        const share: number = seconds / duration;
-        const bearing: boolean = supported.contacts.some(
-          (window: IAutoMovieMotionHumanContactWindow): boolean =>
-            window.part === `${opposite}Foot` &&
-            window.from <= share &&
-            window.to >= share,
-        );
-        const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanLeg.goal(
-          body,
-          posture,
-          opposite,
-          { ankle: foot.worldPosition, rotation: foot.worldRotation },
-          bearing,
-        );
-        limbs[leg] = {
-          ...(posture.limbs[leg] ?? goal),
-          bend: frame.point({
-            ...at,
-            x: at.x - sign * weight * measure.thigh,
-            z: at.z - 0.6 * weight * measure.thigh,
-          }),
-        };
-      }
-    }
     for (const side of ["left", "right"] as const) {
       const arm: AutoMovieHumanLimb = `${side}Arm`;
       const elbow: IAutoMovieVector3 = current.get(
@@ -350,13 +351,11 @@ function prepareVaultLayer(
       )!.worldPosition;
       const wrist: IAutoMovieResolvedBone = current.get(`${side}Hand`)!;
       if (side === hand && palmWeight > 0) {
-        // The palm stays at the same point while its fingers follow the
-        // horizontal forearm. Fixing them toward travel would demand a
-        // reversed wrist when the shoulder is already across the box.
-        const reach: IAutoMovieVector3 = Vector3.subtract(palm, elbow);
-        let forward: IAutoMovieVector3 = { x: reach.x, y: 0, z: reach.z };
-        if (Vector3.length(forward) < 0.012)
-          forward = HumanFrame.forward(yaw + 90);
+        // The fingers keep one direction for the whole vault, the shoulder's
+        // reach to the palm as the palm lands: a direction taken from the
+        // moving forearm reverses as the shoulder passes over the palm and
+        // would turn the hand half round.
+        const forward: IAutoMovieVector3 = fingers;
         const goal: IAutoMovieMotionHumanHand.IWrist = HumanHand.reach(
           body,
           hand,
@@ -364,15 +363,8 @@ function prepareVaultLayer(
           { point: palm, normal: { x: 0, y: -1, z: 0 }, forward },
           "flat",
         );
-        const clear: IAutoMovieVector3 = {
-          ...wrist.worldPosition,
-          y: Math.max(
-            wrist.worldPosition.y,
-            deck.height + 0.78 * measure.forearm,
-          ),
-        };
         const point: IAutoMovieVector3 = Vector3.lerp(
-          clear,
+          wrist.worldPosition,
           goal.point,
           palmWeight,
         );
@@ -381,8 +373,14 @@ function prepareVaultLayer(
           measure.forearm *
           palmWeight *
           minimumJerk.share(Math.min(1, handGap / PALM_PEEL));
+        // On its way to and from the top the palm arcs over the edge: the arc
+        // is zero at the displayed wrist and at contact, so it joins both.
+        const arc: number =
+          ease *
+          Math.sin(Math.PI * approach) *
+          Math.max(0, deck.height + ARC * measure.forearm - point.y);
         limbs[arm] = {
-          point: { ...point, y: point.y + lift },
+          point: { ...point, y: point.y + lift + arc },
           rotation: Quaternion.slerp(
             wrist.worldRotation,
             goal.rotation,

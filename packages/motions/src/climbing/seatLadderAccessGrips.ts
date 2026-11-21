@@ -12,6 +12,7 @@ import type {
 
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { poseBones } from "../posture/poseBones";
@@ -28,10 +29,13 @@ const SEAT: number = 0.12;
  * and off it over up to `SEAT` seconds outside the window, never past half
  * the gap to that hand's neighbouring grip. A rung grip uses the ladder
  * climb's own hand placement (`climbLadderHands`); a rail grip wraps the
- * upright bar with the hand's grip frame, the elbow bent as hanging.
+ * upright bar with the hand's grip frame, the elbow bent as hanging. A grip
+ * held behind the body, as from the landing, keeps the support law's own
+ * held-hand fit, which already meets its target; this is decided once per
+ * hold, at its middle.
  *
  * @param body The canonical motion body.
- * @param normal World unit direction from the ladder toward its climbing side.
+ * @param normal World unit direction the gripping palm faces.
  * @param plan The support law's plan of the route.
  * @param grips The route's rung and rail grips and their windows.
  * @returns The route's posture with the arms seated on their grips.
@@ -82,10 +86,25 @@ export function seatLadderAccessGrips(
         index === own.length - 1
           ? plan.duration
           : own[index + 1]!.window.from * plan.duration;
+      // A grip the body holds behind its shoulder, as it does from the landing,
+      // keeps the support law's own held-hand fit, which meets the target.
+      const middle: IAutoMovieMotionHumanPosture = plan.posture(
+        (from + to) / 2,
+      );
+      const shoulder: IAutoMovieVector3 = poseBones(
+        body,
+        resolveHumanPosture.seeded(body, middle).pose,
+      ).get(`${side}UpperArm`)!.worldPosition;
+      const behind: boolean =
+        Vector3.dot(
+          Vector3.subtract(grip.point, shoulder),
+          HumanFrame.forward(middle.yaw),
+        ) < 0;
       return {
         grip,
         from,
         to,
+        behind,
         prepare: Math.min(SEAT, (from - before) / 2),
         leave: Math.min(SEAT, (after - to) / 2),
       };
@@ -115,7 +134,7 @@ export function seatLadderAccessGrips(
           seconds >= seat.from - seat.prepare &&
           seconds <= seat.to + seat.leave,
       );
-      if (active === undefined) continue;
+      if (active === undefined || active.behind) continue;
       const target: IAutoMovieHumanLimbGoal = active.grip.rail
         ? AutoMovieMotionHumanArmTarget.fromWrist(
             rails[side](posture).place(active.grip.point),
@@ -170,6 +189,9 @@ interface ISeat {
 
   /** Its window's end, seconds. */
   to: number;
+
+  /** Whether the grip is held behind the body, left to the support law's fit. */
+  behind: boolean;
 
   /** The easing onto it before the start, seconds. */
   prepare: number;

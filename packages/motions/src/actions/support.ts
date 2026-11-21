@@ -246,7 +246,7 @@ export namespace support {
       recordFloors(key.posture, key.contacts);
     };
     // The waypoint courses of stepping feet, by the interval they span.
-    const routes: Map<number, supportCourse.Write[]> = new Map();
+    const routes: Map<number, supportCourse.ILeg[]> = new Map();
     let seconds: number = 0;
     stances.forEach(
       (stance: IAutoMovieMotionHumanSupport.IStance, i: number): void => {
@@ -332,8 +332,7 @@ export namespace support {
           const interval: number =
             steps === 1 ? move / 3 : (2 * move) / (3 * (steps + 1));
           const route = (stretch: number): void => {
-            const writes: supportCourse.Write[] = supportCourse.swings(
-              body,
+            const legs: supportCourse.ILeg[] = supportCourse.swings(
               entry.yaw,
               crossings,
               stretch,
@@ -341,9 +340,9 @@ export namespace support {
               oldPlace,
               place,
             );
-            if (writes.length === 0) return;
+            if (legs.length === 0) return;
             const phase: number = keys.length - 1;
-            routes.set(phase, [...(routes.get(phase) ?? []), ...writes]);
+            routes.set(phase, [...(routes.get(phase) ?? []), ...legs]);
           };
           for (let l: number = 0; l < steps; l++) {
             route(l);

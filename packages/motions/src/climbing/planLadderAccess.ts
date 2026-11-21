@@ -73,6 +73,9 @@ const GRIP_LOAD: number = 0.1;
  * Connect a fixed rung ladder's floor and upper surface in either direction.
  * Every target is a floor point, a point on a real rung or rail, or the
  * landing's surface. The shared support planner fits each change of load.
+ * The ascent ends with both feet at an edge stance just inside the landing's
+ * near edge; a descent first steps each foot, one at a time, from where the
+ * performer stands to that edge stance, then replays the ascent backwards.
  *
  * @param context The actor and fixed placed geometry.
  * @param ladder The existing physical rung geometry.
@@ -266,8 +269,7 @@ export function planLadderAccess(
   }
   const feet = (side: AutoMovieHumanSide, up: boolean): Contact => {
     let at: IAutoMovieVector3;
-    if (up && down) at = toes[side];
-    else if (up)
+    if (up)
       at = frame.point({
         x: side === "left" ? dip : -dip,
         y: height + soleLift[side],
@@ -377,8 +379,40 @@ export function planLadderAccess(
     capture(side + "Release", RELEASE, true);
   }
   capture("landing", SETTLE, true);
+  // A descent replays the ascent backwards, but first steps each foot, one
+  // at a time, from where the performer stands on the landing back to the
+  // edge stance the ascent ends on, so the side rails are within reach.
+  const entryFoot = (side: AutoMovieHumanSide): Contact => ({
+    part: side === "left" ? "leftFoot" : "rightFoot",
+    kind: "bear",
+    target: target(exit.prop, exit.point + ":" + side + ":entry", toes[side]),
+  });
   const course: IAutoMovieMotionHumanSupport.IStance[] = down
-    ? [...history].reverse()
+    ? [
+        {
+          contacts: [entryFoot("left"), entryFoot("right")],
+          event: "landingEntry",
+          seconds: SETTLE,
+          prefer: getUp.POSES.stood,
+        },
+        {
+          contacts: [feet("left", true), entryFoot("right")],
+          event: "leftEdge",
+          seconds: BEAT,
+          prefer: getUp.POSES.stood,
+        },
+        // Each key is solved from the one before; a descent that starts on
+        // the landing would carry its lean onto the rungs, so every descending
+        // stance prefers the upright stand over its feet.
+        ...[...history].reverse().map(
+          (
+            stance: IAutoMovieMotionHumanSupport.IStance,
+          ): IAutoMovieMotionHumanSupport.IStance => ({
+            ...stance,
+            prefer: getUp.POSES.stood,
+          }),
+        ),
+      ]
     : history;
   const landed = (contact: Contact): boolean =>
     contact.target !== undefined &&
@@ -450,14 +484,14 @@ export function planLadderAccess(
       },
     },
   );
-  // The grips seat facing the ladder's climbing side, behind its rungs.
-  const climbingSide: IAutoMovieVector3 = HumanFrame.prepare({
+  // The direction the gripping palms face, for the rung and rail seats.
+  const intoLadder: IAutoMovieVector3 = HumanFrame.prepare({
     origin: { x: 0, y: 0, z: 0 },
     yaw,
   }).point({ x: 0, y: 0, z: -1 });
   return {
     ...plan,
-    posture: seatLadderAccessGrips(body, climbingSide, plan, gripWindows),
+    posture: seatLadderAccessGrips(body, intoLadder, plan, gripWindows),
     contacts: plan.contacts.map(
       (
         window: IAutoMovieMotionHumanContactWindow,

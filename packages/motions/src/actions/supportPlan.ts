@@ -64,7 +64,7 @@ export namespace supportPlan {
    * @param duration The sequence's seconds.
    * @param entry The posture the body enters with.
    * @param course The staged route's requirements, if any.
-   * @param routes The waypoint writers of stepping feet, by the interval they span.
+   * @param routes The waypoint stretches of stepping feet, by the interval they span; each is carried by the root between that interval's keys.
    * @returns The plan, balanced on request.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, units and result.
@@ -81,7 +81,7 @@ export namespace supportPlan {
     duration: number,
     entry: IAutoMovieMotionHumanPosture,
     course: supportCourse.ICourse | undefined,
-    routes: ReadonlyMap<number, supportCourse.Write[]>,
+    routes: ReadonlyMap<number, supportCourse.ILeg[]>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const contacts: IAutoMovieMotionHumanActionPlan["contacts"] =
@@ -115,6 +115,27 @@ export namespace supportPlan {
 
     // A course's level feet stay flat on their fixture at the keys and
     // through every interval that holds them at both ends.
+    // Each stepping foot's stretch, carried by the root between its keys.
+    const swung: Map<number, supportCourse.Write[]> = new Map(
+      [...routes].map(
+        ([index, legs]: [number, supportCourse.ILeg[]]): [
+          number,
+          supportCourse.Write[],
+        ] => [
+          index,
+          legs.map(
+            (leg: supportCourse.ILeg): supportCourse.Write =>
+              supportCourse.carried(
+                body,
+                leg,
+                keys[index]!.posture.root,
+                keys[Math.min(index + 1, keys.length - 1)]!.posture.root,
+              ),
+          ),
+        ],
+      ),
+    );
+
     const flat: supportCourse.IBearings | undefined = supportCourse.bearings(
       body,
       course,
@@ -152,7 +173,7 @@ export namespace supportPlan {
       );
       const supported: IAutoMovieMotionHumanPosture = supportCourse.apply(
         flat?.intervals[index],
-        supportCourse.apply(routes.get(index), posed, w),
+        supportCourse.apply(swung.get(index), posed, w),
         0,
       );
       return follow?.(supported, seconds, channels) ?? supported;
