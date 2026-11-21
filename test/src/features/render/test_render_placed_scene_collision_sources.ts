@@ -1,3 +1,4 @@
+import { createBed } from "@automovie/archetypes";
 import { preparePhysicalGeometry } from "@automovie/engine";
 import type {
   IAutoMovieInspectionDiagnostics as Diagnostic,
@@ -162,6 +163,38 @@ export async function test_render_placed_scene_collision_sources(): Promise<void
     "edges confirm crossings that leave no vertex inside",
     confirmed(observe(slices)),
     ["ball|rod", "drum|slab"],
+  );
+
+  // A built rigid model owns its internal pairs until one of its parts moves.
+  const bedroom: THREE.Scene = new THREE.Scene();
+  const bed = buildModel(createBed({ kind: "single", id: "bed" }, 4));
+  bed.object.name = "bed";
+  bedroom.add(bed.object);
+  const internal = (result: Pick<Diagnostic, "coverage">): string[] =>
+    result.coverage
+      .filter(({ key }) => {
+        const parts: string[] = JSON.parse(key);
+        return (
+          parts[1] === "frame" &&
+          parts[2]!.startsWith("bed/") &&
+          parts[3]!.startsWith("bed/")
+        );
+      })
+      .map(({ key }) => key);
+  const built = observe(bedroom);
+  TestValidator.predicate(
+    "an unmoved built bed is one rigid assembly",
+    internal(built).length === 0 &&
+      built.coverage.some(
+        ({ key, status }) =>
+          key === JSON.stringify(["main", "group", "rigid-assembly", "bed"]) &&
+          status === "excluded",
+      ),
+  );
+  bed.parts.get("headboard")!.position.y -= 0.3;
+  TestValidator.predicate(
+    "a moved part returns the bed's own pairs to the check",
+    internal(observe(bedroom)).length !== 0,
   );
 
   // One actor's bent arm through another actor's upright arm.

@@ -39,7 +39,7 @@ const UP: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
  * @evidence contracts/development/common.md#meaningful-documentation States which drawn object yields which geometry authority and when a surface is posed.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the drawn world matrix, instance matrix and formation cycle law of each object, the generator's slot and cord records, and topology-derived closure.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One traversal dispatches each drawn object kind to one reader. Surfaces are deferred closures used only by a later witness search.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nesting and names grant no group. Degenerate instances draw nothing and are skipped. Open surfaces, custom programs, morphs and cut draw ranges certify nothing.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nesting and names grant no group; a built rigid model groups its parts only while each still holds its built placement. Degenerate instances draw nothing and are skipped. Open surfaces, custom programs, morphs and cut draw ranges certify nothing.
  * @evidence contracts/development/implementation.md#efficient-algorithms Visits visible nodes once, transforms eight box corners per part, and poses a surface only when a candidate pair needs it within the vertex budget.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Topology closure, rest bounds and cycle envelopes are cached by geometry version and take.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned closures borrow the placed meshes for the current observation only.
@@ -53,11 +53,18 @@ export function collectAutoMovieCollisionParts(
   const surfaces: Map<string, collectAutoMovieCollisionParts.IPartSurface> =
     new Map();
   const reasons: Map<string, string> = new Map();
-  const pending: THREE.Object3D[] = [layer.root];
-  const meshes: { mesh: THREE.Mesh; id: string }[] = [];
+  const pending: {
+    object: THREE.Object3D;
+    assembly?: { group: Collision.IGroup; parts: ReadonlySet<THREE.Object3D> };
+  }[] = [{ object: layer.root }];
+  const meshes: {
+    mesh: THREE.Mesh;
+    id: string;
+    group?: Collision.IGroup;
+  }[] = [];
   const counts: Map<string, number> = new Map();
   while (pending.length) {
-    const object: THREE.Object3D = pending.pop()!;
+    const { object, assembly: outer } = pending.pop()!;
     if (!object.visible) continue;
     const opaque: readonly Collision.IPart[] | undefined =
       layer.opaque?.get(object);
@@ -65,19 +72,40 @@ export function collectAutoMovieCollisionParts(
       for (const part of opaque) parts.push(part);
       continue;
     }
+    // A built rigid model whose parts still hold their built placement owns
+    // its internal pairs; nesting alone never does.
+    const members: ReadonlySet<THREE.Object3D> | undefined =
+      AutoMovieCollisionSource.assembly(object);
+    const assembly =
+      members === undefined
+        ? outer
+        : {
+            group: {
+              id: autoMovieInspectionPathOf(layer.root, object) || object.uuid,
+              kind: "rigid-assembly" as const,
+            },
+            parts: members,
+          };
     if (object instanceof THREE.Mesh) {
       const id: string =
         layer.ownership?.get(object)?.id ??
         autoMovieInspectionPathOf(layer.root, object);
       counts.set(id, (counts.get(id) ?? 0) + 1);
-      meshes.push({ mesh: object, id });
+      meshes.push({
+        mesh: object,
+        id,
+        ...(assembly?.parts.has(object) ? { group: assembly.group } : {}),
+      });
     }
     for (let i: number = object.children.length - 1; i >= 0; --i)
-      pending.push(object.children[i]!);
+      pending.push({
+        object: object.children[i]!,
+        ...(assembly === undefined ? {} : { assembly }),
+      });
   }
   const declared: Set<string> = new Set(parts.map((part) => part.id));
   const reserved: Set<string> = new Set([...counts.keys(), ...declared]);
-  for (const [index, { mesh, id }] of meshes.entries()) {
+  for (const [index, { mesh, id, group }] of meshes.entries()) {
     const ownership: Omit<Collision.IPart, "geometry"> | undefined =
       layer.ownership?.get(mesh);
     let identity: string = id;
@@ -103,7 +131,17 @@ export function collectAutoMovieCollisionParts(
     if (cord !== undefined) readCord(mesh, identity, cord, budget, add);
     else if (mesh instanceof THREE.InstancedMesh)
       readInstances(mesh, identity, budget, add);
-    else readMesh(mesh, { ...ownership, id: identity }, budget, add);
+    else
+      readMesh(
+        mesh,
+        {
+          ...(group === undefined ? {} : { group }),
+          ...ownership,
+          id: identity,
+        },
+        budget,
+        add,
+      );
   }
   return { parts, surfaces, reasons };
 }

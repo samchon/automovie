@@ -1,5 +1,5 @@
 import type { IAutoMovieSceneCollision } from "@automovie/interface";
-import type * as THREE from "three";
+import * as THREE from "three";
 
 /** The userData key every generator writes and the collision collector reads. */
 const KEY: string = "automovieCollisionSource";
@@ -9,7 +9,7 @@ const KEY: string = "automovieCollisionSource";
  * actually draws, so the placed-scene collision check reads the same members
  * and segments the frame shows.
  *
- * @evidence contracts/development/design.md#principled-representation An instanced batch maps each drawn instance index to its generator slot and managed group. A cord keeps its solver particles and radius beside the tube drawn through them.
+ * @evidence contracts/development/design.md#principled-representation An instanced batch maps each drawn instance index to its generator slot and managed group. A cord keeps its solver particles and radius beside the tube drawn through them. A rigid model keeps each part's built placement relative to its root, so a part moved since is no longer part of the assembly.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The generator that draws the object writes its record once per update, and only the placed collision collector reads it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Names and scene nesting never imply a slot, a group or a cord. An object without a record is read as ordinary geometry.
  * @evidence contracts/development/common.md#meaningful-documentation States the writer, the reader, the units and the index correspondence.
@@ -78,6 +78,53 @@ export namespace AutoMovieCollisionSource {
   }
 
   /**
+   * Record the parts of a model built as one rigid assembly, with each part's
+   * placement relative to the root at build time.
+   *
+   * @param root The model root.
+   * @param parts Every drawn part object of the model.
+   */
+  export function bindAssembly(
+    root: THREE.Object3D,
+    parts: Iterable<THREE.Object3D>,
+  ): void {
+    root.updateWorldMatrix(true, true);
+    const inverse: THREE.Matrix4 = root.matrixWorld.clone().invert();
+    const rest: Map<THREE.Object3D, THREE.Matrix4> = new Map();
+    for (const part of parts)
+      rest.set(part, inverse.clone().multiply(part.matrixWorld));
+    ASSEMBLIES.set(root, rest);
+  }
+
+  /**
+   * Read a rigid assembly whose parts still hold their built placement.
+   *
+   * @param root A visible object, after the frame's world-matrix update.
+   * @returns The assembly's parts, or undefined when none was built or any part moved relative to the root.
+   */
+  export function assembly(
+    root: THREE.Object3D,
+  ): ReadonlySet<THREE.Object3D> | undefined {
+    const rest: Map<THREE.Object3D, THREE.Matrix4> | undefined =
+      ASSEMBLIES.get(root);
+    if (rest === undefined) return undefined;
+    const inverse: THREE.Matrix4 = root.matrixWorld.clone().invert();
+    const current: THREE.Matrix4 = new THREE.Matrix4();
+    for (const [part, built] of rest) {
+      current.multiplyMatrices(inverse, part.matrixWorld);
+      for (let i: number = 0; i < 16; ++i)
+        if (
+          !(
+            Math.abs(current.elements[i]! - built.elements[i]!) <=
+            2 ** -20 * Math.max(1, Math.abs(built.elements[i]!))
+          )
+        )
+          return undefined;
+    }
+    return new Set(rest.keys());
+  }
+
+  /**
    * Read the drawn members recorded on an instanced batch.
    *
    * @param mesh A visible instanced mesh.
@@ -101,6 +148,15 @@ export namespace AutoMovieCollisionSource {
     return isRecord(record, "cord") ? (record.source as ICord) : undefined;
   }
 }
+
+/**
+ * Built part placements per model root. Kept outside userData, which Three
+ * clones through JSON, so object references never enter a serialized record.
+ */
+const ASSEMBLIES: WeakMap<
+  THREE.Object3D,
+  Map<THREE.Object3D, THREE.Matrix4>
+> = new WeakMap();
 
 /** Accept only this module's own tagged record. */
 function isRecord(
