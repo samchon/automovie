@@ -136,7 +136,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
         body,
         context.entry.pose,
         undefined,
-        new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
+        new Set<AutoMovieHumanoidBone>([`${side}Hand`, `${side}UpperArm`]),
       );
       const face: IAutoMovieVector3 =
         held === undefined
@@ -216,20 +216,28 @@ export function createPrecisionSportStroke<P extends Stroke>(
         );
       };
 
-      // The follow-through sweeps in front of the trunk: past the contact the
-      // swing goes on only while the hand stays ahead of the trunk's front,
-      // half the chest's depth before the root's frontal plane, and holds
-      // where it would pass into the trunk.
+      // The follow-through sweeps in front of the trunk and within reach:
+      // past the contact the swing goes on only while the hand stays ahead of
+      // the trunk's front, half the chest's depth before the root's frontal
+      // plane, and within the arm's reach of the striking shoulder as it
+      // stood, and holds where it would pass into the trunk or out of reach.
       const forward: IAutoMovieVector3 = HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: context.entry.posture.yaw },
         { x: 0, y: 0, z: 1 },
       );
+      const shoulder: IAutoMovieVector3 = entryBones.get(
+        `${side}UpperArm`,
+      )!.worldPosition;
       const front = (progress: number): number =>
-        Vector3.dot(
-          Vector3.subtract(path(progress).point, context.entry.posture.root),
-          forward,
-        ) -
-        body.measure.chestDepth / 2;
+        Math.min(
+          Vector3.dot(
+            Vector3.subtract(path(progress).point, context.entry.posture.root),
+            forward,
+          ) -
+            body.measure.chestDepth / 2,
+          PrecisionStrokeForms.reach(body) -
+            Vector3.length(Vector3.subtract(path(progress).point, shoulder)),
+        );
       let cap: number = Infinity;
       if (form.sweep !== 0 && front(1) > 0 && !(front(2) > 0)) {
         let ahead: number = 1;
