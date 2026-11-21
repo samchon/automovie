@@ -12,6 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { type Archetype, ArchetypeFrame, ArchetypeRefusal } from "../core";
+import { QuadrupedFootingClip } from "./QuadrupedFootingClip";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -331,7 +332,8 @@ export namespace QuadrupedFooting {
             -maxX! > plane.x[0] &&
             minZ! < plane.z[1] &&
             -maxZ! > plane.z[0] &&
-            lowest(part, frame) < -roundoff
+            lowest(part, frame) < -roundoff &&
+            QuadrupedFootingClip(part, plane, frame) < -roundoff
           )
             throw refusal(
               `Actual ${part.id} enters named surface ${plane.id}.`,

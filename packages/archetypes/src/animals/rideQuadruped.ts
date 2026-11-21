@@ -139,6 +139,12 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       leftHind: rig.limbs.leftHind[4]!,
       rightHind: rig.limbs.rightHind[4]!,
     },
+    {
+      leftFore: { ...rig.limbs.leftFore[4]!, z: rig.limbs.leftFore[0]!.z },
+      rightFore: { ...rig.limbs.rightFore[4]!, z: rig.limbs.rightFore[0]!.z },
+      leftHind: { ...rig.limbs.leftHind[4]!, z: rig.limbs.leftHind[0]!.z },
+      rightHind: { ...rig.limbs.rightHind[4]!, z: rig.limbs.rightHind[0]!.z },
+    },
   );
   const ground: QuadrupedFooting.IPlan | undefined = QuadrupedFooting.prepare(
     species.archetype,
@@ -324,6 +330,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
               ? undefined
               : ground,
             carry,
+            rest[0]!.z,
           ),
           lift: (going * height + (ground?.swingLift ?? 0)) * step.rise,
           fold: going * which.fold[end] * step.rise,
