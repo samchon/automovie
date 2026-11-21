@@ -102,14 +102,15 @@ export namespace courseLimbSwivels {
   /**
    * The swivel-and-branch course of a plan's limb goals, for a display that
    * keeps the goals and places each limb in closed form at the course's
-   * swivel (`IAutoMovieSwivelNear.prescribed`): the knots are fitted as
-   * `prepare` fits them, and between two knots of one branch the swivel is
-   * interpolated, the interval split at its middle where placing the limbs at
-   * the interpolated swivel puts an end joint farther than the solver's
-   * tolerance from the middle's own fit, or where the branch changes, down
-   * to the frame grid. The goals stay the displayed ones, so a planted foot
-   * stays planted under every later offset; only the branch and swivel come
-   * from the course, so no read searches and no branch hops.
+   * swivel (`IAutoMovieSwivelNear.prescribed`): each knot, at the span's
+   * ends and the plan's instants, is the cold fit the display would show
+   * there, so the course never drifts from it; between two knots of one
+   * branch the swivel is interpolated, the interval split at its middle
+   * where placing the limbs at the interpolated swivel puts an end joint
+   * farther than the solver's tolerance from the middle's own fit, or where
+   * the branch changes, down to the frame grid. The goals stay the displayed
+   * ones; only the branch and swivel come from the course, so no read
+   * searches and no branch hops.
    *
    * @param props The posture reader, the limbs, the span and the knotted instants.
    * @returns Each limb's swivel and branch at a second.
@@ -144,13 +145,15 @@ export namespace courseLimbSwivels {
         };
       return out;
     };
-    const fit = (seconds: number, from?: ISwivelKnot): ISwivelKnot => {
+    const fit = (seconds: number): ISwivelKnot => {
       const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
         resolveHumanPosture.seeded(
           body,
           goals(seconds),
           undefined,
-          from === undefined ? {} : near(from.seeds, false),
+          // Every knot is the cold fit the display would show there, so the
+          // course never drifts from it; between knots it is interpolated.
+          {},
         );
       const seeds: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
       for (const limb of limbs) {
@@ -216,8 +219,7 @@ export namespace courseLimbSwivels {
     ].sort((x: number, y: number): number => x - y);
     const roots: ISwivelKnot[] = [];
     const root = (i: number): ISwivelKnot => {
-      while (roots.length <= i)
-        roots.push(fit(times[roots.length]!, roots.at(-1)));
+      while (roots.length <= i) roots.push(fit(times[roots.length]!));
       return roots[i]!;
     };
     const intervals: Map<number, ISwivelInterval> = new Map();
@@ -231,7 +233,7 @@ export namespace courseLimbSwivels {
         return null;
       }
       const middle: number = (a.seconds + b.seconds) / 2;
-      const knot: ISwivelKnot = fit(middle, a);
+      const knot: ISwivelKnot = fit(middle);
       let split: boolean = [...a.seeds].some(
         ([limb, seed]: [AutoMovieHumanLimb, IAutoMovieSwivelSeed]): boolean =>
           b.seeds.get(limb)?.branch !== seed.branch,

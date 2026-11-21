@@ -344,13 +344,7 @@ export namespace HumanLimbFit {
       chain(limb),
       goal,
       clear,
-      // A limb on a contact or a plant keeps the contact step's own fit,
-      // solved as it is without a course: its re-aim turns the hand or foot
-      // about the contact, which a swivel chosen for another goal would move.
-      near?.prescribed === true &&
-        (goal.contact !== undefined || goal.planted === true)
-        ? undefined
-        : near,
+      near,
       readAuthored,
       readResolution(),
       constants === undefined
