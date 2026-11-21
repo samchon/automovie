@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanChainCore,
+  IAutoMovieMotionHumanCrossing,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
@@ -11,8 +12,8 @@ import type {
  * shipped step-over, sit, rise, operate, touch and pickup actions, so they are
  * fitted, refused and checked as those actions are.
  *
- * - Into the tub: step over its rim, then sit on its floor seat; out by
- *   rising and stepping over the rim again.
+ * - Into the tub: step over its apron onto its floor, then sit on its floor
+ *   seat; out by stepping over the apron from inside onto the floor outside.
  * - Shower: turn the tap's knob on, scrub the scalp with both hands, the
  *   face and each forearm with the other hand, then turn it off.
  * - Towel: take the towel and rub it over the scalp with both hands.
@@ -61,21 +62,28 @@ export namespace composeHumanBathing {
   }
 
   /**
-   * Rise from the tub's floor and step out over its rim.
+   * Step out of the tub over its apron, from standing on its floor facing
+   * the apron, onto the floor outside, such as a bath mat.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order.
-   * @evidence contracts/development/implementation.md#principled-implementation The shipped rise, then the shipped step-over of the tub.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two appends.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The composed actions plan and refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two appends.
+   * @param chain The bather's chain, standing in the tub facing the apron.
+   * @param tub The tub's subject, the obstacle stepped over from inside.
+   * @param onto The level surface outside the tub both feet land on.
+   * @returns The chain with the exit appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the starting stance and the landing.
+   * @evidence contracts/development/implementation.md#principled-implementation The shipped step-over of the apron read from inside (`HumanObstacle`), landing on the named surface (`onto`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One append.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The composed action plans and refuses.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One append.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call appends to its own chain.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function outOfTub<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
     tub: string,
+    onto: IAutoMovieMotionHumanCrossing.ISurface,
   ): Chain {
-    return chain.act("rise", {}).act("stepOver", { obstacle: tub });
+    return chain.act("stepOver", { obstacle: tub, onto });
   }
 
   /**

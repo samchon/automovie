@@ -129,6 +129,7 @@ export namespace stepOverPath {
     const obstacle: HumanObstacle.IObstacle = HumanObstacle.of(
       context,
       context.params.obstacle,
+      context.entry.posture.root,
     );
     const lead: "left" | "right" = context.params.lead ?? "right";
     const trail: "left" | "right" = lead === "left" ? "right" : "left";
