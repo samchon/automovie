@@ -33,6 +33,8 @@ export * from "./handling/pickUp";
 export * from "./handling/pickUpMoving";
 export * from "./handling/putDown";
 export * from "./handling/putDownAperture";
+export * from "./handling/HumanSheath";
+export * from "./handling/drawFromCarrier";
 export * from "./handling/relayPass";
 export * from "./handling/carryHang";
 export * from "./handling/pushPull";

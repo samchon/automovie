@@ -46,8 +46,8 @@ export namespace IPlaygroundComposition {
     /** The seed its free dimensions are drawn with; the middle of every band when absent. */
     seed?: string;
 
-    /** Dimensions stated outright, by the producer's own names (such as `height`), each within its band; drawn from the seed when absent. */
-    params?: Record<string, number>;
+    /** Dimensions stated outright, by the producer's own names (such as `height`), each within its band, and named read models (such as a sword's `model` or a scabbard's `blade`); drawn from the seed when absent. */
+    params?: Record<string, number | string>;
 
     /** Floor point, world metres: x to the left of a person facing +Z. */
     x: number;
@@ -69,6 +69,27 @@ export namespace IPlaygroundComposition {
 
     /** Whether it is a fixture, such as a fixed ladder or a wall bar, which hands grip and never carry (`IAutoMovieMotionHumanProp.fixed`); a free object when absent. */
     fixed?: boolean;
+
+    /** The carrier this blade starts seated in, such as a sword in a worn scabbard, as `HumanSheath.of` stages it; free when absent. A sheathed object takes no `worn`. */
+    sheath?: IPlaygroundComposition.ISheath;
+  }
+
+  /** A blade seated in a carrier object, as `IAutoMovieMotionHumanSheath.IParams` takes it with the carrier's subject. */
+  export interface ISheath {
+    /** The carrier object's subject id. */
+    carrier: string;
+
+    /** The carrier's mouth socket id, such as `mouth`. */
+    mouth: string;
+
+    /** The blade's tip affordance id, such as `point`. */
+    tip: string;
+
+    /** The blade's handle affordance id, such as `grip`. */
+    handle: string;
+
+    /** How far the drawn tip clears the mouth, metres; positive. */
+    clearance: number;
   }
 
   /** A rotation as a unit quaternion. */

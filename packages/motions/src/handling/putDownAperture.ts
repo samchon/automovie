@@ -1,6 +1,7 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -25,6 +26,11 @@ import { putDownTarget } from "./putDownTarget";
  * insertion, with orientation primarily adjusted during transport
  * (Ossmy et al. 2020, Figures 1 and 3,
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC6851484/).
+ *
+ * A receptacle with a guide (`onto.guide`) carries the object itself from
+ * the opening to the seat: the object rides the guide's socket while the
+ * placement drives the guide's slider back to the seat, as a scabbard
+ * guides its blade home, and the hand follows on its grip.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the installed law, the support requirement and the study underlying the phase split.
  * @evidence contracts/development/design.md#principled-representation An installed placement law with two authored receiver frames and a shared rigid grip.
@@ -112,5 +118,43 @@ function plan(
       fix: "author the opening and seat along a straight insertion corridor",
     });
 
-  return putDown.plan(context, offset);
+  const plan: IAutoMovieMotionHumanActionPlan = putDown.plan(context, offset);
+  if (onto.guide === undefined) return plan;
+
+  // A guided receptacle carries the object from the opening to the seat: the
+  // object rides the guide's socket while the slider runs back to the seat,
+  // on the insertion's own minimum-jerk clock, until the seat mount takes it.
+  const share: (name: string) => number = (name: string): number =>
+    plan.events.find(
+      (event: IAutoMovieMotionEvent): boolean => event.name === name,
+    )!.share;
+  const entry: number = share("aperture");
+  const placed: number = share("placed");
+  const length: number = Vector3.length(offset);
+  const duration: number = plan.duration;
+  return {
+    ...plan,
+    mounts: [
+      { prop, onto: onto.prop, point: onto.guide.slide, from: entry },
+      ...(plan.mounts ?? []),
+    ],
+    drives: [
+      ...(plan.drives ?? []),
+      {
+        prop: onto.prop,
+        articulation: onto.guide.slider,
+        from: entry,
+        to: placed,
+        travel: (seconds: number): number =>
+          length *
+          (1 -
+            minimumJerk(
+              Math.min(
+                1,
+                Math.max(0, (seconds / duration - entry) / (placed - entry)),
+              ),
+            ).s),
+      },
+    ],
+  };
 }

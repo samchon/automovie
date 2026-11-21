@@ -1,3 +1,5 @@
+import { createHolster } from "@automovie/archetypes";
+
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
 import { SceneTakes } from "./SceneTakes";
@@ -96,7 +98,7 @@ export namespace SceneBuild {
     z: number,
     yaw: number = 0,
     y: number = 0,
-    params?: Record<string, number>,
+    params?: Record<string, number | string>,
   ): IPlaygroundComposition.IObject {
     return {
       subject,
@@ -182,6 +184,145 @@ export namespace SceneBuild {
         },
       },
     };
+  }
+
+  /** How far a drawn blade's point clears its carrier's mouth, metres: an authored margin. */
+  export const SHEATH_CLEARANCE: number = 0.03;
+
+  /**
+   * A scabbard or a sheath (`createHolster`) made to one blade and worn at a
+   * hip from the start: its mouth just above the hip joint, 0.2 m to the
+   * side and 0.12 m ahead of it in the hips' frame, tilted forward about
+   * the hip's lateral axis by `cant` degrees, the scene's authored hang.
+   *
+   * @param subject The carrier's id.
+   * @param kind A scabbard or a sheath.
+   * @param blade The blade it is made to (`createHolster`'s `blade`).
+   * @param wearer The person who wears it.
+   * @param side The hip it hangs at.
+   * @param cant The forward tilt of its mouth from plumb, degrees.
+   * @returns The carrier.
+   */
+  export function carrier(
+    subject: string,
+    kind: "scabbard" | "sheath",
+    blade: string,
+    wearer: string,
+    side: "left" | "right",
+    cant: number,
+  ): IPlaygroundComposition.IObject {
+    const length: number = createHolster({
+      kind,
+      blade: blade as createHolster.Blade,
+    }).affordance("mouth").frame.translation.y;
+    const half: number = (cant * Math.PI) / 360;
+    return {
+      subject,
+      producer: "createHolster",
+      kind,
+      params: { blade },
+      x: 0,
+      z: 0,
+      yaw: 0,
+      worn: {
+        subject: wearer,
+        bone: "hips",
+        offset: {
+          // The carrier stands on its tip, so its origin lies the length
+          // down the tilted axis from the mouth.
+          position: {
+            x: side === "left" ? 0.2 : -0.2,
+            y: 0.05 - length * Math.cos(2 * half),
+            z: 0.12 - length * Math.sin(2 * half),
+          },
+          rotation: { x: Math.sin(half), y: 0, z: 0, w: Math.cos(half) },
+        },
+      },
+    };
+  }
+
+  /**
+   * A blade (`createSword`) seated in a carrier object from the start, its
+   * shoulder on the carrier's mouth (`HumanSheath.of`), drawn by `drawn` and
+   * returned by `sheathe`.
+   *
+   * @param blade The blade's id.
+   * @param kind The blade's kind.
+   * @param holder The carrier's id.
+   * @param model The blade's read model, when the kind has them.
+   * @returns The blade.
+   */
+  export function seated(
+    blade: string,
+    kind: string,
+    holder: string,
+    model?: string,
+  ): IPlaygroundComposition.IObject {
+    return {
+      subject: blade,
+      producer: "createSword",
+      kind,
+      ...(model === undefined ? {} : { params: { model } }),
+      x: 0,
+      z: 0,
+      yaw: 0,
+      sheath: {
+        carrier: holder,
+        mouth: "mouth",
+        tip: "point",
+        handle: "grip",
+        clearance: SHEATH_CLEARANCE,
+      },
+    };
+  }
+
+  /**
+   * Grip a seated blade and draw it out along its carrier's line: the
+   * carrier pickup with no lift, then `drawFromCarrier`.
+   *
+   * @param blade The blade's id.
+   * @param holder The carrier's id.
+   * @param handle The blade's handle the hand grips.
+   * @returns The two actions.
+   */
+  export function drawn(
+    blade: string,
+    holder: string,
+    handle: string = "grip",
+  ): Action[] {
+    return [
+      act("takeFromCarrier", { prop: blade, handle, lift: 0 }),
+      act("drawFromCarrier", {
+        prop: blade,
+        from: {
+          prop: holder,
+          aperture: "sheathEntry",
+          point: "sheathSeat",
+          slider: "sheathSlider",
+          slide: "sheathSlide",
+        },
+      }),
+    ];
+  }
+
+  /**
+   * Return a held blade through its carrier's entry to its seat
+   * (`putDownAperture`).
+   *
+   * @param blade The blade's id.
+   * @param holder The carrier's id.
+   * @returns The action.
+   */
+  export function sheathe(blade: string, holder: string): Action {
+    return act("putDownAperture", {
+      prop: blade,
+      onto: {
+        prop: holder,
+        aperture: "sheathEntry",
+        point: "sheathSeat",
+        guide: { slider: "sheathSlider", slide: "sheathSlide" },
+      },
+    });
   }
 
   /**

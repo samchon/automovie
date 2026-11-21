@@ -29,6 +29,25 @@ export namespace PlaygroundObjects {
     seat(model: object, placement: IPlacement, id?: string): unknown;
   }
 
+  /** The staged pair `HumanSheath.of` returns, as this module reads it. */
+  interface IStaging {
+    /** The carrier with its seat and entry. */
+    carrier: IAutoMovieMotionHumanProp;
+
+    /** The blade mounted on the seat. */
+    blade: IAutoMovieMotionHumanProp;
+  }
+
+  /** `HumanSheath` as this module calls it, present only where the installed package has it. */
+  interface IHumanSheath {
+    /** Seat a blade in its carrier. */
+    of(
+      carrier: IAutoMovieMotionHumanProp,
+      blade: IAutoMovieMotionHumanProp,
+      params: Omit<IPlaygroundComposition.ISheath, "carrier">,
+    ): IStaging;
+  }
+
   /** A placement as `HumanObject.Placement` takes it: a heading on a floor point, or a world frame, either as a fixture or not. */
   type IPlacement = (
     | { at: { x: number; y: number; z: number }; yaw: number }
@@ -66,18 +85,53 @@ export namespace PlaygroundObjects {
     const human: IHumanObject = attach();
     // An object worn at the start rides the wearer's bone until a hand
     // draws it, as `IAutoMovieMotionHumanProp.worn` says.
-    return objects.map(
+    const made: IAutoMovieMotionHumanProp[] = objects.map(
       (object: IPlaygroundComposition.IObject): IAutoMovieMotionHumanProp => {
-        const made: IAutoMovieMotionHumanProp = human.prop(
+        const prop: IAutoMovieMotionHumanProp = human.prop(
           object.subject,
           model(object),
           placement(object),
         );
         return object.worn === undefined
-          ? made
-          : ({ ...made, worn: object.worn } as IAutoMovieMotionHumanProp);
+          ? prop
+          : ({ ...prop, worn: object.worn } as IAutoMovieMotionHumanProp);
       },
     );
+
+    // A blade seated in a carrier object is staged with it by `HumanSheath`,
+    // which adds the carrier's seat and entry and mounts the blade.
+    objects.forEach(
+      (object: IPlaygroundComposition.IObject, index: number): void => {
+        if (object.sheath === undefined) return;
+        const carrier: number = objects.findIndex(
+          (o: IPlaygroundComposition.IObject): boolean =>
+            o.subject === object.sheath!.carrier,
+        );
+        if (carrier < 0)
+          throw new Error(
+            `The blade ${object.subject} is sheathed in ${object.sheath.carrier}, which the composition does not place`,
+          );
+        const staged: IStaging = sheath().of(made[carrier]!, made[index]!, {
+          mouth: object.sheath.mouth,
+          tip: object.sheath.tip,
+          handle: object.sheath.handle,
+          clearance: object.sheath.clearance,
+        });
+        made[carrier] = staged.carrier;
+        made[index] = staged.blade;
+      },
+    );
+    return made;
+  }
+
+  /** `HumanSheath`, or the reason it cannot be used. */
+  function sheath(): IHumanSheath {
+    const found: unknown = MOTIONS["HumanSheath"];
+    if (typeof found !== "object" || found === null)
+      throw new Error(
+        "The installed @automovie/motions has no HumanSheath, so a blade cannot start in its carrier yet",
+      );
+    return found as IHumanSheath;
   }
 
   /**
