@@ -169,6 +169,15 @@ export function createSkateboard(
     extent: null,
     length: width,
   });
+  // Leave a half-wheel diameter between the ball of the foot and the rear edge.
+  builder.affordance({
+    id: "tailStance",
+    kind: "surface",
+    frame: ArchetypeFrame.upright(v(0, top, length / 2 - radius)),
+    extent: null,
+    width,
+    depth: 2 * radius,
+  });
   return builder.build(d.mass);
 }
 
@@ -207,6 +216,7 @@ export namespace createSkateboard {
    * - `nose`, `tail`: its ends on `-Z` and `+Z`, ledges along `X` with `+Z` out from the deck.
    * - `frontStance`, `rearStance`: the deck sites over the trucks.
    * - `tailStrike`: the underside rear edge.
+   * - `tailStance`: the ball-of-foot target above the rear edge for the pop.
    * - `wheel-front-left`, `wheel-front-right`, `wheel-back-left`, `wheel-back-right`: the local low lines across the wheels at rest.
    */
   export type Affordance =
@@ -216,6 +226,7 @@ export namespace createSkateboard {
     | "frontStance"
     | "rearStance"
     | "tailStrike"
+    | "tailStance"
     | `wheel-${"front" | "back"}-${"left" | "right"}`;
 
   /**

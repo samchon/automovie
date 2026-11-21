@@ -112,7 +112,12 @@ export namespace HumanPropFlight {
           });
         }
       }
-    if (self.resolving) filmEnd = Math.min(filmEnd, through);
+
+    // A point read while scheduling sweeps through the second it asks for,
+    // even past the last placed action: a catch of a long pass reads its
+    // flight after the thrower's own action ends. Final admission repeats
+    // the sweep over the placed film.
+    if (self.resolving && Number.isFinite(through)) filmEnd = through;
     launches.sort((a, b): number => a.seconds - b.seconds);
     if (launches.length === 0) {
       if (!self.resolving) admitCaptures(self, subject, []);
@@ -131,6 +136,7 @@ export namespace HumanPropFlight {
             launch,
             filmEnd,
             launches[index + 1]?.seconds,
+            launches[index + 1]?.source,
           ),
         );
       if (!self.resolving) admitCaptures(self, subject, out);
@@ -304,6 +310,7 @@ export namespace HumanPropFlight {
     launch: IAutoMovieMotionPropLaunch,
     filmEnd: number,
     nextLaunch: number | undefined,
+    successor: IAutoMovieMotionHumanPropFlight.IFlight["source"] | undefined,
   ): IAutoMovieMotionHumanPropFlight.IFlight {
     // The prop leaves from where it is shown at the launch, when a grip
     // shows it there; a prop set on its way leaves from the launch's point.
@@ -357,6 +364,15 @@ export namespace HumanPropFlight {
     if (!(through > 0)) return flight;
     const captureHands: readonly HumanPropCatchHands.IApproach[] =
       HumanPropCatchHands.forLaunch(launch, grips, capturedAt);
+
+    // A later launch that ends this flight meets the prop by its own fit,
+    // so the props its performer holds then are that launch's to meet.
+    const handback: HumanPropSweep.IHandback | undefined =
+      successor !== undefined &&
+      nextLaunch !== undefined &&
+      supersededAt === nextLaunch
+        ? { subject: successor.subject, at: nextLaunch, from: successor.start }
+        : undefined;
     const friction: number | undefined = launch.sphere?.tangentialFriction;
     const outcomeProp: IAutoMovieMotionHumanProp =
       friction === undefined || prop.body === undefined
@@ -380,6 +396,7 @@ export namespace HumanPropFlight {
           departing,
           launch.sphere?.radius,
           captureHands,
+          handback,
         );
       return supersededAt !== undefined &&
         meeting !== null &&

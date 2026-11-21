@@ -13,7 +13,7 @@ const {
 }: typeof SceneBuild = SceneBuild;
 
 /** The range-counter shooter's mark downrange: a point at chest height ten metres ahead, world. */
-const DOWNRANGE: Record<string, unknown> = {
+const DOWNRANGE: SceneBuild.PointTarget = {
   kind: "point",
   at: { x: 0, y: 1.4, z: 10 },
   frame: "world",

@@ -1,0 +1,158 @@
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
+import {
+  type Archetype,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+  ArchetypeRefusal,
+  type ArchetypeRide,
+} from "../core";
+import type { createHorse } from "./createHorse";
+
+/**
+ * Two side loads hung on a pack saddle's load contacts: a box against each side, its inner face on the pad's outer face at the contact frame, carried with the trunk wherever the pack horse's ride takes it.
+ *
+ * Each `leftLoad` and `rightLoad` contact is a surface frame whose `+Y` faces out of the pad, whose `+X` runs along the back and whose `width` and `depth` give the pad's extent along the back and down the side (`HorsePack.lay`). A load is a box `length` along the back, `height` down the side and `thickness` out from the pad, its inner face centred on the contact; both sides take the same box, an authored balanced pair. A load longer than the pad along the back or taller than the pad down the side does not sit on it and is refused.
+ *
+ * @param horse A horse under a pack saddle.
+ * @param load The box hung on each side, metres and kilograms.
+ * @returns The two load models and their placements at a ride's sample.
+ * @throws {ArchetypeRefusal} For a horse without the pack saddle's load contacts, a nonpositive size or mass, or a box that overhangs its pad.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the contact convention, the box's placement, the balance rule and the refusal.
+ * @evidence contracts/development/implementation.md#principled-implementation Each load is rigidly attached to its posed contact frame: its world placement is the ride's placement composed with that frame.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the box against both pads, build one box model per side, then compose placements per sample.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An overhanging box is refused, never scaled to fit.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two contact reads and two compositions per sample.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The two box models are built once and shared by every sample.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the two box models.
+ */
+export function HorsePackLoad(
+  horse: Archetype<createHorse.Affordance, createHorse.Dimension>,
+  load: HorsePackLoad.ILoad,
+): HorsePackLoad.IPrepared {
+  const refuse = (axis: string, value: unknown, reason: string): never => {
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: horse.archetype,
+      axis,
+      value,
+      feasible: null,
+      reason,
+      fix: "Hang loads that fit the pack saddle's pads on a horse under a pack saddle.",
+    });
+  };
+  for (const key of ["length", "height", "thickness", "mass"] as const)
+    if (!(Number.isFinite(load[key]) && load[key] > 0))
+      refuse(`load.${key}`, load[key], "must be finite and positive");
+  const models: Record<HorsePackLoad.Side, Archetype<"base", never>> = {
+    leftLoad: box("leftLoad"),
+    rightLoad: box("rightLoad"),
+  };
+  return {
+    models,
+    at: (
+      sample: ArchetypeRide.ISample<
+        createHorse.Affordance,
+        createHorse.Dimension
+      >,
+    ): Record<HorsePackLoad.Side, IAutoMovieTransform> => ({
+      leftLoad: ArchetypeFrame.compose(
+        sample.placement,
+        sample.archetype.affordance("leftLoad").frame,
+      ),
+      rightLoad: ArchetypeFrame.compose(
+        sample.placement,
+        sample.archetype.affordance("rightLoad").frame,
+      ),
+    }),
+  };
+
+  /** One side's box, admitted against its pad, with its inner face's centre at its model origin. */
+  function box(side: HorsePackLoad.Side): Archetype<"base", never> {
+    if (
+      !horse.affordances.some(
+        (a: IAutoMovieAffordance): boolean => a.id === side,
+      )
+    )
+      refuse(
+        "tack",
+        horse.name,
+        `the horse has no ${side} contact of a pack saddle`,
+      );
+    const pad: IAutoMovieAffordance = horse.affordance(side);
+    if (pad.width === undefined || pad.depth === undefined)
+      refuse("tack", side, "the load contact declares no pad extent");
+    if (load.length > pad.width!)
+      refuse(
+        "load.length",
+        load.length,
+        `longer than the ${pad.width} m pad along the back`,
+      );
+    if (load.height > pad.depth!)
+      refuse(
+        "load.height",
+        load.height,
+        `taller than the ${pad.depth} m pad down the side`,
+      );
+    return new ArchetypeBuilder<"base", never>({
+      material: "wood",
+      name: "pack load",
+      draw: new ArchetypeDrawSession<never>("packLoad", {}, undefined),
+    })
+      .box(
+        "load",
+        { x: load.length, y: load.thickness, z: load.height },
+        { x: 0, y: load.thickness / 2, z: 0 },
+      )
+      .affordance({
+        id: "base",
+        kind: "surface",
+        frame: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+        extent: null,
+      })
+      .build(load.mass);
+  }
+}
+
+/**
+ * Types of {@link HorsePackLoad}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States each type's units and frames.
+ * @evidence contracts/development/design.md#principled-representation A box's three positive lengths and mass, the two closed load sides and the prepared models and sampler.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HorsePackLoad` and its callers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts One box serves both sides, as balanced loads require.
+ */
+export namespace HorsePackLoad {
+  /** The two load contacts of a pack saddle. */
+  export type Side = "leftLoad" | "rightLoad";
+
+  /** A side load's box, metres, and its mass, kilograms. */
+  export interface ILoad {
+    /** Along the back. */
+    length: number;
+    /** Down the side. */
+    height: number;
+    /** Out from the pad. */
+    thickness: number;
+    /** Each side's mass. */
+    mass: number;
+  }
+
+  /** The two loads' models and their placements at a sample. */
+  export interface IPrepared {
+    /** Each side's box model, its inner face's centre at its origin, `+Y` out of the pad. */
+    models: Readonly<Record<Side, Archetype<"base", never>>>;
+    /** Each side's world placement at a pack horse ride's sample. */
+    at: (
+      sample: ArchetypeRide.ISample<
+        createHorse.Affordance,
+        createHorse.Dimension
+      >,
+    ) => Record<Side, IAutoMovieTransform>;
+  }
+}

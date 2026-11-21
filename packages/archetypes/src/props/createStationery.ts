@@ -1,474 +1,111 @@
-import { Vector3 } from "@automovie/engine";
-
-import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
-} from "../core";
-
-/** Book trim sizes: a print service's list, and the UK paperback formats from a secondary source. */
-const BOOK: string =
-  "Amazon KDP print options, trim sizes 12.7 x 20.32 cm to 15.6 x 23.39 cm (https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6); the smaller end is the UK A-format paperback, 110 x 178 mm (Wikipedia, Book size, https://en.wikipedia.org/wiki/Book_size)";
-
-/** Book thickness from a page count and a paper caliper, neither read at a primary source. */
-const THICKNESS: string =
-  "150 to 650 pages inside the 24 to 828 page range of Amazon KDP (https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6) at about 0.06 mm per page, a printer's spine formula seen only in search results";
-
-/** Office paper sizes from a secondary source. */
-const PAPER: string =
-  "ISO 216 A4, 210 x 297 mm, and US Letter, 216 x 279 mm (Wikipedia, Paper size, https://en.wikipedia.org/wiki/Paper_size)";
-
-/** A ballpoint pen from a secondary source, with the precision handle band. */
-const PEN: string =
-  "BIC Cristal, 14.45 cm without and 14.9 cm with its cap (Wikipedia, Bic Cristal, https://en.wikipedia.org/wiki/Bic_Cristal); barrel inside the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)";
-
-/** Michelin's folded road map: its folded size read at the maker, its thickness and mass seen only in listings. */
-const MAP: string =
-  "Michelin regional map, folded 11 x 25 cm (https://boutique.laventure.michelin.com/en/product/ouest-france-map-of-calvados-michelin/); 0.7 cm thick and 89 to 90 g, Michelin maps 333, 585 and 707 seen only in search results";
-
-/** The readable name of each kind. */
-const NAMES: Readonly<Record<createStationery.Kind, string>> = {
-  book: "book",
-  paper: "sheet of paper",
-  pen: "pen",
-  clipboard: "clipboard",
-  map: "folded map",
-};
+import { type Archetype, ArchetypeDraw } from "../core";
+import { StationeryDraw } from "./StationeryDraw";
+import { createBook } from "./createBook";
+import { createClipboard } from "./createClipboard";
+import { createPaper } from "./createPaper";
+import { createPen } from "./createPen";
 
 /**
- * A book, a sheet of paper, a pen, a clipboard or a folded road map.
+ * Read a saved stationery recipe and call the producer for its kind.
  *
- * A book lies closed on its back at the origin, its spine along `+Z` on the `-X` side. Stage the cover fully open at `hinge: 180` before moving its single leaf on `page`. The author controls this order because articulation accepts each hinge independently. A map unfolds one panel on `fold` along its `+X` edge. The `page-edge` and `fold-edge` contacts follow their hinges, so `operate` can turn them on a supported prop. The Smithsonian Institution Archives' [Reading Room Rules](https://siarchives.si.edu/sites/default/files/pdfs/Reading_Room_Rules_color.pdf) call for turning one leaf at a time by its margin and supporting a bound volume in its cradle. The book and map use rigid panels for staging. Page curl, page stacks that change with repeated turns and additional map creases require further modeling.
+ * @param params The saved kind, fixed values, optional identifier and model when applicable.
+ * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+ * @returns The selected prop in its original frame.
+ * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
- * A sheet, a clipboard and a folded map lie flat with their long side along `+Z`. A clipboard's and a folded map's `grip` is their whole `+Z` edge, pinched across their closed thickness. Use the map's `support-grip` on the same edge of the stationary base panel to hold it while working the fold. The `face` is the upper side of the clipboard or the map panel when folded. A clipboard's clip waits for a source of its size.
- *
- * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
- * @returns The selected stationery prop at rest.
- * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each thing lies and what opens.
- * @evidence contracts/development/implementation.md#principled-implementation Dimensioned boxes and a rod. Independent spine hinges lift the book cover and leaf toward `-X`; the map's hinge lifts its upper panel toward `+X`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Sheets, clipboards and maps share the slab and contacts; the map adds one panel. Pens and books each have their own geometry.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The leaf and folded panel each have their own carrier and riding edge; supported use stages cover opening before page turning. The approximation ends at rigid panels, without a curl or collision solver.
- * @evidence contracts/development/implementation.md#efficient-algorithms Up to three parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Read a saved stationery recipe and call the producer for its kind.
+ * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects the named producer that owns its geometry and contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The wrapper validates the saved kind and hands off the input.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Kind order, seed streams, defaults and parameter admission follow the saved recipe.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A bounded kind check and one lookup precede the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved and named calls use the same producer.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createStationery(
   params: createStationery.IParams,
   seed?: number | string,
 ): Archetype<createStationery.Affordance, createStationery.Dimension> {
-  const draw: ArchetypeDrawSession<createStationery.Dimension> =
-    new ArchetypeDrawSession<createStationery.Dimension>(
-      "stationery",
-      createStationery.UNITS,
-      seed,
-      params,
-    );
   const kind: createStationery.Kind = ArchetypeDraw.choice(
     "stationery",
     "kind",
     params.kind,
     createStationery.KINDS,
   );
-  const drawn: Partial<Record<createStationery.Dimension, number>> =
-    draw.dimensions(createStationery.BANDS[kind], createStationery.BANDS);
-  // A clipboard is one of Esselte's two models whole.
-  const model: {
-    name: createStationery.Model | undefined;
-    figures: createStationery.Figures;
-  } = draw.model<createStationery.Model>(
-    "model",
-    params.model,
-    createStationery.MODELS[kind],
-  );
-  const d: Partial<Record<createStationery.Dimension, number>> = {
-    ...drawn,
-    ...model.figures,
-  };
-  const builder: ArchetypeBuilder<
-    createStationery.Affordance,
-    createStationery.Dimension
-  > = new ArchetypeBuilder({
-    material: kind === "paper" || kind === "map" ? "paper" : "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw,
-  });
-  const width: number = d.width!;
-  const length: number = d.length!;
-  const thick: number = d.thickness!;
-
-  if (kind === "pen") {
-    builder.rod(
-      "barrel",
-      thick / 2,
-      Vector3.create(0, thick / 2, 0),
-      Vector3.create(0, thick / 2, length),
-      { color: "#2a4d8f" },
+  if (kind === "paper" || kind === "map")
+    return createPaper(
+      { ...params, format: createStationery.PRODUCER_VARIANTS[kind] },
+      seed,
     );
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: "round",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, thick / 2, length - 0.03),
-        Vector3.create(0, 1, 0),
-        Vector3.create(0, 0, 1),
-      ),
-      extent: null,
-      grip: "precision",
-      aperture: thick,
-    });
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "along",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, thick / 2, length),
-        Vector3.create(0, 0, 1),
-      ),
-      extent: null,
-    });
-    return builder.build(d.mass!);
-  }
 
-  if (kind === "paper" || kind === "clipboard" || kind === "map") {
-    const baseThickness: number = kind === "map" ? thick / 2 : thick;
-    builder.box(
-      kind === "paper" ? "sheet" : kind === "clipboard" ? "board" : "map",
-      Vector3.create(width, baseThickness, length),
-      Vector3.create(0, baseThickness / 2, 0),
-      { color: kind === "clipboard" ? "#8a6a4a" : "#f4f2ec" },
-    );
-    if (kind === "map") {
-      // The crease runs between the folded layers, so both rest on the same plane when unfolded.
-      const panelHeight: number = baseThickness * 1.5;
-      builder.box(
-        "panel",
-        Vector3.create(width, baseThickness, length),
-        Vector3.create(0, panelHeight, 0),
-        { color: "#e4e2cd" },
-      );
-      builder.affordance({
-        id: "fold",
-        kind: "hinge",
-        frame: ArchetypeFrame.facing(
-          Vector3.create(width / 2, baseThickness, 0),
-          Vector3.create(0, 0, -1),
-          Vector3.create(-1, 0, 0),
-        ),
-        extent: null,
-        travel: 180,
-        parts: ["panel"],
-      });
-      builder.affordance({
-        id: "support-grip",
-        kind: "handle",
-        symmetry: "none",
-        frame: ArchetypeFrame.facing(
-          Vector3.create(0, baseThickness / 2, length / 2),
-          Vector3.create(0, 1, 0),
-          Vector3.create(1, 0, 0),
-        ),
-        extent: null,
-        grip: "precision",
-        aperture: baseThickness,
-        length: width,
-      });
-      builder.affordance({
-        id: "fold-edge",
-        kind: "handle",
-        symmetry: "none",
-        frame: ArchetypeFrame.facing(
-          Vector3.create(-width / 2, panelHeight, 0),
-          Vector3.create(0, 1, 0),
-          Vector3.create(0, 0, 1),
-        ),
-        extent: null,
-        grip: "precision",
-        aperture: baseThickness,
-        rides: "fold",
-      });
-    }
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(
-          0,
-          thick / 2,
-          length / 2 - (kind === "paper" ? 0.02 : 0),
-        ),
-        Vector3.create(0, 1, 0),
-        Vector3.create(1, 0, 0),
-      ),
-      extent: null,
-      grip: "precision",
-      aperture: thick,
-      length: width,
-    });
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "normal",
-      frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
-      extent: null,
-      width,
-      depth: length,
-      ...(kind === "map" ? { rides: "fold" as const } : {}),
-    });
-    return builder.build(d.mass!);
-  }
-
-  // Give one leaf a layer of the closed book's existing thickness.
-  const pageThickness: number = createStationery.BANDS.paper.thickness!.minimum;
-  const pageHeight: number = (thick + pageThickness) / 2;
-  builder.box(
-    "back",
-    Vector3.create(width, thick / 2, length),
-    Vector3.create(0, thick / 4, 0),
-    { color: "#7a3b2e" },
-  );
-  builder.box(
-    "front",
-    Vector3.create(width, thick / 2 - pageThickness, length),
-    Vector3.create(0, (3 * thick) / 4 + pageThickness / 2, 0),
-    { color: "#8d4636" },
-  );
-  builder.box(
-    "leaf",
-    Vector3.create(width, pageThickness, length),
-    Vector3.create(0, pageHeight, 0),
-    { color: "#f4f2ec" },
-  );
-  builder.affordance({
-    id: "hinge",
-    kind: "hinge",
-    frame: ArchetypeFrame.facing(
-      Vector3.create(-width / 2, thick / 2, 0),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
-    ),
-    extent: null,
-    travel: 180,
-    parts: ["front"],
-  });
-  builder.affordance({
-    id: "page",
-    kind: "hinge",
-    frame: ArchetypeFrame.facing(
-      Vector3.create(-width / 2, pageHeight, 0),
-      Vector3.create(0, 0, 1),
-      Vector3.create(1, 0, 0),
-    ),
-    extent: null,
-    travel: 180,
-    parts: ["leaf"],
-  });
-  builder.affordance({
-    id: "page-edge",
-    kind: "handle",
-    symmetry: "none",
-    frame: ArchetypeFrame.facing(
-      Vector3.create(width / 2, pageHeight, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
-    ),
-    extent: null,
-    grip: "precision",
-    aperture: pageThickness,
-    rides: "page",
-  });
-
-  // The closed book is held by its spine, the `-X` edge the hinge lies on, which stays where it is when the book opens.
-  builder.affordance({
-    id: "grip",
-    kind: "handle",
-    symmetry: "none",
-    frame: ArchetypeFrame.facing(
-      Vector3.create(-width / 2, thick / 2, 0),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
-    ),
-    extent: null,
-    grip: "power",
-    aperture: thick,
-    length,
-  });
-  builder.affordance({
-    id: "face",
-    kind: "surface",
-    direction: "normal",
-    frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
-    extent: null,
-    width,
-    depth: length,
-    rides: "hinge",
-  });
-  builder.affordance({
-    id: "edge",
-    kind: "handle",
-    symmetry: "none",
-    frame: ArchetypeFrame.facing(
-      Vector3.create(width / 2, (3 * thick) / 4 + pageThickness / 2, 0),
-      Vector3.create(1, 0, 0),
-      Vector3.create(0, 0, 1),
-    ),
-    extent: null,
-    grip: "precision",
-    length,
-    rides: "hinge",
-  });
-  return builder.build(d.mass!);
+  // The saved input spans every variant. The selected producer checks its original recipe.
+  const produce: (
+    params: createStationery.IParams,
+    seed?: number | string,
+  ) => Archetype<createStationery.Affordance, createStationery.Dimension> =
+    createStationery.PRODUCERS[kind] as typeof produce;
+  return produce(params, seed);
 }
 
 /**
- * Companion types and bands of {@link createStationery}.
+ * Compatibility tables and types for saved stationery recipes.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sizes a hold, a page turn and a pen grip read (#3369).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts `grip` and `face` name the same role on each kind, so an act written for one reads the others.
+ * @evidence contracts/development/common.md#meaningful-documentation Compatibility tables and types for saved stationery recipes.
+ * @evidence contracts/development/design.md#principled-representation The kind union retains the saved spelling and order. Each kind selects the named producer with the same geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the existing recipe tables and names for authored and saved callers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The named producers draw the actual sizes and model figures from the saved bands.
  */
 export namespace createStationery {
-  /** The kinds. */
-  export type Kind = "book" | "paper" | "pen" | "clipboard" | "map";
+  /** The original kind for the saved stationery recipe. */
+  export type Kind = StationeryDraw.Kind;
 
-  /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = [
-    "book",
-    "paper",
-    "pen",
-    "clipboard",
-    "map",
-  ];
+  /** The original kinds for the saved stationery recipe. */
+  export const KINDS: typeof StationeryDraw.KINDS = StationeryDraw.KINDS;
 
-  /**
-   * The affordance ids:
-   *
-   * - `grip`: the hold: a book by the middle of its spine, the hand closing across its thickness (the frame's `+Y` is up, out of the cover) along the spine's length; a sheet pinched from above at its near edge, a clipboard or a map pinched at its `+Z` edge, a pen pinched 30 mm from its tip (an estimate).
-   * - `face`: the working face: a book's front cover, which rides the hinge; a sheet's, a clipboard's or a map's upper side; a pen's tip, facing along the pen.
-   * - `hinge` and `edge`: a book's cover hinge and its riding fore-edge.
-   * - `page` and `page-edge`: a book's single leaf hinge and its riding fore-edge.
-   * - `fold` and `fold-edge`: a map's crease and its riding free edge.
-   * - `support-grip`: the `+Z` edge of the map's base panel, held across just that panel while folding.
-   *
-   * Each hinge lifts its part with positive travel from the closed position through 180 degrees.
-   */
-  export type Affordance =
-    | "grip"
-    | "face"
-    | "hinge"
-    | "edge"
-    | "page"
-    | "page-edge"
-    | "fold"
-    | "fold-edge"
-    | "support-grip";
+  /** The original affordance for the saved stationery recipe. */
+  export type Affordance = StationeryDraw.Affordance;
 
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `width`: along `+X`; a pen has none.
-   * - `length`: along `+Z`.
-   * - `thickness`: along `+Y`; a pen's barrel diameter.
-   * - `mass`: kilograms.
-   */
-  export type Dimension = "width" | "length" | "thickness" | "mass";
+  /** The original dimension for the saved stationery recipe. */
+  export type Dimension = StationeryDraw.Dimension;
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
-    width: "m",
-    length: "m",
-    thickness: "m",
-    mass: "kg",
-  };
+  /** The original units for the saved stationery recipe. */
+  export const UNITS: typeof StationeryDraw.UNITS = StationeryDraw.UNITS;
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which thing. */
-    kind: Kind;
+  /** The original iparams for the saved stationery recipe. */
+  export type IParams = StationeryDraw.IParams;
 
-    /** A clipboard's model; drawn from the seed when absent. */
-    model?: Model;
+  /** The original figures for the saved stationery recipe. */
+  export type Figures = StationeryDraw.Figures;
 
-    /** The model's id, unique in a scene; `stationery` when absent. */
-    id?: string;
+  /** The original model for the saved stationery recipe. */
+  export type Model = StationeryDraw.Model;
+
+  /** The original models for the saved stationery recipe. */
+  export const MODELS: typeof StationeryDraw.MODELS = StationeryDraw.MODELS;
+
+  /** The original bands for the saved stationery recipe. */
+  export const BANDS: typeof StationeryDraw.BANDS = StationeryDraw.BANDS;
+
+  /** The named producer selected by each saved kind. */
+  export const PRODUCERS = {
+    book: createBook,
+    paper: createPaper,
+    pen: createPen,
+    clipboard: createClipboard,
+    map: createPaper,
+  } as const satisfies Readonly<Record<Kind, unknown>>;
+
+  /** Each saved selector's named variant. */
+  export interface IProducerVariants {
+    /** The named variant for the saved `paper` selector. */
+    paper: createPaper.Format;
+
+    /** The named variant for the saved `map` selector. */
+    map: createPaper.Format;
   }
 
-  /** A model's read figures, by dimension. */
-  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
-
-  /** The clipboards read: Esselte's 56055 and 604037, both A4. */
-  export type Model = "56055" | "604037";
-
-  /** Each kind's models whole, the default first: Esselte's 232 x 3 x 349 mm clipboards (W x H x D), 168 g for the 56055 and 190 g for the 604037 (https://docs.rs-online.com/6055/A700000015150044.pdf, https://docs.rs-online.com/86b9/A700000015142764.pdf). */
-  export const MODELS: Readonly<
-    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
-  > = {
-    clipboard: {
-      "56055": { width: 0.232, length: 0.349, thickness: 0.003, mass: 0.168 },
-      "604037": { width: 0.232, length: 0.349, thickness: 0.003, mass: 0.19 },
-    },
-  };
-
-  /** The band of each free dimension, by kind; a clipboard's are its model's. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    book: {
-      width: ArchetypeBand.metres(0.11, 0.156, BOOK, true),
-      length: ArchetypeBand.metres(0.178, 0.234, BOOK, true),
-      thickness: ArchetypeBand.metres(0.009, 0.039, THICKNESS, true),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.17,
-        0.34,
-        "mass-market paperback mass, bookseller figures seen only in search results",
-        true,
-      ),
-    },
-    paper: {
-      width: ArchetypeBand.metres(0.21, 0.216, PAPER, true),
-      length: ArchetypeBand.metres(0.279, 0.297, PAPER, true),
-      thickness: ArchetypeBand.metres(
-        0.0001,
-        0.0001,
-        "80 g/m2 office paper is about 0.1 mm thick, not read at a source",
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.0048,
-        0.005,
-        "80 g/m2 over the sheet's area, the grammage not read at a source",
-        true,
-      ),
-    },
-    pen: {
-      length: ArchetypeBand.metres(0.1445, 0.149, PEN, true),
-      thickness: ArchetypeBand.metres(0.006, 0.013, PEN, true),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.005,
-        0.01,
-        ArchetypeBand.TYPICAL_MASS,
-        true,
-      ),
-    },
-    clipboard: {},
-    map: {
-      width: ArchetypeBand.metres(0.11, 0.11, MAP),
-      length: ArchetypeBand.metres(0.25, 0.25, MAP),
-      thickness: ArchetypeBand.metres(0.007, 0.007, MAP, true),
-      mass: ArchetypeBand.of("kg", 0.089, 0.09, MAP, true),
-    },
+  /** The named format selected by a legacy paper or map recipe. */
+  export const PRODUCER_VARIANTS: Readonly<IProducerVariants> = {
+    paper: "sheet",
+    map: "foldedMap",
   };
 }

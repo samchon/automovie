@@ -3,7 +3,6 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   AutoMovieMotionHumanChannelClaim,
-  IAutoMovieHumanoidSurfaces,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -33,6 +32,7 @@ import { prepareSupportPreference } from "./prepareSupportPreference";
 import { supportAssist } from "./supportAssist";
 import { supportBalance } from "./supportBalance";
 import { supportContact } from "./supportContact";
+import { supportCourse } from "./supportCourse";
 import { supportKey } from "./supportKey";
 import { supportWindows } from "./supportWindows";
 
@@ -70,6 +70,11 @@ type Place = (contact: IAutoMovieMotionHumanSupport.IContact) => Point;
  * contact on its point, and every held hand and foot is then fitted by its
  * own two-bone chain to where the two keys hold it (`prepareSupportInterval`);
  * a held knee or trunk contact rides the root pin and the floor bound alone.
+ * A staged route may add a course (`supportCourse`): a stepping foot then
+ * passes the course's world waypoints over a fixture edge, one lift key per
+ * waypoint and a straight toe course between them, and a foot the course
+ * names as level bears flat with its heel level at every key and through
+ * every interval that holds it.
  * A contact no key
  * posture reaches is refused with the contact, its stance and the miss.
  *
@@ -112,6 +117,7 @@ export namespace support {
    * Plan a support sequence.
    *
    * @param context The action's context.
+   * @param course A staged route's waypoints, level feet and window reader; the ordinary sequence when absent.
    * @returns The plan.
    * @throws {HumanRefusal} When there is no stance, a stance's seconds are not positive, or a key posture leaves a contact more than `MISS` off its target.
    *
@@ -125,6 +131,7 @@ export namespace support {
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
+    course?: supportCourse.ICourse,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     // Each contact marked by the stance it was set down in.
@@ -216,6 +223,13 @@ export namespace support {
     const preference: ReturnType<typeof prepareSupportPreference> =
       prepareSupportPreference(body, preferred);
 
+    // A course's level feet keep their heels level on their fixture.
+    const heels = (
+      contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
+      place: Place,
+    ): IAutoMovieMotionHumanBodyFitTypes.ITarget[] =>
+      supportCourse.levels(body, course, contacts, place);
+
     // Every key and swing on this body shares the same anatomical datums.
     const form: ReturnType<typeof supportContact.prepareForm> =
       supportContact.prepareForm(body);
@@ -239,6 +253,8 @@ export namespace support {
       keys.push(key);
       recordFloors(key.posture, key.contacts);
     };
+    // The waypoint courses of stepping feet, by the interval they span.
+    const routes: Map<number, supportCourse.Write[]> = new Map();
     let seconds: number = 0;
     stances.forEach(
       (stance: IAutoMovieMotionHumanSupport.IStance, i: number): void => {
@@ -298,61 +314,102 @@ export namespace support {
           // lift, which holds every support but the swinging limb's.
           const leaving: IAutoMovieMotionHumanSupport.IStance = stances[i - 1]!;
           const oldPlace: Place = keys.at(-1)!.place;
-          seconds += move / 3;
-          push({
-            posture: supportKey.solved(
-              body,
-              preference(leaving, before, oldPlace),
-              before,
-              kept,
-              oldPlace,
-              `lift${i}`,
-              MISS,
-              moved.flatMap(
-                (
-                  m: IAutoMovieMotionHumanSupport.IContact,
-                ): IAutoMovieMotionHumanBodyFitTypes.ITarget[] => {
-                  const was: IAutoMovieMotionHumanSupport.IContact = from(m)!;
-
-                  const top: IAutoMovieMotionHumanBodyFitTypes.ITarget | null =
-                    supportContact.swing(
-                      form,
-                      m,
-                      oldPlace(was),
-                      place(m),
-                      crawl.LIFT,
-                    );
-                  if (top === null) return [];
-                  if (!m.part.endsWith("Foot")) return [top];
-                  // The toe joint's elevation alone leaves the ankle free to
-                  // point the heel into the floor. Level the rigid hindfoot
-                  // beneath the raised toe, preserving its free heading.
-                  const heel: IAutoMovieHumanoidSurfaces.IFrame =
-                    body.surfaces.sockets[
-                      m.part === "leftFoot" ? "heelLeft" : "heelRight"
-                    ];
-                  return [
-                    top,
-                    {
-                      bone: heel.bone,
-                      axes: [],
-                      goal: top.goal,
-                      normal: {
-                        local: heel.normal,
-                        world: { x: 0, y: -1, z: 0 },
-                      },
-                    },
-                  ];
-                },
-              ),
-              form,
+          // A course may route the step over waypoints: one lift key per
+          // waypoint, the lift's two thirds of the move shared evenly among
+          // the stretches between them. Without waypoints this is the
+          // single mid-step lift.
+          const crossings: supportCourse.ICrossing[] = moved.map(
+            (
+              contact: IAutoMovieMotionHumanSupport.IContact,
+            ): supportCourse.ICrossing => {
+              const was: IAutoMovieMotionHumanSupport.IContact = from(contact)!;
+              return {
+                contact,
+                previous: was,
+                waypoints: course?.via?.(was, contact) ?? [],
+              };
+            },
+          );
+          const steps: number = Math.max(
+            1,
+            ...crossings.map(
+              (crossing: supportCourse.ICrossing): number =>
+                crossing.waypoints.length,
             ),
-            seconds,
-            name: `lift${i}`,
-            contacts: kept,
-            place: oldPlace,
-          });
-          seconds += move / 3;
+          );
+          const interval: number =
+            steps === 1 ? move / 3 : (2 * move) / (3 * (steps + 1));
+          const route = (stretch: number): void => {
+            const writes: supportCourse.Write[] = supportCourse.swings(
+              body,
+              entry.yaw,
+              crossings,
+              stretch,
+              steps,
+              oldPlace,
+              place,
+            );
+            if (writes.length === 0) return;
+            const phase: number = keys.length - 1;
+            routes.set(phase, [...(routes.get(phase) ?? []), ...writes]);
+          };
+          for (let l: number = 0; l < steps; l++) {
+            route(l);
+            const start: IAutoMovieMotionHumanPosture = keys.at(-1)!.posture;
+            const lift: string = l === 0 ? `lift${i}` : `lift${i}Via${l + 1}`;
+            seconds += interval;
+            push({
+              posture: supportKey.solved(
+                body,
+                preference(leaving, start, oldPlace),
+                start,
+                kept,
+                oldPlace,
+                lift,
+                MISS,
+                [
+                  ...heels(kept, oldPlace),
+                  ...crossings.flatMap(
+                    (
+                      crossing: supportCourse.ICrossing,
+                    ): IAutoMovieMotionHumanBodyFitTypes.ITarget[] => {
+                      const top: IAutoMovieMotionHumanBodyFitTypes.ITarget | null =
+                        supportContact.swing(
+                          form,
+                          crossing.contact,
+                          oldPlace(crossing.previous),
+                          place(crossing.contact),
+                          crawl.LIFT,
+                          crossing.waypoints[
+                            Math.min(l, crossing.waypoints.length - 1)
+                          ],
+                        );
+                      if (top === null) return [];
+                      if (!crossing.contact.part.endsWith("Foot")) return [top];
+                      // The toe joint's elevation alone leaves the ankle
+                      // free to point the heel into the floor; level the
+                      // rigid hindfoot beneath the raised toe.
+                      return [
+                        top,
+                        supportCourse.heel(
+                          body,
+                          crossing.contact.part,
+                          top.goal,
+                        ),
+                      ];
+                    },
+                  ),
+                ],
+                form,
+              ),
+              seconds,
+              name: lift,
+              contacts: kept,
+              place: oldPlace,
+            });
+          }
+          route(steps);
+          seconds += interval;
           const union: IAutoMovieMotionHumanSupport.IContact[] = [
             ...kept,
             ...added,
@@ -366,7 +423,7 @@ export namespace support {
               place,
               `bear${i}`,
               MISS,
-              [],
+              heels(union, place),
               form,
             ),
             seconds,
@@ -397,7 +454,7 @@ export namespace support {
               midway,
               `bear${i}`,
               MISS,
-              [],
+              heels(union, midway),
               form,
             ),
             seconds,
@@ -433,7 +490,7 @@ export namespace support {
             place,
             `stance${i}`,
             MISS,
-            [],
+            heels(stance.contacts, place),
             form,
             held,
           ),
@@ -446,7 +503,7 @@ export namespace support {
     );
     const duration: number = seconds;
     const contacts: IAutoMovieMotionHumanActionPlan["contacts"] =
-      supportWindows.of(context, keys, duration);
+      supportWindows.of(context, keys, duration, course?.observe);
     // Contact windows own the arm that reaches and the hand that holds.
     const yields: AutoMovieMotionHumanChannelClaim[] = ["head"];
     for (const side of ["left", "right"] as const)
@@ -474,6 +531,14 @@ export namespace support {
           ),
       );
 
+    // A course's level feet stay flat on their fixture at the keys and
+    // through every interval that holds them at both ends.
+    const flat: supportCourse.IBearings | undefined = supportCourse.bearings(
+      body,
+      course,
+      keys,
+    );
+
     /** Carry a support interval after the containing transfer has been selected. */
     const transfer = (
       index: number,
@@ -487,15 +552,28 @@ export namespace support {
       const span: number = b.seconds - a.seconds;
       const w: number =
         span > 0 ? minimumJerk.share((seconds - a.seconds) / span) : 1;
-      if (w === 0) return index === 0 ? entry : a.posture;
-      if (w === 1) return b.posture;
+      if (w === 0)
+        return index === 0
+          ? entry
+          : supportCourse.apply(flat?.keys[index], a.posture, 0);
+      if (w === 1)
+        return supportCourse.apply(
+          flat?.keys[Math.min(index + 1, keys.length - 1)],
+          b.posture,
+          0,
+        );
 
       const posed: IAutoMovieMotionHumanPosture = intervals[index]!.write(
         w,
         resolution,
         projection,
       );
-      return follow?.(posed, seconds, channels) ?? posed;
+      const supported: IAutoMovieMotionHumanPosture = supportCourse.apply(
+        flat?.intervals[index],
+        supportCourse.apply(routes.get(index), posed, w),
+        0,
+      );
+      return follow?.(supported, seconds, channels) ?? supported;
     };
     const unbalanced: IAutoMovieMotionHumanActionPlan = {
       duration,

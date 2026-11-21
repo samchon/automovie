@@ -1,8 +1,17 @@
 import { createHolster } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanGraspUse,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
+import type { SceneBuildTypes } from "./SceneBuildTypes";
 import { SceneTakes } from "./SceneTakes";
+
+/** A region of another performer, as a motion target. */
+type PersonTarget = Extract<IAutoMovieMotionTarget, { kind: "person" }>;
 
 /**
  * Shorthands the scene records are written with, so each record reads as
@@ -10,10 +19,19 @@ import { SceneTakes } from "./SceneTakes";
  */
 export namespace SceneBuild {
   /** An action: a name, its parameters, and the optional members. */
-  export type Action = IPlaygroundComposition.IAction;
+  export type Action = SceneBuildTypes.AuthoredAction;
 
   /** A performer: a body at a place, with its actions. */
-  export type Performer = IPlaygroundComposition.IPerformer;
+  export type Performer = SceneBuildTypes.IAuthoredPerformer;
+
+  /** A plain composition with law-checked action inputs. */
+  export type Composition = SceneBuildTypes.IAuthoredComposition;
+
+  /** A point targeted by a law, with its declared coordinate frame. */
+  export type PointTarget = Extract<IAutoMovieMotionTarget, { kind: "point" }>;
+
+  /** A named point of a placed prop, as a motion target. */
+  export type PropTarget = Extract<IAutoMovieMotionTarget, { kind: "prop" }>;
 
   /**
    * A floor point, world metres.
@@ -22,7 +40,7 @@ export namespace SceneBuild {
    * @param z Forward.
    * @returns The point.
    */
-  export function to(x: number, z: number): Record<string, number> {
+  export function to(x: number, z: number): IAutoMovieVector3 {
     return { x, y: 0, z };
   }
 
@@ -33,7 +51,10 @@ export namespace SceneBuild {
    * @param region The region.
    * @returns The target.
    */
-  export function at(subject: string, region: string): Record<string, unknown> {
+  export function at(
+    subject: string,
+    region: PersonTarget["region"],
+  ): PersonTarget {
     return { kind: "person", subject, region };
   }
 
@@ -46,10 +67,20 @@ export namespace SceneBuild {
    * @returns The action.
    */
   export function act(
+    name: SceneBuildTypes.OptionalActionName,
+    params?: undefined,
+    more?: SceneBuildTypes.IActionOptions,
+  ): Action;
+  export function act<N extends SceneBuildTypes.ActionName>(
+    name: N,
+    params: SceneBuildTypes.ActionParams<NoInfer<N>>,
+    more?: SceneBuildTypes.IActionOptions,
+  ): Action;
+  export function act(
     name: string,
     params: Record<string, unknown> = {},
-    more: Partial<Omit<Action, "name" | "params">> = {},
-  ): Action {
+    more: SceneBuildTypes.IActionOptions = {},
+  ): IPlaygroundComposition.IAction {
     return { name, params, ...more };
   }
 
@@ -73,7 +104,7 @@ export namespace SceneBuild {
     yaw: number,
     actions: Action[],
     proficiency: IPlaygroundComposition.Proficiency = "trained",
-  ): IPlaygroundComposition.IPerformer {
+  ): Performer {
     return { subject, body, x, z, yaw, proficiency, actions };
   }
 
@@ -113,7 +144,7 @@ export namespace SceneBuild {
   }
 
   /** How a blade is taken up for its use, as the package's own blade tests take it: its point the working tip, its line rising across the palm as a cutting grip holds it. */
-  export const BLADE_USE: Record<string, string> = {
+  export const BLADE_USE: IAutoMovieMotionHumanGraspUse.IUse = {
     tip: "point",
     line: "oblique",
   };
@@ -140,7 +171,7 @@ export namespace SceneBuild {
     stand: string,
     thing: string,
     producer: string,
-    kind: string,
+    kind: string | undefined,
     x: number,
     z: number,
   ): IPlaygroundComposition.IObject[] {
@@ -340,7 +371,7 @@ export namespace SceneBuild {
   export function worn(
     thing: string,
     producer: string,
-    kind: string,
+    kind: string | undefined,
     wearer: string,
     bone: string,
     position: { x: number; y: number; z: number },
@@ -348,7 +379,7 @@ export namespace SceneBuild {
     return {
       subject: thing,
       producer,
-      kind,
+      ...(kind === undefined ? {} : { kind }),
       x: 0,
       z: 0,
       yaw: 0,
@@ -367,7 +398,10 @@ export namespace SceneBuild {
    * @param id The seat's affordance id, for an object with several seats; its only seat when absent.
    * @returns The seat reference.
    */
-  export function seat(subject: string, id?: string): Record<string, string> {
+  export function seat(
+    subject: string,
+    id?: string,
+  ): SceneBuildTypes.ISeatReference {
     return id === undefined ? { $seat: subject } : { $seat: subject, id };
   }
 
@@ -379,6 +413,9 @@ export namespace SceneBuild {
    * @param params The shared parameters.
    * @returns The mutual action.
    */
+  export function mutual(
+    ...args: SceneBuildTypes.MutualArguments
+  ): SceneBuildTypes.AuthoredMutual;
   export function mutual(
     name: string,
     cast: Record<string, string>,
@@ -440,9 +477,9 @@ export namespace SceneBuild {
   export function scene(
     about: IAbout,
     seed: string,
-    performers: IPlaygroundComposition.IPerformer[],
+    performers: Performer[],
     objects: IPlaygroundComposition.IObject[] = [],
-    mutuals: IPlaygroundComposition.IMutual[] = [],
+    mutuals: SceneBuildTypes.AuthoredMutual[] = [],
     forces: NonNullable<IPlaygroundComposition["forces"]> = [],
   ): IScene {
     const composition: IPlaygroundComposition = {

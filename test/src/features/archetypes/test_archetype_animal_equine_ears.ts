@@ -1,4 +1,4 @@
-import { EquidEarProfiles, createQuadruped } from "@automovie/archetypes";
+﻿import { EquidEarProfiles, createQuadruped } from "@automovie/archetypes";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,12 +27,14 @@ import { EquineEarObservation as Ear } from "../internal/EquineEarObservation";
  *    totals. Real head/ear fracture pieces expose positive actual plate masses
  *    proportional to their true volumes and preserve the complete head budget,
  *    both with source weights and the existing uniform-volume default.
+ * 7. Horse and pony pinnae carry Krebs et al. 2021's pooled Campolina ear
+ *    length over withers height (Table 1, 84 males and 131 females).
  *
  * Independent donor literals: Patel2025 Halari Table2 p326 male n28,
  * h108.04/L28.64/W10.64cm. Salamanca2020 TableS1 pp6-7 gives seven male
  * mule rows with sums h855.4/L134.5/W68cm and eight female rows with sums
  * h1001.2/L159.8/W77.5cm. These are distinct from current Veracruz donkey
- * and Velásquez2020 mule bodies. No SD, individual allometry or population band
+ * and Vel찼squez2020 mule bodies. No SD, individual allometry or population band
  * is inferred. Thickness W/10, rectangular outline and diagonal neutral pose
  * are explicitly authored primitives, never measured ear tissue or angles.
  *
@@ -121,17 +123,29 @@ export function test_archetype_animal_equine_ears(): void {
   } catch (error) {
     findings.push(`Actual physical head/ear masses failed: ${String(error)}`);
   }
+  // Krebs et al. 2021 Table 1: Campolina ear length 0.180/0.183 m at withers 1.566/1.533 m over 84 males and 131 females, pooled by count.
+  const horseRatio: number =
+    (84 * 0.18 + 131 * 0.183) / (84 * 1.566 + 131 * 1.533);
   for (const kind of ["horse", "pony"] as const) {
     const model: Ear.Model = createQuadruped({ kind }, 7);
-    if (
-      model.parts.some(
-        (part: IAutoMovieModelPart): boolean =>
-          part.id === "leftEar" || part.id === "rightEar",
-      )
-    )
-      findings.push(
-        `${kind}: optional equid profiles changed the unprofiled producer`,
+    for (const id of ["leftEar", "rightEar"] as const) {
+      const ear: IAutoMovieModelPart | undefined = model.parts.find(
+        (part: IAutoMovieModelPart): boolean => part.id === id,
       );
+      const length: number =
+        ear?.geometry.type === "primitive" && ear.geometry.shape.type === "box"
+          ? ear.geometry.shape.height
+          : NaN;
+      if (
+        !(
+          Math.abs(length / model.dimensions.withersHeight! - horseRatio) <=
+          1e-12
+        )
+      )
+        findings.push(
+          `${kind}: the ${id} does not carry the Krebs 2021 ear-length ratio`,
+        );
+    }
   }
   if (
     JSON.stringify([EquidEarProfiles.DONKEY, EquidEarProfiles.MULES]) !==

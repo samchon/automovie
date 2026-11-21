@@ -1,3 +1,5 @@
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
@@ -16,8 +18,8 @@ const point = (
   x: number,
   y: number,
   z: number,
-  normal?: { x: number; y: number; z: number },
-): Record<string, unknown> => ({
+  normal?: IAutoMovieVector3,
+): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",
@@ -25,10 +27,10 @@ const point = (
 });
 
 /** The bench top's upward normal. */
-const UP: { x: number; y: number; z: number } = { x: 0, y: 1, z: 0 };
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /** The nail the carpenter drives, on the bench top ahead of the right hand. */
-const NAIL: Record<string, unknown> = point(-0.1, SceneBuild.COUNTER_TOP, 0.4);
+const NAIL: SceneBuild.PointTarget = point(-0.1, SceneBuild.COUNTER_TOP, 0.4);
 
 /**
  * The seven upper-body lexicon families in four everyday sequences: a
@@ -144,8 +146,8 @@ export const SCENES_UPPER: readonly IScene[] = [
       object("counter", "createTable", "counter", 0.6, 0.53, 180),
       object(
         "hat",
-        "createWearable",
-        "hat",
+        "createHat",
+        undefined,
         0.18,
         0.3,
         0,
@@ -205,12 +207,12 @@ export const SCENES_UPPER: readonly IScene[] = [
     [
       object("bench", "createTable", "counter", 0, 0.65, 180),
 
-      // createTool's +Y working line lies forward on the bench.
+      // The hammer's +Y working line lies forward on the bench.
       {
         ...object(
           "hammer",
-          "createTool",
-          "hammer",
+          "createHammer",
+          undefined,
           -0.18,
           0.42,
           0,

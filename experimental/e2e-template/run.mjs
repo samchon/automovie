@@ -34,6 +34,8 @@ import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
 
+import { installedSdkTestSource } from "./installedSdkTestSource.mjs";
+
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const layout = process.argv[2];
 const keep = process.argv.includes("--keep");
@@ -174,43 +176,17 @@ const install = (directory) =>
 const addSdkConsumer = (directory) => {
   const nested = path.join(directory, "test", "features", "installed-sdk");
   fs.mkdirSync(nested, { recursive: true });
+  const contactBody = JSON.parse(
+    fs.readFileSync(path.join(ROOT, "test", "src", "features", "internal", "MOTION_HUMAN_PEOPLE.json"), "utf8"),
+  )["f-average"];
   fs.writeFileSync(
     path.join(nested, "test_installed_sdk.ts"),
-    `import assert from "node:assert/strict";
-import { createRing } from "@automovie/archetypes";
-import { HumanChain } from "@automovie/motions";
-
-import type { IFilmProduction } from "../../../src/IFilmProduction";
-import { starter } from "../../../src/composition/films/starter";
-
-/**
- * Execute installed SDK consumers through the generated nested test project.
- *
- * Scenarios: a real archetype, typed motion chain, and the generated film's
- * compiled furnished room are constructed after dynamic test discovery.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the nested runtime integration and actual installed SDK consumers.
- * @evidence contracts/development/testing.md#behavioral-verification Test discovery executes the public producers, including the environment subpath through the packed exports. A missing inherited lint configuration prevents discovery.
- * @evidence contracts/development/testing.md#independent-expectations A nonempty model, a composition node and the explicitly named bench follow from the authored fixture.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises root and environment subpath imports in a nested discovered module.
- * @evidence contracts/development/testing.md#execution-ownership Runs through the generated pnpm test command and its actual dynamic loader, without a browser or patched dependency.
- */
-export async function test_installed_sdk(): Promise<void> {
-  assert.ok(createRing({ id: "sdk-consumer" }).parts.length > 0);
-  assert.ok(HumanChain.subject("sdk-consumer").stand({ seconds: 1 }).node);
-  const room: IFilmProduction = await starter().create();
-  try {
-    assert.ok(room.scene.getObjectByName("installed-room/bench"));
-  } finally {
-    room.dispose();
-  }
-}
-`,
+    installedSdkTestSource(contactBody),
   );
   fs.writeFileSync(
     path.join(directory, "src", "composition", "films", "starter.ts"),
     `import { createBuilding, createEnvironment, createEnvironmentProp } from "@automovie/archetypes/environments";
-import { createSeat } from "@automovie/archetypes/furniture";
+import { createBookcase, createSeat } from "@automovie/archetypes/furniture";
 import { compileDefinedShot, defineShot } from "@automovie/engine";
 import type { IAutoMovieCompiledDefinedShot, IAutoMovieEnvironment, IAutoMovieModel, IAutoMovieStage } from "@automovie/interface";
 import {
@@ -226,11 +202,11 @@ import type { IFilmProduction } from "../../IFilmProduction";
 /**
  * A packed-SDK room exercised by the generated production's existing film.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the named entrance, linked bench, registered shot and native scene ownership.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the named entrance, bench and bookcase, registered shot and native scene ownership.
  * @evidence contracts/development/implementation.md#principled-implementation Passes installed place outputs through defineShot, compileDefinedShot and buildScene.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The film builds one static scene per mount and the generated host owns playback and capture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The packed builder and mesh loader own geometry and clipping. A compiler refusal prevents the mount.
- * @evidence contracts/development/implementation.md#efficient-algorithms The room and bench compile once per mount and model resolution uses their id map.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The furnished room compiles once per mount and model resolution uses its id map.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The Viewer and capture use the same registered starter film and scene factory.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The film owns and disposes the mounted native scene's resources.
  */
@@ -250,10 +226,11 @@ export function starter(): IFilm {
             openings: [{ id: "entry", kind: "passage", between: ["studio", null], edge: [[0, 0], [6, 0]], width: 1.2, height: 2.1 }],
           }] }) },
           bench: { use: createEnvironmentProp({ model: createSeat({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
+          bookcase: { use: createEnvironmentProp({ model: createBookcase() }), at: { x: 4.6, y: 0, z: 2.85 } },
         },
       });
       const id: string = "starter";
-      const description: string = "A bench in a room with an open entrance";
+      const description: string = "A furnished room with an open entrance";
       const target = { kind: "point" as const, point: { x: 2.8, y: 0.8, z: 1.6 } };
       const stage: IAutoMovieStage = {
         ...room.stage,

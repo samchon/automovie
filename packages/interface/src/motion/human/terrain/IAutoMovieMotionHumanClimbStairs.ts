@@ -1,3 +1,4 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanClimbStairsFlight } from "./IAutoMovieMotionHumanClimbStairsFlight";
 
@@ -41,8 +42,11 @@ import type { IAutoMovieMotionHumanClimbStairsFlight } from "./IAutoMovieMotionH
  * of the foot is refused with the body's feasible range (provisional limits).
  * Events: `toeOff<n>` and `treadContact<n>` per step, numbered from 1.
  *
- * Not yet: handrail use (no `bar` affordance exists, A8), landing turns,
- * ramps and slopes, which belong to the walk on a sloped support.
+ * An optional `rail` names the bracing hand and a `bar` affordance of the
+ * fixed stair prop named in `on` (`climbStairsRail`): the hand closes on
+ * the bar as the climb starts, slides along its axis abreast of the pelvis
+ * while it bears, and lets go before the final stance. A bar the displayed
+ * grip misses is refused. A following walk on the landing turns there.
  *
  * @evidence contracts/development/common.md#meaningful-documentation pattern: One foot per tread, or both feet on each; `stepOverStep` when absent. lead: The foot that steps first; `right` when absent.
  * @evidence contracts/development/design.md#principled-representation pattern: One foot per tread, or both feet on each; `stepOverStep` when absent. lead: The foot that steps first; `right` when absent.
@@ -68,10 +72,29 @@ export namespace IAutoMovieMotionHumanClimbStairs {
     /** The foot that steps first; `right` when absent. */
     lead?: "left" | "right";
 
-    /** The prop the flight belongs to, its subject id, so a foot on a tread bears on it; the fixed floor frame when absent. */
+    /** The prop the flight belongs to, its subject id, so a foot on a tread bears on it; a prop that moves, such as an escalator's inclined steps, carries the climb planned where it stood at the start. The fixed floor frame when absent. */
     on?: string;
+
+    /** The bar a hand bears on during the climb; requires the stair prop in `on`. No rail when absent. */
+    rail?: IRail;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;
+  }
+
+  /**
+   * A hand on a named bar of the flight.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the side and the exact bar.
+   * @evidence contracts/development/design.md#principled-representation The prop's bar affordance owns the axis and length in world metres; the hand owns the contact side.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two inputs read by climbStairsRail.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No anchor or claimed fit is supplied beside the two identifiers; a missing, moving or unreachable bar is refused at runtime.
+   */
+  export interface IRail {
+    /** The performer's hand that braces on the rail. */
+    side: AutoMovieHumanSide;
+
+    /** Id of the `bar` affordance on the fixed stair prop. */
+    point: string;
   }
 }

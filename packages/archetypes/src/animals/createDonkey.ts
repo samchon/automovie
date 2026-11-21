@@ -35,7 +35,7 @@ const VERACRUZ: string =
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createDonkey(
-  params: createHorse.IParams = {},
+  params: Omit<createHorse.IParams, "breed"> = {},
   seed?: number | string,
 ): Archetype<createHorse.Affordance, createHorse.Dimension> {
   return createHorse.equid(
