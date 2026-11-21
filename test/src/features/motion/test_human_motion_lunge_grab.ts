@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,11 +20,11 @@ import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The pair's separation for a lunge, metres: beyond the arms, inside a lunge. */
-const LUNGE: number = 1.05;
+const LUNGE: number = 0.95;
 /** The pair's separation no lunge covers, metres. */
 const FAR: number = 3;
-/** A palm closes on its region within this of the region's bone, metres: a shoulder's half depth and a palm. */
-const GRIP: number = 0.14;
+/** A palm closes on its region within this of the region's surface point, metres: a palm's half width. */
+const GRIP: number = 0.05;
 /** The hands and the regions they close on, for a right lead facing the victim. */
 const HOLDS: readonly (readonly [
   AutoMovieHumanSide,
@@ -45,7 +46,7 @@ const HOLDS: readonly (readonly [
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the setup and what each check pins.
  * @evidence contracts/development/testing.md#behavioral-verification Plans the registered lungeGrab row through HumanPerformance and reads palms, the victim's bones, the schedule and the verdict report.
- * @evidence contracts/development/testing.md#independent-expectations The separations are authored; the grip bound is a shoulder's half depth and a palm.
+ * @evidence contracts/development/testing.md#independent-expectations The separations are authored; the grip bound is a palm's half width from the region's surface point.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, a reachable and an unreachable victim.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
@@ -70,10 +71,13 @@ export function test_human_motion_lunge_grab(): void {
           "palm",
           "flat",
         ).point;
-        const bone: IAutoMovieVector3 = film
-          .bones("v", at)
-          .get(victim.surfaces.regions[region].bone)!.worldPosition;
-        const gap: number = Vector3.distance(palm, bone);
+        const reader: IAutoMovieMotionHumanPosture = film.posture("a", at);
+        const site: IAutoMovieVector3 = film.aim(
+          { kind: "person", subject: "v", region },
+          at,
+          { root: reader.root, yaw: reader.yaw },
+        ).point;
+        const gap: number = Vector3.distance(palm, site);
         checks.check(
           `${label}: the ${side} palm closes on the ${region} (${gap.toFixed(3)} m)`,
           gap <= GRIP,

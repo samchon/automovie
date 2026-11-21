@@ -533,6 +533,10 @@ export function test_human_motion_blade_carrier_draw(): void {
 
 /** How far the scabbard retreats along its line in the long draw, metres: an authored share of the blade. */
 const RETREAT: number = 0.3;
+/** The longsword's mouth from the body's midline, metres on a 1.75 m body: worn forward of the hip for the cross draw, authored. */
+const LATERAL: number = 0.14;
+/** The longsword's mouth ahead of the hips, metres: authored. */
+const AHEAD: number = 0.2;
 /** How far the trunk turns away from the drawing side in the long draw, degrees: authored. */
 const OPEN: number = 30;
 
@@ -545,6 +549,9 @@ function longsword(): void {
     { kind: "scabbard", blade: "crecy" },
     35,
     "left",
+    "mouth",
+    LATERAL,
+    AHEAD,
   );
   // The throat below the mouth is where the left hand takes the scabbard.
   const carrier: IAutoMovieMotionHumanProp = staged.props[0]!;
@@ -594,7 +601,7 @@ function longsword(): void {
   const draw: IAutoMovieMotionHumanSegment = film
     .segments("fencer")
     .find(
-      (s: IAutoMovieMotionHumanSegment): boolean => s.intent.anchor === "draw",
+      (s: IAutoMovieMotionHumanSegment): boolean => s.id === "draw",
     )!;
   const liftOff: number = at(draw, "unseated");
   const lifted: number = at(draw, "drawn");
@@ -666,6 +673,8 @@ function stage(
   cant: number,
   side: AutoMovieHumanSide = "right",
   mouth: string = "mouth",
+  lateral: number = 0.2,
+  ahead: number = 0.12,
 ): IStage {
   const blade: ReturnType<typeof createSword> = createSword(bladeParams);
   const carrier: ReturnType<typeof createHolster> = createHolster({
@@ -680,15 +689,15 @@ function stage(
   const hips: IAutoMovieRigidTransform = HumanPropFrame.bone(
     poseBones(body, neutral).get("hips")!,
   );
-  // The mouth sits just above the hip joint, in front of the right hip.
+  // The mouth sits just above the hip joint, in front of the hip.
   const hang: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     cant,
   );
   const mouthAt: IAutoMovieVector3 = {
-    x: (side === "left" ? 0.2 : -0.2) * (body.measure.stature / 1.75),
+    x: (side === "left" ? lateral : -lateral) * (body.measure.stature / 1.75),
     y: body.measure.hipHeight + 0.05,
-    z: 0.12,
+    z: ahead,
   };
   const placed: IAutoMovieRigidTransform = {
     position: Vector3.subtract(

@@ -167,8 +167,12 @@ export namespace lungeGrab {
       "leftFoot",
       "rightFoot",
     ];
+    // The grab's own stance base stood on the lunged feet from its start;
+    // the lunge's feet are its contacts below, so the base is left out.
+    const { base: _base, ...grabbing }: IAutoMovieMotionHumanActionPlan =
+      grabbed;
     return {
-      ...grabbed,
+      ...grabbing,
       events: [...grabbed.events, { name: "lunged", share: lunge / duration }],
       contacts: [
         ...grabbed.contacts.filter(

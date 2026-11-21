@@ -148,6 +148,7 @@ export * from "./dressing/bindPartner";
 export * from "./floor/crabWalk";
 export * from "./touch/lungeGrab";
 export * from "./reaction/stopDropRoll";
+export * from "./reaction/wireArrest";
 export * from "./dressing/dress";
 export * from "./dressing/tipHat";
 export * from "./carrying/carry";

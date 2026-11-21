@@ -18,6 +18,7 @@ import { drawFromCarrier } from "../handling/drawFromCarrier";
 import { collapse } from "../reaction/collapse";
 import { thrown } from "../reaction/thrown";
 import { stopDropRoll } from "../reaction/stopDropRoll";
+import { wireArrest } from "../reaction/wireArrest";
 import { wireFlight } from "../reaction/wireFlight";
 import { guitarChord } from "../handling/guitarChord";
 import { guitarNote } from "../handling/guitarNote";
@@ -205,7 +206,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   sportGym: [HumanSportGym],
   sportCarry: [HumanSportCarry],
   floorRoll: [HumanFloorRoll],
-  floorFall: [HumanFloorFall, { collapse, thrown, wireFlight, stopDropRoll }],
+  floorFall: [HumanFloorFall, { collapse, thrown, wireFlight, wireArrest, stopDropRoll }],
   support: [HumanSupportRows],
   sportSwing: [HumanSportSwing, HumanPrecisionSport],
   sportThrow: [HumanSportThrow, { stageCatch, stageDeflect }],

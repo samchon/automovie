@@ -838,6 +838,7 @@
     "crabWalk": {},
     "lungeGrab": {},
     "stopDropRoll": {},
+    "wireArrest": {},
     "ropeSkip": {
       "properties": {
         "flightSeconds": {

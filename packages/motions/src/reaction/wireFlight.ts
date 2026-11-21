@@ -1,10 +1,12 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPosture,
@@ -21,6 +23,7 @@ import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { mixHumanPosture } from "../posture/mixHumanPosture";
 
 /**
  * A wire flight along an authored path (`IAutoMovieMotionHumanWireFlight`).
@@ -207,7 +210,153 @@ export namespace wireFlight {
           }),
         ],
       });
-    return { ...plan, physicalWindow: null };
+    const touches: readonly IAutoMovieMotionHumanWireFlight.ITouch[] =
+      context.params.touches ?? [];
+    if (touches.length === 0) return { ...plan, physicalWindow: null };
+
+    // Each touch: the hand or the foot meets its surface around its share,
+    // coming in and going out over `TOUCH` on either side.
+    const window: number = Math.min(TOUCH, seconds / 4);
+    const root: (t: number) => IAutoMovieVector3 = (
+      t: number,
+    ): IAutoMovieVector3 =>
+      along(total * minimumJerk(Math.min(1, Math.max(0, t / seconds))).s);
+    const placed: readonly IPlaced[] = touches.map(
+      (touch: IAutoMovieMotionHumanWireFlight.ITouch, k: number): IPlaced => {
+        if (!(touch.at >= 0 && touch.at <= 1))
+          throw new HumanRefusal({
+            kind: "parameter",
+            axis: `touches.${k}.at`,
+            value: touch.at,
+            feasible: { kind: "range", unit: "share", minimum: 0, maximum: 1 },
+            reason: "a touch happens at a share of the flight",
+            fix: "give a share between 0 and 1",
+          });
+        const at: number = touch.at * seconds;
+        const leg: boolean =
+          touch.part === "leftFoot" || touch.part === "rightFoot";
+        const aim: ReturnType<typeof context.aim> = context.aim(
+          touch.target,
+          context.start + at,
+        );
+        // The hip or the shoulder, from the root along the body's axis.
+        const base: IAutoMovieVector3 = Vector3.add(root(at), {
+          x: 0,
+          y: leg
+            ? context.body.measure.hipHeight
+            : SHOULDER * context.body.measure.stature,
+          z: 0,
+        });
+        const reach: number = leg
+          ? context.body.measure.hipHeight
+          : context.body.measure.upperArm + context.body.measure.forearm;
+        const gap: number = Vector3.distance(base, aim.point);
+        if (gap > reach)
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: `touches.${k}.target`,
+            value: gap,
+            feasible: { kind: "range", unit: "m", minimum: 0, maximum: reach },
+            reason: `the ${touch.part} would meet its surface ${gap.toFixed(2)} m from its joint on the path; it reaches ${reach.toFixed(2)} m`,
+            fix: "bring the path closer to the surface at that share",
+          });
+        return {
+          touch,
+          at,
+          leg,
+          point: Vector3.add(
+            aim.point,
+            Vector3.scale(
+              aim.normal,
+              leg ? ANKLE * context.body.measure.stature : PALM,
+            ),
+          ),
+        };
+      },
+    );
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
+      ...plan.contacts,
+      ...placed.flatMap((p: IPlaced): IAutoMovieMotionHumanContactWindow[] =>
+        p.touch.target.kind === "prop"
+          ? [
+              {
+                part: p.touch.part,
+                kind: "plant",
+                from: Math.max(0, p.at - window / 4) / seconds,
+                to: Math.min(seconds, p.at + window / 4) / seconds,
+                support: { kind: "prop", subject: p.touch.target.subject },
+              },
+            ]
+          : [],
+      ),
+    ];
+    return {
+      ...plan,
+      contacts,
+      physicalWindow: null,
+      posture: (
+        seconds_: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
+        let posture: IAutoMovieMotionHumanPosture = plan.posture(
+          seconds_,
+          channels,
+          resolution,
+          projection,
+        );
+        for (const p of placed) {
+          const w: number = Math.max(0, 1 - Math.abs(seconds_ - p.at) / window);
+          if (w <= 0) continue;
+          const limb: AutoMovieHumanLimb = `${p.touch.part.startsWith("left") ? "left" : "right"}${p.leg ? "Leg" : "Arm"}`;
+          posture = mixHumanPosture(
+            posture,
+            {
+              ...posture,
+              limbs: {
+                ...posture.limbs,
+                [limb]: {
+                  point: p.point,
+                  bend: Vector3.add(p.point, {
+                    x: 0,
+                    y: p.leg ? 0.3 : -0.2,
+                    z: 0,
+                  }),
+                  planted: w >= 1,
+                },
+              },
+            },
+            minimumJerk.share(w),
+          );
+        }
+        return posture;
+      },
+    };
+  }
+
+  /** How long a touch comes in before its share and goes out after, seconds: authored. */
+  export const TOUCH: number = 0.3;
+
+  /** The shoulder's height on a standing body, in statures (Drillis and Contini 1966: 0.818). */
+  export const SHOULDER: number = 0.818;
+
+  /** The ankle's height above the sole, in statures (Drillis and Contini 1966: 0.039). */
+  export const ANKLE: number = 0.039;
+
+  /** How far the wrist stands off a surface the palm lies on, metres: a palm's half thickness. */
+  export const PALM: number = 0.015;
+
+  /** One touch placed on the flight. */
+  interface IPlaced {
+    /** The authored touch. */
+    touch: IAutoMovieMotionHumanWireFlight.ITouch;
+    /** Its second in the flight. */
+    at: number;
+    /** Whether a foot touches. */
+    leg: boolean;
+    /** The wrist's or the ankle's goal there, world metres. */
+    point: IAutoMovieVector3;
   }
 
   /** One flight shape: the body's pitch and joint angles, degrees (provisional stage readings). */
@@ -246,6 +395,20 @@ export namespace wireFlight {
         rightUpperArm: [30, 10, 0],
         leftLowerArm: [60, 0, 0],
         rightLowerArm: [60, 0, 0],
+      },
+    },
+    limp: {
+      pitch: 0,
+      joints: {
+        neck: [25, 0, 0],
+        leftUpperArm: [5, 8, 0],
+        rightUpperArm: [5, 8, 0],
+        leftLowerArm: [15, 0, 0],
+        rightLowerArm: [15, 0, 0],
+        leftUpperLeg: [10, 3, 0],
+        rightUpperLeg: [10, 3, 0],
+        leftLowerLeg: [20, 0, 0],
+        rightLowerLeg: [20, 0, 0],
       },
     },
     stride: {

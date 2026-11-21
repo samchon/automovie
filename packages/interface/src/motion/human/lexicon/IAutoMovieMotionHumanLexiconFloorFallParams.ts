@@ -35,4 +35,7 @@ export interface IAutoMovieMotionHumanLexiconFloorFallParams {
 
   /** Stop, drop and roll: a protective drop to prone with the hands over the face, then rolls onto each side and back. */
   stopDropRoll: IAutoMovieMotionHumanFirefight.IStopDropRoll;
+
+  /** An arrested fall on a wire: a free drop, a bounded uniform braking to a stop above the floor, a hold and a lowering to stand. */
+  wireArrest: IAutoMovieMotionHumanWireFlight.IArrest;
 }

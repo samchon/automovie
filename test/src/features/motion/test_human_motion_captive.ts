@@ -150,7 +150,7 @@ export function test_human_motion_captive(): void {
         .segments("c")
         .find(
           (segment: IAutoMovieMotionHumanSegment): boolean =>
-            segment.intent?.anchor === prop,
+            segment.id === prop,
         )!;
       const on: number =
         tied.start +

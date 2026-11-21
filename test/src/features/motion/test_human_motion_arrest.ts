@@ -124,7 +124,7 @@ export function test_human_motion_arrest(): void {
         .segments("o")
         .find(
           (segment: IAutoMovieMotionHumanSegment): boolean =>
-            segment.intent?.anchor === `pat${k}`,
+            segment.id === `pat${k}`,
         )!;
       const at: number =
         pat.start + (pat.plan.contact ?? pat.plan.duration / 2);
@@ -152,7 +152,7 @@ export function test_human_motion_arrest(): void {
       .segments("o")
       .find(
         (segment: IAutoMovieMotionHumanSegment): boolean =>
-          segment.intent?.anchor === "cuff",
+          segment.id === "cuff",
       )!;
     const closed: number =
       cuffed.start +
