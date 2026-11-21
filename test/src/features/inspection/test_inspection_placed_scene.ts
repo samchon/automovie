@@ -47,6 +47,8 @@ export function test_inspection_placed_scene(): void {
   corrupted.matrixWorldAutoUpdate = false;
   corrupted.matrixWorld.elements[4] = NaN;
   scene.add(deck, sole, prop, manual, corrupted);
+  // The observer reads the displayed world matrices the host already settled.
+  scene.updateMatrixWorld();
 
   const time = {
     filmSeconds: 1.5,
@@ -171,6 +173,7 @@ export function test_inspection_placed_scene(): void {
         sample: { socket: sole, support: deck, anchor: { x: 2, y: 0, z: 1 } },
       },
       observedContact: {
+        status: "measured",
         seconds: received.seconds,
         separation: received.separation,
         impulse: received.impulse,

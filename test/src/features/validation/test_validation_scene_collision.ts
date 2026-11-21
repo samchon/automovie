@@ -22,11 +22,12 @@ import { nclose } from "../internal/nclose";
  * 2. A closed solid wholly inside a box produces a signed negative witness. Exact tangency remains a candidate, while a remote part yields no finding.
  * 3. A named hand contact expires exactly at the second its half-open window ends, without affecting the independent forearm contact.
  * 4. Proxies, envelope-only and absent geometry retain distinct evidence; an exhausted search reports remaining work.
+ * 5. Enclosing cord segments in one deformable body skip their own pairs, prove clearance when separated, and stay below confirmation when they overlap a post.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the geometry, permissions, external grouping and incomplete coverage observations.
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the public scene kernel with the real convex query, asserting pair identities, signed witnesses, permission and coverage.
  * @evidence contracts/development/testing.md#independent-expectations The exhaustive reference uses the authored sphere radii and centre distances. Nested box and hand depths follow their axis-aligned face distances, using a tolerance for the native query's precision.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers external and skipped internal pairs, an empty loose group region, tangent and enclosed solids, timed expiry, limited work and unsupported geometry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers external and skipped internal pairs, an empty loose group region, tangent and enclosed solids, timed expiry, limited work, unsupported geometry, and separated versus overlapping enclosing solids.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable test_validation_scene_collision function owns a portable in-memory fixture and a geometry-only initialized query. It launches no app or test suite.
  */
 export async function test_validation_scene_collision(): Promise<void> {
@@ -277,6 +278,69 @@ export async function test_validation_scene_collision(): Promise<void> {
     { proxies: ["proxy"], findings: [] },
   );
 
+  const cord: Collision.IGroup = { id: "cord", kind: "deformable-body" };
+  const segments: Collision.IPart[] = [0, 0.5].map(
+    (x: number, index: number): Collision.IPart => ({
+      ...shapePart(
+        `cord/segment/${index}`,
+        x + 10,
+        { kind: "sphere", radius: 0.3 },
+        "enclosing",
+      ),
+      group: cord,
+    }),
+  );
+  const enclosedMiss: Collision.IResult = measureAutoMovieSceneCollision({
+    parts: [
+      ...segments,
+      shapePart("post", 12, { kind: "sphere", radius: 0.5 }),
+    ],
+    geometry,
+    seconds: 0,
+    maxComparisons: 50,
+  });
+  TestValidator.equals(
+    "separated enclosing solids prove clearance and skip their own body's pairs",
+    {
+      findings: enclosedMiss.findings,
+      proxies: enclosedMiss.proxyParts,
+      groups: enclosedMiss.internalGroups,
+    },
+    { findings: [], proxies: [], groups: [cord] },
+  );
+  const enclosedHit: Collision.IResult = measureAutoMovieSceneCollision({
+    parts: [
+      ...segments,
+      shapePart("post", 10.75, { kind: "sphere", radius: 0.5 }),
+    ],
+    geometry,
+    seconds: 0,
+    maxComparisons: 50,
+  });
+  TestValidator.equals(
+    "an enclosing overlap stays below displayed confirmation",
+    enclosedHit.findings.map(({ first, second, status, basis }) => ({
+      first,
+      second,
+      status,
+      basis,
+    })),
+    [
+      {
+        first: "cord/segment/0",
+        second: "post",
+        status: "proxy",
+        basis: "proxy",
+      },
+      {
+        first: "cord/segment/1",
+        second: "post",
+        status: "proxy",
+        basis: "proxy",
+      },
+    ],
+  );
+
   const budget: Collision.IResult = measureAutoMovieSceneCollision({
     parts: [proxy, proxyTarget],
     geometry,
@@ -317,7 +381,7 @@ function shapePart(
         Extract<IAutoMoviePhysicalShape, { kind: "box" }>,
         "kind" | "halfExtents"
       >,
-  basis: "displayed" | "proxy" = "displayed",
+  basis: "displayed" | "enclosing" | "proxy" = "displayed",
 ): Collision.IPart {
   return {
     id,

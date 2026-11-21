@@ -12,27 +12,32 @@ import type { IAutoMovieSubjectBox } from "../production/IAutoMovieSubjectBox";
  */
 export namespace IAutoMovieSceneCollision {
   /**
-   * An assembly or admitted formation whose parts share external collision ownership.
+   * An assembly, admitted formation or segmented deformable body whose parts share external collision ownership.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the stable group identity and the reasons that exempt internal pairs.
-   * @evidence contracts/development/design.md#principled-representation A group is a stable identity qualified by its declared assembly or formation owner.
+   * @evidence contracts/development/design.md#principled-representation A group is a stable identity qualified by its declared assembly, formation or deformable-body owner.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Scene evaluation supplies membership, and the scene query consumes it before checking external pairs.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Path prefixes and coincident poses imply no group membership or exemption.
    */
   export interface IGroup {
     /** Stable group identity within the evaluated scene layer. */
     id: string;
-    /** Explicit source-owned exclusion policy. */
-    kind: "rigid-assembly" | "managed-formation";
+    /**
+     * Explicit source-owned exclusion policy. A rigid assembly moves as one
+     * owner, a managed formation keeps its own member spacing, and a deformable
+     * body is one solver-owned surface split into segments whose self-contact
+     * belongs to that solver.
+     */
+    kind: "rigid-assembly" | "managed-formation" | "deformable-body";
   }
 
   /**
    * One collision leaf supplied by the evaluated scene owner.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Identifies the source path, explicit grouping, optional region and world geometry authority.
-   * @evidence contracts/development/design.md#principled-representation A leaf carries a supported closed solid, a conservative envelope or explicit unavailable geometry.
+   * @evidence contracts/development/design.md#principled-representation A leaf carries a supported closed solid, an enclosing solid, a conservative envelope or explicit unavailable geometry.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Scene evaluation supplies current world placement. The query consumes it without owning animation or meshes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only exact displayed ownership can certify a displayed collision. Unavailable bounds remain outside the search.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only exact displayed ownership can certify a displayed collision. An enclosing solid can prove clearance but never penetration. Unavailable bounds remain outside the search.
    */
   export interface IPart {
     /** Unique, stable source path for this physical part. */
@@ -48,8 +53,13 @@ export namespace IAutoMovieSceneCollision {
           kind: "shape";
           /** The current collider with admitted dimensions and unit poses. */
           collider: IAutoMoviePreparePhysicalGeometry.ICollider;
-          /** Displayed means the producer can account for the displayed solid with this exact shape. */
-          basis: "displayed" | "proxy";
+          /**
+           * Displayed means the producer can account for the displayed solid
+           * with this exact shape. Enclosing means the shape contains the whole
+           * displayed solid, so separation proves clearance while overlap stays
+           * a candidate. Proxy carries neither guarantee.
+           */
+          basis: "displayed" | "enclosing" | "proxy";
         }
       | {
           /** A finite conservative world envelope for a part with unsupported narrow geometry. */
@@ -98,7 +108,7 @@ export namespace IAutoMovieSceneCollision {
     geometry: Pick<IAutoMoviePreparePhysicalGeometry.IQueries, "contact">;
     /** Authored windows with exact part paths. */
     allowances?: readonly IAllowance[];
-    /** Refine overlapping groups by their admitted regions before comparing part bounds. */
+    /** Refine overlapping groups by their admitted regions before comparing part bounds. Region bounds are built only for groups that overlap another group. */
     refinement?: "group" | "region";
     /** Maximum sum of group, region, part and narrow shape comparisons. */
     maxComparisons: number;
@@ -119,7 +129,7 @@ export namespace IAutoMovieSceneCollision {
     second: string;
     /** Observed layer-local second. */
     seconds: number;
-    /** Geometry supporting this finding. Envelope takes precedence over proxy in a bounds-only pair. */
+    /** Geometry supporting this finding. Envelope takes precedence over proxy in a bounds-only pair, and an enclosing solid reports as proxy. */
     basis: "displayed" | "proxy" | "envelope";
     /** Candidate means uncertain separation. Confirmed and permitted require displayed geometry. */
     status: "candidate" | "proxy" | "confirmed" | "permitted";

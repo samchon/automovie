@@ -8,6 +8,7 @@ import type { IAutoMovieSceneSoftProps } from "./IAutoMovieSceneSoftProps.js";
 import type { IAutoMovieSoftBodyObject } from "./IAutoMovieSoftBodyObject.js";
 import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
 import { buildSoftBodyObject } from "./buildSoftBodyObject.js";
+import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { softPropCordSurface } from "./softPropCordSurface.js";
@@ -17,7 +18,7 @@ import { softPropCordSurface } from "./softPropCordSurface.js";
  * the already evaluated world-space surfaces for one instant.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents the scene owner, film-time boundary, replacement and cleanup.
- * @evidence contracts/development/implementation.md#principled-implementation A map by performance subject updates one mesh per supplied frame. Common cloth projection owns Float32 geometry and material; a cord first acquires a tube through its particles.
+ * @evidence contracts/development/implementation.md#principled-implementation A map by performance subject updates one mesh per supplied frame. Common cloth projection owns Float32 geometry and material; a cord first acquires a tube through its particles and records those particles for placed collision checks.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit unique subjects and project their geometry before changing the scene, then update retained meshes and withdraw absent meshes.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Accepts producer status verbatim and adds no solve or interpolation. An effectful mesh update can fail after another mesh has already advanced.
  * @evidence contracts/development/implementation.md#efficient-algorithms Map work is linear in incoming and currently mounted subjects, with additional projection work linear in their buffers.
@@ -33,6 +34,8 @@ export function buildSceneSoftProps(
     update: (frames: readonly IAutoMovieRenderSoftPropFrame[]): void => {
       if (closed) throw new Error("The scene's soft props are closed.");
       const incoming: Map<string, IAutoMovieRenderSoftPropFrame> = new Map();
+      const cords: Map<string, AutoMovieCollisionSource.ICord | null> =
+        new Map();
       for (const frame of frames) {
         if (frame.subject.trim() === "" || incoming.has(frame.subject))
           throw new Error(
@@ -43,6 +46,12 @@ export function buildSceneSoftProps(
             ? frame.surface
             : softPropCordSurface(frame.surface, frame.cordRadius);
         incoming.set(frame.subject, { ...frame, surface });
+        cords.set(
+          frame.subject,
+          frame.cordRadius === undefined || surface === frame.surface
+            ? null
+            : cordParticles(frame.surface.mesh.positions, frame.cordRadius),
+        );
       }
 
       for (const [subject, frame] of incoming) {
@@ -57,6 +66,11 @@ export function buildSceneSoftProps(
           applyAutoMovieShadowParticipation(projection.object);
           scene.add(projection.object);
         }
+        // Placed collision checks read the same particles the tube was drawn through.
+        AutoMovieCollisionSource.bindCord(
+          mounted.get(subject)!.object,
+          cords.get(subject) ?? null,
+        );
       }
 
       const removals: (() => void)[] = [];
@@ -80,4 +94,28 @@ export function buildSceneSoftProps(
       restoreAutoMovieRenderModeState(removals);
     }),
   };
+}
+
+/** Consecutive distinct particles, matching the rings softPropCordSurface draws. */
+function cordParticles(
+  positions: readonly number[],
+  radius: number,
+): AutoMovieCollisionSource.ICord {
+  const points: number[] = [];
+  for (let offset: number = 0; offset + 2 < positions.length; offset += 3) {
+    const n: number = points.length;
+    if (
+      n !== 0 &&
+      points[n - 3] === positions[offset] &&
+      points[n - 2] === positions[offset + 1] &&
+      points[n - 1] === positions[offset + 2]
+    )
+      continue;
+    points.push(
+      positions[offset]!,
+      positions[offset + 1]!,
+      positions[offset + 2]!,
+    );
+  }
+  return { radius, points };
 }

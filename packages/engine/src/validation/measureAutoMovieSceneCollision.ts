@@ -29,8 +29,8 @@ interface IRegion {
 
 /** One independent part or an explicitly managed group. */
 interface IGroup extends IRegion {
-  /** Optional narrower envelopes inside this group. */
-  regions: IRegion[] | null;
+  /** Narrower envelopes inside this group: null without refinement, undefined until an external overlap needs them. */
+  regions: IRegion[] | null | undefined;
 }
 
 /**
@@ -38,9 +38,11 @@ interface IGroup extends IRegion {
  *
  * Same-layer paths and explicit group ownership govern comparisons. The widest
  * candidate search sorts world group bounds on X and stops at a separating
- * frontier. Optional region bounds refine only overlapping external groups.
- * The initialized convex query measures surviving supported pairs without
- * resampling the film. Tangency and native-precision uncertainty are candidates.
+ * frontier. Optional region bounds are built and compared only for groups that
+ * overlap another group. The initialized convex query measures surviving
+ * supported pairs without resampling the film. Tangency, native-precision
+ * uncertainty and any overlap involving an enclosing or proxy solid are
+ * candidates; separation of an enclosing solid proves clearance.
  *
  * @param props Current world parts, local time, supplied convex query and work budget.
  * @returns Stable measured findings, comparison counts and remaining coverage.
@@ -48,7 +50,7 @@ interface IGroup extends IRegion {
  * @evidence contracts/development/implementation.md#principled-implementation Orders external group candidates by their conservative X minima, rejects separated world boxes and invokes the existing placed-solid contact query only for surviving supported leaves. Exact pair windows limit allowed depth.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Group and region bounds are derived from the same prepared leaves. Box ordering, numerical admission, allowed contact and native measurement stay distinct inside the query.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Declared source groups alone suppress internal pairs. Overlapping envelopes and native-precision ambiguity remain candidates. Refused shapes and exhausted budgets report incomplete coverage.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation visits each part once and sorts groups and members. Traversal retains no all-pairs list and caps comparison work with the supplied deterministic limit.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparation visits each part once and sorts groups and members. Region envelopes are folded only for a group in an overlapping external pair. Traversal retains no all-pairs list and caps comparison work with the supplied deterministic limit.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Bounds and active allowances are computed once per layer and reused throughout its traversal.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources borrows the displayed parts and native query only during the call. Preparation records are discarded and returned arrays own their ordinary data.
  */
@@ -178,14 +180,16 @@ export function measureAutoMovieSceneCollision(
       }
   };
 
-  /** Visit region pairs only when refinement was requested. */
+  /** Visit region pairs only when refinement was requested, building them on first overlap. */
   const visitGroupPair = (left: IGroup, right: IGroup): void => {
     if (left.regions === null || right.regions === null) {
       visitParts(left, right);
       return;
     }
-    for (const a of left.regions)
-      for (const b of right.regions) {
+    const leftRegions: IRegion[] = (left.regions ??= regionsOf(left.parts));
+    const rightRegions: IRegion[] = (right.regions ??= regionsOf(right.parts));
+    for (const a of leftRegions)
+      for (const b of rightRegions) {
         if (!spend("regions")) return;
         if (overlaps(a.bounds, b.bounds)) visitParts(a, b);
         if (budgetExhausted) return;
@@ -241,7 +245,9 @@ function prepareGroups(
     if (
       group !== undefined &&
       (group.id.trim() === "" ||
-        (group.kind !== "rigid-assembly" && group.kind !== "managed-formation"))
+        (group.kind !== "rigid-assembly" &&
+          group.kind !== "managed-formation" &&
+          group.kind !== "deformable-body"))
     )
       throw new Error("Invalid managed scene collision group");
 
@@ -276,7 +282,7 @@ function prepareGroups(
         id,
         bounds,
         parts: group,
-        regions: refine ? regionsOf(group) : null,
+        regions: refine ? undefined : null,
       };
     },
   ).sort(
@@ -313,6 +319,7 @@ function preparePart(part: Collision.IPart): IPreparedPart | null {
     source === null ||
     (source.kind === "shape" &&
       source.basis !== "displayed" &&
+      source.basis !== "enclosing" &&
       source.basis !== "proxy")
   )
     return null;

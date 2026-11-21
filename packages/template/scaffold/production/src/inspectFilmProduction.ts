@@ -11,12 +11,43 @@ import {
 
 import type { IFilmProduction } from "./IFilmProduction";
 
+/** Work a capture or delivery may spend: never a reason to defer a check. */
+const SETTLED: Parameters<typeof observeAutoMovieSceneCollision>[0]["limits"] =
+  {
+    comparisons: Number.MAX_SAFE_INTEGER,
+    posedVertices: Number.MAX_SAFE_INTEGER,
+    surfaceTriangles: Number.MAX_SAFE_INTEGER,
+    sweptCells: Number.MAX_SAFE_INTEGER,
+  };
+
+/**
+ * Collision work per placed sample. Interactive playback may defer a pair it
+ * cannot finish within a frame; a capture or delivery settles the same scene
+ * without a work limit.
+ */
+const COLLISION_LIMITS: Record<
+  IAutoMovieDrawScene.IPlacedSample["mode"],
+  Parameters<typeof observeAutoMovieSceneCollision>[0]["limits"]
+> = {
+  viewer: {
+    comparisons: 12_000,
+    posedVertices: 16_384,
+    surfaceTriangles: 400_000,
+    sweptCells: 256,
+  },
+  capture: SETTLED,
+  delivery: SETTLED,
+};
+
 /**
  * Collect stock review checks from the same world that will be drawn.
  *
  * The scaffold always checks the placed scene and camera and consumes the
- * existing native performance frame when offered. Source rules and authored
- * shot layers extend that observation. Review hosts never seek from here.
+ * existing native performance frame when offered. Without authored layers the
+ * whole scene is one automatic collision layer: every drawn box, closed prop,
+ * skin, formation member and cord segment is checked, and its unresolved
+ * coverage is reported without blocking delivery. Authored shot layers mark
+ * their own collision obligations required. Review hosts never seek from here.
  *
  * @param props Film identity, production inspection sources, prepared geometry queries and the one settled draw sample.
  * @returns One serializable packet carrying the scene, collision and authored camera observations.
@@ -24,7 +55,7 @@ import type { IFilmProduction } from "./IFilmProduction";
  * @evidence contracts/development/implementation.md#principled-implementation Runs each applicable checker on the already placed scene and its canonical delivery camera, using one borrow of any native frame.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve source metadata, call the three existing check owners and combine their emitted findings and coverage.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a producer can supply its shot, authored exclusions, contact intent or required camera subjects.
- * @evidence contracts/development/implementation.md#efficient-algorithms One bounded collision observation and one native scene observation per placed frame. Camera raster work is delegated only for declared targets under its host budget.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One bounded collision observation and one native scene observation per placed frame, with a smaller interactive collision budget than capture and delivery. Camera raster work is delegated only for declared targets under its host budget.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows initialized geometry queries, placed world matrices, the film's actual physical frame and the same delivery projection.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns diagnostic values only. No scene, frame or renderer is held after the call.
  */
@@ -56,7 +87,7 @@ export function inspectFilmProduction(props: {
     time: sample.time,
     layers,
     geometry,
-    limits: { comparisons: 12_000, posedVertices: 16_384, sweptCells: 256 },
+    limits: COLLISION_LIMITS[sample.mode],
   });
   const targets: Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"] =
     production.inspectionCamera?.(sample) ?? [];

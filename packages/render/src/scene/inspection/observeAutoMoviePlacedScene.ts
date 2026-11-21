@@ -12,6 +12,7 @@ import type {
 import { type Matrix4, type Object3D, Vector3 } from "three";
 
 import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
+import { autoMovieInspectionPathOf } from "./autoMovieInspectionPathOf.js";
 import { readAutoMovieNativeRigidFrame } from "./readAutoMovieNativeRigidFrame.js";
 
 type IReport = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
@@ -22,6 +23,7 @@ type IMeasurement = IAutoMovieInspectionDiagnostics.IMeasurement;
 type IInput = IObserveAutoMoviePlacedScene.ICheck["input"];
 
 const NATIVE_CHECK = "placed-transform";
+const RECEIVED_CHECK = "received-contact";
 const FRAME_TOLERANCE = 1e-6;
 const MATRIX_ISSUE =
   "active matrix must be finite and affine, and invertible for a camera";
@@ -48,12 +50,18 @@ const CHECK_NAMES: Record<IInput["kind"], string> = {
  * Default coverage reads active native transforms and the available physical
  * snapshot. Unavailable source intent is reported as optional coverage.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes displayed matrix and component authority, raw physical transforms, and optional versus declared coverage.
- * @evidence contracts/development/implementation.md#principled-implementation Validates active native affine matrices or component transforms, delegates canonical limits to Engine, and maps measured metre/radian values and exact edge intervals into typed witness records.
+ * Precondition: the host has settled every world matrix of the scene and the
+ * camera, as `observeAutoMoviePlacedInspection` does. The observer reads each
+ * displayed `matrixWorld` as drawn and never recomposes it. Native findings
+ * address a node by its inspection name path, with child indices only below
+ * the nearest named ancestor.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes displayed matrix and component authority, raw physical transforms, received contact evidence classes, and optional versus declared coverage. States the settled-matrix precondition and the entity path form.
+ * @evidence contracts/development/implementation.md#principled-implementation Validates the active local authority, then the displayed affine world matrix it composed, delegates canonical limits to Engine, and maps measured metre/radian values and exact edge intervals into typed witness records.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A native pass covers visible nodes and camera. The selected rules use Engine's placed detectors, and one report path attaches each witness to its matching coverage row.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the placed source once without another seek or motion solve. Stale TRS behind a manual matrix, excluded boundaries and impulse observations cannot create false support or grip coverage.
- * @evidence contracts/development/implementation.md#efficient-algorithms Visits visible nodes and supplied physical segments once, plus explicitly selected obligations. A request-local map shares native matrix reads across rules. It never scans historical contact receipts or raw keyframes per frame.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses Three's active native matrix composition for selected references and Engine's existing canonical predicates for support, grip, transforms and custody.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the placed source once without another seek, motion solve or matrix recomposition. Stale TRS behind a manual matrix, excluded boundaries and received contact evidence cannot create false support or grip coverage or choose an expected target.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Visits visible nodes and supplied physical segments once, plus explicitly selected obligations. A request-local map shares displayed matrix reads across rules. It never scans historical contact receipts or raw keyframes per frame.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the world matrices the placement already computed, the shared inspection path function, and Engine's existing canonical predicates for support, grip, transforms and custody.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only report data escapes the call. The request-local matrix index and temporary rigid frame views are released, and no geometry or host is acquired.
  */
 export function observeAutoMoviePlacedScene(
@@ -65,9 +73,9 @@ export function observeAutoMoviePlacedScene(
     { check: NATIVE_CHECK, key: "scene", required: true, status: "checked" },
   ];
   scene.traverseVisible((object: Object3D): void => {
-    if (object !== camera) inspectNative(object, false, findings);
+    if (object !== camera) inspectNative(scene, object, false, findings);
   });
-  inspectNative(camera, true, findings);
+  inspectNative(scene, camera, true, findings);
   if (physicalFrame !== undefined)
     for (const [body, segments] of Object.entries(physicalFrame.bodies))
       for (const [bone, segment] of Object.entries(segments)) {
@@ -101,6 +109,8 @@ export function observeAutoMoviePlacedScene(
     const check = CHECK_NAMES[rule.input.kind];
     provided.add(check);
     const identity = { check, key: rule.key, required: rule.required };
+    const evidence = receivedCoverage(rule, check, time);
+    if (evidence !== undefined) coverage.push(evidence);
     const observed = observeCheck(scene, matrices, rule.input);
     if (observed.status !== "checked") {
       coverage.push({
@@ -147,6 +157,7 @@ export function observeAutoMoviePlacedScene(
 }
 
 function inspectNative(
+  scene: Object3D,
   object: Object3D,
   isCamera: boolean,
   findings: IFinding[],
@@ -156,36 +167,64 @@ function inspectNative(
     : !object.matrixAutoUpdate
       ? "matrix"
       : undefined;
+  const fields: (keyof typeof NATIVE_ISSUES)[] = [];
   if (authority !== undefined) {
-    const matrix = object[authority];
-    const determinant = isCamera ? matrix.determinant() : 1;
-    if (!isAffine(matrix) || !Number.isFinite(determinant) || determinant === 0)
-      nativeFinding(object, isCamera, authority, findings);
-    return;
+    if (!validMatrix(object[authority], isCamera)) fields.push(authority);
+  } else {
+    if (!finiteVector(object.position)) fields.push("position");
+    if (!(Math.abs(object.quaternion.length() - 1) <= FRAME_TOLERANCE))
+      fields.push("quaternion");
+    const { scale } = object;
+    if (
+      !finiteVector(scale) ||
+      (isCamera && (scale.x === 0 || scale.y === 0 || scale.z === 0))
+    )
+      fields.push("scale");
   }
-  if (!finiteVector(object.position))
-    nativeFinding(object, isCamera, "position", findings);
-  if (!(Math.abs(object.quaternion.length() - 1) <= FRAME_TOLERANCE))
-    nativeFinding(object, isCamera, "quaternion", findings);
-  const { scale } = object;
+  // Valid local authority can still compose a corrupt displayed matrix through
+  // an ancestor, so the drawn world matrix is checked on its own.
   if (
-    !finiteVector(scale) ||
-    (isCamera && (scale.x === 0 || scale.y === 0 || scale.z === 0))
+    fields.length === 0 &&
+    authority !== "matrixWorld" &&
+    !validMatrix(object.matrixWorld, isCamera)
   )
-    nativeFinding(object, isCamera, "scale", findings);
+    fields.push("matrixWorld");
+  for (const field of fields)
+    nativeFinding(scene, object, isCamera, field, findings);
+}
+
+function validMatrix(matrix: Matrix4, isCamera: boolean): boolean {
+  const determinant = isCamera ? matrix.determinant() : 1;
+  return isAffine(matrix) && Number.isFinite(determinant) && determinant !== 0;
+}
+
+/**
+ * The stable inspection path of a displayed node: its name path below the
+ * scene, as every inspection report addresses entities. Unnamed nodes below
+ * the nearest named ancestor, or below the scene, keep their child indices.
+ */
+function entityPath(scene: Object3D, object: Object3D): string {
+  const indices: string[] = [];
+  let node: Object3D = object;
+  while (node !== scene && node.name === "" && node.parent !== null) {
+    indices.push(`children[${node.parent.children.indexOf(node)}]`);
+    node = node.parent;
+  }
+  const named: string =
+    node === scene || node.parent === null
+      ? "scene"
+      : autoMovieInspectionPathOf(scene, node);
+  return [named, ...indices.reverse()].join(".");
 }
 
 function nativeFinding(
+  scene: Object3D,
   object: Object3D,
   isCamera: boolean,
   field: keyof typeof NATIVE_ISSUES,
   findings: IFinding[],
 ): void {
-  const parts: string[] = [];
-  if (!isCamera)
-    for (let node: Object3D = object; node.parent !== null; node = node.parent)
-      parts.push(`children[${node.parent.children.indexOf(node)}]`);
-  const path = isCamera ? "camera" : ["scene", ...parts.reverse()].join(".");
+  const path = isCamera ? "camera" : entityPath(scene, object);
   findings.push({
     check: NATIVE_CHECK,
     key: "scene",
@@ -304,11 +343,12 @@ function placedMatrix(
   if (matrices.has(object)) return matrices.get(object);
   let root = object;
   while (root !== scene && root.parent !== null) root = root.parent;
-  let matrix: Matrix4 | undefined;
-  if (root === scene) {
-    object.updateWorldMatrix(true, false);
-    if (isAffine(object.matrixWorld)) matrix = object.matrixWorld;
-  }
+  // The host settled every world matrix before observing, so the displayed
+  // matrix is read as drawn instead of being recomposed from locals.
+  const matrix: Matrix4 | undefined =
+    root === scene && isAffine(object.matrixWorld)
+      ? object.matrixWorld
+      : undefined;
   matrices.set(object, matrix);
   return matrix;
 }
@@ -412,17 +452,46 @@ function observeContinuity(
   };
 }
 
+/**
+ * The optional coverage row of a rule's received contact evidence at this
+ * clock: checked when measured or confirmed absent under complete observation,
+ * unsupported with the producer's reason when the pair was unobservable.
+ */
+function receivedCoverage(
+  rule: IObserveAutoMoviePlacedScene.ICheck,
+  check: string,
+  time: IAutoMovieInspectionDiagnostics.ITime | undefined,
+): ICoverage | undefined {
+  const touch = rule.observedContact;
+  if (touch === undefined || touch.seconds !== time?.filmSeconds)
+    return undefined;
+  const identity = {
+    check: RECEIVED_CHECK,
+    key: `${check}:${rule.key}`,
+    required: false,
+  };
+  return touch.status === "unobservable"
+    ? { ...identity, status: "unsupported", reason: touch.reason }
+    : { ...identity, status: "checked" };
+}
+
 function withReceivedContact(
   witness: IWitness,
   rule: IObserveAutoMoviePlacedScene.ICheck,
   time: IAutoMovieInspectionDiagnostics.ITime | undefined,
 ): IWitness {
   const touch = rule.observedContact;
-  if (
-    touch === undefined ||
-    touch.seconds !== time?.filmSeconds ||
-    !Number.isFinite(touch.separation)
-  )
+  if (touch === undefined || touch.seconds !== time?.filmSeconds)
+    return witness;
+  if (touch.status === "absent")
+    return {
+      ...witness,
+      measurements: [
+        ...(witness.measurements ?? []),
+        { name: "received-contacts", value: 0, unit: "count" },
+      ],
+    };
+  if (touch.status !== "measured" || !Number.isFinite(touch.separation))
     return witness;
   const received: IMeasurement[] = [
     { name: "received-separation", value: touch.separation, unit: "m" },

@@ -7,32 +7,26 @@ import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMovieInspectionDiagnostics as Diagnostic,
   IAutoMoviePreparePhysicalGeometry as Geometry,
-  IAutoMovieSubjectBox,
   IAutoMovieVector3,
   IAutoMovieSweptCapsuleCollision as Sweep,
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
-import { autoMovieInspectionPathOf } from "./autoMovieInspectionPathOf.js";
-import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
+import { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
 
 /** One source-owned layer, after its exact placement and world-matrix update. */
-interface ILayer {
+interface ILayer extends collectAutoMovieCollisionParts.ILayer {
   id: string;
-  root: THREE.Object3D;
   localSeconds: number;
   shotPath?: string;
+  /** Whether delivery requires every collision obligation of this layer to be resolved. */
   required?: boolean;
-  /** Named identities and exemptions given by a model or formation owner. */
-  ownership?: ReadonlyMap<THREE.Object3D, Omit<Collision.IPart, "geometry">>;
-  /** Roots whose source already supplied placed parts. Their descendants are not scanned. */
-  opaque?: ReadonlyMap<THREE.Object3D, readonly Collision.IPart[]>;
+  /** Named permitted contact, applied alike to placed frames and motion cells. */
   allowances?: readonly Collision.IAllowance[];
-  /** Source-certified motion cells, with filmSeconds = localSeconds + filmOffset. */
+  /** Source-certified motion cells, with filmSeconds = localSeconds + filmOffset. Their allowed depth comes from `allowances`. */
   sweeps?: readonly {
     paths: readonly [string, string];
-    props: Sweep.IProps;
+    props: Omit<Sweep.IProps, "maxPenetration">;
     filmOffset: number;
   }[];
 }
@@ -42,28 +36,47 @@ interface IProps {
   layers: readonly ILayer[];
   geometry: Pick<Geometry.IQueries, "contact">;
   refinement?: Collision.IProps["refinement"];
-  limits: { comparisons: number; posedVertices: number; sweptCells: number };
+  limits: {
+    /** Group, region, part, shape and witness point comparisons. */
+    comparisons: number;
+    /** Posed surface vertices read for witnesses. */
+    posedVertices: number;
+    /** Triangle visits spent testing points against closed surfaces. */
+    surfaceTriangles: number;
+    /** Elementary motion intervals. */
+    sweptCells: number;
+  };
 }
 
-interface ISkin {
-  mesh: AutoMovieSkinnedMesh;
-  count: number;
-  indices: THREE.BufferAttribute;
-  points?: { values: THREE.Vector3[]; error: number } | null;
+/** A solid a surface vertex can be tested against. */
+interface ISolid {
+  bounds: THREE.Box3 | null;
+  error: number;
+  cost: number;
+  distance: (point: THREE.Vector3) => number;
 }
 
 const CHECK = "collision";
-const AXES = ["x", "y", "z"] as const;
+const FOUR_PI: number = 4 * Math.PI;
+
 /**
  * Observe one already placed scene frame for external contact and certified
  * interval violations. The caller supplies its active world layers.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Explains how layer clocks, placed shapes, source groups, and each check's coverage determine world-space evidence.
- * @evidence contracts/development/implementation.md#principled-implementation Verifies stock box topology from drawn triangles and applies its original world matrix. Skin positives are drawn vertex witnesses with the skin owner's error margin. Closed-solid and affine interval comparisons use the existing Engine owners.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Scene extraction supplies one Engine layer search. The separate authored interval inputs and bounded skin checks add only evidence their sources support.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No resampling, grouping by nesting, arbitrary-motion interpolation or complete-clear claim from a missed skin vertex.
- * @evidence contracts/development/implementation.md#efficient-algorithms A visible traversal stops at declared opaque roots. Box admission examines constant-size topology; pose population and point comparisons have separate limits. No cross-layer pairs are generated.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A candidate skin reuses the existing pose owner and its measured world points throughout the current frame.
+ * Every drawn object of a layer is collected once: exact boxes, closed stock
+ * meshes, stock skins, each drawn member of an instanced formation by its slot
+ * and each solver segment of a cord. A candidate pair is confirmed by a drawn
+ * surface vertex lying inside the other part's displayed solid or closed
+ * surface beyond the active allowance. Every unresolved row inherits the
+ * layer's delivery requirement, and motion cells use the same named allowances
+ * as placed frames.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains how layer clocks, placed shapes, source groups, witnesses, allowances and each check's coverage determine world-space evidence.
+ * @evidence contracts/development/implementation.md#principled-implementation Confirms only with a drawn vertex inside an exact box or a closed drawn surface, by signed distance and generalized winding number. Interval checks use the Engine sweep owner with the allowance active over the whole cell.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Collection, the Engine layer search, witness search and interval checks run in that order, each reporting into one coverage list.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No resampling, grouping by nesting or arbitrary-motion interpolation. An allowance knot inside a motion cell defers that cell. A missing witness leaves a candidate with its coverage unresolved.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Surfaces are posed only for candidate pairs, and points outside the other solid's bounds skip its distance. Comparison, vertex, triangle and interval work each has its own limit.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A posed surface and its closed-solid test are shared by every pair of the frame that needs them.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the live placed scene and releases all temporary measurements at return. Only plain diagnostic values escape.
  */
 export function observeAutoMovieSceneCollision(
@@ -94,23 +107,21 @@ export function observeAutoMovieSceneCollision(
       identity: string,
       status: Diagnostic.ICoverage["status"],
       reason: string,
-      obligation: boolean = required,
     ): void => {
-      const common = { check: CHECK, key: identity, required: obligation };
+      const common = { check: CHECK, key: identity, required };
       coverage.push(
         status === "checked"
           ? { ...common, status }
           : { ...common, status, reason },
       );
     };
-    const parts: Collision.IPart[] = [];
-    const skins: Map<string, ISkin> = new Map();
-    collectParts(layer, props.time, budget, parts, skins);
+    const collected: collectAutoMovieCollisionParts.IResult =
+      collectAutoMovieCollisionParts(layer, props.time, budget);
     const byId: Map<string, Collision.IPart> = new Map(
-      parts.map((part) => [part.id, part]),
+      collected.parts.map((part) => [part.id, part]),
     );
     const result: Collision.IResult = measureAutoMovieSceneCollision({
-      parts,
+      parts: collected.parts,
       geometry: props.geometry,
       seconds: layer.localSeconds,
       allowances: layer.allowances,
@@ -127,50 +138,86 @@ export function observeAutoMovieSceneCollision(
       "comparison-limit",
     );
     for (const id of result.unboundedParts)
-      report(key("part", id), "unsupported", "no-displayed-geometry", false);
-    for (const id of result.proxyParts)
       report(
-        key("part", id, "proxy"),
-        "deferred",
-        "proxy-geometry-only",
-        false,
+        key("part", id),
+        "unsupported",
+        collected.reasons.get(id) ?? "no-displayed-geometry",
       );
+    for (const id of result.proxyParts)
+      report(key("part", id, "proxy"), "deferred", "proxy-geometry-only");
     for (const group of result.internalGroups)
-      report(key("group", group.kind, group.id), "excluded", group.kind, false);
+      report(key("group", group.kind, group.id), "excluded", group.kind);
     for (const pair of result.unavailablePairs)
       report(
         key("frame", pair.first, pair.second),
         "deferred",
         "native-query-unavailable",
       );
+    const solids: Map<string, ISolid | null | "budget"> = new Map();
+    const solidOf = (id: string): ISolid | null | "budget" => {
+      if (!solids.has(id)) solids.set(id, readSolid(id));
+      return solids.get(id)!;
+    };
+    const readSolid = (id: string): ISolid | null | "budget" => {
+      const geometry: Collision.IPart["geometry"] | undefined =
+        byId.get(id)?.geometry;
+      if (geometry?.kind === "shape" && geometry.basis === "displayed") {
+        const distance = physicalShapeSegmentDistance.prepare(
+          geometry.collider.pose,
+          geometry.collider.shape,
+        );
+        return {
+          bounds: null,
+          error: 0,
+          cost: 0,
+          distance: (point) => distance(point, point),
+        };
+      }
+      const surface = collected.surfaces.get(id);
+      if (surface === undefined || surface.owns !== undefined) return null;
+      const posed = surface.read();
+      if (posed === null || posed === "budget") return posed;
+      if (!posed.closed) return null;
+      return {
+        bounds: posed.bounds,
+        error: posed.error,
+        cost: posed.triangles.length / 3,
+        distance: (point) => closedDistance(posed, point),
+      };
+    };
     for (const hit of result.findings) {
       const identity: string = key("frame", hit.first, hit.second);
-      const first: Collision.IPart | undefined = byId.get(hit.first);
-      const second: Collision.IPart | undefined = byId.get(hit.second);
-      const skin: ISkin | undefined =
-        skins.get(hit.first) ?? skins.get(hit.second);
-      const other = skins.has(hit.first) ? second?.geometry : first?.geometry;
-      const sampled =
-        skin !== undefined &&
-        other?.kind === "shape" &&
-        other.basis === "displayed"
-          ? findVertex(skin, other.collider, hit.allowance ?? 0, budget)
-          : null;
       if (hit.status === "permitted") {
         report(identity, "excluded", "named-contact-allowance");
         continue;
       }
+      const witness =
+        hit.status === "confirmed"
+          ? null
+          : findWitness(
+              hit,
+              collected.surfaces,
+              solidOf,
+              hit.allowance ?? 0,
+              budget,
+            );
+      const sampled =
+        witness !== null && typeof witness === "object" ? witness : null;
       const confirmed: boolean = hit.status === "confirmed" || sampled !== null;
       const separation: number | null = sampled?.separation ?? hit.separation;
-      const point = sampled?.point ?? hit.point;
-      if (!confirmed)
+      const point: IAutoMovieVector3 | null = sampled?.point ?? hit.point;
+      if (confirmed) report(identity, "checked", "");
+      else
         report(
           identity,
           "deferred",
-          skin !== undefined ? "skin-vertex-sample-incomplete" : hit.basis,
-          false,
+          witness === "budget"
+            ? "surface-witness-limit"
+            : collected.surfaces.has(hit.first) ||
+                collected.surfaces.has(hit.second)
+              ? "surface-witness-absent"
+              : hit.basis,
         );
-      else report(identity, "checked", "");
       if (confirmed || separation === null || separation < 0)
         findings.push(
           createFinding(
@@ -194,7 +241,7 @@ export function observeAutoMovieSceneCollision(
         );
     }
     if (layer.sweeps === undefined)
-      report(key("sweeps"), "unsupported", "no-certified-motion-cells", false);
+      report(key("sweeps"), "unsupported", "no-certified-motion-cells");
     const cells: Set<string> = new Set();
     for (const interval of layer.sweeps ?? []) {
       const paths: [string, string] =
@@ -223,27 +270,33 @@ export function observeAutoMovieSceneCollision(
         group.id === other.id &&
         group.kind === other.kind
       ) {
-        report(identity, "excluded", group.kind, false);
+        report(identity, "excluded", group.kind);
+        continue;
+      }
+      const allowance: number | "split" = cellAllowance(
+        layer.allowances ?? [],
+        paths,
+        startSeconds,
+        endSeconds,
+      );
+      if (allowance === "split") {
+        report(identity, "deferred", "allowance-boundary-inside-cell");
         continue;
       }
       const sweep: Sweep.IResult = measureAutoMovieSweptCapsuleCollision({
         ...interval.props,
+        maxPenetration: allowance,
         maxIntervals: Math.min(interval.props.maxIntervals, budget.sweptCells),
       });
       budget.sweptCells -= sweep.compared;
       if (sweep.status === "deferred") {
-        report(identity, "deferred", sweep.reason, false);
+        report(identity, "deferred", sweep.reason);
         continue;
       }
       const proxy: boolean =
         sweep.status === "proxy" ||
         (sweep.status === "clear" && sweep.basis === "proxy");
-      report(
-        identity,
-        proxy ? "deferred" : "checked",
-        "proxy-motion-only",
-        false,
-      );
+      report(identity, proxy ? "deferred" : "checked", "proxy-motion-only");
       if (sweep.status === "clear") continue;
       const filmSeconds: number = sweep.seconds + interval.filmOffset;
       findings.push(
@@ -253,7 +306,7 @@ export function observeAutoMovieSceneCollision(
           "sweep",
           !proxy,
           sweep.separation,
-          interval.props.maxPenetration,
+          allowance,
           sweep.point,
           {
             time: {
@@ -272,6 +325,139 @@ export function observeAutoMovieSceneCollision(
     }
   }
   return { findings, coverage };
+}
+
+/**
+ * The tightest named allowance active over a whole closed motion cell, zero
+ * when none names the pair, or "split" when a window starts or ends inside it.
+ */
+function cellAllowance(
+  allowances: readonly Collision.IAllowance[],
+  [first, second]: readonly [string, string],
+  start: number,
+  end: number,
+): number | "split" {
+  let limit: number | null = null;
+  for (const entry of allowances) {
+    if (
+      !(
+        (entry.first === first && entry.second === second) ||
+        (entry.first === second && entry.second === first)
+      )
+    )
+      continue;
+    if (entry.endSeconds <= start || entry.startSeconds > end) continue;
+    if (entry.startSeconds > start || entry.endSeconds <= end) return "split";
+    limit =
+      limit === null
+        ? entry.maxPenetration
+        : Math.min(limit, entry.maxPenetration);
+  }
+  return limit ?? 0;
+}
+
+/** Search drawn vertices of either part for one inside the other's solid beyond the allowance. */
+function findWitness(
+  hit: Collision.IFinding,
+  surfaces: collectAutoMovieCollisionParts.IResult["surfaces"],
+  solidOf: (id: string) => ISolid | null | "budget",
+  allowance: number,
+  budget: IProps["limits"],
+): { point: IAutoMovieVector3; separation: number } | null | "budget" {
+  let limited: boolean = false;
+  for (const [mover, holder] of [
+    [hit.first, hit.second],
+    [hit.second, hit.first],
+  ] as const) {
+    const source = surfaces.get(mover);
+    if (source === undefined) continue;
+    const solid: ISolid | null | "budget" = solidOf(holder);
+    if (solid === "budget") {
+      limited = true;
+      continue;
+    }
+    if (solid === null) continue;
+    const posed = source.read();
+    if (posed === "budget") {
+      limited = true;
+      continue;
+    }
+    if (posed === null) continue;
+    const reach: THREE.Box3 | null =
+      solid.bounds === null
+        ? null
+        : solid.bounds.clone().expandByScalar(solid.error + posed.error);
+    for (const vertex of posed.drawn) {
+      const point: THREE.Vector3 = posed.values[vertex]!;
+      if (reach !== null && !reach.containsPoint(point)) continue;
+      if (source.owns !== undefined && !source.owns(point)) continue;
+      if (budget.comparisons === 0 || budget.surfaceTriangles < solid.cost) {
+        limited = true;
+        break;
+      }
+      --budget.comparisons;
+      budget.surfaceTriangles -= solid.cost;
+      let separation: number;
+      try {
+        separation = solid.distance(point);
+      } catch (_error) {
+        continue;
+      }
+      const tolerance: number =
+        posed.error +
+        solid.error +
+        32 *
+          2 ** -23 *
+          Math.max(1, Math.abs(point.x), Math.abs(point.y), Math.abs(point.z));
+      if (Number.isFinite(separation) && separation < -allowance - tolerance)
+        return {
+          point: { x: point.x, y: point.y, z: point.z },
+          separation,
+        };
+    }
+  }
+  return limited ? "budget" : null;
+}
+
+/**
+ * Signed distance to a closed drawn surface: the generalized winding number
+ * decides inside, independent of triangle orientation, and the nearest drawn
+ * triangle gives the magnitude.
+ */
+function closedDistance(
+  surface: collectAutoMovieCollisionParts.ISurface,
+  point: THREE.Vector3,
+): number {
+  const a: THREE.Vector3 = new THREE.Vector3();
+  const b: THREE.Vector3 = new THREE.Vector3();
+  const c: THREE.Vector3 = new THREE.Vector3();
+  const triangle: THREE.Triangle = new THREE.Triangle();
+  const closest: THREE.Vector3 = new THREE.Vector3();
+  const cross: THREE.Vector3 = new THREE.Vector3();
+  let solidAngle: number = 0;
+  let nearest: number = Infinity;
+  const { triangles, values } = surface;
+  for (let i: number = 0; i < triangles.length; i += 3) {
+    const pa: THREE.Vector3 = values[triangles[i]!]!;
+    const pb: THREE.Vector3 = values[triangles[i + 1]!]!;
+    const pc: THREE.Vector3 = values[triangles[i + 2]!]!;
+    a.subVectors(pa, point);
+    b.subVectors(pb, point);
+    c.subVectors(pc, point);
+    const la: number = a.length();
+    const lb: number = b.length();
+    const lc: number = c.length();
+    const numerator: number = a.dot(cross.crossVectors(b, c));
+    const denominator: number =
+      la * lb * lc + a.dot(b) * lc + a.dot(c) * lb + b.dot(c) * la;
+    solidAngle += 2 * Math.atan2(numerator, denominator);
+    triangle.set(pa, pb, pc);
+    nearest = Math.min(
+      nearest,
+      triangle.closestPointToPoint(point, closest).distanceTo(point),
+    );
+  }
+  return Math.abs(solidAngle / FOUR_PI) > 0.5 ? -nearest : nearest;
 }
 
 /** Serialize one contact under the same confidence, depth and path rules. */
@@ -315,180 +501,4 @@ function createFinding(
           }),
     },
   };
-}
-
-/** Collect visible meshes once. Anonymous or ambiguous paths have frame-only identities. */
-function collectParts(
-  layer: ILayer,
-  time: Diagnostic.ITime,
-  budget: IProps["limits"],
-  parts: Collision.IPart[],
-  skins: Map<string, ISkin>,
-): void {
-  const pending: THREE.Object3D[] = [layer.root];
-  const meshes: { mesh: THREE.Mesh; id: string }[] = [];
-  const counts: Map<string, number> = new Map();
-  while (pending.length) {
-    const object: THREE.Object3D = pending.pop()!;
-    if (!object.visible) continue;
-    const opaque: readonly Collision.IPart[] | undefined =
-      layer.opaque?.get(object);
-    if (opaque !== undefined) {
-      for (const part of opaque) parts.push(part);
-      continue;
-    }
-    if (object instanceof THREE.Mesh) {
-      const id: string =
-        layer.ownership?.get(object)?.id ??
-        autoMovieInspectionPathOf(layer.root, object);
-      counts.set(id, (counts.get(id) ?? 0) + 1);
-      meshes.push({ mesh: object, id });
-    }
-    for (let i: number = object.children.length - 1; i >= 0; --i)
-      pending.push(object.children[i]!);
-  }
-  const declared: Set<string> = new Set(parts.map((part) => part.id));
-  const reserved: Set<string> = new Set([...counts.keys(), ...declared]);
-  for (const [index, { mesh, id }] of meshes.entries()) {
-    const ownership = layer.ownership?.get(mesh);
-    let identity: string = id;
-    if (
-      ownership === undefined &&
-      (!id.trim() || counts.get(id) !== 1 || declared.has(id))
-    ) {
-      identity = JSON.stringify(["scene-mesh", time.filmSeconds, index]);
-      while (reserved.has(identity)) identity += "/";
-      reserved.add(identity);
-    }
-    let geometry: Collision.IPart["geometry"] = null;
-    if (readAutoMovieDisplayedBox.supportsStockMaterial(mesh)) {
-      if (mesh instanceof AutoMovieSkinnedMesh) {
-        const skin: ISkin | null = readSkin(mesh, budget);
-        if (skin !== null) {
-          const bounds: IAutoMovieSubjectBox | null =
-            readAutoMovieDisplayedBox.skinEnvelope(mesh);
-          if (bounds !== null) {
-            geometry = { kind: "envelope", bounds };
-            skins.set(identity, skin);
-          }
-        }
-      } else if (mesh.constructor === THREE.Mesh) {
-        const shape: Geometry.ICollider | null = readAutoMovieDisplayedBox(
-          mesh,
-          identity,
-        );
-        if (shape !== null)
-          geometry = { kind: "shape", basis: "displayed", collider: shape };
-      }
-    }
-    parts.push({ ...ownership, id: identity, geometry });
-  }
-}
-
-/** Reserve the full current-pose workload before the skin owner can fill its cache. */
-function readSkin(
-  mesh: AutoMovieSkinnedMesh,
-  budget: IProps["limits"],
-): ISkin | null {
-  const points = mesh.geometry.getAttribute("position");
-  const index: THREE.BufferAttribute | null = mesh.geometry.getIndex();
-  if (
-    points === undefined ||
-    index === null ||
-    points.count <= 0 ||
-    !Number.isSafeInteger(points.count) ||
-    points.count > budget.posedVertices ||
-    index.count > 6 * points.count ||
-    index.count % 3 !== 0 ||
-    mesh.geometry.drawRange.start !== 0 ||
-    mesh.geometry.drawRange.count < index.count
-  )
-    return null;
-  budget.posedVertices -= points.count;
-  return { mesh, count: points.count, indices: index };
-}
-
-/** Reuse the original draw-method pose and discard vertices with no drawn triangle. */
-function skinPoints(skin: ISkin): ISkin["points"] {
-  const { mesh, count, indices } = skin;
-  const e = mesh.matrixWorld.elements;
-  const error: number =
-    mesh.tolerance() *
-    Math.max(
-      Math.hypot(e[0], e[4], e[8]),
-      Math.hypot(e[1], e[5], e[9]),
-      Math.hypot(e[2], e[6], e[10]),
-    ) *
-    3;
-  if (!Number.isFinite(error)) return undefined;
-  const values: THREE.Vector3[] = Array.from({ length: count }, (_, i) =>
-    mesh
-      .getVertexPosition(i, new THREE.Vector3())
-      .applyMatrix4(mesh.matrixWorld),
-  );
-  if (!values.every(finite)) return undefined;
-  const drawn: Set<number> = new Set();
-  const ab: THREE.Vector3 = new THREE.Vector3();
-  const ac: THREE.Vector3 = new THREE.Vector3();
-  const cross: THREE.Vector3 = new THREE.Vector3();
-  for (let i: number = 0; i < indices.count; i += 3) {
-    const a: number = indices.getX(i);
-    const b: number = indices.getX(i + 1);
-    const c: number = indices.getX(i + 2);
-    if (!values[a] || !values[b] || !values[c]) return undefined;
-    ab.subVectors(values[b], values[a]);
-    ac.subVectors(values[c], values[a]);
-    if (
-      cross.crossVectors(ab, ac).length() <=
-      2 * error * (ab.length() + ac.length() + 2 * error)
-    )
-      continue;
-    drawn.add(a);
-    drawn.add(b);
-    drawn.add(c);
-  }
-  return { error, values: [...drawn].map((i) => values[i]!) };
-}
-
-/** Verify a real surface vertex lies further inside the solid than the allowed depth and error. */
-function findVertex(
-  skin: ISkin,
-  solid: Geometry.ICollider,
-  allowance: number,
-  budget: IProps["limits"],
-): { point: THREE.Vector3; separation: number } | null {
-  try {
-    const posed =
-      skin.points === undefined
-        ? (skin.points = skinPoints(skin) ?? null)
-        : skin.points;
-    if (posed === null) return null;
-    const distance = physicalShapeSegmentDistance.prepare(
-      solid.pose,
-      solid.shape,
-    );
-    for (const point of posed.values) {
-      if (budget.comparisons === 0) return null;
-      --budget.comparisons;
-      const separation: number = distance(point, point);
-      const tolerance: number =
-        posed.error +
-        32 *
-          2 ** -23 *
-          Math.max(1, Math.abs(point.x), Math.abs(point.y), Math.abs(point.z));
-      if (Number.isFinite(separation) && separation < -allowance - tolerance)
-        return { point, separation };
-    }
-  } catch (_error) {
-    skin.points ??= null;
-  }
-  return null;
-}
-
-/** Check admission shared by geometry, bounds and live posed witnesses. */
-function finite(point: THREE.Vector3): boolean {
-  return AXES.every(
-    (axis) =>
-      Number.isFinite(point[axis]) && Number.isFinite(Math.fround(point[axis])),
-  );
 }

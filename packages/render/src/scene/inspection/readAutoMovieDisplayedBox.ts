@@ -21,7 +21,9 @@ const IDENTITY = {
 
 /**
  * Read the original twelve triangles as one affine closed box. The caller
- * admits the stock opaque material and passes its current world matrix.
+ * admits the stock opaque material. The placement defaults to the mesh's
+ * current world matrix; an instanced member passes its world times instance
+ * matrix.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names resident positions, complete draw range, world metres and unsupported outcomes.
  * @evidence contracts/development/implementation.md#principled-implementation Eight corner identities, outward triangle winding and a common diagonal on each face prove complete box topology. The actual affine matrix places the box or its eight-corner hull.
@@ -34,6 +36,7 @@ const IDENTITY = {
 export function readAutoMovieDisplayedBox(
   mesh: THREE.Mesh,
   id: string,
+  placement: THREE.Matrix4 = mesh.matrixWorld,
 ): Geometry.ICollider | null {
   const geometry: THREE.BufferGeometry = mesh.geometry;
   const points = geometry.getAttribute("position");
@@ -95,7 +98,7 @@ export function readAutoMovieDisplayedBox(
     const start: number = 31 - Math.clz32(common);
     if (common !== ((1 << start) | (1 << (start ^ diagonal)))) return null;
   }
-  return placeBox(id, box, mesh.matrixWorld);
+  return placeBox(id, box, placement);
 }
 
 /** Represent the actual affine box corners even under a sheared parent. */
@@ -184,6 +187,25 @@ export namespace readAutoMovieDisplayedBox {
     const material: THREE.Material | THREE.Material[] = mesh.material;
     return (
       !Array.isArray(material) &&
+      supportsStockSurface(material) &&
+      matchesStockShader(mesh, material) &&
+      mesh.onBeforeRender === THREE.Object3D.prototype.onBeforeRender
+    );
+  }
+
+  /**
+   * Admit one opaque stock surface material, leaving its vertex program to the caller.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that only the fragment-side appearance is admitted here.
+   * @evidence contracts/development/implementation.md#principled-implementation Requires a stock lit or unlit class with full opacity, no clipping, displacement, wireframe or back-only faces.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared by single-material meshes and multi-material instanced members, whose vertex programs differ.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A caller must still prove the vertex path before certifying displayed contact.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant-size property checks.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads current material properties directly.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no material reference.
+   */
+  export function supportsStockSurface(material: THREE.Material): boolean {
+    return (
       (material instanceof THREE.MeshStandardMaterial ||
         material instanceof THREE.MeshBasicMaterial ||
         material instanceof THREE.MeshLambertMaterial ||
@@ -196,9 +218,7 @@ export namespace readAutoMovieDisplayedBox {
       !material.clippingPlanes?.length &&
       (!("displacementMap" in material) || material.displacementMap === null) &&
       material.side !== THREE.BackSide &&
-      matchesStockShader(mesh, material) &&
-      material.onBeforeRender === THREE.Material.prototype.onBeforeRender &&
-      mesh.onBeforeRender === THREE.Object3D.prototype.onBeforeRender
+      material.onBeforeRender === THREE.Material.prototype.onBeforeRender
     );
   }
 

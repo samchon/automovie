@@ -56,7 +56,11 @@ export interface IFilmProduction {
     sample: IAutoMovieDrawScene.IPlacedSample,
   ) => readonly IObserveAutoMoviePlacedScene.ICheck[];
 
-  /** Subjects the current source shot requires the delivery camera to show. */
+  /**
+   * Subjects the current source shot requires the delivery camera to show at the placed second.
+   *
+   * Return only the requirements active at `sample.time`: leaving a subject out before its intended entry, or while the shot means it to be hidden, is how a shot allows off-screen or obscured action. Each returned subject is checked against the delivery projection, crop and aspect for leaving the frame, lying wholly before the near or past the far plane and being cut by the near plane, with an actor framed by its current pose. `maxOcclusionRatio` adds a pixel-occlusion limit that only the delivery render measures.
+   */
   inspectionCamera?: (
     sample: IAutoMovieDrawScene.IPlacedSample,
   ) => Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"];

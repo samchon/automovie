@@ -7,19 +7,16 @@ import {
   Box3,
   Camera,
   Frustum,
-  Line,
-  Material,
   Matrix4,
   Mesh,
   Object3D,
   Plane,
-  Points,
   Scene,
-  ShaderMaterial,
-  Sprite,
   Vector3,
 } from "three";
 
+import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";
+import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
 import { sampleAutoMovieCameraOcclusion } from "./sampleAutoMovieCameraOcclusion.js";
 
 /** The delivered camera and one source-resolved requirement, after placement. */
@@ -53,9 +50,12 @@ interface IProps {
  * World bounds classify complete exclusion by a delivery clip plane. Box
  * overlap and unsupported or unavailable bounds leave the subject ungraded for
  * exact visibility. Actual projection includes the caller's delivery crop.
+ * Rigid meshes and owned skins with a stock shader bound the subject through
+ * listAutoMovieCameraSubjectMeshes and boundAutoMovieCameraSubject, so an
+ * animated actor is graded by its current pose.
  * @evidence contracts/development/implementation.md#efficient-algorithms
  * The framing path visits only target descendants, uses cached rigid geometry
- * bounds, and checks six support points. The optional witness pass is skipped
+ * bounds and the skin's pose cache, and checks six support points. The optional witness pass is skipped
  * for excluded subjects, unmeasured bounds, and exact pixel observations.
  * @evidence contracts/development/common.md#meaningful-documentation Documents
  * original-frame ownership, projected bounds, and the optional triangle cap.
@@ -73,11 +73,15 @@ export function observeAutoMovieCameraInspection(
 
   camera.updateWorldMatrix(true, false);
   target.updateWorldMatrix(true, true);
+  const meshes: Mesh[] | undefined =
+    props.targetBounds === undefined && scene.overrideMaterial === null
+      ? listAutoMovieCameraSubjectMeshes(target, camera)
+      : undefined;
   const bounds: Box3 | undefined =
     props.targetBounds === undefined
-      ? scene.overrideMaterial === null
-        ? rigidSubjectBounds(target, camera)
-        : undefined
+      ? meshes === undefined
+        ? undefined
+        : boundAutoMovieCameraSubject(meshes)
       : toBounds(props.targetBounds);
   const projection: Matrix4 = new Matrix4().multiplyMatrices(
     camera.projectionMatrix,
@@ -162,62 +166,6 @@ function isFiniteBox(box: Box3): boolean {
   return (
     !box.isEmpty() &&
     [...box.min.toArray(), ...box.max.toArray()].every(Number.isFinite)
-  );
-}
-
-/** Encloses the target only if every visible drawable has a trusted rigid bound. */
-function rigidSubjectBounds(
-  target: Object3D,
-  camera: Camera,
-): Box3 | undefined {
-  const combined: Box3 = new Box3();
-  const world: Box3 = new Box3();
-  let supported: boolean = true;
-  target.traverseVisible((object: Object3D): void => {
-    if (!supported || !object.layers.test(camera.layers)) return;
-    if (!(object instanceof Mesh)) {
-      if (
-        object instanceof Line ||
-        object instanceof Points ||
-        object instanceof Sprite
-      )
-        supported = false;
-      return;
-    }
-    if (
-      object.constructor !== Mesh ||
-      object.onBeforeRender !== Object3D.prototype.onBeforeRender ||
-      object.onAfterRender !== Object3D.prototype.onAfterRender ||
-      object.geometry.morphAttributes.position?.length ||
-      object.geometry.getAttribute("position") === undefined ||
-      !usesRigidMaterialBounds(object.material)
-    ) {
-      supported = false;
-      return;
-    }
-    if (object.geometry.boundingBox === null)
-      object.geometry.computeBoundingBox();
-    const local: Box3 | null = object.geometry.boundingBox;
-    if (local === null || !isFiniteBox(local)) {
-      supported = false;
-      return;
-    }
-    world.copy(local).applyMatrix4(object.matrixWorld);
-    if (isFiniteBox(world)) combined.union(world);
-    else supported = false;
-  });
-  return supported && isFiniteBox(combined) ? combined : undefined;
-}
-
-/** Shader hooks and vertex displacement can invalidate geometry-space bounds. */
-function usesRigidMaterialBounds(input: Material | Material[]): boolean {
-  const materials: Material[] = Array.isArray(input) ? input : [input];
-  return materials.every(
-    (material: Material): boolean =>
-      !(material instanceof ShaderMaterial) &&
-      material.onBeforeCompile === Material.prototype.onBeforeCompile &&
-      material.onBeforeRender === Material.prototype.onBeforeRender &&
-      (!("displacementMap" in material) || material.displacementMap === null),
   );
 }
 

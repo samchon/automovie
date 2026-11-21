@@ -120,14 +120,28 @@ export namespace IObserveAutoMoviePlacedScene {
           readonly violations?: readonly IAutoMovieConstraintViolation[];
         };
 
-    /** Actual touching or proximity witness from the same declared pair.
-     * The producer selects one exact geometric or completed solver observation.
-     * A null impulse identifies the absence of solver evidence.
+    /**
+     * Actual touching evidence for the same declared pair at one film second,
+     * in one of three classes. `measured` carries one exact geometric or
+     * completed solver separation in metres, with a null impulse when no solver
+     * evidence exists. `absent` states that the pair was completely observed at
+     * that second and did not touch. `unobservable` states that the producer
+     * could not observe the pair and why. The evidence supplements the measured
+     * relation and its coverage. It never becomes the expected target, and it
+     * never decides intended support or grip ownership on its own.
      */
-    readonly observedContact?: {
-      readonly seconds: number;
-      readonly separation: number;
-      readonly impulse: number | null;
-    };
+    readonly observedContact?:
+      | {
+          readonly status: "measured";
+          readonly seconds: number;
+          readonly separation: number;
+          readonly impulse: number | null;
+        }
+      | { readonly status: "absent"; readonly seconds: number }
+      | {
+          readonly status: "unobservable";
+          readonly seconds: number;
+          readonly reason: string;
+        };
   }
 }
