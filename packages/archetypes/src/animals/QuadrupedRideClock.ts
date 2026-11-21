@@ -3,6 +3,7 @@ import type { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import type { createQuadruped } from "./createQuadruped";
+import type { rideQuadruped } from "./rideQuadruped";
 
 /**
  * Clock continuation for strides already selected by the shared quadruped ride.
@@ -116,7 +117,7 @@ export namespace QuadrupedRideClock {
    */
   export function create(
     species: createQuadruped.ISpecies,
-    course: ArchetypeCourse.ICourse,
+    course: rideQuadruped.ICourse,
     plan: ArchetypeCourse.IPlan,
     tempo: number,
     withers: number,

@@ -1,7 +1,5 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  IAutoMovieAffordance,
-  IAutoMovieModelPart,
   IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -16,9 +14,9 @@ import {
 import { EquineBlend } from "./EquineBlend";
 import { EquineLiberty } from "./EquineLiberty";
 import type { EquineLibertyCue } from "./EquineLibertyCue";
+import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedLateralRest } from "./QuadrupedLateralRest";
 import type { QuadrupedLateralRestPlan } from "./QuadrupedLateralRestPlan";
-import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { rideQuadruped } from "./rideQuadruped";
 
 /** The fastest a trained fall is staged from, metres per second: an authored bound at a canter or slow gallop. */
@@ -56,10 +54,12 @@ export namespace EquineFall {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the ride and the clip.
    */
   export function after<Id extends string, D extends string>(
-    animal: Archetype<Id, D>,
-    ride: ArchetypeRide.IRide<Id, D>,
+    animal: Archetype<Id, D | QuadrupedBody.Dimension>,
+    ride: ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension>,
     cue: EquineLibertyCue.IFall,
-  ): ArchetypeRide.IRide<Id, D> {
+  ): ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension> {
+    /** The source dimensions with the quadruped size the ride solves. */
+    type Dimension = D | QuadrupedBody.Dimension;
     const refuse = (axis: string, value: unknown, reason: string): never => {
       throw new ArchetypeRefusal({
         kind: "parameter",
@@ -96,7 +96,7 @@ export namespace EquineFall {
         `a fall's drop is positive and within its slide's ${stop} s`,
       );
 
-    const start: ArchetypeRide.ISample<Id, D> = ride.at(cue.from);
+    const start: ArchetypeRide.ISample<Id, Dimension> = ride.at(cue.from);
     const heading: IAutoMovieQuaternion = yaw(start.placement.rotation);
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
       x: 0,
@@ -108,13 +108,15 @@ export namespace EquineFall {
       rotation: heading,
       translation: { ...start.placement.translation, y: 0 },
     };
-    const clip: QuadrupedLateralRestPlan.IClip<Id, D> = QuadrupedLateralRest(
-      animal,
-      EquineLiberty.rested(animal, ground, cue.rest),
-      cue.lateral,
-    );
+    const clip: QuadrupedLateralRestPlan.IClip<Id, Dimension> =
+      QuadrupedLateralRest(
+        animal,
+        EquineLiberty.rested(animal, ground, cue.rest),
+        cue.lateral,
+      );
     const down: number = clip.events.lateralOn;
-    const lying: QuadrupedLateralRestPlan.ISample<Id, D> = clip.sample(down);
+    const lying: QuadrupedLateralRestPlan.ISample<Id, Dimension> =
+      clip.sample(down);
     const travel = (seconds: number): number => {
       const tau: number = Math.min(stop, seconds - cue.from);
       return speed * tau - (speed * speed * tau * tau) / (4 * cue.slide);
@@ -137,7 +139,7 @@ export namespace EquineFall {
       slid(ground, risen),
       clip.sample(clip.duration).placement,
     ).translation;
-    const away: ArchetypeRide.IRide<Id, D> | undefined =
+    const away: ArchetypeRide.IRide<Id, Dimension> | undefined =
       cue.away === undefined
         ? undefined
         : rideQuadruped(
@@ -159,17 +161,17 @@ export namespace EquineFall {
             "walk",
           );
 
-    const at = (seconds: number): ArchetypeRide.ISample<Id, D> => {
+    const at = (seconds: number): ArchetypeRide.ISample<Id, Dimension> => {
       if (seconds < cue.from) return ride.at(seconds);
       if (away !== undefined && seconds >= risen)
         return away.at(seconds - risen);
-      const course: ArchetypeRide.ISample<Id, D>["course"] = ride.plan.at(
-        Math.min(seconds, ride.duration),
-      );
+      const course: ArchetypeRide.ISample<Id, Dimension>["course"] =
+        ride.plan.at(Math.min(seconds, ride.duration));
       if (seconds >= cue.from + stop) {
-        const shown: QuadrupedLateralRestPlan.ISample<Id, D> = clip.sample(
-          Math.min(clip.duration, down + seconds - cue.from - stop),
-        );
+        const shown: QuadrupedLateralRestPlan.ISample<Id, Dimension> =
+          clip.sample(
+            Math.min(clip.duration, down + seconds - cue.from - stop),
+          );
         return {
           archetype: shown.animal,
           placement: ArchetypeFrame.compose(
@@ -230,7 +232,7 @@ export namespace EquineFall {
       ],
       at,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ArchetypeRide.ISample<Id, D> = at(seconds);
+        const sample: ArchetypeRide.ISample<Id, Dimension> = at(seconds);
         return ArchetypeFrame.compose(
           sample.placement,
           sample.archetype.affordance(id).frame,

@@ -51,7 +51,12 @@ export function createFoal(
       archetype: createFoal.ARCHETYPE,
       axis: "age",
       value: age,
-      feasible: { min: 0, max: createFoal.WEANING },
+      feasible: {
+        kind: "range",
+        minimum: 0,
+        maximum: createFoal.WEANING,
+        unit: "days",
+      },
       reason: `a foal's age is measured from birth to weaning at ${createFoal.WEANING} days`,
       fix: "Give an age in days from 0 to weaning.",
     });

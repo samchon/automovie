@@ -372,7 +372,7 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
             grip.axis === undefined
               ? undefined
               : Vector3.cross(grip.axis, grip.normal);
-          const turn: number =
+          const turn: NonNullable<HumanRideHands.IMaterialGrip["across"]> =
             across !== undefined &&
             Vector3.dot(across, HumanFrame.forward(torso.yaw)) < 0
               ? -1

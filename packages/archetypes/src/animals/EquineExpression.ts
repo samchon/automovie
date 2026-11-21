@@ -7,7 +7,6 @@ import {
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
-  IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -87,9 +86,6 @@ const TAILS: Readonly<Record<EquineExpressionCue.TailCarriage, number>> = {
 
 /** A held cue with its channel. */
 type Held = EquineExpressionAdmission.Held;
-
-/** A cue on the head channel that faces a target. */
-type Facing = EquineExpressionAdmission.Facing;
 
 /** Any cue on the head channel. */
 type Heading = EquineExpressionAdmission.Heading;

@@ -118,7 +118,7 @@ export namespace QuadrupedRideAdmission {
           archetype: species.archetype,
           axis: "footing",
           value: plane.yield!.depth,
-          feasible: { kind: "range", minimum: 0, maximum: clear },
+          feasible: { kind: "range", minimum: 0, maximum: clear, unit: "m" },
           reason: `the ${plane.id} footing sinks a hoof ${plane.yield!.depth} m, not below the ${clear} m its carpus or hock stands above it, so the hoof cannot be lifted clear`,
           fix: "Declare a shallower yield, or plan the passage as a plunge or a stuck interval.",
         });

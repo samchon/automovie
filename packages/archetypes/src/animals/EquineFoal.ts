@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
+  IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -16,6 +17,7 @@ import type { EquineExpressionCue } from "./EquineExpressionCue";
 import { EquineLiberty } from "./EquineLiberty";
 import type { EquineLibertyCue } from "./EquineLibertyCue";
 import { EquineRecumbency } from "./EquineRecumbency";
+import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedRest } from "./QuadrupedRest";
 import type { QuadrupedRestPlan } from "./QuadrupedRestPlan";
 import { rideQuadruped } from "./rideQuadruped";
@@ -157,10 +159,12 @@ export namespace EquineFoal {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride retains its course.
    */
   export function follow<Id extends string, D extends string>(
-    foal: Archetype<Id, D>,
-    mare: ArchetypeRide.IRide<Id, D>,
+    foal: Archetype<Id, D | QuadrupedBody.Dimension>,
+    mare: ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension>,
     keep: IFollow,
-  ): ArchetypeRide.IRide<Id, D> {
+  ): ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension> {
+    /** The source dimensions with the quadruped size the ride solves. */
+    type Dimension = D | QuadrupedBody.Dimension;
     const sign: number = keep.side === "left" ? 1 : -1;
     const samples: ArchetypeCourse.ISample[] = [];
     for (let k: number = 0; k * STEP <= mare.duration + 1e-9; k++) {
@@ -281,17 +285,22 @@ export namespace EquineFoal {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The rides retain their clips.
    */
   export function foaling<Id extends string, D extends string>(
-    mare: Archetype<Id, D>,
-    ride: ArchetypeRide.IRide<Id, D>,
-    foal: Archetype<Id, D>,
+    mare: Archetype<Id, D | QuadrupedBody.Dimension>,
+    ride: ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension>,
+    foal: Archetype<Id, D | QuadrupedBody.Dimension>,
     timing: IFoaling,
-  ): readonly [ArchetypeRide.IRide<Id, D>, ArchetypeRide.IRide<Id, D>] {
-    const lying: ArchetypeRide.IRide<Id, D> = EquineRecumbency.after(
+  ): readonly [
+    ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension>,
+    ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension>,
+  ] {
+    /** The source dimensions with the quadruped size the ride solves. */
+    type Dimension = D | QuadrupedBody.Dimension;
+    const lying: ArchetypeRide.IRide<Id, Dimension> = EquineRecumbency.after(
       mare,
       ride,
       { from: timing.from, ...timing.mare },
     );
-    const halt: ArchetypeRide.ISample<Id, D> = ride.at(ride.duration);
+    const halt: ArchetypeRide.ISample<Id, Dimension> = ride.at(ride.duration);
     const place: IAutoMovieTransform = {
       ...halt.placement,
       translation: ArchetypeFrame.point(halt.placement, {
@@ -300,13 +309,13 @@ export namespace EquineFoal {
         z: -timing.behind,
       }),
     };
-    const clip: QuadrupedRestPlan.IClip<Id, D> = QuadrupedRest(
+    const clip: QuadrupedRestPlan.IClip<Id, Dimension> = QuadrupedRest(
       foal,
       EquineLiberty.rested(foal, place, timing.foal),
     );
     const down: number = clip.events.bellyOn;
-    const at = (seconds: number): ArchetypeRide.ISample<Id, D> => {
-      const shown: QuadrupedRestPlan.ISample<Id, D> = clip.sample(
+    const at = (seconds: number): ArchetypeRide.ISample<Id, Dimension> => {
+      const shown: QuadrupedRestPlan.ISample<Id, Dimension> = clip.sample(
         Math.min(clip.duration, down + Math.max(0, seconds - timing.delivery)),
       );
       return {
@@ -316,7 +325,7 @@ export namespace EquineFoal {
         course: ride.plan.at(Math.min(seconds, ride.duration)),
       };
     };
-    const born: ArchetypeRide.IRide<Id, D> = {
+    const born: ArchetypeRide.IRide<Id, Dimension> = {
       plan: ride.plan,
       duration: timing.delivery + clip.duration - down,
       instants: [
@@ -332,7 +341,7 @@ export namespace EquineFoal {
       ],
       at,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ArchetypeRide.ISample<Id, D> = at(seconds);
+        const sample: ArchetypeRide.ISample<Id, Dimension> = at(seconds);
         return ArchetypeFrame.compose(
           sample.placement,
           sample.archetype.affordance(id).frame,
@@ -349,14 +358,16 @@ export namespace EquineFoal {
 
   /** The risen foal walks to the risen mare's flank and suckles: an S-curve of two opposite quarter turns steps it across, a straight brings it level with the udder, and a last turn faces it in at the udder from beside the barrel, where it reaches up under the belly. */
   function nursed<Id extends string, D extends string>(
-    foal: Archetype<Id, D>,
-    born: ArchetypeRide.IRide<Id, D>,
-    lying: ArchetypeRide.IRide<Id, D>,
+    foal: Archetype<Id, D | QuadrupedBody.Dimension>,
+    born: ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension>,
+    lying: ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension>,
     nurse: INurse,
-  ): ArchetypeRide.IRide<Id, D> {
+  ): ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension> {
+    /** The source dimensions with the quadruped size the ride solves. */
+    type Dimension = D | QuadrupedBody.Dimension;
     const both: number = Math.max(born.duration, lying.duration);
-    const stood: ArchetypeRide.ISample<Id, D> = born.at(born.duration);
-    const mare: ArchetypeRide.ISample<Id, D> = lying.at(lying.duration);
+    const stood: ArchetypeRide.ISample<Id, Dimension> = born.at(born.duration);
+    const mare: ArchetypeRide.ISample<Id, Dimension> = lying.at(lying.duration);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       mare.placement.rotation,
     );
@@ -397,7 +408,7 @@ export namespace EquineFoal {
       { x: 0, y: 0, z: 1 },
     );
     const sign: number = across >= 0 ? 1 : -1;
-    const approach: ArchetypeRide.IRide<Id, D> = rideQuadruped(
+    const approach: ArchetypeRide.IRide<Id, Dimension> = rideQuadruped(
       foal,
       {
         start: {
@@ -422,9 +433,9 @@ export namespace EquineFoal {
       },
       "walk",
     );
-    const at = (seconds: number): ArchetypeRide.ISample<Id, D> =>
+    const at = (seconds: number): ArchetypeRide.ISample<Id, Dimension> =>
       seconds < both ? born.at(seconds) : approach.at(seconds - both);
-    const walked: ArchetypeRide.IRide<Id, D> = {
+    const walked: ArchetypeRide.IRide<Id, Dimension> = {
       plan: born.plan,
       duration: both + approach.duration,
       instants: [
@@ -438,7 +449,7 @@ export namespace EquineFoal {
       ],
       at,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ArchetypeRide.ISample<Id, D> = at(seconds);
+        const sample: ArchetypeRide.ISample<Id, Dimension> = at(seconds);
         return ArchetypeFrame.compose(
           sample.placement,
           sample.archetype.affordance(id).frame,
