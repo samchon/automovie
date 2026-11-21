@@ -49,7 +49,9 @@ export namespace AutoMovieMotionHumanLeanInto {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses original tip/balance/lowering owners and actual Reach.prepareCheck. Only fixed body/limb demand lives with the plan; each runtime pitch and final raw lowering borrow the same current-person FK source without ROM projection or a stored target answer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns props, held centre, static shoulder metadata and at most ten original solved shifts. Every dynamic getter/loan stays inside its synchronous pitch/write and releases on return or throw; returned postures retain no reader or query history.
    */
-  export function solve(props: IAutoMovieMotionHumanLeanInto.IProps): IAutoMovieMotionHumanLeanInto.ILean {
+  export function solve(
+    props: IAutoMovieMotionHumanLeanInto.IProps,
+  ): IAutoMovieMotionHumanLeanInto.ILean {
     // The step of the scan for the first pitch that reaches, degrees
     // (provisional: the measured distances change by a few millimetres per
     // five degrees near their least, so a reach is not stepped over).
@@ -58,14 +60,19 @@ export namespace AutoMovieMotionHumanLeanInto {
     // (provisional: the shift changes by a few millimetres per step, so the
     // proportion between two steps misplaces the centre by less).
     const KNOT: number = 5;
-    const limit: number = AutoMovieMotionHumanReach.LEAN_LIMIT;
+    const limit: number = props.limit ?? AutoMovieMotionHumanReach.LEAN_LIMIT;
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
-    const checkReach: ReturnType<typeof AutoMovieMotionHumanReach.prepareCheck> =
-      AutoMovieMotionHumanReach.prepareCheck(props.body, limb);
+    const checkReach: ReturnType<
+      typeof AutoMovieMotionHumanReach.prepareCheck
+    > = AutoMovieMotionHumanReach.prepareCheck(props.body, limb);
 
     // The standing posture as the balance weighs it: lowered onto the
     // planted legs, the working arm on its goal.
-    const weighed: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture = (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+    const weighed: (
+      posture: IAutoMovieMotionHumanPosture,
+    ) => IAutoMovieMotionHumanPosture = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture => {
       const lowered: IAutoMovieMotionHumanPosture = {
         ...posture,
         root: resolveHumanPosture.lower(props.body, posture).root,
@@ -101,7 +108,10 @@ export namespace AutoMovieMotionHumanLeanInto {
                     ),
                   ),
                 HumanBalance.RANGE,
-                (held ??= HumanBalance.offset(props.body, weighed(props.standing))),
+                (held ??= HumanBalance.offset(
+                  props.body,
+                  weighed(props.standing),
+                )),
               );
         steps.set(index, back);
       }
@@ -117,19 +127,25 @@ export namespace AutoMovieMotionHumanLeanInto {
         ? step(below)
         : step(below) * (1 - share) + step(below + 1) * share;
     };
-    const tip: IAutoMovieMotionHumanLeanInto.ILean["tip"] = (posture: IAutoMovieMotionHumanPosture, pitch: number): IAutoMovieMotionHumanPosture =>
+    const tip: IAutoMovieMotionHumanLeanInto.ILean["tip"] = (
+      posture: IAutoMovieMotionHumanPosture,
+      pitch: number,
+    ): IAutoMovieMotionHumanPosture =>
       AutoMovieMotionHumanLean.tip(props.body, posture, pitch, back(pitch));
-    const pitch: IAutoMovieMotionHumanLeanInto.ILean["pitch"] = (posture: IAutoMovieMotionHumanPosture, progress: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): number => {
+    const pitch: IAutoMovieMotionHumanLeanInto.ILean["pitch"] = (
+      posture: IAutoMovieMotionHumanPosture,
+      progress: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ): number => {
       const wrist: IAutoMovieVector3 = props.wrist(posture, progress);
-      const operation: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+      const operation: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(resolution);
       const beyond: (degrees: number) => number = (degrees: number): number => {
-        const check: IAutoMovieMotionHumanReach.ICheck =
-          checkReach(
-            tip(posture, degrees),
-            wrist,
-            operation,
-          );
+        const check: IAutoMovieMotionHumanReach.ICheck = checkReach(
+          tip(posture, degrees),
+          wrist,
+          operation,
+        );
         return check.distance - props.share * check.length;
       };
       if (beyond(0) <= 0) return 0;
@@ -181,9 +197,12 @@ export namespace AutoMovieMotionHumanLeanInto {
         channels: ["root", "trunk"],
         from: 0,
         to: clock.duration,
-        write: (posture: IAutoMovieMotionHumanPosture, seconds: number,
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
           _before?: IAutoMovieMotionHumanPrimitive.Reader,
-          resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture => {
+          resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+        ): IAutoMovieMotionHumanPosture => {
           const leaned: IAutoMovieMotionHumanPosture = tip(
             posture,
             clock.envelope(["start", "ready"], ["relax", "end"], seconds) *
@@ -195,7 +214,12 @@ export namespace AutoMovieMotionHumanLeanInto {
           );
           return {
             ...leaned,
-            root: resolveHumanPosture.lower(props.body, leaned, undefined, resolution).root,
+            root: resolveHumanPosture.lower(
+              props.body,
+              leaned,
+              undefined,
+              resolution,
+            ).root,
           };
         },
       }),

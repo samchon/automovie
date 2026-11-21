@@ -30,6 +30,7 @@ import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
+import { AutoMovieMotionHumanReach } from "../compose/AutoMovieMotionHumanReach";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBendRead } from "../compose/HumanBendRead";
@@ -154,6 +155,9 @@ export namespace operate {
 
   /** The vertical share of a knob's axis from which it counts as a lid's, turned with the fingers ahead instead of up. */
   export const UPRIGHT: number = Math.SQRT1_2;
+
+  /** The most a stoop to a part below the hips adds to the trunk's pitch, degrees: about the straight-legged hip flexion the hamstrings allow, as a normal straight-leg raise reaches roughly 80 degrees (provisional). */
+  export const STOOP: number = 80;
 
   /** The width of each part a hand aims at, metres (provisional). */
   export const WIDTH: Readonly<
@@ -298,6 +302,11 @@ export namespace operate {
         standing,
         side,
         share: REACH,
+        // A part below the hips is stooped to, further than a standing reach.
+        limit:
+          place.point.y < body.measure.hipHeight
+            ? operate.STOOP
+            : AutoMovieMotionHumanReach.LEAN_LIMIT,
         wrist: hand.wrist,
         // The arm on the part at the stroke's start, as the stroke grips it.
         arm: (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal =>

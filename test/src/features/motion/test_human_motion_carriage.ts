@@ -190,12 +190,8 @@ function arrival(
       on: { bone: "chest", offset: worn },
       hand: "right",
     })
-    // Bent down to the case, the left hand draws its pull handle out and
+    // Stooped to the case, the left hand draws its pull handle out and
     // takes it.
-    .bend({
-      toward: { kind: "prop", subject: "case", point: "telescope" },
-      hold: 0.2,
-    })
     .operate({
       hand: "left",
       mechanism: {
@@ -464,7 +460,8 @@ function changeHands(
 ): void {
   const tote = createBag({ id: "tote", kind: "tote" });
   const props: IAutoMovieMotionHumanProp[] = [
-    everydayTake.prop("tote", tote, { x: -0.3, y: 0.7, z: 0.3 }),
+    // Before the body, where either hand reaches its handles.
+    everydayTake.prop("tote", tote, { x: 0, y: 0.7, z: 0.35 }),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()

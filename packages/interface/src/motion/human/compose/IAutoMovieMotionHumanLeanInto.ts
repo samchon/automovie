@@ -50,6 +50,9 @@ export namespace IAutoMovieMotionHumanLeanInto {
     /** The share of the arm's length (upper arm and forearm) the wrist is kept within. */
     share: number;
 
+    /** The most forward pitch the lean adds, degrees; `AutoMovieMotionHumanReach.LEAN_LIMIT` when absent. A law raises it for work below the hips, which a person stoops to. */
+    limit?: number;
+
     /**
      * The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres.
      *
@@ -115,8 +118,11 @@ export namespace IAutoMovieMotionHumanLeanInto {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/limb name metadata belongs to the plan, while each synchronous call alone owns or borrows its exact reader; current posture and wrist remain actual and no result crosses calls.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local getter releases on return or throw; only the numeric pitch escapes, and no workspace, target, candidate or query history enters the retained lean.
      */
-    pitch: (posture: IAutoMovieMotionHumanPosture, progress: number,
-      resolution?: IAutoMoviePoseResolution.ISource) => number;
+    pitch: (
+      posture: IAutoMovieMotionHumanPosture,
+      progress: number,
+      resolution?: IAutoMoviePoseResolution.ISource,
+    ) => number;
 
     /**
      * A posture tipped by a pitch in degrees, the hips shifted back to balance it.
