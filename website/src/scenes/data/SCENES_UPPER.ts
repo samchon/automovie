@@ -1,3 +1,5 @@
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
@@ -16,7 +18,7 @@ const point = (
   x: number,
   y: number,
   z: number,
-  normal?: { x: number; y: number; z: number },
+  normal?: IAutoMovieVector3,
 ): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
@@ -25,7 +27,7 @@ const point = (
 });
 
 /** The bench top's upward normal. */
-const UP: { x: number; y: number; z: number } = { x: 0, y: 1, z: 0 };
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /** The nail the carpenter drives, on the bench top ahead of the right hand. */
 const NAIL: SceneBuild.PointTarget = point(-0.1, SceneBuild.COUNTER_TOP, 0.4);

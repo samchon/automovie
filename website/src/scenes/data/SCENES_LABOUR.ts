@@ -1,5 +1,3 @@
-import type { IAutoMovieMotionTarget } from "@automovie/interface";
-
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
@@ -13,18 +11,14 @@ const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
  * @param z Forward.
  * @returns The target.
  */
-const point = (
-  x: number,
-  y: number,
-  z: number,
-): Extract<IAutoMovieMotionTarget, { kind: "point" }> => ({
+const point = (x: number, y: number, z: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",
 });
 
 /** Inside the stove counter's saucepan, where the cook's spoon stirs. */
-const PAN: Extract<IAutoMovieMotionTarget, { kind: "prop" }> = {
+const PAN: SceneBuild.PropTarget = {
   kind: "prop",
   subject: "pan",
   point: "inside",

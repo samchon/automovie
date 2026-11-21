@@ -6,20 +6,10 @@ import type {
 
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
-import type {
-  ActionName,
-  ActionParams,
-  AuthoredAction,
-  AuthoredMutual,
-  IActionOptions,
-  IAuthoredComposition,
-  IAuthoredPerformer,
-  ISeatReference,
-  MutualArguments,
-  OptionalActionName,
-} from "./SceneBuildTypes";
+import type { SceneBuildTypes } from "./SceneBuildTypes";
 import { SceneTakes } from "./SceneTakes";
 
+/** A region of another performer, as a motion target. */
 type PersonTarget = Extract<IAutoMovieMotionTarget, { kind: "person" }>;
 
 /**
@@ -28,16 +18,19 @@ type PersonTarget = Extract<IAutoMovieMotionTarget, { kind: "person" }>;
  */
 export namespace SceneBuild {
   /** An action: a name, its parameters, and the optional members. */
-  export type Action = AuthoredAction;
+  export type Action = SceneBuildTypes.AuthoredAction;
 
   /** A performer: a body at a place, with its actions. */
-  export type Performer = IAuthoredPerformer;
+  export type Performer = SceneBuildTypes.IAuthoredPerformer;
 
   /** A plain composition with law-checked action inputs. */
-  export type Composition = IAuthoredComposition;
+  export type Composition = SceneBuildTypes.IAuthoredComposition;
 
   /** A point targeted by a law, with its declared coordinate frame. */
   export type PointTarget = Extract<IAutoMovieMotionTarget, { kind: "point" }>;
+
+  /** A named point of a placed prop, as a motion target. */
+  export type PropTarget = Extract<IAutoMovieMotionTarget, { kind: "prop" }>;
 
   /**
    * A floor point, world metres.
@@ -73,19 +66,19 @@ export namespace SceneBuild {
    * @returns The action.
    */
   export function act(
-    name: OptionalActionName,
+    name: SceneBuildTypes.OptionalActionName,
     params?: undefined,
-    more?: IActionOptions,
+    more?: SceneBuildTypes.IActionOptions,
   ): Action;
-  export function act<N extends ActionName>(
+  export function act<N extends SceneBuildTypes.ActionName>(
     name: N,
-    params: ActionParams<NoInfer<N>>,
-    more?: IActionOptions,
+    params: SceneBuildTypes.ActionParams<NoInfer<N>>,
+    more?: SceneBuildTypes.IActionOptions,
   ): Action;
   export function act(
     name: string,
     params: Record<string, unknown> = {},
-    more: IActionOptions = {},
+    more: SceneBuildTypes.IActionOptions = {},
   ): IPlaygroundComposition.IAction {
     return { name, params, ...more };
   }
@@ -265,7 +258,10 @@ export namespace SceneBuild {
    * @param id The seat's affordance id, for an object with several seats; its only seat when absent.
    * @returns The seat reference.
    */
-  export function seat(subject: string, id?: string): ISeatReference {
+  export function seat(
+    subject: string,
+    id?: string,
+  ): SceneBuildTypes.ISeatReference {
     return id === undefined ? { $seat: subject } : { $seat: subject, id };
   }
 
@@ -277,7 +273,9 @@ export namespace SceneBuild {
    * @param params The shared parameters.
    * @returns The mutual action.
    */
-  export function mutual(...args: MutualArguments): AuthoredMutual;
+  export function mutual(
+    ...args: SceneBuildTypes.MutualArguments
+  ): SceneBuildTypes.AuthoredMutual;
   export function mutual(
     name: string,
     cast: Record<string, string>,
@@ -341,7 +339,7 @@ export namespace SceneBuild {
     seed: string,
     performers: Performer[],
     objects: IPlaygroundComposition.IObject[] = [],
-    mutuals: AuthoredMutual[] = [],
+    mutuals: SceneBuildTypes.AuthoredMutual[] = [],
     forces: NonNullable<IPlaygroundComposition["forces"]> = [],
   ): IScene {
     const composition: IPlaygroundComposition = {

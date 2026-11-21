@@ -1,7 +1,4 @@
-import type {
-  IAutoMovieMotionHumanGraspUse,
-  IAutoMovieMotionTarget,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanGraspUse } from "@automovie/interface";
 
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
@@ -15,9 +12,7 @@ const { act, at, mutual, object, person, scene, seat, to }: typeof SceneBuild =
  * @param x Along the bench, metres.
  * @returns The target.
  */
-const work = (
-  x: number,
-): Extract<IAutoMovieMotionTarget, { kind: "point" }> => ({
+const work = (x: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y: SceneBuild.COUNTER_TOP, z: 0.4 },
   frame: "world",
