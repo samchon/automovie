@@ -145,7 +145,7 @@ export namespace everydayTake {
    * An affordance's world point on a prop at a second.
    *
    * @param take The take.
-   * @param model The prop's archetype, read for the affordance's frame at rest.
+   * @param model The prop's archetype, posed at the take's articulation state.
    * @param subject The prop.
    * @param id The affordance.
    * @param t Film seconds.
@@ -153,12 +153,17 @@ export namespace everydayTake {
    */
   export function point(
     take: HumanPerformance,
-    model: IAutoMovieMotionHumanObject.IModel,
+    model: IPosable,
     subject: string,
     id: string,
     t: number,
   ): IAutoMovieVector3 {
-    const site: IAutoMovieAffordance = (model.affordances ?? []).find(
+    // The contact where the prop's articulations put it at that second.
+    const posed: IAutoMovieMotionHumanObject.IModel =
+      model.articulate === undefined
+        ? model
+        : model.articulate(take.state(subject, t));
+    const site: IAutoMovieAffordance = (posed.affordances ?? []).find(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     )!;
     const frame: IAutoMovieRigidTransform = take.prop(subject, t);
@@ -182,6 +187,29 @@ export namespace everydayTake {
       throw error;
     }
     return undefined;
+  }
+
+  /**
+   * A failure's text for a check: a refusal's message, or any other error's
+   * message with the top of its stack, where the fault lies.
+   *
+   * @param error The thrown value.
+   * @returns The text.
+   */
+  export function describe(error: unknown): string {
+    if (error instanceof HumanRefusal || !(error instanceof Error))
+      return String(error);
+    return [String(error), ...(error.stack ?? "").split("\n").slice(1, 9)].join(
+      " | ",
+    );
+  }
+
+  /** A prop model, posable at an articulation state when it articulates. */
+  export interface IPosable extends IAutoMovieMotionHumanObject.IModel {
+    /** The model at a state of its articulations. */
+    articulate?(
+      state: Record<string, number>,
+    ): IAutoMovieMotionHumanObject.IModel;
   }
 
   /** A performer of the take, as the performance takes it. */

@@ -53,4 +53,7 @@ export interface IAutoMovieMotionHumanWrite {
 
   /** A prop riding the tool set on one of the surface prop's sockets at the stroke's end, as a serving spoon leaves food on a plate. */
   leave?: IAutoMovieMotionHumanHeldWork.IMount;
+
+  /** Props set loose at the stroke's end, falling from where they rest, as a cut ribbon's free end drops away from the part still tied. */
+  release?: readonly string[];
 }

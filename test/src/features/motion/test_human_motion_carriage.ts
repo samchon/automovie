@@ -1,7 +1,6 @@
 import {
   createBag,
   createBowl,
-  createCarryBasket,
   createServingTray,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -56,7 +55,8 @@ const BEHIND: IAutoMovieQuaternion = { x: 0, y: 1, z: 0, w: 0 };
  *    and the case behind the walker.
  * 2. A waiter's tray on the flat palm, with a bowl on it, carried level
  *    through a walk and a turn, the bowl staying on it.
- * 3. A basket on the head stays on the crown through a walk, no hand on it.
+ * 3. A porter's tray load on the head stays on the crown through a walk,
+ *    no hand on it.
  * 4. A child rides the shoulders: seat on the nape, the carrier's hands on
  *    the shins, lifted and set down with one coupled support throughout.
  * 5. A bag changes hands without being set down, both hands holding only
@@ -78,7 +78,10 @@ export function test_human_motion_carriage(): void {
       try {
         scene.run(body, `${name} ${scene.label}`, checks);
       } catch (error: unknown) {
-        checks.check(`${name} ${scene.label} refused: ${String(error)}`, false);
+        checks.check(
+          `${name} ${scene.label} refused: ${everydayTake.describe(error)}`,
+          false,
+        );
       }
   }
   checks.assert("carriage");
@@ -180,11 +183,11 @@ function arrival(
   );
   const props: IAutoMovieMotionHumanProp[] = [
     everydayTake.prop("pack", pack, { x: 0.35, y: 0.75, z: 0.25 }, BEHIND),
-    everydayTake.prop("case", case_, { x: -0.35, y: 0, z: 0.1 }),
+    everydayTake.prop("case", case_, { x: -0.22, y: 0, z: 0.22 }),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()
-    .pickUp({ prop: "pack", handle: "rightStrap", hand: "right", lift: 0.1 })
+    .pickUp({ prop: "pack", handle: "rightStrap", hand: "right", lift: 0 })
     .putDown({
       prop: "pack",
       on: { bone: "chest", offset: worn },
@@ -201,7 +204,7 @@ function arrival(
     .pickUp({ prop: "case", handle: "pull", hand: "left", lift: 0 })
     .walk({ to: { x: 0, y: 0, z: 1.5 } })
     .walk({ to: { x: 1.2, y: 0, z: 2.2 } })
-    .putDown({ prop: "case", at: { x: 1.2, y: 0, z: 1.9 }, hand: "left" })
+    .putDown({ prop: "case", at: { x: 1.0, y: 0, z: 1.95 }, hand: "left" })
     .pickUp({ prop: "pack", handle: "handle", hand: "right", lift: 0 })
     .putDown({ prop: "pack", at: OFF, hand: "right" });
   const take: HumanPerformance = play(`${label} arrival`, body, props, chain);
@@ -340,12 +343,13 @@ function headLoad(
   label: string,
   checks: motionComplaints.IGatherer,
 ): void {
-  const basket = createCarryBasket({ id: "basket" });
+  // A porter's flat tray, the bundle's base, lifted by its end grip.
+  const basket = createServingTray({ id: "basket" });
   const crown: IAutoMovieRigidTransform = offsetOn(
     body,
     "head",
     (b: IAutoMovieResolvedBone): IAutoMovieRigidTransform => ({
-      position: Vector3.add(b.worldPosition, { x: 0, y: 0.2, z: 0 }),
+      position: Vector3.add(b.worldPosition, { x: 0, y: 0.18, z: 0 }),
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     }),
   );
@@ -354,7 +358,7 @@ function headLoad(
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()
-    .pickUp({ prop: "basket", handle: "handle", hand: "right", lift: 0.1 })
+    .pickUp({ prop: "basket", handle: "rightHandle", hand: "right", lift: 0 })
     .putDown({
       prop: "basket",
       on: { bone: "head", offset: crown },
@@ -435,7 +439,13 @@ function changeHands(
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()
     .pickUp({ prop: "tote", handle: "handle", hand: "right", lift: 0.2 })
-    .pickUp({ prop: "tote", handle: "handle", hand: "left", lift: 0 })
+    .registered("workHeld", {
+      prop: "tote",
+      side: "right",
+      at: { out: -0.05, up: 0.95, forward: 0.3 },
+      seconds: 0.5,
+    })
+    .pickUp({ prop: "tote", handle: "strap", hand: "left", lift: 0 })
     .release({ hand: "right" });
   const take: HumanPerformance = play(
     `${label} change hands`,

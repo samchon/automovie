@@ -40,7 +40,7 @@ const HOLD: number = 0.005;
 /** A bite reaches the mouth within this, metres: the lips' half width. */
 const MOUTH: number = 0.06;
 /** The seated diner's chair. */
-const CHAIR: IAutoMovieVector3 = { x: 0, y: 0, z: 0.4 };
+const CHAIR: IAutoMovieVector3 = { x: 0, y: 0, z: -0.3 };
 
 /**
  * Two-utensil eating and serving (#4005), seated at a table.
@@ -72,7 +72,10 @@ export function test_human_motion_dining_utensils(): void {
       try {
         scene.run(body, `${name} ${scene.label}`, side, checks);
       } catch (error: unknown) {
-        checks.check(`${name} ${scene.label} refused: ${String(error)}`, false);
+        checks.check(
+          `${name} ${scene.label} refused: ${everydayTake.describe(error)}`,
+          false,
+        );
       }
   }
   checks.assert("dining utensils");
@@ -80,8 +83,8 @@ export function test_human_motion_dining_utensils(): void {
 
 /** The seated scene at a table. */
 function stage(): IStage {
-  const chair = createSeat({ id: "chair", kind: "chair" });
-  const placement = { at: CHAIR, yaw: 180, fixed: true } as const;
+  const chair = createSeat({ id: "chair", kind: "dining" });
+  const placement = { at: CHAIR, yaw: 0, fixed: true } as const;
   const table = createTable({ id: "table", kind: "dining" });
   const top: IAutoMovieAffordance = table.affordances!.find(
     (a: IAutoMovieAffordance): boolean => a.id === "top",

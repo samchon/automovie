@@ -43,7 +43,7 @@ const SEAT: number = 0.03;
 /** A displayed prop moves at most this between frames 1/24 s apart, metres. */
 const STEP: number = 0.08;
 /** The seated actor's chair, ahead of the origin facing the table. */
-const CHAIR: IAutoMovieVector3 = { x: 0, y: 0, z: 0.4 };
+const CHAIR: IAutoMovieVector3 = { x: 0, y: 0, z: -0.3 };
 /** Face down: a card's back up. */
 const DOWN: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 /** Face up: turned over about its long side. */
@@ -82,7 +82,10 @@ export function test_human_motion_tabletop_games(): void {
       try {
         scene.run(body, `${name} ${scene.label}`, checks);
       } catch (error: unknown) {
-        checks.check(`${name} ${scene.label} refused: ${String(error)}`, false);
+        checks.check(
+          `${name} ${scene.label} refused: ${everydayTake.describe(error)}`,
+          false,
+        );
       }
   }
   checks.assert("tabletop games");
@@ -90,8 +93,8 @@ export function test_human_motion_tabletop_games(): void {
 
 /** The seated scene: chair, table and the table's top. */
 function stage(): IStage {
-  const chair = createSeat({ id: "chair", kind: "chair" });
-  const placement = { at: CHAIR, yaw: 180, fixed: true } as const;
+  const chair = createSeat({ id: "chair", kind: "dining" });
+  const placement = { at: CHAIR, yaw: 0, fixed: true } as const;
   const table = createTable({ id: "table", kind: "dining" });
   const top: IAutoMovieAffordance = table.affordances!.find(
     (a: IAutoMovieAffordance): boolean => a.id === "top",

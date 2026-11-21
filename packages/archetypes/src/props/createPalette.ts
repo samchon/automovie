@@ -9,18 +9,20 @@ import {
 } from "../core";
 
 /**
- * An artist's hand palette and a sheet of cloth: flat boards held in one
- * hand while the other works on them. No source is read: every figure is a
+ * An artist's hand palette, a sheet of cloth and a length of ribbon: flat
+ * boards held in one hand, or fixed, while the other works on them. No source is read: every figure is a
  * provisional construction estimate.
  */
 const SIZES: Readonly<Record<createPalette.Kind, createPalette.ISize>> = {
   palette: { width: 0.4, depth: 0.3, thickness: 0.005, mass: 0.3 },
   cloth: { width: 0.3, depth: 0.2, thickness: 0.001, mass: 0.02 },
+  ribbon: { width: 0.4, depth: 0.05, thickness: 0.001, mass: 0.01 },
 };
 
 /**
- * A flat board held by one edge: a painter's palette on the thumb, or a
- * piece of cloth pinched at its edge while it is sewn.
+ * A flat board held by one edge: a painter's palette on the thumb, a
+ * piece of cloth pinched at its edge while it is sewn, or a ribbon's
+ * length stretched for a ceremonial cut.
  *
  * The board lies in `XZ` centred on the origin, its upper face up. `hold`
  * is where the holding hand takes it: a palette's thumb hole near its
@@ -110,11 +112,11 @@ export function createPalette(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The kind fixes the size.
  */
 export namespace createPalette {
-  /** A painter's palette or a piece of cloth. */
-  export type Kind = "palette" | "cloth";
+  /** A painter's palette, a piece of cloth or a ribbon. */
+  export type Kind = "palette" | "cloth" | "ribbon";
 
   /** Both kinds. */
-  export const KINDS: readonly Kind[] = ["palette", "cloth"];
+  export const KINDS: readonly Kind[] = ["palette", "cloth", "ribbon"];
 
   /** The hold and the working face. */
   export type Affordance = "hold" | "face";

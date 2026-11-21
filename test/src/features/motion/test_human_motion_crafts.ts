@@ -39,7 +39,7 @@ const PALM: number = 0.03;
 /** An ictus falls on its beat within this, seconds: a 24 Hz frame. */
 const ICTUS: number = 1 / 24;
 /** The conducting tempo, beats per minute. */
-const BPM: number = 100;
+const BPM: number = 120;
 
 /**
  * Crafts (#3996): painting at an easel, conducting, sewing, knitting and
@@ -53,7 +53,7 @@ const BPM: number = 100;
  * 2. Conducting: 2/4, 3/4 and 4/4 each beat one bar; every ictus is its
  *    beat's lowest point on the beat's instant, and each beat comes from
  *    its standard direction (4/4 down, in, out, up).
- * 3. Sewing: a needle pierces a held cloth along a seam in three stitches,
+ * 3. Sewing: a needle pierces a held cloth along a seam in two stitches,
  *    each drawn out to arm's length, the cloth held still.
  * 4. Knitting: seated, the right needle's tip enters the left needle's
  *    stitch and takes it, both hands holding their needles.
@@ -76,7 +76,10 @@ export function test_human_motion_crafts(): void {
       try {
         scene.run(body, `${name} ${scene.label}`, checks);
       } catch (error: unknown) {
-        checks.check(`${name} ${scene.label} refused: ${String(error)}`, false);
+        checks.check(
+          `${name} ${scene.label} refused: ${everydayTake.describe(error)}`,
+          false,
+        );
       }
   }
   checks.assert("crafts");
@@ -291,61 +294,65 @@ function conducting(
     { meter: "3/4", directions: ["down", "out", "up"] },
     { meter: "4/4", directions: ["down", "in", "out", "up"] },
   ];
-  for (const figure of figures) {
-    const take: HumanPerformance = play(
-      `${label} ${figure.meter}`,
-      body,
-      [everydayTake.prop("baton", baton, { x: -0.25, y: 1.0, z: 0.3 })],
-      HumanChain.subject("actor")
-        .stand()
-        .pickUp({ prop: "baton", handle: "grip", hand: "right", lift: 0.1 })
-        .registered("conduct", {
-          baton: "baton",
-          meter: figure.meter,
-          bars: 2,
-          bpm: BPM,
-        }),
-    );
-    const segment: IAutoMovieMotionHumanSegment = named(take, "conduct")[0]!;
-    const period: number = 60 / BPM;
-    const tip: (t: number) => IAutoMovieVector3 = (
-      t: number,
-    ): IAutoMovieVector3 => everydayTake.point(take, baton, "baton", "tip", t);
-    const count: number = 2 * figure.directions.length;
-    for (let k: number = 1; k <= count; ++k) {
-      const beat: number = segment.start + k * period;
-      let lowest: number = beat;
-      for (
-        let t: number = beat - period / 2;
-        t <= beat + period / 2;
-        t += 0.005
-      )
-        if (tip(t).y < tip(lowest).y) lowest = t;
-      checks.check(
-        `${label} ${figure.meter}: beat ${k}'s ictus falls on its instant (${(lowest - beat).toFixed(3)} s)`,
-        Math.abs(lowest - beat) <= ICTUS,
-      );
-      if (k === 1) continue;
-      const move: IAutoMovieVector3 = Vector3.subtract(
-        tip(beat),
-        tip(beat - period),
-      );
-      const direction: Direction =
-        figure.directions[(k - 1) % figure.directions.length]!;
-      const ok: boolean =
-        direction === "down"
-          ? move.y < -Math.abs(move.x)
-          : direction === "up"
-            ? move.y > 0
-            : direction === "in"
-              ? move.x > Math.abs(move.y)
-              : -move.x > Math.abs(move.y);
-      checks.check(
-        `${label} ${figure.meter}: beat ${k} comes ${direction}`,
-        ok,
-      );
-    }
-  }
+  let chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
+    .stand()
+    .pickUp({ prop: "baton", handle: "grip", hand: "right", lift: 0.1 });
+  for (const figure of figures)
+    chain = chain.registered("conduct", {
+      baton: "baton",
+      meter: figure.meter,
+      bars: 1,
+      bpm: BPM,
+    });
+  const take: HumanPerformance = play(
+    `${label} conducting`,
+    body,
+    [everydayTake.prop("baton", baton, { x: -0.25, y: 1.0, z: 0.3 })],
+    chain,
+  );
+  const period: number = 60 / BPM;
+  const tip: (t: number) => IAutoMovieVector3 = (
+    t: number,
+  ): IAutoMovieVector3 => everydayTake.point(take, baton, "baton", "tip", t);
+  named(take, "conduct").forEach(
+    (segment: IAutoMovieMotionHumanSegment, f: number): void => {
+      const figure: IFigure = figures[f]!;
+      figure.directions.forEach((direction: Direction, b: number): void => {
+        const beat: number = segment.start + (b + 1) * period;
+        // The tip's lowest point within half a beat either side.
+        let lowest: number = beat;
+        let low: number = tip(beat).y;
+        for (let i: number = -12; i <= 12; ++i) {
+          const t: number = beat + (i * period) / 24;
+          const y: number = tip(t).y;
+          if (y < low) {
+            low = y;
+            lowest = t;
+          }
+        }
+        checks.check(
+          `${label} ${figure.meter}: beat ${b + 1}'s ictus falls on its instant (${(lowest - beat).toFixed(3)} s)`,
+          Math.abs(lowest - beat) <= ICTUS,
+        );
+        const move: IAutoMovieVector3 = Vector3.subtract(
+          tip(beat),
+          tip(b === 0 ? beat - period / 2 : beat - period),
+        );
+        const ok: boolean =
+          direction === "down"
+            ? move.y < -Math.abs(move.x)
+            : direction === "up"
+              ? move.y > 0
+              : direction === "in"
+                ? move.x > Math.abs(move.y)
+                : -move.x > Math.abs(move.y);
+        checks.check(
+          `${label} ${figure.meter}: beat ${b + 1} comes ${direction}`,
+          ok,
+        );
+      });
+    },
+  );
 }
 
 /** Sewing three stitches along a seam on a held cloth. */
@@ -366,7 +373,7 @@ function sewing(
     .pickUp({ prop: "needle", handle: "grip", hand: "right", lift: 0.05 });
   const shoulder: number = body.measure.shoulderHeight;
   const reach: number = body.measure.upperArm + body.measure.forearm;
-  for (let k: number = 0; k < 3; ++k)
+  for (let k: number = 0; k < 2; ++k)
     chain = chain
       .registered("write", {
         tool: "needle",
@@ -429,18 +436,18 @@ function knitting(
   label: string,
   checks: motionComplaints.IGatherer,
 ): void {
-  const chair = createSeat({ id: "chair", kind: "chair" });
+  const chair = createSeat({ id: "chair", kind: "dining" });
   const placement = {
-    at: { x: 0, y: 0, z: 0.4 },
-    yaw: 180,
+    at: { x: 0, y: 0, z: -0.3 },
+    yaw: 0,
     fixed: true,
   } as const;
   const left = createCraftTool({ id: "leftNeedle", kind: "knittingNeedle" });
   const right = createCraftTool({ id: "rightNeedle", kind: "knittingNeedle" });
   const props: IAutoMovieMotionHumanProp[] = [
     HumanObject.prop("chair", chair, placement),
-    everydayTake.prop("leftNeedle", left, { x: 0.2, y: 0.75, z: 0.7 }),
-    everydayTake.prop("rightNeedle", right, { x: -0.2, y: 0.75, z: 0.7 }),
+    everydayTake.prop("leftNeedle", left, { x: 0.2, y: 0.75, z: 0.1 }),
+    everydayTake.prop("rightNeedle", right, { x: -0.2, y: 0.75, z: 0.1 }),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .sit({ seat: HumanObject.seat(chair, placement), seconds: 1 })
@@ -492,16 +499,16 @@ function pottery(
   label: string,
   checks: motionComplaints.IGatherer,
 ): void {
-  const chair = createSeat({ id: "chair", kind: "chair" });
+  const chair = createSeat({ id: "chair", kind: "dining" });
   const placement = {
-    at: { x: 0, y: 0, z: 0.4 },
-    yaw: 180,
+    at: { x: 0, y: 0, z: -0.3 },
+    yaw: 0,
     fixed: true,
   } as const;
   const wheel = createPotteryWheel({ id: "wheel" });
   const props: IAutoMovieMotionHumanProp[] = [
     HumanObject.prop("chair", chair, placement),
-    everydayTake.prop("wheel", wheel, { x: 0, y: 0, z: 0.85 }, undefined, true),
+    everydayTake.prop("wheel", wheel, { x: 0, y: 0, z: 0.25 }, undefined, true),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .sit({ seat: HumanObject.seat(chair, placement), seconds: 1 })

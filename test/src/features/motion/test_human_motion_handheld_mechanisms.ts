@@ -49,9 +49,10 @@ const SHUT: number = 0.5;
  *    walked beside a partner, the canopy stays above both heads and spans
  *    both. A runner beyond the hand's reach is refused.
  * 2. Scissors, right-handed on m-average and left-handed on f-small: three
- *    closures cut along an authored line on a held sheet; each closure
- *    brings the blades together with the thumb on its ring, and each cut
- *    point lies further along the line. Driving scissors the hand does not
+ *    closures cut across a stretched ribbon along an authored line; each
+ *    closure brings the blades together with the thumb on its ring, each
+ *    cut point lies further along the line, and at the last the ribbon
+ *    separates into its tied half and its loose half, which falls. Driving scissors the hand does not
  *    hold is refused.
  * 3. Folding knife: the blade swings from closed to open and stays locked
  *    open through the next act, then closes, the knife held still in the
@@ -74,7 +75,10 @@ export function test_human_motion_handheld_mechanisms(): void {
       try {
         scene.run(body, `${name} ${scene.label}`, side, checks);
       } catch (error: unknown) {
-        checks.check(`${name} ${scene.label} refused: ${String(error)}`, false);
+        checks.check(
+          `${name} ${scene.label} refused: ${everydayTake.describe(error)}`,
+          false,
+        );
       }
   }
   checks.assert("handheld mechanisms");
@@ -261,38 +265,56 @@ function umbrella(
   );
 }
 
-/** Scissors cutting a held sheet along a line in three closures. */
+/** Scissors cutting a stretched ribbon across in three closures. */
 function scissors(
   body: IAutoMovieMotionHumanBody,
   label: string,
   side: AutoMovieHumanSide,
   checks: motionComplaints.IGatherer,
 ): void {
-  const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
   const sign: number = side === "right" ? -1 : 1;
   const tool = createScissors({ id: "scissors" });
-  const sheet = createPalette({ id: "sheet", kind: "cloth" });
+  const sheet = createPalette({ id: "sheet", kind: "ribbon" });
+  const width: number = 0.4;
   const props: IAutoMovieMotionHumanProp[] = [
     everydayTake.prop("scissors", tool, { x: sign * 0.2, y: 1.0, z: 0.3 }),
-    everydayTake.prop("sheet", sheet, { x: -sign * 0.1, y: 1.05, z: 0.35 }),
+    // The ribbon's tied half and its loose half meet at the cut.
+    everydayTake.prop(
+      "sheet",
+      sheet,
+      { x: -sign * 0.1 - width / 2, y: 1.1, z: 0.4 },
+      undefined,
+      true,
+    ),
+    everydayTake.prop("loose", createPalette({ id: "loose", kind: "ribbon" }), {
+      x: -sign * 0.1 + width / 2,
+      y: 1.1,
+      z: 0.4,
+    }),
   ];
-  // The authored line across the sheet's face, from its far edge inward.
+  // The authored line across the ribbon at the tied half's free end.
+  const edge: number = (width - 0.1) / 2;
   const line: readonly (readonly [number, number])[] = [
-    [0.08, 0],
-    [0.04, 0],
-    [0, 0],
-    [-0.04, 0],
+    [edge, 0.024],
+    [edge, 0.008],
+    [edge, -0.008],
+    [edge, -0.024],
   ];
   let chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()
-    .pickUp({ prop: "scissors", handle: "fingerRing", hand: side, lift: 0.05 })
-    .pickUp({ prop: "sheet", handle: "hold", hand: other, lift: 0.05 });
+    .pickUp({ prop: "scissors", handle: "fingerRing", hand: side, lift: 0.05 });
   for (let k: number = 0; k < 3; ++k)
     chain = chain
       .registered("workHeld", {
         prop: "scissors",
         side,
-        drive: [{ articulation: "pivot", to: 30 }],
+        drive: [
+          {
+            articulation: "pivot",
+            to: 30,
+            by: { digit: "thumb", site: "thumbRing" },
+          },
+        ],
         seconds: 0.3,
       })
       .registered("write", {
@@ -303,8 +325,16 @@ function scissors(
         stroke: [line[k]!, line[k + 1]!],
         seconds: 0.4,
         side,
-        drive: [{ articulation: "pivot", to: 0 }],
+        drive: [
+          {
+            articulation: "pivot",
+            to: 0,
+            by: { digit: "thumb", site: "thumbRing" },
+          },
+        ],
+        ...(k === 2 ? { release: ["loose"] } : {}),
       });
+  chain = chain.stand({ seconds: 0.8, sway: 0 });
   const take: HumanPerformance = play(`${label} ${side}`, body, props, chain);
   const strokes: IAutoMovieMotionHumanSegment[] = named(take, "write");
   const face: IAutoMovieAffordance = sheet.affordances!.find(
@@ -340,13 +370,13 @@ function scissors(
     );
     checks.check(
       `${label}: cut ${k + 1} lies on the line`,
-      Math.abs(local.z) <= LINE && Math.abs(local.y) <= LINE,
+      Math.abs(local.x - edge) <= LINE && Math.abs(local.y) <= LINE,
     );
     checks.check(
       `${label}: cut ${k + 1} advances along the line`,
-      local.x < progress,
+      local.z < progress,
     );
-    progress = local.x;
+    progress = local.z;
     const thumb: IAutoMovieVector3 =
       take.bones("actor", shut).get(`${side}ThumbDistal`)?.worldPosition ??
       take.bones("actor", shut).get(`${side}Hand`)!.worldPosition;
@@ -358,6 +388,16 @@ function scissors(
       ) <= ON,
     );
   });
+  const cut: number = strokes[2]!.end;
+  checks.check(
+    `${label}: the cut ribbon separates, its loose end falling away`,
+    take.prop("loose", take.duration).position.y <
+      take.prop("loose", cut).position.y - 0.2 &&
+      Vector3.distance(
+        take.prop("sheet", take.duration).position,
+        take.prop("sheet", 0).position,
+      ) <= 1e-6,
+  );
   checks.check(
     `${label}: the scissors stay in the palm`,
     everydayTake.drift(
@@ -378,7 +418,13 @@ function scissors(
         .registered("workHeld", {
           prop: "scissors",
           side,
-          drive: [{ articulation: "pivot", to: 30 }],
+          drive: [
+            {
+              articulation: "pivot",
+              to: 30,
+              by: { digit: "thumb", site: "thumbRing" },
+            },
+          ],
           seconds: 0.3,
         }),
       Object.values(HUMAN_LEXICON).flat(),

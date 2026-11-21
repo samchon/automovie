@@ -16,6 +16,7 @@ import type {
   IAutoMovieMotionHumanWrite,
   IAutoMovieMotionPropDrive,
   IAutoMovieMotionPropHold,
+  IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -349,6 +350,20 @@ function planWrite(
       ...(steadied === undefined ? [] : [{ ...steadied.hold, from: 1 }]),
     ],
     drives: toolDrives,
+    launches: (p.release ?? []).map(
+      (subject: string): IAutoMovieMotionPropLaunch => {
+        const frame: IAutoMovieRigidTransform = context
+          .prop(subject)
+          .frame(context.start + done);
+        return {
+          prop: subject,
+          seconds: done,
+          point: frame.position,
+          velocity: { x: 0, y: 0, z: 0 },
+          rotation: frame.rotation,
+        };
+      },
+    ),
     mounts: [
       ...(p.take === undefined
         ? []
