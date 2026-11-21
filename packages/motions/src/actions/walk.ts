@@ -29,8 +29,9 @@ import { walkCuts } from "./walkCuts";
 import { walkDescent } from "./walkDescent";
 import { walkFacing } from "./walkFacing";
 import { walkFoot } from "./walkFoot";
-import { walkLeg } from "./walkLeg";
 import { walkHorizontalRoot } from "./walkHorizontalRoot";
+import { walkLeg } from "./walkLeg";
+import { walkLevelSupport } from "./walkLevelSupport";
 import { walkPlayback } from "./walkPlayback";
 import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
@@ -85,7 +86,8 @@ export namespace walk {
   export const name: AutoMovieMotionHumanActionName = "walk";
 
   /** Cancel table (`walkCuts`). */
-  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = walkCuts;
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
+    walkCuts;
 
   /** What a gait lets an overlay take: the arms it would swing, the hands and the head. */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = [
@@ -97,8 +99,9 @@ export namespace walk {
   ];
 
   /** Froude number of each pace. Normal uses the metabolic minimum reported for ordinary limbs in Optimal walking speed following changes in limb geometry (2011, PMID 21653821). */
-  export const FROUDE: Readonly<Record<NonNullable<IAutoMovieMotionHumanWalkParams["pace"]>, number>> =
-    { slow: 0.12, normal: 0.25, fast: 0.32 };
+  export const FROUDE: Readonly<
+    Record<NonNullable<IAutoMovieMotionHumanWalkParams["pace"]>, number>
+  > = { slow: 0.12, normal: 0.25, fast: 0.32 };
 
   /**
    * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most
@@ -107,7 +110,9 @@ export namespace walk {
    * the shoulder with the elbow bent `ELBOW` and swinging `ELBOW_SWING` about
    * it.
    */
-  export const walking: (froude: number) => IAutoMovieMotionHumanWalkGait = (froude: number): IAutoMovieMotionHumanWalkGait => ({
+  export const walking: (froude: number) => IAutoMovieMotionHumanWalkGait = (
+    froude: number,
+  ): IAutoMovieMotionHumanWalkGait => ({
     froude,
     step: (fr: number): number =>
       Math.min(longestStep(), 1.2 * Math.sqrt(Math.sqrt(fr))),
@@ -155,7 +160,7 @@ export namespace walk {
   export const LIFT: number =
     ((0.53 - 0.285) * (1 - Math.cos((((15 + 25) / 2) * Math.PI) / 180)) +
       (0.285 - 0.039) *
-        (1 - Math.cos(((((15 + 25) / 2 - (60 + 25) / 2)) * Math.PI) / 180))) /
+        (1 - Math.cos((((15 + 25) / 2 - (60 + 25) / 2) * Math.PI) / 180))) /
     0.53;
 
   /** The arms' swing about the shoulder, degrees either way (Perry and Burnfield, normal gait kinematics: about 15°). */
@@ -168,13 +173,20 @@ export namespace walk {
   export const ELBOW_SWING: number = (30 - 15) / 2;
 
   /** The admitted step-length scale (`IAutoMovieMotionHumanWalkParams.stride`): inclusive, dimensionless. */
-  export const STRIDE_RANGE: Readonly<{ minimum: number; maximum: number }> = { minimum: 0.6, maximum: 1.3 };
+  export const STRIDE_RANGE: Readonly<{ minimum: number; maximum: number }> = {
+    minimum: 0.6,
+    maximum: 1.3,
+  };
 
   /** The admitted arm-swing scale (`IAutoMovieMotionHumanWalkParams.armSwing`): inclusive, dimensionless. */
-  export const ARM_SWING_RANGE: Readonly<{ minimum: number; maximum: number }> = { minimum: 0, maximum: 2 };
+  export const ARM_SWING_RANGE: Readonly<{ minimum: number; maximum: number }> =
+    { minimum: 0, maximum: 2 };
 
   /** The admitted added shoulder abduction (`IAutoMovieMotionHumanWalkParams.elbows`): inclusive, degrees. */
-  export const ELBOWS_RANGE: Readonly<{ minimum: number; maximum: number }> = { minimum: 0, maximum: 30 };
+  export const ELBOWS_RANGE: Readonly<{ minimum: number; maximum: number }> = {
+    minimum: 0,
+    maximum: 30,
+  };
 
   /** A walk's forward trunk inclination, degrees (provisional: walkers carry the trunk a few degrees forward of upright, and the inclination grows with speed, Thorstensson et al. 1984, Acta Physiol Scand 121:179). */
   export const LEAN: number = 3;
@@ -190,12 +202,16 @@ export namespace walk {
   ): IAutoMovieMotionHumanActionPlan {
     // On a moving support the walk planned on it as it stood at the start
     // is carried by its motion, the feet planted on it (#3491).
-    const planned: IAutoMovieMotionHumanActionPlan = locomote(
-      context,
-      walking(FROUDE[context.params.pace ?? "normal"]),
-    );
     const on: IAutoMovieMotionHumanWalkParams["on"] = context.params.on;
-    if (on === undefined) return planned;
+    const gait: IAutoMovieMotionHumanWalkGait = walking(
+      FROUDE[context.params.pace ?? "normal"],
+    );
+    if (on === undefined) return locomote(context, gait);
+    const planned: IAutoMovieMotionHumanActionPlan = walkLevelSupport(
+      context,
+      on.prop,
+      (given) => locomote(given, gait),
+    );
     HumanSupportFrame.board(
       context,
       on.prop,
@@ -228,12 +244,15 @@ export namespace walk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds body/steps, the carriage, and per swing three settled endpoints, one descent or flight and two prepared swing readers, so its retention grows linearly with its footfalls and is released with the plan; it keeps no arbitrary-time pose cache.
    */
   export function locomote(
-    given: IAutoMovieMotionHumanActionContext<Omit<IAutoMovieMotionHumanWalkParams, "pace">>,
+    given: IAutoMovieMotionHumanActionContext<
+      Omit<IAutoMovieMotionHumanWalkParams, "pace">
+    >,
     gait: IAutoMovieMotionHumanWalkGait,
   ): IAutoMovieMotionHumanActionPlan {
     // A station is a way read from its slot; without one the context is as given.
-    const context: IAutoMovieMotionHumanActionContext<Omit<IAutoMovieMotionHumanWalkParams, "pace">> =
-      walkStation.resolve(given);
+    const context: IAutoMovieMotionHumanActionContext<
+      Omit<IAutoMovieMotionHumanWalkParams, "pace">
+    > = walkStation.resolve(given);
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
@@ -253,9 +272,25 @@ export namespace walk {
       arms: p.armSwing ?? 1,
     };
     const elbows: number = p.elbows ?? 0;
-    HumanBound.within("stride", authored.stride, STRIDE_RANGE.minimum, STRIDE_RANGE.maximum);
-    HumanBound.within("armSwing", authored.arms, ARM_SWING_RANGE.minimum, ARM_SWING_RANGE.maximum);
-    HumanBound.within("elbows", elbows, ELBOWS_RANGE.minimum, ELBOWS_RANGE.maximum, "degrees");
+    HumanBound.within(
+      "stride",
+      authored.stride,
+      STRIDE_RANGE.minimum,
+      STRIDE_RANGE.maximum,
+    );
+    HumanBound.within(
+      "armSwing",
+      authored.arms,
+      ARM_SWING_RANGE.minimum,
+      ARM_SWING_RANGE.maximum,
+    );
+    HumanBound.within(
+      "elbows",
+      elbows,
+      ELBOWS_RANGE.minimum,
+      ELBOWS_RANGE.maximum,
+      "degrees",
+    );
     const stride: number = authored.stride * manner.step;
     const arms: number = authored.arms * manner.swing;
     walkClear(context);
@@ -271,27 +306,37 @@ export namespace walk {
     const longest: number = forward * share;
     // A tired member walks slower; a cadenced gait keeps its count (`walkClock.weary`).
     const weary: number = walkClock.weary(context, gait);
-    const { plan: steps, clock }: ReturnType<typeof walkClock.steps> = walkClock.steps(context, {
-      body,
-      entry: context.entry,
-      to: p.to,
-      ...(p.via === undefined ? {} : { via: p.via }),
-      ...(p.face === undefined ? {} : { face: p.face }),
-      ...(p.facing === undefined ? {} : { facing: p.facing }),
-      speed: speed * share * weary,
-      longest,
-      period: (seconds: number): number =>
-        gait.called === true
-          ? seconds
-          : HumanSkill.jitter(context.skill, walkSteps.tempo(context), seconds),
-      swing: gait.swing,
-      gait,
-      ...walkStation.cadenced(context, gait, speed * share * weary),
-    });
+    const { plan: steps, clock }: ReturnType<typeof walkClock.steps> =
+      walkClock.steps(context, {
+        body,
+        entry: context.entry,
+        to: p.to,
+        ...(p.via === undefined ? {} : { via: p.via }),
+        ...(p.face === undefined ? {} : { face: p.face }),
+        ...(p.facing === undefined ? {} : { facing: p.facing }),
+        speed: speed * share * weary,
+        longest,
+        period: (seconds: number): number =>
+          gait.called === true
+            ? seconds
+            : HumanSkill.jitter(
+                context.skill,
+                walkSteps.tempo(context),
+                seconds,
+              ),
+        swing: gait.swing,
+        gait,
+        ...walkStation.cadenced(context, gait, speed * share * weary),
+      });
     const duration: number = steps.duration;
-    const claim: ReturnType<typeof walkReach.prepareShort> = walkReach.prepareShort(body);
+    const claim: ReturnType<typeof walkReach.prepareShort> =
+      walkReach.prepareShort(body);
 
-    const pelvis: (t: number, phase?: number, amount?: number) => readonly [number, number, number] = (
+    const pelvis: (
+      t: number,
+      phase?: number,
+      amount?: number,
+    ) => readonly [number, number, number] = (
       t: number,
       phase: number = steps.phase(t),
       amount: number = steps.amount(t),
@@ -302,23 +347,40 @@ export namespace walk {
         walkPosture.PELVIS * Math.sin(2 * Math.PI * phase) * amount,
       ];
     };
-    const { events, contacts }: ReturnType<typeof walkWindows.of> = walkWindows.of(steps);
+    const { events, contacts }: ReturnType<typeof walkWindows.of> =
+      walkWindows.of(steps);
     // A foot as its schedule alone has it, before any pelvis is settled.
-    const endOf: (foot: IAutoMovieMotionHumanWalkFoot.IScheduled) => walkFoot.IEnd = (foot: IAutoMovieMotionHumanWalkFoot.IScheduled): walkFoot.IEnd => ({
+    const endOf: (
+      foot: IAutoMovieMotionHumanWalkFoot.IScheduled,
+    ) => walkFoot.IEnd = (
+      foot: IAutoMovieMotionHumanWalkFoot.IScheduled,
+    ): walkFoot.IEnd => ({
       ankle: foot.placement.ankle,
       rotation: foot.placement.rotation,
       toes: foot.toes,
     });
-    const scheduled: (side: "left" | "right", t: number) => walkFoot.IEnd = (side: "left" | "right", t: number): walkFoot.IEnd =>
-      endOf(steps.foot(side, t));
+    const scheduled: (side: "left" | "right", t: number) => walkFoot.IEnd = (
+      side: "left" | "right",
+      t: number,
+    ): walkFoot.IEnd => endOf(steps.foot(side, t));
 
     // The foot schedule and the swing both carry the original heel-strike time.
-    const closing: NonNullable<Parameters<typeof walkSwing>[3]> = (side: AutoMovieHumanSide, on: number): boolean =>
-      on === steps.lastLanding[side];
-    const scheduledAt: ReturnType<typeof walkSwing> = walkSwing(body, gait, scheduled, closing);
+    const closing: NonNullable<Parameters<typeof walkSwing>[3]> = (
+      side: AutoMovieHumanSide,
+      on: number,
+    ): boolean => on === steps.lastLanding[side];
+    const scheduledAt: ReturnType<typeof walkSwing> = walkSwing(
+      body,
+      gait,
+      scheduled,
+      closing,
+    );
 
-    const walking: boolean = gait.swing < 1 && gait.bob === undefined && steps.inPlace !== true;
-    const support: ReturnType<typeof walkSupportHeight> | undefined = walking ? walkSupportHeight(steps, body, gait.lift, pelvis, claim) : undefined;
+    const walking: boolean =
+      gait.swing < 1 && gait.bob === undefined && steps.inPlace !== true;
+    const support: ReturnType<typeof walkSupportHeight> | undefined = walking
+      ? walkSupportHeight(steps, body, gait.lift, pelvis, claim)
+      : undefined;
     const rootAt: typeof steps.root = support?.root ?? steps.root;
 
     // The lowering a swinging leg asks of the pelvis at a share of its swing for the ankle the schedule swings there, read from the schedule alone so that it needs no settled pelvis and every instant settles the same.
@@ -330,11 +392,20 @@ export namespace walk {
       current?: IReachAt,
     ): number {
       const t: number = swing.off + u * (swing.on - swing.off);
-      const frame: walkReach.IPelvis = current?.seconds === t
-        ? current.pelvis
-        : walkReach.pelvis(body, rootAt(t), steps.yaw(t), pelvis(t), {
-            left: steps.foot("left", t), right: steps.foot("right", t),
-          }, resolution);
+      const frame: walkReach.IPelvis =
+        current?.seconds === t
+          ? current.pelvis
+          : walkReach.pelvis(
+              body,
+              rootAt(t),
+              steps.yaw(t),
+              pelvis(t),
+              {
+                left: steps.foot("left", t),
+                right: steps.foot("right", t),
+              },
+              resolution,
+            );
       return claim(
         frame.hips[side],
         scheduledAt(side, swing)(u).placement.ankle,
@@ -348,16 +419,31 @@ export namespace walk {
       t: number,
       feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>,
       amount: number = steps.amount(t),
-      hips: readonly [number, number, number] = pelvis(t, steps.phase(t), amount),
+      hips: readonly [number, number, number] = pelvis(
+        t,
+        steps.phase(t),
+        amount,
+      ),
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): walkReach.IGround {
-      const read: ReturnType<typeof preparePoseResolution> | undefined = resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution);
+      const read: ReturnType<typeof preparePoseResolution> | undefined =
+        resolution === undefined
+          ? undefined
+          : prepareHumanPoseResolution.read(resolution);
       const root: IAutoMovieVector3 = rootAt(t);
-      const frame: walkReach.IPelvis = walkReach.pelvis(body, root, steps.yaw(t), hips, feet, read);
+      const frame: walkReach.IPelvis = walkReach.pelvis(
+        body,
+        root,
+        steps.yaw(t),
+        hips,
+        feet,
+        read,
+      );
       const current: IReachAt = { seconds: t, pelvis: frame };
       const claims: Partial<Record<"left" | "right", number>> = {};
       for (const side of ["left", "right"] as const) {
-        const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] = feet[side].swing;
+        const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] =
+          feet[side].swing;
         if (swing === undefined) continue;
 
         // A foot in flight bears nothing: it claims what its stance claimed
@@ -366,8 +452,12 @@ export namespace walk {
           const key: string = `${side}:${swing.off}`;
           let held: [number, number] | undefined = flights.get(key);
           if (held === undefined) {
-            const sampled: ReturnType<typeof preparePoseResolution> = read ?? preparePoseResolution();
-            held = [reaching(side, swing, 0, sampled), reaching(side, swing, 1, sampled)];
+            const sampled: ReturnType<typeof preparePoseResolution> =
+              read ?? preparePoseResolution();
+            held = [
+              reaching(side, swing, 0, sampled),
+              reaching(side, swing, 1, sampled),
+            ];
             flights.set(key, held);
           }
           claims[side] = runStance.airborne(held, swing.u);
@@ -378,14 +468,17 @@ export namespace walk {
         // lowering the landing foot actually needs at the instant of strike.
         if (support !== undefined) {
           const weight: number = walkReach.weight(feet[side]);
-          const landing: number = weight === 0 ? 0 : support.landing(side, swing.on, read);
-          claims[side] = -walkReach.CLAIM + weight * (landing + walkReach.CLAIM);
+          const landing: number =
+            weight === 0 ? 0 : support.landing(side, swing.on, read);
+          claims[side] =
+            -walkReach.CLAIM + weight * (landing + walkReach.CLAIM);
           continue;
         }
         const key: string = `${side}:${swing.off}`;
         let descent: walkDescent.IPlan | undefined = descents.get(key);
         if (descent === undefined) {
-          const sampled: ReturnType<typeof preparePoseResolution> = read ?? preparePoseResolution();
+          const sampled: ReturnType<typeof preparePoseResolution> =
+            read ?? preparePoseResolution();
           descent = walkDescent.plan((u: number): number =>
             reaching(side, swing, u, sampled),
           );
@@ -417,20 +510,41 @@ export namespace walk {
     // settled once for the plan, as its descent and its flight are, rather
     // than again at every second the swing is read.
     const ends: Map<string, walkFoot.IEnd> = new Map();
-    const end: (side: "left" | "right", t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => walkFoot.IEnd = (side: "left" | "right", t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): walkFoot.IEnd => {
+    const end: (
+      side: "left" | "right",
+      t: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    ) => walkFoot.IEnd = (
+      side: "left" | "right",
+      t: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    ): walkFoot.IEnd => {
       const key: string = `${side}:${t}`;
       let known: walkFoot.IEnd | undefined = ends.get(key);
       if (known === undefined) {
-        known = settle(t, {
-          left: steps.foot("left", t),
-          right: steps.foot("right", t),
-        }, undefined, undefined, resolution).feet[side];
+        known = settle(
+          t,
+          {
+            left: steps.foot("left", t),
+            right: steps.foot("right", t),
+          },
+          undefined,
+          undefined,
+          resolution,
+        ).feet[side];
         ends.set(key, known);
       }
       return known;
     };
-    const reachedAt: ReturnType<typeof walkSwing> = walkSwing(body, gait, end, closing);
-    const ranged: Partial<Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>> = {};
+    const reachedAt: ReturnType<typeof walkSwing> = walkSwing(
+      body,
+      gait,
+      end,
+      closing,
+    );
+    const ranged: Partial<
+      Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>
+    > = {};
     function solve(
       t: number,
       legs: readonly ("left" | "right")[],
@@ -438,15 +552,28 @@ export namespace walk {
       amount: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): walkPosture.ISettled {
-      const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> = {
+      const feet: Record<
+        "left" | "right",
+        IAutoMovieMotionHumanWalkFoot.IScheduled
+      > = {
         left: steps.foot("left", t),
         right: steps.foot("right", t),
       };
       const hips: readonly [number, number, number] = pelvis(t, phase, amount);
-      const settled: walkReach.IGround = settle(t, feet, amount, hips, resolution);
-      const reached: Record<"left" | "right", walkFoot.IEnd> = {} as Record<"left" | "right", walkFoot.IEnd>;
+      const settled: walkReach.IGround = settle(
+        t,
+        feet,
+        amount,
+        hips,
+        resolution,
+      );
+      const reached: Record<"left" | "right", walkFoot.IEnd> = {} as Record<
+        "left" | "right",
+        walkFoot.IEnd
+      >;
       for (const side of ["left", "right"] as const) {
-        const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] = feet[side].swing;
+        const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] =
+          feet[side].swing;
         if (!legs.includes(side)) {
           reached[side] = endOf(feet[side]);
           continue;
@@ -463,8 +590,14 @@ export namespace walk {
       }
       return { feet, hips, settled, reached };
     }
-    const unswung: ReturnType<typeof walkPosture> =
-      walkPosture(body, gait, arms, elbows, steps, solve);
+    const unswung: ReturnType<typeof walkPosture> = walkPosture(
+      body,
+      gait,
+      arms,
+      elbows,
+      steps,
+      solve,
+    );
 
     // The swinging arms are carried clear of the body, the hands passing the
     // thighs no nearer than they hang beside them, by one abduction read
@@ -475,19 +608,49 @@ export namespace walk {
       events,
       contacts,
       horizontalRoot: walkHorizontalRoot(body, gait, steps),
-      posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
-        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-        const legs: readonly ("left" | "right")[] = channels === undefined
-          ? walkReach.SIDES
-          : walkReach.SIDES.filter((side: "left" | "right"): boolean => channels.includes(`${side}Leg`));
-        const posture: IAutoMovieMotionHumanPosture = unswung(seconds, legs, channels, resolution);
-        if (channels !== undefined && !channels.includes("leftArm") && !channels.includes("rightArm"))
+      posture: (
+        seconds: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(source);
+        const legs: readonly ("left" | "right")[] =
+          channels === undefined
+            ? walkReach.SIDES
+            : walkReach.SIDES.filter((side: "left" | "right"): boolean =>
+                channels.includes(`${side}Leg`),
+              );
+        const posture: IAutoMovieMotionHumanPosture = unswung(
+          seconds,
+          legs,
+          channels,
+          resolution,
+        );
+        if (
+          channels !== undefined &&
+          !channels.includes("leftArm") &&
+          !channels.includes("rightArm")
+        )
           return posture;
         return HumanArmSwing.carry(
           posture,
-          (carried ??= walkCarriage.of(body, steps.events, duration,
-            (at: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], read?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieMotionHumanPosture => unswung(at, undefined, undefined, read),
-            resolution, projection)),
+          (carried ??= walkCarriage.of(
+            body,
+            steps.events,
+            duration,
+            (
+              at: number,
+              _channels?: Parameters<
+                IAutoMovieMotionHumanActionPlan["posture"]
+              >[1],
+              read?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+            ): IAutoMovieMotionHumanPosture =>
+              unswung(at, undefined, undefined, read),
+            resolution,
+            projection,
+          )),
         );
       },
     };

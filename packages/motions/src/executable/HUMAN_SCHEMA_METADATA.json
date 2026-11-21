@@ -550,6 +550,59 @@
         }
       }
     },
+    "environmentalRecovery": {
+      "alternatives": [
+        {
+          "shape": "{\"type\":\"object\",\"required\":[\"coefficient\",\"foot\",\"kind\"],\"properties\":[\"coefficient\",\"foot\",\"kind\",\"outcome\",\"rail\",\"support\"],\"discriminants\":[[\"kind\",\"slip\"]]}",
+          "occurrence": 0,
+          "tree": {
+            "properties": {
+              "coefficient": {
+                "numeric": {
+                  "type": "number",
+                  "minimum": 0,
+                  "x-unit": ""
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "crossObstacle": {
+      "alternatives": [
+        {
+          "shape": "{\"type\":\"object\",\"required\":[\"kind\",\"obstacle\"],\"properties\":[\"apex\",\"kind\",\"obstacle\"],\"discriminants\":[[\"kind\",\"jump\"]]}",
+          "occurrence": 0,
+          "tree": {
+            "properties": {
+              "apex": {
+                "numeric": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "x-unit": "m"
+                }
+              }
+            }
+          }
+        },
+        {
+          "shape": "{\"type\":\"object\",\"required\":[\"from\",\"kind\",\"to\"],\"properties\":[\"apex\",\"from\",\"kind\",\"to\"],\"discriminants\":[[\"kind\",\"gap\"]]}",
+          "occurrence": 0,
+          "tree": {
+            "properties": {
+              "apex": {
+                "numeric": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "x-unit": "m"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "crossAnkleOverKnee": {
       "properties": {
         "seconds": {

@@ -79,6 +79,8 @@ export type { IAutoMovieMotionHumanSwordParry } from "./IAutoMovieMotionHumanSwo
 export type { IAutoMovieMotionHumanTravelCar } from "./IAutoMovieMotionHumanTravelCar";
 export type { IAutoMovieMotionHumanTravelCarExit } from "./IAutoMovieMotionHumanTravelCarExit";
 export type { IAutoMovieMotionHumanTravelDoor } from "./IAutoMovieMotionHumanTravelDoor";
+export type { IAutoMovieMotionHumanCrossing } from "./IAutoMovieMotionHumanCrossing";
+export type { IAutoMovieMotionHumanEnvironmentRecovery } from "./IAutoMovieMotionHumanEnvironmentRecovery";
 export type { IAutoMovieMotionHumanTravelLeaf } from "./IAutoMovieMotionHumanTravelLeaf";
 export type { IAutoMovieMotionHumanWeaponHeld } from "./IAutoMovieMotionHumanWeaponHeld";
 export type { IAutoMovieMotionHumanWeaponPresent } from "./IAutoMovieMotionHumanWeaponPresent";

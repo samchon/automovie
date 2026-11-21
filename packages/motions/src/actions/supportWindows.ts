@@ -33,25 +33,45 @@ export namespace supportWindows {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No state outlives the call.
    */
   export function bearing(
-    context: Pick<IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>, ContextField>,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
+      ContextField
+    >,
     contact: IAutoMovieMotionHumanSupport.IContact,
-  ): Pick<IAutoMovieMotionHumanContactWindow, "part" | "kind" | "support"> | undefined {
+  ):
+    | Pick<IAutoMovieMotionHumanContactWindow, "part" | "kind" | "support">
+    | undefined {
     const name: string = supportContact.window(contact.part);
     const part: IAutoMovieMotionHumanContactWindow["part"] | undefined =
       HumanContactWindow.PARTS.find(
-        (candidate: IAutoMovieMotionHumanContactWindow["part"]): boolean => candidate === name,
+        (candidate: IAutoMovieMotionHumanContactWindow["part"]): boolean =>
+          candidate === name,
       );
     if (part === undefined) return undefined;
     const target: IAutoMovieMotionTarget | undefined =
       contact.target === "on" ? context.params.on : contact.target;
     const support: IAutoMovieMotionHumanContactWindow.Support =
-      target?.kind === "prop" ? { kind: "prop", subject: target.subject }
-      : target?.kind === "person" ? { kind: "person", subject: target.subject, region: target.region }
-      : target?.kind === "self" ? { kind: "person", subject: context.subject, region: target.region }
-      : { kind: "ground" };
+      target?.kind === "prop"
+        ? { kind: "prop", subject: target.subject }
+        : target?.kind === "person"
+          ? { kind: "person", subject: target.subject, region: target.region }
+          : target?.kind === "self"
+            ? {
+                kind: "person",
+                subject: context.subject,
+                region: target.region,
+              }
+            : { kind: "ground" };
     return {
       part,
-      kind: contact.kind === "grip" ? "grip" : part === "seat" ? "seat" : part === "back" ? "lie" : "plant",
+      kind:
+        contact.kind === "grip"
+          ? "grip"
+          : part === "seat"
+            ? "seat"
+            : part === "back"
+              ? "lie"
+              : "plant",
       support,
     };
   }
@@ -71,11 +91,24 @@ export namespace supportWindows {
   }
 
   /**
+   * A reader told of each window as it opens, with the authored contact that opened it.
+   * @evidence contracts/development/common.md#meaningful-documentation States when it is called and with what.
+   * @evidence contracts/development/design.md#principled-representation The window is the published record; its end is final once the schedule settles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface planLadderAccess reads it to seat each named grip.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It reads the published window and cannot change it.
+   */
+  export type Observe = (
+    window: IAutoMovieMotionHumanContactWindow,
+    contact: IAutoMovieMotionHumanSupport.IContact,
+  ) => void;
+
+  /**
    * Windows on the target's actual support frame.
    *
    * @param context The sequence's subject and shared on target.
    * @param keys The solved instants.
    * @param duration The sequence's seconds.
+   * @param observe Optional reader of a window and the exact authored target that opens it.
    * @returns Contact windows.
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, units and result.
    * @evidence contracts/development/implementation.md#principled-implementation Contacts open when placed and close when released; each named target supplies its own support frame, including the shared on target and self regions.
@@ -92,6 +125,7 @@ export namespace supportWindows {
     >,
     keys: readonly IKey[],
     duration: number,
+    observe?: Observe,
   ): IAutoMovieMotionHumanContactWindow[] {
     // An interval carries exactly the contacts common to its two solved keys.
     // A newly placed contact starts on the arriving key. A lifted contact
@@ -105,7 +139,8 @@ export namespace supportWindows {
       for (const contact of key.contacts) {
         const id: string = supportContact.id(contact);
         held.add(id);
-        const existing: IAutoMovieMotionHumanContactWindow | undefined = open.get(id);
+        const existing: IAutoMovieMotionHumanContactWindow | undefined =
+          open.get(id);
         if (existing !== undefined) {
           existing.to = share;
           continue;
@@ -119,9 +154,9 @@ export namespace supportWindows {
         };
         contacts.push(window);
         open.set(id, window);
+        observe?.(window, contact);
       }
-      for (const id of open.keys())
-        if (!held.has(id)) open.delete(id);
+      for (const id of open.keys()) if (!held.has(id)) open.delete(id);
     }
     return contacts;
   }
