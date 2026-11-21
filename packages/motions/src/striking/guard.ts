@@ -24,8 +24,8 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingGuardYield } from "./StrikingGuardYield";
 import { StrikingStance } from "./StrikingStance";
-import { strikingStepSupport } from "./strikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
+import { strikingStepSupport } from "./strikingStepSupport";
 
 /**
  * The fighting stance taken and held: from whatever the performer stands in,
@@ -241,7 +241,7 @@ export namespace guard {
 
     // Complete an interrupted swing before releasing the inherited bearing
     // shoe. A guard entered from a settled stance takes its usual rear step.
-    const support: ReturnType<typeof strikingStepSupport> =
+    const support: strikingStepSupport.ISupport | undefined =
       strikingStepSupport(context);
     const moving: Record<"left" | "right", boolean> = {
       left:
@@ -253,7 +253,11 @@ export namespace guard {
     };
     const first: readonly [number, number] = [0, 0.3];
     const second: readonly [number, number] = [
-      support === undefined ? 0.25 : support.bearing === undefined ? 0 : first[1],
+      support === undefined
+        ? 0.25
+        : support.bearing === undefined
+          ? 0
+          : first[1],
       0.55,
     ];
     const bearing: "left" | "right" = support?.bearing ?? lead;
@@ -302,13 +306,15 @@ export namespace guard {
       return [
         ...(support?.landings[side] !== undefined
           ? []
-          : [{
-              part: `${side}Foot`,
-              kind: "plant",
-              from: 0,
-              to: a / duration,
-              support: { kind: "ground" },
-            } satisfies IAutoMovieMotionHumanContactWindow]),
+          : [
+              {
+                part: `${side}Foot`,
+                kind: "plant",
+                from: 0,
+                to: a / duration,
+                support: { kind: "ground" },
+              } satisfies IAutoMovieMotionHumanContactWindow,
+            ]),
         {
           part: `${side}Foot`,
           kind: "plant",

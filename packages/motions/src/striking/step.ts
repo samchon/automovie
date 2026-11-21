@@ -16,9 +16,9 @@ import { HumanBound } from "../law/HumanBound";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
-import { strikingStepSupport } from "./strikingStepSupport";
 import { StrikingStepTransition } from "./StrikingStepTransition";
 import { StrikingTarget } from "./StrikingTarget";
+import { strikingStepSupport } from "./strikingStepSupport";
 
 /**
  * Fighting-stance footwork: steps that keep the stance, the foot on the side
@@ -127,7 +127,7 @@ export namespace step {
       transition ? undefined : "minimum",
     );
     const stride: number = period(body);
-    const support: ReturnType<typeof strikingStepSupport> =
+    const support: strikingStepSupport.ISupport | undefined =
       strikingStepSupport(context);
     if (transition)
       return StrikingStepTransition.plan(context, {
