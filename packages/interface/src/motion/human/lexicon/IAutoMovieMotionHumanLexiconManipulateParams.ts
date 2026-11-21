@@ -12,6 +12,7 @@ import type { IAutoMovieMotionHumanPickUp } from "../handling/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanPickUpMoving } from "../handling/IAutoMovieMotionHumanPickUpMoving";
 import type { IAutoMovieMotionHumanPutDownAperture } from "../handling/IAutoMovieMotionHumanPutDownAperture";
 import type { IAutoMovieMotionHumanWrite } from "../handling/IAutoMovieMotionHumanWrite";
+import type { IAutoMovieMotionHumanHeldWork } from "../handling/IAutoMovieMotionHumanHeldWork";
 import type { IAutoMovieMotionHumanBowViolinParams } from "../music/IAutoMovieMotionHumanBowViolinParams";
 import type { IAutoMovieMotionHumanCymbalStrike } from "../tasks/IAutoMovieMotionHumanCymbalStrike";
 import type { IAutoMovieMotionHumanSideDrumStrike } from "../tasks/IAutoMovieMotionHumanSideDrumStrike";
@@ -56,6 +57,8 @@ export interface IAutoMovieMotionHumanLexiconManipulateParams {
 
   /** Write on a staged surface with a held tool. */
   write: IAutoMovieMotionHumanWrite;
+  /** Work a held prop: drive its articulations, carry it to a place, take a prop onto it. */
+  workHeld: IAutoMovieMotionHumanHeldWork.IParams;
 
   /** Swipe a finger across a touchscreen. */
   swipeTouchscreen: IAutoMovieMotionHumanSwipeTouchscreen;

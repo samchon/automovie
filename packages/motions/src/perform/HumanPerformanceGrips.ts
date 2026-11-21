@@ -4,7 +4,6 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-
 /**
  * Assemble a prop's grip, worn and mounted spans in the existing film order.
  *
@@ -23,7 +22,7 @@ export namespace HumanPerformanceGrips {
    * @returns The cached list or the newly assembled list with existing ownership.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States prop identity, placement stability, fixture exclusion and the cached-or-assembled grip list.
-   * @evidence contracts/development/implementation.md#principled-implementation Converts each authored wear/mount/contact share to its original film second, clips contacts to placed spans and ends worn spans by the existing later-start rule before the stable start-time sort.
+   * @evidence contracts/development/implementation.md#principled-implementation Converts each authored wear/mount/contact share to its original film second, clips contacts to placed spans and ends each worn span at the first later grip, wear or mount before the stable start-time sort.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the existing cache, handle a fixture, collect each person's wears, mounts, holds and contacts in their original group order, then close worn spans and sort once.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves duplicate spans, equal-time insertion order, all 1e-9 allowances, inHand callbacks, staged capture identity and numerical endpoints. Cache reads and writes retain their original resolving policy, including the early cached return.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each person's S carrier/overlay references are copied once instead of three times, with all authored wear/mount/contact and hold scans retained. Closing W worn spans against G collected grips costs O(W(G+W)), then O((G+W) log(G+W)) sorting; speedup is unmeasured.
@@ -40,13 +39,15 @@ export namespace HumanPerformanceGrips {
     const out: IAutoMovieMotionHumanPerformanceState.IGrip[] = [];
     const worn: IAutoMovieMotionHumanPerformanceState.IGrip[] = [];
 
-    const definition: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
+    const definition: IAutoMovieMotionHumanProp | undefined =
+      self.props.get(subject);
     // A fixture bears the hands that grip it and is never carried by them.
     if (definition?.fixed === true) {
       if (!self.resolving) self.gripCache.set(subject, out);
       return out;
     }
-    const declared: IAutoMovieMotionHumanProp.IWorn | undefined = definition?.worn;
+    const declared: IAutoMovieMotionHumanProp.IWorn | undefined =
+      definition?.worn;
     if (declared !== undefined)
       worn.push({
         subject: declared.subject,
@@ -56,7 +57,8 @@ export namespace HumanPerformanceGrips {
         to: Infinity,
         offset: declared.offset,
       });
-    const mounted: IAutoMovieMotionHumanProp.IMounted | undefined = definition?.mounted;
+    const mounted: IAutoMovieMotionHumanProp.IMounted | undefined =
+      definition?.mounted;
     if (mounted !== undefined)
       worn.push({
         subject: mounted.prop,
@@ -136,12 +138,16 @@ export namespace HumanPerformanceGrips {
           }
     }
 
-    // A worn span lasts until the first grip that starts after it.
-    for (const w of worn) {
-      for (const g of out)
+    // A worn span lasts until the first grip, wear or mount that starts
+    // after it: a prop rides one carrier at a time.
+    const carriers: IAutoMovieMotionHumanPerformanceState.IGrip[] = [
+      ...out,
+      ...worn,
+    ];
+    for (const w of worn)
+      for (const g of carriers)
         if (g.from > w.from + 1e-9 && g.from < w.to) w.to = g.from;
-      out.push(w);
-    }
+    out.push(...worn);
     out.sort(
       (
         a: IAutoMovieMotionHumanPerformanceState.IGrip,

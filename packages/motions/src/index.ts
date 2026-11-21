@@ -458,6 +458,8 @@ export * from "./handling/regrasp";
 export * from "./handling/button";
 export * from "./handling/zip";
 export * from "./handling/write";
+export * from "./handling/workHeld";
+export * from "./lexicon/HumanTabletop";
 export * from "./lexicon/HumanManipulate";
 export * from "./lexicon/HumanRegrasp";
 export * from "./everyday/armPhrase";

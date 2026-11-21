@@ -26,6 +26,7 @@ import { pianoScore } from "../handling/pianoScore";
 import { pickUpMoving } from "../handling/pickUpMoving";
 import { putDownAperture } from "../handling/putDownAperture";
 import { write } from "../handling/write";
+import { workHeld } from "../handling/workHeld";
 import { zip } from "../handling/zip";
 import { bowViolin } from "../music/bowViolin";
 import { spacecraftGlide } from "../spacecraft/spacecraftGlide";
@@ -181,6 +182,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
     HumanManipulate,
     {
       write,
+      workHeld,
       swipeTouchscreen,
       pour,
       pickUpMoving,

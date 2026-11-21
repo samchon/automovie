@@ -28,6 +28,7 @@ import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { writeWith } from "./writeWith";
 
 /** A world vertex of the path and its distance along that path from the first vertex, metres. */
 interface IVertex {
@@ -116,9 +117,7 @@ function planWrite(
     p.on === p.tool ||
     tool.prop.fixed === true ||
     tool.prop.motion !== undefined ||
-    support.prop.fixed !== true ||
-    support.prop.motion !== undefined ||
-    (support.prop.hasArticulations ?? support.prop.articulate !== undefined)
+    !writeWith.stationary(context, p.on, side)
   )
     throw new HumanRefusal({
       kind: "affordance",
@@ -254,6 +253,16 @@ function planWrite(
     side,
   );
   const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
+  writeWith.reach(
+    context,
+    side,
+    vertices.map((vertex: IVertex): IAutoMovieVector3 => vertex.point),
+    lever,
+  );
+  const steadied: writeWith.ISteadied | undefined =
+    p.steady === undefined
+      ? undefined
+      : writeWith.steady(context, p.steady, side, origin, facing, clock);
   const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried({
     body: context.body,
     side,
@@ -297,18 +306,47 @@ function planWrite(
           const posture: IAutoMovieMotionHumanPosture = base.posture(seconds);
           return {
             ...posture,
-            joints: { ...posture.joints, ...kept.fingers },
+            joints: {
+              ...posture.joints,
+              ...kept.fingers,
+              ...steadied?.hold.fingers,
+            },
           };
         },
       },
       clock,
-      primitives: [arm],
+      primitives: steadied === undefined ? [arm] : [arm, steadied.primitive],
       contact: "strokeStart",
     });
+  const end: number = done / clock.duration;
   return {
     ...plan,
-    contacts: [...plan.contacts, AutoMovieMotionHumanHeld.grip(held)],
-    holds: [...(plan.holds ?? []), { ...kept, from: 1 }],
+    contacts: [
+      ...plan.contacts,
+      AutoMovieMotionHumanHeld.grip(held),
+      ...(steadied === undefined ? [] : [steadied.contact]),
+    ],
+    holds: [
+      ...(plan.holds ?? []),
+      { ...kept, from: 1 },
+      ...(steadied === undefined ? [] : [{ ...steadied.hold, from: 1 }]),
+    ],
+    drives: writeWith.drives(
+      context,
+      p.tool,
+      p.drive ?? [],
+      clock.duration,
+      ready,
+      done,
+    ),
+    mounts: [
+      ...(p.take === undefined
+        ? []
+        : [writeWith.mount(context, p.take, p.tool, end)]),
+      ...(p.leave === undefined
+        ? []
+        : [writeWith.mount(context, p.leave, p.on, end)]),
+    ],
   };
 }
 
