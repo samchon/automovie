@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -8,7 +8,9 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
+import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanLadder } from "./HumanLadder";
 
 /**
@@ -58,6 +60,101 @@ export namespace climbLadderHolds {
       AutoMovieHumanSide,
       ReturnType<typeof Vector3.prepareLerp>[]
     >;
+  }
+
+  /**
+   * The bounds a standing entry must meet before the ladder.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each bound and its unit.
+   * @evidence contracts/development/design.md#principled-representation The climb's own facing, toe-distance and grip-drop bounds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The three bounds admit reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Supplied by climbLadder's constants.
+   */
+  export interface IBounds {
+    /** Largest turn from the ladder's heading, degrees. */
+    facing: number;
+
+    /** Largest distance of the toes from the rungs, metres. */
+    near: number;
+
+    /** How far below the shoulder the first hand rung is sought, upper-arm lengths. */
+    gripDrop: number;
+  }
+
+  /**
+   * An admitted entry: each foot's lateral place and the hands' first rung.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both members.
+   * @evidence contracts/development/design.md#principled-representation Lateral places in the ladder frame, metres, and a rung index.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values climbLadder.plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Computed only by admit.
+   */
+  export interface IAdmitted {
+    /** Each foot's lateral place in the ladder frame, metres. */
+    lateral: Record<AutoMovieHumanSide, number>;
+
+    /** The hands' first rung. */
+    reach: number;
+  }
+
+  /**
+   * Admit a standing entry before the ladder.
+   *
+   * @param body The canonical motion body.
+   * @param ladder The ladder.
+   * @param yaw The standing heading, degrees.
+   * @param flats The entry's foot placements.
+   * @param count How many rungs the feet climb.
+   * @param bounds The climb's bounds.
+   * @returns The lateral places and the hands' first rung.
+   * @throws {HumanRefusal} When the climber does not face the ladder, stands too far from it or beside it, or the ladder has too few rungs above the hands.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the checks, the result and the refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the entry's feet in the ladder frame and the shoulder height in rungs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound per check, in order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses rather than moves the climber.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function admit(
+    body: IAutoMovieMotionHumanBody,
+    ladder: IAutoMovieMotionHumanLadder.ILadder,
+    yaw: number,
+    flats: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
+    count: number,
+    bounds: IBounds,
+  ): IAdmitted {
+    const frame: IAutoMovieMotionHumanLadder.ILadder["frame"] = ladder.frame;
+    const turned: number = Math.abs(wrapDegrees(yaw - frame.yaw));
+    HumanBound.within("facing", turned, 0, bounds.facing, "degrees");
+    const toe: number = Math.max(
+      ...(["left", "right"] as const).map(
+        (side: AutoMovieHumanSide): number =>
+          HumanFrame.local(
+            frame,
+            HumanFoot.point(body, side, "toe", flats[side]),
+          ).z,
+      ),
+    );
+    HumanBound.within("toes", -toe, 0, bounds.near, "m");
+    const lateral: Record<AutoMovieHumanSide, number> = {
+      left: HumanFrame.local(frame, flats.left.ankle).x,
+      right: HumanFrame.local(frame, flats.right.ankle).x,
+    };
+    HumanBound.within(
+      "beside",
+      Math.abs((lateral.left + lateral.right) / 2),
+      0,
+      ladder.width / 2,
+      "m",
+    );
+    const reach: number = Math.round(
+      (body.measure.shoulderHeight - bounds.gripDrop * body.measure.upperArm) /
+        ladder.spacing,
+    );
+    HumanBound.within("rungs", reach + count, 1, ladder.count, "");
+    return { lateral, reach };
   }
 
   /**

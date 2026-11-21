@@ -71,6 +71,9 @@ export namespace climbLadderBeats {
     /** Each limb's moves in order. */
     moves: Record<IAutoMovieMotionHumanClimbLadder.Limb, IMove[]>;
 
+    /** The climb's events, in schedule order. */
+    instants: readonly IAutoMovieMotionClockInstant[];
+
     /** The climb's seconds. */
     duration: number;
 
@@ -191,6 +194,7 @@ export namespace climbLadderBeats {
     return {
       beat,
       moves,
+      instants,
       duration,
       clock,
       reaching,

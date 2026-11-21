@@ -1,4 +1,4 @@
-import { Vector3, wrapDegrees } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -23,7 +23,9 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -35,6 +37,7 @@ import { HumanLadder } from "./HumanLadder";
 import { climbLadderBeats } from "./climbLadderBeats";
 import { climbLadderHands } from "./climbLadderHands";
 import { climbLadderHolds } from "./climbLadderHolds";
+import { planLadderAccess } from "./planLadderAccess";
 
 /** How far below the shoulder the hands' first rung is sought, upper-arm lengths (provisional: a grip with the elbow part bent rather than a straight overhead reach). */
 const GRIP_DROP: number = 0.5;
@@ -170,36 +173,18 @@ export namespace climbLadder {
     ): IAutoMovieMotionHumanFoot.IPlacement => flats[side];
 
     // Admit the stance against the ladder before preparing limb moves.
-    const turned: number = Math.abs(wrapDegrees(standing.yaw - yaw));
-    HumanBound.within("facing", turned, 0, FACING, "degrees");
-    const toe: number = Math.max(
-      ...(["left", "right"] as const).map(
-        (side: "left" | "right"): number =>
-          HumanFrame.local(
-            frame,
-            HumanFoot.point(body, side, "toe", flat(side)),
-          ).z,
-      ),
+    const admitted: climbLadderHolds.IAdmitted = climbLadderHolds.admit(
+      body,
+      ladder,
+      standing.yaw,
+      flats,
+      count,
+      { facing: FACING, near: NEAR, gripDrop: GRIP_DROP },
     );
-    HumanBound.within("toes", -toe, 0, NEAR, "m");
-    const laterals: Record<"left" | "right", number> = {
-      left: HumanFrame.local(frame, flats.left.ankle).x,
-      right: HumanFrame.local(frame, flats.right.ankle).x,
-    };
-    const lateral: (side: "left" | "right") => number = (
-      side: "left" | "right",
-    ): number => laterals[side];
-    HumanBound.within(
-      "beside",
-      Math.abs((lateral("left") + lateral("right")) / 2),
-      0,
-      ladder.width / 2,
-      "m",
-    );
-    const reach: number = Math.round(
-      (m.shoulderHeight - GRIP_DROP * m.upperArm) / spacing,
-    );
-    HumanBound.within("rungs", reach + count, 1, ladder.count, "");
+    const lateral: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
+    ): number => admitted.lateral[side];
+    const reach: number = admitted.reach;
     const atRung: ReturnType<typeof HumanLadder.prepareRung> =
       HumanLadder.prepareRung(ladder);
 
@@ -267,6 +252,7 @@ export namespace climbLadder {
     const moves: climbLadderBeats.IBeats["moves"] = beats.moves;
     const duration: number = beats.duration;
     const clock: IAutoMovieMotionClock = beats.clock;
+    const instants: climbLadderBeats.IBeats["instants"] = beats.instants;
     const reaching: (seconds: number) => number = beats.reaching;
     const nextMove: climbLadderBeats.IBeats["nextMove"] = beats.nextMove;
     const rung: climbLadderBeats.IBeats["rung"] = beats.rung;
