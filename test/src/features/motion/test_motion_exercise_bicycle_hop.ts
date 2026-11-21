@@ -40,12 +40,14 @@ import { nclose } from "../internal/nclose";
  * 2. The displayed feet stay on the pedals and hands hold the bar. The
  *    pelvis stays lifted in flight and lowers back to its seated height
  *    after touchdown without a positional jump at either support boundary.
- * 3. A stationary, turning or climbing approach is refused.
+ * 3. Separate hops leave a grounded interval. A flight that starts, ends
+ *    or encloses an earlier one, also on a copy of the hopped ride, is
+ *    refused, as is a stationary, turning, climbing or elevated approach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the floor, marks, riding supports and adjacent invalid approaches.
  * @evidence contracts/development/testing.md#behavioral-verification Reads actual wheel parts, displayed body pose, pedal and grip frames around the two support events and through the flight.
  * @evidence contracts/development/testing.md#independent-expectations The fixed floor and marks supply support geometry. Tan et al. (2014, Table 3 and Figure 9) use the height of each tire to witness a hop (https://faculty.cc.gatech.edu/~turk/paper_pages/2014_bicycle_stunts/bicycle_stunts.pdf). Ballistics give g*T²/8 at the apex. The 5 mm wheel, 10 mm seat and 15 mm contact limits match the road take. The marked strip requires an authored 40 mm clearance.
- * @evidence contracts/development/testing.md#distinguishing-cases The same tires must be grounded before and after flight but clear the marked strip during it. Stationary, turning and climbing approaches cannot admit this hop.
+ * @evidence contracts/development/testing.md#distinguishing-cases The same tires must be grounded before and after flight but clear the marked strip during it. A second disjoint flight is sampled above its own floor, with a grounded interval between the two. Flights inside, across the end of or around the first, including on a spread copy, and invalid approaches are refused.
  * @evidence contracts/development/testing.md#execution-ownership One seeded rigid bicycle and Human performance, with adjacent invalid courses.
  */
 export function test_motion_exercise_bicycle_hop(): void {
@@ -146,7 +148,7 @@ export function test_motion_exercise_bicycle_hop(): void {
 
   // Two fixed marks on the same ground plane span the strip to be cleared.
   const marks: readonly [number, number] = [0.68, 1.02];
-  const wheelEnds: readonly ("front" | "rear")[] = ["front", "rear"];
+  const wheelEnds: readonly WheelEnd[] = ["front", "rear"];
   const sides: readonly AutoMovieHumanSide[] = ["left", "right"];
   const wrist = (side: AutoMovieHumanSide, at: number): IAutoMovieVector3 =>
     Vector3.subtract(
@@ -296,6 +298,61 @@ export function test_motion_exercise_bicycle_hop(): void {
       Vector3.distance(before, after) < 0.001,
     );
   }
+
+  const again: readonly [number, number] = [2.3, 2.8];
+  const repeated: ReturnType<typeof rideBicycle> = rideBicycle.hop(ride, again);
+  const repeatedEvents: typeof repeated.instants = repeated.instants.filter(
+    (event: (typeof repeated.instants)[number]): boolean =>
+      event.label === "takeoff" || event.label === "touchdown",
+  );
+  check(
+    "the repeated hop preserves only the two actual airborne intervals",
+    repeatedEvents.length === 4 &&
+      repeatedEvents[0]!.label === "takeoff" &&
+      repeatedEvents[0]!.seconds === takeoff &&
+      repeatedEvents[1]!.label === "touchdown" &&
+      repeatedEvents[1]!.seconds === touchdown &&
+      repeatedEvents[2]!.label === "takeoff" &&
+      repeatedEvents[2]!.seconds === again[0] &&
+      repeatedEvents[3]!.label === "touchdown" &&
+      repeatedEvents[3]!.seconds === again[1],
+  );
+  for (const end of wheelEnds) {
+    const clearance: number = (AutoMovieGravity.STANDARD * flight ** 2) / 8;
+    const secondApex: number = (again[0] + again[1]) / 2;
+    check(
+      `${end} tire lands between repeated hops and clears each apex`,
+      nclose(tirePoint(repeated.at(apex), end).y, clearance, 0.005) &&
+        nclose(tirePoint(repeated.at(2), end).y, 0, 0.005) &&
+        nclose(tirePoint(repeated.at(secondApex), end).y, clearance, 0.005) &&
+        nclose(tirePoint(repeated.at(again[1]), end).y, 0, 0.005),
+    );
+  }
+  // A copy of the hopped ride carries its flight in its published instants.
+  const copied: ReturnType<typeof rideBicycle> = { ...ride };
+  for (const [base, overlapping] of [
+    [ride, [takeoff + 0.1, touchdown - 0.1]],
+    [ride, [takeoff + 0.1, touchdown + 0.1]],
+    [ride, [takeoff - 0.1, touchdown + 0.1]],
+    [copied, [takeoff - 0.1, touchdown + 0.1]],
+  ] as const) {
+    let refusal: unknown;
+    try {
+      rideBicycle.hop(base, overlapping);
+    } catch (error) {
+      refusal = error;
+    }
+    check(
+      `overlapping flight ${overlapping.join("-")} s is refused before publishing another takeoff`,
+      refusal instanceof ArchetypeRefusal &&
+        refusal.axis === "hop.interval" &&
+        base.instants.filter(
+          (event: (typeof base.instants)[number]): boolean =>
+            event.label === "takeoff",
+        ).length === 1,
+    );
+  }
+
   const moving: ReturnType<typeof rideBicycle> = rideBicycle(bicycle, {
     ...course,
     legs: [{ kind: "turn", radius: 8, angle: 90 }],
@@ -309,7 +366,27 @@ export function test_motion_exercise_bicycle_hop(): void {
     ...course,
     legs: [{ kind: "straight", length: 12, rise: 1 }],
   });
+
+  const elevated: ReturnType<typeof rideBicycle> = {
+    ...ground,
+    at: (at: number): ReturnType<typeof ground.at> => {
+      const shown: ReturnType<typeof ground.at> = ground.at(at);
+      const placement: IAutoMovieTransform = shown.placement;
+      return {
+        ...shown,
+        placement: {
+          ...placement,
+          translation: {
+            ...placement.translation,
+            y: placement.translation.y + (0.03 * (at - takeoff)) / flight,
+          },
+        },
+      };
+    },
+  };
+
   for (const [base, interval] of [
+    [elevated, [takeoff, touchdown]],
     [climbing, [takeoff, touchdown]],
     [moving, [takeoff, touchdown]],
     [stopped, [0, flight]],
@@ -321,12 +398,15 @@ export function test_motion_exercise_bicycle_hop(): void {
       refusal = error;
     }
     check(
-      "the hop refuses a stationary, turning or climbing approach",
+      "the hop refuses a stationary, turning, climbing or elevated approach",
       refusal instanceof ArchetypeRefusal && refusal.axis === "hop.approach",
     );
   }
   TestValidator.equals("off-road bicycle observations", findings, []);
 }
+
+/** The bicycle wheel whose tire a check reads. */
+type WheelEnd = "front" | "rear";
 
 /** A provider's world pose in the rigid format the performer consumes. */
 function rigid(transform: IAutoMovieTransform): IAutoMovieRigidTransform {
@@ -336,7 +416,7 @@ function rigid(transform: IAutoMovieTransform): IAutoMovieRigidTransform {
 /** Lowest point of a posed tire, whose axle stays level in the straight hop. */
 function tirePoint(
   sample: ReturnType<ReturnType<typeof rideBicycle>["at"]>,
-  end: "front" | "rear",
+  end: WheelEnd,
 ): IAutoMovieVector3 {
   const tire: IAutoMovieModelPart = sample.archetype.parts.find(
     (part: IAutoMovieModelPart): boolean => part.id === `wheel-${end}`,
