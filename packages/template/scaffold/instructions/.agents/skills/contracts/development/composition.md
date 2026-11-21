@@ -35,7 +35,7 @@ For a catalog case, name the fact it exhibits and use the case parameters. For s
 
 Can a reader trace each value the declaration passes, and each default it relies on, to what it realizes, and every element of each cited beat to its values?
 
-Comment each such value with what it realizes and how, so a reader can check it against that source without deriving it again. A scene's comment gives the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) and the study section for skilled practice, and every element of each cited beat reaches at least one commented value. A film cites the screenplay or profile entry a value takes, and a catalog case the fact or observed exchange it exhibits.
+Comment each such value with its source and how it realizes it, so a reader can check it against that source without deriving it again. A scene's comment gives the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) and, for skilled practice, the study section. Every element of each cited beat reaches at least one commented value. A film cites the screenplay or profile entry a value takes, and a catalog case the fact or observed exchange it exhibits.
 
 ```ts
 const rush = jun.run({
