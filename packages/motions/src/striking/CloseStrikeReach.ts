@@ -1,7 +1,13 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+  rotationBetween,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCloseStrike,
   IAutoMovieMotionHumanHand,
@@ -133,6 +139,8 @@ export function CloseStrikeReach(
       shift,
       arm: {
         surface: "handBack",
+        region: side === "left" ? "handBackLeft" : "handBackRight",
+        elbow: false,
         point: target,
         rotation,
         bend: Vector3.add(
@@ -149,62 +157,81 @@ export function CloseStrikeReach(
 
   // The elbow joint the elbow region's depth behind the struck point, one upper arm
   // from the shoulder the shift leaves.
-  const olecranon: number = Vector3.length(
-    body.surfaces.regions[side === "left" ? "elbowLeft" : "elbowRight"].point,
-  );
-  const elbow: IAutoMovieVector3 = Vector3.subtract(
-    target,
-    Vector3.scale(travel, olecranon),
-  );
   // The pelvis shifts horizontally toward the elbow's place, so only the
   // height between the shoulder and the elbow is left to the upper arm's
-  // circle.
+  // circle; the forearm then folds `FOLD` degrees in the technique's plane.
   const level = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
     x: v.x,
     y: 0,
     z: v.z,
   });
-  const toward: IAutoMovieVector3 = Vector3.normalize(
-    level(Vector3.subtract(elbow, shoulderAt(still))),
-  );
-  const solve = (shoulder: IAutoMovieVector3): number => {
-    const v: IAutoMovieVector3 = Vector3.subtract(elbow, shoulder);
-    const along: number = Vector3.dot(v, toward);
-    const perpendicular: number = Vector3.dot(v, v) - along * along;
-    if (perpendicular > m.upperArm * m.upperArm)
-      refuse("reach", Math.sqrt(perpendicular), 0, m.upperArm);
-    return along - Math.sqrt(m.upperArm * m.upperArm - perpendicular);
-  };
-  let distance: number = solve(shoulderAt(still));
-  distance += solve(shoulderAt(Vector3.scale(toward, distance)));
-  if (Math.abs(distance) > limit)
-    refuse(
-      "reach",
-      Vector3.distance(elbow, shoulderAt(still)),
-      Math.max(0, m.upperArm - limit),
-      m.upperArm + limit,
+  const fit = (elbow: IAutoMovieVector3): CloseStrikeReach.IFold => {
+    const toward: IAutoMovieVector3 = Vector3.normalize(
+      level(Vector3.subtract(elbow, shoulderAt(still))),
     );
-  const shift: IAutoMovieVector3 = Vector3.scale(toward, distance);
-  const shoulder: IAutoMovieVector3 = shoulderAt(shift);
-  const u: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(elbow, shoulder),
+    const solve = (shoulder: IAutoMovieVector3): number => {
+      const v: IAutoMovieVector3 = Vector3.subtract(elbow, shoulder);
+      const along: number = Vector3.dot(v, toward);
+      const perpendicular: number = Vector3.dot(v, v) - along * along;
+      if (perpendicular > m.upperArm * m.upperArm)
+        refuse("reach", Math.sqrt(perpendicular), 0, m.upperArm);
+      return along - Math.sqrt(m.upperArm * m.upperArm - perpendicular);
+    };
+    let distance: number = solve(shoulderAt(still));
+    distance += solve(shoulderAt(Vector3.scale(toward, distance)));
+    if (Math.abs(distance) > limit)
+      refuse(
+        "reach",
+        Vector3.distance(elbow, shoulderAt(still)),
+        Math.max(0, m.upperArm - limit),
+        m.upperArm + limit,
+      );
+    const shift: IAutoMovieVector3 = Vector3.scale(toward, distance);
+    const u: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(elbow, shoulderAt(shift)),
+    );
+    const plane: IAutoMovieVector3 =
+      technique === "risingElbow"
+        ? up
+        : technique === "descendingElbow"
+          ? Vector3.scale(line, -1)
+          : technique === "horizontalElbow"
+            ? across
+            : Vector3.scale(travel, -1);
+    const w: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(plane, Vector3.scale(u, Vector3.dot(plane, u))),
+    );
+    const fold: number = (CloseStrikeReach.FOLD * Math.PI) / 180;
+    return {
+      elbow,
+      shift,
+      forearm: Vector3.add(
+        Vector3.scale(u, Math.cos(fold)),
+        Vector3.scale(w, Math.sin(fold)),
+      ),
+    };
+  };
+
+  // The elbow region lies off the joint on the lower arm, carried by the
+  // forearm's direction: the joint is placed so the region, not the joint,
+  // lands on the target, refined twice from the joint on the target.
+  const region: IAutoMovieVector3 =
+    body.surfaces.regions[side === "left" ? "elbowLeft" : "elbowRight"].point;
+  const rest: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(
+      body.rest.get(`${side}Hand`)!,
+      body.rest.get(`${side}LowerArm`)!,
+    ),
   );
-  const plane: IAutoMovieVector3 =
-    technique === "risingElbow"
-      ? up
-      : technique === "descendingElbow"
-        ? Vector3.scale(line, -1)
-        : technique === "horizontalElbow"
-          ? across
-          : Vector3.scale(travel, -1);
-  const w: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(plane, Vector3.scale(u, Vector3.dot(plane, u))),
-  );
-  const fold: number = (CloseStrikeReach.FOLD * Math.PI) / 180;
-  const forearm: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(u, Math.cos(fold)),
-    Vector3.scale(w, Math.sin(fold)),
-  );
+  let folded: CloseStrikeReach.IFold = fit(target);
+  for (let i: number = 0; i < 2; ++i)
+    folded = fit(
+      Vector3.subtract(
+        target,
+        Quaternion.rotateVector(rotationBetween(rest, folded.forearm), region),
+      ),
+    );
+  const { elbow, shift, forearm }: CloseStrikeReach.IFold = folded;
   const palm: IAutoMovieVector3 =
     Math.abs(Vector3.dot(forearm, up)) > 0.9
       ? Vector3.scale(line, -1)
@@ -214,6 +241,8 @@ export function CloseStrikeReach(
     shift,
     arm: {
       surface: "wrist",
+      region: side === "left" ? "elbowLeft" : "elbowRight",
+      elbow: true,
       point: Vector3.add(elbow, Vector3.scale(forearm, m.forearm)),
       rotation: StrikingBody.fist(body, side, forearm, palm),
       bend: elbow,
@@ -263,6 +292,18 @@ export namespace CloseStrikeReach {
   /** The pelvis's greatest shift along the line, a share of the stance length (provisional). */
   export const SHIFT: number = 0.5;
 
+  /** An elbow's fold: the joint, the pelvis shift that brings it one upper arm from the shoulder and the forearm's unit direction. */
+  export interface IFold {
+    /** The elbow joint, world metres. */
+    elbow: IAutoMovieVector3;
+
+    /** The pelvis's horizontal shift, world metres. */
+    shift: IAutoMovieVector3;
+
+    /** The forearm's unit direction from the elbow, world. */
+    forearm: IAutoMovieVector3;
+  }
+
   /** A close strike's landing. */
   export interface ILanding {
     /** The trunk's lean at contact, degrees. */
@@ -279,6 +320,12 @@ export namespace CloseStrikeReach {
   export interface IArm {
     /** The hand surface the goal places. */
     surface: IAutoMovieMotionHumanHand.Surface;
+
+    /** The body region that strikes: the elbow's or the back of the hand's. */
+    region: AutoMovieHumanoidRegion;
+
+    /** Whether the goal places the elbow itself, `point` being the wrist joint. */
+    elbow: boolean;
 
     /** Where that surface goes, world metres. */
     point: IAutoMovieVector3;

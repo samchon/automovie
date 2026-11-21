@@ -1,9 +1,10 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieMotionHumanActionKey,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -179,10 +180,14 @@ export namespace closeStrike {
               : spinning
                 ? Vector3.scale(left, Math.sign(spin))
                 : Vector3.scale(outward, -1);
+      // A headbutt squares the body to the line, as the head drives along
+      // it; the other strikes turn the striking shoulder forward.
       const turn: number =
-        TURN[p.technique] *
-        (side === rear ? 1 : -0.8) *
-        (rear === "left" ? -1 : 1);
+        p.technique === "headbutt"
+          ? ((StrikingTarget.heading(line) - entry.yaw + 540) % 360) - 180
+          : TURN[p.technique] *
+            (side === rear ? 1 : -0.8) *
+            (rear === "left" ? -1 : 1);
       const spun = (seconds: number): number =>
         spin * minimumJerk.share(Math.min(1, seconds / shown));
       const motion = (
@@ -247,7 +252,62 @@ export namespace closeStrike {
 
       // The striking arm out along its travel and back.
       const arm: CloseStrikeReach.IArm | null = landing.arm;
-      if (arm !== null) {
+      if (arm !== null && arm.elbow) {
+        // An elbow's goal places the wrist and the elbow itself
+        // (`IAutoMovieHumanLimbGoal.elbow`), blended from the guard's goal.
+        const limb: "leftArm" | "rightArm" =
+          side === "left" ? "leftArm" : "rightArm";
+        const from: IAutoMovieHumanLimbGoal | undefined = entry.limbs[limb];
+        if (from !== undefined)
+          primitives.push({
+            channels: [limb],
+            from: 0,
+            to: duration,
+            write: (
+              posture: IAutoMovieMotionHumanPosture,
+              seconds: number,
+            ): IAutoMovieMotionHumanPosture => {
+              const w: number =
+                seconds <= shown
+                  ? reached * minimumJerk.share(seconds / shown)
+                  : share(seconds);
+              const back: IAutoMovieVector3 = Vector3.scale(
+                travel,
+                -APPROACH * (1 - Math.min(1, seconds / shown)),
+              );
+              return {
+                ...posture,
+                limbs: {
+                  ...posture.limbs,
+                  [limb]: {
+                    point: Vector3.lerp(
+                      from.point,
+                      Vector3.add(arm.point, back),
+                      w,
+                    ),
+                    bend: Vector3.lerp(
+                      from.bend,
+                      Vector3.add(arm.bend, back),
+                      w,
+                    ),
+                    elbow: "placed",
+                    rotation:
+                      from.rotation === undefined
+                        ? arm.rotation
+                        : Quaternion.slerp(from.rotation, arm.rotation, w),
+                  },
+                },
+              };
+            },
+          });
+      }
+      if (
+        arm !== null &&
+        !(
+          arm.elbow &&
+          entry.limbs[side === "left" ? "leftArm" : "rightArm"] !== undefined
+        )
+      ) {
         const bones: ReturnType<typeof poseBones> = poseBones(
           body,
           context.entry.pose,
@@ -362,6 +422,7 @@ export namespace closeStrike {
         clock,
         primitives,
       });
+
       return built;
     };
     const events: IAutoMovieMotionHumanActionPlan["events"] = clock.events();
