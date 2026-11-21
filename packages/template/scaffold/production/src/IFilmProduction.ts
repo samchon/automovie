@@ -55,6 +55,8 @@ export interface IFilmProduction {
     };
     /** Inspection vector length per newton of contact step-mean force or support force. */
     metresPerNewton: number;
+    /** Optional longest contact arrow, metres, such as the height the camera frames around a body; a longer one, as an impact's, is drawn at this length as a `contact/clamped` mark whose label states the clamp. Absent, contact arrows keep their scaled length. */
+    maximumArrowLength?: number;
   };
 
   /**

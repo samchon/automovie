@@ -40,6 +40,9 @@ export function markFilmProduction(
       receipts: performance.contacts(),
       seconds,
       metresPerNewton: performance.metresPerNewton,
+      ...(performance.maximumArrowLength === undefined
+        ? {}
+        : { maximumLength: performance.maximumArrowLength }),
     }),
     ...(supports === undefined
       ? []

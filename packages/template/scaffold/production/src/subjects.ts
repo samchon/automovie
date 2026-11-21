@@ -50,6 +50,9 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
                 ...(production.performance === undefined
                   ? []
                   : ["joint", "bone", "contact"]),
+                ...(production.performance?.maximumArrowLength === undefined
+                  ? []
+                  : ["contact/clamped"]),
                 ...(production.performance?.supports === undefined
                   ? []
                   : ["support/allocated", "support/shortfall"]),

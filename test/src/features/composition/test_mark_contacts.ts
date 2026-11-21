@@ -17,12 +17,13 @@ import { nclose } from "../internal/nclose";
  * 3. Of two steps, the later one at or before the drawn second is read.
  * 4. A scale that is zero or not finite, and an acting step with no duration, are refused.
  * 5. A side whose stated received impulse is zero is flagged and a side that received some is not; a step stating no transfer flags neither.
+ * 6. Under a 0.05 m maximum the 0.1 m arrows keep their directions at 0.05 m as unflagged `contact/clamped` marks labelled with the clamp and the 25 N they stand for at least; under a 0.1 m or 0.2 m maximum they stay `contact` at 0.1 m; a maximum that is zero or not finite is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the engine producer on receipts the test writes and reads the returned arrows' origins, vectors, paths and kinds.
- * @evidence contracts/development/testing.md#independent-expectations The expected length is the impulse over the duration times the scale, 0.5 / 0.01 x 0.002 = 0.1 m, computed by hand from the documented rule; the opposite directions follow from action and reaction along the written normal.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts an acting step against one not yet completed, one expired, a geometric receipt and a separated step, an earlier step against a later one, valid against refused scales and durations, and the two sides of a stated zero, one-sided and unstated transfer. Drawing the arrows belongs to the inspection tests.
+ * @evidence contracts/development/testing.md#independent-expectations The expected length is the impulse over the duration times the scale, 0.5 / 0.01 x 0.002 = 0.1 m, computed by hand from the documented rule; the opposite directions follow from action and reaction along the written normal; a 0.05 m clamp at 0.002 m per newton stands for at least 0.05 / 0.002 = 25 N.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts an acting step against one not yet completed, one expired, a geometric receipt and a separated step, an earlier step against a later one, valid against refused scales and durations, the two sides of a stated zero, one-sided and unstated transfer, and arrows above, at and below a maximum length with valid and refused maxima. Drawing the arrows belongs to the inspection tests.
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit writes its own receipts and starts no solver, browser, server or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s).
  */
 export function test_mark_contacts(): void {
   const step = (
@@ -161,4 +162,70 @@ export function test_mark_contacts(): void {
       [false, false],
     ],
   );
+
+  // 6. A clamp keeps the direction, shortens the arrow and declares itself.
+  const clamp = (maximumLength: number): IAutoMovieMark[] =>
+    markAutoMovieContacts({
+      receipts: [receipt("solver", [step(1, 0.5, 0.01)])],
+      seconds: 1.005,
+      metresPerNewton: 0.002,
+      maximumLength,
+    });
+  const short: IAutoMovieMark[] = clamp(0.05);
+  TestValidator.equals(
+    "a 0.1 m arrow under a 0.05 m maximum is clamped and labelled",
+    short.map((m: IAutoMovieMark) => [m.kind, m.label, m.color, m.flagged]),
+    [
+      [
+        "contact/clamped",
+        "contact force clamped at 0.05 m (at least 25 N)",
+        0x007a6a,
+        false,
+      ],
+      [
+        "contact/clamped",
+        "contact force clamped at 0.05 m (at least 25 N)",
+        0x007a6a,
+        false,
+      ],
+    ],
+  );
+  TestValidator.predicate(
+    "the clamped arrows keep their directions at 0.05 m",
+    short.every((m: IAutoMovieMark, index: number): boolean => {
+      const vector: readonly number[] = (m.shape as IAutoMovieMark.IArrows)
+        .vectors;
+      return (
+        nclose(vector[0]!, 0, 1e-12) &&
+        nclose(vector[1]!, index === 0 ? -0.05 : 0.05, 1e-12) &&
+        nclose(vector[2]!, 0, 1e-12)
+      );
+    }),
+  );
+  TestValidator.equals(
+    "an arrow at or under its maximum keeps its kind and length",
+    [clamp(0.1), clamp(0.2)].map((marks: IAutoMovieMark[]) =>
+      marks.map((m: IAutoMovieMark) => [
+        m.kind,
+        (m.shape as IAutoMovieMark.IArrows).vectors[1],
+      ]),
+    ),
+    [
+      [
+        ["contact", -0.1],
+        ["contact", 0.1],
+      ],
+      [
+        ["contact", -0.1],
+        ["contact", 0.1],
+      ],
+    ],
+  );
+  for (const maximum of [0, Number.POSITIVE_INFINITY, Number.NaN])
+    TestValidator.error(
+      `a maximum length of ${maximum} is refused`,
+      (): void => {
+        clamp(maximum);
+      },
+    );
 }

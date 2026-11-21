@@ -11,17 +11,20 @@ import type {
  *
  * Each mark has kind `contact`, label `contact force`, colour teal `00c2a8` and the path `<body>/<bone>/contact/<receipt id>` of the collider it acts on, first collider first, in world metres and unanchored, so selecting a body selects the force it received whatever order the receipt names the pair in. A collider's mark is flagged when the step states the impulse each side actually received and that collider received none, as when an exaggerated mode's response rounds a solved impulse to zero: the solver measured a force that body never felt. A step without that statement is a direct native measurement and is not flagged.
  *
- * It throws for a scale that is not positive and finite and for an acting step without a positive duration.
+ * A rigid impact arrests a body within one step, so its mean force can be tens of times its resting weight and no single scale draws both inside a frame. With `maximumLength`, an arrow that would be longer keeps its direction and is drawn at that length under kind `contact/clamped`, colour dark teal `007a6a` and label `contact force clamped at <length> m (at least <length / metresPerNewton> N)`, so a clamped arrow is never read at its drawn length; `marks=contact` still selects it, because the kind lies beneath `contact`. Clamping is not an anomaly and leaves the flag to the transfer rule.
+ *
+ * It throws for a scale or a maximum length that is not positive and finite and for an acting step without a positive duration.
  *
  * @param props.receipts Contact episodes, as the composition's contact measurement and the solver record them.
  * @param props.seconds The drawn film second.
  * @param props.metresPerNewton Arrow length per newton of mean force.
+ * @param props.maximumLength Optional longest drawn arrow in metres.
  * @returns Two marks per acting contact, in the receipts' order.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States when a contact acts, how each arrow's place, direction and length follow from the step, what geometric receipts draw, the kind, label, colour, path and frame, when a mark is flagged, and both refusals.
+ * @evidence contracts/development/common.md#meaningful-documentation States when a contact acts, how each arrow's place, direction and length follow from the step, what geometric receipts draw, the kind, label, colour, path and frame, when a mark is flagged, how and why an arrow is clamped and labelled, and the refusals.
  * @evidence contracts/development/implementation.md#principled-implementation A step's mean force is its normal impulse over its duration, and by reaction the two colliders receive it in opposite directions, so each arrow is the force on the body its path names; a step is read only once completed at or before the drawn second, so a still never shows a later impulse.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the receipts, each scanned from its last step back to the drawn second, then one mark per side.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scale is the caller's stated parameter, a step without a duration is refused instead of given an arbitrary length, and no side is chosen by its name: the receipt's canonical pair order decides nothing but the order of the two marks.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scale and the clamp are the caller's stated parameters, a clamped arrow changes kind and label instead of passing for its true length, a step without a duration is refused instead of given an arbitrary length, and no side is chosen by its name: the receipt's canonical pair order decides nothing but the order of the two marks.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the receipts' steps in the worst case; each receipt stops at its latest step at or before the second.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion of one second.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks and keeps nothing.
@@ -33,6 +36,15 @@ export function markAutoMovieContacts(
     throw new Error(
       `markAutoMovieContacts: metres per newton ${props.metresPerNewton} is not positive and finite`,
     );
+  const maximum: number | undefined = props.maximumLength;
+  if (maximum !== undefined && !(Number.isFinite(maximum) && maximum > 0))
+    throw new Error(
+      `markAutoMovieContacts: maximum length ${maximum} is not positive and finite`,
+    );
+  const clamped: string =
+    maximum === undefined
+      ? ""
+      : `contact force clamped at ${maximum} m (at least ${Number((maximum / props.metresPerNewton).toPrecision(3))} N)`;
   const marks: IAutoMovieMark[] = [];
   for (const receipt of props.receipts) {
     if (receipt.source !== "solver") continue;
@@ -55,17 +67,21 @@ export function markAutoMovieContacts(
         `markAutoMovieContacts: contact ${receipt.id} has a step without a positive duration`,
       );
     if (props.seconds - step.seconds >= step.duration) continue;
-    const length: number =
+    const scaled: number =
       (step.impulse / step.duration) * props.metresPerNewton;
+
+    // Past the stated maximum the arrow keeps its direction and declares its clamp in its kind.
+    const clamp: boolean = maximum !== undefined && scaled > maximum;
+    const length: number = clamp ? maximum! : scaled;
 
     // The normal runs from a toward b, so a is pushed against it and b along it.
     for (const side of ["a", "b"] as const) {
       const sign: number = side === "a" ? -length : length;
       marks.push({
         path: `${receipt[side].body}/${receipt[side].bone}/contact/${receipt.id}`,
-        kind: "contact",
-        label: "contact force",
-        color: 0x00c2a8,
+        kind: clamp ? "contact/clamped" : "contact",
+        label: clamp ? clamped : "contact force",
+        color: clamp ? 0x007a6a : 0x00c2a8,
         shape: {
           type: "arrows",
           origins: [step.point.x, step.point.y, step.point.z],

@@ -31,13 +31,13 @@ import { nclose } from "../internal/nclose";
  * Force marks carry the solver's own contact witnesses and the allocator's own support records from a replayed performance into the draw inspection.
  *
  * Scenarios:
- * 1. A rigid ball dropped from 1 m onto the floor is simulated, archived and decoded. While it falls no contact mark exists; at its first acting solver step two unflagged arrows start at that step's floor witness: the ball's points up for the step's mean force and the floor's is its exact opposite.
+ * 1. A rigid ball dropped from 1 m onto the floor is simulated, archived and decoded. While it falls no contact mark exists; at its first acting solver step two unflagged arrows start at that step's floor witness: the ball's points up for the step's mean force and the floor's is its exact opposite. Under a 0.1 m maximum the impact's arrows keep their directions at 0.1 m as `contact/clamped`, labelled at least 100 N, while the next, resting step stays `contact`.
  * 2. A compliant ball in an exaggerated mode whose shell response rounds every solved impulse to zero at transfer sinks to its rigid core: each side of its shell steps is drawn and flagged, and the core steps that actually stop it are drawn unflagged.
  * 3. The real allocator carries 100 N straight up over four floor witnesses within its admitted error, so no shortfall is drawn; it cannot carry a 100 N sideways pull with 50 N up under friction 0.5, so a flagged shortfall continues from the allocated tip, the two arrows add up to the request, and the allocation stays inside the friction cone; with no witnesses the whole request is shortfall.
- * 4. The draw inspection, with the contact and support kinds declared, admits `marks=contact,support/*` at a falling frame that has none; at the contact step and the support record it counts the contact's two arrows and one support shortfall under its flag entry; seeking back to the falling frame clears both, and returning to the contact frame draws them again.
+ * 4. The draw inspection, with the contact and support kinds declared, admits `marks=contact,support/*` at a falling frame that has none; at the clamped impact and the support record `contact` selects the two clamped arrows under their clamp label and it counts one support shortfall under its flag entry; seeking back to the falling frame clears both, and returning to the contact frame draws them again.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation`, `AutoMoviePhysicalPlayback`, `distributePhysicalSupportWrench`, both mark producers and `replaceAutoMovieDrawInspection` on real solver output, a real archive round trip and real allocations, and reads marks and legend counts.
- * @evidence contracts/development/testing.md#independent-expectations The falling ball touches nothing before 0.3 s, since it needs sqrt(2 × 0.9 / 9.81) ≈ 0.43 s to reach the floor; its floor witness lies within 1 cm of y = 0, the floor can only push it up, and by reaction the ball pushes the floor equally down. Any sum of witness forces with friction 0.5 lies in the convex cone |fx| <= 0.5 fy, whose distance from the request (100, 50) N is 75 / sqrt(1.25) ≈ 67.1 N, so the shortfall is at least that; 100 N straight up above the witnesses' centre is inside the cone with zero moment.
+ * @evidence contracts/development/testing.md#independent-expectations The falling ball touches nothing before 0.3 s, since it needs sqrt(2 × 0.9 / 9.81) ≈ 0.43 s to reach the floor; its floor witness lies within 1 cm of y = 0, the floor can only push it up, and by reaction the ball pushes the floor equally down. Arresting about 4.2 m/s of 1 kg within 1/120 s needs about 500 N, above the 300 N asserted and the 100 N a 0.1 m clamp stands for, while resting on the floor needs 9.81 N, below it. Any sum of witness forces with friction 0.5 lies in the convex cone |fx| <= 0.5 fy, whose distance from the request (100, 50) N is 75 / sqrt(1.25) ≈ 67.1 N, so the shortfall is at least that; 100 N straight up above the witnesses' centre is inside the cone with zero moment.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts falling and touching frames, a forward and a reverse seek, native and zero-transfer exaggerated contacts, a feasible, an infeasible and an unsupported request, and an empty against a populated inspection frame.
  * @evidence contracts/development/testing.md#execution-ownership One portable async unit owns its two simulations, archive, allocations, scene and inspection handle, restores the handle and releases its mesh in finally, and starts no browser, process or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins.
@@ -81,6 +81,43 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
       [0, 1, 2].every((axis: number): boolean =>
         nclose(pressed!.vectors[axis]!, -lifted!.vectors[axis]!, 1e-15),
       ),
+  );
+
+  // The impact arrests about 4.2 m/s of a 1 kg ball within one 1/120 s step: hundreds of newtons against a 9.81 N weight.
+  const clamped = (seconds: number): IAutoMovieMark[] =>
+    markAutoMovieContacts({
+      receipts: playback.contacts,
+      seconds,
+      metresPerNewton,
+      maximumLength: 0.1,
+    });
+  const impact: IAutoMovieMark[] = clamped(step.seconds);
+  TestValidator.equals(
+    "the impact is clamped to 0.1 m and labelled, the following resting step is not",
+    [
+      impact.map((mark: IAutoMovieMark) => [mark.kind, mark.label]),
+      clamped(step.seconds + 1.5 * step.duration).map(
+        (mark: IAutoMovieMark) => mark.kind,
+      ),
+    ],
+    [
+      [
+        ["contact/clamped", "contact force clamped at 0.1 m (at least 100 N)"],
+        ["contact/clamped", "contact force clamped at 0.1 m (at least 100 N)"],
+      ],
+      ["contact", "contact"],
+    ],
+  );
+  TestValidator.predicate(
+    "the clamped impact still points the ball up at exactly 0.1 m",
+    impact.every((mark: IAutoMovieMark): boolean => {
+      const vector: readonly number[] = (mark.shape as IAutoMovieMark.IArrows)
+        .vectors;
+      return (
+        nclose(Math.hypot(...vector), 0.1, 1e-12) &&
+        (mark.path.startsWith("ball/") ? vector[1]! > 0 : vector[1]! < 0)
+      );
+    }) && step.impulse / step.duration > 300,
   );
 
   // 2. Solved force that no body received.
@@ -220,13 +257,18 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
     const counts: number[][] = [];
     // A falling frame supplies no marks; the contact frame supplies both producers' marks.
     const falling: IAutoMovieMark[] = [];
-    const contact: IAutoMovieMark[] = [...touching, ...strained];
+    const contact: IAutoMovieMark[] = [...impact, ...strained];
     for (const marks of [falling, contact, falling, contact]) {
       active = await replaceAutoMovieDrawInspection({
         previous: active,
         scene,
         request: InspectionScene.ask({ marks: ["contact", "support/*"] }),
-        markKinds: ["contact", "support/allocated", "support/shortfall"],
+        markKinds: [
+          "contact",
+          "contact/clamped",
+          "support/allocated",
+          "support/shortfall",
+        ],
         place: async (): Promise<readonly IAutoMovieMark[]> => {
           scene.updateMatrixWorld(true);
           return marks;
@@ -234,7 +276,10 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
       });
       const legend: readonly IAutoMovieInspectionLegendEntry[] = active.legend;
       counts.push(
-        ["contact force", "support force shortfall (flagged)"].map(
+        [
+          "contact force clamped at 0.1 m (at least 100 N)",
+          "support force shortfall (flagged)",
+        ].map(
           (label: string): number =>
             legend.find(
               (entry: IAutoMovieInspectionLegendEntry): boolean =>
