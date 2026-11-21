@@ -14,6 +14,7 @@ import type { IAutoMovieMotionHumanPutDownAperture } from "../handling/IAutoMovi
 import type { IAutoMovieMotionHumanWrite } from "../handling/IAutoMovieMotionHumanWrite";
 import type { IAutoMovieMotionHumanHeldWork } from "../handling/IAutoMovieMotionHumanHeldWork";
 import type { IAutoMovieMotionHumanBowViolinParams } from "../music/IAutoMovieMotionHumanBowViolinParams";
+import type { IAutoMovieMotionHumanFirefight } from "../tasks/IAutoMovieMotionHumanFirefight";
 import type { IAutoMovieMotionHumanConduct } from "../music/IAutoMovieMotionHumanConduct";
 import type { IAutoMovieMotionHumanThrowPottery } from "../handling/IAutoMovieMotionHumanThrowPottery";
 import type { IAutoMovieMotionHumanCymbalStrike } from "../tasks/IAutoMovieMotionHumanCymbalStrike";
@@ -86,6 +87,12 @@ export interface IAutoMovieMotionHumanLexiconManipulateParams {
   conduct: IAutoMovieMotionHumanConduct.IParams;
   /** Draw up a clay wall on a turning wheel with both palms. */
   throwPottery: IAutoMovieMotionHumanThrowPottery.IParams;
+  /** Aim, squeeze and sweep an extinguisher whose pin is pulled. */
+  extinguish: IAutoMovieMotionHumanFirefight.IExtinguish;
+  /** Work a charged hose line as its nozzle operator or backup. */
+  hoseLine: IAutoMovieMotionHumanFirefight.IHoseLine;
+  /** Beat flames on a lying partner with a held cloth. */
+  beatFlames: IAutoMovieMotionHumanFirefight.IBeatFlames;
 
   /** Raise and play a wind instrument. */
   playWindInstrument: IAutoMovieMotionHumanPlayWindInstrument.IParams;
