@@ -52,9 +52,9 @@ export function test_motion_equestrian_dressage(): void {
   });
   const ride: Ride = rideHorse(horse, {
     start: { x: 0, z: 0, heading: 0 },
-    cruise: 2.5,
-    startSpeed: 2.5,
-    endSpeed: 2.5,
+    cruise: 2.3,
+    startSpeed: 2.3,
+    endSpeed: 2.3,
     legs: [
       { kind: "straight", length: 6, gait: "trot" },
       {

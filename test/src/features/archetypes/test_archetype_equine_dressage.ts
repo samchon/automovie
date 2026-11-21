@@ -22,8 +22,8 @@ type Ride = ReturnType<typeof rideHorse>;
 type Technique = NonNullable<rideQuadruped.ILeg["equineFootwork"]>;
 type Side = "left" | "right";
 
-/** The lateral figures' collected trot, metres per second, near the 2.3 m/s average Clayton 1994 reports (as Clayton and Hobbs 2019 cite it) and inside the horse table's trot rows. */
-const TROT: number = 2.5;
+/** The lateral figures' collected trot, metres per second: the 2.3 m/s average Clayton 1994 reports (as Clayton and Hobbs 2019 cite it), inside the horse table's trot rows at 1.72 m withers. */
+const TROT: number = 2.3;
 
 /** One inadmissible single-leg path. */
 interface IRefused {
@@ -56,7 +56,7 @@ interface IFigureTake {
  * A collected or lateral dressage passage keeps grounded hoof support while the body heading, hoof tracks and stride timing take the figure.
  *
  * Scenarios:
- * 1. Leg-yielding, half-pass and shoulder-in, each toward the left and toward the right, enter from and recover to straight trot. In the held figure the displayed body heading departs from the displayed travel by the figure's angle with the side's sign; in leg-yielding and half-pass the legs away from the movement land toward it from their neutral line, closing on their partners in the body's own frame (the rigid trunk's lateral reach does not carry them past their partners on this rig); in shoulder-in the inside hind's footprints lie on the outside fore's line. Every stance stays planted and the heading is the travel heading again after the recovery.
+ * 1. Leg-yielding, half-pass and shoulder-in, each toward the left and toward the right, enter from and recover to straight trot. In the held figure the displayed body heading departs from the displayed travel by the figure's angle with the side's sign; in leg-yielding and half-pass each leg away from the movement lands beyond its partner toward the movement in the body's own frame, while on the straight entry it lands on its own side; in shoulder-in the inside hind's footprints lie on the outside fore's line. Every stance stays planted and the heading is the travel heading again after the recovery.
  * 2. A piaffe half-pirouette about the inside hind keeps that hoof's footprints within the circle the turn leaves it while the fores travel round the outside.
  * 3. One ride goes collected trot, passage, piaffe, passage and extended trot: the distance per stride orders piaffe, passage, collected and extended trot; passage lands each hind before its diagonal fore and has a moment with all four hooves clear of the floor; piaffe lands its diagonals together and always has a hoof down.
  * 4. Consecutive flying changes switch the last-landing fore at every lead change.
@@ -64,7 +64,7 @@ interface IFigureTake {
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names every figure, its measured quantity and the refused paths.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed placements, terminal hoof parts, sole heights and published footfall instants of actual horse rides.
- * @evidence contracts/development/testing.md#independent-expectations Angles come from DR111 (35 degrees bound, authored 30 degrees); travel comes from the displayed root's displacement; the shared track and crossing are geometric relations between independently read hooves; stride lengths are root distance between successive left fore landings; the 3 % passage advanced placement and the piaffe's simultaneous diagonals are the cited studies' values with half that share as tolerance.
+ * @evidence contracts/development/testing.md#independent-expectations Angles come from DR111 (35 degrees bound, authored 30 degrees); travel comes from the displayed root's displacement; the shared track and the crossing are geometric relations between independently read hooves, the crossing a hoof beyond its partner in the body frame as DR111.2.b and DR112.2.b state; stride lengths are root distance between successive left fore landings; the 3 % passage advanced placement and the piaffe's simultaneous diagonals are the cited studies' values with half that share as tolerance.
  * @evidence contracts/development/testing.md#distinguishing-cases Mirrored sides, three lateral figures, straight entry and recovery, a turn about the haunches, four collection levels, two leads and three refusals.
  * @evidence contracts/development/testing.md#execution-ownership A memory-only archetype unit on the public horse ride.
  */
@@ -345,16 +345,16 @@ export function test_archetype_equine_dressage(): void {
     };
   }
 
-  /** Every hoof lands toward the movement from its neutral line in the body frame, and the legs away from the movement close on their partners. */
+  /** In the held figure each leg away from the movement lands beyond its partner toward the movement in the body frame (DR111.2.b, DR112.2.b); on the straight entry it lands on its own side. */
   function crossing(take: IFigureTake, toward: Side, label: string): void {
     const sign: number = toward === "left" ? 1 : -1;
     for (const end of ["Fore", "Hind"] as const) {
       const mover: QuadrupedBody.Limb = `${toward === "left" ? "right" : "left"}${end}`;
       const partner: QuadrupedBody.Limb = `${toward}${end}`;
-      const neutral: number = rig.limbs[mover][4]!.x;
       let count: number = 0;
       for (const at of archetypeHorseRide.footfalls(take.ride, mover)) {
-        if (at < take.from || at > take.to) continue;
+        const straight: boolean = at < take.from - 0.9;
+        if (!straight && (at < take.from || at > take.to)) continue;
         const frame: IAutoMovieTransform = take.ride.at(at + 0.005).placement;
         const own: number = body(
           frame,
@@ -364,15 +364,10 @@ export function test_archetype_equine_dressage(): void {
           frame,
           archetypeHorseRide.hoof(take.ride, partner, at + 0.005),
         ).x;
-        ++count;
-        if (
-          !(sign * (own - neutral) > 0.02) ||
-          !(
-            Math.abs(other - own) < Math.abs(rig.limbs[partner][4]!.x - neutral)
-          )
-        )
+        if (!straight) ++count;
+        if (straight === sign * (own - other) > 0)
           issues.push(
-            `${label}: ${mover} at ${own} does not step toward ${partner} at ${other}`,
+            `${label}: ${mover} at ${own} against ${partner} at ${other}, straight ${straight}`,
           );
       }
       if (count < 2) issues.push(`${label}: ${count} ${mover} landings`);

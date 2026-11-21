@@ -1,8 +1,12 @@
 import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedBody } from "./QuadrupedBody";
+import type { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /** Degrees per radian. */
@@ -241,13 +245,100 @@ export namespace EquineLateral {
   ): number {
     for (const window of windows) {
       if (seconds <= window.from || seconds >= window.to) continue;
-      const share: number = Math.min(
+      return window.yaw * entered(window, seconds);
+    }
+    return 0;
+  }
+
+  /**
+   * The crossover of leg-yielding and half-pass: the stances of the legs away from the movement, shifted toward it in the body frame so each lands across its partner's track.
+   *
+   * DR111.2.b and DR112.2.b have the outside legs cross in front of the inside legs. A rigid trunk carries each hoof sideways in the body frame by D = travel · sin|ψ| over one stance, ψ the heading offset, so a footprint centred under its neutral point lands D/2 toward the movement and leaves D/2 away from it. The crossing hoof's stance is therefore shifted toward the movement by Δ = max(0, W − D + 2r), W the pair's neutral track width and r its pastern's radius, so it lands at least one hoof breadth beyond the point its partner leaves from; a figure's entry and recovery scale Δ by the same minimum-jerk share as the heading. The shift is taken up by limb adduction of about asin(Δ / L), L the attachment-to-hoof length. That adduction is authored and provisional: a search for "horse forelimb adduction abduction angle degrees shoulder half-pass leg-yield kinematics range of motion hip adduction equine" found no measured equine shoulder or hip adduction range, only fetlock adduction-abduction of 13 ± 7 degrees at walk and 18 ± 7 at trot and a passive stifle adduction of 6 ± 2.7 degrees, neither of which bounds the shoulder or hip. `EquineJointLimits` therefore holds no such bound; the actual limb reach and the ride's pose fit refuse a shift they cannot take.
+   *
+   * @param windows The admitted figures.
+   * @param limbs The actual neutral limb points in model metres, the hoof endpoint last.
+   * @param parts The actual neutral model parts, read for each pastern's radius.
+   * @returns The stance shift of a two-track figure's crossing legs, or undefined when the ride has no leg-yield or half-pass.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the formula, its symbols and units, the provisional adduction and the search that found no bound.
+   * @evidence contracts/development/implementation.md#principled-implementation Δ is the shift that puts the crossing footprint 2r beyond its partner's release point given the rigid trunk's lateral travel D; the stance's figure share and heading are read at the stance's middle second.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The figure owns which legs cross and by how much; the hoof track only offsets the neutral point it already centres.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is clamped; W and r are the actual rig's; an unreachable shift is refused by the limb fit, not shortened.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(W) in the figures per stance, after one read of four pasterns.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the heading's minimum-jerk share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader retains the windows and two widths and radii for the ride's lifetime.
+   */
+  export function crossing(
+    windows: readonly IWindow[],
+    limbs: Readonly<Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>>,
+    parts: readonly IAutoMovieModelPart[],
+  ): QuadrupedHoofTrack.Crossing | undefined {
+    const crossed: readonly IWindow[] = windows.filter(
+      (window: IWindow): boolean =>
+        window.kind === "leg-yield" || window.kind === "half-pass",
+    );
+    if (crossed.length === 0) return undefined;
+
+    /** The pastern radius, metres, of one limb. */
+    const radius = (limb: QuadrupedBody.Limb): number => {
+      const part: IAutoMovieModelPart | undefined = parts.find(
+        (candidate: IAutoMovieModelPart): boolean =>
+          candidate.id === QuadrupedBody.BONES[limb][3],
+      );
+      if (
+        part?.geometry.type !== "primitive" ||
+        !("radius" in part.geometry.shape)
+      )
+        throw new RangeError(`The ${limb} pastern has no radius`);
+      return part.geometry.shape.radius;
+    };
+    const fore: IPair = {
+      width: Math.abs(limbs.leftFore[4]!.x - limbs.rightFore[4]!.x),
+      radius: Math.max(radius("leftFore"), radius("rightFore")),
+    };
+    const hind: IPair = {
+      width: Math.abs(limbs.leftHind[4]!.x - limbs.rightHind[4]!.x),
+      radius: Math.max(radius("leftHind"), radius("rightHind")),
+    };
+    return (
+      from: number,
+      to: number,
+      travel: number,
+      front: boolean,
+    ): QuadrupedHoofTrack.ICross | undefined => {
+      const middle: number = (from + to) / 2;
+      const window: IWindow | undefined = crossed.find(
+        (candidate: IWindow): boolean =>
+          middle > candidate.from && middle < candidate.to,
+      );
+      if (window === undefined) return undefined;
+      const share: number = entered(window, middle);
+      const pair: IPair = front ? fore : hind;
+      const lateral: number =
+        Math.abs(travel) * Math.sin(Math.abs(window.yaw * share) / DEGREE);
+      return {
+        toward: window.yaw < 0 ? 1 : -1,
+        shift: share * Math.max(0, pair.width - lateral + 2 * pair.radius),
+      };
+    };
+  }
+
+  /** One pair's neutral track width and largest pastern radius, metres. */
+  interface IPair {
+    /** Lateral distance between the pair's neutral hoof endpoints. */
+    width: number;
+    /** The larger pastern radius of the pair. */
+    radius: number;
+  }
+
+  /** The minimum-jerk share of a figure at a second inside its leg: zero at the leg's ends, one between its ramps. */
+  function entered(window: IWindow, seconds: number): number {
+    return minimumJerk(
+      Math.min(
         1,
         (seconds - window.from) / window.blend,
         (window.to - seconds) / window.blend,
-      );
-      return window.yaw * minimumJerk(share).s;
-    }
-    return 0;
+      ),
+    ).s;
   }
 }

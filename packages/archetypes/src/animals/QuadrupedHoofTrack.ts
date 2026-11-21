@@ -44,7 +44,40 @@ export namespace QuadrupedHoofTrack {
 
     /** Body placement at release, read when the body heading departs from the travel heading; the hoof is then centred between its neutral points at landing and release. */
     lifted?: IAutoMovieTransform;
+
+    /** The body-frame shift of a crossing leg's stance in a two-track figure; absent elsewhere. */
+    across?: ICross;
   }
+
+  /**
+   * The sideways shift a two-track figure gives the stances of the legs away from its movement.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the side and the metres.
+   * @evidence contracts/development/design.md#principled-representation A body-frame lateral direction, +1 toward the body's left (+x) or -1 toward its right, and a nonnegative distance in metres; it applies to the hooves on the other side of the body.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Produced by `EquineLateral.crossing` and read by `footprint`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ICross {
+    /** The body-frame side the figure moves toward: +1 for +x (left), -1 for -x (right). */
+    toward: number;
+    /** Metres the crossing hoof's neutral point moves toward that side, nonnegative. */
+    shift: number;
+  }
+
+  /**
+   * Read a stance's crossover from its landing and release seconds, its signed travel and its end.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Film seconds, metres and whether the stance is a fore's; undefined outside a two-track figure.
+   * @evidence contracts/development/design.md#principled-representation A pure reader over the admitted figures.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Produced by `EquineLateral.crossing`, called by `stances`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type Crossing = (
+    from: number,
+    to: number,
+    travel: number,
+    fore: boolean,
+  ) => ICross | undefined;
 
   /**
    * The body displacement a swing spanning a hoof-clock hold is carried by, so the hoof travels with the body while the clock stands.
@@ -65,7 +98,7 @@ export namespace QuadrupedHoofTrack {
    * Read a stance from the admitted course and its gait clock.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Connects actual touchdown phase and hoof duty to the route's signed stance advance.
-   * @evidence contracts/development/implementation.md#principled-implementation Read native body states at touchdown and separately at release. A rein-back keeps at least one diagonal down.
+   * @evidence contracts/development/implementation.md#principled-implementation Read native body states at touchdown and separately at release, and a two-track figure's crossover from the optional `crossing` reader over the same seconds and travel. A rein-back keeps at least one diagonal down.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reusable query combines phase-to-time, course distance and this gait's fore or hind duty.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Forward motion and signed reverse progress read the same route instead of synthesizing stance travel from speed.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two existing course reads and one gait timing read per queried stance.
@@ -80,6 +113,7 @@ export namespace QuadrupedHoofTrack {
       state: ArchetypeCourse.IState,
       seconds: number,
     ) => IAutoMovieTransform,
+    crossing?: Crossing,
   ): (
     at: number,
     stride: QuadrupedStridePlan.IStride,
@@ -100,11 +134,18 @@ export namespace QuadrupedHoofTrack {
       const release: number = secondsAt(at + duty);
       const travel: number = plan.at(release).progress - route.progress;
       if (body === undefined) return { duty, landed: route, travel };
+      const across: ICross | undefined = crossing?.(
+        seconds,
+        release,
+        travel,
+        fore,
+      );
       return {
         duty,
         landed: { ...route, placement: body(route, seconds) },
         travel,
         lifted: body(plan.at(release), release),
+        ...(across === undefined ? {} : { across }),
       };
     };
   }
@@ -142,7 +183,7 @@ export namespace QuadrupedHoofTrack {
    * @returns The world footprint before any authored surface is applied.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame and that terrain is applied afterwards.
-   * @evidence contracts/development/implementation.md#principled-implementation Centre the hoof on its stance: half the signed travel ahead of its neutral point at landing, or, when the body heading departs from the travel heading, midway between its neutral points at landing and at release, so the hoof sits under the same body point at both ends.
+   * @evidence contracts/development/implementation.md#principled-implementation Centre the hoof on its stance: half the signed travel ahead of its neutral point at landing, or, when the body heading departs from the travel heading, midway between its neutral points at landing and at release, so the hoof sits under the same body point at both ends. A crossing leg of a two-track figure centres on its neutral point shifted sideways by the stance's `across`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rigid point or the mean of two.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; both forms read the stance's own placements.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -153,13 +194,19 @@ export namespace QuadrupedHoofTrack {
     rest: IAutoMovieVector3,
     support: IStance,
   ): IAutoMovieVector3 {
+    // A crossing leg's neutral point moves toward the figure's side; its partner, on that side, keeps its own.
+    const x: number =
+      support.across !== undefined &&
+      Math.sign(rest.x) === -support.across.toward
+        ? rest.x + support.across.toward * support.across.shift
+        : rest.x;
     if (support.lifted === undefined)
       return ArchetypeFrame.point(support.landed.placement, {
-        x: rest.x,
+        x,
         y: 0,
         z: rest.z + support.travel / 2,
       });
-    const neutral: IAutoMovieVector3 = { x: rest.x, y: 0, z: rest.z };
+    const neutral: IAutoMovieVector3 = { x, y: 0, z: rest.z };
     const point: IAutoMovieVector3 = Vector3.lerp(
       ArchetypeFrame.point(support.landed.placement, neutral),
       ArchetypeFrame.point(support.lifted, neutral),

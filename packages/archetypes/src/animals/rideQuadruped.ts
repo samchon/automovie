@@ -291,6 +291,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         clock,
         strides.secondsAt,
         footwork.lateral.length > 0 ? body : undefined,
+        EquineLateral.crossing(footwork.lateral, rig.limbs, animal.parts),
       );
 
     /** Read the course and derive the four current footprint demands before any geometry sharing. */
