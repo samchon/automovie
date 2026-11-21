@@ -188,7 +188,7 @@ export namespace AquaticTeam {
     const gripStart: number = tHigh - 0.14;
     const gripEnd: number = tHigh + 0.14;
     const support: ReturnType<typeof AquaticTeamBase.prepare> | undefined = base
-      ? AquaticTeamBase.prepare(context, water, tHigh)
+      ? AquaticTeamBase.prepare(context, water, tHigh, high)
       : undefined;
     const contact: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {
       left: HumanFoot.offset(body, "left", "ball"),
@@ -362,9 +362,9 @@ export namespace AquaticTeam {
     };
     // The arm the figure's own key holds as the reach begins.
     const opening: IAutoMovieMotionHumanPosture = plan.posture(span.start);
-    return (
-      params.side === undefined ? (["left", "right"] as const) : [params.side]
-    ).reduce(
+    const sides: readonly AutoMovieHumanSide[] =
+      params.side === undefined ? ["left", "right"] : [params.side];
+    return sides.reduce(
       (
         laid: IAutoMovieMotionHumanActionPlan,
         side: AutoMovieHumanSide,

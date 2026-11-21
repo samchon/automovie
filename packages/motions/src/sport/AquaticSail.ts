@@ -7,8 +7,6 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropDrive,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";

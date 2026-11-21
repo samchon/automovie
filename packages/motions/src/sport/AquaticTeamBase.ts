@@ -14,6 +14,14 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { AquaticPosture } from "./AquaticPosture";
 
+/** The offered palm's depth below the surface at the apex, and how much deeper it waits before it, over stature: provisional, submerged under the flyer's foot. */
+const DEPTH: number = 0.235;
+const RISE: number = 0.04;
+
+/** The offered palm outside the shoulder, over the shoulder's half-width, and the share of the arm's length it extends to: provisional, a pressing arm short of straight. */
+const OUTSIDE: number = 0.25;
+const EXTENSION: number = 0.8;
+
 /** A supporting base's elbow out from, below and behind its offered palm, over stature: provisional, a pressing arm. */
 const ELBOW_OUT: number = 0.12;
 const ELBOW_DOWN: number = 0.12;
@@ -53,12 +61,14 @@ export namespace AquaticTeamBase {
    * @param context The base performer and selected supporting side.
    * @param water The common world water surface, metres.
    * @param peak The timed figure apex, in action seconds.
+   * @param apex The base's own figure key at the apex.
    * @returns A pose writer for the supporting part of the figure.
    */
   export function prepare(
     context: AquaticPosture.Context,
     water: number,
     peak: number,
+    apex: IAutoMovieMotionHumanPosture,
   ): (
     shaped: IAutoMovieMotionHumanPosture,
     seconds: number,
@@ -80,15 +90,40 @@ export namespace AquaticTeamBase {
       yaw: entry.posture.yaw,
     };
     const fingers: IAutoMovieVector3 = HumanFrame.forward(frame.yaw);
+    // The palm is offered ahead of the base's own shoulder at the figure's
+    // apex, at the apex depth, a little outside it, and as far ahead as an
+    // arm extended to `EXTENSION` of its length reaches there.
+    const shoulders: ReturnType<ReturnType<typeof AquaticPosture.markers>> =
+      AquaticPosture.markers(
+        body,
+        sides.map(
+          (side: AutoMovieHumanSide): AutoMovieHumanoidBone =>
+            `${side}UpperArm`,
+        ),
+      )(apex);
+    const arm: number = body.measure.upperArm + body.measure.forearm;
+    const offer = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
+      const shoulder: IAutoMovieVector3 = shoulders.get(
+        `${side}UpperArm`,
+      )!.worldPosition;
+      const out: number = OUTSIDE * body.measure.shoulderHalfWidth;
+      const up: number = water - body.measure.stature * DEPTH - shoulder.y;
+      const ahead: number = Math.sqrt(
+        Math.max(0, (EXTENSION * arm) ** 2 - up ** 2 - out ** 2),
+      );
+      return Vector3.add(
+        shoulder,
+        HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
+          { x: (side === "left" ? 1 : -1) * out, y: 0, z: ahead },
+        ),
+      );
+    };
     const palms: readonly IPalmOffer[] = sides.map(
       (side: AutoMovieHumanSide): IPalmOffer => ({
         side,
         contact: HumanHand.offset(body, side, "palm").point,
-        at: HumanFrame.point(frame, {
-          x: (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth * 1.25,
-          y: 0,
-          z: body.measure.forearm * 0.95,
-        }),
+        at: offer(side),
         // A supinated hand under a load points its fingers inward and
         // forward, as a tray is carried, not straight ahead.
         rotation: HumanHand.rotation(side, {
@@ -117,7 +152,8 @@ export namespace AquaticTeamBase {
       const near: number = minimumJerk.share(
         Math.max(0, 1 - Math.abs(seconds - peak) / 0.36),
       );
-      const y: number = water - body.measure.stature * (0.275 - 0.04 * near);
+      const y: number =
+        water - body.measure.stature * (DEPTH + RISE * (1 - near));
       for (const { side, contact, at, rotation } of palms) {
         // The elbow bends out, down and back of the offered palm, not toward
         // wherever the figure key holds the sculling arm.

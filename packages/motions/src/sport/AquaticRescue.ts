@@ -136,7 +136,7 @@ export namespace AquaticRescue {
     );
     const hipsAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["hips"]);
-    const plan: IAutoMovieMotionHumanActionPlan = {
+    const swimming: IAutoMovieMotionHumanActionPlan = {
       duration,
       contacts: [],
       events: [
@@ -208,10 +208,10 @@ export namespace AquaticRescue {
     // The near arm reaches from its last crawl stroke to the victim's
     // sternum as one admitted course and holds it through the tow
     // (`courseArmGoal`); the victim never reads the rescuer.
-    const opening: IAutoMovieMotionHumanPosture = plan.posture(arrive);
+    const opening: IAutoMovieMotionHumanPosture = swimming.posture(arrive);
     return courseArmGoal({
       body,
-      plan,
+      plan: swimming,
       side: "right",
       rest: AquaticPosture.rest(body, opening, "right"),
       span: { start: arrive, ready: hold, relax: duration, end: duration },
