@@ -79,7 +79,7 @@ export namespace tapDance {
   export const TRAVEL: number = 0.2;
 
   /** How high a travelling foot lifts, a share of the stature (provisional). */
-  export const LIFT: number = 0.015;
+  export const LIFT: number = 0.03;
 
   /** How low the hips ride on soft knees, a share of the stature (provisional). */
   export const CROUCH: number = 0.03;

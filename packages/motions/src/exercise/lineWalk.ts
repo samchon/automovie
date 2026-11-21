@@ -289,12 +289,11 @@ export namespace lineWalk {
       const placementAt: (t: number) => IAutoMovieMotionHumanFoot.IPlacement = (
         t: number,
       ): IAutoMovieMotionHumanFoot.IPlacement => {
+        // The last footfall landed by now, and the next one it swings to.
         let i: number = 0;
-        while (i + 1 < list.length && list[i + 1]!.at - SWING * PERIOD <= t)
-          i++;
+        while (i + 1 < list.length && list[i + 1]!.at <= t) i++;
         const next: IFall | undefined = list[i + 1];
-        if (next === undefined || t >= next.at)
-          return list[Math.min(i + 1, list.length - 1)]!.place;
+        if (next === undefined) return list[i]!.place;
         const lift: number = next.at - SWING * PERIOD;
         if (t <= lift) return list[i]!.place;
         return AutoMovieMotionHumanLeg.arc(

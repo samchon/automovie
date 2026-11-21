@@ -18,6 +18,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The planted-contact bound, metres (the campaign's 5 mm). */
@@ -73,6 +74,7 @@ export function test_motion_exercise_hurdle_clear(): void {
   }
   const near: number = ankle + BEFORE;
   const film: HumanPerformance = stage(body, low, near, cut);
+  assertTakeClean("hurdle clear", film);
   const [, approach, clear, after]: readonly IAutoMovieMotionHumanSegment[] =
     film.segments("a");
   TestValidator.predicate(

@@ -19,6 +19,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The planted-contact bound, metres (the campaign's 5 mm). */
@@ -60,7 +61,8 @@ export function test_motion_exercise_line_walk(): void {
       { x: 0, y: top, z: -1.5 },
       stop,
     );
-    const walk: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
+    assertTakeClean("line walk", film);
+    const walk: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
     const ankle: number = body.rest.get("leftFoot")!.y;
 
     // 1 and 2. Footfalls on the top, and planted.
@@ -148,9 +150,10 @@ function take(
     props: [
       HumanObject.prop("beam", beam, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
     ],
-    composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3, sway: 0 })
-      .registered("lineWalk", { on: { prop: "beam" }, to }).node,
+    composition: HumanChain.subject("a").registered("lineWalk", {
+      on: { prop: "beam" },
+      to,
+    }).node,
   });
 }
 

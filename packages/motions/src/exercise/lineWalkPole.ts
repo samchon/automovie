@@ -87,7 +87,7 @@ export namespace lineWalkPole {
       limbs: (
         frame: IAutoMovieMotionHumanFrame,
       ): IAutoMovieMotionHumanPosture["limbs"] => {
-        const turn: number = ((frame.yaw - start.yaw) * Math.PI) / 180;
+        const turn: number = frame.yaw - start.yaw;
         const spin: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
           { x: 0, y: 1, z: 0 },
           turn,

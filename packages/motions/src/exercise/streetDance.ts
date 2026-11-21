@@ -76,6 +76,9 @@ export namespace streetDance {
   /** A hit's rise, a share of a beat: short, so it stops sharp (provisional). */
   export const RISE: number = 0.15;
 
+  /** How low the hips ride in the moonwalk, a share of the stature: enough for the sliding leg to reach the floor behind (provisional). */
+  export const CROUCH: number = 0.025;
+
   /** The moonwalk's standing heel lift, degrees about the ball (provisional). */
   export const HEEL: number = 35;
 
@@ -223,7 +226,7 @@ export namespace streetDance {
     );
     const step: number = STEP * body.measure.footLength;
     const roll: number = 0.15 * beats.period;
-    const clearance: number = 0.01 * body.measure.stature;
+    const clearance: number = 0.03 * body.measure.stature;
     const first: AutoMovieHumanSide = p.side ?? "right";
     const second: AutoMovieHumanSide = first === "left" ? "right" : "left";
     const shift: (
@@ -382,7 +385,7 @@ export namespace streetDance {
           );
           return {
             x: standing.x + mid.x - start.x,
-            y: standing.y,
+            y: standing.y - CROUCH * body.measure.stature,
             z: standing.z + mid.z - start.z,
           };
         },

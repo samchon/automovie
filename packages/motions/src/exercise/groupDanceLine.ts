@@ -20,8 +20,9 @@ import { ExerciseKey } from "./ExerciseKey";
  * A line dance's eight counts (#4010): a grapevine right (side, behind,
  * side, close) and a grapevine left whose last count closes after a
  * quarter turn to the left on the left foot's ball. The pattern returns the
- * feet to where they stood, so every member turns about its own place and
- * the rows keep their spacing; each repeat faces the next wall.
+ * feet to where they stood and the turned frame keeps the member's centre,
+ * so every member turns about its own place and the rows keep their spacing;
+ * each repeat faces the next wall.
  *
  * Steps are `STEP` of the feet's spacing wide; the crossing foot lands
  * `CROSS` foot lengths behind. A foot travels over `TRAVEL` of a beat,
@@ -43,7 +44,7 @@ export namespace groupDanceLine {
   export const TRAVEL: number = 0.45;
 
   /** A travelling foot's lift, a share of the stature (provisional). */
-  export const LIFT: number = 0.02;
+  export const LIFT: number = 0.03;
 
   /** The pivoting heel's lift through the turn, degrees about the ball. */
   export const PIVOT: number = 10;
@@ -177,19 +178,9 @@ export namespace groupDanceLine {
         origin: frame.origin,
         yaw: f.yaw + 90,
       };
-      const turned: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
-        body,
-        "left",
-        "ball",
-        ball,
-        next.yaw,
-        0,
-      );
-      next.origin = HumanFrame.point(
-        { origin: turned.ankle, yaw: next.yaw },
-        { x: -half, y: 0, z: 0 },
-      );
-      next.origin = { ...next.origin, y: floor };
+      // The turned frame keeps the member's own centre, so every member
+      // turns about its place and the rows keep their spacing whatever the
+      // bodies; the pivoting left foot meets its turned place at its next step.
       step("right", c + 8, at(next, -half, 0));
       frame = next;
     }

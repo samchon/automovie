@@ -16,6 +16,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The planted-contact bound, metres (the campaign's 5 mm). */
@@ -63,6 +64,7 @@ export function test_motion_exercise_tumbling_line(): void {
         .registered("roundOffLeft", {})
         .registered("backSalto", { to: landing }).node,
     });
+    assertTakeClean("tumbling line", film);
     const [, round, salto]: readonly IAutoMovieMotionHumanSegment[] =
       film.segments("a");
 

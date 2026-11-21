@@ -22,6 +22,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -85,6 +86,7 @@ export function test_motion_exercise_sprint_blocks(): void {
       seconds: 0.4,
       drive: 0.3,
     });
+    assertTakeClean("sprint blocks", start);
     const action: IAutoMovieMotionHumanSegment = start.segments("a")[1]!;
     const set: number = when(action, "set");
     const gun: number = when(action, "gun");

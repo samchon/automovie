@@ -20,6 +20,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The film second both roles state for the pass. */
@@ -54,6 +55,7 @@ export function test_motion_exercise_relay_zone(): void {
     to: { x: 0, y: 0, z: 31 },
   };
   const film: HumanPerformance = pass(body, baton, zone);
+  assertTakeClean("relay zone", film);
 
   // 1. The pass in the zone.
   const frame: IAutoMovieRigidTransform = film.prop("baton", AT);

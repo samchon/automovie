@@ -266,7 +266,7 @@ export namespace balletPositions {
         leave: end,
         place: placed[side],
         bears: true,
-        clearance: 0.01 * body.measure.stature,
+        clearance: 0.03 * body.measure.stature,
         ...(movement === "releve"
           ? {
               hold: (t: number): IAutoMovieMotionHumanFoot.IPlacement =>

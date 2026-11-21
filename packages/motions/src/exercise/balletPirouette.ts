@@ -188,7 +188,7 @@ export namespace balletPirouette {
       {},
       { shoulder: 60, raise: 15, elbow: 50 },
     ).joints;
-    const clearance: number = 0.01 * body.measure.stature;
+    const clearance: number = 0.03 * body.measure.stature;
     const stood: (
       side: AutoMovieHumanSide,
       leave: number,

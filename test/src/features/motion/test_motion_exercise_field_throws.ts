@@ -27,6 +27,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The planted-contact bound, metres (the campaign's 5 mm). */
@@ -85,6 +86,7 @@ export function test_motion_exercise_field_throws(): void {
       event: c.event,
     });
     const film: HumanPerformance = take(body, c, area, { x: 0, y: 0, z: 0 });
+    assertTakeClean("field throws", film);
     const toss: IAutoMovieMotionHumanSegment = film
       .segments("a")
       .find(

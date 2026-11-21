@@ -243,7 +243,7 @@ export namespace groupDanceConga {
         point,
         rotation: Quaternion.fromAxisAngle(
           { x: 0, y: 1, z: 0 },
-          (entry.yaw * Math.PI) / 180,
+          entry.yaw,
         ),
         bend: { ...point, y: point.y - 0.3 },
       };

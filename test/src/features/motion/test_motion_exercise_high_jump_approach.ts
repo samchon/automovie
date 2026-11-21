@@ -22,6 +22,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The crossbar's world height and plane, metres: createHighJump's bar at 1.415 m standing at z = BAR_Z. */
@@ -55,8 +56,14 @@ const PLANT: number = 0.005;
  */
 export function test_motion_exercise_high_jump_approach(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const bar: ReturnType<typeof createHighJump> = createHighJump({ kind: "highJump", height: 1.415, diameter: 0.03 });
-  const mat: ReturnType<typeof createLandingMat> = createLandingMat({ kind: "highJump" });
+  const bar: ReturnType<typeof createHighJump> = createHighJump({
+    kind: "highJump",
+    height: 1.415,
+    diameter: 0.03,
+  });
+  const mat: ReturnType<typeof createLandingMat> = createLandingMat({
+    kind: "highJump",
+  });
   const matTop: number = mat.affordance("surface").frame.translation.y;
   const landing: IAutoMovieVector3 = { x: 0, y: matTop, z: BAR_Z + 1.2 };
 
@@ -136,7 +143,9 @@ export function test_motion_exercise_high_jump_approach(): void {
   };
   const leftCut: string = strike(course, "left");
   const film: HumanPerformance = take(course, leftCut);
-  const [, run, flop]: readonly IAutoMovieMotionHumanSegment[] = film.segments("a");
+  assertTakeClean("high jump approach", film);
+  const [, run, flop]: readonly IAutoMovieMotionHumanSegment[] =
+    film.segments("a");
   TestValidator.predicate(
     "the run is cut into the flop",
     run?.name === "run" && flop?.name === "fosburyFlop",
@@ -172,7 +181,9 @@ export function test_motion_exercise_high_jump_approach(): void {
   }
   // The hips' heading of travel over 0.15 s on the straight and into the cut.
   const heading: (at: number) => number = (at: number): number => {
-    const a: IAutoMovieVector3 = film.bones("a", at - 0.15).get("hips")!.worldPosition;
+    const a: IAutoMovieVector3 = film
+      .bones("a", at - 0.15)
+      .get("hips")!.worldPosition;
     const b: IAutoMovieVector3 = film.bones("a", at).get("hips")!.worldPosition;
     return (Math.atan2(b.x - a.x, b.z - a.z) * 180) / Math.PI;
   };
@@ -239,7 +250,10 @@ export function test_motion_exercise_high_jump_approach(): void {
     }
     return undefined;
   };
-  const near: HumanRefusal | undefined = refusal(course, strike(course, "right"));
+  const near: HumanRefusal | undefined = refusal(
+    course,
+    strike(course, "right"),
+  );
   TestValidator.predicate(
     "a take-off from the foot nearer the bar is refused",
     near?.axis === "takeoffFoot",
@@ -254,11 +268,13 @@ export function test_motion_exercise_high_jump_approach(): void {
 
 /** The absolute film second of a required event. */
 function when(segment: IAutoMovieMotionHumanSegment, name: string): number {
-  const event: IAutoMovieMotionHumanSegment["plan"]["events"][number] | undefined =
-    segment.plan.events.find(
-      (candidate: IAutoMovieMotionHumanSegment["plan"]["events"][number]): boolean =>
-        candidate.name === name,
-    );
+  const event:
+    | IAutoMovieMotionHumanSegment["plan"]["events"][number]
+    | undefined = segment.plan.events.find(
+    (
+      candidate: IAutoMovieMotionHumanSegment["plan"]["events"][number],
+    ): boolean => candidate.name === name,
+  );
   if (event === undefined)
     throw new Error(segment.name + " has no " + name + " event");
   return segment.start + event.share * segment.plan.duration;
@@ -271,7 +287,9 @@ function mtp(
   time: number,
   side: AutoMovieHumanSide,
 ): IAutoMovieVector3 {
-  const foot: IAutoMovieResolvedBone = film.bones("a", time).get(`${side}Foot`)!;
+  const foot: IAutoMovieResolvedBone = film
+    .bones("a", time)
+    .get(`${side}Foot`)!;
   return HumanFoot.point(body, side, "mtp", {
     ankle: foot.worldPosition,
     rotation: foot.worldRotation,

@@ -15,6 +15,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -70,6 +71,7 @@ export function test_motion_exercise_pole_release(): void {
       .until({ event: "leftHeelStrike3" })
       .registered("vaultOnPole", { pole: "pole" }).node,
   });
+  assertTakeClean("pole release", film);
   const vault: IAutoMovieMotionHumanSegment = film
     .segments("a")
     .find(

@@ -43,7 +43,7 @@ export namespace groupDanceCircle {
   export const HAND: number = 0.5;
 
   /** A travelling foot's lift, a share of the stature (provisional). */
-  export const LIFT: number = 0.015;
+  export const LIFT: number = 0.03;
 
   /** A foot's travel into a beat, a share of the beat. */
   export const TRAVEL: number = 0.45;
@@ -237,7 +237,7 @@ export namespace groupDanceCircle {
         point,
         rotation: Quaternion.fromAxisAngle(
           { x: 0, y: 1, z: 0 },
-          (yaw * Math.PI) / 180,
+          yaw,
         ),
         bend: { ...point, y: point.y - 0.3 },
       };

@@ -20,6 +20,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -63,6 +64,7 @@ export function test_motion_exercise_vault_approach(): void {
   }
   const boardAt: number = ankle + 1.3;
   const film: HumanPerformance = stage(body, board, boardAt, 0, cut);
+  assertTakeClean("vault approach", film);
   const [, , hurdle, vault]: readonly IAutoMovieMotionHumanSegment[] =
     film.segments("a");
 

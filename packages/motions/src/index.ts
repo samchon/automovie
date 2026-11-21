@@ -437,6 +437,7 @@ export * from "./exercise/ExerciseKey";
 export * from "./exercise/lineWalk";
 export * from "./exercise/tapDance";
 export * from "./exercise/balletStep";
+export * from "./exercise/balletPositions";
 export * from "./exercise/streetDance";
 export * from "./exercise/groupDance";
 export * from "./exercise/juggle";

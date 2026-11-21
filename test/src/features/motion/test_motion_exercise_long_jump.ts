@@ -21,6 +21,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The planted-contact bound, metres (the campaign's 5 mm). */
@@ -64,7 +65,13 @@ export function test_motion_exercise_long_jump(): void {
   for (const event of plain.plan.events) {
     if (!event.name.startsWith("leftHeelStrike")) continue;
     const at: number = plain.start + event.share * plain.plan.duration;
-    const point: IAutoMovieVector3 = socket(run, body, at + 1e-3, "left", "toe");
+    const point: IAutoMovieVector3 = socket(
+      run,
+      body,
+      at + 1e-3,
+      "left",
+      "toe",
+    );
     if (Math.abs(point.z - 12) < best) {
       best = Math.abs(point.z - 12);
       cut = event.name;
@@ -78,7 +85,9 @@ export function test_motion_exercise_long_jump(): void {
     cut,
     distance: DISTANCE,
   });
-  const [, approach, leap]: readonly IAutoMovieMotionHumanSegment[] = film.segments("a");
+  assertTakeClean("long jump", film);
+  const [, approach, leap]: readonly IAutoMovieMotionHumanSegment[] =
+    film.segments("a");
   TestValidator.predicate(
     "the run is cut into the long jump",
     approach?.name === "run" && leap?.name === "longJump",
@@ -98,7 +107,8 @@ export function test_motion_exercise_long_jump(): void {
     .slice(-3);
   for (const c of plants) {
     const side: AutoMovieHumanSide = c.part === "leftFoot" ? "left" : "right";
-    const from: number = approach!.start + c.from * approach!.plan.duration + 1e-3;
+    const from: number =
+      approach!.start + c.from * approach!.plan.duration + 1e-3;
     const to: number =
       Math.min(approach!.start + c.to * approach!.plan.duration, leap!.start) -
       1e-3;
@@ -133,7 +143,10 @@ export function test_motion_exercise_long_jump(): void {
     body,
     0,
   );
-  const velocity: (from: number, to: number) => number = (from: number, to: number): number =>
+  const velocity: (from: number, to: number) => number = (
+    from: number,
+    to: number,
+  ): number =>
     (HumanSignature.centre(reader, to).z -
       HumanSignature.centre(reader, from).z) /
     (to - from);
@@ -255,18 +268,22 @@ function stage(
         proficiency: { level: "trained" },
       },
     ],
-    props: [HumanObject.prop("pit", pit, { at: { x: 0, y: 0, z: line }, yaw: 0 })],
+    props: [
+      HumanObject.prop("pit", pit, { at: { x: 0, y: 0, z: line }, yaw: 0 }),
+    ],
     composition: node,
   });
 }
 
 /** The absolute film second of a required event. */
 function when(segment: IAutoMovieMotionHumanSegment, name: string): number {
-  const event: IAutoMovieMotionHumanSegment["plan"]["events"][number] | undefined =
-    segment.plan.events.find(
-      (candidate: IAutoMovieMotionHumanSegment["plan"]["events"][number]): boolean =>
-        candidate.name === name,
-    );
+  const event:
+    | IAutoMovieMotionHumanSegment["plan"]["events"][number]
+    | undefined = segment.plan.events.find(
+    (
+      candidate: IAutoMovieMotionHumanSegment["plan"]["events"][number],
+    ): boolean => candidate.name === name,
+  );
   if (event === undefined)
     throw new Error(segment.name + " has no " + name + " event");
   return segment.start + event.share * segment.plan.duration;
@@ -280,7 +297,9 @@ function socket(
   side: AutoMovieHumanSide,
   point: Parameters<typeof HumanFoot.point>[2],
 ): IAutoMovieVector3 {
-  const foot: IAutoMovieResolvedBone = film.bones("a", time).get(`${side}Foot`)!;
+  const foot: IAutoMovieResolvedBone = film
+    .bones("a", time)
+    .get(`${side}Foot`)!;
   return HumanFoot.point(body, side, point, {
     ankle: foot.worldPosition,
     rotation: foot.worldRotation,

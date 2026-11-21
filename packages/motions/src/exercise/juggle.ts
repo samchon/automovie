@@ -254,7 +254,7 @@ export namespace juggle {
       launches.push({
         prop: which,
         seconds: t,
-        point: point0,
+        point: Vector3.subtract(point0, { x: 0, y: radius, z: 0 }),
         velocity: Vector3.scale(
           Vector3.add(Vector3.subtract(point1, point0), {
             x: 0,
@@ -264,7 +264,7 @@ export namespace juggle {
           1 / air,
         ),
         aim: { point: point1, seconds: air },
-        sphere: { radius },
+        sphere: { centre: { x: 0, y: radius, z: 0 }, radius },
       });
       instants.push({ name: `throw${j + 1}`, seconds: t });
       if ((p.drops ?? []).includes(j + 1)) {
@@ -348,10 +348,10 @@ export namespace juggle {
         shape: "relaxed",
         point: at,
         rotation: Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, (yaw * Math.PI) / 180),
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
           Quaternion.fromAxisAngle(
             { x: 0, y: 0, z: 1 },
-            ((side === "left" ? 90 : -90) * Math.PI) / 180,
+            side === "left" ? 90 : -90,
           ),
         ),
         bend: Vector3.add(

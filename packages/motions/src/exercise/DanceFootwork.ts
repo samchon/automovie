@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -18,6 +19,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -37,6 +39,12 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every placement and timing is the caller's; nothing is clamped.
  */
 export namespace DanceFootwork {
+  /** How long either side of a brush its strike touches the floor, seconds (provisional). */
+  export const BRUSH: number = 0.03;
+
+  /** How near the floor a risen ball starts to bend its toes back, metres: they lie flat once it is down (provisional). */
+  export const TOUCH: number = 0.03;
+
   /** One foot's course: its leg row, its bearing windows and its placement reader. */
   export interface IFoot {
     /** The leg row placing the foot. */
@@ -113,18 +121,66 @@ export namespace DanceFootwork {
           to: Math.min(1, key.leave / duration),
           support,
         });
+      // A brush touches the floor in passing: a strike, not a plant.
+      else if (!key.bears && key.leave === key.at && key.clearance > 0)
+        contacts.push({
+          part: `${side}Foot`,
+          kind: "strike",
+          from: Math.max(0, (key.at - BRUSH) / duration),
+          to: Math.min(1, (key.at + BRUSH) / duration),
+          support,
+        });
+    const leg: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLeg.place({
+      body,
+      side,
+      from: 0,
+      to: duration,
+      placement: (
+        _: IAutoMovieMotionHumanPosture,
+        t: number,
+      ): IAutoMovieMotionHumanFoot.IPlacement => placed(t),
+      planted,
+    });
+    // A foot risen on its ball at the floor bends its toes back by the heel's
+    // lift, so they lie on the floor (as `AutoMovieMotionHumanRise` does).
+    const floor: number = HumanFoot.point(body, side, "ball", keys[0]!.place).y;
+    const toes: AutoMovieHumanoidBone =
+      side === "left" ? "leftToes" : "rightToes";
     return {
-      primitive: AutoMovieMotionHumanLeg.place({
-        body,
-        side,
-        from: 0,
-        to: duration,
-        placement: (
-          _: IAutoMovieMotionHumanPosture,
+      primitive: {
+        ...leg,
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
           t: number,
-        ): IAutoMovieMotionHumanFoot.IPlacement => placed(t),
-        planted,
-      }),
+          before?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[2],
+          resolution?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[3],
+          projection?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[4],
+        ): IAutoMovieMotionHumanPosture => {
+          const written: IAutoMovieMotionHumanPosture = leg.write(
+            posture,
+            t,
+            before,
+            resolution,
+            projection,
+          );
+          const at: IAutoMovieMotionHumanFoot.IPlacement = placed(t);
+          const lift: number = -HumanFoot.pitch(at.rotation);
+          const near: number = Math.max(
+            0,
+            Math.min(
+              1,
+              1 - (HumanFoot.point(body, side, "ball", at).y - floor) / TOUCH,
+            ),
+          );
+          const bend: number = Math.max(0, lift) * near * near * (3 - 2 * near);
+          return bend > 0
+            ? {
+                ...written,
+                joints: { ...written.joints, [toes]: [bend, 0, 0] },
+              }
+            : written;
+        },
+      },
       contacts,
       placed,
     };
