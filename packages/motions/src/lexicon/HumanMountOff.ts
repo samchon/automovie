@@ -16,6 +16,7 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
@@ -26,7 +27,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 
 /** Where the pelvis is at an instant of getting off: the root, the heading, the pelvis pitch and the set joints. */
-type Frame = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "joints">;
+type Frame = Pick<
+  IAutoMovieMotionHumanPosture,
+  "root" | "yaw" | "pitch" | "joints"
+>;
 
 /**
  * Getting off a high seat onto the floor: what `rise` plans where a foot is
@@ -191,8 +195,10 @@ export namespace HumanMountOff {
             (HumanMount.LEAN - pitch0) * minimumJerk.share(t / (0.4 * duration))
           : HumanMount.LEAN *
             (1 - minimumJerk.share((t - 0.4 * duration) / (0.6 * duration)));
-      const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"]; } =
-        HumanTrunk.incline(relaxed, lean);
+      const tilt: {
+        pitch: number;
+        joints: IAutoMovieMotionHumanPosture["joints"];
+      } = HumanTrunk.incline(relaxed, lean);
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
         yaw,
@@ -299,14 +305,16 @@ export namespace HumanMountOff {
           kind: "plant",
           from: 0,
           to: flight[side][0] / duration,
-          support: { kind: "ground" },
+          // The foot bears where the entry held it, a stirrup or a rest.
+          support: HumanSupportFrame.contact(context, part),
         });
       contacts.push({
         part,
         kind: "plant",
         from: flight[side][1] / duration,
         to: 1,
-        support: { kind: "ground" },
+        // It lands on the floor under the seat, at that floor's height.
+        support: { kind: "ground", height: under.origin.y },
       });
     }
     return {
@@ -325,7 +333,10 @@ export namespace HumanMountOff {
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const frame: Frame = frameAt(t);
-        const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(frame.root, landing);
+        const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(
+          frame.root,
+          landing,
+        );
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
           const limb: "leftLeg" | "rightLeg" = `${side}Leg`;

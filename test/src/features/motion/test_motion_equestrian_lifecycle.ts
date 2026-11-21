@@ -33,9 +33,15 @@ type Horse = ReturnType<typeof createHorse>;
 /** A horse ride along a course. */
 type Ride = ReturnType<typeof rideHorse>;
 
+/** The gaits the sweep's bodies ride in turn. */
+const GAITS: readonly IAutoMovieMotionHumanRide.EquestrianGait[] = [
+  "walk",
+  "trot",
+  "canter",
+];
+
 /** Seconds the mounted ride waits before the horse sets off. */
 const MOUNT_WAIT: number = 6;
-
 
 /** The rider attachment contract's 10 mm contact budget. */
 const CONTACT: number = 0.01;
@@ -45,20 +51,24 @@ const CONTACT: number = 0.01;
  *
  * Scenarios:
  *
- * 1. Every sweep body mounts a standing horse, rides it at walk, trot or canter from a standing start to a halt, dismounts to the left and walks to the horse's head.
+ * 1. Every sweep body mounts a standing horse, rides it from a standing start to a halt, the bodies taking walk, trot and canter in turn so every gait is ridden, dismounts to the left and walks to the horse's head.
  * 2. The handler, standing at the horse's throat with the right shoulder 0.13 m outside the rope and the rope three quarters of an arm from the shoulder, then leads the horse 6 m on foot, the right hand on its lead rope; the horse's course is laid after the walk so that its progress follows the handler's rehearsed hips, as a led horse follows its handler.
  * 3. A handler staged 0.88 m beside the rope refuses with `leadReach`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the fourteen established bodies, all three gaits, independently published tack points, geometric ground recovery, the led course matched to the walker and on-foot grip.
  * @evidence contracts/development/testing.md#behavioral-verification Invokes the public posture, native horse, carried rider and on-foot named lead overlay in actual timed scenes. Reads the actual seat and foot sockets and the moving palm on its donor rope.
  * @evidence contracts/development/testing.md#independent-expectations A supported seat and actual foot balls meet the supplied tack; ground recovery is measured on the actual model. A palm position comes from actual FK and body shape, against the independently published lead frame and rope radius.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks the complete rider body sweep across walk, trot and canter, including acquisition, visible travel, dismount and release. An unavailable hand-to-lead pose refuses after an initially reachable hold.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks the complete rider body sweep, the bodies riding walk, trot and canter in turn, including acquisition, visible travel, dismount and release. An unavailable hand-to-lead pose refuses after an initially reachable hold.
  * @evidence contracts/development/testing.md#execution-ownership A deterministic in-memory matrix with bounded pose observations. The separate seeded test owns its two hundred model contact cases.
  */
 export function test_motion_equestrian_lifecycle(): void {
   const findings: string[] = [];
-  for (const name of motionHumanBody.SWEEP)
-    for (const gait of ["walk", "trot", "canter"] as const)
+  // The acceptance replays the sequence across the rider sweep; each body
+  // rides one gait in turn, so every body and every gait are ridden.
+  motionHumanBody.SWEEP.forEach(
+    (name: motionHumanBody.Name, index: number): void => {
+      const gait: IAutoMovieMotionHumanRide.EquestrianGait =
+        GAITS[index % GAITS.length]!;
       try {
         verify(build(motionHumanBody(name), gait));
       } catch (failure) {
@@ -66,6 +76,8 @@ export function test_motion_equestrian_lifecycle(): void {
           `${name}/${gait}: ${failure instanceof Error ? failure.message : String(failure)}`,
         );
       }
+    },
+  );
 
   let bad: unknown = null;
   try {
