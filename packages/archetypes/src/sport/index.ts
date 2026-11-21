@@ -13,6 +13,7 @@ export * from "./createHighJump";
 export * from "./createHurdle";
 export * from "./createIceSkate";
 export * from "./createJavelin";
+export * from "./createKendoArmour";
 export * from "./createLandingMat";
 export * from "./createPoolEdge";
 export * from "./createPoolWater";
