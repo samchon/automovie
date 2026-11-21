@@ -259,15 +259,6 @@ export namespace walkSteps {
     const frame: IAutoMovieMotionHumanFrame = { origin: S, yaw: heading };
     const along: (side: "left" | "right") => number = (side: "left" | "right"): number =>
       HumanFrame.local(frame, start[side].ankle).z;
-    const lead: AutoMovieHumanSide =
-      opening?.lead ??
-      (inPlace
-        ? ending >= yaw0
-          ? "left"
-          : "right"
-        : along("left") < along("right") - 1e-6
-          ? "left"
-          : "right");
     const half: number = 0.05 * l;
     const restWidth: Record<"left" | "right", number> = {
       left: Math.abs(body.rest.get("leftFoot")!.x), right: Math.abs(body.rest.get("rightFoot")!.x),
@@ -284,6 +275,22 @@ export namespace walkSteps {
       left: HumanFoot.heading(start.left.rotation) - stand.TOE_OUT,
       right: HumanFoot.heading(start.right.rotation) + stand.TOE_OUT,
     };
+    // The foot behind sets off, unless its first footprint would cross the
+    // standing foot (`walkHeading.uncrossed`).
+    const lead: AutoMovieHumanSide =
+      opening?.lead ??
+      (inPlace
+        ? ending >= yaw0
+          ? "left"
+          : "right"
+        : walkHeading.uncrossed(
+            along("left") < along("right") - 1e-6 ? "left" : "right",
+            { left: start.left.ankle, right: start.right.ankle },
+            facings,
+            path.at(Math.min(D, pace.progress(first + swing + pace.front * T))),
+            heading,
+            half,
+          ));
     const turning: number =
       opening?.turning ??
       (facing === undefined

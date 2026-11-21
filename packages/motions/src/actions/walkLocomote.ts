@@ -391,7 +391,10 @@ export function walkLocomote(
       reached[side] = (ranged[side] ??= walkReach.prepareSwing(body, side))(
         settled,
         reachedAt(side, swing, resolution)(swing.u),
-        steps.inPlace === true ? swing.u : undefined,
+        // The bounds fade in from the stance left, which a turning pelvis can
+        // leave outside them; the stance reached is settled inside them, so a
+        // walk's swing keeps them to its landing (an in-place turn fades both).
+        steps.inPlace === true ? swing.u : Math.min(swing.u, 0.5),
       );
     }
     return { feet, hips, settled, reached };

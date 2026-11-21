@@ -172,7 +172,8 @@ export function prepareWalkReachSwing(
     rotation = read.rotation;
     if (share === undefined) return { ankle, rotation, toes: foot.toes };
 
-    // The caller's nonstandard stance endpoints retain the same range fade.
+    // Stances outside the ranges are left and joined where they stand: the
+    // ranges fade in from the departure and out into the landing.
     const held: number = Math.min(
       minimumJerk.share(Math.min(1, Math.max(0, share) / bounds.fade)),
       minimumJerk.share(Math.min(1, Math.max(0, 1 - share) / bounds.fade)),

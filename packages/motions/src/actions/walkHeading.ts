@@ -158,6 +158,72 @@ export namespace walkHeading {
   }
 
   /**
+   * The foot that sets off, so its first footprint never lands across the
+   * foot it leaves standing: the foot further behind leads, unless its
+   * footprint would land past the other foot's line, which on a sharp turn
+   * toward the standing foot's side is a crossover through the stance leg;
+   * then the other foot leads, the step turn a turn is taken with, the
+   * turning foot moving first (Hase and Stein 1999).
+   *
+   * @param behind The foot further behind along the way, the lead a straight walk takes.
+   * @param ankles Each foot's ankle before the walk, world metres.
+   * @param facings Each foot's facing before the walk, degrees.
+   * @param way The way's point under the first footprint, world metres.
+   * @param heading The first footprint's facing, degrees.
+   * @param lateral How far either side of the way a first footprint lies, metres.
+   * @returns The lead.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the crossing test and the source.
+   * @evidence contracts/development/implementation.md#principled-implementation A footprint crosses when it lies on the other side of the standing foot's line, along that foot's own sideways axis, from where the swing foot starts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test of the default lead, then the swap.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lead whose footprint stays on its own side is kept, so a straight or gently turning walk is unchanged.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function uncrossed(
+    behind: "left" | "right",
+    ankles: Record<"left" | "right", IAutoMovieVector3>,
+    facings: Record<"left" | "right", number>,
+    way: IAutoMovieVector3,
+    heading: number,
+    lateral: number,
+  ): "left" | "right" {
+    // A footprint lies `lateral` to its side of the way, along the heading's `+X`.
+    const turn: number = (heading * Math.PI) / 180;
+    const landing: (side: "left" | "right") => IAutoMovieVector3 = (
+      side: "left" | "right",
+    ): IAutoMovieVector3 => {
+      const x: number = (side === "left" ? 1 : -1) * lateral;
+      return {
+        x: way.x + x * Math.cos(turn),
+        y: 0,
+        z: way.z - x * Math.sin(turn),
+      };
+    };
+    const crosses: (side: "left" | "right") => boolean = (
+      side: "left" | "right",
+    ): boolean => {
+      const stance: "left" | "right" = side === "left" ? "right" : "left";
+      const yaw: number = (facings[stance] * Math.PI) / 180;
+      // The standing foot's right, `+X` turned by its facing's yaw.
+      const right: IAutoMovieVector3 = {
+        x: -Math.cos(yaw),
+        y: 0,
+        z: Math.sin(yaw),
+      };
+      const across: (point: IAutoMovieVector3) => number = (
+        point: IAutoMovieVector3,
+      ): number =>
+        (point.x - ankles[stance].x) * right.x +
+        (point.z - ankles[stance].z) * right.z;
+      return across(ankles[side]) * across(landing(side)) < 0;
+    };
+    const other: "left" | "right" = behind === "left" ? "right" : "left";
+    return crosses(behind) && !crosses(other) ? other : behind;
+  }
+
+  /**
    * A footprint's heading turned no further from the line to its hip than
    * the ankle can lean sideways when the foot lifts.
    *
