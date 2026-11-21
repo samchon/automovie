@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { ArchetypeFrame } from "../core";
 import { EquineBodyPose } from "./EquineBodyPose";
+import { EquineStanceMoves } from "./EquineStanceMoves";
 import type { EquineExpressionCue } from "./EquineExpressionCue";
 import type { EquineStanceCue } from "./EquineStanceCue";
 import { EquineStanceSupport } from "./EquineStanceSupport";
@@ -240,6 +241,9 @@ export namespace EquineStanceRows {
       };
     }
     if (cue.kind === "stepAside") return step(body, start, cue);
+    if (cue.kind === "spin") return EquineStanceMoves.spin(body, start, cue);
+    if (cue.kind === "crowHops")
+      return EquineStanceMoves.crowHops(body, start, cue);
     return pitch(body, start, cue);
   }
 

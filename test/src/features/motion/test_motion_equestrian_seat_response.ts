@@ -41,7 +41,7 @@ const HOLD: IAutoMovieMotionHumanMounted.ISupports = {
  * Scenarios:
  * 1. The horse's own pitch, read from its saddle's forward axis, rises more than 15 degrees nose-up in the rear and falls nose-down in the buck.
  * 2. Against the saddle's up, the displayed trunk leans forward while the horse rears and back while it bucks, and in the world its inclination turns less from where it was before the event than in the same take ridden with no response: the trunk inclination opposes the horse's pitch.
- * 3. Through both events and a sideways step aside (a shy) the seat region stays within 10 mm of the saddle, both balls of the feet within 10 mm of their stirrups and both wrists within 0.7 hand lengths of their reins, moving less than 10 mm against them.
+ * 3. Through both events, a sideways step aside (a shy), three crow hops (each lifting the left hind) and a 90-degree spin on the haunches (turning the saddle within 5 degrees of it), the seat region stays within 10 mm of the saddle, both balls of the feet within 10 mm of their stirrups and both wrists within 0.7 hand lengths of their reins, moving less than 10 mm against them.
  * 4. A take that lets the left foot go as the buck begins and takes the stirrup again after it: halfway through the loss the left ball is more than 50 mm from its tread, half a second after the regain it is back within 30 mm, and the left stirrup's window closes when the loss begins and opens again when the regain arrives.
  * 5. A response share outside 0 to 1 is refused on `respond`.
  *
@@ -81,6 +81,8 @@ export function test_motion_equestrian_seat_response(): void {
   const rear: number = halt.duration + 2;
   const buck: number = halt.duration + 7;
   const shy: number = halt.duration + 10;
+  const hops: number = halt.duration + 13;
+  const spun: number = halt.duration + 16;
   const course: mountedHorseScene.Ride = EquineStance.after(horse, halt, [
     { kind: "rear", pitch: 30, ...phases(rear, 1.2, 0.8, 1.2) },
     { kind: "buck", pitch: 15, ...phases(buck, 0.6, 0.3, 0.6) },
@@ -90,10 +92,14 @@ export function test_motion_equestrian_seat_response(): void {
       width: 0.25,
       ...phases(shy, 0.8, 0.4, 0.8),
     },
+    { kind: "crowHops", count: 3, pitch: 8, ...phases(hops, 1.8, 0.2, 0.4) },
+    { kind: "spin", degrees: 90, ...phases(spun, 3.2, 0.3, 0.6) },
   ]);
   const reared: number = WAIT + rear + 1.2 + 0.4;
   const bucked: number = WAIT + buck + 0.6 + 0.15;
   const shied: number = WAIT + shy + 0.8 + 0.2;
+  const hopped: number = WAIT + hops + 0.9;
+  const spinning: number = WAIT + spun + 1.6;
   const responding: mountedHorseScene.IScene = stage(horse, body, course, 1);
   const rigid: mountedHorseScene.IScene = stage(horse, body, course, 0);
 
@@ -191,7 +197,7 @@ export function test_motion_equestrian_seat_response(): void {
     );
   };
   const before: number = settled;
-  for (const at of [reared, bucked, shied]) {
+  for (const at of [reared, bucked, shied, hopped, spinning]) {
     if (Vector3.distance(seat(at), seat(before)) > CONTACT)
       findings.push(`the seat slides on the saddle at ${at.toFixed(2)} s`);
     for (const side of ["left", "right"] as const) {
@@ -212,6 +218,27 @@ export function test_motion_equestrian_seat_response(): void {
         );
     }
   }
+
+  // The horse's own crow hops and spin: each hop lifts both hind hooves, and the spin turns the saddle's heading by its degrees.
+  const lifts: number = course.instants.filter(
+    (e): boolean =>
+      e.label === "leftHindOff" && e.seconds > hops && e.seconds < hops + 1.8,
+  ).length;
+  if (lifts !== 3)
+    findings.push(`the crow hops lift the left hind ${lifts} times, wanted 3`);
+  const heading = (at: number): number => {
+    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+      responding.part("seat", at).rotation,
+      { x: 0, y: 0, z: 1 },
+    );
+    return (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
+  };
+  const turned: number =
+    heading(WAIT + spun + 4.2) - heading(WAIT + spun - 0.2);
+  if (Math.abs(turned - 90) > 5)
+    findings.push(
+      `the spin turns the saddle ${turned.toFixed(1)} degrees, wanted 90`,
+    );
 
   // 4. The left stirrup is lost as the buck begins and taken again after it.
   const begun: number = rigid.segments[rigid.segments.length - 1]!.start;

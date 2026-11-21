@@ -1,4 +1,4 @@
-﻿import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -111,6 +111,35 @@ export namespace EquineStance {
           "pitch",
           cue.pitch,
           `a ${cue.kind} pitches the trunk between 0 and 90 degrees`,
+        );
+      if (
+        cue.kind === "crowHops" &&
+        !(
+          Number.isInteger(cue.count) &&
+          cue.count >= 1 &&
+          cue.pitch > 0 &&
+          cue.pitch < 90
+        )
+      )
+        refuse(
+          animal.archetype,
+          "count",
+          cue.count,
+          "crow hops are a whole number of hops from one, each pitching between 0 and 90 degrees",
+        );
+      if (
+        cue.kind === "spin" &&
+        !(
+          Number.isFinite(cue.degrees) &&
+          cue.degrees !== 0 &&
+          Math.abs(cue.degrees) <= 360
+        )
+      )
+        refuse(
+          animal.archetype,
+          "degrees",
+          cue.degrees,
+          "a spin turns a nonzero amount up to a full turn either way",
         );
       if (
         cue.kind === "stepAside" &&

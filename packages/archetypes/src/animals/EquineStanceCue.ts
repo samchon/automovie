@@ -1,4 +1,4 @@
-﻿import type { EquineExpressionCue } from "./EquineExpressionCue";
+import type { EquineExpressionCue } from "./EquineExpressionCue";
 import type { QuadrupedBody } from "./QuadrupedBody";
 
 /**
@@ -150,6 +150,41 @@ export namespace EquineStanceCue {
   }
 
   /**
+   * Spin on the haunches: turn about the middle of the hind hooves, every hoof stepping around in turn.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The turn is degrees about up, positive to the horse's left.
+   * @evidence contracts/development/design.md#principled-representation Phases and a signed turn.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The spin response; it ends facing its new heading.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ISpin extends IPhases {
+    /** Discriminator. */
+    kind: "spin";
+
+    /** The turn, degrees about up, positive to the left; at most a full turn either way. */
+    degrees: number;
+  }
+
+  /**
+   * Crow hops: small bucks one after another, the forehand planted and the hindquarters lifted and set down each time.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The count of hops and each hop's pitch, degrees.
+   * @evidence contracts/development/design.md#principled-representation Phases, a whole count and a positive pitch.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The crow-hop response; it ends standing as it began.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ICrowHops extends IPhases {
+    /** Discriminator. */
+    kind: "crowHops";
+
+    /** How many hops, a whole number from one. */
+    count: number;
+
+    /** Each hop's trunk pitch, degrees, hindquarters up. */
+    pitch: number;
+  }
+
+  /**
    * Any response.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The union of every response.
@@ -164,5 +199,7 @@ export namespace EquineStanceCue {
     | IHoof
     | IStepAside
     | IRear
-    | IBuck;
+    | IBuck
+    | ISpin
+    | ICrowHops;
 }
