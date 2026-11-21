@@ -847,6 +847,7 @@
     "sideDrumStrike": {},
     "spacecraftGlide": {},
     "stageCatch": {},
+    "stageDeflect": {},
     "swimImmersed": {
       "properties": {
         "seconds": {

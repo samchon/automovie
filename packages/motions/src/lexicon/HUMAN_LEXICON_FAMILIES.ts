@@ -35,6 +35,7 @@ import { swimImmersed } from "../sport/swimImmersed";
 import { cymbalStrike } from "../tasks/cymbalStrike";
 import { sideDrumStrike } from "../tasks/sideDrumStrike";
 import { stageCatch } from "../throwing/stageCatch";
+import { stageDeflect } from "../throwing/stageDeflect";
 import { HumanArchery } from "./HumanArchery";
 import { HumanBicycleEffort } from "./HumanBicycleEffort";
 import { HumanBikeGuide } from "./HumanBikeGuide";
@@ -162,7 +163,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   floorFall: [HumanFloorFall, { collapse, thrown, wireFlight }],
   support: [HumanSupportRows],
   sportSwing: [HumanSportSwing, HumanPrecisionSport],
-  sportThrow: [HumanSportThrow, { stageCatch }],
+  sportThrow: [HumanSportThrow, { stageCatch, stageDeflect }],
   sportWorkout: [HumanSportWorkout, { ropeSkip }],
   gymnastics: [HumanGymnastics],
   sword: [HumanSword, HumanSwordGuard, HumanSwordParry, HumanSwordThrust],

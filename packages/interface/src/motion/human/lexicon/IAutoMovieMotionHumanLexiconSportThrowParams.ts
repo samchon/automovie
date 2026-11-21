@@ -83,4 +83,7 @@ export interface IAutoMovieMotionHumanLexiconSportThrowParams {
 
   /** Catch a staged prop under the specified trajectory. */
   stageCatch: IAutoMovieMotionHumanCatchObject.IStageParams;
+
+  /** Deflect a staged prop at the specified interception, sending it back by its restitution. */
+  stageDeflect: IAutoMovieMotionHumanCatchObject.IStageParams;
 }
