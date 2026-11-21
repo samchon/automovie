@@ -194,9 +194,11 @@ export namespace IAutoMovieMotionHumanMounted {
    * - `openRein`: the rein hand moves out from the neck on its side;
    * - `neckRein`: the rein hand lays the rein across the neck toward the other side;
    * - `seat`: the pelvis tips back, a weight shift into the saddle;
-   * - `voice`: a spoken cue, marked as an event with no movement.
+   * - `voice`: a spoken cue, marked as an event with no movement;
+   * - `shake`: a driver shakes the lines, the hands lifting and dropping them in quick waves;
+   * - `whipTouch`: a driver touches the horse with the whip, the whip hand flicking forward and up and back.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists each aid and what moves.
+   * @evidence contracts/development/common.md#meaningful-documentation Lists each rider and driver aid and what moves.
    * @evidence contracts/development/design.md#principled-representation A closed literal union.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The aids `HumanMounted` gives.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
@@ -208,7 +210,9 @@ export namespace IAutoMovieMotionHumanMounted {
     | "openRein"
     | "neckRein"
     | "seat"
-    | "voice";
+    | "voice"
+    | "shake"
+    | "whipTouch";
 
   /**
    * Where a second falls on a mounted performance's clock.

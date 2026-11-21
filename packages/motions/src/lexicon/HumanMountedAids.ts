@@ -34,6 +34,15 @@ export namespace HumanMountedAids {
   /** How far an opening or neck rein carries the hand across, forearm lengths (provisional). */
   export const ACROSS: number = 0.25;
 
+  /** How far a shaken line is lifted and dropped, forearm lengths (provisional). */
+  export const SHAKE: number = 0.15;
+
+  /** How many waves a shake sends down the lines over its rise and hold (provisional). */
+  export const WAVES: number = 2;
+
+  /** How far a whip touch flicks the whip hand forward and up, forearm lengths (provisional). */
+  export const FLICK: number = 0.4;
+
   /** How far the heel turns about the ball in a leg aid, degrees (provisional, inside the ankle's range). */
   export const HEEL: number = 20;
 
@@ -161,7 +170,7 @@ export namespace HumanMountedAids {
    * @returns The moved grip.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each hand aid's movement.
-   * @evidence contracts/development/implementation.md#principled-implementation The rein's own axis for a take-up, and the horizontal across it, outward or inward by the hand's side, for an opening or a neck rein, each scaled by its aid's weight.
+   * @evidence contracts/development/implementation.md#principled-implementation The rein's own axis for a take-up, the horizontal across it, outward or inward by the hand's side, for an opening or a neck rein, a vertical sine of `WAVES` waves for a shake, and the axis tipped up for a whip touch, each scaled by its aid's weight.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One pass over the aids.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip without an axis is moved only across.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the aids.
@@ -184,6 +193,27 @@ export namespace HumanMountedAids {
         point = Vector3.add(
           point,
           Vector3.scale(grip.axis, -TAKE_UP * forearm * w),
+        );
+      if (aid.kind === "shake") {
+        const phase: number =
+          (at - aid.onset) / Math.max(1e-6, aid.at - aid.onset);
+        point = Vector3.add(point, {
+          x: 0,
+          y:
+            SHAKE *
+            forearm *
+            w *
+            Math.sin(2 * Math.PI * WAVES * Math.min(1, phase)),
+          z: 0,
+        });
+      }
+      if (aid.kind === "whipTouch" && grip.axis !== undefined)
+        point = Vector3.add(
+          point,
+          Vector3.scale(
+            Vector3.normalize(Vector3.add(grip.axis, { x: 0, y: 1, z: 0 })),
+            FLICK * forearm * w,
+          ),
         );
       if (
         (aid.kind === "openRein" || aid.kind === "neckRein") &&
