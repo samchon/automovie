@@ -17,6 +17,7 @@ export * from "./createJumpPit";
 export * from "./createLandingMat";
 export * from "./createPoolEdge";
 export * from "./createPoolWater";
+export * from "./createPuttingGreen";
 export * from "./createRacket";
 export * from "./createRelayBaton";
 export * from "./createShot";

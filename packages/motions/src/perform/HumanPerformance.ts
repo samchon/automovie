@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanBallPlay,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceAim,
@@ -21,6 +22,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBallPlay } from "../sport/HumanBallPlay";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
@@ -115,7 +117,10 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns The posture.
    */
-  public posture(subject: string, seconds: number): IAutoMovieMotionHumanPosture {
+  public posture(
+    subject: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture {
     return HumanPerformanceRead.posture(this.resolved, subject, seconds);
   }
 
@@ -169,7 +174,8 @@ export class HumanPerformance {
    * @returns Travel by articulation id, in each articulation's own unit.
    */
   public state(subject: string, seconds: number): Record<string, number> {
-    const prop: IAutoMovieMotionHumanProp | undefined = this.resolved.props.get(subject);
+    const prop: IAutoMovieMotionHumanProp | undefined =
+      this.resolved.props.get(subject);
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [
         ...this.resolved.props.keys(),
@@ -185,8 +191,21 @@ export class HumanPerformance {
    * @param subject The prop.
    * @returns The flights; none for a prop never launched.
    */
-  public flights(subject: string): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
+  public flights(
+    subject: string,
+  ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
     return HumanPropFlight.flights(this.resolved, subject);
+  }
+
+  /**
+   * One ball's play (`HumanBallPlay.read`): its hand holds, launches and
+   * flight contacts in film order, for a sport to credit its result.
+   *
+   * @param subject The ball.
+   * @returns The play; no events for a ball never held or launched.
+   */
+  public play(subject: string): IAutoMovieMotionHumanBallPlay {
+    return HumanBallPlay.read(this.resolved, subject);
   }
 
   /**
@@ -305,7 +324,9 @@ export class HumanPerformance {
    * @param subject The person.
    * @returns The overlays.
    */
-  public overlays(subject: string): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
+  public overlays(
+    subject: string,
+  ): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
     return HumanPerformanceRead.overlays(this.resolved, subject);
   }
 

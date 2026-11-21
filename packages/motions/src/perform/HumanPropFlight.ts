@@ -112,7 +112,12 @@ export namespace HumanPropFlight {
           });
         }
       }
-    if (self.resolving) filmEnd = Math.min(filmEnd, through);
+
+    // A point read while scheduling sweeps through the second it asks for,
+    // even past the last placed action: a catch of a long pass reads its
+    // flight after the thrower's own action ends. Final admission repeats
+    // the sweep over the placed film.
+    if (self.resolving && Number.isFinite(through)) filmEnd = through;
     launches.sort((a, b): number => a.seconds - b.seconds);
     if (launches.length === 0) {
       if (!self.resolving) admitCaptures(self, subject, []);

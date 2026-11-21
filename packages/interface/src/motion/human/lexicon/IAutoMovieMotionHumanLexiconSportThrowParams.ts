@@ -1,6 +1,7 @@
 import type { IAutoMovieMotionHumanJump } from "../actions/IAutoMovieMotionHumanJump";
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanKickBall } from "../ballStrike/IAutoMovieMotionHumanKickBall";
+import type { IAutoMovieMotionHumanBowlingSlide } from "../sport/IAutoMovieMotionHumanBowlingSlide";
 import type { IAutoMovieMotionHumanCartwheel } from "../sport/IAutoMovieMotionHumanCartwheel";
 import type { IAutoMovieMotionHumanSalto } from "../sport/IAutoMovieMotionHumanSalto";
 import type { IAutoMovieMotionHumanCatchObject } from "../throwing/IAutoMovieMotionHumanCatchObject";
@@ -28,6 +29,9 @@ export interface IAutoMovieMotionHumanLexiconSportThrowParams {
 
   /** A high-arm cricket delivery toward the bounce point after the composed run-up. */
   cricketBowl: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** The supported final glide and recovery of a one-handed bowling approach. */
+  bowlingSlide: IAutoMovieMotionHumanBowlingSlide.IParams;
 
   /** A low underhand bowling delivery toward the lane after the composed approach. */
   bowlingDelivery: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;

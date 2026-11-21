@@ -191,6 +191,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanThrowObjectParamsstyle",
       "description": "A low underhand bowling delivery toward the lane after the composed approach."
     },
+    "bowlingSlide": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanBowlingSlide.IParams",
+      "description": "The supported final glide and recovery of a one-handed bowling approach."
+    },
     "bowViolin": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanBowViolinParams",
       "description": "Draw a held violin bow across a string."
@@ -20474,6 +20478,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanThrowObjectParamsstyle",
             "description": "A high-arm cricket delivery toward the bounce point after the composed run-up."
           },
+          "bowlingSlide": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanBowlingSlide.IParams",
+            "description": "The supported final glide and recovery of a one-handed bowling approach."
+          },
           "bowlingDelivery": {
             "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanThrowObjectParamsstyle",
             "description": "A low underhand bowling delivery toward the lane after the composed approach."
@@ -20548,6 +20556,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "underarmPitch",
           "softballWindmill",
           "cricketBowl",
+          "bowlingSlide",
           "bowlingDelivery",
           "pushPass",
           "rugbyPass",
@@ -20568,6 +20577,54 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "Open parameters of the sportThrow lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+      },
+      "IAutoMovieMotionHumanBowlingSlide.IParams": {
+        "type": "object",
+        "properties": {
+          "distance": {
+            "type": "number",
+            "description": "Forward glide in metres, positive and at most 0.4 of combined thigh and shank length.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          },
+          "from": {
+            "type": "number",
+            "description": "Action-local slide onset in seconds, strictly after zero.",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          },
+          "to": {
+            "type": "number",
+            "description": "Action-local slide end in seconds, after onset and before `seconds`.",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Total action-local seconds, including the recovery plant.",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "Delivery hand, `right` when absent. The other foot leads the glide."
+          }
+        },
+        "required": [
+          "distance",
+          "from",
+          "to",
+          "seconds"
+        ],
+        "additionalProperties": false,
+        "description": "Parameters."
       },
       "OmitIParamshands": {
         "type": "object",
