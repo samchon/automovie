@@ -13,6 +13,7 @@ import type {
 
 import type { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import type { ArchetypeRide } from "./ArchetypeRide";
 
 /**
  * Clearance between bodies that pass one another on planned courses: ridden
@@ -177,6 +178,61 @@ export namespace ArchetypePassage {
         { x: extent.max.x, y: 0, z: extent.min.z },
         { x: extent.max.x, y: 0, z: extent.max.z },
         { x: extent.min.x, y: 0, z: extent.max.z },
+      ],
+      radius: 0,
+    };
+  }
+
+  /**
+   * A ride's footprint over a window: the floor rectangle holding every posed extent of the ridden model in its root's frame, so swinging limbs, a nodding head and anything the ride carries count.
+   *
+   * @param ride The ride, whose samples carry the posed model and its placement.
+   * @param from The first film second.
+   * @param to The last film second, after `from`.
+   * @param step Seconds between poses read, positive.
+   * @returns The rectangle's four corners in the root's frame, radius 0.
+   * @throws {ArchetypeRefusal} When no posed model has portable geometry to measure.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, the frame, the window and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's `computeModelRestExtent` of each posed model read every step, whose parts already stand where the ride put them in the root's frame; the union of those extents bounds every read pose. A pose reaching further between reads is outside it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One extent per read and a running union.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is padded; an unmeasurable ride is refused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pose and one vertex pass per read.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the ride and window.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function envelope(
+    ride: ArchetypeRide.IRide<string, string>,
+    from: number,
+    to: number,
+    step: number,
+  ): IFootprint {
+    const low: IAutoMovieVector3 = { x: Infinity, y: 0, z: Infinity };
+    const high: IAutoMovieVector3 = { x: -Infinity, y: 0, z: -Infinity };
+    for (let k: number = 0; from + k * step <= to; ++k) {
+      const posed: IAutoMovieComputeModelRestExtent.IResult =
+        computeModelRestExtent(ride.at(from + k * step).archetype);
+      if (posed === null) continue;
+      low.x = Math.min(low.x, posed.min.x);
+      low.z = Math.min(low.z, posed.min.z);
+      high.x = Math.max(high.x, posed.max.x);
+      high.z = Math.max(high.z, posed.max.z);
+    }
+    if (!Number.isFinite(low.x))
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "passage",
+        axis: "ride",
+        value: from,
+        reason: "no posed model of the ride draws portable geometry",
+        fix: "give the passage the body's footprint outline instead",
+      });
+    return {
+      outline: [
+        { x: low.x, y: 0, z: low.z },
+        { x: high.x, y: 0, z: low.z },
+        { x: high.x, y: 0, z: high.z },
+        { x: low.x, y: 0, z: high.z },
       ],
       radius: 0,
     };

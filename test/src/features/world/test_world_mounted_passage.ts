@@ -3,8 +3,10 @@ import {
   ArchetypeCourse,
   ArchetypePassage,
   ArchetypeRefusal,
+  type ArchetypeRide,
   createHorse,
   createPony,
+  rideQuadruped,
 } from "@automovie/archetypes";
 import {
   AutoMovieComposition,
@@ -120,7 +122,7 @@ interface IStage {
  * Scenarios:
  *
  * 1. Each seed rebuilds the same horse and footprint, another seed varies it, and the footprint holds the saddle, stirrups and lead rope.
- * 2. The nearest-slot assignment keeps each pair's slot from the entrance to the re-form.
+ * 2. The nearest-slot assignment at the entrance and the order of march at the re-form keep each pair's slot.
  * 3. A synchronized halt, a staggered halt through the same marks and a following pair held on its mark keep every authored margin.
  * 4. Each addressed cue reaches its rider at the authored second, with the pair's horse on its mark and halted only once it has arrived.
  * 5. During the halt the measured clearance is the gap between the two rest boxes.
@@ -165,7 +167,7 @@ export function test_world_mounted_passage(): void {
   });
   const reform: IAutoMovieMotionHumanFormation = HumanFormation.of({
     blocks: [{ layout: FILE, count: 2 }],
-    frame: course([sample(22, 0, 35), sample(26, 0, 45)]),
+    frame: course([sample(23, 0, 35), sample(27, 0, 45)]),
   });
   const entered: number[] = HumanFormation.assign(
     entry,
@@ -175,9 +177,9 @@ export function test_world_mounted_passage(): void {
   );
   const reformed: number[] = HumanFormation.assign(
     reform,
-    [point(-4.5, 30), point(4.5, 29)],
-    "nearest",
-    22,
+    [point(-4.5, 30), point(4.5, 30)],
+    "order",
+    23,
   );
   TestValidator.equals("the pairs enter as lead and follower", entered, [0, 1]);
   TestValidator.equals(
@@ -188,7 +190,7 @@ export function test_world_mounted_passage(): void {
   TestValidator.predicate(
     "entrance and re-form ranks stand five metres apart, the lead ahead",
     vclose(HumanFormation.slot(entry, 1, 0).at, point(0, -5), 1e-12) &&
-      vclose(HumanFormation.slot(reform, 1, 22).at, point(0, 30), 1e-12),
+      vclose(HumanFormation.slot(reform, 1, 23).at, point(0, 30), 1e-12),
   );
 
   // 3. The admitted variants.
@@ -198,19 +200,19 @@ export function test_world_mounted_passage(): void {
         pair(ROSTER[slot]!, footprints[slot]!, slot, staging, entry, reform),
     );
   const synchronized: IPair[] = stage({
-    lane: 1.5,
+    lane: 2,
     split: 4.5,
     arrival: 9.5,
     held: false,
   });
   const staggered: IPair[] = stage({
-    lane: 1.5,
+    lane: 2,
     split: 4.5,
     arrival: 10.5,
     held: false,
   });
   const held: IPair[] = stage({
-    lane: 1.5,
+    lane: 2,
     split: 4.5,
     arrival: 9.5,
     held: true,
@@ -227,14 +229,14 @@ export function test_world_mounted_passage(): void {
     );
   TestValidator.predicate(
     "the held pair stays on its mark while the lead exits",
-    [12, 20, 26].every(
+    [12, 20, 27].every(
       (seconds: number): boolean =>
         vclose(
           held[1]!.plan.at(seconds).placement.translation,
-          point(1.5, 15),
+          point(2, 15),
           1e-12,
         ) && held[1]!.plan.at(seconds).speed === 0,
-    ) && vclose(held[0]!.plan.at(26).placement.translation, point(0, 45), 1e-9),
+    ) && vclose(held[0]!.plan.at(27).placement.translation, point(0, 45), 1e-9),
   );
 
   // 4. Addressed cues and the progress each one meets.
@@ -303,7 +305,7 @@ export function test_world_mounted_passage(): void {
     halt.length === 1 &&
       halt[0]!.from === 9.5 &&
       halt[0]!.to === 11 &&
-      nclose(halt[0]!.clearance, 3 + facing, 1e-9),
+      nclose(halt[0]!.clearance, 4 + facing, 1e-9),
   );
 
   // 6. Tight lanes and a tight separation.
@@ -337,7 +339,7 @@ export function test_world_mounted_passage(): void {
   );
   const crowded: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
     "passage",
-    passage(stage({ lane: 1.5, split: 2, arrival: 9.5, held: false })),
+    passage(stage({ lane: 2, split: 2, arrival: 9.5, held: false })),
   );
   TestValidator.equals(
     "a separation too close to the dais names each pair beside it",
@@ -367,14 +369,55 @@ export function test_world_mounted_passage(): void {
   );
   refused(
     "a crowded dais refuses on the earlier pair's own route",
-    stage({ lane: 1.5, split: 2, arrival: 9.5, held: false }),
+    stage({ lane: 2, split: 2, arrival: 9.5, held: false }),
     `participants[${crowded[0]!.subject === "hazel" ? 0 : 1}].plan`,
     crowded[0]!,
   );
 
+  const gaits: string[] = [];
+  // 8. The real rides: each envelope holds its rest box and every posed limb, and the passage stays admitted with them.
+  const ridden: IPair[] = synchronized.map(
+    (member: IPair, slot: number): IPair => {
+      const ride: ArchetypeRide.IRide<string, string> = rideQuadruped(
+        slot === 0 ? hazel : indigo,
+        member.plan,
+      );
+      const landings: string = JSON.stringify(
+        ride.instants.filter(
+          (
+            instant: ArchetypeRide.IRide<string, string>["instants"][number],
+          ): boolean => instant.label.endsWith("On"),
+        ),
+      );
+      gaits.push(landings);
+      return {
+        ...member,
+        footprint: ArchetypePassage.envelope(ride, 0, 27, 4 * FRAME),
+      };
+    },
+  );
+  TestValidator.predicate(
+    "each ride's envelope holds its rest box",
+    ridden.every((member: IPair, slot: number): boolean =>
+      [Math.min, Math.max].every(
+        (pick: (...values: number[]) => number): boolean =>
+          pick(x(member.footprint, pick), x(footprints[slot]!, pick)) ===
+          x(member.footprint, pick),
+      ),
+    ),
+  );
+  TestValidator.equals(
+    "the ridden passage keeps every margin",
+    ArchetypePassage.conflicts("passage", passage(ridden)),
+    [],
+  );
+  TestValidator.predicate(
+    "the two mounts land their hooves on their own phases",
+    gaits.length === 2 && gaits[0] !== gaits[1] && gaits[0]!.length > 2,
+  );
   // 7. Repeated, reversed and recomputed reads.
   const times: number[] = Array.from(
-    { length: 26 * 24 + 1 },
+    { length: 27 * 24 + 1 },
     (_: unknown, k: number): number => k * FRAME,
   );
   for (const member of synchronized)
@@ -442,7 +485,7 @@ function pair(
           sample(6, lane, 7),
           sample(8, lane, 12.5),
           sample(staging.arrival, lane, 15),
-          sample(staging.held ? 26 : 11, lane, 15),
+          sample(staging.held ? 27 : 11, lane, 15),
         ];
   const separation: ArchetypeCourse.ISample[] =
     staging.held && slot === 1
@@ -452,8 +495,8 @@ function pair(
           sample(14, lane, 19),
           sample(16, split, 23),
           sample(18, split, 27),
-          sample(20, split, slot === 0 ? 30 : 29),
-          ...HumanFormation.path(reform, slot, 22, 26, 2),
+          sample(20, split, 30),
+          ...HumanFormation.path(reform, slot, 23, 27, 2),
         ];
   const samples: ArchetypeCourse.ISample[] = [
     ...entrance,
