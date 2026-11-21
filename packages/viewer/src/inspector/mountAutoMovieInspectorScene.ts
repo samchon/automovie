@@ -1,7 +1,6 @@
 import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionDiagnostics,
-  IAutoMovieInspectionLabel,
   IAutoMovieInspectionView,
 } from "@automovie/interface";
 import {
@@ -25,6 +24,8 @@ import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticL
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
+import { changesAutoMovieObservedScene } from "./changesAutoMovieObservedScene.js";
+import { placeAutoMovieInspectorLabels } from "./placeAutoMovieInspectorLabels.js";
 import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
 
 /** What a mount holds once its instance is ready. */
@@ -50,7 +51,7 @@ interface ILive {
  *
  * The picture's aspect is the subject's raster, not the canvas's, so a view frames what a capture of the same subject frames; the page gives the canvas that aspect. The mount adds no listener and holds at most one pending frame, so a mount, dispose and mount again on one canvas, as React's StrictMode runs an effect, leaves one renderer and one frame loop; a mount disposed before its instance arrives or is ready disposes the instance then and creates no renderer, and a seek that resolves after dispose draws nothing.
  *
- * An opted-in subject is observed at the second actually placed, before the inspection changes the scene, and its findings reach the report and the diagnostic log with the playhead's playing flag and jump count, so uninterrupted playback can join painted samples into an observed span. Its witness cubes are drawn under the beauty shade unless `overlay(false)` hid them; hiding them stops no check and no report.
+ * An opted-in subject is observed at the second actually placed, before the inspection changes the scene: an inspection that changes layers, materials, mark geometry or clipping is restored before the seek and re-applied after the observation, while one that changes none of them, as the default request, stays applied and only updates its marks, as for any subject. Its findings reach the report and the diagnostic log with the playhead's playing flag and jump count, so uninterrupted playback can join painted samples into an observed span. Its witness cubes are drawn under the beauty shade unless `overlay(false)` hid them; hiding them stops no check and no report.
  *
  * The page draws the first view and the first pass of the request; the capture command draws them all. While paused, the labels the request asks for are placed by the inspection on the picture's pixels, with the stamp's font pixel at least one CSS pixel of the canvas as a capture keeps it at least one sheet pixel, and reported in CSS pixels; a named view with a focus is framed on what the focus selects.
  *
@@ -58,8 +59,8 @@ interface ILive {
  * @evidence contracts/development/implementation.md#principled-implementation The scene is changed only through render's inspection, which restores before re-applying; views are resolved by render's view resolver on the inspection's drawn bounds, and the delivery camera takes the raster's aspect as the capture does. Wall time comes from the frame callback's own timestamp, so a frame's advance is the time actually elapsed. The subject's seek promise is the draw contract's readiness signal, so a picture is drawn only once the subject reports it can be.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure owns one mount: arrival, apply, frame, seek, paint, failure and dispose are local steps over one record of what is held; React, the DOM and WebGL stay with the component and the host.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refused request is reported with the request still drawn rather than drawn half-applied, an instance that arrives after dispose is released rather than drawn, and no frame is drawn from a size that is not positive.
- * @evidence contracts/development/implementation.md#efficient-algorithms A frame that changed nothing costs one size read and one snapshot comparison; a redraw costs the subject's seek, the inspection's update linear in its marks, one view resolution and the render. Paths and the first second's marks are listed once per mount.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The applied inspection, the renderer and the instance live for the whole mount; an inspection is re-applied only when its written text changes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A frame that changed nothing costs one size read and one snapshot comparison; a redraw costs the subject's seek, the opted-in observation, the inspection's update linear in its marks, one view resolution and the render. A full inspection re-application per redraw happens only while the request changes what the observation would read. Paths and the first second's marks are listed once per mount.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The applied inspection, the renderer and the instance live for the whole mount; an inspection is re-applied only when its written text changes or when it had to be restored for an observation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mount owns one instance, one renderer, one applied inspection and at most one pending frame, released by `dispose` in reverse order, each attempted even when another fails; the playhead is borrowed and gains no listener.
  */
 export function mountAutoMovieInspectorScene(props: {
@@ -255,7 +256,12 @@ export function mountAutoMovieInspectorScene(props: {
     now.seeking = true;
     let ready: Promise<void>;
     try {
-      if (now.instance.inspectPlaced !== undefined) now.inspection.restore();
+      // An observation must read the scene as placed, without what the inspection changed.
+      if (
+        now.instance.inspectPlaced !== undefined &&
+        changesAutoMovieObservedScene(now.applied.inspection)
+      )
+        now.inspection.restore();
       ready = now.instance.seek(snapshot.seconds);
     } catch (error) {
       ready = Promise.reject(
@@ -282,10 +288,17 @@ export function mountAutoMovieInspectorScene(props: {
     try {
       const diagnostics: IAutoMovieInspectionDiagnostics | undefined =
         observeAutoMoviePlacedInspection(instance, snapshot.seconds, "viewer");
-      if (instance.inspectPlaced === undefined)
-        now.inspection.update(instance.marks?.(snapshot.seconds));
-      else if (installInspection(now, wanted, snapshot.seconds))
-        now.applied = wanted;
+      // Re-apply only an inspection that was restored for the observation or changed; otherwise update its marks.
+      if (
+        instance.inspectPlaced !== undefined &&
+        (changesAutoMovieObservedScene(now.applied.inspection) ||
+          changesAutoMovieObservedScene(wanted.inspection) ||
+          written(wanted) !== written(now.applied))
+      ) {
+        now.inspection.restore();
+        if (installInspection(now, wanted, snapshot.seconds))
+          now.applied = wanted;
+      } else now.inspection.update(instance.marks?.(snapshot.seconds));
 
       // The delivery camera takes the raster's aspect, as a capture of the subject does.
       const aspect: number = instance.width / instance.height;
@@ -325,7 +338,14 @@ export function mountAutoMovieInspectorScene(props: {
       }
       if (!snapshot.playing) {
         report.legend([...now.inspection.legend, ...diagnosticLegend]);
-        report.labels(place(now, camera));
+        report.labels(
+          placeAutoMovieInspectorLabels({
+            inspection: now.inspection,
+            camera,
+            raster: instance,
+            shown: now.size!,
+          }),
+        );
         now.labelled = true;
       } else if (now.labelled) {
         report.labels({ labels: [], lineHeight: 0, dropped: 0 });
@@ -441,35 +461,6 @@ export function mountAutoMovieInspectorScene(props: {
         (): void => diagnosticLog.dispose(),
       ]);
     },
-  };
-}
-
-/** The labels of a paused picture in CSS pixels of the canvas. */
-function place(
-  now: ILive,
-  camera: THREE.Camera,
-): IAutoMovieInspectorScene.ILabels {
-  const { width, height } = now.instance;
-  const shown: IAutoMovieInspectorSceneHost.ISize = now.size!;
-
-  // The stamp's font pixel stays at least one CSS pixel, as a capture keeps it at least one sheet pixel.
-  const scale: number = Math.max(1, Math.ceil(height / shown.height));
-  const placed: ReturnType<IAutoMovieInspectionHandle["labels"]> =
-    now.inspection.labels(camera, width, height, scale);
-  return {
-    labels: placed.labels.map(
-      (
-        label: IAutoMovieInspectionLabel,
-      ): IAutoMovieInspectorScene.ILabels["labels"][number] => ({
-        path: label.path,
-        text: label.text,
-        left: (label.x * shown.width) / width,
-        top: (label.y * shown.height) / height,
-      }),
-    ),
-    // The stamp's box is nine font pixels high.
-    lineHeight: (9 * scale * shown.height) / height,
-    dropped: placed.dropped.length,
   };
 }
 

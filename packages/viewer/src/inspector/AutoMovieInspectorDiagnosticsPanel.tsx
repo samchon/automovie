@@ -1,14 +1,15 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import type { ChangeEvent, JSX } from "react";
 
+import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
-import { locateAutoMovieInspectorFinding } from "./locateAutoMovieInspectorFinding.js";
+import { showAutoMovieInspectorFinding } from "./showAutoMovieInspectorFinding.js";
 
 /**
  * Diagnostics: the confirmed errors this mount has reported, newest first, each with buttons that show its evidence.
  *
- * A first visit offers its witness; a span offers its first and its worst witness and says whether consecutive frames or uninterrupted playback joined it. A button pauses playback and dispatches `locateAutoMovieInspectorFinding`, so the picture, the address and the capture command name that second with the finding's drawn entities labelled. The checkbox shows or hides the witness cubes and the status line; checks and reports continue either way.
+ * A first visit offers its witness; a span offers its first and its worst witness and says whether consecutive frames or uninterrupted playback joined it. A button stops the playhead at the witness and locates the request there through `showAutoMovieInspectorFinding`, so the picture, the address and the capture command name that second with the finding's drawn entities labelled. The checkbox shows or hides the witness cubes and the status line; checks and reports continue either way.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is listed and in which order, what each button does and what the checkbox hides.
  * @evidence contracts/development/implementation.md#principled-implementation Navigation is an ordinary request edit through the reducer, so the address and the capture command reproduce the located picture.
@@ -31,8 +32,8 @@ export function AutoMovieInspectorDiagnosticsPanel(props: {
   /** Show or hide the witnesses. */
   onWitnesses: (show: boolean) => void;
 
-  /** Stop playback before the picture moves to a finding. */
-  pause: () => void;
+  /** The playhead a located finding stops at. */
+  playhead: AutoMovieInspectorPlayhead;
 
   /** Where edits go. */
   dispatch: (action: IAutoMovieInspectorAction) => void;
@@ -41,10 +42,13 @@ export function AutoMovieInspectorDiagnosticsPanel(props: {
     observation: IAutoMovieInspectionDiagnostics.IObservation,
   ) => void = (
     observation: IAutoMovieInspectionDiagnostics.IObservation,
-  ): void => {
-    props.pause();
-    props.dispatch(locateAutoMovieInspectorFinding(observation, props.paths));
-  };
+  ): void =>
+    showAutoMovieInspectorFinding({
+      observation,
+      paths: props.paths,
+      playhead: props.playhead,
+      dispatch: props.dispatch,
+    });
   return (
     <div>
       <label style={{ display: "block", marginBottom: 6 }}>

@@ -389,7 +389,7 @@ export function AutoMovieInspector(
             paths={facts?.paths ?? []}
             witnesses={witnesses}
             onWitnesses={setWitnesses}
-            pause={(): void => playhead.pause()}
+            playhead={playhead}
             dispatch={dispatch}
           />
         </Section>
