@@ -45,17 +45,20 @@ export namespace IAutoMovieInspectorScene {
   /**
    * What a mount learns about its subject once the instance is ready, for the panels.
    *
-   * @evidence contracts/development/design.md#principled-representation The identity paths a selection can name, the supplied marks the kinds are listed from, the view names a view can take, the subject's raster in pixels, its duration in seconds and its frames per second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member feeds one panel: paths the selection tree, marks the marks panel, views the view panel, the raster the canvas aspect, the duration and frame rate the readout.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Paths and marks are those of the first second drawn, and the kinds are listed under the current request because a sliver limit or a trail adds kinds; marks that appear later are reached by typing a pattern.
+   * @evidence contracts/development/design.md#principled-representation Identity paths, first-frame marks and lifetime kind declarations describe the subject's available inspection data. View names identify cameras. The raster is in pixels, duration in seconds and rate in frames per second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Paths feed the selection tree, marks and declared kinds feed the marks panel, views feed the view panel, raster sets the canvas aspect, and the clock feeds the readout.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts First-frame marks carry actual styles, declared names carry availability, and render lists measured kinds under the current sliver or trail request.
    * @evidence contracts/development/common.md#meaningful-documentation States what each member lists and at which second.
    */
   export interface IFacts {
     /** Identity paths of every drawn object in scene order, then of every supplied mark, at the first second drawn. */
     paths: string[];
 
-    /** The marks the subject supplies at the first second drawn; the marks panel lists the kinds a request can name from them with `listAutoMovieInspectionKinds`, under the request in force. */
+    /** Marks supplied at the first second drawn, which provide their kinds and styles to the marks panel. */
     marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]>;
+
+    /** Subject-declared kinds available throughout the mount, including kinds with no mark at the first second. */
+    markKinds?: IApplyAutoMovieInspectionProps["markKinds"];
 
     /** The subject's own view names, then the named viewpoints a fitted view takes. */
     views: string[];

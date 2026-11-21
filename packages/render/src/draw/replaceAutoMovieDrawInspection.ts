@@ -7,10 +7,10 @@ import { applyAutoMovieInspection } from "../scene/inspection/applyAutoMovieInsp
 /**
  * End the old inspection before placement and bind a new one to its actual objects.
  *
- * @param props The previous handle, actual scene/request, optional renderer and asynchronous placement that returns its current marks.
+ * @param props The previous handle, actual scene and request, optional renderer and lifetime kind declarations, and asynchronous placement that returns current marks.
  * @returns An inspection of the scene graph that placement actually produced.
  * @throws {Error} When placement or inspection fails; the previous handle has already been restored.
- * @evidence contracts/development/common.md#meaningful-documentation States restoration-before-placement, current-object admission, optional renderer and failure cleanup.
+ * @evidence contracts/development/common.md#meaningful-documentation States restoration-before-placement, current-object admission, optional renderer and kind declarations, and failure cleanup.
  * @evidence contracts/development/implementation.md#principled-implementation An inspection owns masks, materials and measurements of concrete objects. A seek may replace those objects, so request equality cannot certify reuse: release the prior state, await placement and apply to the resulting graph.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Restore the previous owner, await one placement and call the single inspection producer with the resulting current marks.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stale handle, subject monkeypatch, fake readiness or renderer replacement bypasses scene placement. A placement failure cannot leave the old scene inspection active.
@@ -23,6 +23,7 @@ export async function replaceAutoMovieDrawInspection(props: {
   scene: IApplyAutoMovieInspectionProps["scene"];
   request: IApplyAutoMovieInspectionProps["request"];
   renderer?: IApplyAutoMovieInspectionProps["renderer"];
+  markKinds?: IApplyAutoMovieInspectionProps["markKinds"];
   place: () => Promise<readonly IAutoMovieMark[]>;
 }): Promise<IAutoMovieInspectionHandle> {
   props.previous?.restore();
@@ -31,6 +32,7 @@ export async function replaceAutoMovieDrawInspection(props: {
     scene: props.scene,
     request: props.request,
     marks,
+    markKinds: props.markKinds ?? [],
     ...(props.renderer === undefined ? {} : { renderer: props.renderer }),
   });
 }

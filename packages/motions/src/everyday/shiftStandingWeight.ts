@@ -1,4 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -6,6 +10,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanShiftStandingWeight,
@@ -22,6 +27,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanFootHull } from "../posture/prepareHumanFootHull";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 
@@ -30,6 +36,9 @@ const PLANT_DISTANCE: number = 0.003;
 
 /** Minimum absolute unit-quaternion dot product for 0.5 degrees of foot turn. */
 const PLANT_TURN: number = Math.cos(Math.PI / 720);
+
+/** Signed real sole clearance for the declared two-region support, metres. */
+const FLOOR_CONTACT: number = 0.0002;
 
 /**
  * An intentional lateral pelvis shift with both feet planted on the ground.
@@ -49,7 +58,7 @@ const PLANT_TURN: number = Math.cos(Math.PI / 720);
  * @evidence contracts/development/common.md#meaningful-documentation States the required support, author-controlled distance and events, and distinguishes published measurements from the authored motion.
  * @evidence contracts/development/design.md#principled-representation Moves the existing root channel while retaining the entry leg goals and both ground plants.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The action law and its contract expose only amplitude and phase times.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Fits the body's entry leg goals and measures support with the shared static margin.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the entry foot goals and their refusal conditions. Both declared planes must have real heel and forefoot witnesses before the margin reads their hull.
  */
 export const shiftStandingWeight: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanShiftStandingWeight> =
   {
@@ -94,19 +103,24 @@ function plan(
   HumanBound.above("duration", duration, 0, "s");
 
   const entry: IAutoMovieMotionHumanEntryState = context.entry;
+  const sides: readonly ["left", "right"] = ["left", "right"];
+  const planes: IAutoMovieMotionHumanContactWindow.Support[] = sides.map(
+    (side: "left" | "right"): IAutoMovieMotionHumanContactWindow.Support =>
+      HumanSupportFrame.contact(
+        context,
+        side === "left" ? "leftFoot" : "rightFoot",
+      ),
+  );
   if (
     entry.base.kind !== "standing" ||
-    !(["left", "right"] as const).every((side: "left" | "right"): boolean => {
+    !sides.every((side: "left" | "right"): boolean => {
       const leg: IAutoMovieHumanLimbGoal | undefined =
         entry.posture.limbs[side === "left" ? "leftLeg" : "rightLeg"];
       return (
         entry.feet[side].planted &&
         leg?.planted === true &&
         leg.on === undefined &&
-        HumanSupportFrame.contact(
-          context,
-          side === "left" ? "leftFoot" : "rightFoot",
-        ).kind === "ground"
+        planes[side === "left" ? 0 : 1]!.kind === "ground"
       );
     })
   )
@@ -120,6 +134,11 @@ function plan(
       fix: "establish a standing pose on both feet before shifting",
     });
 
+  const hulls: ReturnType<typeof prepareHumanFootHull>[] = sides.map(
+    (side: "left" | "right"): ReturnType<typeof prepareHumanFootHull> =>
+      prepareHumanFootHull(context.body, side),
+  );
+  let useActualSole: boolean | undefined;
   const shifted: IAutoMovieVector3 = { x: by, y: 0, z: 0 };
   // The entry pose is already solved. The return retraces the outward path.
   for (const share of [0, 0.5, 1]) {
@@ -132,8 +151,19 @@ function plan(
       context.body,
       share === 0 ? entry.pose : resolveHumanPosture(context.body, posture),
     );
+    const base: IAutoMovieVector3[] | undefined =
+      useActualSole === false ? undefined : actualBase(bones);
+    useActualSole ??= base !== undefined;
+    const margin: number = useActualSole
+      ? base === undefined
+        ? -Infinity
+        : resolveAutoMovieCenterOfMass.margin(
+            resolveAutoMovieCenterOfMass.place(context.body.massModel, bones),
+            base,
+          )
+      : HumanBalance.margin(context.body, posture);
     if (
-      HumanBalance.margin(context.body, posture) >= 0 &&
+      margin >= 0 &&
       keepsPlant(bones.get("leftFoot")!, entry.feet.left) &&
       keepsPlant(bones.get("rightFoot")!, entry.feet.right)
     )
@@ -165,7 +195,15 @@ function plan(
     base: AutoMovieMotionHumanBase.still(
       duration,
       entry.posture,
-      AutoMovieMotionHumanBase.plants(),
+      AutoMovieMotionHumanBase.plants().map(
+        (
+          plant: IAutoMovieMotionHumanContactWindow,
+          index: number,
+        ): IAutoMovieMotionHumanContactWindow => ({
+          ...plant,
+          support: planes[index]!,
+        }),
+      ),
     ),
     primitives: [
       returnSeconds === undefined
@@ -178,6 +216,35 @@ function plan(
           ),
     ],
   });
+
+  /** Read real bearing vertices on each foot's inherited ground plane. */
+  function actualBase(
+    bones: ReturnType<typeof poseBones>,
+  ): IAutoMovieVector3[] | undefined {
+    const base: IAutoMovieVector3[] = [];
+    for (const [i, points] of hulls.entries()) {
+      const support: IAutoMovieMotionHumanContactWindow.Support = planes[i]!;
+      if (!points || support.kind !== "ground") return undefined;
+      const floor: number = support.height ?? 0;
+      let heel: boolean = false;
+      let forefoot: boolean = false;
+      for (const vertex of points) {
+        const carrier: IAutoMovieResolvedBone = bones.get(vertex.bone)!;
+        const point: IAutoMovieVector3 = Vector3.add(
+          carrier.worldPosition,
+          Quaternion.rotateVector(carrier.worldRotation, vertex.local),
+        );
+        const gap: number = point.y - floor;
+        if (gap < -FLOOR_CONTACT) return undefined;
+        if (gap > FLOOR_CONTACT) continue;
+        base.push(point);
+        heel ||= vertex.region === "heel";
+        forefoot ||= vertex.region === "forefoot";
+      }
+      if (!heel || !forefoot) return undefined;
+    }
+    return base;
+  }
 }
 
 /** Whether the solved ankle and foot rotation stay within the plant tolerance. */

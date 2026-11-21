@@ -12,19 +12,16 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTargets";
 
 /**
- * Fit endpoint X/Z and the actual patch's lowest Y simultaneously. Independent
- * bounded native twist coordinates preserve all locked axes and rigid anchors.
- * Finite-difference Jacobians use the existing original-design SVD; damped
- * steps and backtracking accept only a measured residual decrease. Work is
- * bounded, unreachable intent remains a residual, and no body is teleported.
+ * Fit endpoint goals and their floor constraints together using bounded native
+ * joint coordinates. The residual retains unresolved endpoint and floor errors.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Fit endpoint X/Z and the actual patch's lowest Y simultaneously) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Fit endpoint X/Z and the actual patch's lowest Y simultaneously) directly over its typed inputs (`input`) as nested iteration of depth 2 (every over [input.goal.x, input.goal.z, input.floor; some over input.floorPoints; every over [point.localPoint.x, point.localPoint.y,), delegating to `Number.isSafeInteger`, `Number.isFinite`, `Array.isArray`, `solvePhysicalArticulationTargets`, `measure`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (4 throw sites). Beyond structural 0, 1 and 2 the body uses the literal 64, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 106 lines and 4 top-level statements that reuses `Number.isSafeInteger`, `Number.isFinite`, `Array.isArray`, `solvePhysicalArticulationTargets`, `measure` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 6 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 2 (every over [input.goal.x, input.goal.z, input.floor; some over input.floorPoints; every over [point.localPoint.x, point.localPoint.y,), performed once per call with 11 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 11 allocation sites become the returned value or die with the call, so nothing grows.
+ * @evidence contracts/development/common.md#meaningful-documentation States the fitted quantities, bounded native coordinates and reported residual.
+ * @evidence contracts/development/implementation.md#principled-implementation Measures the actual convex patch minimum. Explicit witnesses keep a nonpenetration row, and planted patches without witnesses retain signed clearance beside endpoint height.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the floor constraint once and shares one measurement between the nonlinear residual and its linearization.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses admitted carrier geometry and endpoint goals directly; invalid options or missing geometry are rejected.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Reuses the same bounded articulation solve and calculates patch clearance once per row evaluation.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Measures and solves the current chain using invocation-local state.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows transforms and geometry for the current solve and acquires no resource requiring disposal.
  */
 export function solvePhysicalFloorChainTarget(
   input: IAutoMovieSolvePhysicalFloorChainTarget.IInput,
@@ -43,6 +40,8 @@ export function solvePhysicalFloorChainTarget(
   if (
     (input.endpointHeight !== undefined &&
       !Number.isFinite(input.endpointHeight)) ||
+    (input.fitPatchMinimum !== undefined &&
+      typeof input.fitPatchMinimum !== "boolean") ||
     (input.endpointBone !== undefined &&
       !input.chain.includes(input.endpointBone)) ||
     (input.floorPoints !== undefined &&
@@ -59,6 +58,12 @@ export function solvePhysicalFloorChainTarget(
         )))
   )
     throw new Error("Invalid physical support-plane or endpoint witness");
+  const floorPoints: NonNullable<
+    IAutoMovieSolvePhysicalFloorChainTarget.IInput["floorPoints"]
+  > = input.floorPoints ?? [];
+  const floorLowerBound: boolean =
+    floorPoints.length > 0 ||
+    (input.endpointHeight !== undefined && input.fitPatchMinimum !== true);
   return solvePhysicalArticulationTargets({
     profile: input.profile,
     bones: input.chain,
@@ -71,13 +76,12 @@ export function solvePhysicalFloorChainTarget(
     ): ((
       probe: Readonly<Record<string, IAutoMovieRigidTransform>>,
     ) => number[]) => {
-      const residual: number[] = measure(poses);
-      const inequality: boolean =
-        input.endpointHeight !== undefined || !!input.floorPoints?.length;
-      const active: boolean = inequality && residual.at(-1)! < 0;
+      const active: boolean | undefined = floorLowerBound
+        ? measure(poses).at(-1)! < 0
+        : undefined;
       return (
         probe: Readonly<Record<string, IAutoMovieRigidTransform>>,
-      ): number[] => measure(probe, inequality ? active : undefined);
+      ): number[] => measure(probe, active);
     },
   });
 
@@ -108,34 +112,23 @@ export function solvePhysicalFloorChainTarget(
     if (!heights.length) throw new Error("Empty physical floor-chain patch");
     const clearance: number = Math.min(...heights) - input.floor;
     const floor: number =
-      activeFloor === undefined
-        ? Math.min(0, clearance)
-        : activeFloor
-          ? clearance
-          : 0;
+      !floorLowerBound || activeFloor === true
+        ? clearance
+        : activeFloor === false
+          ? 0
+          : Math.min(0, clearance);
+    const rows: number[] = [
+      endpoint.x - input.goal.x,
+      endpoint.z - input.goal.z,
+    ];
     if (input.endpointHeight !== undefined)
-      return [
-        endpoint.x - input.goal.x,
-        endpoint.z - input.goal.z,
-        endpoint.y - input.endpointHeight,
-        ...(input.floorPoints ?? []).map(
-          (point: { bone: string; localPoint: IAutoMovieVector3 }): number =>
-            physicalSupportPoint(poses[point.bone]!, point.localPoint).y -
-            input.floor,
-        ),
-        floor,
-      ];
-    if (input.floorPoints?.length)
-      return [
-        endpoint.x - input.goal.x,
-        endpoint.z - input.goal.z,
-        ...input.floorPoints.map(
-          (point: { bone: string; localPoint: IAutoMovieVector3 }): number =>
-            physicalSupportPoint(poses[point.bone]!, point.localPoint).y -
-            input.floor,
-        ),
-        floor,
-      ];
-    return [endpoint.x - input.goal.x, endpoint.z - input.goal.z, clearance];
+      rows.push(endpoint.y - input.endpointHeight);
+    for (const point of floorPoints)
+      rows.push(
+        physicalSupportPoint(poses[point.bone]!, point.localPoint).y -
+          input.floor,
+      );
+    rows.push(floor);
+    return rows;
   }
 }

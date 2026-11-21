@@ -13,6 +13,7 @@ export type { IAutoMovieHumanBindingPlane } from "./IAutoMovieHumanBindingPlane"
 export type { IAutoMovieHumanBonePlacement } from "./IAutoMovieHumanBonePlacement";
 export type { IAutoMovieHumanCanonicalBody } from "./IAutoMovieHumanCanonicalBody";
 export type { IAutoMovieHumanCanonicalSolids } from "./IAutoMovieHumanCanonicalSolids";
+export type { IAutoMovieFitHumanPhysicalStandingPose } from "./IAutoMovieFitHumanPhysicalStandingPose";
 export type { IAutoMovieHumanChainRings } from "./IAutoMovieHumanChainRings";
 export type { IAutoMovieHumanCrotchBinding } from "./IAutoMovieHumanCrotchBinding";
 export type { IAutoMovieHumanJointCentres } from "./IAutoMovieHumanJointCentres";

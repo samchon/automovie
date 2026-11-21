@@ -9,17 +9,33 @@ import { PhysicalFixtures } from "./PhysicalFixtures";
 
 /** Explicit support and actuator declarations for actual Human and four-support recovery cases. */
 export namespace PhysicalSupportFixtures {
+  /** Use the two foot endpoints and their toe colliders on the canonical polygon body. */
+  export function canonical(
+    profile: P,
+    duration: number,
+  ): IAutoMoviePhysicalSimulationInput.IBody {
+    return body(profile, duration, {
+      leftFoot: ["leftFoot", "leftToes"],
+      rightFoot: ["rightFoot", "rightToes"],
+    });
+  }
+
   /** Set the same bounded support policy used by the measured complete native episodes. */
   export function body(
     profile: P,
     duration: number,
+    declared?: Readonly<Record<string, readonly string[]>>,
   ): IAutoMoviePhysicalSimulationInput.IBody {
     const endpoints: IAutoMoviePhysicalSegment[] = profile.segments.filter(
       (segment: (typeof profile.segments)[number]): boolean =>
-        profile.id === "human"
-          ? segment.bone.endsWith("Midfoot")
-          : segment.bone.startsWith("support-"),
+        declared
+          ? Object.hasOwn(declared, segment.bone)
+          : profile.id === "human"
+            ? segment.bone.endsWith("Midfoot")
+            : segment.bone.startsWith("support-"),
     );
+    if (declared && endpoints.length !== Object.keys(declared).length)
+      throw new Error("Missing declared physical support endpoint");
     const pattern: IAutoMovieFootfallPattern = {
       id: "declared-supports",
       minimumSupports: 1,
@@ -50,9 +66,11 @@ export namespace PhysicalSupportFixtures {
             )?.parent;
           }
           const contacts: string[] =
-            profile.id === "human"
-              ? [segment.bone, segment.bone.replace("Midfoot", "Subtalar")]
-              : [segment.bone];
+            declared?.[segment.bone] !== undefined
+              ? [...declared[segment.bone]!]
+              : profile.id === "human"
+                ? [segment.bone, segment.bone.replace("Midfoot", "Subtalar")]
+                : [segment.bone];
           return {
             bone: segment.bone,
             contacts,
