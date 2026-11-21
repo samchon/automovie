@@ -48,3 +48,4 @@ export * from "./createPuck";
 export * from "./createSphericalBall";
 export * from "./createTennisNet";
 export * from "./createVolleyballNet";
+export * from "./createThrowingCircle";

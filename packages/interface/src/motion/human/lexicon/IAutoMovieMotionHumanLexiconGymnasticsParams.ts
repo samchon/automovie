@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanFieldThrow } from "../sport/IAutoMovieMotionHumanFieldThrow";
 import type { IAutoMovieMotionHumanHandspring } from "../sport/IAutoMovieMotionHumanHandspring";
 import type { IAutoMovieMotionHumanHighJump } from "../sport/IAutoMovieMotionHumanHighJump";
 import type { IAutoMovieMotionHumanHorizontalJump } from "../sport/IAutoMovieMotionHumanHorizontalJump";
@@ -44,4 +45,7 @@ export interface IAutoMovieMotionHumanLexiconGymnasticsParams {
 
   /** A hurdle cleared out of a run, landing on the lead foot for the run to take the stride on. */
   hurdleClear: IAutoMovieMotionHumanHurdleClear.IParams;
+
+  /** A shot, discus or hammer thrown from a circle, or a javelin thrown out of a run, to the distance the composition gives. */
+  fieldThrow: IAutoMovieMotionHumanFieldThrow.IParams;
 }

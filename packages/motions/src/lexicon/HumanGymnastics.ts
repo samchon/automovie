@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanActionRow } from "../law/HumanActionRow";
+import { fieldThrow as fieldThrowLaw } from "../sport/fieldThrow";
 import { handspring } from "../sport/handspring";
 import { highJump } from "../sport/highJump";
 import { horizontalJump } from "../sport/horizontalJump";
@@ -81,4 +82,9 @@ export namespace HumanGymnastics {
   export const hurdleClear: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["hurdleClear"]
   > = HumanActionRow.of("hurdleClear", hurdleClearLaw, {});
+
+  /** A shot, discus or hammer thrown from a circle, or a javelin thrown out of a run, to the distance the composition gives. */
+  export const fieldThrow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["fieldThrow"]
+  > = HumanActionRow.of("fieldThrow", fieldThrowLaw, {});
 }

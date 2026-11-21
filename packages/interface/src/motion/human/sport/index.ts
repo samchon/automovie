@@ -27,3 +27,4 @@ export type { IAutoMovieMotionHumanSwimImmersed } from "./IAutoMovieMotionHumanS
 export type { IAutoMovieMotionHumanSwimStroke } from "./IAutoMovieMotionHumanSwimStroke";
 export type { IAutoMovieMotionHumanVault } from "./IAutoMovieMotionHumanVault";
 export type * from "./kickboxing";
+export type { IAutoMovieMotionHumanFieldThrow } from "./IAutoMovieMotionHumanFieldThrow";
