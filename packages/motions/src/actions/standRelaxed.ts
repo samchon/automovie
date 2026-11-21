@@ -1,5 +1,7 @@
 import {
+  Quaternion,
   ROM_TOLERANCE,
+  Vector3,
   getConstraint,
   isPhysicalProfilePairExcluded,
   physicalShapePairDistance,
@@ -13,6 +15,7 @@ import type {
   IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
@@ -44,7 +47,7 @@ import { stand } from "./stand";
  * @evidence contracts/development/implementation.md#principled-implementation Bisects the abduction range on the arm hulls' and digit capsules' signed penetration of the rest of the body in the quiet stance, skipping the profile's declared pivot overlaps. It assumes that swinging the hanging arm outward clears both; the model's shoulder range is the bracket.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Shape, signed-depth predicate, range bracket, bisection, cached answer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the existing hand shape, shoulder range, quiet stance, digit depth and angle resolution; no body-specific angle is chosen.
- * @evidence contracts/development/implementation.md#efficient-algorithms For a rigid hanging arm, each abduction resolves the two shoulder frames and tests the fixed phalanges against relative collider frames. Unsupported or contact-boundary cases perform the original carried-bone FK and physical distance checks.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For a rigid hanging arm, each abduction resolves the two shoulder frames only: the arm hulls placed for the first candidate turn rigidly with them, and the fixed phalanges are tested against relative collider frames. Unsupported or contact-boundary digit cases perform the original carried-bone FK and physical distance checks.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A candidate's pose is the first one's with the two upper-arm records clamped anew: assembly clamps each direct joint on its own, the stance's leg fits read no arm and it asks no arm or digit goal, so nothing else of the resolve depends on the abduction. The colliders of bones no upper arm carries are the same in every candidate. The weak body cache owns only the final relaxed record.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local FK reader, bounded ROM metadata projector and one fixed authored two-foot stance end with this synchronous search and never enter HUNG; hand-angle tuples retained by the final relaxed record keep its weak body ownership, and solved candidates do not escape.
  */
@@ -93,7 +96,12 @@ export function standRelaxed(
   const clampJoint: ReturnType<typeof prepareHumanPostureProjection.joints> =
     prepareHumanPostureProjection.joints(body, projection);
   let first:
-    | { pose: IAutoMoviePose; still: readonly IAutoMovieMotionHumanColliders.IPlaced[] }
+    | {
+        pose: IAutoMoviePose;
+        still: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+        carried: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+        shoulders: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+      }
     | undefined;
   let carried: ReadonlySet<AutoMovieHumanoidBone> | undefined;
   let clearance: ReturnType<typeof HumanDigitFit.hanging>;
@@ -138,16 +146,33 @@ export function standRelaxed(
               : j,
         ),
       };
-      const moved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, turned, prepared(), carried);
-      const arms: IAutoMovieMotionHumanColliders.IPlaced[] =
-        placeCarried(moved);
-      if (armSinks(body, [...first.still, ...arms])) return true;
+      // Below the upper arm every angle is fixed, so each carried collider
+      // turns rigidly with its shoulder frame: two shoulder frames place them.
+      const frames: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, turned, prepared(), shoulders);
+      if (armSinks(body, [...first.still, ...first.carried.map(
+        (placed: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced => {
+          const shoulder: AutoMovieHumanoidBone = placed.bone.startsWith("left") ? "leftUpperArm" : "rightUpperArm";
+          const from: IAutoMovieResolvedBone = first!.shoulders.get(shoulder)!;
+          const to: IAutoMovieResolvedBone = frames.get(shoulder)!;
+          const turn: IAutoMovieQuaternion = Quaternion.multiply(to.worldRotation, Quaternion.inverse(from.worldRotation));
+          return {
+            ...placed,
+            pose: {
+              position: Vector3.add(to.worldPosition, Quaternion.rotateVector(turn, Vector3.subtract(placed.pose.position, from.worldPosition))),
+              rotation: Quaternion.multiply(turn, placed.pose.rotation),
+            },
+          };
+        },
+      )]))
+        return true;
       if (clearance !== undefined) {
-        const status: boolean | undefined = clearance(poseBones(body, turned, prepared(), shoulders));
+        const status: boolean | undefined = clearance(frames);
         if (status !== undefined) return status;
       }
-      return HumanDigitFit.penetrates(body, moved, [...first.still, ...arms]);
+      const moved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, turned, prepared(), carried);
+      return HumanDigitFit.penetrates(body, moved, [...first.still, ...placeCarried(moved)]);
     }
     const joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -187,8 +212,14 @@ export function standRelaxed(
       first = {
         pose: shaped,
         still: HumanColliders.preparePlaced(body, fixed)(bones),
+        carried: placeCarried(bones),
+        shoulders: new Map(
+          [...shoulders].map(
+            (bone: AutoMovieHumanoidBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [bone, bones.get(bone)!],
+          ),
+        ),
       };
-      const placed: IAutoMovieMotionHumanColliders.IPlaced[] = [...first.still, ...placeCarried(bones)];
+      const placed: IAutoMovieMotionHumanColliders.IPlaced[] = [...first.still, ...first.carried];
       clearance = HumanDigitFit.hanging(body, bones, placed, below(body, ["leftUpperArm"]), below(body, ["rightUpperArm"]));
       return (
         armSinks(body, placed) || HumanDigitFit.penetrates(body, bones, placed)

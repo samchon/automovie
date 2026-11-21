@@ -54,8 +54,8 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  * the ankle or shin endpoint while the planner holds it planted. The joint
  * error and torque-cap forecasts are simulation tolerances on native joints.
  * Both bodies run with the gravity, floor, substeps and iterations of the
- * quiet-stance qualification. Human push recovery belongs to the #3092
- * recovery matrix.
+ * quiet-stance qualification. Human push recovery belongs to the external
+ * force recovery matrix of #4017.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation.compute` on the maintained slow-walk fixture for the stickman and for the canonical Human from its fitted public Stand, reads displayed cache frames, `trackingAt` joint errors and saturation forecasts, and repeats the stickman run with two explicit impulses against the unperturbed cache.
  * @evidence contracts/development/testing.md#independent-expectations Pose bounds are the stickman's declared 0.04 m limb radius and the Human's drawn ankle girth from `AutoMovieHumanCanonicalBody.prepare`; the slip bound is one percent of the fixture's 0.35 m stride; the joint bound is the two degrees of test_physical_human_profile; saturation is read against each joint's declared torque cap. Proportional response compares two impulses differing by a factor of two; recovery compares against the same run without the push.

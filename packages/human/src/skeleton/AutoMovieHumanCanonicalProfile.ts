@@ -59,10 +59,19 @@ import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonic
  * placeholders kinematic motion never reads: 50 N m per downstream kilogram.
  * Self-contact is excluded between joint neighbours, among the palm and
  * digits of one hand, between the abdomen and each upper arm and between the
- * two thighs. The shoulder lies inside the chest's girth, so a hanging arm's
- * root crosses the ring the chest shares with the abdomen; the hip joints sit
- * closer together than a thigh's root is wide, so the two roots cross the
- * midline. Neither overlap leaves as the limb abducts.
+ * two thighs. The last two are body pairs that overlap in the reference pose:
+ * the shoulder lies inside the chest's girth, so a hanging arm's root runs
+ * about 47 mm into the ring the chest shares with the abdomen, and the hip
+ * joints sit closer together than a thigh's root is wide, so the two roots
+ * cross the midline by 12 to 17 mm. Neither overlap leaves within a natural
+ * arm or leg abduction, and left live, the solver ejects those limbs on the
+ * first substep and splays the planted feet. Disabling collision for pairs
+ * that overlap in the reference pose is the standard practice (Unreal
+ * Engine's Physics Asset collision-disable table; MuJoCo's `<contact>
+ * <exclude>` pairs). The known limitation: an upper arm passes through the
+ * abdomen and a thigh through the other thigh, as in crossed legs or a
+ * clinch, while every other pair, such as the shins with each other and the
+ * forearms with the abdomen, still collides.
  */
 export namespace AutoMovieHumanCanonicalProfile {
   /**
