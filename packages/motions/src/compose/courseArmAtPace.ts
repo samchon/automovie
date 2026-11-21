@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "./courseArmGoal";
 
 /** Samples a second the goal's path is read at: well above the film rate, so a stroke's peak is not stepped over. */
 const RATE: number = 240;

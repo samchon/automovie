@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -27,6 +28,7 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { courseArmAtPace } from "../compose/courseArmAtPace";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -36,7 +38,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGlove } from "./HumanGlove";
 import { catchObjectApproach } from "./catchObjectApproach";
 import { catchObjectFingers } from "./catchObjectFingers";
-import { courseArmAtPace } from "./courseArmAtPace";
 
 /**
  * Catching an object thrown by another action: the hands meet it where its
@@ -403,6 +404,20 @@ export namespace catchObject {
 
     const base: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, duration);
+    // The arm before the catch: the carrier's own at the overlay's start,
+    // its goal for this arm stripped, or the entry's when nothing carries.
+    const before: (
+      side: AutoMovieHumanSide,
+    ) => IAutoMovieMotionHumanEntryState["pose"] = (
+      side: AutoMovieHumanSide,
+    ): IAutoMovieMotionHumanEntryState["pose"] => {
+      const carried: IAutoMovieMotionHumanPosture | undefined =
+        context.carrier?.posture(0);
+      if (carried === undefined) return context.entry.pose;
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...carried.limbs };
+      delete limbs[side === "left" ? "leftArm" : "rightArm"];
+      return resolveHumanPosture(body, { ...carried, limbs });
+    };
     // Each catching arm is one admitted course over where its goal is
     // written, from the reach through the contact, the give and the carry,
     // at the law's own pace, never refitted per second.
@@ -415,7 +430,7 @@ export namespace catchObject {
           body,
           plan,
           side,
-          AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+          AutoMovieMotionHumanArm.angles(before(side), side),
           { start: reach, ready: contact, relax: duration, end: duration },
         ),
       composeAutoMovieMotionHumanAction({
