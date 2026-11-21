@@ -88,8 +88,10 @@ export namespace createStageQuiver {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "diameter" | "length" | "mass";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "belt" | "socket" | "strap" | `slot${number}`;
+  /**
+   * The createHolster contact set its shared construction types. This producer builds belt, slot1, slot10, slot11, slot12, slot2, slot3, slot4, slot5, slot6, slot7, slot8, slot9, socket, strap.
+   */
+  export type Affordance = createHolster.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<

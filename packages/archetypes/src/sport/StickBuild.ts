@@ -187,6 +187,9 @@ export namespace StickBuild {
     return { builder, d };
   }
 
+  /** The values {@link contacts} accepts at this place in its signature. */
+  export type ContactsSymmetry = "half" | "round";
+
   /**
    * Declare the two-hand grip and a named playing face from the constructed stick dimensions.
    *
@@ -212,7 +215,7 @@ export namespace StickBuild {
     head: number,
     face: IAutoMovieVector3,
     faceWidth: number,
-    symmetry: "half" | "round",
+    symmetry: ContactsSymmetry,
     aperture?: number,
   ): void {
     builder.affordance({

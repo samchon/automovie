@@ -330,6 +330,9 @@ export namespace LongImplementDraw {
     return { builder, d };
   }
 
+  /** The contact ids {@link groundTool} builds or reads. */
+  export type GroundToolContact = "face" | "shaft" | "grip";
+
   /**
    * Build the head and two-hand shaft of a ground-contact implement.
    *
@@ -346,7 +349,7 @@ export namespace LongImplementDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
    */
   export function groundTool(
-    builder: ArchetypeBuilder<"face" | "shaft" | "grip", Dimension>,
+    builder: ArchetypeBuilder<GroundToolContact, Dimension>,
     head: {
       width: number;
       height: number;

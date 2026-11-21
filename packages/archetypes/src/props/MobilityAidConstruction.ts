@@ -97,6 +97,9 @@ function tip(builder: {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace MobilityAidConstruction {
+  /** The contact ids {@link cane} builds or reads. */
+  export type CaneContact = "grip" | "tip";
+
   /**
    * Build an offset cane with a floor tip and a handle across its shaft.
    *
@@ -111,10 +114,9 @@ export namespace MobilityAidConstruction {
   export function cane(
     params: Omit<createMobilityAid.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"grip" | "tip", createMobilityAid.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<"grip" | "tip">> = draw<
-      "grip" | "tip"
-    >("cane", params, seed);
+  ): Archetype<CaneContact, createMobilityAid.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<CaneContact>> =
+      draw<CaneContact>("cane", params, seed);
     const height: number = d.height!;
     const r: number = d.diameter! / 2;
     const handle: number = createMobilityAid.HANDLE;
@@ -141,6 +143,9 @@ export namespace MobilityAidConstruction {
     return builder.build(d.mass!);
   }
 
+  /** The contact ids {@link walker} builds or reads. */
+  export type WalkerContact = "leftGrip" | "rightGrip" | "tip";
+
   /**
    * Build a walking frame with paired side rail grips and a central floor tip.
    *
@@ -155,13 +160,9 @@ export namespace MobilityAidConstruction {
   export function walker(
     params: Omit<createMobilityAid.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"leftGrip" | "rightGrip" | "tip", createMobilityAid.Dimension> {
-    const {
-      builder,
-      d,
-    }: ReturnType<typeof draw<"leftGrip" | "rightGrip" | "tip">> = draw<
-      "leftGrip" | "rightGrip" | "tip"
-    >("walker", params, seed);
+  ): Archetype<WalkerContact, createMobilityAid.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<WalkerContact>> =
+      draw<WalkerContact>("walker", params, seed);
     const height: number = d.height!;
     const r: number = d.diameter! / 2;
     // Four legs, a rail along each side and a bar across the front, all at the handle height.
@@ -201,6 +202,9 @@ export namespace MobilityAidConstruction {
     return builder.build(d.mass!);
   }
 
+  /** The contact ids {@link infusionStand} builds or reads. */
+  export type InfusionStandContact = "grip" | "tip" | "hook";
+
   /**
    * Build a wheeled stand with a shaft grip, floor tip and bag hook.
    *
@@ -215,9 +219,9 @@ export namespace MobilityAidConstruction {
   export function infusionStand(
     params: Omit<createMobilityAid.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"grip" | "tip" | "hook", createMobilityAid.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<"grip" | "tip" | "hook">> =
-      draw<"grip" | "tip" | "hook">("infusionStand", params, seed);
+  ): Archetype<InfusionStandContact, createMobilityAid.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<InfusionStandContact>> =
+      draw<InfusionStandContact>("infusionStand", params, seed);
     const height: number = d.height!;
     const r: number = d.diameter! / 2;
     // Five legs on castors, the outer tube up from the hub, the inner tube on to the height.

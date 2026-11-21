@@ -81,8 +81,10 @@ export namespace createStageBladeCarrier {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "length" | "mass" | "thickness" | "width";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "belt" | "mouth";
+  /**
+   * The createHolster contact set its shared construction types. This producer builds belt, mouth.
+   */
+  export type Affordance = createHolster.Affordance;
 
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["scabbard", "sheath"] as const;

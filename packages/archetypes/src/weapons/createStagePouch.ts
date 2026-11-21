@@ -52,8 +52,10 @@ export namespace createStagePouch {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "depth" | "length" | "mass" | "thickness" | "width";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "belt" | "lid" | "strap" | `slot${number}`;
+  /**
+   * The createHolster contact set its shared construction types. This producer builds belt, lid, slot1, slot10, slot11, slot12, slot13, slot14, slot15, slot16, slot17, slot18, slot19, slot2, slot20, slot3, slot4, slot5, slot6, slot7, slot8, slot9, strap.
+   */
+  export type Affordance = createHolster.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<

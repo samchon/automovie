@@ -48,15 +48,10 @@ export namespace createRickshaw {
     | "wheelDiameter"
     | "width";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance =
-    | "coupling"
-    | "footboard"
-    | "leftShaft"
-    | "leftSpin"
-    | "rightShaft"
-    | "rightSpin"
-    | "seat";
+  /**
+   * The createCart contact set its shared construction types. This producer builds coupling, footboard, leftShaft, leftSpin, rightShaft, rightSpin, seat.
+   */
+  export type Affordance = createCart.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<

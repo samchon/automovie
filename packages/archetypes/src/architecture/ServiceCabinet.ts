@@ -162,6 +162,12 @@ export namespace ServiceCabinet {
     return { builder, width, height, depth, mass: d.mass! };
   }
 
+  /** The contact ids {@link faces} builds or reads. */
+  export type FacesContact = "front" | "side";
+
+  /** The values {@link faces} accepts at this place in its signature. */
+  export type FacesChoice = "width" | "height" | "depth";
+
   /**
    * Put the stand and push contacts on the cabinet's front and right side.
    *
@@ -176,8 +182,8 @@ export namespace ServiceCabinet {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Adds only the two faces to the given builder.
    */
   export function faces(
-    cabinet: Pick<ICabinet<"front" | "side">, "width" | "height" | "depth"> & {
-      builder: FixtureDraw.IContactWriter<"front" | "side">;
+    cabinet: Pick<ICabinet<FacesContact>, FacesChoice> & {
+      builder: FixtureDraw.IContactWriter<FacesContact>;
     },
   ): void {
     const { builder, width, height, depth }: typeof cabinet = cabinet;

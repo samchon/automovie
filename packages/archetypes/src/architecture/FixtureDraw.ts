@@ -134,6 +134,9 @@ export namespace FixtureDraw {
     massPerMetre: "kg",
   };
 
+  /** The values {@link installed} accepts at this place in its signature. */
+  export type InstalledFamily = "appliance" | "sanitary";
+
   /**
    * Draw the measured bands and build one composite appliance or plumbing fixture.
    *
@@ -157,7 +160,7 @@ export namespace FixtureDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains only the built fixture's records.
    */
   export function installed<Id extends string, D extends string>(
-    family: "appliance" | "sanitary",
+    family: InstalledFamily,
     name: string,
     units: Readonly<Record<D, ArchetypeDrawSession.Unit>>,
     bands: Readonly<Partial<Record<D, IArchetypeBand>>>,

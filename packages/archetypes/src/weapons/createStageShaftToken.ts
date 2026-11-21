@@ -105,8 +105,10 @@ export namespace createStageShaftToken {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "diameter" | "head" | "headWidth" | "length" | "mass";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "nock" | "shaft" | "tip";
+  /**
+   * The createProjectile contact set its shared construction types. This producer builds nock, shaft, tip.
+   */
+  export type Affordance = createProjectile.Affordance;
 
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["arrow", "bolt"] as const;

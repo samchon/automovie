@@ -224,6 +224,9 @@ export namespace HandToolDraw {
     return { builder, d };
   }
 
+  /** The contact ids {@link handle} builds or reads. */
+  export type HandleContact = "grip" | "face";
+
   /**
    * Add a straight grip to a one-hand tool standing along +Y.
    *
@@ -241,7 +244,7 @@ export namespace HandToolDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
    */
   export function handle(
-    builder: ArchetypeBuilder<"grip" | "face", Dimension>,
+    builder: ArchetypeBuilder<HandleContact, Dimension>,
     length: number,
     radius: number,
     options: {

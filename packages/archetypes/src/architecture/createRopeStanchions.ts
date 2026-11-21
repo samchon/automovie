@@ -2,7 +2,6 @@ import { Vector3 } from "@automovie/engine";
 
 import { type Archetype, ArchetypeFrame } from "../core";
 import { ObstacleDraw } from "./ObstacleDraw";
-import type { createObstacle } from "./createObstacle";
 
 /**
  * Two freestanding stanchions with grip frames on their shafts and the rope between them.

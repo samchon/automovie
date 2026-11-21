@@ -45,14 +45,10 @@ export namespace createLimber {
     | "track"
     | "wheelDiameter";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance =
-    | "chest"
-    | "coupling"
-    | "leftSpin"
-    | "pintle"
-    | "rightSpin"
-    | "seat";
+  /**
+   * The createCart contact set its shared construction types. This producer builds chest, coupling, leftSpin, pintle, rightSpin, seat.
+   */
+  export type Affordance = createCart.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<

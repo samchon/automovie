@@ -48,13 +48,10 @@ export namespace createChariot {
     | "wheelDiameter"
     | "withersHeight";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance =
-    | "coupling"
-    | "floor"
-    | "leftSpin"
-    | "rightSpin"
-    | "rim";
+  /**
+   * The createCart contact set its shared construction types. This producer builds coupling, floor, leftSpin, rightSpin, rim.
+   */
+  export type Affordance = createCart.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<

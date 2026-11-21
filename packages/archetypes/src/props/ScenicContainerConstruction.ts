@@ -44,8 +44,11 @@ type ShapeWriter<Id extends createScenicContainer.Affordance> = {
   ) => void;
 };
 
+/** The values {@link draw} accepts at this place in its signature. */
+type DrawChoice = createScenicContainer.Affordance | "mount";
+
 /** Draw the four dimensions for the selected shape before building its solids. */
-function draw<Id extends createScenicContainer.Affordance | "mount">(
+function draw<Id extends DrawChoice>(
   kind: createScenicContainer.Kind,
   params: Omit<createScenicContainer.IParams, "kind">,
   seed?: number | string,
@@ -101,9 +104,12 @@ function surface<Id extends createScenicContainer.Affordance>(
   });
 }
 
+/** The values {@link coilBasket} accepts at this place in its signature. */
+type CoilBasketChoice = "convex" | "affordance";
+
 /** Fixed stacked sections suggest a coiled body and fitted lid in the guide render. */
 function coilBasket(
-  builder: Pick<ShapeWriter<"top">, "convex" | "affordance">,
+  builder: Pick<ShapeWriter<"top">, CoilBasketChoice>,
   width: number,
   depth: number,
   height: number,
@@ -143,9 +149,12 @@ function coilBasket(
   );
 }
 
+/** The values {@link fishBasket} accepts at this place in its signature. */
+type FishBasketChoice = "convex" | "box" | "affordance";
+
 /** Willow-colored panels widen toward the rim while leaving the open interior clear. */
 function fishBasket(
-  builder: Pick<ShapeWriter<"inside">, "convex" | "box" | "affordance">,
+  builder: Pick<ShapeWriter<"inside">, FishBasketChoice>,
   width: number,
   depth: number,
   height: number,
@@ -203,9 +212,12 @@ function fishBasket(
   );
 }
 
+/** The values {@link coffer} accepts at this place in its signature. */
+type CofferChoice = "box" | "affordance";
+
 /** An overhanging plank lid and three differently toned planks define the closed wooden chest. */
 function coffer(
-  builder: Pick<ShapeWriter<"top">, "box" | "affordance">,
+  builder: Pick<ShapeWriter<"top">, CofferChoice>,
   width: number,
   depth: number,
   height: number,
@@ -225,9 +237,12 @@ function coffer(
   surface(builder, "top", height, width, depth);
 }
 
+/** The values {@link crate} accepts at this place in its signature. */
+type CrateChoice = "box" | "affordance";
+
 /** An uninterrupted floor and ribbed open walls represent a molded dairy crate. */
 function crate(
-  builder: Pick<ShapeWriter<"inside">, "box" | "affordance">,
+  builder: Pick<ShapeWriter<"inside">, CrateChoice>,
   width: number,
   depth: number,
   height: number,
@@ -277,9 +292,12 @@ function crate(
   surface(builder, "inside", floor, width - 2 * wall, insideDepth);
 }
 
+/** The values {@link pod} accepts at this place in its signature. */
+type PodChoice = "convex" | "affordance";
+
 /** A fictional faceted pod with a contrasting center shell and flat cap. */
 function pod(
-  builder: Pick<ShapeWriter<"top">, "convex" | "affordance">,
+  builder: Pick<ShapeWriter<"top">, PodChoice>,
   width: number,
   depth: number,
   height: number,
@@ -326,6 +344,12 @@ function pod(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace ScenicContainerConstruction {
+  /** The values {@link baskets} accepts at this place in its signature. */
+  export type BasketsKind = "coilBasket" | "woodenFishBasket";
+
+  /** The contact ids {@link baskets} builds or reads. */
+  export type BasketsContact = "top" | "inside";
+
   /**
    * Build a lidded coil basket or an open fish basket.
    *
@@ -338,12 +362,12 @@ export namespace ScenicContainerConstruction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function baskets(
-    kind: "coilBasket" | "woodenFishBasket",
+    kind: BasketsKind,
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"top" | "inside", createScenicContainer.Dimension> {
-    const { builder, dimensions }: ReturnType<typeof draw<"top" | "inside">> =
-      draw<"top" | "inside">(kind, params, seed);
+  ): Archetype<BasketsContact, createScenicContainer.Dimension> {
+    const { builder, dimensions }: ReturnType<typeof draw<BasketsContact>> =
+      draw<BasketsContact>(kind, params, seed);
     const {
       width,
       depth,
@@ -442,6 +466,9 @@ export namespace ScenicContainerConstruction {
     return builder.build(mass);
   }
 
+  /** The contact ids {@link mountedPod} builds or reads. */
+  export type MountedPodContact = "top" | "mount";
+
   /**
    * Build a cargo pod with both a stacking cap and a lower mounting socket.
    *
@@ -456,9 +483,9 @@ export namespace ScenicContainerConstruction {
   export function mountedPod(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"top" | "mount", createScenicContainer.Dimension> {
-    const { builder, dimensions }: ReturnType<typeof draw<"top" | "mount">> =
-      draw<"top" | "mount">("cargoPod", params, seed);
+  ): Archetype<MountedPodContact, createScenicContainer.Dimension> {
+    const { builder, dimensions }: ReturnType<typeof draw<MountedPodContact>> =
+      draw<MountedPodContact>("cargoPod", params, seed);
     const {
       width,
       depth,

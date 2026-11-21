@@ -65,6 +65,12 @@ function draw<Id extends createBed.Affordance>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace BedConstruction {
+  /** The values {@link platform} accepts at this place in its signature. */
+  export type PlatformKind = "single" | "double" | "mattress";
+
+  /** The contact ids {@link platform} builds or reads. */
+  export type PlatformContact = "surface" | "leftSide" | "rightSide";
+
   /**
    * Build a household bed or a mattress laid on the floor.
    *
@@ -77,16 +83,12 @@ export namespace BedConstruction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function platform(
-    kind: "single" | "double" | "mattress",
+    kind: PlatformKind,
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"surface" | "leftSide" | "rightSide", createBed.Dimension> {
-    const {
-      builder,
-      d,
-    }: ReturnType<typeof draw<"surface" | "leftSide" | "rightSide">> = draw<
-      "surface" | "leftSide" | "rightSide"
-    >(kind, params, seed);
+  ): Archetype<PlatformContact, createBed.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<PlatformContact>> =
+      draw<PlatformContact>(kind, params, seed);
     const width: number = d.width!;
     const length: number = d.length!;
     const thick: number = d.thickness!;
@@ -138,6 +140,14 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
+  /** The contact ids {@link hospital} builds or reads. */
+  export type HospitalContact =
+    | "surface"
+    | "leftSide"
+    | "rightSide"
+    | "leftRail"
+    | "rightRail";
+
   /**
    * Build a wheeled hospital bed with its patient surface, side seats, and siderails.
    *
@@ -152,25 +162,15 @@ export namespace BedConstruction {
   export function hospital(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<
-    "surface" | "leftSide" | "rightSide" | "leftRail" | "rightRail",
-    createBed.Dimension
-  > {
-    const {
-      builder,
-      d,
-    }: ReturnType<
-      typeof draw<
-        "surface" | "leftSide" | "rightSide" | "leftRail" | "rightRail"
-      >
-    > = draw<"surface" | "leftSide" | "rightSide" | "leftRail" | "rightRail">(
-      "hospital",
-      params,
-      seed,
-    );
+  ): Archetype<HospitalContact, createBed.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<HospitalContact>> =
+      draw<HospitalContact>("hospital", params, seed);
     CareBedConstruction.hospital(builder, d);
     return builder.build(d.mass!);
   }
+
+  /** The contact ids {@link gurney} builds or reads. */
+  export type GurneyContact = "surface" | "leftSide" | "rightSide";
 
   /**
    * Build a stretcher on casters with a supported patient surface.
@@ -186,16 +186,15 @@ export namespace BedConstruction {
   export function gurney(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"surface" | "leftSide" | "rightSide", createBed.Dimension> {
-    const {
-      builder,
-      d,
-    }: ReturnType<typeof draw<"surface" | "leftSide" | "rightSide">> = draw<
-      "surface" | "leftSide" | "rightSide"
-    >("gurney", params, seed);
+  ): Archetype<GurneyContact, createBed.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<GurneyContact>> =
+      draw<GurneyContact>("gurney", params, seed);
     CareBedConstruction.gurney(builder, d);
     return builder.build(d.mass!);
   }
+
+  /** The contact ids {@link crib} builds or reads. */
+  export type CribContact = "surface" | "leftRail" | "rightRail";
 
   /**
    * Build a crib with a mattress and graspable top rails.
@@ -211,16 +210,20 @@ export namespace BedConstruction {
   export function crib(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"surface" | "leftRail" | "rightRail", createBed.Dimension> {
-    const {
-      builder,
-      d,
-    }: ReturnType<typeof draw<"surface" | "leftRail" | "rightRail">> = draw<
-      "surface" | "leftRail" | "rightRail"
-    >("crib", params, seed);
+  ): Archetype<CribContact, createBed.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<CribContact>> =
+      draw<CribContact>("crib", params, seed);
     CareBedConstruction.crib(builder, d);
     return builder.build(d.mass!);
   }
+
+  /** The contact ids {@link bunk} builds or reads. */
+  export type BunkContact =
+    | "surface"
+    | "leftSide"
+    | "rightSide"
+    | "upper"
+    | "guard";
 
   /**
    * Build a bunk bed with two sleep surfaces and a graspable guard rail.
@@ -236,20 +239,9 @@ export namespace BedConstruction {
   export function bunk(
     params: Omit<createBed.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<
-    "surface" | "leftSide" | "rightSide" | "upper" | "guard",
-    createBed.Dimension
-  > {
-    const {
-      builder,
-      d,
-    }: ReturnType<
-      typeof draw<"surface" | "leftSide" | "rightSide" | "upper" | "guard">
-    > = draw<"surface" | "leftSide" | "rightSide" | "upper" | "guard">(
-      "bunk",
-      params,
-      seed,
-    );
+  ): Archetype<BunkContact, createBed.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<BunkContact>> =
+      draw<BunkContact>("bunk", params, seed);
     CareBedConstruction.bunk(builder, d);
     return builder.build(d.mass!, { rests: "wood" });
   }

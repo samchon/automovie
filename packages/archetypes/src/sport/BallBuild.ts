@@ -320,6 +320,9 @@ export namespace BallBuild {
     },
   };
 
+  /** The values {@link draw} accepts at this place in its signature. */
+  export type DrawMaterial = "composite" | "rubber";
+
   /**
    * Draw the selected shape profile in the original ball seed namespace.
    *
@@ -335,7 +338,7 @@ export namespace BallBuild {
     kind: createBall.Kind,
     params: Readonly<Omit<createBall.IParams, "kind">>,
     seed: number | string | undefined,
-    material: "composite" | "rubber",
+    material: DrawMaterial,
   ): {
     builder: ArchetypeBuilder<Id, createBall.Dimension>;
     d: Partial<Record<createBall.Dimension, number>>;

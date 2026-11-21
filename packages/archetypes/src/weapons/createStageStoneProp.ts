@@ -42,8 +42,10 @@ export namespace createStageStoneProp {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "diameter" | "gravity" | "mass";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "body";
+  /**
+   * The createProjectile contact set its shared construction types. This producer builds body.
+   */
+  export type Affordance = createProjectile.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<

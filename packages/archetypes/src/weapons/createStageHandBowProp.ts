@@ -169,14 +169,10 @@ export namespace createStageHandBowProp {
     | "mass"
     | "nockHeight";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance =
-    | "grip"
-    | "lowerLimb"
-    | "nock"
-    | "rest"
-    | "string"
-    | "upperLimb";
+  /**
+   * The createBow contact set its shared construction types. This producer builds grip, lowerLimb, nock, rest, string, upperLimb.
+   */
+  export type Affordance = createBow.Affordance;
 
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["longbow", "recurve", "horseBow"] as const;

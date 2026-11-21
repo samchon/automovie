@@ -49,16 +49,10 @@ export namespace createWagon {
     | "wheelbase"
     | "width";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance =
-    | "bed"
-    | "coupling"
-    | "drawbarPitch"
-    | "frontAxle"
-    | "frontLeftSpin"
-    | "frontRightSpin"
-    | "rearLeftSpin"
-    | "rearRightSpin";
+  /**
+   * The createCart contact set its shared construction types. This producer builds bed, coupling, drawbarPitch, frontAxle, frontLeftSpin, frontRightSpin, rearLeftSpin, rearRightSpin.
+   */
+  export type Affordance = createCart.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<

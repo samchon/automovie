@@ -64,8 +64,10 @@ export namespace createStageHolster {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "depth" | "mass" | "ride";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "belt" | "socket";
+  /**
+   * The createHolster contact set its shared construction types. This producer builds belt, socket.
+   */
+  export type Affordance = createHolster.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<

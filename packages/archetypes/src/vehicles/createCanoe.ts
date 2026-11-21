@@ -53,13 +53,10 @@ export namespace createCanoe {
     | "mass"
     | "seatHeight";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance =
-    | "bow"
-    | "floor"
-    | "gunwale"
-    | "stern"
-    | `thwart${number}`;
+  /**
+   * The createBoat contact set its shared construction types. This producer builds bow, floor, gunwale, stern, thwart0, thwart1.
+   */
+  export type Affordance = createBoat.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<

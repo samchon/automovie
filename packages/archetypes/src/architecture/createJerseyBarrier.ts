@@ -2,7 +2,6 @@ import { Vector3 } from "@automovie/engine";
 
 import { type Archetype, ArchetypeUnits } from "../core";
 import { ObstacleDraw } from "./ObstacleDraw";
-import type { createObstacle } from "./createObstacle";
 
 /**
  * A concrete road barrier with its base, upper face and front edge retained for crossing checks.

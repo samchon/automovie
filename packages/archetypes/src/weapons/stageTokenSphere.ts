@@ -4,6 +4,9 @@ import { ArchetypeFrame } from "../core";
 import type { StageTokenConstruction } from "./StageTokenConstruction";
 import { createProjectile } from "./createProjectile";
 
+/** The values {@link stageTokenSphere} accepts at this place in its signature. */
+type StageTokenSphereKind = "ball" | "roundShot" | "grenade" | "stone";
+
 /**
  * Record the round screen-prop body.
  *
@@ -27,7 +30,7 @@ import { createProjectile } from "./createProjectile";
 export function stageTokenSphere(
   builder: Parameters<StageTokenConstruction.Build>[0],
   d: Parameters<StageTokenConstruction.Build>[1],
-  kind: "ball" | "roundShot" | "grenade" | "stone",
+  kind: StageTokenSphereKind,
   model: createProjectile.Model | undefined,
 ): ReturnType<StageTokenConstruction.Build> {
   const v: typeof Vector3.create = Vector3.create;

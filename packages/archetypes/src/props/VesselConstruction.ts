@@ -17,13 +17,16 @@ type Builder<Id extends createVessel.Affordance> = ArchetypeBuilder<
 /** Create a model-space point in metres. */
 const v: typeof Vector3.create = Vector3.create;
 
+/** The values {@link draw} accepts at this place in its signature. */
+type DrawChoice = "inside" | "rim";
+
 /** Resolve recorded sizing, then lay out the shared open floor, walls and surfaces. */
 function draw<Id extends createVessel.Affordance>(
   kind: createVessel.Kind,
   params: Omit<createVessel.IParams, "kind">,
   seed?: number | string,
 ): {
-  builder: Builder<Id | "inside" | "rim">;
+  builder: Builder<Id | DrawChoice>;
   d: Record<createVessel.Dimension, number>;
 } {
   const session: ArchetypeDrawSession<createVessel.Dimension> =
@@ -53,7 +56,7 @@ function draw<Id extends createVessel.Affordance>(
     height: read.height!,
     mass: read.mass!,
   };
-  const builder: Builder<Id | "inside" | "rim"> = new ArchetypeBuilder({
+  const builder: Builder<Id | DrawChoice> = new ArchetypeBuilder({
     material:
       kind === "bowl"
         ? "ceramic"
@@ -110,12 +113,15 @@ function draw<Id extends createVessel.Affordance>(
   return { builder, d };
 }
 
+/** The values {@link dishGrip} accepts at this place in its signature. */
+type DishGripGrip = "two-hand" | "precision";
+
 /** Define a grip from below the bottom floor of a shallow vessel. */
 function dishGrip(
   builder: {
     affordance(contact: Parameters<Builder<"body">["affordance"]>[0]): void;
   },
-  grip: "two-hand" | "precision",
+  grip: DishGripGrip,
 ): void {
   const wall: number = createVessel.WALL;
   builder.affordance({
@@ -138,6 +144,9 @@ function dishGrip(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace VesselConstruction {
+  /** The contact ids {@link bowl} builds or reads. */
+  export type BowlContact = "rim" | "inside" | "body";
+
   /**
    * Build a bowl held from beneath with two hands.
    *
@@ -152,12 +161,15 @@ export namespace VesselConstruction {
   export function bowl(
     params: Omit<createVessel.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"rim" | "inside" | "body", createVessel.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<"rim" | "inside" | "body">> =
-      draw<"rim" | "inside" | "body">("bowl", params, seed);
+  ): Archetype<BowlContact, createVessel.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<BowlContact>> =
+      draw<BowlContact>("bowl", params, seed);
     dishGrip(builder, "two-hand");
     return builder.build(d.mass);
   }
+
+  /** The contact ids {@link ashtray} builds or reads. */
+  export type AshtrayContact = "rim" | "inside" | "body";
 
   /**
    * Build an ashtray grasped from below.
@@ -173,12 +185,15 @@ export namespace VesselConstruction {
   export function ashtray(
     params: Omit<createVessel.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"rim" | "inside" | "body", createVessel.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<"rim" | "inside" | "body">> =
-      draw<"rim" | "inside" | "body">("ashtray", params, seed);
+  ): Archetype<AshtrayContact, createVessel.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<AshtrayContact>> =
+      draw<AshtrayContact>("ashtray", params, seed);
     dishGrip(builder, "precision");
     return builder.build(d.mass);
   }
+
+  /** The contact ids {@link vase} builds or reads. */
+  export type VaseContact = "rim" | "inside" | "body";
 
   /**
    * Build a vase at the model origin with a grip around the middle.
@@ -194,9 +209,9 @@ export namespace VesselConstruction {
   export function vase(
     params: Omit<createVessel.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"rim" | "inside" | "body", createVessel.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<"rim" | "inside" | "body">> =
-      draw<"rim" | "inside" | "body">("vase", params, seed);
+  ): Archetype<VaseContact, createVessel.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<VaseContact>> =
+      draw<VaseContact>("vase", params, seed);
     builder.affordance({
       id: "body",
       kind: "handle",
@@ -213,6 +228,17 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 
+  /** The values {@link cookingPot} accepts at this place in its signature. */
+  export type CookingPotKind = "saucepan" | "stockpot";
+
+  /** The contact ids {@link cookingPot} builds or reads. */
+  export type CookingPotContact =
+    | "rim"
+    | "inside"
+    | "handle"
+    | "leftHandle"
+    | "rightHandle";
+
   /**
    * Build a cooking pot with its own grasp arrangement.
    *
@@ -225,23 +251,12 @@ export namespace VesselConstruction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function cookingPot(
-    kind: "saucepan" | "stockpot",
+    kind: CookingPotKind,
     params: Omit<createVessel.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<
-    "rim" | "inside" | "handle" | "leftHandle" | "rightHandle",
-    createVessel.Dimension
-  > {
-    const {
-      builder,
-      d,
-    }: ReturnType<
-      typeof draw<"rim" | "inside" | "handle" | "leftHandle" | "rightHandle">
-    > = draw<"rim" | "inside" | "handle" | "leftHandle" | "rightHandle">(
-      kind,
-      params,
-      seed,
-    );
+  ): Archetype<CookingPotContact, createVessel.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<CookingPotContact>> =
+      draw<CookingPotContact>(kind, params, seed);
     const r: number = d.diameter / 2;
     const grip: number = createVessel.GRIP;
     if (kind === "saucepan") {

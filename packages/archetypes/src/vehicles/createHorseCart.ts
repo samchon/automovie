@@ -58,19 +58,10 @@ export namespace createHorseCart {
     | "wheelDiameter"
     | "withersHeight";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance =
-    | "coupling"
-    | "footboard"
-    | "leftLine"
-    | "leftLineEnd"
-    | "leftLineGrip"
-    | "leftSpin"
-    | "rightLine"
-    | "rightLineEnd"
-    | "rightLineGrip"
-    | "rightSpin"
-    | "seat";
+  /**
+   * The createCart contact set its shared construction types. This producer builds coupling, footboard, leftLine, leftLineEnd, leftLineGrip, leftSpin, rightLine, rightLineEnd, rightLineGrip, rightSpin, seat.
+   */
+  export type Affordance = createCart.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<

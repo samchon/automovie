@@ -288,6 +288,9 @@ export namespace GroomingPropDraw {
     return { builder, d };
   }
 
+  /** The contact ids {@link addHead} builds or reads. */
+  export type AddHeadContact = "grip" | "face";
+
   /**
    * Add the handle and flat head of a grooming tool.
    *
@@ -304,7 +307,7 @@ export namespace GroomingPropDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
    */
   export function addHead(
-    builder: ArchetypeBuilder<"grip" | "face", Dimension>,
+    builder: ArchetypeBuilder<AddHeadContact, Dimension>,
     dimensions: { length: number; width: number; head: number; across: number },
     colors: { handle: string; head: string },
   ): void {

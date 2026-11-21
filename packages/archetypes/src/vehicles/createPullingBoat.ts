@@ -40,13 +40,10 @@ export namespace createPullingBoat {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "beam" | "depth" | "length" | "mass";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance =
-    | "bow"
-    | "floor"
-    | "gunwale"
-    | "stern"
-    | `thwart${number}`;
+  /**
+   * The createBoat contact set its shared construction types. This producer builds bow, floor, gunwale, stern, thwart0, thwart1, thwart2, thwart3, thwart4.
+   */
+  export type Affordance = createBoat.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<

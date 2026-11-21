@@ -2,7 +2,6 @@ import { Vector3 } from "@automovie/engine";
 
 import { type Archetype } from "../core";
 import { ServiceCabinet } from "./ServiceCabinet";
-import type { createMachine } from "./createMachine";
 
 /** A pay station's head on its body, metres: the StradaPAL's 90 mm spacer and its 475 x 226 x 379 mm top. */
 const HEAD: Readonly<{

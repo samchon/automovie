@@ -48,8 +48,10 @@ export namespace createStageRoundProp {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "diameter" | "mass";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "body";
+  /**
+   * The createProjectile contact set its shared construction types. This producer builds body.
+   */
+  export type Affordance = createProjectile.Affordance;
 
   /** The model identity and this form's catalogue choices. */
   export interface IParams extends Pick<createProjectile.IParams, "id"> {

@@ -47,8 +47,10 @@ export namespace createWheelbarrow {
     | "wheelDiameter"
     | "width";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "leftHandle" | "load" | "rightHandle";
+  /**
+   * The createCart contact set its shared construction types. This producer builds leftHandle, load, rightHandle.
+   */
+  export type Affordance = createCart.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<

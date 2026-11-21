@@ -66,6 +66,20 @@ function draw<Id extends createStorage.Affordance>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace StorageMechanisms {
+  /** The values {@link hinged} accepts at this place in its signature. */
+  export type HingedKind = "wardrobe" | "locker";
+
+  /** The values {@link hinged} accepts at this place in its signature. */
+  export type HingedChoice =
+    | "push"
+    | "top"
+    | `shelf${number}`
+    | "leftDoor"
+    | "rightDoor"
+    | "leftPull"
+    | "rightPull"
+    | "door";
+
   /**
    * Build a hinged wardrobe or locker with the matching supported travel.
    *
@@ -78,47 +92,25 @@ export namespace StorageMechanisms {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function hinged(
-    kind: "wardrobe" | "locker",
+    kind: HingedKind,
     params: Omit<createStorage.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<
-    | "push"
-    | "top"
-    | `shelf${number}`
-    | "leftDoor"
-    | "rightDoor"
-    | "leftPull"
-    | "rightPull"
-    | "door",
-    createStorage.Dimension
-  > {
-    const {
-      builder,
-      d,
-    }: ReturnType<
-      typeof draw<
-        | "push"
-        | "top"
-        | `shelf${number}`
-        | "leftDoor"
-        | "rightDoor"
-        | "leftPull"
-        | "rightPull"
-        | "door"
-      >
-    > = draw<
-      | "push"
-      | "top"
-      | `shelf${number}`
-      | "leftDoor"
-      | "rightDoor"
-      | "leftPull"
-      | "rightPull"
-      | "door"
-    >(kind, params, seed);
+  ): Archetype<HingedChoice, createStorage.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<HingedChoice>> =
+      draw<HingedChoice>(kind, params, seed);
     StorageConstruction[kind](builder, d);
     return builder.build(d.mass!, kind === "locker" ? { rests: "steel" } : {});
   }
+
+  /** The values {@link sliding} accepts at this place in its signature. */
+  export type SlidingKind = "chest" | "filingCabinet";
+
+  /** The contact ids {@link sliding} builds or reads. */
+  export type SlidingContact =
+    | "push"
+    | "top"
+    | `drawer${number}`
+    | `pull${number}`;
 
   /**
    * Build a unit with drawers and carried pull grips.
@@ -132,26 +124,18 @@ export namespace StorageMechanisms {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function sliding(
-    kind: "chest" | "filingCabinet",
+    kind: SlidingKind,
     params: Omit<createStorage.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<
-    "push" | "top" | `drawer${number}` | `pull${number}`,
-    createStorage.Dimension
-  > {
-    const {
-      builder,
-      d,
-    }: ReturnType<
-      typeof draw<"push" | "top" | `drawer${number}` | `pull${number}`>
-    > = draw<"push" | "top" | `drawer${number}` | `pull${number}`>(
-      kind,
-      params,
-      seed,
-    );
+  ): Archetype<SlidingContact, createStorage.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<SlidingContact>> =
+      draw<SlidingContact>(kind, params, seed);
     StorageConstruction.drawers(builder, d, StorageConstruction.DRAWERS[kind]);
     return builder.build(d.mass!);
   }
+
+  /** The contact ids {@link bookcase} builds or reads. */
+  export type BookcaseContact = "push" | "top" | `shelf${number}`;
 
   /**
    * Build a bookcase with open, visible shelf supports.
@@ -167,13 +151,9 @@ export namespace StorageMechanisms {
   export function bookcase(
     params: Omit<createStorage.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"push" | "top" | `shelf${number}`, createStorage.Dimension> {
-    const {
-      builder,
-      d,
-    }: ReturnType<typeof draw<"push" | "top" | `shelf${number}`>> = draw<
-      "push" | "top" | `shelf${number}`
-    >("bookcase", params, seed);
+  ): Archetype<BookcaseContact, createStorage.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<BookcaseContact>> =
+      draw<BookcaseContact>("bookcase", params, seed);
     StorageConstruction.bookcase(builder, d);
     return builder.build(d.mass!);
   }

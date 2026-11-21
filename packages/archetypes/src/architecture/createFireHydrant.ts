@@ -2,7 +2,6 @@ import { Vector3 } from "@automovie/engine";
 
 import { type Archetype, ArchetypeFrame, ArchetypeUnits } from "../core";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
-import type { createStreetFixture } from "./createStreetFixture";
 
 /** The Mueller hydrant's nozzle bores, metres: the 4 1/2 in pumper and the 2 1/2 in hose nozzles; its 1 1/2 in operating nut. */
 const HYDRANT: Readonly<{ pumper: number; hose: number; nut: number }> = {

@@ -2,7 +2,6 @@ import { Vector3 } from "@automovie/engine";
 
 import { type Archetype, ArchetypeFrame } from "../core";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
-import type { createStreetFixture } from "./createStreetFixture";
 
 /** The estimated thickness of the sign blank, metres. */
 const BLANK_THICKNESS: number = 0.003;

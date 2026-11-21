@@ -94,6 +94,9 @@ function draw<Id extends createTray.Affordance>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace TrayConstruction {
+  /** The contact ids {@link servingTray} builds or reads. */
+  export type ServingTrayContact = "inside" | "leftHandle" | "rightHandle";
+
   /**
    * Build a low serving tray with opposing end grips.
    *
@@ -108,13 +111,9 @@ export namespace TrayConstruction {
   export function servingTray(
     params: Omit<createTray.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"inside" | "leftHandle" | "rightHandle", createTray.Dimension> {
-    const {
-      builder,
-      d,
-    }: ReturnType<typeof draw<"inside" | "leftHandle" | "rightHandle">> = draw<
-      "inside" | "leftHandle" | "rightHandle"
-    >("tray", params, seed);
+  ): Archetype<ServingTrayContact, createTray.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<ServingTrayContact>> =
+      draw<ServingTrayContact>("tray", params, seed);
     const wall: number = createTray.WALL;
     const hx: number = d.width / 2;
     const up: number = (d.height + wall) / 2;
@@ -139,6 +138,9 @@ export namespace TrayConstruction {
     return builder.build(d.mass);
   }
 
+  /** The contact ids {@link basket} builds or reads. */
+  export type BasketContact = "inside" | "handle";
+
   /**
    * Build a deep carry basket with an overhead grip.
    *
@@ -153,10 +155,9 @@ export namespace TrayConstruction {
   export function basket(
     params: Omit<createTray.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"inside" | "handle", createTray.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<"inside" | "handle">> = draw<
-      "inside" | "handle"
-    >("basket", params, seed);
+  ): Archetype<BasketContact, createTray.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<BasketContact>> =
+      draw<BasketContact>("basket", params, seed);
     const wall: number = createTray.WALL;
     const hz: number = d.depth / 2;
     const grip: number = createTray.GRIP;

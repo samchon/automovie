@@ -319,6 +319,9 @@ export namespace HandheldDevice {
     );
   }
 
+  /** The contact ids {@link smallGrips} builds or reads. */
+  export type SmallGripsContact = "grip" | "pinch";
+
   /**
    * Constructs the two grasps of a shallow case.
    *
@@ -334,7 +337,7 @@ export namespace HandheldDevice {
     width: number,
     height: number,
     depth: number,
-  ): (IAutoMovieAffordance & { id: "grip" | "pinch" })[] {
+  ): (IAutoMovieAffordance & { id: SmallGripsContact })[] {
     return [
       {
         id: "grip",
@@ -367,6 +370,12 @@ export namespace HandheldDevice {
     ];
   }
 
+  /** The values {@link fullFace} accepts at this place in its signature. */
+  export type FullFaceChoice = "screen" | "speaker";
+
+  /** The values {@link fullFace} accepts at this place in its signature. */
+  export type FullFaceKind = "tablet" | "walkieTalkie";
+
   /**
    * Builds a full-height grip and front surface on the upright slab.
    *
@@ -378,8 +387,8 @@ export namespace HandheldDevice {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Tablet and radio share the slab and grip construction.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the constructed records and builder.
    */
-  export function fullFace<Face extends "screen" | "speaker">(
-    kind: "tablet" | "walkieTalkie",
+  export function fullFace<Face extends FullFaceChoice>(
+    kind: FullFaceKind,
     name: string,
     params: Omit<IParams, "kind">,
     seed: number | string | undefined,

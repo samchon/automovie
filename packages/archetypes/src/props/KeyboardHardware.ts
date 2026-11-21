@@ -155,6 +155,9 @@ export namespace KeyboardHardware {
     laptop: {},
   };
 
+  /** The contact ids {@link draw} builds or reads. */
+  export type DrawContact = "keys" | "homeRow";
+
   /**
    * Draws the original dimensions in metres and builds the base and key contacts.
    *
@@ -171,7 +174,7 @@ export namespace KeyboardHardware {
     params: Omit<IParams, "kind">,
     seed: number | string | undefined,
   ): {
-    builder: ArchetypeBuilder<"keys" | "homeRow" | Id, Dimension>;
+    builder: ArchetypeBuilder<DrawContact | Id, Dimension>;
     d: Record<Dimension, number>;
   } {
     const draw: ArchetypeDrawSession<Dimension> =
@@ -194,7 +197,7 @@ export namespace KeyboardHardware {
       height: read.height!,
       mass: read.mass!,
     };
-    const builder: ArchetypeBuilder<"keys" | "homeRow" | Id, Dimension> =
+    const builder: ArchetypeBuilder<DrawContact | Id, Dimension> =
       new ArchetypeBuilder({
         material: "composite",
         id: params.id,

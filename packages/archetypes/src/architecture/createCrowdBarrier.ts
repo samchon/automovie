@@ -2,7 +2,6 @@ import { Vector3 } from "@automovie/engine";
 
 import { type Archetype, ArchetypeFrame } from "../core";
 import { ObstacleDraw } from "./ObstacleDraw";
-import type { createObstacle } from "./createObstacle";
 
 /**
  * A steel crowd barrier with feet, pickets and an accessible upper rail.

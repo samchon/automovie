@@ -65,6 +65,9 @@ function draw<Id extends createLight.Affordance>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace PracticalLightConstruction {
+  /** The contact ids {@link pendant} builds or reads. */
+  export type PendantContact = "grip" | "light" | "hook";
+
   /**
    * Build a suspended lamp with a downward light frame.
    *
@@ -79,9 +82,9 @@ export namespace PracticalLightConstruction {
   export function pendant(
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"grip" | "light" | "hook", createLight.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<"grip" | "light" | "hook">> =
-      draw<"grip" | "light" | "hook">("pendant", params, seed);
+  ): Archetype<PendantContact, createLight.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<PendantContact>> =
+      draw<PendantContact>("pendant", params, seed);
     // A shade whose mouth faces down, hanging on its cord from the hook at the origin.
     const drop: number = d.cord!;
     const mouth: number = -drop - d.height!;
@@ -121,6 +124,12 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
+  /** The values {@link standing} accepts at this place in its signature. */
+  export type StandingKind = "tableLamp" | "floorLamp";
+
+  /** The contact ids {@link standing} builds or reads. */
+  export type StandingContact = "grip" | "light";
+
   /**
    * Build a standing lamp with its source inside the shade.
    *
@@ -133,13 +142,12 @@ export namespace PracticalLightConstruction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function standing(
-    kind: "tableLamp" | "floorLamp",
+    kind: StandingKind,
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"grip" | "light", createLight.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<"grip" | "light">> = draw<
-      "grip" | "light"
-    >(kind, params, seed);
+  ): Archetype<StandingContact, createLight.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<StandingContact>> =
+      draw<StandingContact>(kind, params, seed);
     // A round base on the floor, a stem up to the lampholder, and the shade round it below the lamp's top.
     // The shade weighs its own net weight; the base's net weight is split between the plate and the stem by volume.
     const plate: number = d.base! * createLight.BASE;
@@ -185,6 +193,9 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
+  /** The contact ids {@link lantern} builds or reads. */
+  export type LanternContact = "grip" | "light" | "hook";
+
   /**
    * Build a raised-bail lantern with a standing base, grip and hanging hook.
    *
@@ -199,9 +210,9 @@ export namespace PracticalLightConstruction {
   export function lantern(
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"grip" | "light" | "hook", createLight.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<"grip" | "light" | "hook">> =
-      draw<"grip" | "light" | "hook">("lantern", params, seed);
+  ): Archetype<LanternContact, createLight.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<LanternContact>> =
+      draw<LanternContact>("lantern", params, seed);
     // The fount up to the burner, the globe over it, the cap to the body's top, and the bail raised over all along X.
     const foot: number = createLight.LANTERN_ESTIMATES.fount;
     const crown: number = foot + d.height!;
@@ -261,6 +272,12 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
+  /** The values {@link wick} accepts at this place in its signature. */
+  export type WickKind = "candle" | "fireTorch";
+
+  /** The contact ids {@link wick} builds or reads. */
+  export type WickContact = "grip" | "light";
+
   /**
    * Build a candle or a fictional torch body with a light frame at the wick or animated tip.
    *
@@ -273,13 +290,12 @@ export namespace PracticalLightConstruction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function wick(
-    kind: "candle" | "fireTorch",
+    kind: WickKind,
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"grip" | "light", createLight.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<"grip" | "light">> = draw<
-      "grip" | "light"
-    >(kind, params, seed);
+  ): Archetype<WickContact, createLight.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<WickContact>> =
+      draw<WickContact>(kind, params, seed);
     // A candle's taper, or a torch's shaft with its wick head at the top: the grip runs below the head.
     const length: number = d.length!;
     const radius: number = d.diameter! / 2;

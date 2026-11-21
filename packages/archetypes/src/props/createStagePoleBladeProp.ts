@@ -182,15 +182,10 @@ export namespace createStagePoleBladeProp {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "height";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance =
-    | "edge"
-    | "grip"
-    | "grip-lower"
-    | "grip-upper"
-    | "shaft"
-    | "side-edge"
-    | "tip";
+  /**
+   * The createStageWeaponProp contact set its shared construction types. This producer builds edge, grip, grip-lower, grip-upper, shaft, side-edge, tip.
+   */
+  export type Affordance = createStageWeaponProp.Affordance;
 
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = [

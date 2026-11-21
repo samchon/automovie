@@ -127,6 +127,9 @@ export namespace ClubBuild {
     },
   };
 
+  /** The values {@link draw} accepts at this place in its signature. */
+  export type DrawMaterial = "wood" | "plastic";
+
   /**
    * Draw the bat or screen practice profile under its original club namespace.
    *
@@ -143,7 +146,7 @@ export namespace ClubBuild {
     params: Readonly<Omit<createClub.IParams, "kind">>,
     seed: number | string | undefined,
     name: string,
-    material: "wood" | "plastic",
+    material: DrawMaterial,
   ): {
     builder: ArchetypeBuilder<createClub.Affordance, createClub.Dimension>;
     d: Partial<Record<createClub.Dimension, number>>;
@@ -164,6 +167,9 @@ export namespace ClubBuild {
     > = new ArchetypeBuilder({ material, id: params.id, name, draw });
     return { builder, d };
   }
+
+  /** The values {@link contacts} accepts at this place in its signature. */
+  export type ContactsGrip = "two-hand" | "power";
 
   /**
    * Attach the original grip and facing surface in the built model frame.
@@ -191,7 +197,7 @@ export namespace ClubBuild {
     held: number,
     middle: number,
     span: number,
-    grip: "two-hand" | "power",
+    grip: ContactsGrip,
   ): void {
     builder.affordance({
       id: "grip",

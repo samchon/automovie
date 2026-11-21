@@ -71,8 +71,10 @@ export namespace createStageHammerProp {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "height";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "face" | "grip";
+  /**
+   * The createStageWeaponProp contact set its shared construction types. This producer builds face, grip.
+   */
+  export type Affordance = createStageWeaponProp.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<createStageWeaponProp.IParams, "id" | "height">;

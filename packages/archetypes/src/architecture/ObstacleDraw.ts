@@ -83,6 +83,9 @@ export namespace ObstacleDraw {
     return { builder, d };
   }
 
+  /** The contact ids {@link ledge} builds or reads. */
+  export type LedgeContact = "top" | "edge";
+
   /**
    * Put a standing surface and a ledge on the actual top rectangle.
    *
@@ -101,7 +104,7 @@ export namespace ObstacleDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the builder receives the contacts.
    */
   export function ledge(
-    builder: FixtureDraw.IContactWriter<"top" | "edge">,
+    builder: FixtureDraw.IContactWriter<LedgeContact>,
     height: number,
     length: number,
     depth: number,
