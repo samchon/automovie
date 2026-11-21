@@ -457,6 +457,8 @@ export namespace throwObject {
       side,
       rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
       span: { start: 0, ready: 0, relax: duration, end: duration },
+      // The hand's own peak is the release's speed.
+      pace: (): number => Vector3.length(lever.velocity),
     });
     return {
       ...composed,

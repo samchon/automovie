@@ -416,6 +416,15 @@ export namespace catchObject {
           side,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           span: { start: 0, ready: contact, relax: duration, end: duration },
+          // The law's own peaks: the minimum-jerk reach over its aimed time,
+          // or the give over its time, 1.875 times their mean speeds.
+          pace: (): number =>
+            1.875 *
+            Math.max(
+              Vector3.length(Vector3.subtract(meet, shoulders)) /
+                Math.max(travel, 1e-9),
+              GIVE / GIVE_TIME,
+            ),
         }),
       composeAutoMovieMotionHumanAction({
         base,
