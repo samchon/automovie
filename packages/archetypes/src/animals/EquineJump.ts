@@ -51,8 +51,11 @@ export namespace EquineJump {
   /** Stride share between final hind liftoff and the non-leading fore landing, outside the held flight: authored, provisional. */
   export const FORE: number = 0.05;
 
-  /** Rounds in which the ride measures its flown body over the obstacles and lengthens the flight by the largest shortfall's request; a flight still short after them refuses. The closed-form plan reads the body at one held instant, so a round corrects only the small change of posture through the flight. */
-  export const ROUNDS: number = 4;
+  /** Rounds in which the ride measures its flown body over the obstacles and adjusts the held flight: a shortfall extends it, a surplus shortens it by half, so the closed form's flight, read with untucked fores at one held instant, settles on the least clearing flight of the displayed tucked body. A flight still short after them refuses. */
+  export const ROUNDS: number = 10;
+
+  /** Seconds of surplus flight a settled jump may keep: the 5 ms between the flight samples `EquineObstacle.shortfall` reads, finer than which the measurement does not resolve. */
+  export const SETTLE: number = 0.005;
 
   /**
    * Jump the obstacles on this leg.

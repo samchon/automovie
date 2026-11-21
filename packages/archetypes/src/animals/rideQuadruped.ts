@@ -15,6 +15,7 @@ import { EquineFootwork } from "./EquineFootwork";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
 import { EquineObstacle } from "./EquineObstacle";
+import { EquineTuck } from "./EquineTuck";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedFooting } from "./QuadrupedFooting";
@@ -180,6 +181,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     footwork.jump !== undefined;
   const pose: QuadrupedRidePose.IPrepared<Affordance, Dimension> =
     QuadrupedRidePose.prepare(animal, species, rig, nativeCourse);
+  const tucks: EquineTuck.IFores = EquineTuck.fores(rig.limbs);
 
   /** Assemble the stride plan, instants and pose function, with a jump's flight when it is known. A jump's trial assembly, flown without its arc, skips the footing check its displayed ride must pass. */
   function assemble(
@@ -378,9 +380,20 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         };
         goals.set(
           limb,
-          fore
-            ? goal
-            : EquineFootwork.slideGoal(footwork.slide, seconds, rest[4]!, goal),
+          !fore
+            ? EquineFootwork.slideGoal(footwork.slide, seconds, rest[4]!, goal)
+            : carry === undefined
+              ? goal
+              : (limb === "leftFore" ? tucks.leftFore : tucks.rightFore)(
+                  goal,
+                  EquineTuck.weight(
+                    seconds,
+                    strides.secondsAt(landed + step.from.duty),
+                    takeoff,
+                    landing,
+                    strides.secondsAt(coming),
+                  ),
+                ),
         );
       }
 
@@ -456,13 +469,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace rideQuadruped {
-  /** Phase cells over the course, as `QuadrupedStridePlan.STEPS`. */
-  export const STEPS: number = QuadrupedStridePlan.STEPS;
-
-  /**
-   * A course leg that may name its gait, its lead and an equine technique.
-   *
-   */
+  /** A course leg that may name its gait, its lead and an equine technique. */
   export type ILeg = ArchetypeCourse.Leg & {
     /** The gait the leg is taken at; the speed chooses when absent. */
     gait?: QuadrupedGait.Gait;
@@ -474,10 +481,7 @@ export namespace rideQuadruped {
     equineFootwork?: EquineFootwork.Technique;
   };
 
-  /**
-   * A quadruped's course: a course whose legs may name their gait and lead.
-   *
-   */
+  /** A quadruped's course: a course whose legs may name their gait and lead. */
   export interface ICourse extends Omit<ArchetypeCourse.ICourse, "legs"> {
     /** Begin a zero-speed course with all four actual neutral hoof anchors. */
     startFromStanding?: true;

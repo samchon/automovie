@@ -129,7 +129,7 @@ export namespace EquineObstacle {
    * @param takeoff Film second of final hind liftoff.
    * @param landing Film second of first fore landing.
    * @param sample The displayed parts and placement at a film second.
-   * @returns Zero when every part clears; otherwise the largest extension of the flight a shortfall asks for.
+   * @returns The signed change of flight seconds the tightest part asks for: positive where a part falls short of the clearance, negative by the surplus the tightest part keeps, zero when no part passes over an obstacle.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frames, units and the zero result.
    * @evidence contracts/development/implementation.md#principled-implementation Each part's exact lowest point and extent along the leg are read in the leg's own frame every 5 ms of the flight; a part overlapping an obstacle short of its top plus the clearance by h at a time τ after takeoff asks the arc b = g/2 (t − t_T)(t_L − t) to rise by h there, which a later landing gives at the rate g τ / 2.
@@ -157,7 +157,7 @@ export namespace EquineObstacle {
       ),
       scale: ArchetypeFrame.UNIT,
     };
-    let extra: number = 0;
+    let extra: number = -Infinity;
     for (let at: number = takeoff + STEP; at < landing; at += STEP) {
       const current: ISample = sample(at);
       const frame: IAutoMovieTransform = ArchetypeFrame.compose(
@@ -190,7 +190,6 @@ export namespace EquineObstacle {
         for (const obstacle of obstacles) {
           const short: number = obstacle.top + clearance - low!;
           if (
-            short > 0 &&
             -front! > obstacle.from - start &&
             rear! < obstacle.to - start
           )
@@ -201,7 +200,7 @@ export namespace EquineObstacle {
         }
       }
     }
-    return extra;
+    return Number.isFinite(extra) ? extra : 0;
   }
 
   /**

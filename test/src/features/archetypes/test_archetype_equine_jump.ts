@@ -23,6 +23,12 @@ type Ride = ReturnType<typeof rideHorse>;
 /** The authored clearance every jump asks for, metres. */
 const CLEARANCE: number = 0.1;
 
+/** The fore's measured maximum carpal flexion over a 1.0 m vertical, degrees: the mean of the trailing (128.3) and leading (130.7) fore means of St George et al. 2021, Animals 11:414, Table 1, intermediate group. */
+const TUCK: number = (128.3 + 130.7) / 2;
+
+/** How far above the clearance the tightest part may pass, metres: a settled flight keeps at most 5 ms of surplus, which at the arc's steepest, g times a flight under 1 s over 2, is under 25 mm, and the 5 ms sampling adds the rest. */
+const TIGHT: number = 0.05;
+
 /** One rail across the lane at a course distance and a top height. */
 interface IRail {
   /** Course distance of its axis, metres. */
@@ -142,7 +148,8 @@ export function test_archetype_equine_jump(): void {
         .filter((at: number): boolean => at > recovery).length < 2
     )
       issues.push(`${label}: no canter strides after recovery`);
-    for (let at: number = takeoff - 0.4; at < landing + 0.6; at += 0.01) {
+    let tightest: number = Infinity;
+    for (let at: number = takeoff - 0.4; at < landing + 0.6; at += 0.005) {
       const sample: ReturnType<Ride["at"]> = ride.at(at);
       for (const part of sample.archetype.parts) {
         if (part.geometry.type !== "primitive") continue;
@@ -151,13 +158,22 @@ export function test_archetype_equine_jump(): void {
         for (const rail of rails)
           if (
             extent.front > rail.z - 0.05 &&
-            extent.back < rail.z + 0.05 &&
-            extent.low < rail.y + 0.05 + CLEARANCE - 1e-6
-          )
-            issues.push(
-              `${label}: ${part.id} ${extent.low} m over the rail at ${at} in flight ${takeoff}-${landing}`,
-            );
+            extent.back < rail.z + 0.05
+          ) {
+            const margin: number = extent.low - (rail.y + 0.05);
+            tightest = Math.min(tightest, margin);
+            if (margin < CLEARANCE - 1e-6)
+              issues.push(`${label}: ${part.id} ${margin} m over the rail at ${at}`);
+          }
       }
+    }
+    if (rails.length > 0 && !(tightest < CLEARANCE + TIGHT))
+      issues.push(`${label}: the body overjumps, tightest margin ${tightest} m`);
+    const quarter: number = takeoff + (landing - takeoff) / 4;
+    for (const side of ["left", "right"] as const) {
+      const fold: number = carpus(ride, side, quarter) - carpus(ride, side, 0);
+      if (Math.abs(fold - TUCK) > 1)
+        issues.push(`${label}: ${side} carpus folds ${fold} degrees in flight`);
     }
     if (label === "ditch")
       for (const limb of QuadrupedBody.LIMBS)
@@ -284,6 +300,20 @@ export function test_archetype_equine_jump(): void {
       footing: { planes, poles },
     });
   }
+}
+
+/** Degrees between a fore's displayed radius and cannon bars. */
+function carpus(ride: Ride, side: "left" | "right", at: number): number {
+  const parts: readonly IAutoMovieModelPart[] = ride.at(at).archetype.parts;
+  const axis = (index: number): IAutoMovieVector3 => {
+    const part: IAutoMovieModelPart = parts.find(
+      (p: IAutoMovieModelPart): boolean =>
+        p.id === QuadrupedBody.BONES[`${side}Fore`][index],
+    )!;
+    return Quaternion.rotateVector(part.transform!.rotation, { x: 0, y: 1, z: 0 });
+  };
+  const cosine: number = Vector3.dot(axis(1), axis(2));
+  return (Math.acos(Math.max(-1, Math.min(1, cosine))) * 180) / Math.PI;
 }
 
 /** A published instant. */

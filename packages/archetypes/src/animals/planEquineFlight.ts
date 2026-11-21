@@ -4,7 +4,7 @@ import { EquineObstacle } from "./EquineObstacle";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 
 /**
- * Plan a jump's flight and confirm it on the flown body: the closed-form plan (`EquineJump.plan`), then rounds that measure every displayed part over the obstacles (`EquineObstacle.shortfall`) and lengthen the held flight by the largest request, at most `EquineJump.ROUNDS` times.
+ * Plan a jump's flight and confirm it on the flown body: the closed-form plan (`EquineJump.plan`), then rounds that measure every displayed part over the obstacles (`EquineObstacle.shortfall`), lengthening the held flight by a shortfall's request and shortening it by half a surplus until the tightest part clears within `EquineJump.SETTLE`, at most `EquineJump.ROUNDS` times.
  *
  * @param archetype The source archetype name.
  * @param request The admitted jump.
@@ -49,14 +49,18 @@ export function planEquineFlight(
       flown.strides.secondsAt(flight.landing),
       flown.sample,
     );
-    if (!(extra > 0)) return flight;
-    if (round === EquineJump.ROUNDS)
+    if (extra <= 0 && extra > -EquineJump.SETTLE) return flight;
+    if (round === EquineJump.ROUNDS) {
+      if (extra <= 0) return flight;
       throw new RangeError(
         `The jump's flight still misses its clearance by ${extra} s after ${round} rounds`,
       );
-    flight = {
-      ...flight,
-      hold: { ...flight.hold, duration: flight.hold.duration + extra },
-    };
+    }
+
+    // A shortfall extends the hold by its whole request; a surplus shortens it by half, so the flight approaches the least clearing one from the clear side.
+    const duration: number =
+      flight.hold.duration + (extra > 0 ? extra : extra / 2);
+    if (!(duration > 0)) return flight;
+    flight = { ...flight, hold: { ...flight.hold, duration } };
   }
 }
