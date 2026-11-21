@@ -94,6 +94,20 @@ export namespace QuadrupedTimedRoute {
           }
         },
       );
+    // The second a plan that begins standing first departs; its start otherwise.
+    const departs: number =
+      route.kind === "plan" &&
+      route.at(route.when(0) + 1e-6).speed === 0 &&
+      halts.some((halt: ArchetypeCourse.IPlan["instants"][number]): boolean =>
+        halt.label.startsWith("depart"),
+      )
+        ? halts.find(
+            (halt: ArchetypeCourse.IPlan["instants"][number]): boolean =>
+              halt.label.startsWith("depart"),
+          )!.seconds
+        : route.kind === "plan"
+          ? route.when(0)
+          : 0;
     const plan: ArchetypeCourse.IPlan =
       route.kind === "plan"
         ? route.legSpans.length > 0
@@ -107,6 +121,15 @@ export namespace QuadrupedTimedRoute {
                 ): number => a.seconds - b.seconds,
               ),
               legSpans: [{ from: 0, span: route.length, fastest: route.peak }],
+
+              // A plan that begins standing leaves its start at its first
+              // departure, as a course of legs leaves at its start second.
+              ...(departs > route.when(0)
+                ? {
+                    when: (distance: number): number =>
+                      distance <= 0 ? departs : route.when(distance),
+                  }
+                : {}),
             }
         : ArchetypeCourse.plan(species.archetype, route);
     const course: rideQuadruped.ICourse =
@@ -118,6 +141,9 @@ export namespace QuadrupedTimedRoute {
               heading: 0,
             },
             legs: [{ kind: "straight", length: Math.max(route.length, 1e-9) }],
+            ...(route.at(route.when(0)).speed === 0
+              ? { startFromStanding: true as const }
+              : {}),
             cruise: Math.max(route.peak, 1e-9),
             ...(ramp === Infinity
               ? {}
