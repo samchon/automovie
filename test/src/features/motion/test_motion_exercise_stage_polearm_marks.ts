@@ -197,8 +197,8 @@ export function test_motion_exercise_stage_polearm_marks(): void {
         ) &&
           (!marks.includes("side-edge") || gap("edge", "side-edge") >= APART) &&
           gap("edge", "rear") >= WIDTH &&
-          Vector3.dot(normal(world.get("edge")!), normal(world.get("rear")!)) <
-            -0.5,
+          -0.5 >
+            Vector3.dot(normal(world.get("edge")!), normal(world.get("rear")!)),
       );
     }
   }
