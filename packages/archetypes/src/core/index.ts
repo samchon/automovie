@@ -16,6 +16,7 @@ export * from "./ArchetypeFriction";
 export * from "./ArchetypeMarks";
 export * from "./ArchetypeMass";
 export * from "./ArchetypeMaterial";
+export * from "./ArchetypePassage";
 export * from "./ArchetypeRefusal";
 export * from "./ArchetypeRestitution";
 export * from "./ArchetypeRide";

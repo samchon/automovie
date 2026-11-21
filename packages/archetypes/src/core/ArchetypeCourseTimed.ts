@@ -26,10 +26,22 @@ export namespace ArchetypeCourseTimed {
   /** Gauss-Legendre nodes on [-1, 1] and their weights, five points: exact for polynomials to degree nine. */
   export const GAUSS: readonly (readonly [number, number])[] = [
     [0, 128 / 225],
-    [-Math.sqrt(5 - 2 * Math.sqrt(10 / 7)) / 3, (322 + 13 * Math.sqrt(70)) / 900],
-    [Math.sqrt(5 - 2 * Math.sqrt(10 / 7)) / 3, (322 + 13 * Math.sqrt(70)) / 900],
-    [-Math.sqrt(5 + 2 * Math.sqrt(10 / 7)) / 3, (322 - 13 * Math.sqrt(70)) / 900],
-    [Math.sqrt(5 + 2 * Math.sqrt(10 / 7)) / 3, (322 - 13 * Math.sqrt(70)) / 900],
+    [
+      -Math.sqrt(5 - 2 * Math.sqrt(10 / 7)) / 3,
+      (322 + 13 * Math.sqrt(70)) / 900,
+    ],
+    [
+      Math.sqrt(5 - 2 * Math.sqrt(10 / 7)) / 3,
+      (322 + 13 * Math.sqrt(70)) / 900,
+    ],
+    [
+      -Math.sqrt(5 + 2 * Math.sqrt(10 / 7)) / 3,
+      (322 - 13 * Math.sqrt(70)) / 900,
+    ],
+    [
+      Math.sqrt(5 + 2 * Math.sqrt(10 / 7)) / 3,
+      (322 - 13 * Math.sqrt(70)) / 900,
+    ],
   ];
 
   /**
@@ -73,7 +85,11 @@ export namespace ArchetypeCourseTimed {
     samples.forEach((sample: ArchetypeCourse.ISample, i: number): void => {
       for (const name of ["seconds", "x", "z"] as const)
         if (!Number.isFinite(sample[name]))
-          refuse(`samples[${i}].${name}`, sample[name], "a sample must be finite");
+          refuse(
+            `samples[${i}].${name}`,
+            sample[name],
+            "a sample must be finite",
+          );
       if (sample.y !== undefined && !Number.isFinite(sample.y))
         refuse(`samples[${i}].y`, sample.y, "a sample must be finite");
       if (i > 0 && !(sample.seconds > samples[i - 1]!.seconds))
@@ -97,14 +113,17 @@ export namespace ArchetypeCourseTimed {
       }),
     );
     const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const held: boolean[] = points.slice(1).map(
-      (next: IAutoMovieVector3, i: number): boolean => {
+    const held: boolean[] = points
+      .slice(1)
+      .map((next: IAutoMovieVector3, i: number): boolean => {
         const from: IAutoMovieVector3 = points[i]!;
         return from.x === next.x && from.y === next.y && from.z === next.z;
-      },
-    );
+      });
     const chord = (i: number): IAutoMovieVector3 =>
-      Vector3.scale(Vector3.subtract(points[i + 1]!, points[i]!), 1 / (times[i + 1]! - times[i]!));
+      Vector3.scale(
+        Vector3.subtract(points[i + 1]!, points[i]!),
+        1 / (times[i + 1]! - times[i]!),
+      );
     const tangents: IAutoMovieVector3[] = points.map(
       (_: IAutoMovieVector3, i: number): IAutoMovieVector3 => {
         if (held[i - 1] || held[i]) return zero;
@@ -113,7 +132,10 @@ export namespace ArchetypeCourseTimed {
           const h0: number = times[1]! - times[0]!;
           const h1: number = times[2]! - times[1]!;
           return Vector3.scale(
-            Vector3.subtract(Vector3.scale(chord(0), 2 * h0 + h1), Vector3.scale(chord(1), h0)),
+            Vector3.subtract(
+              Vector3.scale(chord(0), 2 * h0 + h1),
+              Vector3.scale(chord(1), h0),
+            ),
             1 / (h0 + h1),
           );
         }
@@ -121,14 +143,20 @@ export namespace ArchetypeCourseTimed {
           const h0: number = times[n - 2]! - times[n - 3]!;
           const h1: number = times[n - 1]! - times[n - 2]!;
           return Vector3.scale(
-            Vector3.subtract(Vector3.scale(chord(n - 2), 2 * h1 + h0), Vector3.scale(chord(n - 3), h1)),
+            Vector3.subtract(
+              Vector3.scale(chord(n - 2), 2 * h1 + h0),
+              Vector3.scale(chord(n - 3), h1),
+            ),
             1 / (h0 + h1),
           );
         }
         const before: number = times[i]! - times[i - 1]!;
         const after: number = times[i + 1]! - times[i]!;
         return Vector3.scale(
-          Vector3.add(Vector3.scale(chord(i - 1), after), Vector3.scale(chord(i), before)),
+          Vector3.add(
+            Vector3.scale(chord(i - 1), after),
+            Vector3.scale(chord(i), before),
+          ),
           1 / (before + after),
         );
       },
@@ -156,7 +184,12 @@ export namespace ArchetypeCourseTimed {
       const t: number = Math.max(times[0]!, Math.min(times[n - 1]!, seconds));
       const i: number = interval(t);
       if (held[i])
-        return { point: points[i]!, velocity: zero, acceleration: zero, interval: i };
+        return {
+          point: points[i]!,
+          velocity: zero,
+          acceleration: zero,
+          interval: i,
+        };
       const h: number = times[i + 1]! - times[i]!;
       const u: number = (t - times[i]!) / h;
       const u2: number = u * u;
@@ -171,7 +204,10 @@ export namespace ArchetypeCourseTimed {
         c: number,
         d: number,
       ): IAutoMovieVector3 =>
-        Vector3.add(Vector3.add(Vector3.scale(p0, a), Vector3.scale(m0, b)), Vector3.add(Vector3.scale(p1, c), Vector3.scale(m1, d)));
+        Vector3.add(
+          Vector3.add(Vector3.scale(p0, a), Vector3.scale(m0, b)),
+          Vector3.add(Vector3.scale(p1, c), Vector3.scale(m1, d)),
+        );
       return {
         point: mix(
           2 * u3 - 3 * u2 + 1,
@@ -180,7 +216,12 @@ export namespace ArchetypeCourseTimed {
           u3 - u2,
         ),
         velocity: Vector3.scale(
-          mix(6 * u2 - 6 * u, 3 * u2 - 4 * u + 1, -6 * u2 + 6 * u, 3 * u2 - 2 * u),
+          mix(
+            6 * u2 - 6 * u,
+            3 * u2 - 4 * u + 1,
+            -6 * u2 + 6 * u,
+            3 * u2 - 2 * u,
+          ),
           1 / h,
         ),
         acceleration: Vector3.scale(
@@ -228,7 +269,10 @@ export namespace ArchetypeCourseTimed {
       for (let step: number = 0; step < n - 1; step++)
         for (const j of [i - step, i + step]) {
           if (j < 0 || j > n - 2) continue;
-          const d: IAutoMovieVector3 = Vector3.subtract(points[j + 1]!, points[j]!);
+          const d: IAutoMovieVector3 = Vector3.subtract(
+            points[j + 1]!,
+            points[j]!,
+          );
           if (Math.hypot(d.x, d.z) > 1e-9)
             return Math.atan2(d.x, d.z) / ArchetypeUnits.DEGREE;
         }
@@ -236,40 +280,64 @@ export namespace ArchetypeCourseTimed {
     };
     // At a zero tangent, the one-sided velocity direction tends to the
     // acceleration leaving the start or to the negated acceleration at arrival.
-    const boundaryDirection = (i: number, leaving: boolean): IAutoMovieVector3 => {
+    const boundaryDirection = (
+      i: number,
+      leaving: boolean,
+    ): IAutoMovieVector3 => {
       const duration: number = times[i + 1]! - times[i]!;
-      const displacement: IAutoMovieVector3 = Vector3.subtract(points[i + 1]!, points[i]!);
+      const displacement: IAutoMovieVector3 = Vector3.subtract(
+        points[i + 1]!,
+        points[i]!,
+      );
       const limit: IAutoMovieVector3 = Vector3.subtract(
         Vector3.scale(displacement, 3),
         Vector3.scale(tangents[leaving ? i + 1 : i]!, duration),
       );
       if (Math.hypot(limit.x, limit.z) > 1e-9) return limit;
-      if (Math.hypot(displacement.x, displacement.z) > 1e-9) return displacement;
+      if (Math.hypot(displacement.x, displacement.z) > 1e-9)
+        return displacement;
       const heading: number = (chordHeading(i) ?? 0) * ArchetypeUnits.DEGREE;
       return { x: Math.sin(heading), y: 0, z: Math.cos(heading) };
     };
-    const firstMotion: number = held.findIndex((paused: boolean): boolean => !paused);
-    let holdDirection: IAutoMovieVector3 = firstMotion > 0
-      ? boundaryDirection(firstMotion, true)
-      : { x: 0, y: 0, z: 1 };
-    const holdDirections: (IAutoMovieVector3 | undefined)[] = held.map(
-      (paused: boolean, i: number): IAutoMovieVector3 | undefined => {
-        if (paused) return holdDirection;
-        if (i > firstMotion && held[i - 1]) {
-          const before: IAutoMovieVector3 = Vector3.normalize(holdDirection);
-          const after: IAutoMovieVector3 = Vector3.normalize(boundaryDirection(i, true));
-          if (Vector3.distance(before, after) > 1e-8)
-            refuse(
-              "samples[" + i + "]",
-              samples[i],
-              "the departure changes the course facing after a hold at " + times[i] + " s",
-              "give the stop a common approach and departure direction or author a continuous turn",
-            );
-        }
-        if (held[i + 1]) holdDirection = boundaryDirection(i, false);
-        return undefined;
-      },
+    const firstMotion: number = held.findIndex(
+      (paused: boolean): boolean => !paused,
     );
+    let holdDirection: IAutoMovieVector3 =
+      firstMotion > 0
+        ? boundaryDirection(firstMotion, true)
+        : { x: 0, y: 0, z: 1 };
+    // The facing each held interval keeps, by its index.
+    const holdDirections: Map<number, IAutoMovieVector3> = new Map();
+    held.forEach((paused: boolean, i: number): void => {
+      if (paused) {
+        holdDirections.set(i, holdDirection);
+        return;
+      }
+      if (i > firstMotion && held[i - 1]) {
+        const before: IAutoMovieVector3 = Vector3.normalize(holdDirection);
+        const after: IAutoMovieVector3 = Vector3.normalize(
+          boundaryDirection(i, true),
+        );
+        if (Vector3.distance(before, after) > 1e-8)
+          refuse(
+            "samples[" + i + "]",
+            samples[i],
+            "the departure changes the course facing after a hold at " +
+              times[i] +
+              " s",
+            "give the stop a common approach and departure direction or author a continuous turn",
+          );
+      }
+      if (held[i + 1]) holdDirection = boundaryDirection(i, false);
+    });
+    const facingOf: (direction: IAutoMovieVector3) => IFacing = (
+      direction: IAutoMovieVector3,
+    ): IFacing => ({
+      heading: Math.atan2(direction.x, direction.z) / ArchetypeUnits.DEGREE,
+      climb:
+        Math.atan2(direction.y, Math.hypot(direction.x, direction.z)) /
+        ArchetypeUnits.DEGREE,
+    });
 
     const state = (seconds: number): ArchetypeCourse.IState => {
       const at: ReturnType<typeof evaluate> = evaluate(seconds);
@@ -277,21 +345,25 @@ export namespace ArchetypeCourseTimed {
       const a: IAutoMovieVector3 = at.acceleration;
       const ground: number = Math.hypot(v.x, v.z);
       const moving: boolean = ground > 1e-9;
-      const besideHold: boolean = held[at.interval - 1] === true || held[at.interval + 1] === true;
-      const direction: IAutoMovieVector3 | undefined = moving || (besideHold && ground > 0)
-        ? v
-        : holdDirections[at.interval] ??
-          (seconds === times[at.interval] ? holdDirections[at.interval - 1] : undefined);
-      const heading: number = direction === undefined
-        ? (chordHeading(at.interval) ?? 0)
-        : Math.atan2(direction.x, direction.z) / ArchetypeUnits.DEGREE;
+      const besideHold: boolean =
+        held[at.interval - 1] === true || held[at.interval + 1] === true;
+
+      // A moving root, or one leaving a hold, faces its velocity; a held one
+      // its hold's facing, also at the second the hold ends; else its chord.
+      const facing: IFacing =
+        moving || (besideHold && ground > 0)
+          ? facingOf(v)
+          : holdDirections.has(at.interval)
+            ? facingOf(holdDirections.get(at.interval)!)
+            : seconds === times[at.interval] &&
+                holdDirections.has(at.interval - 1)
+              ? facingOf(holdDirections.get(at.interval - 1)!)
+              : { heading: chordHeading(at.interval) ?? 0, climb: 0 };
       const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
-        heading,
+        facing.heading,
       );
-      const climb: number = direction === undefined
-        ? 0
-        : Math.atan2(direction.y, Math.hypot(direction.x, direction.z)) / ArchetypeUnits.DEGREE;
+      const climb: number = facing.climb;
       const distance: number = distanceAt(seconds);
       return {
         distance,
@@ -330,7 +402,10 @@ export namespace ArchetypeCourseTimed {
           times[i]! + ((times[i + 1]! - times[i]!) * k) / PIECES;
         const s: ArchetypeCourse.IState = state(seconds);
         peak = Math.max(peak, s.speed);
-        if (sharpest === null || Math.abs(s.curvature) > Math.abs(sharpest.curvature)) {
+        if (
+          sharpest === null ||
+          Math.abs(s.curvature) > Math.abs(sharpest.curvature)
+        ) {
           sharpest = s;
           sharpestAt = seconds;
         }
@@ -372,7 +447,8 @@ export namespace ArchetypeCourseTimed {
       let right: number = knots[high]!;
       let t: number =
         arcs[high]! > arcs[low]!
-          ? left + ((right - left) * (d - arcs[low]!)) / (arcs[high]! - arcs[low]!)
+          ? left +
+            ((right - left) * (d - arcs[low]!)) / (arcs[high]! - arcs[low]!)
           : left;
       for (let step: number = 0; step < 50; step++) {
         const error: number = distanceAt(t) - d;
@@ -380,7 +456,8 @@ export namespace ArchetypeCourseTimed {
         if (error > 0) right = t;
         else left = t;
         const speed: number = speedAt(t);
-        const next: number = speed > 1e-12 ? t - error / speed : (left + right) / 2;
+        const next: number =
+          speed > 1e-12 ? t - error / speed : (left + right) / 2;
         t = next > left && next < right ? next : (left + right) / 2;
       }
       return t;
@@ -406,3 +483,11 @@ export namespace ArchetypeCourseTimed {
   }
 }
 
+/** Which way a course's root faces: its heading about `+Y` and its climb, both degrees. */
+interface IFacing {
+  /** Degrees about `+Y` from `+Z`, positive toward `+X`. */
+  heading: number;
+
+  /** Degrees above the floor, positive climbing. */
+  climb: number;
+}

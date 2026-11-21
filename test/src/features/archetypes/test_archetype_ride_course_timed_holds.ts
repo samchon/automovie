@@ -1,6 +1,7 @@
 import {
   ArchetypeCourse,
   ArchetypeRefusal,
+  type ArchetypeRide,
   createCar,
   createMotorcycle,
   driveCar,
@@ -25,6 +26,15 @@ const NEAR: number = 1e-4;
  * at the beginning and end, where there is only one moving neighbor.
  * An eastbound departure from the same hold has incompatible facing.
  *
+ * Scenarios:
+ *
+ * 1. Each dwell keeps its authored position, zero speed, its distance and its facing at both ends and inside, read in either order.
+ * 2. The moving cubics meet each dwell with continuous position and facing and a vanishing speed.
+ * 3. A distance or second past the course reads its terminal dwell.
+ * 4. A departure perpendicular to the arrival refuses at its sample, naming the second.
+ * 5. A sloping approach keeps its pitch through the dwell, and a pure change of height still travels.
+ * 6. A car and a motorcycle on a course with a stop hold their whole pose through it.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Explains all three held spans, neighboring forward directions, film seconds and what the vehicle control measures.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the native public timed plan and real car and motorcycle consumers. The path, orientation, distance, velocity and departure are sampled at authored times and both sides of their boundaries.
  * @evidence contracts/development/testing.md#independent-expectations The two trips are two metres each and share their authored direction. Stationary marks give the exact world points and zero speed. The alternate exit is perpendicular. The inverse distance returns the first second of each dwell, and total film duration includes the terminal dwell.
@@ -46,13 +56,7 @@ export function test_archetype_ride_course_timed_holds(): void {
     "exhibition",
     samples,
   );
-  const holds: readonly {
-    from: number;
-    to: number;
-    position: IAutoMovieVector3;
-    heading: IAutoMovieVector3;
-    distance: number;
-  }[] = [
+  const holds: readonly IHold[] = [
     {
       from: 2,
       to: 4,
@@ -194,17 +198,40 @@ export function test_archetype_ride_course_timed_holds(): void {
       sample(6, 0, 4),
     ],
   );
-  const car = driveCar(createCar({ kind: "sedan" }, 2), straight);
-  const cycle = rideMotorcycle(
-    createMotorcycle({ kind: "motorcycle" }, 2),
-    straight,
+  const car: ArchetypeRide.IRide<createCar.Affordance, createCar.Dimension> =
+    driveCar(createCar({ kind: "sedan" }, 2), straight);
+  const cycle: ArchetypeRide.IRide<
+    createMotorcycle.Affordance,
+    createMotorcycle.Dimension
+  > = rideMotorcycle(createMotorcycle({ kind: "motorcycle" }, 2), straight);
+  TestValidator.equals(
+    "car pose and wheel articulation hold at the stop",
+    car.at(2.25),
+    car.at(3.75),
   );
-  for (const ride of [car, cycle])
-    TestValidator.equals(
-      "vehicle pose and wheel articulation hold at the stop",
-      ride.at(2.25),
-      ride.at(3.75),
-    );
+  TestValidator.equals(
+    "motorcycle pose and wheel articulation hold at the stop",
+    cycle.at(2.25),
+    cycle.at(3.75),
+  );
+}
+
+/** One authored dwell: its film seconds, the held root position, its facing and the distance travelled before it. */
+interface IHold {
+  /** The first film second of the dwell. */
+  from: number;
+
+  /** The last film second of the dwell. */
+  to: number;
+
+  /** The held root position, world metres. */
+  position: IAutoMovieVector3;
+
+  /** The held world forward direction. */
+  heading: IAutoMovieVector3;
+
+  /** The distance travelled along the course before the dwell, metres. */
+  distance: number;
 }
 
 /** An elevated world mark with integral horizontal position components. */
