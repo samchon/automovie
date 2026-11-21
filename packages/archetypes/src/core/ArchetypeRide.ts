@@ -66,16 +66,34 @@ export namespace ArchetypeRide {
   }
 
   /**
-   * One point of a line: an end on the leader's posed model, or one on the towed support's.
+   * One point of a line: an end on the leader's posed model, one on the towed support's, or a point a performer holds it at.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what a point names.
-   * @evidence contracts/development/design.md#principled-representation A union of an end on either model, the other side absent.
+   * @evidence contracts/development/design.md#principled-representation A union of an end on either model or a held point, the others absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the points of `ILine`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type ILinePoint =
-    | { leader: ArchetypeSpan.End; trailer?: never }
-    | { trailer: ArchetypeSpan.End; leader?: never };
+    | { leader: ArchetypeSpan.End; trailer?: never; held?: never }
+    | { trailer: ArchetypeSpan.End; leader?: never; held?: never }
+    | ILineHeld;
+
+  /**
+   * A line point held by a performer: its world position at each film second, such as a driver's displayed palm, so a held line follows the hand that shakes, takes up or gives it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the reader's unit and space.
+   * @evidence contracts/development/design.md#principled-representation A pure reader of film seconds returning world metres, the other ends absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by a performance's hand reader and read by `towed`'s line laying.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader is the performer's; the line owner invents no hand position.
+   */
+  export interface ILineHeld {
+    /** The held point in the world, metres, at a film second. */
+    held: (seconds: number) => IAutoMovieVector3;
+    /** Absent: a held point is on neither model. */
+    leader?: never;
+    /** Absent: a held point is on neither model. */
+    trailer?: never;
+  }
 
   /**
    * A line at one second.
@@ -448,7 +466,9 @@ export namespace ArchetypeRide {
       const pointAt = (part: ILinePoint): IAutoMovieVector3 =>
         part.leader !== undefined
           ? world(sample.archetype, sample.placement, part.leader)
-          : world(steered, placement, part.trailer);
+          : part.trailer !== undefined
+            ? world(steered, placement, part.trailer)
+            : { ...part.held(seconds) };
       return {
         placement,
         frame: (id: Id): IAutoMovieTransform =>

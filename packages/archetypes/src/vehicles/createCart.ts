@@ -1,3 +1,5 @@
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { HorseHarness } from "../animals/HorseHarness";
 import {
   type Archetype,
@@ -450,13 +452,21 @@ export namespace createCart {
    * The traces and the driving lines between a cart and the horse in harness that draws it, for `ArchetypeRide.towed`'s `lines`: a trace from each point of draft at the breast collar's end to its end of the cart's single tree, and a driving line from each bit ring through the neck strap's ring and the saddle's terret to the driver's held run (Harness Stuff: the reins pass from the bit through the rings on the breastplate's neck strap, then the saddle's terrets, to the driver).
    *
    * @param cart A `cart` kind, built for the horse that draws it.
+   * @param held Optional reader of the driver's displayed palm on each side at a film second; each driving line's held run then ends at that palm instead of its fixed material end.
    * @returns The four lines, the traces first, left before right.
    * @throws {ArchetypeRefusal} When the cart is not a horse's two-wheeled cart.
    *
    */
   export function lines(
     cart: Archetype<Affordance, Dimension>,
+    held?: Held,
   ): ArchetypeRide.ILine[] {
-    return CartFit.lines(cart);
+    return CartFit.lines(cart, held);
   }
+
+  /** A driver's hand side. */
+  export type Side = "left" | "right";
+
+  /** A reader of the driver's displayed palm on a side at a film second, world metres, which a driving line's held run ends at. */
+  export type Held = (side: Side, seconds: number) => IAutoMovieVector3;
 }
