@@ -21,8 +21,11 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handReach } from "./handReach";
-import { prepareThighSkin } from "./prepareThighSkin";
 import type { prepareSeatedPalms } from "./prepareSeatedPalms";
+import { prepareThighSkin } from "./prepareThighSkin";
+
+/** A hand's breadth across the palm as a share of its length (provisional anthropometric ratio). */
+const PALM_BREADTH: number = 0.45;
 
 /** Profile-local thigh intersections and hand extents for this seated phase. */
 type PalmRests = ReturnType<typeof prepareSeatedPalms>;
@@ -202,7 +205,9 @@ export namespace seatedHands {
   }
 
   /** Preserve the public spread-then-leg-read order and its original present-goal observations. */
-  function legsOnly(posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture["limbs"] {
+  function legsOnly(
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture["limbs"] {
     return {
       ...(posture.limbs.leftLeg === undefined
         ? {}
@@ -228,14 +233,29 @@ export namespace seatedHands {
       const rest: IAutoMovieVector3 | undefined = rests[side];
       if (rest === undefined) continue;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      const goal: IAutoMovieHumanLimbGoal = armrest(body, posture, side, rest, yaw);
-      limbs[`${side}Arm`] = s >= 1 ? goal : {
-        point: Vector3.lerp(hand.worldPosition, goal.point, s),
-        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
-        bend: goal.bend,
-      };
+      const goal: IAutoMovieHumanLimbGoal = armrest(
+        body,
+        posture,
+        side,
+        rest,
+        yaw,
+      );
+      limbs[`${side}Arm`] =
+        s >= 1
+          ? goal
+          : {
+              point: Vector3.lerp(hand.worldPosition, goal.point, s),
+              rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
+              bend: goal.bend,
+            };
     }
-    return flattened({ ...posture, limbs }, SIDES.filter((side: AutoMovieHumanSide): boolean => rests[side] !== undefined), s);
+    return flattened(
+      { ...posture, limbs },
+      SIDES.filter(
+        (side: AutoMovieHumanSide): boolean => rests[side] !== undefined,
+      ),
+      s,
+    );
   }
 
   /**
@@ -258,15 +278,18 @@ export namespace seatedHands {
     yaw: number,
   ): IAutoMovieHumanLimbGoal {
     const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
-        fingers: HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw },
-          { x: 0, y: 0, z: 1 },
-        ),
-        palm: { x: 0, y: -1, z: 0 },
+      fingers: HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw },
+        { x: 0, y: 0, z: 1 },
+      ),
+      palm: { x: 0, y: -1, z: 0 },
     });
     // The stated rest is beneath the wrist. The palm plane extends from
     // its centre back under the carpus to the bearing heel of the hand.
-    const palm: IAutoMovieVector3 = Quaternion.rotateVector(rotation, HumanHand.offset(body, side, "palm", "flat").point);
+    const palm: IAutoMovieVector3 = Quaternion.rotateVector(
+      rotation,
+      HumanHand.offset(body, side, "palm", "flat").point,
+    );
     const underside: IAutoMovieVector3 = { x: 0, y: Math.min(0, palm.y), z: 0 };
     return {
       point: Vector3.subtract(rest, underside),
@@ -298,16 +321,38 @@ export namespace seatedHands {
         resolution,
         projection,
       );
-    const goals: IAutoMovieMotionHumanPosture["limbs"] = thighs(body, posture, bones, sides, skin);
+    const goals: IAutoMovieMotionHumanPosture["limbs"] = thighs(
+      body,
+      posture,
+      bones,
+      sides,
+      skin,
+    );
     if (share >= 1)
-      return flattened({ ...posture, limbs: { ...posture.limbs, ...goals } }, sides, 1);
-    const shaped: IAutoMovieMotionHumanPosture = flattened(posture, sides, share);
+      return flattened(
+        { ...posture, limbs: { ...posture.limbs, ...goals } },
+        sides,
+        1,
+      );
+    const shaped: IAutoMovieMotionHumanPosture = flattened(
+      posture,
+      sides,
+      share,
+    );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of sides) {
       const goal: IAutoMovieHumanLimbGoal = goals[`${side}Arm`]!;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      const point: IAutoMovieVector3 = Vector3.lerp(hand.worldPosition, goal.point, share);
-      const rotation: IAutoMovieQuaternion = Quaternion.slerp(hand.worldRotation, goal.rotation!, share);
+      const point: IAutoMovieVector3 = Vector3.lerp(
+        hand.worldPosition,
+        goal.point,
+        share,
+      );
+      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+        hand.worldRotation,
+        goal.rotation!,
+        share,
+      );
       limbs[`${side}Arm`] = {
         point: clearThigh(body, shaped, side, bones, point, rotation),
         rotation,
@@ -328,21 +373,42 @@ export namespace seatedHands {
   ): IAutoMovieVector3 {
     const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
     const thigh: IAutoMovieResolvedBone = bones.get(bone)!;
-    const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(
-      bones.get(`${side}LowerLeg`)!.worldPosition, thigh.worldPosition,
-    ));
+    const axis: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(
+        bones.get(`${side}LowerLeg`)!.worldPosition,
+        thigh.worldPosition,
+      ),
+    );
     const arm: IAutoMovieVector3 = Vector3.subtract(point, thigh.worldPosition);
-    const radial: IAutoMovieVector3 = Vector3.addScaled(arm, axis, -Vector3.dot(arm, axis));
+    const radial: IAutoMovieVector3 = Vector3.addScaled(
+      arm,
+      axis,
+      -Vector3.dot(arm, axis),
+    );
     if (Vector3.length(radial) === 0) return point;
     const normal: IAutoMovieVector3 = Vector3.normalize(radial);
-    const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([[bone, thigh]]);
+    const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      new Map([[bone, thigh]]);
     let surface: number = -Infinity;
     for (const placed of HumanColliders.placed(body, only))
       for (const shape of placed.shapes)
-        surface = Math.max(surface, physicalShapeSpan(placed.pose, shape, normal)[1]);
+        surface = Math.max(
+          surface,
+          physicalShapeSpan(placed.pose, shape, normal)[1],
+        );
     if (surface === -Infinity) return point;
-    const depth: number = handReach(body, { ...shaped, limbs: {} }, side, rotation, "wrist")(Vector3.scale(normal, -1));
-    return Vector3.addScaled(point, normal, Math.max(0, surface + depth - Vector3.dot(point, normal)));
+    const depth: number = handReach(
+      body,
+      { ...shaped, limbs: {} },
+      side,
+      rotation,
+      "wrist",
+    )(Vector3.scale(normal, -1));
+    return Vector3.addScaled(
+      point,
+      normal,
+      Math.max(0, surface + depth - Vector3.dot(point, normal)),
+    );
   }
 
   /** Actuate the fingers of each placed hand along with its wrist. */
@@ -352,9 +418,14 @@ export namespace seatedHands {
     share: number,
   ): IAutoMovieMotionHumanPosture {
     if (sides.length === 0) return posture;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
     for (const side of sides) {
-      const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
+      const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+        side,
+        "flat",
+      );
       for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {
         const from = joints[bone] ?? [0, 0, 0];
         const to = flat[bone]!;
@@ -402,7 +473,17 @@ export namespace seatedHands {
       limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(body, side, {
         surface: "palm",
         shape: "flat",
-        point: laid(body, posture, side, rotation, frame.bone, thigh, point, normal, skin?.[side]),
+        point: laid(
+          body,
+          posture,
+          side,
+          rotation,
+          frame.bone,
+          thigh,
+          point,
+          normal,
+          skin?.[side],
+        ),
         rotation,
         bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
       });
@@ -414,8 +495,9 @@ export namespace seatedHands {
    * The palm's place on a thigh: the thigh's own collider met along the
    * surface's normal, by a ray from outside the thigh's bounding ball, then
    * the flat hand's colliders kept clear of it by how far they reach past
-   * the palm toward the thigh (`handReach`), so the resting hand touches the
-   * thigh without entering it. The surface region's point stands in where
+   * the palm toward the thigh (`handReach`) and by the thigh's curve under
+   * the palm's sides, so the resting hand touches the thigh without entering
+   * it. The surface region's point stands in where
    * the ray finds no collider.
    */
   function laid(
@@ -430,13 +512,30 @@ export namespace seatedHands {
     prepared?: PalmRests[AutoMovieHumanSide],
   ): IAutoMovieVector3 {
     const inward: IAutoMovieVector3 = Vector3.scale(normal, -1);
-    const skin: IAutoMovieVector3 = prepared === undefined
-      ? prepareThighSkin.cast(body, new Map([[bone, thigh]]), point, normal)
-      : prepared.skin(thigh);
-    const depth: number = prepared === undefined
-      ? handReach(body, { ...posture, limbs: {} }, side, rotation, "palm", "flat")(inward)
-      : prepared.reach(Quaternion.rotateVector(Quaternion.inverse(rotation), inward));
-    return Vector3.addScaled(skin, normal, depth);
+    const skin: IAutoMovieVector3 =
+      prepared === undefined
+        ? prepareThighSkin.cast(body, new Map([[bone, thigh]]), point, normal)
+        : prepared.skin(thigh);
+    const depth: number =
+      prepared === undefined
+        ? handReach(
+            body,
+            { ...posture, limbs: {} },
+            side,
+            rotation,
+            "palm",
+            "flat",
+          )(inward)
+        : prepared.reach(
+            Quaternion.rotateVector(Quaternion.inverse(rotation), inward),
+          );
+    // The thigh curves away under the palm's sides, which the reach along
+    // the normal at its middle does not see: the flat hand is lifted by the
+    // sagitta of its half breadth on the thigh's radius, so its thumb and
+    // little finger clear the curve too.
+    const half: number = (PALM_BREADTH * body.measure.hand) / 2;
+    const sagitta: number = (half * half) / (2 * body.measure.thighRadius);
+    return Vector3.addScaled(skin, normal, depth + sagitta);
   }
 
   /** Resolve this call's observed frames under the canonical demand guards. */

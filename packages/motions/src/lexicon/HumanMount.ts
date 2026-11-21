@@ -38,6 +38,12 @@ export namespace HumanMount {
   /** Peak forward trunk inclination while getting onto or off a high seat, degrees (provisional). */
   export const LEAN: number = 20;
 
+  /** How far each hanging upper arm abducts while the legs climb onto or off a high seat, clear of a lifted thigh, degrees (provisional). */
+  export const OPEN: number = 20;
+
+  /** How far a pushing foot's toes point down as it leaves the floor, degrees: it pushes off from the ball (provisional). */
+  export const POINT: number = 40;
+
   /**
    * The thigh's direction from the hip when a foot hangs from a high seat,
    * in the sitter's frame with `x` outward: level ahead on a seat sat on
