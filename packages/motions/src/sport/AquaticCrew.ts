@@ -13,6 +13,9 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 
+/** The world up axis, which is the hull's up at rest. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
 /**
  * Hull frames and shared wrist and ankle support for paddle and sail.
  *
@@ -45,8 +48,14 @@ export namespace AquaticCrew {
   /** Anatomical side. */
   export type Side = "left" | "right";
 
-  /** Obtain support anchors once from the entered performer and the moving scene prop. */
-  export function bind(context: AquaticPosture.Context): IHull {
+  /** The limb goal key of one leg. */
+  export type Leg = `${Side}Leg`;
+
+  /** Obtain entered anchors, with native handle validation for laws that pose the whole rig. */
+  export function bind(
+    context: AquaticPosture.Context,
+    native: boolean = false,
+  ): IHull {
     const { params, entry, start } = context;
     const id: string | undefined = params.support;
     if (id === undefined)
@@ -81,19 +90,28 @@ export namespace AquaticCrew {
         ? undefined
         : carrier.prop.point?.(name, start + seconds)?.point;
     };
-    for (const side of ["left", "right"] as const)
+    for (const side of ["left", "right"] as const) {
+      const name: string | undefined =
+        side === "left" ? params.leftGrip : params.rightGrip;
       if (
-        (side === "left" ? params.leftGrip : params.rightGrip) !== undefined &&
-        grip(side, 0) === undefined
+        name !== undefined &&
+        grip(side, 0) === undefined &&
+        !(
+          native &&
+          carrier.prop.affordances?.some(
+            (contact) => contact.id === name && contact.kind === "handle",
+          ) === true
+        )
       )
         throw new HumanRefusal({
           kind: "affordance",
           axis: `${side}Grip`,
-          value: (side === "left" ? params.leftGrip : params.rightGrip)!,
+          value: name,
           feasible: null,
           reason: "the supporting craft has no such grip point",
-          fix: "name a socket furnished by the boat's performance prop",
+          fix: "name a handle or placed socket on the boat's performance prop",
         });
+    }
     return {
       id,
       inverse,
@@ -108,7 +126,12 @@ export namespace AquaticCrew {
     };
   }
 
-  /** Convert staged hull-local motion to the displayed pose and fit the active wrists and ankles. */
+  /**
+   * Convert staged hull-local motion to the displayed pose and fit the
+   * active wrists and ankles. A foot keeps its entered orientation in the
+   * hull, turned by its own degrees about the hull's up axis (`turns`), so a
+   * stepping sailor's swung foot lands facing the new heading.
+   */
   export function apply(
     context: AquaticPosture.Context,
     hull: IHull,
@@ -118,6 +141,7 @@ export namespace AquaticCrew {
     left?: IAutoMovieVector3,
     right?: IAutoMovieVector3,
     braced: boolean = false,
+    turns: Partial<Readonly<Record<Side, number>>> = {},
   ): IAutoMovieMotionHumanPosture {
     const frame: IAutoMovieRigidTransform = hull.frame(seconds);
     const world = (point: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -152,7 +176,13 @@ export namespace AquaticCrew {
               ankle: world(foot),
               rotation: Quaternion.multiply(
                 carrierTurn,
-                context.entry.feet[side].rotation,
+                Quaternion.multiply(
+                  Quaternion.fromAxisAngle(
+                    Quaternion.rotateVector(hull.origin.rotation, UP),
+                    turns[side] ?? 0,
+                  ),
+                  context.entry.feet[side].rotation,
+                ),
               ),
             },
             false,

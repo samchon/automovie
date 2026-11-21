@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -35,7 +36,7 @@ export namespace AquaticPolo {
     water: number,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, params, entry } = context;
-    const side: "left" | "right" = params.side ?? "right";
+    const side: AutoMovieHumanSide = params.side ?? "right";
     const handed: number = side === "left" ? 1 : -1;
     const attack: boolean =
       params.role !== "defend" && params.role !== "keeper";

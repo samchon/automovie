@@ -5,11 +5,13 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
@@ -183,7 +185,7 @@ export namespace AquaticTeam {
     const support: ReturnType<typeof prepareBase> | undefined = base
       ? prepareBase(context, water, tHigh)
       : undefined;
-    const contact: Readonly<Record<"left" | "right", IAutoMovieVector3>> = {
+    const contact: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {
       left: HumanFoot.offset(body, "left", "ball"),
       right: HumanFoot.offset(body, "right", "ball"),
     };
@@ -205,7 +207,7 @@ export namespace AquaticTeam {
         ? []
         : (["left", "right"] as const).map(
             (
-              side: "left" | "right",
+              side: AutoMovieHumanSide,
               i: number,
             ): IAutoMovieMotionHumanContactWindow => ({
               part: `${side}Foot`,
@@ -293,7 +295,7 @@ export namespace AquaticTeam {
         const legs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           legsAt(shaped);
         const limb = (
-          side: "left" | "right",
+          side: AutoMovieHumanSide,
           index: 0 | 1,
         ): IAutoMovieHumanLimbGoal => {
           const base: IAutoMovieMotionHumanPerformerReader = partners[index];
@@ -351,7 +353,7 @@ const UPWARD: number = 0.8;
 /** Fixed plan-time placement and pose offer of one supporting hand. */
 interface IPalmOffer {
   /** The supporting hand's anatomical side. */
-  side: "left" | "right";
+  side: AutoMovieHumanSide;
 
   /** Its bearing palm offset in hand coordinates, metres. */
   contact: IAutoMovieVector3;
@@ -381,23 +383,23 @@ function prepareBase(
   weight: number,
 ) => IAutoMovieMotionHumanPosture {
   const { body, entry, params }: AquaticPosture.Context = context;
-  const sides: readonly ("left" | "right")[] =
+  const sides: readonly AutoMovieHumanSide[] =
     params.side === undefined ? ["left", "right"] : [params.side];
   const markers: ReturnType<typeof AquaticPosture.markers> =
     AquaticPosture.markers(
       body,
-      sides.flatMap((side: "left" | "right"): AutoMovieHumanoidBone[] => [
+      sides.flatMap((side: AutoMovieHumanSide): AutoMovieHumanoidBone[] => [
         `${side}Hand`,
         `${side}LowerArm`,
       ]),
     );
-  const frame: { origin: IAutoMovieVector3; yaw: number } = {
+  const frame: IAutoMovieMotionHumanFrame = {
     origin: entry.posture.root,
     yaw: entry.posture.yaw,
   };
   const fingers: IAutoMovieVector3 = HumanFrame.forward(frame.yaw);
   const palms: readonly IPalmOffer[] = sides.map(
-    (side: "left" | "right"): IPalmOffer => ({
+    (side: AutoMovieHumanSide): IPalmOffer => ({
       side,
       contact: HumanHand.offset(body, side, "palm").point,
       at: HumanFrame.point(frame, {

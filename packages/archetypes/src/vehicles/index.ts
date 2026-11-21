@@ -4,6 +4,7 @@ export * from "./createCanoePaddle";
 export * from "./createCar";
 export * from "./createCart";
 export * from "./createDeck";
+export * from "./createDinghy";
 export * from "./createDoubleScull";
 export * from "./createKayak";
 export * from "./createKayakPaddle";

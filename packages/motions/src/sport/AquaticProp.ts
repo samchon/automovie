@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -130,7 +131,7 @@ export namespace AquaticProp {
   export function hold(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     handle: IContact["world"],
   ): IAutoMovieHumanLimbGoal {
     const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(

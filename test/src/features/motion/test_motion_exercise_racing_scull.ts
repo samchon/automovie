@@ -71,7 +71,9 @@ function verifyCrew(body: IAutoMovieMotionHumanBody): void {
     const { translation, rotation } = course.at(t).placement;
     return { position: translation, rotation };
   };
-  const take = (second: "bow" | "stroke"): HumanPerformance =>
+  const take = (
+    second: IAutoMovieMotionHumanAquatic.Station,
+  ): HumanPerformance =>
     new HumanPerformance({
       seed: "racing-scull",
       laws: [aquatic],
@@ -270,7 +272,7 @@ function verifyCrew(body: IAutoMovieMotionHumanBody): void {
 
 function rower(
   subject: string,
-  station: "bow" | "stroke",
+  station: IAutoMovieMotionHumanAquatic.Station,
   phase: number,
 ): ReturnType<typeof HumanChain.subject>["node"] {
   const params: IAutoMovieMotionHumanAquatic.IParams = {

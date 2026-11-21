@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import {
   type Archetype,
@@ -194,13 +197,12 @@ function hull(
 }
 
 /** Put an actual angled brace face and foot contact inside the coaming. */
-function brace(
-  builder: Build,
-  id: "leftFoot" | "rightFoot",
-  sign: number,
-): void {
+function brace(builder: Build, id: createKayak.Brace, sign: number): void {
   const at: IAutoMovieVector3 = v(sign * 0.16, FLOOR + 0.125, 0.53);
-  const rotation = Quaternion.fromAxisAngle(v(1, 0, 0), -70);
+  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    v(1, 0, 0),
+    -70,
+  );
   const normal: IAutoMovieVector3 = Quaternion.rotateVector(
     rotation,
     v(0, 1, 0),
@@ -234,7 +236,10 @@ function brace(
  */
 export namespace createKayak {
   /** The pan and paired footbrace faces. */
-  export type Affordance = "seat" | "leftFoot" | "rightFoot";
+  export type Affordance = "seat" | Brace;
+
+  /** The two footbrace faces, one per foot. */
+  export type Brace = "leftFoot" | "rightFoot";
   /** Overall and opening dimensions, and hull mass. */
   export type Dimension =
     | "length"

@@ -20,6 +20,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 
+/** An invalid base assignment: a base absent from the scene, or one in the wrong role. */
+type InvalidBases = "missing" | "wrong-role";
+
 /** The existing 10 mm displayed support tolerance, metres. */
 const CONTACT: number = 0.01;
 
@@ -204,7 +207,7 @@ export function test_motion_exercise_artistic_support(): void {
 function stageArtistic(
   body: IAutoMovieMotionHumanBody,
   water: number,
-  invalid?: "missing" | "wrong-role",
+  invalid?: InvalidBases,
 ): HumanPerformance {
   const beat: number = 0.23;
   const swimmers: ConstructorParameters<

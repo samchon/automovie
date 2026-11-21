@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
@@ -8,6 +9,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropDrive,
+  IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -234,8 +236,29 @@ export namespace AquaticScull {
   }
 }
 
+/** The stroke cycle at one instant. */
+interface IStroke {
+  /** Drive progress: 0 at the catch, 1 at extraction, back to 0 over recovery. */
+  drive: number;
+
+  /** Blade lift out of the water over recovery, in [0, 1]. */
+  lift: number;
+}
+
+/** A foot goal set on a stretcher plate. */
+interface IStretcherGoal {
+  /** World ankle target, metres. */
+  ankle: IAutoMovieVector3;
+
+  /** World foot rotation. */
+  rotation: IAutoMovieQuaternion;
+
+  /** The sole ball offset in the foot frame, metres. */
+  contact: IAutoMovieVector3;
+}
+
 /** One complete periodic drive with lift and an unloaded return. */
-function stroke(total: number): { drive: number; lift: number } {
+function stroke(total: number): IStroke {
   const at: number = total - Math.floor(total);
   const recovery: number = Math.max(0, (at - EXTRACTION) / (1 - EXTRACTION));
   return {
@@ -262,13 +285,9 @@ function seatPoint(seat: AquaticProp.IContact): IAutoMovieVector3 {
 /** Turn the foot along the stretcher's toe-facing X axis and put its sole ball on the plate. */
 function stretcher(
   { body }: AquaticPosture.Context,
-  side: (typeof SIDES)[number][0],
+  side: AutoMovieHumanSide,
   plate: AquaticProp.IContact["world"],
-): {
-  ankle: IAutoMovieVector3;
-  rotation: IAutoMovieTransform["rotation"];
-  contact: IAutoMovieVector3;
-} {
+): IStretcherGoal {
   const rotation: IAutoMovieTransform["rotation"] = Quaternion.multiply(
     plate.rotation,
     Quaternion.fromAxisAngle(UP, 90),
