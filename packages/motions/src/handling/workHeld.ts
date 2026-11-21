@@ -38,6 +38,12 @@ import { pickUp } from "./pickUp";
 import { workHeldPush } from "./workHeldPush";
 import { writeWith } from "./writeWith";
 
+/** A level prop's rim points, metres out from its origin along its own level axes. */
+const RIM: number = 0.15;
+
+/** How far a level prop may tilt from level, degrees: provisional, a held tray's small tilt. */
+const LEVEL: number = 10;
+
 /**
  * Work a prop the hand already holds without letting go: the fingers drive
  * its articulations (scissor blades closed by their rings, a folding
@@ -287,10 +293,31 @@ function place(
   const rotation: IAutoMovieQuaternion = chosen.rotation;
   const wrist: IAutoMovieVector3 = chosen.point;
   writeWith.reach(context, side, [wrist], { x: 0, y: 0, z: 0 });
+  // A level prop's rim is held within LEVEL of the asked attitude as a
+  // hard task limit, since a goal's rotation alone gives way where the arm
+  // cannot meet it.
+  const rim: IAutoMovieHumanEffectorPointLimit[] =
+    at.level === true
+      ? [
+          { x: RIM, y: 0, z: 0 },
+          { x: -RIM, y: 0, z: 0 },
+          { x: 0, y: 0, z: RIM },
+          { x: 0, y: 0, z: -RIM },
+        ].map(
+          (axis: IAutoMovieVector3): IAutoMovieHumanEffectorPointLimit => ({
+            contact: Vector3.add(
+              offset.position,
+              Quaternion.rotateVector(offset.rotation, axis),
+            ),
+            bound: RIM * Math.sin((LEVEL * Math.PI) / 180),
+          }),
+        )
+      : [];
   return {
     wrist,
     rotation,
     contact: offset.position,
+    limits: rim,
     travel: Vector3.length(Vector3.subtract(wrist, hand.worldPosition)),
   };
 }
@@ -328,6 +355,7 @@ function arm(
       point: goal.wrist,
       rotation: goal.rotation,
       contact: goal.contact,
+      ...(goal.limits.length === 0 ? {} : { limits: goal.limits }),
       bend,
     }),
   });
@@ -343,6 +371,9 @@ interface IGoal {
 
   /** The prop's origin from the wrist in the hand's frame, metres. */
   contact: IAutoMovieVector3;
+
+  /** The hard limits that keep a level prop level; none otherwise. */
+  limits: IAutoMovieHumanEffectorPointLimit[];
 
   /** The wrist's travel from entry, metres. */
   travel: number;

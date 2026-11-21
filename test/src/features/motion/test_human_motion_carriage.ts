@@ -310,7 +310,7 @@ function tray(
       prop: "tray",
       side: "right",
       at: {
-        out: 0.3,
+        out: 0.2,
         // The palm just under shoulder height, the forearm level.
         up: body.measure.shoulderHeight - 0.1,
         forward: 0.25,
