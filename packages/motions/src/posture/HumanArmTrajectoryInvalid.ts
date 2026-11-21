@@ -4,6 +4,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryLimits } from "./HumanArmTrajectoryLimits";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
@@ -90,7 +91,7 @@ export namespace HumanArmTrajectoryInvalid {
           note(
             pair.short - T.SKIN,
             () =>
-              `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside shape ${pair.shape}`,
+              `${nameArmTrajectoryPair(c, a, k, pair.probe, pair.shape)} ${pair.short.toFixed(1)} mm deep`,
           );
       for (const pair of P.embedded(c, a, k, placed[a]!).values())
         note(

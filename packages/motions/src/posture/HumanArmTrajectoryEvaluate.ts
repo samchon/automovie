@@ -8,6 +8,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 import { HumanArmTrajectoryMaterialSweep } from "./HumanArmTrajectoryMaterialSweep";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
@@ -198,7 +199,7 @@ export function HumanArmTrajectoryEvaluate(
           short,
           "swept",
           () =>
-            `probe ${sweep.probe} swept ${short.toFixed(1)} mm inside shape ${sweep.shape} after ${times[k]!.toFixed(3)} s`,
+            `${nameArmTrajectoryPair(c, a, k, sweep.probe, sweep.shape)} swept ${short.toFixed(1)} mm deep after ${times[k]!.toFixed(3)} s`,
         );
       }
     }
@@ -275,7 +276,7 @@ export function HumanArmTrajectoryEvaluate(
           pair.short,
           "probe",
           () =>
-            `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside shape ${pair.shape} at ${times[k]!.toFixed(3)} s`,
+            `${nameArmTrajectoryPair(c, a, k, pair.probe, pair.shape)} ${pair.short.toFixed(1)} mm deep at ${times[k]!.toFixed(3)} s`,
           T.SKIN,
         );
         // A declared rest is drawn to where its segments meet.
@@ -303,7 +304,7 @@ export function HumanArmTrajectoryEvaluate(
         for (const sweep of material) {
           swept[a]![k]!.push(sweep);
           const short: number = 1000 * (sweep.lower - sweep.clear);
-          note(short, "swept", () => `probe ${sweep.probe} swept ${short.toFixed(1)} mm inside shape ${sweep.shape} after ${times[k]!.toFixed(3)} s`);
+          note(short, "swept", () => `${nameArmTrajectoryPair(c, a, k, sweep.probe, sweep.shape)} swept ${short.toFixed(1)} mm deep after ${times[k]!.toFixed(3)} s`);
         }
       }
       interval = false;
