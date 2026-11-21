@@ -33,7 +33,8 @@ const BALLS: readonly string[] = ["b1", "b2", "b3"];
  * 1. Every throw leaves one hand and is caught by the other at its planned
  *    flight time: at each catch the ball's centre is within 30 mm of the
  *    catching hand's point.
- * 2. No hand holds two balls at once after the first throws.
+ * 2. No hand holds two balls at once between the first throws and the last,
+ *    when the hands gather what is left.
  * 3. The flight, dwell and vacancy read off the plan's events satisfy
  *    Shannon's theorem `(F + D) H = (V + D) N` within a millisecond.
  * 4. A dropped throw's ball falls to the floor.
@@ -90,7 +91,7 @@ export function test_motion_exercise_juggle(): void {
     const grips: readonly IAutoMovieMotionHumanContactWindow[] =
       s.plan.contacts.filter(
         (c: IAutoMovieMotionHumanContactWindow): boolean =>
-          c.kind === "grip" && c.from > 0,
+          c.kind === "grip" && c.from > 0 && c.to < 1,
       );
     let doubled: boolean = false;
     for (const a of grips)

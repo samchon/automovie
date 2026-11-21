@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanJuggle } from "../exercise/IAutoMovieMotionHumanJuggle";
 import type { IAutoMovieMotionHumanLineWalk } from "../exercise/IAutoMovieMotionHumanLineWalk";
+import type { IAutoMovieMotionHumanStiltWalk } from "../exercise/IAutoMovieMotionHumanStiltWalk";
+import type { IAutoMovieMotionHumanTrampoline } from "../exercise/IAutoMovieMotionHumanTrampoline";
 import type { IAutoMovieMotionHumanFieldThrow } from "../sport/IAutoMovieMotionHumanFieldThrow";
 import type { IAutoMovieMotionHumanHandspring } from "../sport/IAutoMovieMotionHumanHandspring";
 import type { IAutoMovieMotionHumanHighJump } from "../sport/IAutoMovieMotionHumanHighJump";
@@ -56,4 +58,10 @@ export interface IAutoMovieMotionHumanLexiconGymnasticsParams {
 
   /** Toss juggling: a cascade or a shower. */
   juggling: IAutoMovieMotionHumanJuggle.IParams;
+
+  /** A walk on stilts. */
+  stilts: IAutoMovieMotionHumanStiltWalk.IParams;
+
+  /** Bouncing on a trampoline. */
+  trampoline: IAutoMovieMotionHumanTrampoline.IParams;
 }

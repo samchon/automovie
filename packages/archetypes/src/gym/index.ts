@@ -15,6 +15,8 @@ export * from "./createClimbingRope";
 export * from "./createPullUpBar";
 export * from "./createTightrope";
 export * from "./createBalancePole";
+export * from "./createStilt";
+export * from "./createTrampoline";
 export * from "./createRack";
 export * from "./createRhythmicBall";
 export * from "./createRing";

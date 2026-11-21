@@ -3,7 +3,9 @@ import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanThrowObjectLaunch,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -12,6 +14,7 @@ import {
   HumanPerformance,
   HumanRefusal,
   catchObject,
+  throwObject,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,6 +42,22 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_motion_exercise_self_catch(): void {
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+
+    // 0. The toss alone rises to its asked height above the hands and comes
+    // back down within the arms' reach of where it left.
+    const toss: IAutoMovieMotionHumanSegment = take(
+      body,
+      1.2 * body.measure.stature,
+      false,
+    ).segments("a")[1]!;
+    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch =
+      throwObject.of(toss.plan)!;
+    const across: number = Math.hypot(launch.velocity.x, launch.velocity.z);
+    TestValidator.predicate(
+      `${name} tosses up (${launch.velocity.y.toFixed(2)} m/s up, ${across.toFixed(2)} m/s across, from ${launch.point.y.toFixed(2)} m)`,
+      launch.velocity.y > 0 && across <= 1,
+    );
+
     const film: HumanPerformance = take(body, 1.2 * body.measure.stature);
     const segments: readonly IAutoMovieMotionHumanSegment[] =
       film.segments("a");
@@ -102,7 +121,24 @@ export function test_motion_exercise_self_catch(): void {
 function take(
   body: IAutoMovieMotionHumanBody,
   height: number,
+  catching: boolean = true,
 ): HumanPerformance {
+  const tossed: IAutoMovieMotionHumanChain = HumanChain.subject("a")
+    .pickUp({ prop: "ball", handle: "grip", lift: 0.1 })
+    .registered(
+      "throwObject",
+      {
+        at: {
+          kind: "point",
+          at: { x: 0, y: height, z: 0.35 },
+          frame: "performer",
+        },
+        style: "toss",
+        angle: 80,
+        prop: "ball",
+      },
+      "toss",
+    );
   return new HumanPerformance({
     seed: "self-catch",
     performers: [
@@ -120,28 +156,14 @@ function take(
         yaw: 0,
       }),
     ],
-    composition: HumanChain.subject("a")
-      .pickUp({ prop: "ball", handle: "grip", lift: 0.1 })
-      .registered(
-        "throwObject",
-        {
-          at: {
-            kind: "point",
-            at: { x: 0, y: height, z: 0.35 },
-            frame: "performer",
-          },
-          style: "toss",
-          angle: 80,
-          prop: "ball",
-        },
-        "toss",
-      )
-      .until({ event: "release" })
-      .registered("catchObject", {
-        from: "toss",
-        ball: "ball",
-        hands: "one",
-        side: "right",
-      }).node,
+    composition: (catching
+      ? tossed.until({ event: "release" }).registered("catchObject", {
+          from: "toss",
+          ball: "ball",
+          hands: "one",
+          side: "right",
+        })
+      : tossed
+    ).node,
   });
 }

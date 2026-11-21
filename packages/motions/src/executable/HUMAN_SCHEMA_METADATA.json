@@ -2713,6 +2713,35 @@
         }
       }
     },
+    "stilts": {
+      "properties": {
+        "steps": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        }
+      }
+    },
+    "trampoline": {
+      "properties": {
+        "bounces": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "apex": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        }
+      }
+    },
     "lineWalk": {
       "properties": {
         "steps": {

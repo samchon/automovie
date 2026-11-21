@@ -29,6 +29,7 @@ import type {
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -315,9 +316,17 @@ export namespace lineWalk {
           from: 0,
           to: duration,
           placement: (
-            _: IAutoMovieMotionHumanPosture,
+            posture: IAutoMovieMotionHumanPosture,
             t: number,
-          ): IAutoMovieMotionHumanFoot.IPlacement => placementAt(t),
+          ): IAutoMovieMotionHumanFoot.IPlacement =>
+            planted(t)
+              ? placementAt(t)
+              : AutoMovieMotionHumanFootRelax.of(
+                  body,
+                  posture,
+                  side,
+                  placementAt(t),
+                ),
           planted,
         }),
       );

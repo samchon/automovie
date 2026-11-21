@@ -17,6 +17,7 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -135,10 +136,14 @@ export namespace DanceFootwork {
       side,
       from: 0,
       to: duration,
+      // A foot that bears nothing relaxes within its passive range.
       placement: (
-        _: IAutoMovieMotionHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         t: number,
-      ): IAutoMovieMotionHumanFoot.IPlacement => placed(t),
+      ): IAutoMovieMotionHumanFoot.IPlacement =>
+        planted(t)
+          ? placed(t)
+          : AutoMovieMotionHumanFootRelax.of(body, posture, side, placed(t)),
       planted,
     });
     // A foot risen on its ball at the floor bends its toes back by the heel's
@@ -305,6 +310,7 @@ export namespace DanceFootwork {
       base: AutoMovieMotionHumanBase.still(course.duration, entry, [
         ...left.contacts,
         ...right.contacts,
+        ...(course.contacts ?? []),
         ...(course.holds ?? []).map(
           (
             hold: IAutoMovieMotionHumanDanceCourse.IHold,

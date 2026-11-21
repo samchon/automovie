@@ -5,6 +5,8 @@ import type {
 
 import { juggle } from "../exercise/juggle";
 import { lineWalk as lineWalkLaw } from "../exercise/lineWalk";
+import { stiltWalk } from "../exercise/stiltWalk";
+import { trampolineBounce } from "../exercise/trampolineBounce";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { fieldThrow as fieldThrowLaw } from "../sport/fieldThrow";
 import { handspring } from "../sport/handspring";
@@ -99,4 +101,14 @@ export namespace HumanGymnastics {
   export const juggling: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["juggling"]
   > = HumanActionRow.of("juggling", juggle, {});
+
+  /** A walk on stilts. */
+  export const stilts: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["stilts"]
+  > = HumanActionRow.of("stilts", stiltWalk, {});
+
+  /** Bouncing on a trampoline. */
+  export const trampoline: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["trampoline"]
+  > = HumanActionRow.of("trampoline", trampolineBounce, {});
 }
