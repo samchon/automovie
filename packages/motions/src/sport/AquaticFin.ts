@@ -95,8 +95,11 @@ export namespace AquaticFin {
         Vector3.add(posture.root, Vector3.subtract(hips, at)),
       );
     };
-    const forward = (distance: number, height: number): IAutoMovieVector3 =>
-      AquaticPosture.along(entry.posture, distance, height);
+    // The swimmer travels along its entered heading.
+    const heading: IAutoMovieVector3 = Vector3.subtract(
+      AquaticPosture.along(entry.posture, 1, 0),
+      AquaticPosture.along(entry.posture, 0, 0),
+    );
     const entered: IAutoMovieVector3 = hipsAt(entry.posture).get(
       "hips",
     )!.worldPosition;
@@ -123,11 +126,10 @@ export namespace AquaticFin {
           const t: number = Math.max(0, Math.min(seconds, time));
           const settle: number = minimumJerk.share(Math.min(1, t));
           const travelled: number = speed * Math.max(0, t - 0.5);
-          const hips: IAutoMovieVector3 = forward(travelled, hipsY);
           return place(kick(prone, t), {
-            x: entered.x + (hips.x - entered.x) * 1,
+            x: entered.x + heading.x * travelled,
             y: entered.y + (hipsY - entered.y) * settle,
-            z: entered.z + (hips.z - entered.z) * 1,
+            z: entered.z + heading.z * travelled,
           });
         },
       };
