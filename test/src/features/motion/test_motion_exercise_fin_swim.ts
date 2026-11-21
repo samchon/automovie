@@ -19,6 +19,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The water surface, world metres. */
@@ -59,6 +60,7 @@ export function test_motion_exercise_fin_swim(): void {
       );
     const small: HumanPerformance = swim(0.3);
     const large: HumanPerformance = swim(0.45);
+    assertTakeClean(`${profile}: the fin swim passes the generic audit`, small);
     const trim = (film: HumanPerformance, seconds: number): number => {
       const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
         "diver",
@@ -107,8 +109,10 @@ export function test_motion_exercise_fin_swim(): void {
     });
     TestValidator.predicate(
       `${profile}: the OK and up signals ride the fin swim`,
-      signals.overlays("diver").map((o): string => o.name).join(",") ===
-        "okSign,thumbsUp",
+      signals
+        .overlays("diver")
+        .map((o): string => o.name)
+        .join(",") === "okSign,thumbsUp",
     );
     const mount: number[] = [1, 3, 5].map((seconds: number): number =>
       Vector3.distance(
@@ -127,6 +131,7 @@ export function test_motion_exercise_fin_swim(): void {
       [fin("fin", "leftFoot", 0.35)],
     );
     const segment: IAutoMovieMotionHumanSegment = dive.segments("diver")[0]!;
+    assertTakeClean(`${profile}: the duck dive passes the generic audit`, dive);
     const up: ReturnType<HumanPerformance["bones"]> = dive.bones(
       "diver",
       at(segment, "legsUp"),
@@ -217,7 +222,9 @@ function stage(
 }
 
 /** The diver at the surface over the pool. */
-function diverAt(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanPerformer {
+function diverAt(
+  body: IAutoMovieMotionHumanBody,
+): IAutoMovieMotionHumanPerformer {
   return {
     subject: "diver",
     body,

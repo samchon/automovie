@@ -16,6 +16,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -56,6 +57,7 @@ export function test_motion_exercise_artistic_support(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const water: number = 0.41;
   const figure: HumanPerformance = stageArtistic(body, water);
+  assertTakeClean("artistic support", figure);
   const primary: IAutoMovieMotionHumanSegment = figure.segments("flyer")[0]!;
   const acquire: number = time(primary, "supportAcquire");
   const peak: number = time(primary, "figure");

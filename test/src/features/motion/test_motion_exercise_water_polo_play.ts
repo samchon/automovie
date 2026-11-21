@@ -25,6 +25,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { vclose } from "../internal/vclose";
 
@@ -109,6 +110,7 @@ export function test_motion_exercise_water_polo_play(): void {
   const scored: HumanPerformance = stage(performers, props, "goal", pass);
   const shot: number = aimed(stage(performers, props, "save", pass), 1);
   const saved: HumanPerformance = stage(performers, props, "save", pass, shot);
+  assertTakeClean("the play passes the generic audit", scored);
 
   const flights: readonly IAutoMovieMotionHumanPropFlight.IFlight[] =
     scored.flights("ball");

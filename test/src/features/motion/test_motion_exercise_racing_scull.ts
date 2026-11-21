@@ -23,6 +23,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { vclose } from "../internal/vclose";
 
@@ -91,6 +92,7 @@ function verifyCrew(body: IAutoMovieMotionHumanBody): void {
       },
     });
   const film: HumanPerformance = take("stroke");
+  assertTakeClean("racing scull", film);
   const world = (
     model: typeof shell,
     name: createDoubleScull.Affordance,

@@ -31,6 +31,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** Contact bound in metres: one centimetre of displayed geometry. */
@@ -109,6 +110,7 @@ export function test_motion_exercise_triathlon_transition(): void {
     });
     const segments: readonly IAutoMovieMotionHumanSegment[] =
       film.segments("athlete");
+    assertTakeClean(`${entry}: the take passes the generic audit`, film);
     TestValidator.equals(
       `${entry}: swim, exit, T1, bike leg, T2 and run in order`,
       segments.map((s: IAutoMovieMotionHumanSegment): string => s.name),

@@ -21,6 +21,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The pool's water surface, world metres. */
@@ -78,6 +79,11 @@ function distress(body: IAutoMovieMotionHumanBody): void {
   });
   const segment: IAutoMovieMotionHumanSegment = film.segments("victim")[0]!;
   const submerge: number = at(segment, "submerge");
+  TestValidator.predicate(
+    "the struggle starts submerging at the authored seconds",
+    Math.abs(submerge - 20) < 1e-6,
+  );
+  assertTakeClean("the struggle passes the generic audit", film);
   let mouth: number = 0;
   let hands: number = -Infinity;
   for (let i: number = 1; i <= 60; ++i) {
@@ -149,6 +155,7 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
     });
   const film: HumanPerformance = take({ x: 1.5, y: WATER - 1.4, z: 6 }, 20);
   const tow: IAutoMovieMotionHumanSegment = film.segments("victim")[1]!;
+  assertTakeClean("the rescue passes the generic audit", film);
   const begin: number = tow.start;
   const end: number = tow.start + tow.plan.duration;
   let clear: number = Infinity;
@@ -227,6 +234,7 @@ function exit(body: IAutoMovieMotionHumanBody): void {
     });
   const film: HumanPerformance = take(WATER);
   const segment: IAutoMovieMotionHumanSegment = film.segments("swimmer")[0]!;
+  assertTakeClean("the exit passes the generic audit", film);
   const hands: number = at(segment, "hands");
   const start: number = film.bones("swimmer", 0).get("hips")!.worldPosition.y;
   const palms: number = Math.max(

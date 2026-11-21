@@ -20,6 +20,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** Contact bound in metres: one centimetre of displayed geometry. */
@@ -43,18 +44,11 @@ interface IControl {
   handle: createDinghy.Affordance;
 }
 
-/** The helm steers with the aft hand and trims with the forward hand. */
-const CONTROLS: readonly IControl[] = [
-  { side: "right", handle: "tiller" },
-  { side: "left", handle: "mainSheet" },
-];
-
-/** After a completed tack the hands have exchanged their controls. */
-const EXCHANGED: readonly IControl[] = [
-  { side: "left", handle: "tiller" },
-  { side: "right", handle: "mainSheet" },
-];
-
+/** Each sailor's hand on its control: the helm steers, the crew trims. */
+const CONTROLS: Readonly<Record<Crew, IControl>> = {
+  helm: { side: "right", handle: "tiller" },
+  crew: { side: "left", handle: "mainSheet" },
+};
 /**
  * A helm and crew tack a moving two-person dinghy, or abort the tack, while
  * the helm works its real tiller and mainsheet.
@@ -63,9 +57,8 @@ const EXCHANGED: readonly IControl[] = [
  * 1. Both sailors start on the port side of the moving hull. Through a tack
  *    both pelvises cross the centreline and the boom swings to the other
  *    side; through an abort both return to port and the boom returns.
- * 2. The helm's hands hold the tiller and mainsheet handles of the posed
- *    rig while the rudder and boom move; after a completed tack the hands
- *    exchange controls, and a hand stays on the tiller throughout.
+ * 2. The helm's hand holds the tiller and the crew's hand the mainsheet on
+ *    the posed rig while the rudder and boom move.
  * 3. Each planted forefoot stays on the cockpit floor of the moving hull
  *    without slipping, and the crew moves its feet before the helm.
  *
@@ -145,6 +138,7 @@ export function test_motion_exercise_dinghy_tack(): void {
     const hips = (role: Crew, seconds: number): IAutoMovieVector3 =>
       local(seconds, film.bones(role, seconds).get("hips")!.worldPosition);
     const helm: IAutoMovieMotionHumanSegment = film.segments("helm")[0]!;
+    assertTakeClean(`${kind}: the sailors pass the generic audit`, film);
     const crew: IAutoMovieMotionHumanSegment = film.segments("crew")[0]!;
     const end: number = helm.start + helm.plan.duration;
     const side: number = complete ? -1 : 1;
@@ -189,9 +183,6 @@ export function test_motion_exercise_dinghy_tack(): void {
 
     // Hands on the posed handles and soles on the cockpit floor.
     let grip: number = 0;
-    let steer: number = 0;
-    const settle: number = complete ? at(helm, "trailLift") : Infinity;
-    const exchanged: number = complete ? at(helm, "exchanged") : Infinity;
     let floor: number = 0;
     let slip: number = 0;
     for (let i: number = 0; i <= 60; ++i) {
@@ -200,17 +191,15 @@ export function test_motion_exercise_dinghy_tack(): void {
       const rig: ReturnType<typeof dinghy.articulate> = dinghy.articulate(
         film.state("dinghy", seconds),
       );
-      const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
-        "helm",
-        seconds,
-      );
       // A power grip holds a round handle anywhere along its length: the
       // grip centre must lie on the handle's wrapped axis (its +X) within
       // the handle's length.
-      const miss = (
-        side: AutoMovieHumanSide,
-        id: createDinghy.Affordance,
-      ): number => {
+      const miss = (role: Crew): number => {
+        const { side, handle: id }: IControl = CONTROLS[role];
+        const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
+          role,
+          seconds,
+        );
         const affordance: ReturnType<typeof rig.affordance> =
           rig.affordance(id);
         const offset: IAutoMovieVector3 = Vector3.subtract(
@@ -234,19 +223,8 @@ export function test_motion_exercise_dinghy_tack(): void {
         return Math.max(radial, Math.abs(along) - (affordance.length ?? 0) / 2);
       };
       if (seconds >= helmIn)
-        steer = Math.max(
-          steer,
-          Math.min(miss("left", "tiller"), miss("right", "tiller")),
-        );
-      const held: readonly IControl[] =
-        seconds < helmIn || (seconds > settle && seconds < exchanged)
-          ? []
-          : seconds >= exchanged
-            ? EXCHANGED
-            : CONTROLS;
-      for (const control of held) {
-        grip = Math.max(grip, miss(control.side, control.handle));
-      }
+        for (const role of ["helm", "crew"] as const)
+          grip = Math.max(grip, miss(role));
       for (const [role, segment] of [
         ["helm", helm],
         ["crew", crew],
@@ -273,12 +251,8 @@ export function test_motion_exercise_dinghy_tack(): void {
         }
     }
     TestValidator.predicate(
-      `${kind}: the helm's grips stay on the tiller and mainsheet (${grip.toFixed(4)} m)`,
+      `${kind}: the tiller and the mainsheet stay in hand (${grip.toFixed(4)} m)`,
       grip < METRE,
-    );
-    TestValidator.predicate(
-      `${kind}: a hand stays on the tiller from helm-in to the end (${steer.toFixed(4)} m)`,
-      steer < METRE,
     );
     TestValidator.predicate(
       `${kind}: planted forefeet bear on the cockpit floor (${floor.toFixed(4)} m)`,
@@ -291,7 +265,7 @@ export function test_motion_exercise_dinghy_tack(): void {
   }
 }
 
-/** A trained sailor standing on the dinghy, facing across the cockpit. */
+/** A trained sailor standing on the dinghy, facing aft toward the tiller. */
 function sailor(
   body: IAutoMovieMotionHumanBody,
   subject: Crew,
@@ -301,12 +275,12 @@ function sailor(
     subject,
     body,
     at,
-    yaw: 45 - 90,
+    yaw: 45 + 180,
     proficiency: { level: "trained" },
   };
 }
 
-/** The registered parameters of one role; only the helm works the controls. */
+/** The registered parameters of one role: the helm steers and drives the rig, the crew trims the mainsheet. */
 function params(
   kind: IAutoMovieMotionHumanAquatic.Kind,
   role: Crew,
@@ -317,12 +291,11 @@ function params(
         support: "dinghy",
         role,
         side: "left",
-        leftGrip: "mainSheet",
         rightGrip: "tiller",
         boom: "boom",
         rudder: "rudder",
       }
-    : { kind, support: "dinghy", role, side: "left" };
+    : { kind, support: "dinghy", role, side: "left", leftGrip: "mainSheet" };
 }
 
 /** The film second of an event of a segment. */

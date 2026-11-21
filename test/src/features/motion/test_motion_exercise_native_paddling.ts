@@ -30,6 +30,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { vclose } from "../internal/vclose";
 
@@ -168,6 +169,7 @@ export function test_motion_exercise_native_paddling(): void {
         }).node,
       });
     const film: HumanPerformance = take(paddle);
+    assertTakeClean(kind, film);
     const stroke: IAutoMovieMotionHumanSegment = film
       .segments("paddler")
       .at(-1)!;

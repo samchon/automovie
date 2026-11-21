@@ -31,11 +31,20 @@ const CLOSE_HAULED: number = 12;
 /** Share of the maneuver at which the helm has taken its controls (`helmIn`). */
 const HELM_IN: number = 0.12;
 
-/** Share of the maneuver one hand takes to move between two controls, 0.29 s of the 3.65 s maneuver (staged). */
-const EXCHANGE: number = 0.06;
+/** How far the reaching hand rises over the straight path, metres: provisional. */
+const REACH_UP: number = 0.15;
+
+/** How far out to its own side the reaching hand passes, metres: provisional. */
+const REACH_OUT: number = 0.15;
+
+/** How far ahead of the trunk the reaching hand passes, metres: provisional. */
+const REACH_AHEAD: number = 0.2;
 
 /** A hand bone's placement in the hull frame entered by the action. */
 interface IHullLocal {
+  /** Hull-local elbow position, metres, the bend the reach starts from. */
+  elbow: IAutoMovieVector3;
+
   /** Hull-local position, metres. */
   point: IAutoMovieVector3;
 
@@ -55,12 +64,12 @@ interface IControl {
 /**
  * Dinghy tack and near-side recovery when a tack is aborted. The visible
  * foot transfers follow World Sailing Racing Rules 13 and 42 and Schutt (2017).
- * On a craft that declares its handles, the helm reaches the tiller and the
- * mainsheet by the helm-in instant, holds them on the posed rig while its
- * own drives swing the rudder and boom, and after a completed tack exchanges
- * hands between them; on a craft with a standing area for the role the
- * forefoot bears on it and the sailor stays crouched below the boom. The
- * crew's foot transfers lead the helm's.
+ The sailors cross the boat crouched, facing the way they entered. On a
+ * craft that declares its handles, each sailor's hand reaches its control by
+ * the helm-in instant and holds it on the posed rig while the helm's own
+ * drives swing the rudder and boom; on a craft with a standing area for the
+ * role the forefoot bears on it and the sailor stays crouched below the boom.
+ * The crew's foot transfers lead the helm's.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names both outcomes and their supporting references.
  * @evidence contracts/development/design.md#principled-representation Stages body transfers in the hull frame while the helm drives the boat's authored rig.
@@ -134,20 +143,6 @@ export namespace AquaticSail {
     const trailEnd: number = trailStart + 0.19;
     const clearance: number = body.measure.stature * 0.075;
 
-    // A completed tack turns the sailor through facing aft, the tiller in
-    // front, to face inboard from the new side; an abort turns part way and
-    // back. Degrees about the hull's up axis.
-    const turn: number = -initialSide * (aborted ? 80 : 180);
-
-    // A completed tack puts the old aft hand forward: with two controls the
-    // hands exchange them as the trailing foot follows across,
-    // each reach EXCHANGE of the maneuver.
-    const exchange: boolean = !aborted && controls.length === 2;
-    const swap: readonly [number, number, number] = [
-      trailStart,
-      trailStart + EXCHANGE,
-      trailStart + 2 * EXCHANGE,
-    ];
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       AquaticCrew.bear(hull.id, `${lead}Foot`, "plant", 0, leadStart),
       AquaticCrew.bear(
@@ -173,25 +168,16 @@ export namespace AquaticSail {
       ),
       // A hand takes its handle control at the helm-in instant, after it
       // has reached there from the entered pose; placed grips hold from entry.
-      // On the new side the hands exchange their two controls, the left
-      // hand first, so each control keeps a hand on it while the other moves.
-      ...AquaticCrew.grips(hull, params).flatMap(
+      ...AquaticCrew.grips(hull, params).map(
         (
           window: IAutoMovieMotionHumanContactWindow,
-        ): IAutoMovieMotionHumanContactWindow[] => {
-          const control: IControl | undefined = controls.find(
-            (candidate: IControl): boolean =>
-              window.part === `${candidate.side}Hand`,
-          );
-          if (control === undefined) return [window];
-          if (!exchange) return [{ ...window, from: HELM_IN }];
-          const [release, close]: readonly [number, number] =
-            control.side === "left" ? [swap[0], swap[1]] : [swap[1], swap[2]];
-          return [
-            { ...window, from: HELM_IN, to: release },
-            { ...window, from: close, to: 1 },
-          ];
-        },
+        ): IAutoMovieMotionHumanContactWindow =>
+          controls.some(
+            (control: IControl): boolean =>
+              window.part === `${control.side}Hand`,
+          )
+            ? { ...window, from: HELM_IN }
+            : window,
       ),
     ];
 
@@ -200,11 +186,19 @@ export namespace AquaticSail {
       body,
       entry.pose,
       undefined,
-      new Set(["leftHand", "rightHand"]),
+      new Set(["leftHand", "rightHand", "leftLowerArm", "rightLowerArm"]),
     );
     const reachFrom: Readonly<Record<AquaticCrew.Side, IHullLocal>> = {
-      left: hullLocal(hull, enteredHands.get("leftHand")!),
-      right: hullLocal(hull, enteredHands.get("rightHand")!),
+      left: hullLocal(
+        hull,
+        enteredHands.get("leftHand")!,
+        enteredHands.get("leftLowerArm")!,
+      ),
+      right: hullLocal(
+        hull,
+        enteredHands.get("rightHand")!,
+        enteredHands.get("rightLowerArm")!,
+      ),
     };
     const upright: IAutoMovieMotionHumanPosture = entry.posture;
     const drives: IAutoMovieMotionPropDrive[] = [];
@@ -265,7 +259,6 @@ export namespace AquaticSail {
         { name: "leadPlant", share: leadEnd },
         { name: aborted ? "abort" : "trailLift", share: trailStart },
         { name: "settle", share: trailEnd },
-        ...(exchange ? [{ name: "exchanged", share: swap[2] }] : []),
         { name: "relax", share: 1 },
       ],
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -286,7 +279,6 @@ export namespace AquaticSail {
             {
               pitch: 9 + 28 * lower,
               roll: initialSide * (9 - 18 * stride),
-              yaw: turn * stride,
               spine: [9 * lower, 0, (helm ? 20 : 10) * stride],
               neck: -12 * lower,
             },
@@ -342,13 +334,6 @@ export namespace AquaticSail {
           root,
           lead === "left" ? footA : footB,
           lead === "right" ? footA : footB,
-          false,
-          // Each foot turns with the body only while it swings, so a planted
-          // foot keeps its orientation on the deck.
-          {
-            [lead]: turn * (aborted ? first - second : first),
-            [trail]: aborted ? 0 : turn * second,
-          },
         );
         if (deck) {
           // On a deck the forefoot bears, as on a crouched dinghy stance;
@@ -388,44 +373,48 @@ export namespace AquaticSail {
                 ),
           );
           const frame: IAutoMovieRigidTransform = hull.frame(t);
-          const hold = (
-            side: AquaticCrew.Side,
-            handle: string,
-          ): IAutoMovieHumanLimbGoal =>
-            AquaticProp.hold(
+          for (const control of controls) {
+            const held: IAutoMovieHumanLimbGoal = AquaticProp.hold(
               body,
               posture,
-              side,
-              rig.require(handle, "handle").world,
-            );
-          for (const control of controls) {
-            const other: IControl =
-              controls.find((c: IControl): boolean => c !== control) ?? control;
-            const [leave, arrive]: readonly [number, number] =
-              control.side === "left" ? [swap[0], swap[1]] : [swap[1], swap[2]];
-            const held: IAutoMovieHumanLimbGoal = hold(
               control.side,
-              control.handle,
+              rig.require(control.handle, "handle").world,
             );
             const entered: IHullLocal = reachFrom[control.side];
-            const start: IAutoMovieHumanLimbGoal = {
-              ...held,
-              point: Vector3.add(
+            const world = (local: IAutoMovieVector3): IAutoMovieVector3 =>
+              Vector3.add(
                 frame.position,
-                Quaternion.rotateVector(frame.rotation, entered.point),
-              ),
-              rotation: Quaternion.multiply(frame.rotation, entered.rotation),
-            };
+                Quaternion.rotateVector(frame.rotation, local),
+              );
             posture.limbs[`${control.side}Arm`] =
               u < HELM_IN
-                ? blendGoal(start, held, AquaticCrew.span(u, 0, HELM_IN))
-                : !exchange || u <= leave
-                  ? held
-                  : blendGoal(
-                      held,
-                      hold(control.side, other.handle),
-                      AquaticCrew.span(u, leave, arrive),
-                    );
+                ? blendGoal(
+                    {
+                      ...held,
+                      point: world(entered.point),
+                      rotation: Quaternion.multiply(
+                        frame.rotation,
+                        entered.rotation,
+                      ),
+                      bend: world(entered.elbow),
+                    },
+                    held,
+                    AquaticCrew.span(u, 0, HELM_IN),
+                    // The hand comes up, out to its own side and forward,
+                    // clear of the thigh.
+                    Vector3.add(
+                      { x: 0, y: REACH_UP, z: 0 },
+                      Quaternion.rotateVector(
+                        resolveHumanPosture.heading(posture),
+                        {
+                          x: (control.side === "left" ? 1 : -1) * REACH_OUT,
+                          y: 0,
+                          z: REACH_AHEAD,
+                        },
+                      ),
+                    ),
+                  )
+                : held;
           }
         }
         return posture;
@@ -438,22 +427,37 @@ export namespace AquaticSail {
     from: IAutoMovieHumanLimbGoal,
     to: IAutoMovieHumanLimbGoal,
     share: number,
+    bow: IAutoMovieVector3,
   ): IAutoMovieHumanLimbGoal {
-    return share >= 1
-      ? to
-      : {
-          ...to,
-          point: Vector3.lerp(from.point, to.point, share),
-          rotation: Quaternion.slerp(from.rotation!, to.rotation!, share),
-        };
-  }
+    if (share >= 1) return to;
 
+    // A quadratic Bezier through the midpoint displaced by the bow.
+    const via: IAutoMovieVector3 = Vector3.add(
+      Vector3.lerp(from.point, to.point, 0.5),
+      Vector3.scale(bow, 2),
+    );
+    return {
+      ...to,
+      point: Vector3.lerp(
+        Vector3.lerp(from.point, via, share),
+        Vector3.lerp(via, to.point, share),
+        share,
+      ),
+      bend: Vector3.lerp(from.bend, to.bend, share),
+      rotation: Quaternion.slerp(from.rotation!, to.rotation!, share),
+    };
+  }
   /** A displayed hand bone expressed in the entered hull frame. */
   function hullLocal(
     hull: AquaticCrew.IHull,
     bone: IAutoMovieResolvedBone,
+    elbow: IAutoMovieResolvedBone,
   ): IHullLocal {
     return {
+      elbow: Quaternion.rotateVector(
+        hull.inverse,
+        Vector3.subtract(elbow.worldPosition, hull.origin.position),
+      ),
       point: Quaternion.rotateVector(
         hull.inverse,
         Vector3.subtract(bone.worldPosition, hull.origin.position),

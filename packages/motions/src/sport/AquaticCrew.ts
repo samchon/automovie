@@ -13,9 +13,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** The world up axis, which is the hull's up at rest. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
 /**
  * Hull frames and shared wrist and ankle support for paddle and sail.
  *
@@ -128,9 +125,7 @@ export namespace AquaticCrew {
 
   /**
    * Convert staged hull-local motion to the displayed pose and fit the
-   * active wrists and ankles. A foot keeps its entered orientation in the
-   * hull, turned by its own degrees about the hull's up axis (`turns`), so a
-   * stepping sailor's swung foot lands facing the new heading.
+   * active wrists and ankles; a foot keeps its entered orientation in the hull.
    */
   export function apply(
     context: AquaticPosture.Context,
@@ -141,7 +136,6 @@ export namespace AquaticCrew {
     left?: IAutoMovieVector3,
     right?: IAutoMovieVector3,
     braced: boolean = false,
-    turns: Partial<Readonly<Record<Side, number>>> = {},
   ): IAutoMovieMotionHumanPosture {
     const frame: IAutoMovieRigidTransform = hull.frame(seconds);
     const world = (point: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -176,13 +170,7 @@ export namespace AquaticCrew {
               ankle: world(foot),
               rotation: Quaternion.multiply(
                 carrierTurn,
-                Quaternion.multiply(
-                  Quaternion.fromAxisAngle(
-                    Quaternion.rotateVector(hull.origin.rotation, UP),
-                    turns[side] ?? 0,
-                  ),
-                  context.entry.feet[side].rotation,
-                ),
+                context.entry.feet[side].rotation,
               ),
             },
             false,
