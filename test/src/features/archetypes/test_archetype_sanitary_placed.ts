@@ -57,6 +57,8 @@ export function test_archetype_sanitary_placed(): void {
     toilet: { seat: "seat", lid: "hinge" },
     bathtub: {
       rim: "ledge",
+      edge: "ledge",
+      top: "surface",
       bottom: "surface",
       seat: "seat",
       backrest: "surface",

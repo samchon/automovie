@@ -61,7 +61,7 @@ export namespace createSanitary {
    *
    * - washbasin: `rim` (ledge, the top's front edge), `bowl` (surface over the basin), `tap` (knob, the mixer's lever turned), `lift` (hinge, the lever lifted, riding `tap`), `spout` (socket, the mixer's mouth facing down);
    * - toilet: `seat` (seat, facing `+Z`), `lid` (hinge, lowering the lid from open);
-   * - bathtub: `rim` (ledge, the apron's top edge), `bottom` (surface, the well's floor), `seat` (seat, on the well's floor against its `-X` end, facing `+X`), `backrest` (surface, that end wall's inner face up to the rim);
+   * - bathtub: `rim` (ledge, the apron's top edge), `edge` (ledge, the same edge a step over clears), `top` (surface, the apron's top face), `bottom` (surface, the well's floor), `seat` (seat, on the well's floor against its `-X` end, facing `+X`), `backrest` (surface, that end wall's inner face up to the rim);
    * - shower: `tray` (surface, the floor), `threshold` (ledge, the front edge), `entry` (aperture, the opening, its `+Z` into the stall), `seat` (seat, facing `-X`), `control` (knob, the valve).
    */
   export type Affordance =
@@ -77,7 +77,9 @@ export namespace createSanitary {
     | "threshold"
     | "entry"
     | "control"
-    | "backrest";
+    | "backrest"
+    | "edge"
+    | "top";
 
   /**
    * The free dimensions, metres unless stated:

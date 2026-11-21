@@ -70,6 +70,7 @@ export function planNamedCrossing(
       params: {
         obstacle: request.obstacle,
         ...(request.lead === undefined ? {} : { lead: request.lead }),
+        ...(request.onto === undefined ? {} : { onto: request.onto }),
       },
     });
     crossingClearance(context, plan, [request.obstacle]);

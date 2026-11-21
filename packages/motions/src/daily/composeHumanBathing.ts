@@ -29,16 +29,20 @@ export namespace composeHumanBathing {
   /** The tap knob's turn to open the water, degrees (provisional, a quarter turn). */
   export const TAP_TURN: number = 90;
 
+  /** A region one hand scrubs with the other. */
+  export type Washed = "face" | "forearmLeft" | "forearmRight";
+
   /**
    * Step over the tub's rim and sit on its floor seat.
    *
    * @param chain The bather's chain.
    * @param tub The tub's subject, the obstacle stepped over.
+   * @param floor The tub's floor surface inside the rim, where both feet land.
    * @param seat The tub's floor seat.
    * @returns The chain with the entry appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order.
-   * @evidence contracts/development/implementation.md#principled-implementation The shipped step-over of the tub, then the shipped sit on its floor.
+   * @evidence contracts/development/implementation.md#principled-implementation The shipped step-over of the tub landing on its floor, then the shipped sit on that floor.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two appends.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The composed actions plan and refuse.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two appends.
@@ -48,9 +52,12 @@ export namespace composeHumanBathing {
   export function intoTub<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
     tub: string,
+    floor: string,
     seat: IAutoMovieMotionHumanSeated.ISeat,
   ): Chain {
-    return chain.act("stepOver", { obstacle: tub }).act("sit", { seat });
+    return chain
+      .act("stepOver", { obstacle: tub, onto: { prop: tub, point: floor } })
+      .act("sit", { seat });
   }
 
   /**
@@ -93,7 +100,7 @@ export namespace composeHumanBathing {
     const scrub = (
       current: Chain,
       side: AutoMovieHumanSide,
-      region: "face" | "forearmLeft" | "forearmRight",
+      region: Washed,
     ): Chain =>
       current.act("touch", {
         target: { kind: "self", region },

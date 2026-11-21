@@ -234,7 +234,7 @@ export namespace SanitaryConstruction {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built, its orientation and how the well's floor is placed.
    * @evidence contracts/development/implementation.md#principled-implementation A slab and four walls whose inner faces bound the maker's well bottom, so the `bottom` surface is the sheet's basin area; the floor the sheet's water depth under the rim.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Slab, back and apron, two ends, then the two contacts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Slab, back and apron, two ends, then the contacts: the rim, the apron's edge and top a step over clears, the well's floor, the seat and the backrest.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The well's sloped back and rounded corners are not drawn; the overflow's depth stands for the well's, said above.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one fixture.
@@ -278,6 +278,24 @@ export namespace SanitaryConstruction {
       frame: ArchetypeFrame.facing(v(0, rim, width), v(0, 1, 0), v(1, 0, 0)),
       extent: null,
       length,
+    });
+
+    // Stepping in over the front wall: its top face and the top's outer
+    // edge, which a step over clears going across (`HumanObstacle`).
+    builder.affordance({
+      id: "edge",
+      kind: "ledge",
+      frame: ArchetypeFrame.facing(v(0, rim, width), v(0, 1, 0), v(1, 0, 0)),
+      extent: null,
+      length,
+    });
+    builder.affordance({
+      id: "top",
+      kind: "surface",
+      frame: ArchetypeFrame.upright(v(0, rim, width - side / 2)),
+      extent: null,
+      width: length,
+      depth: side,
     });
     builder.affordance({
       id: "bottom",
