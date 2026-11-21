@@ -1,7 +1,6 @@
 ﻿import {
   type ArchetypeRide,
   EquineExpression,
-  type EquineExpressionCue,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";

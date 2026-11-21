@@ -3,6 +3,7 @@ export * from "./EquidEarProfiles";
 export * from "./EquineExpression";
 export * from "./EquineExpressionCue";
 export * from "./EquineExpressionPose";
+export * from "./EquineHeadClearance";
 export * from "./EquineHeadReach";
 export * from "./EquineGoniometry";
 export * from "./EquineJointLimits";

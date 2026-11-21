@@ -145,7 +145,7 @@ export namespace EquineExpressionPose {
    * @evidence contracts/development/implementation.md#principled-implementation Read the sample's FK frames, pre-multiply the neck's and head's rotations by the shown share of their turns (slerp from identity) with the poll carried about the neck's root, turn the tail about its dock in the trunk's frame, move every part by its carrier's rigid delta, then turn each ear about its root toward its carriage in the current head's frame and the jaw about its hinge on the head's lateral axis.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Bone frames, carrier deltas, per-part local turns, one emission.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Limbs, trunk and contacts keep the base sample's frames exactly; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One O(B) rig read, O(B) deltas and O(P+A) part and contact moves, as the carrier emitter does.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(B) deltas over the caller's one rig read, and O(P+A) part and contact moves, only for those whose carrier changed, as the carrier emitter does.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared rig reader, `QuadrupedRigDelta` and the model's own repose.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned model owns its parts; nothing is retained.
    */

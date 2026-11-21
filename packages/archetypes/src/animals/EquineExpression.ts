@@ -1,7 +1,6 @@
-﻿import {
+import {
   Quaternion,
   Vector3,
-  closestPointsBetweenSegments,
   minimumJerk,
   prepareArticulatedRig,
 } from "@automovie/engine";
@@ -21,6 +20,7 @@ import {
 } from "../core";
 import type { EquineExpressionCue } from "./EquineExpressionCue";
 import { EquineExpressionPose } from "./EquineExpressionPose";
+import { EquineHeadClearance } from "./EquineHeadClearance";
 import { EquineHeadReach } from "./EquineHeadReach";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedSkeleton } from "./QuadrupedSkeleton";
@@ -81,7 +81,7 @@ type Instant = ArchetypeRide.IRide<string, string>["instants"][number];
 /**
  * An equid's expression layer over any of its rides: attention, muzzle reaches for sniffing, greeting, feeding, drinking, rubbing and grooming, each ear, the jaw and the tail, and vocal marks.
  *
- * The layer is a pose layer in the motion skill's sense: it samples the base ride and re-poses only the neck and head, the ears, the jaw and the tail through the animal's actual rig (`EquineExpressionPose`), so the base's stride, hooves, trunk, tack and contacts are kept exactly and its timing and instants are kept. Each held cue blends in and out on a minimum-jerk share over its `ease`; outside every cue a sample is the base ride's own. A muzzle reach solves the neck and head in closed form (`EquineHeadReach`) against the target read at that sample, in the horse's current frame, so a moving partner is tracked; a target out of reach, or one the head or neck could only reach through a forelimb, is refused. Each vocalization adds exactly one mark, `vocal:<call>`, to the instants and to `marks`; each reach adds `<act>On` and `<act>Off` where it is fully held.
+ * The layer is a pose layer in the motion skill's sense: it samples the base ride and re-poses only the neck and head, the ears, the jaw and the tail through the animal's actual rig (`EquineExpressionPose`), so the base's stride, hooves, trunk, tack and contacts are kept exactly and its timing and instants are kept. Each held cue blends in and out on a minimum-jerk share over its `ease`; outside every cue a sample is the base ride's own. A muzzle reach solves the neck and head in closed form (`EquineHeadReach`) against the target read at that sample, in the horse's current frame, so a moving partner is tracked; a target out of reach, or one the head or neck could only reach through a forelimb (`EquineHeadClearance`), is refused. Each vocalization adds exactly one mark, `vocal:<call>`, to the instants and to `marks`; each reach adds `<act>On` and `<act>Off` where it is fully held.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is layered, what is kept, the blending, the reach solve and its refusals, and the instants added.
  * @evidence contracts/development/design.md#principled-representation A ride in, a ride out with its marks, on the same film clock.
@@ -235,7 +235,7 @@ export namespace EquineExpression {
         channels,
       );
       if (turning?.kind === "reach")
-        clear(
+        EquineHeadClearance(
           animal.archetype,
           posed.archetype,
           local(base, target(turning, seconds)),
@@ -354,86 +354,6 @@ export namespace EquineExpression {
       inverse,
       Vector3.subtract(point, sample.placement.translation),
     );
-  }
-
-  /** Refuse a reach whose head or neck passes through a forelimb bar that does not bear the target. */
-  function clear(
-    archetype: string,
-    posed: Pick<Archetype, "parts">,
-    point: IAutoMovieVector3,
-  ): void {
-    const bars: Map<string, ISegment> = new Map(
-      posed.parts.flatMap((part: IAutoMovieModelPart): [string, ISegment][] => {
-        const segment: ISegment | null = bar(part);
-        return segment === null ? [] : [[part.id, segment]];
-      }),
-    );
-    for (const mover of ["head", "neck"] as const) {
-      const moving: ISegment = bars.get(mover)!;
-      for (const limb of ["leftFore", "rightFore"] as const)
-        for (const bone of QuadrupedBody.BONES[limb]) {
-          const other: ISegment = bars.get(bone)!;
-          const bearing: number = closestPointsBetweenSegments(
-            point,
-            point,
-            other.from,
-            other.to,
-          ).distance;
-          if (bearing <= other.radius + 1e-9) continue;
-          const gap: number =
-            closestPointsBetweenSegments(
-              moving.from,
-              moving.to,
-              other.from,
-              other.to,
-            ).distance -
-            moving.radius -
-            other.radius;
-          if (gap < 0)
-            throw new ArchetypeRefusal({
-              kind: "parameter",
-              archetype,
-              axis: "target",
-              value: point,
-              feasible: null,
-              reason: `the ${mover} reaches the target only through the ${bone}, by ${-gap} m`,
-              fix: "Place the target where the muzzle can reach it clear of the forelimbs.",
-            });
-        }
-    }
-  }
-
-  /** A capsule or cylinder part's axis and radius, model space. */
-  interface ISegment {
-    /** Its start. */
-    from: IAutoMovieVector3;
-
-    /** Its end. */
-    to: IAutoMovieVector3;
-
-    /** Its radius, metres. */
-    radius: number;
-  }
-
-  /** Read a bar part's axis, or null for any other part. */
-  function bar(part: IAutoMovieModelPart): ISegment | null {
-    const geometry: IAutoMovieModelPart["geometry"] = part.geometry;
-    if (
-      part.transform === null ||
-      part.transform === undefined ||
-      geometry.type !== "primitive" ||
-      (geometry.shape.type !== "capsule" && geometry.shape.type !== "cylinder")
-    )
-      return null;
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(
-      part.transform.rotation,
-      { x: 0, y: geometry.shape.height / 2, z: 0 },
-    );
-    return {
-      from: Vector3.subtract(part.transform.translation, half),
-      to: Vector3.add(part.transform.translation, half),
-      radius: geometry.shape.radius,
-    };
   }
 
   /** Admit the cues: finite windows, one cue at a time per channel, and clearances that agree with their acts. */
