@@ -302,19 +302,28 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
         relax: duration,
         end: duration,
       };
-      return courseArmGoal({
-        body: context.body,
-        plan: goals,
-        side: "right",
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-        span,
-        with: [
-          {
-            side: "left",
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+      return HumanMountedFrame.coursed(
+        goals,
+        carrier,
+        context.start,
+        (local: IAutoMovieMotionHumanActionPlan) =>
+          courseArmGoal({
+            body: context.body,
+            plan: local,
+            side: "right",
+            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
             span,
-          },
-        ],
-      });
+            with: [
+              {
+                side: "left",
+                rest: AutoMovieMotionHumanArm.angles(
+                  context.entry.pose,
+                  "left",
+                ),
+                span,
+              },
+            ],
+          }),
+      );
     },
   };

@@ -180,14 +180,21 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
   const rest = (side: AutoMovieHumanSide) =>
     AutoMovieMotionHumanArm.angles(context.entry.pose, side);
-  return courseArmGoal({
-    body: context.body,
-    plan: goals,
-    side: sides[0]!,
-    rest: rest(sides[0]!),
-    span,
-    ...(sides.length === 2
-      ? { with: [{ side: sides[1]!, rest: rest(sides[1]!), span }] }
-      : {}),
-  });
+  const lay = (
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): IAutoMovieMotionHumanActionPlan =>
+    courseArmGoal({
+      body: context.body,
+      plan,
+      side: sides[0]!,
+      rest: rest(sides[0]!),
+      span,
+      ...(sides.length === 2
+        ? { with: [{ side: sides[1]!, rest: rest(sides[1]!), span }] }
+        : {}),
+    });
+  // On a carrier the arms are laid in its frame, where the hold barely moves.
+  return carrier === undefined
+    ? lay(goals)
+    : HumanMountedFrame.coursed(goals, carrier, context.start, lay);
 }

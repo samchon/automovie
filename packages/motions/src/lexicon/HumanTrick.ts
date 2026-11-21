@@ -294,20 +294,26 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
   const side: AutoMovieHumanSide = figures[p]!.side ?? "left";
   const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-  return courseArmGoal({
-    body: context.body,
-    plan: goals,
-    side,
-    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-    span,
-    with: [
-      {
-        side: other,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
+  return HumanMountedFrame.coursed(
+    goals,
+    carrier,
+    context.start,
+    (local: IAutoMovieMotionHumanActionPlan) =>
+      courseArmGoal({
+        body: context.body,
+        plan: local,
+        side,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span,
-      },
-    ],
-  });
+        with: [
+          {
+            side: other,
+            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
+            span,
+          },
+        ],
+      }),
+  );
 }
 
 /** A posture with its leg goals only: the arms are laid by the act's course, never by goals carried from the entry. */

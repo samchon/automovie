@@ -4,7 +4,6 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
@@ -14,8 +13,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { KnockdownFloor } from "../reaction/KnockdownFloor";
@@ -342,21 +339,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           );
     },
   };
-  if (standing) return goals;
-  // The falling side's arm is laid as a planned course on its reach to the floor: from the release to the touch, then held there.
-  const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
-    start: leave,
-    ready: Math.max(leave, touch),
-    relax: duration,
-    end: duration,
-  };
-  return courseArmGoal({
-    body: context.body,
-    plan: goals,
-    side,
-    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-    span,
-  });
+  // The falling body flies free of any carrier; its hand reaches the floor goal by goal, keeping the held elbow's point.
+  return goals;
 }
 /** A contact window over shares of the act, on the carrier or the ground. */
 function window(

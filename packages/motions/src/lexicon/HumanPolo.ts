@@ -348,12 +348,18 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       Vector3.distance(hand(theta(b)), hand(theta(a))) / (b - a),
     );
   }
-  return courseArmGoal({
-    body: context.body,
-    plan: goals,
-    side: "right",
-    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-    span,
-    pace: (): number => peak,
-  });
+  return HumanMountedFrame.coursed(
+    goals,
+    carrier,
+    context.start,
+    (local: IAutoMovieMotionHumanActionPlan) =>
+      courseArmGoal({
+        body: context.body,
+        plan: local,
+        side: "right",
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+        span,
+        pace: (): number => peak,
+      }),
+  );
 }

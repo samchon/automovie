@@ -318,18 +318,24 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
         const b: number = (release * k) / 64;
         peak = Math.max(peak, Vector3.distance(placed(b), placed(a)) / (b - a));
       }
-      return courseArmGoal({
-        body: context.body,
-        plan: goals,
-        side: "right",
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-        span: {
-          start: 0,
-          ready: Math.min(SWING.throw, release),
-          relax: release,
-          end: release,
-        },
-        pace: (): number => peak,
-      });
+      return HumanMountedFrame.coursed(
+        goals,
+        carrier,
+        context.start,
+        (local: IAutoMovieMotionHumanActionPlan) =>
+          courseArmGoal({
+            body: context.body,
+            plan: local,
+            side: "right",
+            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+            span: {
+              start: 0,
+              ready: Math.min(SWING.throw, release),
+              relax: release,
+              end: release,
+            },
+            pace: (): number => peak,
+          }),
+      );
     },
   };

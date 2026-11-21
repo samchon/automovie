@@ -298,22 +298,28 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     relax: LET_GO * flight,
     end: duration,
   };
-  return courseArmGoal({
-    body: context.body,
-    // The grip holds from the instant the hand reaches its hold.
-    plan: {
-      ...goals,
-      contacts: goals.contacts.map(
-        (
-          c: IAutoMovieMotionHumanContactWindow,
-        ): IAutoMovieMotionHumanContactWindow =>
-          c.part === `${hand.side}Hand` && c.kind === "grip"
-            ? { ...c, from: grasped / duration }
-            : c,
-      ),
-    },
-    side: hand.side,
-    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand.side),
-    span,
-  });
+  return HumanMountedFrame.coursed(
+    goals,
+    carrier,
+    context.start,
+    (local: IAutoMovieMotionHumanActionPlan) =>
+      courseArmGoal({
+        body: context.body,
+        // The grip holds from the instant the hand reaches its hold.
+        plan: {
+          ...goals,
+          contacts: goals.contacts.map(
+            (
+              c: IAutoMovieMotionHumanContactWindow,
+            ): IAutoMovieMotionHumanContactWindow =>
+              c.part === `${hand.side}Hand` && c.kind === "grip"
+                ? { ...c, from: grasped / duration }
+                : c,
+          ),
+        },
+        side: hand.side,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand.side),
+        span,
+      }),
+  );
 }

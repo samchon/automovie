@@ -273,4 +273,50 @@ export namespace HumanMountedFrame {
       z: frame.position.z + turned.z,
     };
   }
+
+  /**
+   * Lay a carried plan's arms in the carrier's own frame: the plan's world postures are brought into the carrier contact's frame, where a held hold barely moves, the arms are laid there by `lay` (a planned arm course), and the laid postures are carried back into the world at each second. A course laid in the world would chase a hold the carrier sweeps away between its instants.
+   *
+   * @param plan The plan, its postures in the world.
+   * @param carrier The carrier contact's frame reader.
+   * @param start The plan's start, film seconds.
+   * @param lay Lays the arms on a plan whose postures are in the carrier's frame.
+   * @returns The plan with its arms laid in the carrier's frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frames and why.
+   * @evidence contracts/development/implementation.md#principled-implementation `move` into the contact's frame at each second before the course reads the plan, and out of it after.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Two wraps.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The course is the caller's own; only its frame changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two frame reads per sample.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure wrap.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan and the reader.
+   */
+  export function coursed(
+    plan: IAutoMovieMotionHumanActionPlan,
+    carrier: Reader,
+    start: number,
+    lay: (
+      local: IAutoMovieMotionHumanActionPlan,
+    ) => IAutoMovieMotionHumanActionPlan,
+  ): IAutoMovieMotionHumanActionPlan {
+    const local: IAutoMovieMotionHumanActionPlan = {
+      ...plan,
+      posture: (seconds, channels, resolution, projection) =>
+        move(
+          plan.posture(seconds, channels, resolution, projection),
+          carrier(start + seconds),
+          LOCAL,
+        ),
+    };
+    const laid: IAutoMovieMotionHumanActionPlan = lay(local);
+    return {
+      ...laid,
+      posture: (seconds, channels, resolution, projection) =>
+        move(
+          laid.posture(seconds, channels, resolution, projection),
+          LOCAL,
+          carrier(start + seconds),
+        ),
+    };
+  }
 }
