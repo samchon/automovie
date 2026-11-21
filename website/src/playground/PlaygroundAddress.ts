@@ -158,7 +158,8 @@ export namespace PlaygroundAddress {
     (value.params === undefined ||
       (record(value.params) &&
         Object.values(value.params).every(
-          (n: unknown): boolean => typeof n === "number",
+          (n: unknown): boolean =>
+            typeof n === "number" || typeof n === "string",
         ))) &&
     typeof value.x === "number" &&
     typeof value.z === "number" &&
@@ -178,6 +179,14 @@ export namespace PlaygroundAddress {
         ) &&
         quaternion(value.worn.offset.rotation))) &&
     (value.fixed === undefined || typeof value.fixed === "boolean") &&
+    (value.sheath === undefined ||
+      (record(value.sheath) &&
+        value.worn === undefined &&
+        ["carrier", "mouth", "tip", "handle"].every(
+          (k: string): boolean =>
+            typeof (value.sheath as Record<string, unknown>)[k] === "string",
+        ) &&
+        typeof value.sheath.clearance === "number")) &&
     typeof value.yaw === "number";
 
   /** Whether a value has the members the editor reads of a performer. */

@@ -34,5 +34,29 @@ export interface IAutoMovieMotionHumanPutDownAperture {
 
     /** The held object's matching affordance. Defaults to its origin. */
     via?: string;
+
+    /** The receptacle's guide that carries the object from the opening to the seat, as a scabbard guides its blade home; the hand alone carries it when absent. */
+    guide?: IAutoMovieMotionHumanPutDownAperture.IGuide;
   };
+}
+export namespace IAutoMovieMotionHumanPutDownAperture {
+  /**
+   * A slider on the receptacle running from the seat toward the opening, in
+   * metres, and the socket that rides it. The object rides the socket from
+   * the opening to the seat while the placement drives the slider from the
+   * opening's distance back to 0, as `IAutoMovieMotionHumanDrawFromCarrier`
+   * drives it out.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the slider, its unit and direction, and the riding socket.
+   * @evidence contracts/development/design.md#principled-representation Two affordance ids of the receptacle; the placement law checks them against it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two ids `putDownAperture` reads; `HumanSheath.sheathe` writes them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both ids are required together, so a half-declared guide cannot be written.
+   */
+  export interface IGuide {
+    /** The receptacle's slider articulation id. */
+    slider: string;
+
+    /** The receptacle's socket riding the slider. */
+    slide: string;
+  }
 }

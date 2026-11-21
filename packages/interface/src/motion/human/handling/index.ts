@@ -1,5 +1,6 @@
 export type { IAutoMovieMotionHumanButton } from "./IAutoMovieMotionHumanButton";
 export type { IAutoMovieMotionHumanCarryHang } from "./IAutoMovieMotionHumanCarryHang";
+export type { IAutoMovieMotionHumanDrawFromCarrier } from "./IAutoMovieMotionHumanDrawFromCarrier";
 export type { IAutoMovieMotionHumanGrasp } from "./IAutoMovieMotionHumanGrasp";
 export type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGraspUse";
 export type { IAutoMovieMotionHumanGrip } from "./IAutoMovieMotionHumanGrip";
@@ -23,6 +24,7 @@ export type { IAutoMovieMotionHumanPushPullLean } from "./IAutoMovieMotionHumanP
 export type { IAutoMovieMotionHumanPushSled } from "./IAutoMovieMotionHumanPushSled";
 export type { IAutoMovieMotionHumanPutDown } from "./IAutoMovieMotionHumanPutDown";
 export type { IAutoMovieMotionHumanPutDownAperture } from "./IAutoMovieMotionHumanPutDownAperture";
+export type { IAutoMovieMotionHumanSheath } from "./IAutoMovieMotionHumanSheath";
 export type { IAutoMovieMotionHumanZip } from "./IAutoMovieMotionHumanZip";
 export type { IAutoMovieMotionHumanReceive } from "./IAutoMovieMotionHumanReceive";
 export type { IAutoMovieMotionHumanRegrasp } from "./IAutoMovieMotionHumanRegrasp";
