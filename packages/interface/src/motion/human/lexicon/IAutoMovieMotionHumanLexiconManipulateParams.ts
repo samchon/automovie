@@ -1,12 +1,14 @@
 import type { IAutoMovieMotionHumanPour } from "../affordance/IAutoMovieMotionHumanPour";
 import type { IAutoMovieMotionHumanPlayWindInstrument } from "../daily/IAutoMovieMotionHumanPlayWindInstrument";
 import type { IAutoMovieMotionHumanSwipeTouchscreen } from "../everyday/IAutoMovieMotionHumanSwipeTouchscreen";
+import type { IAutoMovieMotionHumanDrawFromCarrier } from "../handling/IAutoMovieMotionHumanDrawFromCarrier";
 import type { IAutoMovieMotionHumanGuitarChord } from "../handling/IAutoMovieMotionHumanGuitarChord";
 import type { IAutoMovieMotionHumanGuitarNote } from "../handling/IAutoMovieMotionHumanGuitarNote";
 import type { IAutoMovieMotionHumanManipulate } from "../handling/IAutoMovieMotionHumanManipulate";
 import type { IAutoMovieMotionHumanPianoPedal } from "../handling/IAutoMovieMotionHumanPianoPedal";
 import type { IAutoMovieMotionHumanPianoPerformance } from "../handling/IAutoMovieMotionHumanPianoPerformance";
 import type { IAutoMovieMotionHumanPianoScore } from "../handling/IAutoMovieMotionHumanPianoScore";
+import type { IAutoMovieMotionHumanPickUp } from "../handling/IAutoMovieMotionHumanPickUp";
 import type { IAutoMovieMotionHumanPickUpMoving } from "../handling/IAutoMovieMotionHumanPickUpMoving";
 import type { IAutoMovieMotionHumanPutDownAperture } from "../handling/IAutoMovieMotionHumanPutDownAperture";
 import type { IAutoMovieMotionHumanWrite } from "../handling/IAutoMovieMotionHumanWrite";
@@ -66,6 +68,12 @@ export interface IAutoMovieMotionHumanLexiconManipulateParams {
 
   /** Place a held prop through an aperture. */
   putDownAperture: IAutoMovieMotionHumanPutDownAperture;
+
+  /** Grip a prop seated in a carrier, keeping the grip through an early stand or a draw. */
+  takeFromCarrier: IAutoMovieMotionHumanPickUp.IParams;
+
+  /** Draw a gripped prop out of its carrier along the carrier's guide. */
+  drawFromCarrier: IAutoMovieMotionHumanDrawFromCarrier;
 
   /** Draw a held violin bow across a string. */
   bowViolin: IAutoMovieMotionHumanBowViolinParams;

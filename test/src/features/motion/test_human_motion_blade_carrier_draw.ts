@@ -1,13 +1,13 @@
 import { createHolster, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3, cutSequence } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieClip,
   IAutoMovieCut,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSheath,
@@ -51,11 +51,6 @@ const PLACE: number = 0.015;
 const CLEARANCE: number = 0.03;
 /** Film frames per second of the edit. */
 const FPS: number = 24;
-/** How the blade is taken up for the cuts after the draw, as the package's blade tests take it. */
-const USE: IAutoMovieMotionHumanGraspUse.IUse = {
-  tip: "point",
-  line: "oblique",
-};
 /** The held beat between draw and return, seconds. */
 const HOLD: number = 0.8;
 
@@ -198,7 +193,6 @@ export function test_human_motion_blade_carrier_draw(): void {
         staged.sheath,
         "right",
         "draw",
-        USE,
       );
 
     run(cast.name + " draw, hold and return", () => {
@@ -505,7 +499,7 @@ export function test_human_motion_blade_carrier_draw(): void {
       scene(drawn(), [staged.props[1]!]),
     );
     refused("mouth", () =>
-      stage(cast.body, cast.blade, cast.carrier, cast.cant, "throat"),
+      stage(cast.body, cast.blade, cast.carrier, cast.cant, "right", "throat"),
     );
     refused("tip", () =>
       stage(
@@ -525,15 +519,17 @@ export function test_human_motion_blade_carrier_draw(): void {
       drawOnly(stage(cast.body, cast.blade, cast.carrier, 30)),
     );
   }
+
   TestValidator.equals("blade carrier findings", failures, []);
 }
 
-/** Wear the carrier at the right hip, its mouth tilted forward by the cant, and seat the blade in it. */
+/** Wear the carrier at a hip, its mouth tilted forward by the cant, and seat the blade in it. */
 function stage(
   body: IAutoMovieMotionHumanBody,
   bladeParams: createSword.IParams,
   carrierParams: createHolster.IParams,
   cant: number,
+  side: AutoMovieHumanSide = "right",
   mouth: string = "mouth",
 ): IStage {
   const blade: ReturnType<typeof createSword> = createSword(bladeParams);
@@ -555,7 +551,7 @@ function stage(
     cant,
   );
   const mouthAt: IAutoMovieVector3 = {
-    x: -0.2 * (body.measure.stature / 1.75),
+    x: (side === "left" ? 0.2 : -0.2) * (body.measure.stature / 1.75),
     y: body.measure.hipHeight + 0.05,
     z: 0.12,
   };
