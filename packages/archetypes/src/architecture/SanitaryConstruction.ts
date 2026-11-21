@@ -287,6 +287,35 @@ export namespace SanitaryConstruction {
       width: wellX,
       depth: wellZ,
     });
+
+    // A bather sits on the well's floor with the back to the -X end wall,
+    // facing along the well: the seat's front edge half the well from that
+    // wall, as wide as the well, its back the wall up to the rim.
+    builder.affordance({
+      id: "seat",
+      kind: "seat",
+      frame: ArchetypeFrame.facing(
+        v(0, floor, width / 2),
+        v(1, 0, 0),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      depth: wellX / 2,
+      width: wellZ,
+      back: rim - floor,
+    });
+    builder.affordance({
+      id: "backrest",
+      kind: "surface",
+      frame: ArchetypeFrame.facing(
+        v(-wellX / 2, (rim + floor) / 2, width / 2),
+        v(1, 0, 0),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      width: wellZ,
+      depth: rim - floor,
+    });
   }
 
   /**

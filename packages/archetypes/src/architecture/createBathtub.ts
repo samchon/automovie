@@ -52,7 +52,7 @@ export function createBathtub(
  */
 export namespace createBathtub {
   /** The named contacts built by this producer. */
-  export type Affordance = "bottom" | "rim";
+  export type Affordance = "bottom" | "rim" | "seat" | "backrest";
 
   /** The dimensions the author may fix inside the producer's bands. */
   export type Dimension =

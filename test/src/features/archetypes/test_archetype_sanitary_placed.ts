@@ -1,4 +1,8 @@
-import { ArchetypeFrame, ArchetypeUnits, createSanitary } from "@automovie/archetypes";
+import {
+  ArchetypeFrame,
+  ArchetypeUnits,
+  createSanitary,
+} from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -51,7 +55,12 @@ export function test_archetype_sanitary_placed(): void {
       spout: "socket",
     },
     toilet: { seat: "seat", lid: "hinge" },
-    bathtub: { rim: "ledge", bottom: "surface" },
+    bathtub: {
+      rim: "ledge",
+      bottom: "surface",
+      seat: "seat",
+      backrest: "surface",
+    },
     shower: {
       tray: "surface",
       threshold: "ledge",
@@ -220,9 +229,5 @@ export function test_archetype_sanitary_placed(): void {
         `the ${kind} seat faces (${facing.x}, ${facing.z}), (${x}, ${z}) expected`,
       );
   }
-  TestValidator.equals(
-    "sanitary fixtures are placed and sized",
-    findings,
-    [],
-  );
+  TestValidator.equals("sanitary fixtures are placed and sized", findings, []);
 }
