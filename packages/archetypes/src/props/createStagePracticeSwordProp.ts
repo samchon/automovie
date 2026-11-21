@@ -7,7 +7,7 @@ import type { createStageBladeProp } from "./createStageBladeProp";
 /**
  * Padded practice sword silhouette.
  *
- * A digital training-sword silhouette with a padded cap, visible binding and a long two-hand grip along +Y.
+ * A digital training-sword silhouette with a padded cap, visible binding and a long two-hand grip along +Y. It declares its point and the edge of its monouchi, the striking part.
  *
  * @param params The scene identity and optional display length in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
@@ -46,6 +46,7 @@ export function createStagePracticeSwordProp(
         { color: "#fff0b2" },
       );
     },
+    createStagePracticeSwordProp.EDGE,
   );
 }
 
@@ -61,8 +62,16 @@ export namespace createStagePracticeSwordProp {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "length";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "grip";
+  /** The contacts this producer builds: the grip, the point and the edge. */
+  export type Affordance = "grip" | "point" | "edge";
+
+  /**
+   * The striking part as shares of the length from the handle's end: the
+   * monouchi, from the nakayui binding at 0.77 to the tip (FIK, The
+   * Regulations of Kendo Shiai and Shinpan, 2023 revision, Article 13: the
+   * datotsu-bu is the jin-bu of the monouchi).
+   */
+  export const EDGE: StageBladeConstruction.Span = [0.77, 1];
 
   /** The model identity, dimensions. */
   export type IParams = Pick<createStageBladeProp.IParams, "id" | "length">;

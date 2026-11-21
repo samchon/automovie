@@ -48,7 +48,7 @@ Each family is also a subpath, such as `@automovie/archetypes/furniture`. Select
 | `/animals` | `createHorse`, `createPony`, `createDonkey`, `createMule`, `createDog`, `createCat`, `createOx`, `createCamel`, `createDeer`, shared body and rig `QuadrupedBody` and `QuadrupedSkeleton`, equipment, `rideQuadruped` and `rideHorse`, gait tables, `QuadrupedRest`, and `EquineGoniometry` |
 | `/weapons` | `createHandgun`, `createStageHolster`, `createStageBladeCarrier`, `createStageQuiver`, `createPracticeBaton`, `createCostumeHelmet`, `createCostumeCuirass`, `assembleCostumeArmour`, `createSword`, `createShield`, `createPell` |
 | `/gym` | `createBarbell`, `createDumbbell`, `createKettlebell`, `createBench`, `createPullUpBar`, `createParallelBars`, `createPlyoBox`, `createRack`, `createSled`, `createRowingMachine`, `createExerciseBike`, `createExerciseMat`, `createJumpRope`, `createRing`, `createBoxingGlove`, `createHeavyBag` |
-| `/sport` | `createSphericalBall`, `createOvalBall`, `createPuck`, `createFieldGoal`, `createBasketballHoop`, `createVolleyballNet`, `createTennisNet`, `createIceHockeyStick`, `createFieldHockeyStick`, `createLacrosseCrosse`, `createCricketBat`, `createBaseballBat`, `createRacket`, `createCueTable` |
+| `/sport` | `createSphericalBall`, `createOvalBall`, `createPuck`, `createFieldGoal`, `createBasketballHoop`, `createVolleyballNet`, `createTennisNet`, `createIceHockeyStick`, `createFieldHockeyStick`, `createLacrosseCrosse`, `createCricketBat`, `createBaseballBat`, `createRacket`, `createCueTable`, `createKendoArmour` |
 | `/music` | `createUprightPiano`, `createGuitar`, `createViolin`, `createSideDrum`, `createBugle`, `createMicrophone` |
 | `/nature` | `createFireRing`, `createRock`, `createTent`, `createTree` |
 

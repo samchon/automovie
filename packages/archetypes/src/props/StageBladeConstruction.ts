@@ -82,14 +82,15 @@ const PROFILES = {
  * @param kind The selected stored profile label.
  * @param twoHand Whether the contact admits an authored two-hand pose.
  * @param decorate Places any guard and profile-dependent details.
+ * @param edge The striking part as shares of the length from the handle's end, for a silhouette that cuts; none for a point weapon.
  * @param params The scene identifier and display length in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
+ * @returns The digital model and its authored contact frames: the grip, the point and any edge.
  * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes its shared digital parts and the guard ownership.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes its shared digital parts, the guard ownership and the contact regions.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the named display length and shaft coordinates. The selected producer owns the decoration and grip type.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds three common parts, calls the guard builder and adds one hand contact.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds three common parts, calls the guard builder and adds the hand contact, the point and any edge.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the legacy draw and the profile's parts and frames.
@@ -101,6 +102,7 @@ export function StageBladeConstruction(
   seed: number | string | undefined,
   twoHand: boolean,
   decorate: StageBladeConstruction.Decorate,
+  edge?: StageBladeConstruction.Span,
 ): Archetype<createStageBladeProp.Affordance, createStageBladeProp.Dimension> {
   const profile: (typeof PROFILES)[createStageBladeProp.Kind] = PROFILES[kind];
   const draw: ArchetypeDrawSession<createStageBladeProp.Dimension> =
@@ -159,6 +161,33 @@ export function StageBladeConstruction(
     aperture: 2 * gripRadius,
     length: gripLength,
   });
+
+  // The contact regions a touch or a strike is read from: the point at the
+  // end cap's tip, and for a cutting silhouette the edge on the grip's front
+  // (+Z) side, centred on the striking part, its +X along the shaft.
+  builder.affordance({
+    id: "point",
+    kind: "surface",
+    direction: "along",
+    frame: ArchetypeFrame.facing(v(0, length, 0), v(0, 1, 0), v(1, 0, 0)),
+    extent: null,
+  });
+  if (edge !== undefined) {
+    const from: number = edge[0] * length;
+    const to: number = edge[1] * length;
+    builder.affordance({
+      id: "edge",
+      kind: "ledge",
+      direction: "normal",
+      frame: ArchetypeFrame.facing(
+        v(0, (from + to) / 2, shaftRadius),
+        v(0, 0, 1),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      length: to - from,
+    });
+  }
   return builder.build(0.2);
 }
 
@@ -193,6 +222,9 @@ export namespace StageBladeConstruction {
     >,
     profile: IProfile,
   ) => void;
+
+  /** A striking part as shares of the length from the handle's end: from, to. */
+  export type Span = readonly [from: number, to: number];
 
   /** Add the cylindrical guard used by fencing and practice silhouettes. */
   export function roundGuard(

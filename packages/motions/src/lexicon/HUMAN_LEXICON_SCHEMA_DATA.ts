@@ -14730,13 +14730,22 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "const": "armoured"
           },
           {
+            "const": "epee"
+          },
+          {
             "const": "fencing"
           },
           {
+            "const": "foil"
+          },
+          {
             "const": "kendo"
+          },
+          {
+            "const": "sabre"
           }
         ],
-        "description": "Selects the stage shift's timing, foot clearance and spinal follow.\nFencing uses a lifted step, kendo a low glide, and the armoured style a\ndeliberate lifted shift."
+        "description": "Selects the stage shift's timing, foot clearance and spinal follow.\nFencing uses a lifted step, kendo a low glide, and the armoured style a\ndeliberate lifted shift. The foil, epee and sabre styles give each\nfencing weapon its own cadence: the foil the general fencing step, the\nepee a shorter, more measured step and the sabre a longer, quicker one."
       },
       "IAutoMovieMotionHumanStageBladeFootwork.Direction": {
         "oneOf": [
@@ -18810,7 +18819,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "right"
               }
             ],
-            "description": "Leading foot of either linked stance phrase. Left when absent."
+            "description": "Leading foot of a linked stance phrase or reset. Left when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -36016,7 +36025,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "kind": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanMartialArt.Kind",
-            "description": "The technique."
+            "description": "The named form or unpartnered screen reset."
           },
           "count": {
             "type": "integer",
@@ -36039,7 +36048,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "right"
               }
             ],
-            "description": "Leading foot of either linked stance phrase. Left when absent."
+            "description": "Leading foot of a linked stance phrase or reset. Left when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -36064,13 +36073,19 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "const": "karateStanceTransfer"
           },
           {
+            "const": "muayThaiStanceReset"
+          },
+          {
+            "const": "taekwondoStanceReset"
+          },
+          {
             "const": "taiChiPush"
           },
           {
             "const": "taiChiTransfer"
           }
         ],
-        "description": "Capture cases of the martial-art techniques (#3252) from quiet standing. The techniques."
+        "description": "Named techniques and linked solo forms from a quiet standing pose."
       },
       "IAutoMovieMotionHumanBallSport.IParams": {
         "type": "object",

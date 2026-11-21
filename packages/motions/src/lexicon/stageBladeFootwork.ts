@@ -59,7 +59,10 @@ interface IProfile {
 /**
  * The AJKF descriptions of sliding footwork inform ground clearance in the
  * kendo profile. Foil studies distinguish foot travel and whole-body carry
- * by measure. All numbers here are provisional film timings and scales,
+ * by measure. The foil profile is the general fencing step; the epee step is
+ * shorter and more measured, as a weapon whose whole body is target keeps
+ * its distance, and the sabre step longer and quicker, as the fastest of the
+ * three weapons. All numbers here are provisional film timings and scales,
  * including the deliberate cast timing for the armoured profile.
  *
  * @see https://www.kendo.or.jp/knowledge/books/kendogijutsu_01/
@@ -77,6 +80,36 @@ const PROFILES: Readonly<
     lift: 0.014,
     follow: 3,
     seconds: 0.55,
+  },
+  foil: {
+    windows: [
+      [0.06, 0.4],
+      [0.49, 0.82],
+    ],
+    travel: 0.14,
+    lift: 0.014,
+    follow: 3,
+    seconds: 0.55,
+  },
+  epee: {
+    windows: [
+      [0.08, 0.44],
+      [0.53, 0.86],
+    ],
+    travel: 0.12,
+    lift: 0.012,
+    follow: 2,
+    seconds: 0.65,
+  },
+  sabre: {
+    windows: [
+      [0.05, 0.36],
+      [0.42, 0.76],
+    ],
+    travel: 0.15,
+    lift: 0.016,
+    follow: 4,
+    seconds: 0.45,
   },
   kendo: {
     windows: [

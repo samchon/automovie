@@ -29,13 +29,126 @@ import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 
 /** The linked phrases offered by the martial-art law. */
-type Kind = "karateStanceTransfer" | "taiChiTransfer";
+type Kind = Extract<
+  IAutoMovieMotionHumanMartialArt.Kind,
+  `${string}${"Transfer" | "StanceReset"}`
+>;
 
-/** Provisional stance and cadence dimensions for a readable form take. */
-const FORM = {
-  karateStanceTransfer: { stride: 0.3, knee: 35, step: 0.55, shift: 0.42 },
-  taiChiTransfer: { stride: 0.35, knee: 23, step: 2, shift: 2.5 },
-} as const;
+/** Provisional blocking values for the shared entry, transfer and reset. */
+interface IForm {
+  /** Lead mark ahead of the rear foot in statures. */
+  stride: number;
+
+  /** Minimum knee bend under the fully opened pose, in degrees. */
+  knee: number;
+
+  /** Entry and reset duration in seconds, before manner scaling. */
+  step: number;
+
+  /** Forward and return transfer durations in seconds. */
+  shift: readonly [forward: number, back: number];
+
+  /** Initial share of the stance span, then forward and backward changes. */
+  weight: readonly [ready: number, forward: number, back: number];
+
+  /** Opening pelvis heading offset and further turn toward the second mark, in degrees. */
+  turn: readonly [ready: number, back: number];
+
+  /** The style's upper body path or held guard. */
+  arms: Carriage;
+}
+
+/**
+ * The arm carriage of a form: karate's switching chamber and strike line,
+ * tai chi's open palms, or a held high or low fighting guard.
+ */
+type Carriage = "karate" | "taiChi" | GuardCarriage;
+
+/** A carriage that holds a fighting guard through the phrase. */
+type GuardCarriage = "highGuard" | "lowGuard";
+
+/** One side of the body, as the stance names its lead and rear. */
+type Side = "left" | "right";
+
+/** One hand's held guard site in its shoulder's frame. */
+interface IGuardSite {
+  /** Toward the midline from the shoulder joint, in shoulder half widths. */
+  inward: number;
+
+  /** Above the shoulder joint, in upper-arm lengths. */
+  up: number;
+
+  /** Ahead of the shoulder joint, in whole-arm lengths. */
+  forward: number;
+}
+
+/** The lead and rear hands' sites of one held guard. */
+interface IGuard {
+  /** The leading side's hand. */
+  lead: IGuardSite;
+
+  /** The rear side's hand. */
+  rear: IGuardSite;
+}
+
+/**
+ * Held guard sites, provisional readings of the coached guards that
+ * `StrikingStance` cites. The Muay Thai guard holds both fists at ear
+ * height just outside the jaw with the arms "projected out further" and
+ * nearly vertical forearms. The taekwondo sparring guard carries the lead
+ * fist low before the solar plexus and the rear fist at the lower chest,
+ * which leaves the head open to the reach of kicks the stance is built for.
+ */
+const GUARDS: Record<GuardCarriage, IGuard> = {
+  highGuard: {
+    lead: { inward: 0.55, up: 0.6, forward: 0.45 },
+    rear: { inward: 0.7, up: 0.6, forward: 0.36 },
+  },
+  lowGuard: {
+    lead: { inward: 0.35, up: -0.55, forward: 0.5 },
+    rear: { inward: 0.6, up: -0.4, forward: 0.3 },
+  },
+};
+
+/** The four screen forms share a clock and sole fit, with independent blocking. */
+const FORM: Record<Kind, IForm> = {
+  karateStanceTransfer: {
+    stride: 0.3,
+    knee: 35,
+    step: 0.55,
+    shift: [0.42, 0.42],
+    weight: [0.66, 0.06, 0.4],
+    turn: [5, 20],
+    arms: "karate",
+  },
+  taiChiTransfer: {
+    stride: 0.35,
+    knee: 23,
+    step: 2,
+    shift: [2.5, 2.5],
+    weight: [0.43, 0.23, 0.32],
+    turn: [0, 0],
+    arms: "taiChi",
+  },
+  taekwondoStanceReset: {
+    stride: 0.26,
+    knee: 16,
+    step: 0.64,
+    shift: [0.48, 0.72],
+    weight: [0.48, 0.1, 0.18],
+    turn: [2, 16],
+    arms: "lowGuard",
+  },
+  muayThaiStanceReset: {
+    stride: 0.28,
+    knee: 41,
+    step: 0.72,
+    shift: [0.7, 0.6],
+    weight: [0.46, 0.12, 0.25],
+    turn: [2, 0],
+    arms: "highGuard",
+  },
+};
 
 /**
  * A lead step into two linked planted weight shifts and a return to entry.
@@ -43,7 +156,11 @@ const FORM = {
  * a switching arm path. Tai chi links a forward shift and a rollback
  * with open palms and comparatively quiet torso carriage. The Shotokan
  * stepping study and the tai chi push case study distinguish the movement
- * families. Duration and geometry use provisional scene choices.
+ * families. The taekwondo reset turns a bladed, upright stance under a low
+ * sparring guard; the Muay Thai reset keeps a square, lower stance under a
+ * high guard. A guard rises with the lead step, holds through both
+ * transfers and lowers on the return. All blocking values are provisional
+ * choices for the take.
  * @see https://pubmed.ncbi.nlm.nih.gov/34269821/
  * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC1724683/
  *
@@ -54,7 +171,7 @@ const FORM = {
  * @returns The support and arm phrase on a single timeline.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the actual subject, support and upper body paths, time, units and provisional geometry.
- * @evidence contracts/development/implementation.md#principled-implementation Each style drives one plant clock, a support-relative carriage and hand sites relative to the displayed shoulders.
+ * @evidence contracts/development/implementation.md#principled-implementation Each style drives one plant clock and support-relative carriage. Every form places its hands relative to the displayed shoulders: the transfer phrases move them along their style's path and the two resets hold their style's guard site.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Schedule, support geometry, body carriage and arm placements use the same fixed phrase.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the existing leg arc, placements, clock, body lowering and arm composition.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fixed geometry of the action remains with its returned plan.
@@ -67,13 +184,13 @@ export function MartialArtStancePhrase(
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params } = context;
   const m: typeof body.measure = body.measure;
-  const karate: boolean = kind === "karateStanceTransfer";
-  const form: (typeof FORM)[Kind] = FORM[kind];
-  const lead: "left" | "right" = params.lead ?? "left";
-  const rear: "left" | "right" = StrikingStance.rear({ lead });
+  const form: IForm = FORM[kind];
+  const karate: boolean = form.arms === "karate";
+  const lead: Side = params.lead ?? "left";
+  const rear: Side = StrikingStance.rear({ lead });
   const feet: ReturnType<typeof StrikingTarget.feet> =
     StrikingTarget.feet(entry);
-  const sole: Record<"left" | "right", IAutoMovieVector3> = {
+  const sole: Record<Side, IAutoMovieVector3> = {
     left: HumanFoot.offset(body, "left", "ball"),
     right: HumanFoot.offset(body, "right", "ball"),
   };
@@ -97,8 +214,8 @@ export function MartialArtStancePhrase(
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.phrase({
       prepare: form.step,
-      attack: form.shift,
-      follow: form.shift,
+      attack: form.shift[0],
+      follow: form.shift[1],
       hold,
       retract: form.step,
     }),
@@ -149,9 +266,8 @@ export function MartialArtStancePhrase(
       const shown: number = open(seconds);
       const advance: number = fore.progress(seconds);
       const recover: number = back.progress(seconds);
-      const transfer: number = karate
-        ? 0.66 + 0.06 * advance - 0.4 * recover
-        : 0.43 + 0.23 * advance - 0.32 * recover;
+      const transfer: number =
+        form.weight[0] + form.weight[1] * advance - form.weight[2] * recover;
       const ankles: ReturnType<typeof StrikingTarget.feet> = {
         ...feet,
         [lead]: AutoMovieMotionHumanLeg.arc(
@@ -168,7 +284,9 @@ export function MartialArtStancePhrase(
       );
       const yaw: number =
         start.yaw +
-        (karate ? (lead === "left" ? -1 : 1) * (5 + 20 * recover) * shown : 0);
+        (lead === "left" ? -1 : 1) *
+          (form.turn[0] + form.turn[1] * recover) *
+          shown;
       const horizontal: IAutoMovieVector3 = Vector3.lerp(
         posture.root,
         { ...centre, y: posture.root.y },
@@ -225,7 +343,13 @@ export function MartialArtStancePhrase(
     },
   };
   const primitives: IAutoMovieMotionHumanPrimitive[] = [legs];
-  for (const side of ["left", "right"] as const)
+  const guard: IGuard | undefined =
+    form.arms === "highGuard" || form.arms === "lowGuard"
+      ? GUARDS[form.arms]
+      : undefined;
+  const fist: boolean = karate || guard !== undefined;
+  const sides: readonly Side[] = ["left", "right"];
+  for (const side of sides)
     primitives.push(
       ...AutoMovieMotionHumanPlaced.arm({
         body,
@@ -235,9 +359,9 @@ export function MartialArtStancePhrase(
         span,
         rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
         weight: open,
-        surface: karate ? "fist" : "palm",
-        shape: karate ? "fist" : "flat",
-        bend: karate ? "tucked" : "front",
+        surface: fist ? "fist" : "palm",
+        shape: fist ? "fist" : "flat",
+        bend: fist ? "tucked" : "front",
         place: (
           posture: IAutoMovieMotionHumanPosture,
           seconds: number,
@@ -259,6 +383,24 @@ export function MartialArtStancePhrase(
           };
           const arm: number = m.upperArm + m.forearm;
           const outward: number = side === "left" ? 1 : -1;
+          const facing: IAutoMovieVector3 = HumanFrame.point(
+            { ...frame, origin: { x: 0, y: 0, z: 0 } },
+            { x: 0, y: 0, z: 1 },
+          );
+
+          // A guard holds one site from the lead step to the return; the
+          // weight raises and lowers it.
+          if (guard !== undefined) {
+            const held: IGuardSite = side === lead ? guard.lead : guard.rear;
+            return {
+              point: HumanFrame.point(frame, {
+                x: -outward * held.inward * m.shoulderHalfWidth,
+                y: held.up * m.upperArm,
+                z: held.forward * arm,
+              }),
+              facing,
+            };
+          }
           const near: IAutoMovieVector3 = {
             x: (karate ? 0.75 : -0.5) * outward * m.forearmRadius,
             y: (karate ? -0.72 : -0.34) * m.upperArm,
@@ -282,10 +424,7 @@ export function MartialArtStancePhrase(
           const site: IAutoMovieVector3 = Vector3.lerp(near, far, swing);
           return {
             point: HumanFrame.point(frame, { ...site, x: site.x + rollBack }),
-            facing: HumanFrame.point(
-              { ...frame, origin: { x: 0, y: 0, z: 0 } },
-              { x: 0, y: 0, z: 1 },
-            ),
+            facing,
             ...(karate ? {} : { forward: { x: 0, y: 1, z: 0 } }),
           };
         },

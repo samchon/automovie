@@ -229,6 +229,7 @@ export namespace grapple {
     for (const side of ["left", "right"] as const) {
       const region: AutoMovieHumanoidRegion | undefined = regions[side];
       if (region === undefined) continue;
+      const onShoulder: boolean = region.startsWith("shoulder");
       needed.add(partner.body.surfaces.regions[region].bone);
       const armBone: AutoMovieHumanoidBone = `${side}UpperArm`;
       const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([
@@ -280,7 +281,15 @@ export namespace grapple {
             posture,
             side,
             contact,
-            { surface: "palm", shape: "relaxed", bend: "forward" },
+            {
+              surface: "palm",
+              shape: onShoulder ? "flat" : "relaxed",
+              bend: "forward",
+              // A palm on a shoulder stays open, its fingers up. Relaxed
+              // finger curl folds the tips around the placed palm into the
+              // chest below it.
+              ...(onShoulder ? { forward: { x: 0, y: 1, z: 0 } } : {}),
+            },
           );
         },
       });
