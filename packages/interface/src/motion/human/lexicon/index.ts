@@ -98,3 +98,5 @@ export type { AutoMovieMotionHumanTuckHairParams } from "./AutoMovieMotionHumanT
 export type { IAutoMovieMotionHumanAidWalk } from "./IAutoMovieMotionHumanAidWalk";
 export type { IAutoMovieMotionHumanAssistedTransfer } from "./IAutoMovieMotionHumanAssistedTransfer";
 export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
+export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
+export type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";

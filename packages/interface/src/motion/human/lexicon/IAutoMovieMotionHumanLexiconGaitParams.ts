@@ -101,3 +101,11 @@ import type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
   /** Move in cover along a named wall, window or door. */
   moveInCover: IAutoMovieMotionHumanCover.IParams;
 
+import type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
+import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
+  /** Move in cover along a named wall, window or door. */
+  moveInCover: IAutoMovieMotionHumanCover.IParams;
+
+  /** Step on or run up a named wall's face. */
+  wallRun: IAutoMovieMotionHumanWallRun.IParams;
+

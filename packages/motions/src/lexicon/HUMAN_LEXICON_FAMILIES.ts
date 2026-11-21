@@ -213,3 +213,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
 } as const;
 import { HumanCover } from "./HumanCover";
     HumanCover,
+import { HumanCover } from "./HumanCover";
+import { HumanWallRun } from "./HumanWallRun";
+    HumanCover,
+    HumanWallRun,
