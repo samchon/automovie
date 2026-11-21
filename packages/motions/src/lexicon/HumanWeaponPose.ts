@@ -27,6 +27,7 @@ import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingSupport } from "../striking/StrikingSupport";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { HumanFirearmReady } from "./HumanFirearmReady";
+import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
@@ -89,13 +90,14 @@ export namespace HumanWeaponPose {
    * @param entry The posture the presentation begins from.
    * @param start The film second it begins, the instant its target is read at.
    * @param s The setup.
+   * @param seated Whether the performer sits a mount, whose trunk then turns toward the target (`HumanMountedPresentation`).
    * @returns The stance and the pose.
-   * @throws {HumanRefusal} On `target` when the target lies more than `TURN` degrees off the heading, or an extended arm's line of aim passes beyond its reach.
+   * @throws {HumanRefusal} On `target` when the target lies more than `TURN` degrees off the heading, or past a seated performer's trunk turn and `TURN`, or an extended arm's line of aim passes beyond its reach.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The bore's line on the line from the anchor to the target, an extended arm's working point where that line meets the arm's own reach, a ready region's pose (`HumanFirearmReady`), or the recover's upright bore above the support side's breast (the 1764 Manual Exercise), on the bladed trunk a long gun is shouldered from, square at the recover.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry, the turn, the anchor, the target and its angle, then the pose by carriage.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target past `TURN` is refused, never clamped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target past `TURN`, or past a seated trunk's turn and `TURN`, is refused, never clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution and the carriage's pose choice.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan and once per weighed grip.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -108,6 +110,7 @@ export namespace HumanWeaponPose {
     entry: IAutoMovieMotionHumanPosture,
     start: number,
     s: IAutoMovieMotionHumanWeaponHeld.ISetup,
+    seated: boolean,
   ): IPosed {
     const p: IAutoMovieMotionHumanWeaponPresent.IPresent = context.params;
     const carriage: IAutoMovieMotionHumanWeaponPresent.Carriage =
@@ -136,9 +139,23 @@ export namespace HumanWeaponPose {
         : s.tool.side === "right"
           ? -HumanWeaponPresent.BLADED
           : HumanWeaponPresent.BLADED;
+    // In the saddle the pelvis keeps the horse's heading, so the trunk turns
+    // toward a target the arms alone cannot present to (HumanMountedPresentation).
+    const mounted: number =
+      seated && p.target !== undefined
+        ? HumanMountedPresentation.turn(
+            HumanMountedPresentation.bearing(
+              entry.yaw,
+              entry.root,
+              context.aim(p.target, start).point,
+            ),
+            turn,
+            "target",
+          )
+        : 0;
     const bladed: IAutoMovieMotionHumanPosture = StrikingBlade.turned(
       entry,
-      turn,
+      turn + mounted,
     );
 
     // Both arms are judged where the presentation will put them. Leaving
@@ -197,11 +214,11 @@ export namespace HumanWeaponPose {
     const line: IAutoMovieVector3 = StrikingTarget.line(
       entry.root,
       target,
-      entry.yaw,
+      entry.yaw + mounted,
     );
     const off: number =
       (Math.acos(
-        Math.max(-1, Math.min(1, Vector3.dot(line, ahead(entry.yaw)))),
+        Math.max(-1, Math.min(1, Vector3.dot(line, ahead(entry.yaw + mounted)))),
       ) *
         180) /
       Math.PI;

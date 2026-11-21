@@ -137,6 +137,7 @@ export namespace HumanWeaponPresent {
             context.carrier?.posture(0) ?? context.entry.posture,
             context.start,
             s,
+            context.entry.base.kind === "seated",
           );
         StrikingRoll.reachable(
           context,
@@ -214,6 +215,9 @@ export namespace HumanWeaponPresent {
             grip.posture,
             ahead.start,
             s,
+            // A weighed grip reads no base: a seated rearward target is
+            // refused here and so asks nothing of the grip.
+            false,
           );
           return [
             {
