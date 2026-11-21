@@ -204,7 +204,11 @@ function observeMotion(
   if (sample.place === undefined || fps === undefined || !(fps > 0))
     return { findings: [], coverage: [] };
   const seconds: number = sample.time.filmSeconds;
-  const from: number = (Math.ceil(seconds * fps) - 1) / fps;
+  // The output index at or after this second, from the delivery schedule when
+  // known; otherwise rounded up past binary rounding of seconds * fps.
+  const index: number =
+    sample.time.outputFrame ?? Math.ceil(seconds * fps - 2 ** -20);
+  const from: number = (index - 1) / fps;
   const playback: IFilmProduction["playback"] = production.playback;
   const relation: string =
     playback === undefined || !(from >= 0)
