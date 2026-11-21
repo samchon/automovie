@@ -2,6 +2,7 @@ import {
   Quaternion,
   Vector3,
   inertializeOffset,
+  minimumJerk,
   prepareArticulatedRig,
   samplePoseVelocity,
 } from "@automovie/engine";
@@ -278,6 +279,26 @@ export namespace QuadrupedWorldPose {
     ) => IPose;
   }
 
+  /**
+   * A placement carried across a cut from one root convention to another: `from` at the cut's start to `to` at its end by minimum jerk, so the root and its velocity stay continuous; a pose emitted in world space displays the same under either.
+   *
+   * @param from The placement the cut leaves, at this second.
+   * @param to The placement the cut reaches, at this second.
+   * @param share The cut's elapsed share, clamped to [0, 1].
+   * @returns The carried placement.
+   */
+  export function bridge(
+    from: IAutoMovieTransform,
+    to: IAutoMovieTransform,
+    share: number,
+  ): IAutoMovieTransform {
+    const u: number = minimumJerk.share(Math.min(1, Math.max(0, share)));
+    return {
+      translation: Vector3.lerp(from.translation, to.translation, u),
+      rotation: Quaternion.slerp(from.rotation, to.rotation, u),
+      scale: { ...to.scale },
+    };
+  }
   /**
    * Model-space bone frames of a world pose under a placement, parents first.
    *

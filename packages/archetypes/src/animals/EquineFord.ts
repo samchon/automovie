@@ -142,6 +142,7 @@ export function EquineFord<Id extends string, D extends string>(
     scale: { ...ArchetypeFrame.UNIT },
   });
   const exit: IAutoMovieTransform = carriage(land);
+  const left: IAutoMovieTransform = entry.at(float).placement;
 
   // The grounded climbing, starting at the swim's speed where the swim ends.
   const recovery: ArchetypeRide.IRide<Id, Dimension> = grounded(
@@ -198,7 +199,7 @@ export function EquineFord<Id extends string, D extends string>(
           world.neutral.get(QuadrupedBody.BONES[limb][0])!.translation.y -
           QuadrupedBody.BONES[limb].reduce(
             (sum: number, bone: QuadrupedBody.Bone): number =>
-              sum + length(part(animal, bone)),
+              sum + shape(part(animal, bone)).height,
             0,
           ),
       ),
@@ -310,12 +311,23 @@ export function EquineFord<Id extends string, D extends string>(
         head(archetype, placement);
         return { archetype, placement, phase: "swimming" };
       }
+      const bridged: IAutoMovieTransform = QuadrupedWorldPose.bridge(
+        {
+          ...left,
+          translation: Vector3.add(
+            left.translation,
+            Vector3.scale(forward, swim.speed * elapsed),
+          ),
+        },
+        placement,
+        elapsed / transition,
+      );
       return {
         archetype: supported(
           world.blend(into, transition, elapsed, swimming(seconds)),
-          placement,
+          bridged,
         ),
-        placement,
+        placement: bridged,
         phase: "floating",
       };
     }
@@ -329,12 +341,17 @@ export function EquineFord<Id extends string, D extends string>(
         placement: grounded.placement,
         phase: "climbing",
       };
+    const bridged: IAutoMovieTransform = QuadrupedWorldPose.bridge(
+      carriage(seconds),
+      grounded.placement,
+      elapsed / transition,
+    );
     return {
       archetype: supported(
         world.blend(out, transition, elapsed, read(grounded)),
-        grounded.placement,
+        bridged,
       ),
-      placement: grounded.placement,
+      placement: bridged,
       phase: "landing",
     };
   }
@@ -448,11 +465,6 @@ function part(
   if (found?.transform === undefined || found.transform === null)
     throw new RangeError(`The crossing needs the transformed ${id} part`);
   return found;
-}
-
-/** An actual bar's length, joint to joint, metres. */
-function length(bar: IAutoMovieModelPart): number {
-  return shape(bar).height;
 }
 
 /** The highest surface of an actual bar, metres in its model. */
