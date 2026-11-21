@@ -89,8 +89,8 @@ export const SCENES_HANDLING: readonly IScene[] = [
       // receptionist makes its home-row layout face the approaching hands.
       object(
         "keyboard",
-        "createKeyboard",
-        "keyboard",
+        "createDesktopKeyboard",
+        undefined,
         0,
         0.36,
         180,
@@ -271,12 +271,12 @@ export const SCENES_HANDLING: readonly IScene[] = [
       ]),
     ],
     [
-      ...counter("camera-counter", "camera", "createDevice", "camera", 0, 0),
+      ...counter("camera-counter", "camera", "createCamera", undefined, 0, 0),
       object("shutter", "createSwitch", "button", 0, 0.35, 180, 0, {
         height: CONTROL_HEIGHT,
         travel: CONTROL_TRAVEL,
       }),
-      ...counter("sample-counter", "sample", "createDevice", "remote", 0, 2),
+      ...counter("sample-counter", "sample", "createRemote", undefined, 0, 2),
     ],
   ),
   scene(
@@ -317,7 +317,7 @@ export const SCENES_HANDLING: readonly IScene[] = [
         0,
         SceneBuild.COUNTER_TOP,
       ),
-      object("basket", "createTray", "basket", 0, 1),
+      object("basket", "createCarryBasket", undefined, 0, 1),
     ],
   ),
 ];

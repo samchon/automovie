@@ -154,8 +154,19 @@ export const SCENES_GAMES: readonly IScene[] = [
         ...object("bea-racket", "createRacket", "tennis", 0.35, 5.76, 0, 0.452),
         rotation: { x: -Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
       },
-      object("tennis-ball", "createBall", "tennis", 0.25, 5.68, 0, 0.474),
-      { ...object("court-net", "createGoal", "tennisNet", 0, 3), fixed: true },
+      object(
+        "tennis-ball",
+        "createSphericalBall",
+        "tennis",
+        0.25,
+        5.68,
+        0,
+        0.474,
+      ),
+      {
+        ...object("court-net", "createTennisNet", undefined, 0, 3),
+        fixed: true,
+      },
     ],
   ),
   scene(
@@ -379,7 +390,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       ]),
     ],
     // The ball on the spot, ahead of where the kicker's run ends.
-    [object("ball", "createBall", "football", 0, 1.3)],
+    [object("ball", "createSphericalBall", "football", 0, 1.3)],
   ),
   scene(
     {
@@ -708,9 +719,9 @@ export const SCENES_GAMES: readonly IScene[] = [
     // The ball caught lies at the thrower's feet, as the throw is mimed; the
     // footballs kicked lie ahead of the kicker, the second where he steps to.
     [
-      object("handball", "createBall", "handball", 0, 0.3),
-      object("football", "createBall", "football", 1.7, 2),
-      object("football2", "createBall", "football", 1.7, 1.3),
+      object("handball", "createSphericalBall", "handball", 0, 0.3),
+      object("football", "createSphericalBall", "football", 1.7, 2),
+      object("football2", "createSphericalBall", "football", 1.7, 1.3),
     ],
   ),
   scene(

@@ -20,23 +20,23 @@ const work = (x: number): SceneBuild.PointTarget => ({
 
 /**
  * A one-hand tool lying level on the workshop's bench with its working end
- * toward the far side, where a pick-up takes it by its grip: `createTool`
- * stands a tool along +Y from the butt of its handle, so it is turned a
+ * toward the far side, where a pick-up takes it by its grip. Each tool
+ * stands along +Y from the butt of its handle, so it is turned a
  * quarter turn about +X, its butt at the bench top.
  *
  * @param subject The tool's id.
- * @param kind The tool's kind (`createTool`).
+ * @param producer The named tool producer.
  * @param x The butt's floor point, metres.
  * @param z The butt's floor point, metres.
  * @returns The tool.
  */
 const tool = (
   subject: string,
-  kind: string,
+  producer: string,
   x: number,
   z: number,
 ): ReturnType<typeof object> => ({
-  ...object(subject, "createTool", kind, x, z, 0, SceneBuild.COUNTER_TOP),
+  ...object(subject, producer, undefined, x, z, 0, SceneBuild.COUNTER_TOP),
   rotation: { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
 });
 
@@ -609,9 +609,9 @@ export const SCENES_PARTNER: readonly IScene[] = [
     ],
     [
       object("bench", "createTable", "counter", -0.5, 0.65, 180),
-      tool("hammerA", "hammer", HAMMER_A.x, HAMMER_A.z),
-      tool("sawA", "saw", SAW_A.x, SAW_A.z),
-      tool("hammerB", "hammer", HAMMER_B.x, HAMMER_B.z),
+      tool("hammerA", "createHammer", HAMMER_A.x, HAMMER_A.z),
+      tool("sawA", "createHandSaw", SAW_A.x, SAW_A.z),
+      tool("hammerB", "createHammer", HAMMER_B.x, HAMMER_B.z),
     ],
   ),
   scene(
@@ -634,7 +634,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
     ],
     [
       object("bench", "createTable", "counter", 0, 0.53, 180),
-      tool("driver", "screwdriver", -0.18, 0.3),
+      tool("driver", "createScrewdriver", -0.18, 0.3),
     ],
   ),
 ];

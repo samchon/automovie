@@ -1,18 +1,20 @@
-import { Vector3 } from "@automovie/engine";
-
 import {
   type Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type ArchetypeDrawSession,
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { BOAT_BANDS } from "./BOAT_BANDS";
-import { BOAT_MODELS } from "./BOAT_MODELS";
-import { BoatHull } from "./BoatHull";
-import { BoatOars } from "./BoatOars";
+import { createCanoe } from "./createCanoe";
+import { createPullingBoat } from "./createPullingBoat";
+import { createRowboat } from "./createRowboat";
+
+/** A saved recipe's producer as the dispatcher calls it: the selected producer admits the saved parameter union at run time. */
+type Producer = (
+  params: Omit<createBoat.IParams, "kind">,
+  seed?: number | string,
+) => Archetype<createBoat.Affordance, createBoat.Dimension>;
 
 /**
  * An open boat: a fixed-seat rowboat with its oars, a tandem canoe, or a Navy pulling boat for a landing party.
@@ -25,240 +27,26 @@ import { BoatOars } from "./BoatOars";
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the boat floats, its axes, who sits, stands and holds where, the oars' articulations, and what is out of scope.
- * @evidence contracts/development/implementation.md#principled-implementation Pick the read hull whole and a canoe's layup with its read mass, take a rowboat's blades from the oar its span calls for (`BoatOars.blade`), draw the rest, then the hull's bottom and two sides to each end, the kind's seats at their sourced places, and a rowboat's oars (`BoatOars`).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Hull, seats, contacts, oars; the side panels and the thwarts are `BoatHull`'s boards.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hull is flat panels to a stem and a transom, its curves not modelled; the unread places are named provisional constants here.
- * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
+ * @evidence contracts/development/implementation.md#principled-implementation Selects the canonical producer for the saved hull kind and forwards all dimensions and selectors.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One validated kind selects its own hull and outfit producer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The saved parameters pass unchanged to the selected producer, which owns their admission and its provisional constants.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One kind check and one table lookup before the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBoat(
   params: createBoat.IParams,
   seed?: number | string,
 ): Archetype<createBoat.Affordance, createBoat.Dimension> {
-  const draw: ArchetypeDrawSession<createBoat.Dimension> =
-    new ArchetypeDrawSession<createBoat.Dimension>(
-      "boat",
-      createBoat.UNITS,
-      seed,
-      params,
-    );
   const kind: createBoat.Kind = ArchetypeDraw.choice(
     "boat",
     "kind",
     params.kind,
     createBoat.KINDS,
   );
-  // One read hull whole and, for a canoe, one of its layups; a rowboat's blades are the oar its span calls for.
-  const hull: {
-    name: createBoat.Model | undefined;
-    figures: Readonly<Partial<Record<createBoat.Dimension, number>>>;
-  } = draw.model<createBoat.Model>(
-    "model",
-    params.model,
-    BOAT_MODELS.hulls[kind],
-  );
-  const layup: {
-    figures: Readonly<Partial<Record<createBoat.Dimension, number>>>;
-  } = draw.model<createBoat.Layup>(
-    "layup",
-    params.layup,
-    hull.name === undefined ? undefined : BOAT_MODELS.layups[hull.name],
-  );
-  const drawn: Partial<Record<createBoat.Dimension, number>> = {
-    ...draw.dimensions(createBoat.BANDS[kind], createBoat.BANDS),
-    ...hull.figures,
-    ...layup.figures,
-  };
-  // A rowboat's blades follow its beam, by the oar its span calls for: derived, not drawn.
-  const derived = (blade: {
-    bladeLength: number;
-    bladeWidth: number;
-  }): Partial<Record<createBoat.Dimension, number>> => ({
-    bladeLength: draw.derive("bladeLength", blade.bladeLength),
-    bladeWidth: draw.derive("bladeWidth", blade.bladeWidth),
-  });
-  const d: Partial<Record<createBoat.Dimension, number>> =
-    kind === "rowboat"
-      ? { ...drawn, ...derived(BoatOars.blade(drawn.beam!)) }
-      : drawn;
-  const builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: kind === "launch" ? "pulling boat" : kind,
-      draw,
-    });
-  const v: typeof Vector3.create = Vector3.create;
-  const length: number = d.length!;
-  const beam: number = d.beam!;
-  const draft: number = d.draft ?? createBoat.DRAFT[kind];
-  const bottom: number = -draft;
-  const gunwale: number = d.depth! - draft;
-  const stern: number = kind === "canoe" ? 0 : (createBoat.TRANSOM * beam) / 2;
-  const ends: number = kind === "canoe" ? bottom + d.endHeight! : gunwale;
-
-  const e: typeof createBoat.ESTIMATES = createBoat.ESTIMATES;
-
-  // The hull: a bottom, and each side in two flat panels, aft from the transom's corner (a canoe's stern post) to the widest beam amidships, and forward to the stem.
-  builder.box(
-    "bottom",
-    v(beam * e.bottom.beam, e.bottom.thickness, length * e.bottom.length),
-    v(0, bottom + e.bottom.thickness / 2, 0),
-    { color: BoatHull.PAINT, surface: "wood" },
-  );
-  for (const [side, sign] of [
-    ["left", 1],
-    ["right", -1],
-  ] as const) {
-    BoatHull.panel(
-      builder,
-      `side-${side}-aft`,
-      v(sign * stern, 0, -length / 2),
-      v((sign * beam) / 2, 0, 0),
-      bottom,
-      gunwale,
-    );
-    BoatHull.panel(
-      builder,
-      `side-${side}-fore`,
-      v((sign * beam) / 2, 0, 0),
-      v(0, 0, length / 2),
-      bottom,
-      gunwale,
-    );
-  }
-  builder.box(
-    "stem",
-    v(e.post, ends - bottom, e.post),
-    v(0, (ends + bottom) / 2, length / 2),
-    { color: BoatHull.PAINT },
-  );
-  if (stern === 0)
-    builder.box(
-      "sternpost",
-      v(e.post, ends - bottom, e.post),
-      v(0, (ends + bottom) / 2, -length / 2),
-      { color: BoatHull.PAINT },
-    );
-  if (stern > 0)
-    builder.box(
-      "transom",
-      v(2 * stern, gunwale - bottom, e.transom),
-      v(0, (gunwale + bottom) / 2, -length / 2),
-      { color: BoatHull.PAINT },
-    );
-
-  // The floorboards lie on the bottom board, and people stand on their top.
-  const floor: number = bottom + e.bottom.thickness + e.floor.thickness;
-  builder.box(
-    "floor",
-    v(beam * e.floor.beam, e.floor.thickness, length * e.floor.length),
-    v(0, floor - e.floor.thickness / 2, 0),
-    { color: BoatHull.WOOD, surface: "wood" },
-  );
-  builder.affordance({
-    id: "floor",
-    kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, floor, 0)),
-    extent: null,
-    width: beam * e.floor.beam,
-    depth: length * e.floor.length,
-  });
-  builder.rod(
-    "gunwale",
-    createBoat.RAIL / 2,
-    v(beam / 2, gunwale, -length / 8),
-    v(beam / 2, gunwale, length / 8),
-    { color: BoatHull.WOOD, surface: "wood" },
-  );
-  builder.affordance({
-    id: "gunwale",
-    kind: "bar",
-    symmetry: "round",
-    frame: ArchetypeFrame.facing(
-      v(beam / 2, gunwale, 0),
-      v(0, 1, 0),
-      v(0, 0, 1),
-    ),
-    extent: null,
-    grip: "power",
-    aperture: createBoat.RAIL,
-    length: length / 4,
-  });
-  builder.affordance({
-    id: "bow",
-    kind: "ledge",
-    frame: ArchetypeFrame.upright(v(0, ends, length / 2 - e.ledge / 2)),
-    extent: null,
-    length: e.ledge,
-  });
-  builder.affordance({
-    id: "stern",
-    kind: "ledge",
-    frame: ArchetypeFrame.upright(v(0, ends, -length / 2 + e.ledge / 2)),
-    extent: null,
-    length: Math.max(2 * stern, e.ledge),
-  });
-
-  // The seats.
-  if (kind === "rowboat") {
-    const span: number = beam;
-    const pivot: number = gunwale + createBoat.LOCK;
-    const seat: number = pivot - BoatOars.HEIGHT * span;
-    const aft: number = BoatOars.AFT * span;
-    // The rowing station's height comes from the oarlock geometry rather
-    // than chair ergonomics. Its rower's joints admit the working seat.
-    BoatHull.thwart(builder, "thwart0", seat, aft, beam * e.seats.rowing, -1, true);
-    BoatHull.thwart(
-      builder,
-      "thwart1",
-      seat,
-      aft + createBoat.ROWBOAT.forward,
-      beam * e.seats.forward,
-      -1,
-    );
-    BoatHull.thwart(
-      builder,
-      "sternSeat",
-      seat,
-      -length / 2 + createBoat.ROWBOAT.stern,
-      2 * stern,
-      1,
-    );
-    BoatOars.build(builder, d);
-  } else if (kind === "canoe") {
-    const seat: number = bottom + d.seatHeight!;
-    BoatHull.thwart(
-      builder,
-      "thwart0",
-      seat,
-      createBoat.CANOE.bow,
-      beam * e.seats.canoeBow,
-      1,
-    );
-    BoatHull.thwart(
-      builder,
-      "thwart1",
-      seat,
-      -createBoat.CANOE.stern,
-      beam * e.seats.canoeStern,
-      1,
-    );
-  } else {
-    const seat: number = gunwale - createBoat.LAUNCH.below;
-    for (let k: number = 0; k < createBoat.LAUNCH.thwarts; k++)
-      BoatHull.thwart(
-        builder,
-        `thwart${k}` as createBoat.Affordance,
-        seat,
-        (k - (createBoat.LAUNCH.thwarts - 1) / 2) * createBoat.LAUNCH.room -
-          createBoat.THWART / 2,
-        beam * e.seats.launch,
-        -1,
-      );
-  }
-  return builder.build(d.mass!);
+  // The selected producer validates its options from the saved parameter union.
+  const produce: Producer = createBoat.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**
@@ -270,6 +58,19 @@ export function createBoat(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The launch is one measured boat, so its bands are single figures.
  */
 export namespace createBoat {
+  /** The canonical factories for saved kinds, read after the catalogue loads. */
+  export const PRODUCERS = {
+    get rowboat(): typeof createRowboat {
+      return createRowboat;
+    },
+    get canoe(): typeof createCanoe {
+      return createCanoe;
+    },
+    get launch(): typeof createPullingBoat {
+      return createPullingBoat;
+    },
+  } satisfies Readonly<Record<Kind, unknown>>;
+
   /** The kinds of boat. */
   export type Kind = "rowboat" | "canoe" | "launch";
 
