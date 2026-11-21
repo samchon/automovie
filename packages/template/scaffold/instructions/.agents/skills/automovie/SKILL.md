@@ -27,6 +27,6 @@ The skills use package roles from the table. [Entity work](../development/entiti
 
 ## Reading a package
 
-Read the installed README for entry points and the public types and JSDoc under `node_modules` for units, limits, refusals and what each value and default performs.
+Read the installed README for entry points. Read the public types and JSDoc under `node_modules` for units, limits, refusals and what each value and default performs.
 
 Use the installed function or primitive that performs the work. Send reusable gaps to the package owner.

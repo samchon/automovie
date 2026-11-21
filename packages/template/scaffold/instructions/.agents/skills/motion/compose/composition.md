@@ -13,7 +13,7 @@ For each thing a person does in the beat, settle these axes from the beat record
 | Axis | Settle |
 | --- | --- |
 | Base | What carries the body: the floor, a seat, a wall, a bar, water, a moving vehicle or mount, or another person |
-| Travel | Whether the body travels, at what gait and where to, and its spacing from a partner or target |
+| Travel | Whether and where the body travels, at what gait, and its spacing from a partner or target |
 | Action | The vocabulary's action, and its named entry where the action has a table of them |
 | Effector | The hand, fingers, foot or other part that performs it or bears weight, and what each hand already holds |
 | Target | What the action reaches, with the contact site on it |
@@ -24,7 +24,7 @@ For each thing a person does in the beat, settle these axes from the beat record
 | Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
 | Timing | When it happens against other actions, partners, hits, commands, dialogue and beats |
 
-Author those axes through the installed operators. Leave joint fitting and contact response to their package owners. Set each parameter that carries a settled axis, and omit it only when its default performs that setting. Record the settings at each action under [scene realization](../../contracts/development/composition.md#scene). Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
+Author those axes through the installed operators. Set each parameter that carries a settled axis, and omit it only when its default performs that setting. Leave joint fitting and contact response to their package owners. Comment each action's settings as [scene realization](../../contracts/development/composition.md#scene) requires. Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
 
 Use layers for ongoing breathing and listener gaze unless the beat changes them. When one person's move changes another's options, compose the cue and the other person's choice together. Sync reactions to their cause using the law's studied reaction time where available.
 
