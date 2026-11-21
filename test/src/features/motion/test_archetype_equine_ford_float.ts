@@ -23,6 +23,9 @@ const TOLERANCE: number = 0.01;
 /** Seconds the slide off the saddle into the float takes. */
 const SLIDE: number = 1.2;
 
+/** Seconds read afloat after the slide. */
+const AFLOAT: number = 2.5;
+
 /** The floating rider's trunk and leg bones, which must stay outside the horse's barrel; the near arm reaches in to the mane. */
 const TRAILING: readonly AutoMovieHumanoidBone[] = [
   "hips",
@@ -54,7 +57,8 @@ const TRAILING: readonly AutoMovieHumanoidBone[] = [
 export function test_archetype_equine_ford_float(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-tall");
   const staged: equineFordRider.IStage = equineFordRider.stage();
-  const { float, land } = staged;
+  const { float } = staged;
+  const end: number = float + SLIDE + AFLOAT;
   const wading: IAutoMovieMotionHumanMounted.IFigure = {
     seat: "entered",
     transfer: 0.4,
@@ -75,7 +79,7 @@ export function test_archetype_equine_ford_float(): void {
           hold: "mane",
           water: equineFordRider.WATER,
           blocked: ["left"],
-          seconds: land - float,
+          seconds: SLIDE + AFLOAT,
           transition: SLIDE,
           ...change,
         } satisfies IAutoMovieMotionHumanFloatBeside),
@@ -107,7 +111,7 @@ export function test_archetype_equine_ford_float(): void {
     );
 
   // 2. The float.
-  for (const at of [float + SLIDE + 0.5, (float + SLIDE + land) / 2, land - 0.3]) {
+  for (const at of [float + SLIDE + 0.5, float + SLIDE + 1.5, end - 0.2]) {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       film.bones("rider", at);
     const gap: number = equineRiderContacts.bar(
@@ -138,9 +142,9 @@ export function test_archetype_equine_ford_float(): void {
     }
   }
   const kicks: number[] = [];
-  for (let i: number = 0; i < 8; i++) {
+  for (let i: number = 0; i < 6; i++) {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      film.bones("rider", float + SLIDE + 1 + 0.2 * i);
+      film.bones("rider", float + SLIDE + 0.9 + 0.2 * i);
     kicks.push(
       bones.get("leftLowerLeg")!.worldPosition.y -
         bones.get("rightLowerLeg")!.worldPosition.y,

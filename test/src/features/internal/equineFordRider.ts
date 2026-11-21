@@ -49,7 +49,7 @@ export namespace equineFordRider {
   const SAT: number = 0.5;
 
   /** The level near bed the rider mounts on, metres along +Z before the ford descends. */
-  const BANK: number = 3;
+  const BANK: number = 1.5;
 
   /** The near bed's height, world metres: a ford's shallows the rider stands in to mount, so the wading to swimming depth is short. */
   const BED: number = -0.9;
