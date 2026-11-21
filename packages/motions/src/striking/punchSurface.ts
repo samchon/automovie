@@ -98,9 +98,18 @@ export function punchSurface(
         fist,
       );
     case "palmHeel":
+      // The wrist extended: the fingers lean back toward the striker so the
+      // open hand stands clear of the face the heel of the palm meets.
       return placed(
         straight,
-        StrikingBody.fist(body, side, up, straight),
+        StrikingBody.fist(
+          body,
+          side,
+          Vector3.normalize(
+            Vector3.subtract(up, Vector3.scale(straight, PALM_TILT)),
+          ),
+          straight,
+        ),
         body.surfaces.sockets[side === "left" ? "palmLeft" : "palmRight"].point,
       );
     case "backfist": {
@@ -141,6 +150,9 @@ export function punchSurface(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector and quaternion.
  */
 export namespace punchSurface {
+  /** How far a palm heel's fingers lean back toward the striker per unit up, the wrist extended (provisional). */
+  export const PALM_TILT: number = 0.6;
+
   /** A technique's striking surface at contact. */
   export interface ISurface {
     /** The unit direction the surface travels at contact, world. */

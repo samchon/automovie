@@ -135,7 +135,7 @@ export function test_motion_exercise_close_strikes(): void {
           partner,
           row,
           "chin",
-          (row === "stageHeadbutt" ? BUTT : CLINCH) * body.measure.stature,
+          (row === "stageHeadbutt" ? BUTT : DISTANCE) * body.measure.stature,
         );
         assertTakeClean(`${name} ${row}`, film);
         const placed: IAutoMovieScheduleEntry | undefined =
