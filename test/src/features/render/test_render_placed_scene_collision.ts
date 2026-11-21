@@ -44,7 +44,12 @@ export async function test_render_placed_scene_collision(): Promise<void> {
       time: { filmSeconds: seconds },
       layers: [{ id: "main", root, localSeconds: seconds }],
       geometry,
-      limits: { comparisons: 12000, posedVertices, sweptCells: 0 },
+      limits: {
+        comparisons: 12000,
+        posedVertices,
+        surfaceTriangles: 1_000_000,
+        sweptCells: 0,
+      },
     });
   };
 
@@ -105,7 +110,7 @@ export async function test_render_placed_scene_collision(): Promise<void> {
     center.y - 1,
     center.z,
   );
-  const hinge: THREE.Bone = armView.bones.get("spine")!;
+  const hinge: THREE.Object3D = armView.bones.get("spine")!;
   const pair = (finding: Diagnostic.IFinding): boolean =>
     finding.paths.join("|") === "actor/arm|bed/base" &&
     finding.confidence === "confirmed";

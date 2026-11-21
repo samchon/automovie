@@ -107,7 +107,7 @@ export async function test_render_placed_scene_collision_sources(): Promise<void
   props.add(crate, post, floor, boulder, arm.object);
   boulder.position.set(5, 1, 0);
   arm.object.position.set(5.8, 0, 0);
-  const hinge: THREE.Bone = arm.bones.get("spine")!;
+  const hinge: THREE.Object3D = arm.bones.get("spine")!;
   hinge.rotation.z = Math.PI / 2;
   invalidateAutoMovieSkinnedPose(arm.object);
   const placed = observe(props, { required: true });
@@ -162,7 +162,7 @@ export async function test_render_placed_scene_collision_sources(): Promise<void
     region: "0",
     slots: [10, 11, 12, 13],
   });
-  const place = (index: number, x: number, scale: number = 1): void =>
+  const place = (index: number, x: number, scale: number = 1): void => {
     members.setMatrixAt(
       index,
       new THREE.Matrix4().compose(
@@ -171,6 +171,7 @@ export async function test_render_placed_scene_collision_sources(): Promise<void
         new THREE.Vector3(scale, scale, scale),
       ),
     );
+  };
   place(0, 0);
   place(1, 0.2);
   place(2, 3);

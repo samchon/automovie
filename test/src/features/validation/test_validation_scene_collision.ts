@@ -72,7 +72,7 @@ export async function test_validation_scene_collision(): Promise<void> {
         (group === undefined || group !== otherGroup) &&
         Math.abs(x - y) < 2 * radius
       )
-        expected.push([a, b].sort().join("|"));
+        expected.push([a, b].sort(compareText).join("|"));
 
   const simple: Collision.IResult = measureAutoMovieSceneCollision({
     parts,
@@ -96,8 +96,10 @@ export async function test_validation_scene_collision(): Promise<void> {
   });
   TestValidator.equals(
     "simple search matches exhaustive sphere oracle",
-    simple.findings.map(({ first, second }) => `${first}|${second}`).sort(),
-    expected.sort(),
+    simple.findings
+      .map(({ first, second }) => `${first}|${second}`)
+      .sort(compareText),
+    expected.sort(compareText),
   );
   TestValidator.predicate(
     "every reference overlap is supported by displayed solid geometry",
@@ -366,6 +368,11 @@ export async function test_validation_scene_collision(): Promise<void> {
       }),
     /distinct nonempty paths/,
   );
+}
+
+/** Order paths by code unit, independent of locale. */
+function compareText(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
 }
 
 /** Construct an admitted sphere or closed box centred on the world X axis. */
