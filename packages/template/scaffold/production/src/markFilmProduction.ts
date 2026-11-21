@@ -43,6 +43,9 @@ export function markFilmProduction(
       ...(performance.maximumArrowLength === undefined
         ? {}
         : { maximumLength: performance.maximumArrowLength }),
+      ...(performance.ownership === undefined
+        ? {}
+        : { ownership: performance.ownership() }),
     }),
     ...(supports === undefined
       ? []

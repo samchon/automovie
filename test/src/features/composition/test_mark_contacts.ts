@@ -2,6 +2,7 @@ import { markAutoMovieContacts } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieMark,
+  IAutoMoviePhysicalOwnershipEvent,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,12 +17,12 @@ import { nclose } from "../internal/nclose";
  * 2. The same receipt drawn at 0.99 s, before its step, at 1.02 s, after the step's duration, and a geometric receipt draw nothing; a step with a positive separation draws nothing.
  * 3. Of two steps, the later one at or before the drawn second is read.
  * 4. A scale that is zero or not finite, and an acting step with no duration, are refused.
- * 5. A side whose stated received impulse is zero is flagged and a side that received some is not; a step stating no transfer flags neither.
+ * 5. With the hand dynamic and the wall without ownership history, a stated zero flags only the hand, a transfer the hand received flags nothing, the wall's stated zero never flags, and an unstated transfer flags nothing; with the wall dynamic too both zeros flag; a hand made authored or returning before the step, a hand whose only event comes after it, and a call without ownership flag nothing.
  * 6. Under a 0.05 m maximum the 0.1 m arrows keep their directions at 0.05 m as unflagged `contact/clamped` marks labelled with the clamp and the 25 N they stand for at least; under a 0.1 m or 0.2 m maximum they stay `contact` at 0.1 m; a maximum that is zero or not finite is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the engine producer on receipts the test writes and reads the returned arrows' origins, vectors, paths and kinds.
  * @evidence contracts/development/testing.md#independent-expectations The expected length is the impulse over the duration times the scale, 0.5 / 0.01 x 0.002 = 0.1 m, computed by hand from the documented rule; the opposite directions follow from action and reaction along the written normal; a 0.05 m clamp at 0.002 m per newton stands for at least 0.05 / 0.002 = 25 N.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts an acting step against one not yet completed, one expired, a geometric receipt and a separated step, an earlier step against a later one, valid against refused scales and durations, the two sides of a stated zero, one-sided and unstated transfer, and arrows above, at and below a maximum length with valid and refused maxima. Drawing the arrows belongs to the inspection tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts an acting step against one not yet completed, one expired, a geometric receipt and a separated step, an earlier step against a later one, valid against refused scales and durations, the two sides of a stated zero, one-sided and unstated transfer against dynamic, unowned, authored, returning, not-yet-owned and absent ownership, and arrows above, at and below a maximum length with valid and refused maxima. Drawing the arrows belongs to the inspection tests.
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit writes its own receipts and starts no solver, browser, server or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s).
  */
@@ -132,12 +133,22 @@ export function test_mark_contacts(): void {
     },
   );
 
-  // 5. A solved impulse that a side did not receive.
+  // 5. A solved impulse that a dynamic side did not receive.
+  const event = (
+    body: string,
+    bone: string,
+    seconds: number,
+    kind: IAutoMoviePhysicalOwnershipEvent["kind"],
+  ): IAutoMoviePhysicalOwnershipEvent => ({ body, bone, seconds, kind });
+  const handDynamic: IAutoMoviePhysicalOwnershipEvent[] = [
+    event("hero", "leftHand", 0, "dynamic"),
+  ];
   const transferred = (
     appliedImpulse: { a: number; b: number } | undefined,
+    ownership: IAutoMoviePhysicalOwnershipEvent[] | undefined,
   ): boolean[] =>
-    mark(
-      [
+    markAutoMovieContacts({
+      receipts: [
         receipt("solver", [
           {
             ...step(1, 0.5, 0.01),
@@ -145,20 +156,41 @@ export function test_mark_contacts(): void {
           },
         ]),
       ],
-      1.005,
-    ).map((m: IAutoMovieMark): boolean => m.flagged);
+      seconds: 1.005,
+      metresPerNewton: 0.002,
+      ...(ownership === undefined ? {} : { ownership }),
+    }).map((m: IAutoMovieMark): boolean => m.flagged);
   TestValidator.equals(
-    "zero, one-sided, other-sided and unstated transfers",
+    "only a dynamic side's stated zero is flagged",
     [
-      transferred({ a: 0, b: 0 }),
-      transferred({ a: 0.5, b: 0 }),
-      transferred({ a: 0, b: 0.5 }),
-      transferred(undefined),
+      transferred({ a: 0, b: 0 }, handDynamic),
+      transferred({ a: 0.5, b: 0 }, handDynamic),
+      transferred({ a: 0, b: 0.5 }, handDynamic),
+      transferred(undefined, handDynamic),
+      transferred({ a: 0, b: 0 }, [
+        ...handDynamic,
+        event("wall", "root", 0, "dynamic"),
+      ]),
+      transferred({ a: 0, b: 0 }, [
+        ...handDynamic,
+        event("hero", "leftHand", 0.9, "authored"),
+      ]),
+      transferred({ a: 0, b: 0 }, [
+        ...handDynamic,
+        event("hero", "leftHand", 0.9, "return"),
+      ]),
+      transferred({ a: 0, b: 0 }, [event("hero", "leftHand", 1.5, "dynamic")]),
+      transferred({ a: 0, b: 0 }, undefined),
     ],
     [
-      [true, true],
-      [false, true],
       [true, false],
+      [false, false],
+      [true, false],
+      [false, false],
+      [true, true],
+      [false, false],
+      [false, false],
+      [false, false],
       [false, false],
     ],
   );

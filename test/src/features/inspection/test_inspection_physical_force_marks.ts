@@ -32,14 +32,14 @@ import { nclose } from "../internal/nclose";
  *
  * Scenarios:
  * 1. A rigid ball dropped from 1 m onto the floor is simulated, archived and decoded. While it falls no contact mark exists; at its first acting solver step two unflagged arrows start at that step's floor witness: the ball's points up for the step's mean force and the floor's is its exact opposite. Under a 0.1 m maximum the impact's arrows keep their directions at 0.1 m as `contact/clamped`, labelled at least 100 N, while the next, resting step stays `contact`.
- * 2. A compliant ball in an exaggerated mode whose shell response rounds every solved impulse to zero at transfer sinks to its rigid core: each side of its shell steps is drawn and flagged, and the core steps that actually stop it are drawn unflagged.
+ * 2. Drawn with the performance's ownership history, the same compliant ball dropped in normal mode flags nothing, though the compliant solver states zero for the static floor on its shell steps. In an exaggerated mode whose shell response rounds every solved impulse to zero, the dynamic ball is flagged on some steps and not on all, since its rigid core finally stops it, and the static floor is never flagged.
  * 3. The real allocator carries 100 N straight up over four floor witnesses within its admitted error, so no shortfall is drawn; it cannot carry a 100 N sideways pull with 50 N up under friction 0.5, so a flagged shortfall continues from the allocated tip, the two arrows add up to the request, and the allocation stays inside the friction cone; with no witnesses the whole request is shortfall.
  * 4. The draw inspection, with the contact and support kinds declared, admits `marks=contact,support/*` at a falling frame that has none; at the clamped impact and the support record `contact` selects the two clamped arrows under their clamp label and it counts one support shortfall under its flag entry; seeking back to the falling frame clears both, and returning to the contact frame draws them again.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation`, `AutoMoviePhysicalPlayback`, `distributePhysicalSupportWrench`, both mark producers and `replaceAutoMovieDrawInspection` on real solver output, a real archive round trip and real allocations, and reads marks and legend counts.
- * @evidence contracts/development/testing.md#independent-expectations The falling ball touches nothing before 0.3 s, since it needs sqrt(2 × 0.9 / 9.81) ≈ 0.43 s to reach the floor; its floor witness lies within 1 cm of y = 0, the floor can only push it up, and by reaction the ball pushes the floor equally down. Arresting about 4.2 m/s of 1 kg within 1/120 s needs about 500 N, above the 300 N asserted and the 100 N a 0.1 m clamp stands for, while resting on the floor needs 9.81 N, below it. Any sum of witness forces with friction 0.5 lies in the convex cone |fx| <= 0.5 fy, whose distance from the request (100, 50) N is 75 / sqrt(1.25) ≈ 67.1 N, so the shortfall is at least that; 100 N straight up above the witnesses' centre is inside the cone with zero moment.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts falling and touching frames, a forward and a reverse seek, native and zero-transfer exaggerated contacts, a feasible, an infeasible and an unsupported request, and an empty against a populated inspection frame.
- * @evidence contracts/development/testing.md#execution-ownership One portable async unit owns its two simulations, archive, allocations, scene and inspection handle, restores the handle and releases its mesh in finally, and starts no browser, process or GPU.
+ * @evidence contracts/development/testing.md#independent-expectations The falling ball touches nothing before 0.3 s, since it needs sqrt(2 × 0.9 / 9.81) ≈ 0.43 s to reach the floor; its floor witness lies within 1 cm of y = 0, the floor can only push it up, and by reaction the ball pushes the floor equally down. Arresting about 4.2 m/s of 1 kg within 1/120 s needs about 500 N, above the 300 N asserted and the 100 N a 0.1 m clamp stands for, while resting on the floor needs 9.81 N, below it. The flag expectations come from the setup, not from the transfer field the producer reads: at gain 1 a dynamic body receives its compliant impulse, a static floor is owed none, an impulse gain of 1e-300 rounds a shell impulse to zero, and a floor cannot let the rigid core through. Any sum of witness forces with friction 0.5 lies in the convex cone |fx| <= 0.5 fy, whose distance from the request (100, 50) N is 75 / sqrt(1.25) ≈ 67.1 N, so the shortfall is at least that; 100 N straight up above the witnesses' centre is inside the cone with zero moment.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts falling and touching frames, a forward and a reverse seek, normal and exaggerated compliant drops on the dynamic ball and the static floor, a feasible, an infeasible and an unsupported request, and an empty against a populated inspection frame.
+ * @evidence contracts/development/testing.md#execution-ownership One portable async unit owns its three simulations, archive, allocations, scene and inspection handle, restores the handle and releases its mesh in finally, and starts no browser, process or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins.
  */
 export async function test_inspection_physical_force_marks(): Promise<void> {
@@ -131,45 +131,58 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
         "A positive Float64 soft impulse rounds to zero at its actual native transfer",
     }),
   );
-  // Each acting step is drawn at its own second; each side's flag must follow what that side received.
-  const verdicts: { unfelt: boolean; flagged: boolean }[] =
-    exaggerated.contacts.flatMap(
-      (
-        receipt: IAutoMovieContactReceipt,
-      ): { unfelt: boolean; flagged: boolean }[] =>
-        (receipt.samples ?? [])
-          .filter(
-            (sample: Step): boolean =>
-              sample.impulse > 0 && sample.separation <= 0,
-          )
-          .flatMap((sample: Step): { unfelt: boolean; flagged: boolean }[] =>
-            markAutoMovieContacts({
-              receipts: [receipt],
-              seconds: sample.seconds,
-              metresPerNewton,
-            }).map(
-              (
-                mark: IAutoMovieMark,
-                side: number,
-              ): { unfelt: boolean; flagged: boolean } => ({
-                unfelt: sample.appliedImpulse?.[side === 0 ? "a" : "b"] === 0,
-                flagged: mark.flagged,
-              }),
-            ),
-          ),
-    );
-  const unfelt: number = verdicts.filter(
-    (verdict: { unfelt: boolean }): boolean => verdict.unfelt,
-  ).length;
-  TestValidator.predicate(
-    `zero-transfer shell contacts are flagged and transferring core contacts are not: ${unfelt} of ${verdicts.length} unfelt`,
-    unfelt > 0 &&
-      unfelt < verdicts.length &&
-      verdicts.every(
-        (verdict: { unfelt: boolean; flagged: boolean }): boolean =>
-          verdict.unfelt === verdict.flagged,
+  const normal: IAutoMoviePhysicalPlayback = await replay(drop(0.1, null));
+  const exaggeratedFlags: Record<"ball" | "floor", boolean[]> =
+    flags(exaggerated);
+  const normalFlags: Record<"ball" | "floor", boolean[]> = flags(normal);
+  // Precondition: the compliant solver does state zero for the static floor, which a flag on the stated zero alone would report.
+  const floorStatedZero: boolean = normal.contacts.some(
+    (receipt: IAutoMovieContactReceipt): boolean =>
+      (receipt.samples ?? []).some(
+        (sample: Step): boolean =>
+          sample.impulse > 0 &&
+          sample.separation <= 0 &&
+          sample.appliedImpulse?.[receipt.a.body === "floor" ? "a" : "b"] === 0,
       ),
   );
+  TestValidator.equals(
+    "normal mode flags nothing: the dynamic ball receives every compliant impulse and the static floor is owed none",
+    [
+      floorStatedZero,
+      normalFlags.ball.length > 0 && normalFlags.floor.length > 0,
+      [...normalFlags.ball, ...normalFlags.floor].some(Boolean),
+    ],
+    [true, true, false],
+  );
+  TestValidator.equals(
+    "exaggerated mode flags the dynamic ball on rounded shell steps, not once its core stops it, and never the static floor",
+    [
+      exaggeratedFlags.ball.some(Boolean),
+      exaggeratedFlags.ball.every(Boolean),
+      exaggeratedFlags.floor.some(Boolean),
+    ],
+    [true, false, false],
+  );
+
+  /** Each acting step drawn at its own second with the performance's ownership, its flags gathered per body. */
+  function flags(
+    performance: IAutoMoviePhysicalPlayback,
+  ): Record<"ball" | "floor", boolean[]> {
+    const result: Record<"ball" | "floor", boolean[]> = { ball: [], floor: [] };
+    for (const receipt of performance.contacts)
+      for (const sample of receipt.samples ?? [])
+        if (sample.impulse > 0 && sample.separation <= 0)
+          for (const mark of markAutoMovieContacts({
+            receipts: [receipt],
+            seconds: sample.seconds,
+            metresPerNewton,
+            ownership: performance.ownership,
+          }))
+            result[mark.path.startsWith("ball/") ? "ball" : "floor"].push(
+              mark.flagged,
+            );
+    return result;
+  }
 
   // 3. Real allocations of three requests at one centre of mass.
   const origin: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

@@ -1,4 +1,5 @@
 import type { IAutoMovieContactReceipt } from "../../physics/IAutoMovieContactReceipt";
+import type { IAutoMoviePhysicalOwnershipEvent } from "../../physics/IAutoMoviePhysicalOwnershipEvent";
 
 /**
  * Inputs for drawing the force carried by solved contact steps.
@@ -14,13 +15,13 @@ export namespace IAutoMovieMarkContacts {
    *
    * A receipt acts at `seconds` when the solver measured it: its latest completed step at or before `seconds`, within that step's duration, has a positive finite impulse and no positive separation. Both arrows start at that step's point and are `metresPerNewton` times the step's mean force, its impulse over its duration, long; the first collider's points against the normal and the second's along it. Geometric receipts, which assert no impulse, draw nothing.
    *
-   * Each mark has kind `contact`, label `contact force`, colour teal `00c2a8` and the path `<body>/<bone>/contact/<receipt id>` of the collider it acts on, first collider first, in world metres and unanchored. A collider's mark is flagged when the step states the impulse each side received and that collider received none; a step without that statement is a direct native measurement and is not flagged.
+   * Each mark has kind `contact`, label `contact force`, colour teal `00c2a8` and the path `<body>/<bone>/contact/<receipt id>` of the collider it acts on, first collider first, in world metres and unanchored. A collider's mark is flagged when `ownership` shows its segment dynamic at the step and the step states that it received none of the solved impulse, as when an exaggerated mode's response rounds it to zero. A static or kinematic side never receives a compliant impulse, so its stated zero is not flagged; without `ownership` no mark is flagged.
    *
    * With `maximumLength`, an arrow that would be longer keeps its direction, is drawn at that length, and takes kind `contact/clamped`, colour dark teal `007a6a` and a label stating the length and the least force it stands for, so a clamped arrow is never read at its drawn length; `marks=contact` still selects it.
    *
    * It throws for a scale or a maximum length that is not positive and finite and for an acting step without a positive duration.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Explains receipt selection, timestamp tolerance, force-to-arrow scale, the per-collider direction, path and flag, and the clamped kind.
+   * @evidence contracts/development/common.md#meaningful-documentation Explains receipt selection, timestamp tolerance, force-to-arrow scale, the per-collider direction and path, the flag and the ownership it needs, and the clamped kind.
    * @evidence contracts/development/design.md#principled-representation Receipt times and sample seconds share a clock; scale is positive finite metres/newton and the optional maximum is positive finite metres, both checked by markAutoMovieContacts, which also rejects nonpositive acting-step duration.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The mark producer borrows solver receipts and creates unanchored world-space arrows; geometric receipts carry no force arrow.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The contract reuses contact receipts instead of duplicating solver samples or manufacturing a force for geometric touches.
@@ -34,5 +35,7 @@ export namespace IAutoMovieMarkContacts {
     metresPerNewton: number;
     /** Longest drawn arrow, metres; a longer arrow is drawn at this length as `contact/clamped`. Absent, every arrow keeps its scaled length. markAutoMovieContacts rejects nonfinite or nonpositive values. */
     maximumLength?: number;
+    /** Borrowed ownership history of the same cache or playback, in producer order; a side is dynamic at a step when its segment's latest event at or before the step (with 1e-9-second tolerance) is `dynamic`. A segment without history, such as the floor, is static. Absent, no mark is flagged. */
+    ownership?: readonly IAutoMoviePhysicalOwnershipEvent[];
   };
 }

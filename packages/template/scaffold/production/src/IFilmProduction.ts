@@ -2,6 +2,7 @@ import type {
   IAutoMovieContactReceipt,
   IAutoMovieMark,
   IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalOwnershipEvent,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSupportWrench,
   IAutoMovieRenderSoftPropFrame,
@@ -48,6 +49,8 @@ export interface IFilmProduction {
     frame: () => IAutoMoviePhysicalFrame;
     /** Actual geometric or solved contact episodes. */
     contacts: () => readonly IAutoMovieContactReceipt[];
+    /** Optional ownership history of the same physics cache or playback, which tells the dynamic bodies a contact must reach from static and kinematic ones. Absent, no contact is flagged as unfelt. */
+    ownership?: () => readonly IAutoMoviePhysicalOwnershipEvent[];
     /** Optional support wrenches of the same physics cache or playback, with the cache step each governs in seconds (the reciprocal of its rate). Absent, no support marks exist. */
     supports?: () => {
       wrenches: readonly IAutoMoviePhysicalSupportWrench[];
