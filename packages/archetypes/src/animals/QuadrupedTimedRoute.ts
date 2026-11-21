@@ -1,6 +1,7 @@
 import { ArchetypeCourse } from "../core";
 import { QuadrupedGait } from "./QuadrupedGait";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
+import { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import type { createQuadruped } from "./createQuadruped";
 import type { rideQuadruped } from "./rideQuadruped";
 
@@ -9,8 +10,7 @@ import type { rideQuadruped } from "./rideQuadruped";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two route forms and how a timed plan is read.
  * @evidence contracts/development/design.md#principled-representation The admitted plan and the course of legs the ride's admission and clocks read.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by 
-ideQuadruped, kept apart for its size.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by rideQuadruped, kept apart for its size.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace QuadrupedTimedRoute {
@@ -36,7 +36,7 @@ export namespace QuadrupedTimedRoute {
    * Admit a route: plan an authored course, or read a planned one with its halts, restarts and stop ramps.
    *
    * @param species The ride's species and table.
-   * @param route The authored course or a planned course.
+   * @param route The authored course, a planned course, or a planned course with named-gait cues (`QuadrupedTimedCues`).
    * @param withers The animal's withers height, metres.
    * @returns The plan and its course of legs.
    * @throws {ArchetypeRefusal} As ArchetypeCourse.plan refuses a malformed course.
@@ -51,9 +51,19 @@ export namespace QuadrupedTimedRoute {
    */
   export function of(
     species: createQuadruped.ISpecies,
-    route: rideQuadruped.ICourse | ArchetypeCourse.IPlan,
+    route:
+      | rideQuadruped.ICourse
+      | ArchetypeCourse.IPlan
+      | QuadrupedTimedCues.ICued,
     withers: number,
   ): IRoute {
+    // A cued timed path is its plan's route with its legs named at the cues.
+    if ("cues" in route)
+      return QuadrupedTimedCues.split(
+        of(species, route.plan, withers),
+        route.cues,
+        species.archetype,
+      );
     // A timed plan is ridden as given: one leg naming no gait, so each stride's
     // gait follows the plan's speed, and one span at the plan's peak, so the
     // speed admission covers its fastest second.

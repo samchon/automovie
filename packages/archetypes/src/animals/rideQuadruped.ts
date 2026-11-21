@@ -29,6 +29,7 @@ import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { QuadrupedStridePlan } from "./QuadrupedStridePlan";
+import type { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import { createQuadruped } from "./createQuadruped";
 import { planEquineFlight } from "./planEquineFlight";
@@ -51,7 +52,7 @@ const NATIVE_PLAN: typeof ArchetypeCourse.plan = ArchetypeCourse.plan;
  * Limb roots remain fixed in their actual parent's local frame. Four unchanged foot goals and actual cylinder/capsule soles constrain one body-root height; the gait's bob is its soft preference, while the horizontal course is kept. The shared generic FK must reproduce every solved origin and endpoint.
  *
  * @param animal The animal, as `createQuadruped` or its kind's producer builds it.
- * @param route The course its root follows, or a planned course such as a timed one (`ArchetypeCourse.timed`), ridden as one leg whose strides take the gait its speed calls for; a leg may name the `gait`, the `lead` and an equine technique.
+ * @param route The course its root follows, or a planned course such as a timed one (`ArchetypeCourse.timed`), ridden as one leg whose strides take the gait its speed calls for, or a planned course with named-gait cues (`rideQuadruped.ICued`) whose cued intervals take the named gait; a leg may name the `gait`, the `lead` and an equine technique.
  * @param gait The gait of every stride whose leg names none; absent, the speed chooses it.
  * @param table Optional admitted authoring table, replacing only this ride's gait data.
  * @returns The ride.
@@ -68,7 +69,10 @@ const NATIVE_PLAN: typeof ArchetypeCourse.plan = ArchetypeCourse.plan;
  */
 export function rideQuadruped<Affordance extends string, D extends string>(
   animal: Archetype<Affordance, D | QuadrupedBody.Dimension>,
-  route: rideQuadruped.ICourse | ArchetypeCourse.IPlan,
+  route:
+    | rideQuadruped.ICourse
+    | ArchetypeCourse.IPlan
+    | QuadrupedTimedCues.ICued,
   gait?: QuadrupedGait.Gait,
   table?: QuadrupedGait.ITable,
 ): ArchetypeRide.IRide<Affordance, D | QuadrupedBody.Dimension> {
@@ -442,6 +446,12 @@ export namespace rideQuadruped {
    *
    */
   export type Lean = (seconds: number) => number;
+
+  /** A timed path with named-gait cues over film-second intervals, as a rider's aid asks for a gait (`QuadrupedTimedCues`). */
+  export type ICued = QuadrupedTimedCues.ICued;
+
+  /** One named-gait cue of a timed path. */
+  export type ICue = QuadrupedTimedCues.ICue;
 
   /** A course leg that may name its gait, its lead and an equine technique. */
   export type ILeg = ArchetypeCourse.Leg & {
