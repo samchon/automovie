@@ -227,6 +227,24 @@ function mainRig(builder: Build, length: number): void {
     frame: ArchetypeFrame.upright(block),
     extent: null,
   });
+  // The tail leaves the block wherever the hand leads it: it swings and
+  // lifts about the block.
+  builder.affordance({
+    id: "sheetSwing",
+    kind: "wheel",
+    frame: ArchetypeFrame.facing(block, v(0, 1, 0), v(0, 0, 1)),
+    extent: null,
+    travel: 180,
+  });
+  builder.affordance({
+    id: "sheetLift",
+    kind: "hinge",
+    frame: ArchetypeFrame.facing(block, v(-1, 0, 0), v(0, 0, 1)),
+    extent: null,
+    reverse: 60,
+    travel: 40,
+    rides: "sheetSwing",
+  });
   builder.affordance({
     id: "mainSheet",
     kind: "handle",
@@ -239,7 +257,9 @@ function mainRig(builder: Build, length: number): void {
     extent: null,
     grip: "power",
     aperture: 0.018,
-    length: 0.12,
+    // A hand takes the rope tail anywhere along its free run.
+    length: 0.6,
+    rides: "sheetLift",
   });
   builder.span(
     "main-sheet-return",
@@ -272,7 +292,7 @@ function helm(builder: Build, length: number): void {
   const pivot: IAutoMovieVector3 = v(0, 0.32, -length / 2);
   const end: IAutoMovieVector3 = v(0, 0.42, -0.95);
   const tip: IAutoMovieVector3 = v(0, end.y, end.z + createDinghy.EXTENSION);
-  const grip: IAutoMovieVector3 = Vector3.lerp(end, tip, 0.85);
+  const grip: IAutoMovieVector3 = Vector3.lerp(end, tip, 0.6);
   builder.box(
     "rudder-blade",
     v(0.049, 0.72, 0.29),
@@ -313,7 +333,7 @@ function helm(builder: Build, length: number): void {
     frame: ArchetypeFrame.facing(end, v(-1, 0, 0), v(0, 0, 1)),
     extent: null,
     reverse: 20,
-    travel: 70,
+    travel: 90,
     parts: ["tiller-extension"],
     rides: "extensionSwing",
   });
@@ -325,7 +345,7 @@ function helm(builder: Build, length: number): void {
     extent: null,
     grip: "power",
     aperture: 0.025,
-    length: 0.165,
+    length: 0.5,
     rides: "extensionLift",
   });
 }
@@ -350,7 +370,9 @@ export namespace createDinghy {
     | "tiller"
     | "mainSheet"
     | "clew"
-    | "sheetBlock";
+    | "sheetBlock"
+    | "sheetSwing"
+    | "sheetLift";
   /** The tiller extension's length from its joint to its tip, metres: a staged estimate. */
   export const EXTENSION: number = 0.75;
 

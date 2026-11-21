@@ -4,6 +4,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
@@ -80,26 +81,18 @@ export namespace AquaticPolo {
           : {},
       ),
     );
-    const attackArm: {
-      shoulder: number;
-      raise: number;
-      elbow: number;
-      wrist: number;
-    } = {
+    const attackArm: IAutoMovieMotionHumanExerciseKey.ILimb = {
       shoulder: 132,
       raise: 24,
       elbow: 17,
       wrist: 17,
     };
-    const blockArm: {
-      shoulder: number;
-      raise: number;
-      elbow: number;
-      wrist: number;
-    } = {
+    const blockArm: IAutoMovieMotionHumanExerciseKey.ILimb = {
       shoulder: 140,
-      // Spread wide enough that the raised forearms do not cross overhead.
-      raise: 60,
+      // A keeper's two raised arms block overhead: at this flexion a
+      // raise carries each arm across the head into the other, so none is
+      // taken. A defender's arms spread wide.
+      raise: keeper ? 0 : 60,
       elbow: keeper ? 15 : 20,
       wrist: -10,
     };

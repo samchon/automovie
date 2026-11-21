@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -14,6 +15,7 @@ import { ExerciseKey } from "../exercise/ExerciseKey";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPaddleCraft } from "./AquaticPaddleCraft";
 import { AquaticPosture } from "./AquaticPosture";
@@ -232,8 +234,13 @@ export namespace AquaticPaddle {
     // With a native paddle the hands hold its grips through the strokes:
     // each arm is laid as one admitted course from the entered arm to its
     // grip by the paddle-ready instant, held with branch and swivel
-    // continuity (`courseArmGoal`).
+    // continuity (`courseArmGoal`). Hands that hold the paddle from the
+    // start (no lead) begin on their grips.
     if (actual === undefined) return plan;
+    const start: IAutoMoviePose =
+      lead > 0
+        ? context.entry.pose
+        : resolveHumanPosture(body, plan.posture(0));
     return (["left", "right"] as const).reduce(
       (
         laid: IAutoMovieMotionHumanActionPlan,
@@ -243,7 +250,7 @@ export namespace AquaticPaddle {
           body,
           plan: laid,
           side,
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+          rest: AutoMovieMotionHumanArm.angles(start, side),
           span: { start: 0, ready: lead, relax: duration, end: duration },
         }),
       plan,

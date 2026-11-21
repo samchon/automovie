@@ -291,8 +291,13 @@ export namespace AquaticTeam {
             ),
           ),
         );
+        // A base writes its whole palm offer over its arm's course, which
+        // lays the reach in and out itself.
+        if (support !== undefined)
+          return t >= gripStart - CONTACT_BLEND && t <= gripEnd + CONTACT_BLEND
+            ? support(shaped, t, 1)
+            : shaped;
         if (blendContact === 0) return shaped;
-        if (support !== undefined) return support(shaped, t, blendContact);
         if (
           partners === undefined ||
           hands === undefined ||
@@ -357,9 +362,18 @@ export namespace AquaticTeam {
       relax: gripEnd,
       end: gripEnd + CONTACT_BLEND,
     };
+    // The arm the figure's own key holds as the reach begins.
+    const opening: IAutoMovieMotionHumanPosture = plan.posture(span.start);
     const before: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(
       body,
-      plan.posture(span.start),
+      {
+        ...opening,
+        limbs: Object.fromEntries(
+          Object.entries(opening.limbs).filter(
+            ([limb]: [string, unknown]): boolean => !limb.endsWith("Arm"),
+          ),
+        ),
+      },
     );
     return (
       params.side === undefined ? (["left", "right"] as const) : [params.side]
@@ -441,7 +455,7 @@ function prepareBase(
       at: HumanFrame.point(frame, {
         x: (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth * 1.25,
         y: 0,
-        z: body.measure.forearm * 0.95,
+        z: body.measure.forearm * 0.75,
       }),
       rotation: HumanHand.rotation(side, { fingers, palm: UP }),
     }),

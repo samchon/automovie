@@ -146,8 +146,13 @@ export function test_motion_exercise_native_paddling(): void {
               : 0),
           z,
         }),
+        // A canoe shaft leans its top forward about the lower hand, so the
+        // top hand drives ahead of the face rather than at it.
         rotation: Quaternion.multiply(
-          frame.rotation,
+          Quaternion.multiply(
+            frame.rotation,
+            Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, canoe ? 20 : 0),
+          ),
           Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, angle),
         ),
       };

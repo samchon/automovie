@@ -7,16 +7,19 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropDrive,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { unloadedFoot } from "../carrier/unloadedFoot";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanFoot } from "../posture/HumanFoot";
+import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticCrew } from "./AquaticCrew";
@@ -30,18 +33,20 @@ import { AquaticProp } from "./AquaticProp";
  */
 const CLOSE_HAULED: number = 12;
 
+/** Seconds over which a foot's heel rises before its lift and lowers after its landing: provisional, a fraction of the swing. */
+const EASE: number = 0.2;
+
 /** Share of the maneuver by which the sailors have crouched and taken their controls (`helmIn`). */
 const HELM_IN: number = 0.2;
 
-/** The crouch key's knee flexion beyond its hip flexion at full crouch, degrees: the shank's lean over a flat foot. */
-const KNEE_OVER_HIP: number = 15;
+/** The tiller hand's point ahead of the pelvis, over stature: provisional, ahead of a crouched chest. */
+const HAND_FORE: number = 0.25;
 
-/** The point ahead of the chest that a carried tiller extension aims at, over stature: provisional. */
-const FORE: number = 0.17;
+/** The tiller hand's point above the pelvis, over stature: provisional. */
+const HAND_UP: number = 0.2;
 
-/** The chest above the pelvis that a carried tiller extension aims at, over stature: provisional. */
-const CHEST: number = 0.25;
-
+/** The tiller hand's point to its own side of the pelvis, over stature: provisional, outside the trunk. */
+const HAND_SIDE: number = 0.1;
 /** How far the crouch lowers the pelvis, over stature: provisional, below a dinghy's boom. */
 const CROUCH: number = 0.2;
 
@@ -98,6 +103,10 @@ export namespace AquaticSail {
     );
     const hipsAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["hips"]);
+    const legsAt: ReturnType<typeof AquaticPosture.markers> =
+      AquaticPosture.markers(body, ["leftUpperLeg", "rightUpperLeg"]);
+    const shouldersAt: ReturnType<typeof AquaticPosture.markers> =
+      AquaticPosture.markers(body, ["leftUpperArm", "rightUpperArm"]);
     const duration: number = 3.65;
     const helm: boolean = params.role !== "crew";
 
@@ -223,36 +232,63 @@ export namespace AquaticSail {
         },
       });
     }
-    // A hinged tiller extension: the helm's hand carries its grip toward the
-    // chest. Its swing and lift aim the extension from the tiller's end at a
-    // point CHEST above the moving pelvis, read in the rudder-carried frame.
-    if (
-      helm &&
-      params.rudder !== undefined &&
-      ["tillerEnd", "extensionSwing", "extensionLift"].every((id: string) =>
-        affordances.some((a: IAutoMovieAffordance): boolean => a.id === id),
-      ) &&
-      carrier.prop.articulate !== undefined
-    ) {
-      const rudder: IAutoMovieMotionPropDrive = drives.at(-1)!;
-      const facing: IAutoMovieVector3 = AquaticCrew.direction(context, hull, {
-        x: 0,
-        y: 0,
-        z: 1,
+    // A handle carried on a universal joint (a hinged tiller extension, a
+    // sheet's tail from its block): the hand carries it. The joint is the
+    // handle's `rides` chain, a lift hinge on a swing wheel; their drives aim
+    // the handle from the joint at a hand point ahead of the chest on the
+    // holding side. A hand point nearer the joint than the handle's own
+    // radius raises the line upright over it, so it never points into the
+    // sailor.
+    for (const control of controls) {
+      const find = (id: string | undefined): IAutoMovieAffordance | undefined =>
+        affordances.find((a: IAutoMovieAffordance): boolean => a.id === id);
+      const handle: IAutoMovieAffordance | undefined = find(control.handle);
+      const lift: IAutoMovieAffordance | undefined = find(handle?.rides);
+      const swing: IAutoMovieAffordance | undefined = find(lift?.rides);
+      if (
+        lift?.kind !== "hinge" ||
+        swing?.kind !== "wheel" ||
+        carrier.prop.articulate === undefined
+      )
+        continue;
+      const parent: IAutoMovieMotionPropDrive | undefined = drives.find(
+        (drive: IAutoMovieMotionPropDrive): boolean =>
+          drive.articulation === swing.rides,
+      );
+      const size: number = body.measure.stature;
+      const offset: IAutoMovieVector3 = AquaticCrew.direction(context, hull, {
+        x: (control.side === "left" ? 1 : -1) * HAND_SIDE * size,
+        y: HAND_UP * size,
+        z: HAND_FORE * size,
       });
-      const grip = (
+      const posed = (
+        state: Readonly<Record<string, number>>,
+        id: string,
+      ): IAutoMovieTransform =>
+        carrier.prop.articulate!(state).affordances.find(
+          (a: IAutoMovieAffordance): boolean => a.id === id,
+        )!.frame;
+      const heading = (d: IAutoMovieVector3): number =>
+        (Math.atan2(d.x, d.z) * 180) / Math.PI;
+      const elevation = (d: IAutoMovieVector3): number =>
+        (Math.atan2(d.y, Math.hypot(d.x, d.z)) * 180) / Math.PI;
+      const from = (
         state: Readonly<Record<string, number>>,
       ): IAutoMovieVector3 =>
-        carrier.prop.articulate!(state).affordances.find(
-          (a: IAutoMovieAffordance): boolean => a.id === "tiller",
-        )!.frame.translation;
+        Vector3.subtract(
+          posed(state, control.handle).translation,
+          posed(state, swing.id).translation,
+        );
 
-      // The articulations' signs are read from the model's own posing.
-      const rest: IAutoMovieVector3 = grip({});
+      // The rest line, the handle's radius and the articulations' senses
+      // are read from the model's own posing.
+      const rest: IAutoMovieVector3 = from({});
+      const radius: number = Vector3.length(rest);
       const swingSign: number =
-        Math.sign(grip({ extensionSwing: 10 }).x - rest.x) || 1;
+        Math.sign(heading(from({ [swing.id]: 10 })) - heading(rest)) || 1;
       const liftSign: number =
-        Math.sign(grip({ extensionLift: 10 }).y - rest.y) || 1;
+        Math.sign(elevation(from({ [lift.id]: 10 })) - elevation(rest)) || 1;
+      const restSwing: IAutoMovieTransform = posed({}, swing.id);
       const aim = (t: number): IAutoMovieVector3 => {
         const u: number = t / duration;
         const stride: number = aborted
@@ -261,55 +297,46 @@ export namespace AquaticSail {
           : (AquaticCrew.span(u, leadStart, leadEnd) +
               AquaticCrew.span(u, trailStart, trailEnd)) /
             2;
-        const chest: IAutoMovieVector3 = Vector3.add(
+        const hand: IAutoMovieVector3 = Vector3.add(
           {
             x: hips.x + cross * (aborted ? 0.48 : 1) * stride,
-            y:
-              hips.y -
-              body.measure.stature * CROUCH +
-              CHEST * body.measure.stature,
+            y: hips.y - size * CROUCH * AquaticCrew.span(u, 0, HELM_IN),
             z: hips.z,
           },
-          Vector3.scale(facing, FORE * body.measure.stature),
+          offset,
         );
-        const turn: number = rudder.travel(t);
-        const posed: AquaticProp.IContact = AquaticProp.at(
-          carrier,
-          context.start + t,
-          { [params.rudder!]: turn },
-        ).require("tillerEnd", "socket");
-        const frame: IAutoMovieRigidTransform = hull.frame(t);
-        const world: IAutoMovieVector3 = Vector3.add(
-          frame.position,
-          Quaternion.rotateVector(frame.rotation, chest),
+        // Read in the hull's own model frame from the model's posing alone,
+        // so the drive never reads the prop it is driving.
+        const joint: IAutoMovieTransform =
+          parent === undefined
+            ? restSwing
+            : posed({ [parent.articulation]: parent.travel(t) }, swing.id);
+        const d: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.multiply(
+            restSwing.rotation,
+            Quaternion.inverse(joint.rotation),
+          ),
+          Vector3.subtract(hand, joint.translation),
         );
-        return Quaternion.rotateVector(
-          Quaternion.inverse(posed.world.rotation),
-          Vector3.subtract(world, posed.world.translation),
-        );
+        const level: number = radius ** 2 - d.x ** 2 - d.z ** 2;
+        return level > d.y ** 2 ? { ...d, y: Math.sqrt(level) } : d;
       };
       drives.push(
         {
           prop: hull.id,
-          articulation: "extensionSwing",
+          articulation: swing.id,
           from: 0,
           to: 1,
-          travel: (t: number): number => {
-            const d: IAutoMovieVector3 = aim(t);
-            return (swingSign * Math.atan2(d.x, d.z) * 180) / Math.PI;
-          },
+          travel: (t: number): number =>
+            swingSign * (((heading(aim(t)) - heading(rest) + 540) % 360) - 180),
         },
         {
           prop: hull.id,
-          articulation: "extensionLift",
+          articulation: lift.id,
           from: 0,
           to: 1,
-          travel: (t: number): number => {
-            const d: IAutoMovieVector3 = aim(t);
-            return (
-              (liftSign * Math.atan2(d.y, Math.hypot(d.x, d.z)) * 180) / Math.PI
-            );
-          },
+          travel: (t: number): number =>
+            liftSign * (elevation(aim(t)) - elevation(rest)),
         },
       );
     }
@@ -404,35 +431,45 @@ export namespace AquaticSail {
           // a foot is planted while its bearing window is open.
           for (const side of ["left", "right"] as const) {
             const leg: AquaticCrew.Leg = `${side}Leg`;
-            const planted: boolean = contacts.some(
-              (contact: IAutoMovieMotionHumanContactWindow): boolean =>
-                contact.part === `${side}Foot` &&
-                contact.kind === "plant" &&
-                contact.from <= u &&
-                u <= contact.to,
-            );
-            // Only a planted foot bears on its ball; a swinging foot carries no
-            // contact, so its toes are not flexed while unloaded.
-            posture.limbs[leg] = planted
-              ? {
-                  ...posture.limbs[leg]!,
-                  contact: HumanFoot.offset(body, side, "ball"),
-                  planted,
-                }
-              : {
-                  ...posture.limbs[leg]!,
-                  planted,
-                  // Unloaded, the foot hangs from the shank: it pitches toes
-                  // down by the crouch's knee-over-hip flexion, the ankle's
-                  // dorsiflexion a flat planted foot would take.
-                  rotation: Quaternion.multiply(
-                    posture.limbs[leg]!.rotation!,
-                    Quaternion.fromAxisAngle(
-                      { x: 1, y: 0, z: 0 },
-                      -(KNEE_OVER_HIP * lower + 5),
-                    ),
-                  ),
-                };
+            const window: IAutoMovieMotionHumanContactWindow | undefined =
+              contacts.find(
+                (contact: IAutoMovieMotionHumanContactWindow): boolean =>
+                  contact.part === `${side}Foot` &&
+                  contact.kind === "plant" &&
+                  contact.from <= u &&
+                  u <= contact.to,
+              );
+            // The foot keeps its ball as the heel's pivot through its swing,
+            // so it leaves and meets the deck without a jump. Unloaded, it
+            // turns toes down as far as its ankle would otherwise dorsiflex
+            // past a weightless ankle's limit. The heel rises into that turn
+            // over the last `EASE` of a plant before a lift and lowers out
+            // of it over the first `EASE` after a landing, as weight leaves
+            // and returns to the foot.
+            const near = (seconds: number): number =>
+              1 - Math.min(1, Math.max(0, seconds) / EASE);
+            const weight: number =
+              window === undefined
+                ? 1
+                : Math.max(
+                    window.to < 1 ? near((window.to - u) * duration) : 0,
+                    window.from > 0 ? near((u - window.from) * duration) : 0,
+                  );
+            const goal: IAutoMovieHumanLimbGoal = {
+              ...posture.limbs[leg]!,
+              contact: HumanFoot.offset(body, side, "ball"),
+              planted: window !== undefined,
+            };
+            posture.limbs[leg] =
+              weight === 0
+                ? goal
+                : unloadedFoot(
+                    body,
+                    legsAt(posture).get(`${side}UpperLeg`)!.worldPosition,
+                    goal,
+                    HumanFrame.forward(posture.yaw),
+                    weight,
+                  );
           }
           posture = resolveHumanPosture.lower(body, posture);
         }
@@ -455,13 +492,23 @@ export namespace AquaticSail {
           );
           // Each hand's goal is the handle where the drives put it; the arm's
           // course to it and along it is planned once (`courseArmGoal`).
-          for (const control of controls)
+          for (const control of controls) {
+            const placed: AquaticProp.IContact = rig.require(
+              control.handle,
+              "handle",
+            );
             posture.limbs[`${control.side}Arm`] = AquaticProp.hold(
               body,
               posture,
               control.side,
-              rig.require(control.handle, "handle").world,
+              placed.world,
+              {
+                shoulder: shouldersAt(posture).get(`${control.side}UpperArm`)!
+                  .worldPosition,
+                length: placed.affordance.length ?? 0,
+              },
             );
+          }
         }
         return posture;
       },
@@ -470,6 +517,16 @@ export namespace AquaticSail {
     // Lay each controlled arm as one admitted course: it reaches from the
     // entered arm to its handle by the helm-in instant and holds it with
     // branch and swivel continuity through the maneuver.
+    // Each arm reaches from the arm the law's own key holds at the start.
+    const opening: IAutoMovieMotionHumanPosture = plan.posture(0);
+    const free: IAutoMoviePose = resolveHumanPosture(body, {
+      ...opening,
+      limbs: Object.fromEntries(
+        Object.entries(opening.limbs).filter(
+          ([limb]: [string, unknown]): boolean => !limb.endsWith("Arm"),
+        ),
+      ),
+    });
     return controls.reduce(
       (
         laid: IAutoMovieMotionHumanActionPlan,
@@ -479,7 +536,7 @@ export namespace AquaticSail {
           body,
           plan: laid,
           side: control.side,
-          rest: AutoMovieMotionHumanArm.angles(entry.pose, control.side),
+          rest: AutoMovieMotionHumanArm.angles(free, control.side),
           span: {
             start: 0,
             ready: HELM_IN * duration,

@@ -302,8 +302,7 @@ function stage(
                 hands: "one",
                 side,
                 intercept: pass,
-              })
-              .until({ event: "held" }),
+              }),
           )
           .registered(
             "aquatic",
