@@ -11,11 +11,11 @@ import {
   type IAutoMovieViewerViewpoint,
   applyAutoMovieInspection,
   autoMovieViewerNamedViewpoints,
+  createAutoMovieInspectionDiagnosticOverlay,
   formatAutoMovieInspectionRequest,
   listAutoMovieInspectionPaths,
   observeAutoMoviePlacedInspection,
   parseAutoMovieInspectionView,
-  renderWithAutoMovieInspectionDiagnostics,
   resolveAutoMovieInspectionView,
 } from "@automovie/render";
 import type * as THREE from "three";
@@ -61,7 +61,7 @@ interface ILive {
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refused request is reported with the request still drawn rather than drawn half-applied, an instance that arrives after dispose is released rather than drawn, and no frame is drawn from a size that is not positive.
  * @evidence contracts/development/implementation.md#efficient-algorithms A frame that changed nothing costs one size read and one snapshot comparison; a redraw costs the subject's seek, the opted-in observation, the inspection's update linear in its marks, one view resolution and the render. A full inspection re-application per redraw happens only while the request changes what the observation would read. Paths and the first second's marks are listed once per mount.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The applied inspection, the renderer and the instance live for the whole mount; an inspection is re-applied only when its written text changes or when it had to be restored for an observation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mount owns one instance, one renderer, one applied inspection and at most one pending frame, released by `dispose` in reverse order, each attempted even when another fails; the playhead is borrowed and gains no listener.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mount owns one instance, one renderer, one applied inspection, one witness-cube overlay and at most one pending frame, released by `dispose` in reverse order, each attempted even when another fails; the playhead is borrowed and gains no listener.
  */
 export function mountAutoMovieInspectorScene(props: {
   /** The subject to build. */
@@ -85,6 +85,9 @@ export function mountAutoMovieInspectorScene(props: {
   const { host, playhead, report } = props;
   const diagnosticLog: AutoMovieInspectorDiagnosticLog =
     new AutoMovieInspectorDiagnosticLog(report);
+  const witnessCubes: ReturnType<
+    typeof createAutoMovieInspectionDiagnosticOverlay
+  > = createAutoMovieInspectionDiagnosticOverlay();
   let disposed: boolean = false;
   let witnesses: boolean = true;
   let wanted: IAutoMovieCapturePlanRequest = props.request;
@@ -319,19 +322,18 @@ export function mountAutoMovieInspectorScene(props: {
         width: instance.width,
         height: instance.height,
       }).camera;
-      const diagnosticLegend: ReturnType<
-        typeof renderWithAutoMovieInspectionDiagnostics
-      > = renderWithAutoMovieInspectionDiagnostics({
-        scene: instance.scene,
-        diagnostics:
-          witnesses && now.applied.inspection.shade === "beauty"
-            ? diagnostics
-            : undefined,
-        render: (): void => now.renderer.render(instance.scene, camera),
-        width: now.size!.width,
-        height: now.size!.height,
-        stroke: now.applied.inspection.stroke,
-      });
+      const diagnosticLegend: ReturnType<typeof witnessCubes.render> =
+        witnessCubes.render({
+          scene: instance.scene,
+          diagnostics:
+            witnesses && now.applied.inspection.shade === "beauty"
+              ? diagnostics
+              : undefined,
+          render: (): void => now.renderer.render(instance.scene, camera),
+          width: now.size!.width,
+          height: now.size!.height,
+          stroke: now.applied.inspection.stroke,
+        });
       if (diagnostics !== undefined) {
         diagnosticLog.observe(diagnostics, snapshot);
         report.diagnostics?.(diagnostics);
@@ -459,6 +461,7 @@ export function mountAutoMovieInspectorScene(props: {
         (): void => now.renderer.dispose(),
         (): void => now.instance.dispose(),
         (): void => diagnosticLog.dispose(),
+        (): void => witnessCubes.dispose(),
       ]);
     },
   };
