@@ -1,6 +1,6 @@
 import {
-  AutoMoviePhysicalSimulation as Simulation,
   Quaternion,
+  AutoMoviePhysicalSimulation as Simulation,
   validatePhysicalProfile,
 } from "@automovie/engine";
 import type {
@@ -29,24 +29,32 @@ import { preparePhysicalHumanArmSwing } from "../internal/preparePhysicalHumanAr
  * 1. The measured subject mass reaches the solver profile and its upper arms
  *    and thighs carry their reference mass shares. Reflection keeps the
  *    neutral center of mass on the sagittal plane.
- * 2. A malformed joint frame and an out-of-domain axis each report their own
- *    admission path.
+ * 2. A negative thigh mass, a hand inertia that breaks the triangle
+ *    inequality, a malformed joint frame and an out-of-domain axis each
+ *    report their own admission path on the same Human profile.
  * 3. A gravity-free shoulder ramp brings the elbow within two degrees of its
  *    eight-degree target by the end of the hold, preserving arm length with
- *    at most one degree of overshoot throughout the ramp and hold.
+ *    at most one degree of overshoot throughout the ramp and hold. No motor
+ *    demand exceeds its torque cap, and the native shoulder ends within two
+ *    degrees of its authored rotation.
  * 4. The same native body and clock retain the neutral elbow when they receive
  *    a held neutral target.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the canonical provider, checks admission of its actual profile, and executes matched native tracking and neutral simulations. It reads the native elbow in the chest frame, rejects a missed deadline or overshoot and preserves upper-arm length.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the canonical provider, checks admission of its actual profile, and executes matched native tracking and neutral simulations. It reads the native elbow in the chest frame, rejects a missed deadline or overshoot, preserves upper-arm length, and reads torque-cap forecasts and the native shoulder error through `tracking` and `trackingAt`.
  * @evidence contracts/development/testing.md#independent-expectations The ANSUR case supplies body mass. Winter Table 4.1 gives Dempster mass shares. Neutral symmetry fixes the sagittal center. Planar trigonometry from the neutral elbow chord gives the target position and angular distance bounds without invoking the pose generator.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers the valid body, independent invalid frame and range paths, and an active ramp versus a held neutral target on the same clock. Collider fidelity belongs to test_human_canonical_solids_surface. Ground support and recovery have their own fixtures.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the valid body, independent invalid mass, inertia, frame and range paths, and an active ramp versus a held neutral target on the same clock. Collider fidelity belongs to test_human_canonical_solids_surface. Ground support and recovery have their own fixtures.
  * @evidence contracts/development/testing.md#execution-ownership The portable unit test test_physical_human_profile prepares the installed canonical body and exercises the public native Engine entry with in-memory input and no viewer or file host.
- * @evidence contracts/development/common.md#meaningful-documentation Documents measured mass, reference shares, neutral symmetry, invalid frame and limit paths, native tracking bounds and the matched control.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents measured mass, reference shares, neutral symmetry, invalid mass, inertia, frame and limit paths, native tracking bounds and the matched control.
  */
 export async function test_physical_human_profile(): Promise<void> {
-  const profile: IAutoMoviePhysicalProfile = motionHumanBody("m-average").profile;
+  const profile: IAutoMoviePhysicalProfile =
+    motionHumanBody("m-average").profile;
   const measuredMass: number = PEOPLE["m-average"].mass;
-  TestValidator.equals("canonical profile admission", validatePhysicalProfile(profile), []);
+  TestValidator.equals(
+    "canonical profile admission",
+    validatePhysicalProfile(profile),
+    [],
+  );
   TestValidator.predicate(
     "neutral mass retains the measured subject and sagittal center",
     nclose(profile.mass, measuredMass, 1e-7) &&
@@ -61,9 +69,10 @@ export async function test_physical_human_profile(): Promise<void> {
     ["rightUpperLeg", 0.1],
   ];
   for (const [bone, share] of shares) {
-    const segment: IAutoMoviePhysicalSegment | undefined = profile.segments.find(
-      (segment: IAutoMoviePhysicalSegment): boolean => segment.bone === bone,
-    );
+    const segment: IAutoMoviePhysicalSegment | undefined =
+      profile.segments.find(
+        (segment: IAutoMoviePhysicalSegment): boolean => segment.bone === bone,
+      );
     TestValidator.predicate(
       `${bone} has its reference segment mass`,
       segment !== undefined && nclose(segment.mass, measuredMass * share, 1e-7),
@@ -77,11 +86,32 @@ export async function test_physical_human_profile(): Promise<void> {
   const shoulder: IAutoMoviePhysicalJoint = invalid.joints[shoulderIndex]!;
   shoulder.parentFrame.rotation = { x: 0, y: 0, z: 0, w: 0 };
   shoulder.axes[0]!.maximum = 2 * Math.PI;
+  const thighIndex: number = invalid.segments.findIndex(
+    (segment: IAutoMoviePhysicalSegment): boolean =>
+      segment.bone === "leftUpperLeg",
+  );
+  const handIndex: number = invalid.segments.findIndex(
+    (segment: IAutoMoviePhysicalSegment): boolean =>
+      segment.bone === "rightHand",
+  );
+  const thigh: IAutoMoviePhysicalSegment = invalid.segments[thighIndex]!;
+  thigh.mass = -thigh.mass;
+  const hand: IAutoMoviePhysicalSegment = invalid.segments[handIndex]!;
+  // Principal moments must satisfy the triangle inequality of a real solid.
+  hand.inertia = {
+    x: hand.inertia.y + hand.inertia.z + 1,
+    y: hand.inertia.y,
+    z: hand.inertia.z,
+  };
   const defects: string[] = validatePhysicalProfile(invalid);
   const path: string = `joints[${shoulderIndex}]`;
   TestValidator.predicate(
-    "independent frame and limit paths refuse simultaneously",
-    defects.some((defect: string): boolean => defect.startsWith(`${path}.parentFrame`)) &&
+    "independent mass, inertia, frame and limit paths refuse simultaneously",
+    defects.includes(`segments[${thighIndex}].mass`) &&
+      defects.includes(`segments[${handIndex}].inertia`) &&
+      defects.some((defect: string): boolean =>
+        defect.startsWith(`${path}.parentFrame`),
+      ) &&
       defects.includes(`${path}.axes[0].limits`),
   );
 
@@ -92,7 +122,8 @@ export async function test_physical_human_profile(): Promise<void> {
   const body: IAutoMoviePhysicalSimulationInput.IBody =
     PhysicalSupportFixtures.canonical(profile, duration);
   delete body.balance;
-  const neutral: Record<string, IAutoMovieRigidTransform> = body.targets[0]!.segments;
+  const neutral: Record<string, IAutoMovieRigidTransform> =
+    body.targets[0]!.segments;
   const swing: ReturnType<typeof preparePhysicalHumanArmSwing> =
     preparePhysicalHumanArmSwing(profile, neutral);
   const initial: IAutoMovieVector3 = elbowInChest(neutral);
@@ -103,10 +134,8 @@ export async function test_physical_human_profile(): Promise<void> {
     y: initial.x * Math.sin(angle) + initial.y * Math.cos(angle),
     z: initial.z,
   };
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-    [body],
-    duration,
-  );
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], duration);
   input.substeps = 4;
   body.targets.forEach(
     (target: IAutoMoviePhysicalSimulationInput.ITarget, step: number): void => {
@@ -115,7 +144,8 @@ export async function test_physical_human_profile(): Promise<void> {
       );
     },
   );
-  const matched: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+  const matched: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   for (const target of matched.bodies[0]!.targets) target.segments = neutral;
   const still: IAutoMoviePhysicalSimulation = await Simulation.compute(matched);
   const moving: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
@@ -164,7 +194,8 @@ export async function test_physical_human_profile(): Promise<void> {
     Math.hypot(end.x, end.y, end.z) - armLength,
   );
   const findings: string[] = [];
-  const targetLimit: number = 2 * arcRadius * Math.sin(radian) + anchorTolerance;
+  const targetLimit: number =
+    2 * arcRadius * Math.sin(radian) + anchorTolerance;
   const neutralLimit: number =
     2 * arcRadius * Math.sin(radian / 2) + anchorTolerance;
   if (!(activeError <= targetLimit))
@@ -181,7 +212,35 @@ export async function test_physical_human_profile(): Promise<void> {
     );
   if (!(lengthError <= anchorTolerance))
     findings.push(`upper-arm length changes by ${lengthError} m`);
-  TestValidator.equals("measured Human native tracking and control", findings, []);
+  const saturated: string[] = moving.tracking
+    .filter(
+      (entry: IAutoMoviePhysicalSimulationInput.IDiagnostic): boolean =>
+        entry.body === body.id,
+    )
+    .map(
+      (entry: IAutoMoviePhysicalSimulationInput.IDiagnostic): string =>
+        `${entry.joint}@${entry.seconds}`,
+    );
+  if (saturated.length > 0)
+    findings.push(
+      `${saturated.length} motor demands exceed their torque caps, first ${saturated.slice(0, 4).join(", ")}`,
+    );
+  const shoulderError: number =
+    moving
+      .trackingAt(duration)
+      .find(
+        (entry: IAutoMoviePhysicalSimulationInput.IDiagnostic): boolean =>
+          entry.body === body.id && entry.joint === "leftUpperArm",
+      )?.error ?? Infinity;
+  if (!(shoulderError <= 2 * radian))
+    findings.push(
+      `shoulder ends ${shoulderError / radian} degrees from its authored rotation`,
+    );
+  TestValidator.equals(
+    "measured Human native tracking and control",
+    findings,
+    [],
+  );
 }
 
 /** Measure the shoulder-to-elbow chord in the body's chest frame, metres. */
@@ -191,8 +250,9 @@ function elbowInChest(
   const shoulder: IAutoMovieVector3 = pose.leftUpperArm!.position;
   const elbow: IAutoMovieVector3 = pose.leftLowerArm!.position;
   const chest: IAutoMovieRigidTransform["rotation"] = pose.chest!.rotation;
-  return Quaternion.rotateVector(
-    Quaternion.inverse(chest),
-    { x: elbow.x - shoulder.x, y: elbow.y - shoulder.y, z: elbow.z - shoulder.z },
-  );
+  return Quaternion.rotateVector(Quaternion.inverse(chest), {
+    x: elbow.x - shoulder.x,
+    y: elbow.y - shoulder.y,
+    z: elbow.z - shoulder.z,
+  });
 }
