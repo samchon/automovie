@@ -49,10 +49,10 @@ export namespace HumanPerformanceHold {
    * @throws {HumanRefusal} If the selected socket chain revisits a prop at the same film second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Points to the reader's documentation and states the in-hand composition.
-   * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding one rigid body, and a grip's in-hand displacement composed before the offset. A world-frame read preserves the previous carrier at hand or socket closure. A supplied performer pose can read the authored socket chain at closure while fitting its attached prop.
+   * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding and releasing one rigid body, and a grip's in-hand displacement composed before the offset. A world-frame read preserves the previous carrier at hand or socket closure. A supplied performer pose can read the authored socket chain at closure while fitting its attached prop.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Choose the carrying grip, seat its offset once, compose any in-hand motion, place by the hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stored offset is never re-derived while held; an in-hand motion is the window's own pure function.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Scans each visited prop's grips and does a constant number of map and set operations per socket hop. The offset is memoized on the grip record.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans each visited prop's grips and reads the final shared grip once more when resting after a hand release. Map and set work per socket hop is constant. The offset is memoized on the grip record.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Seated offsets are kept on the grip records the grip cache holds.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The socket path keeps one entry per active sample and releases entries as each hop returns. Only offsets on grip records persist with the performance.
    */
@@ -317,6 +317,22 @@ export namespace HumanPerformanceHold {
       Math.abs(steady.from - active.from) <= 1e-6
     )
       return HumanPropHold.fit(hold(window), hold(steady));
+
+    // Freeze the same fitted pose when a simultaneous two-hand grip ends,
+    // rather than changing to one hand's implied pose at the release.
+    if (
+      active === undefined &&
+      window.bone === undefined &&
+      window.mount === undefined
+    ) {
+      const ending: ICustody = custody(grips, at, false);
+      if (
+        ending.active?.to === at &&
+        ending.steady?.to === at &&
+        Math.abs(ending.active.from - ending.steady.from) <= 1e-6
+      )
+        return HumanPropHold.fit(hold(ending.active), hold(ending.steady));
+    }
     const { offset, hand } = hold(window);
     return {
       position: Vector3.add(

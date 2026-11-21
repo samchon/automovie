@@ -61,7 +61,7 @@ export namespace createAppliance {
    * - refrigerator: `fridgeDoor`, `freezerDoor` (hinges), `fridgeHandle`, `freezerHandle` (handles riding them), `shelf1` to `shelf4` (stack-tops);
    * - cooker: `top` (stack-top, the hob), `zone1` to `zone4` (stack-tops);
    * - microwave: `door` (hinge without travel), `floor`, `top` (stack-tops);
-   * - washingMachine: `door` (hinge), `top` (stack-top).
+   * - washingMachine: `door` and its riding `doorHandle`, fixed `drumAperture`, `loadApproach`, `loadAlign`, `loadOpening`, `drumEntry`, and `drumSeat`, and `top` (stack-top).
    */
   export type Affordance =
     | "fridgeDoor"
@@ -72,7 +72,14 @@ export namespace createAppliance {
     | "top"
     | `zone${number}`
     | "door"
-    | "floor";
+    | "floor"
+    | "doorHandle"
+    | "drumAperture"
+    | "loadApproach"
+    | "loadAlign"
+    | "loadOpening"
+    | "drumEntry"
+    | "drumSeat";
 
   /**
    * The free dimensions, metres unless stated:

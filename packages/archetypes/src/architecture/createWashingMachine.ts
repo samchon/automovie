@@ -5,7 +5,7 @@ import { FixtureDraw } from "./FixtureDraw";
 import type { createAppliance } from "./createAppliance";
 
 /**
- * A front-loading washing machine with a hinged round door and a worktop.
+ * A front-loading washing machine with a hinged round door, a physically hollow drum and a worktop. The door opens 160 degrees and carries its handle; the drum keeps its opening, the loading waypoints and the seat a load rests on fixed in the body.
  *
  * The construction retains the washer's round door pieces, left hinge and horizontal worktop.
  * The fixture is centred on X, with its back at Z = 0 and its front towards +Z.
@@ -52,7 +52,16 @@ export function createWashingMachine(
  */
 export namespace createWashingMachine {
   /** The named contacts built by this producer. */
-  export type Affordance = "door" | "top";
+  export type Affordance =
+    | "door"
+    | "doorHandle"
+    | "drumAperture"
+    | "loadApproach"
+    | "loadAlign"
+    | "loadOpening"
+    | "drumEntry"
+    | "drumSeat"
+    | "top";
 
   /** The dimensions the author may fix inside the producer's bands. */
   export type Dimension = "depth" | "door" | "height" | "mass" | "width";

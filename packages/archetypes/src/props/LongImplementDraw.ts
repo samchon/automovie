@@ -98,7 +98,9 @@ export namespace LongImplementDraw {
     | "tip"
     | "release"
     | "pouch"
-    | "spur";
+    | "spur"
+    | "upperGrip"
+    | "lowerGrip";
 
   /**
    * The free dimensions, metres unless stated:

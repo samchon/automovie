@@ -7,10 +7,17 @@ import type { IPlaygroundComposition } from "../../playground/structures/IPlaygr
  * alone, so a page that only draws a scene never loads the motion package.
  */
 export namespace SceneArchetype {
+  /** A scene prop, including the native articulation of its generated model. */
+  export type Model = archetypes.Archetype<
+    string,
+    string,
+    archetypes.ArchetypeMass.IProperties | null
+  >;
+
   /** A producer as the site calls it, with the variant list that names its selector. */
   export interface IProducer {
     /** Build the model from its parameters and an optional seed. */
-    (params: Record<string, unknown>, seed?: string): object;
+    (params: Record<string, unknown>, seed?: string): Model;
 
     /** The frames, when the producer's selector is `frame`. */
     FRAMES?: readonly string[];
@@ -26,7 +33,7 @@ export namespace SceneArchetype {
    * @returns The model its producer builds.
    * @throws {Error} When `@automovie/archetypes` exports no such producer.
    */
-  export function model(object: IPlaygroundComposition.IObject): object {
+  export function model(object: IPlaygroundComposition.IObject): Model {
     const producer: unknown = (archetypes as Readonly<Record<string, unknown>>)[
       object.producer
     ];

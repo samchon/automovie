@@ -81,6 +81,13 @@ jobs:
       - name: Smoke test
         run: pnpm --filter @automovie/website smoke
 
+      # Plays every take of the everyday, work and passenger scenes in Node and
+      # checks their displayed contacts. It needs no build, so it reports even
+      # when the build or the smoke test fails.
+      - name: Scene checks
+        if: ${{ !cancelled() }}
+        run: pnpm --filter @automovie/website scenes
+
       - name: Deploy
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0

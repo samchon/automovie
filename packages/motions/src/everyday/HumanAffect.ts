@@ -1,10 +1,15 @@
-import { minimumJerk } from "@automovie/engine";
+import {
+  createAutoMovieRandom,
+  deriveAutoMovieSeed,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanAffect,
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieRandom,
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -13,7 +18,7 @@ import { HumanBound } from "../law/HumanBound";
 
 /**
  * Affect displays as an additive layer: laughing, sighing, yawning,
- * coughing, sneezing and shivering, each a short pattern of trunk, shoulder,
+ * coughing, sneezing, shivering, sobbing, weeping and gasping, each a short pattern of trunk, shoulder,
  * head and jaw angles over any action, starting and ending at zero.
  *
  * These are joint-angle patterns because no body point is brought anywhere:
@@ -54,6 +59,22 @@ import { HumanBound } from "../law/HumanBound";
  *   shivering burst rate below the 12 Hz Nyquist limit of a 24 Hz film
  *   (shivering muscle tremor itself is faster, near 10 Hz, and would alias),
  *   ramped in and out over 15 % of the shiver.
+ * - `sob`: the chest flexes 6 degrees, the lumbar spine 4 and the head 10,
+ *   ramped in over 8 % and out over 20 %, under a train of inspirations each
+ *   lifting the shoulders 6 degrees and extending the chest 4, rising in 0.1
+ *   s and recovering over 0.25 s. They come 0.5 s apart at intensity 1,
+ *   closer as the intensity rises to 2 and farther as it falls to 0.5, each
+ *   interval varying by a seeded ±30 %. The convulsive inspirations of
+ *   sobbing are Gross, Fredrickson and Levenson's (1994, Psychophysiology
+ *   31:460); the amplitudes and timings are provisional.
+ * - `weep`: the head lowers 12 degrees and the chest flexes 4, with a 2
+ *   degree shoulder heave every 2.5 s and a sniff about every 3.5 s, seeded
+ *   ±30 %, that lifts the head 3 degrees and the shoulders 2 (provisional).
+ * - `gasp`: the head extends 12 degrees, the chest 6 and the shoulders rise
+ *   8, peaking 0.25 s in and returning to rest by the end (provisional).
+ *
+ * The seeded timing of a sob or weep is keyed by the display's `seed`, or
+ * its kind and start, so the same display repeats in every read and order.
  *
  * Amplitudes and timings are provisional, read from no measured source,
  * except where cited; an intensity scales every amplitude.
@@ -74,6 +95,9 @@ export namespace HumanAffect {
     cough: 1.7,
     sneeze: 2,
     shiver: 2,
+    sob: 4,
+    weep: 6,
+    gasp: 1.5,
   };
 
   /** Interval between laugh notes, seconds (Provine 1996). */
@@ -86,14 +110,15 @@ export namespace HumanAffect {
    * @param t Seconds since its start.
    * @param seconds Its length, seconds.
    * @param intensity Amplitude scale.
+   * @param seed The key of a sob's or weep's seeded timing; the kind when absent.
    * @returns Clinical degrees to add; empty outside the display.
-   * @throws {HumanRefusal} When the length is not positive, or a sneeze's leaves no room for its burst.
+   * @throws {HumanRefusal} When the length is not positive, a sneeze's leaves no room for its burst, or a gasp's for its inspiration.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units, the clinical-degree output, the empty result outside the display and the refusal; each pattern is documented on the namespace.
-   * @evidence contracts/development/implementation.md#principled-implementation Joint-angle pulses under minimum-jerk envelopes, zero with zero velocity at both ends; the laugh note interval is Provine's 210 ms and the yawn length Provine's, other amplitudes and timings provisional as documented. Angles are the rig's clinical degrees per bone.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch over the display, shared with the layer, writes the angles through one ramp, one pulse, the shared sigh and yawn clock and one joint writer.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: the amplitudes are named in the namespace documentation as cited or provisional, and a length the display cannot fit throws instead of being clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call: at most three pulses for a cough and a fixed set of bones per display.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units, the seed's role and default, the clinical-degree output, the empty result outside the display and the refusal; each pattern is documented on the namespace.
+   * @evidence contracts/development/implementation.md#principled-implementation Joint-angle pulses under minimum-jerk envelopes, zero with zero velocity at both ends; the laugh note interval is Provine's 210 ms and the yawn length Provine's, other amplitudes and timings provisional as documented. A sob's and a weep's pulse times come from a counter-based random stream keyed by the seed, so any time can be read in any order. Angles are the rig's clinical degrees per bone.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch over the display, shared with the layer, writes the angles through one ramp, one pulse, one pulse train, the shared sigh and yawn clock and one joint writer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: the amplitudes are named in the namespace documentation as cited or provisional, a length the display cannot fit throws instead of being clamped, and the sob's intensity range that scales its density is named with its Nyquist basis.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call for most displays: at most three pulses for a cough and a fixed set of bones per display; a sob or weep walks the pulses before the time read, at most its length over its shortest interval.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The sigh and yawn share limits on a fixed normalized clock. Each angle is evaluated for the requested second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates one small record per call and retains nothing.
    */
@@ -102,10 +127,11 @@ export namespace HumanAffect {
     t: number,
     seconds: number,
     intensity: number = 1,
+    seed: string = kind,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     admit(kind, seconds);
     if (!(t > 0 && t < seconds)) return {};
-    return pattern(kind, t, seconds, intensity);
+    return pattern(kind, t, seconds, intensity, seed);
   }
 
   /** Refuse a length a display cannot fit: any not positive, and a sneeze too short for its burst to rise within its last `1 - SNEEZE_BUILD`. */
@@ -116,7 +142,11 @@ export namespace HumanAffect {
     HumanBound.above(
       "seconds",
       seconds,
-      kind === "sneeze" ? SNEEZE_BURST / (1 - SNEEZE_BUILD) : 0,
+      kind === "sneeze"
+        ? SNEEZE_BURST / (1 - SNEEZE_BUILD)
+        : kind === "gasp"
+          ? GASP_RISE
+          : 0,
       "s",
     );
   }
@@ -127,6 +157,7 @@ export namespace HumanAffect {
     t: number,
     seconds: number,
     intensity: number,
+    seed: string,
     into?: IAutoMovieMotionHumanPosture["joints"],
   ): IAutoMovieMotionHumanPosture["joints"] {
     const u: number = t / seconds;
@@ -208,6 +239,70 @@ export namespace HumanAffect {
         write(joints, additive, "chest", 3 * e, 0, 0);
         break;
       }
+      case "sob": {
+        // A forward-flexed trunk and head under a train of inspirations,
+        // each lifting the shoulders and extending the upper chest.
+        const e: number = k * ramp(u, 0.08, 0.2);
+        const interval: number =
+          SOB_INTERVAL / Math.min(Math.max(k, SOB_DENSITY[0]), SOB_DENSITY[1]);
+        const heave: number = train(
+          stream(seed),
+          t,
+          interval,
+          SOB_JITTER,
+          SOB_RISE,
+          SOB_FALL,
+        );
+        write(joints, additive, "chest", 6 * e - 4 * e * heave, 0, 0);
+        write(joints, additive, "spine", 4 * e, 0, 0);
+        write(joints, additive, "head", 10 * e, 0, 0);
+        write(joints, additive, "leftShoulder", 0, 6 * e * heave, 0);
+        write(joints, additive, "rightShoulder", 0, 6 * e * heave, 0);
+        break;
+      }
+      case "weep": {
+        // The head lowered over a slow heave, with an occasional sniff.
+        const e: number = k * ramp(u, 0.15, 0.2);
+        const slow: number =
+          0.5 - 0.5 * Math.cos((2 * Math.PI * t) / WEEP_PERIOD);
+        const sniff: number = train(
+          stream(seed),
+          t,
+          WEEP_SNIFF,
+          WEEP_JITTER,
+          0.12,
+          0.3,
+        );
+        write(joints, additive, "head", 12 * e - 3 * e * sniff, 0, 0);
+        write(joints, additive, "chest", 4 * e, 0, 0);
+        write(
+          joints,
+          additive,
+          "leftShoulder",
+          0,
+          e * (2 * slow + 2 * sniff),
+          0,
+        );
+        write(
+          joints,
+          additive,
+          "rightShoulder",
+          0,
+          e * (2 * slow + 2 * sniff),
+          0,
+        );
+        break;
+      }
+      case "gasp": {
+        // One inspiration that peaks at GASP_RISE, then the exhalation that
+        // returns to the underlying breath by the end.
+        const breath: number = k * pulse(t, GASP_RISE, seconds - GASP_RISE);
+        write(joints, additive, "head", -12 * breath, 0, 0);
+        write(joints, additive, "chest", -6 * breath, 0, 0);
+        write(joints, additive, "leftShoulder", 0, 8 * breath, 0);
+        write(joints, additive, "rightShoulder", 0, 8 * breath, 0);
+        break;
+      }
     }
     return joints;
   }
@@ -250,7 +345,14 @@ export namespace HumanAffect {
           const elapsed: number = seconds - d.at;
           const intensity: number = d.intensity ?? 1;
           if (!(elapsed > 0 && elapsed < length)) continue;
-          pattern(kind, elapsed, length, intensity, joints);
+          pattern(
+            kind,
+            elapsed,
+            length,
+            intensity,
+            d.seed ?? `${kind}@${d.at}`,
+            joints,
+          );
         }
         return { ...posture, joints };
       },
@@ -318,6 +420,61 @@ const ZERO: readonly [number, number, number] = [0, 0, 0];
 
 /** Each of a bout's three coughs relative to the first: the first three coughs of a bout expel 53.2, 28.5 and 18.8 % of the air (Harris and Lawson 1968, as relayed), so each flexes the trunk by its expulsion's share of the first's. */
 const COUGHS: readonly number[] = [1, 28.5 / 53.2, 18.8 / 53.2];
+
+/** The seeded draw stream of one display's irregular timing. */
+function stream(seed: string): IAutoMovieRandom {
+  return createAutoMovieRandom(deriveAutoMovieSeed("affect", seed));
+}
+
+/**
+ * A train of pulses at seeded irregular times: the first at a third of the
+ * nominal interval and each next after the nominal interval scaled by a draw
+ * in 1 ± jitter. The value is the largest active pulse, so overlapping
+ * pulses stay continuous, as the cough's do. Linear in the pulses before `t`.
+ */
+function train(
+  random: IAutoMovieRandom,
+  t: number,
+  interval: number,
+  jitter: number,
+  up: number,
+  down: number,
+): number {
+  let value: number = 0;
+  let at: number = interval / 3;
+  for (let i: number = 0; at < t; ++i) {
+    value = Math.max(value, pulse(t - at, up, down));
+    at += interval * (1 + jitter * (2 * random.float(i) - 1));
+  }
+  return value;
+}
+
+/** A sob's nominal interval between inspirations at intensity 1, seconds (provisional). */
+const SOB_INTERVAL: number = 0.5;
+
+/** The intensity range that scales a sob's density, so its shortest interval, 0.175 s, stays under the 12 Hz Nyquist limit of 24 Hz film. */
+const SOB_DENSITY: readonly [number, number] = [0.5, 2];
+
+/** How far each sob interval varies from the nominal, a share (provisional). */
+const SOB_JITTER: number = 0.3;
+
+/** A sob inspiration's rise and fall, seconds (provisional). */
+const SOB_RISE: number = 0.1;
+
+/** A sob inspiration's recovery, seconds (provisional). */
+const SOB_FALL: number = 0.25;
+
+/** A weep's slow heave period, seconds (provisional). */
+const WEEP_PERIOD: number = 2.5;
+
+/** A weep's nominal interval between sniffs, seconds (provisional). */
+const WEEP_SNIFF: number = 3.5;
+
+/** How far each sniff interval varies, a share (provisional). */
+const WEEP_JITTER: number = 0.3;
+
+/** How long a gasp's inspiration takes to peak, seconds (provisional). */
+const GASP_RISE: number = 0.25;
 
 /** The share of a sneeze its inhalation takes (provisional). */
 const SNEEZE_BUILD: number = 0.7;

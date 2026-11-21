@@ -226,6 +226,8 @@ export namespace createCar {
    * - `wheel`: the steering wheel, its axis toward the driver; its travel is half the lock-to-lock turn to either side, positive to the left.
    * - `frontLeftWheel`, `frontRightWheel`: the front road wheels' steering, each about the upright through its centre, positive to the left, following `wheel` by its Ackermann angle (`ackermann`), so the inner wheel of a turn steers more than the outer; a `wheel` articulation because a road wheel steers to either side of straight, which a `knob`'s range from 0 does not allow.
    * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: each road wheel's roll about its axle, a positive travel rolling it forward, the front pair riding their steering.
+   * - `rightSteeringGrip`: the steering wheel's right rim, carried by the wheel's turn.
+   * - `driverLeftRest`, `passengerLeftRest`, `passengerRightRest`: named sole contact points on the front cabin floor.
    * - `accelerator`: the accelerator pedal under the driver's right foot.
    * - `bonnet`: the bonnet's hinge at its rear edge; a positive travel lifts its front.
    * - `boot`, `load`: a sedan's boot lid or a hatchback's tailgate, a positive travel lifting it, and the boot's floor.
@@ -266,6 +268,10 @@ export namespace createCar {
     | "frontRightSpin"
     | "rearLeftSpin"
     | "rearRightSpin"
+    | "rightSteeringGrip"
+    | "driverLeftRest"
+    | "passengerLeftRest"
+    | "passengerRightRest"
     | "accelerator"
     | "bonnet"
     | "boot"

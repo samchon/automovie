@@ -1,10 +1,12 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieAffordance,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanPutDownAperture,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -13,6 +15,7 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { putDown } from "./putDown";
 import { putDownTarget } from "./putDownTarget";
+import type { putDownTravel } from "./putDownTravel";
 
 /**
  * Register and stage an aligned solid-object insertion and seated handoff.
@@ -33,8 +36,8 @@ import { putDownTarget } from "./putDownTarget";
  * guides its blade home, and the hand follows on its grip.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the installed law, the support requirement and the study underlying the phase split.
- * @evidence contracts/development/design.md#principled-representation An installed placement law with two authored receiver frames and a shared rigid grip.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the placement family's cut and grasp rules and adds only the request for an aperture.
+ * @evidence contracts/development/design.md#principled-representation An installed placement law with an opening, a seat, optional fixed receiver waypoints and a shared rigid grip.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the placement family's cut and grasp rules and adds the aperture and its optional approach and insertion sites.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A separate registered law keeps built-in placement inputs and behavior intact.
  */
 export const putDownAperture: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPutDownAperture> =
@@ -91,16 +94,20 @@ function plan(
     context,
     context.entry.pose,
   )!;
-  const mouth: IAutoMovieRigidTransform = putDownTarget.of(
-    { ...context, params: { prop, onto: { ...onto, point: onto.aperture } } },
-    context.entry.pose,
-  )!;
+  const through: (point: string) => IAutoMovieRigidTransform = (
+    point: string,
+  ): IAutoMovieRigidTransform =>
+    putDownTarget.of(
+      { ...context, params: { prop, onto: { ...onto, point } } },
+      context.entry.pose,
+    )!;
+  const mouth: IAutoMovieRigidTransform = through(onto.aperture);
   const offset: IAutoMovieVector3 = Vector3.subtract(
     mouth.position,
     seat.position,
   );
 
-  // Both frames describe the same part of the object at two depths.
+  // Preserve the original straight passage and its admission.
   if (
     !(Vector3.length(offset) > Number.EPSILON) ||
     !(Quaternion.angle(mouth.rotation, seat.rotation) <= 1e-6)
@@ -115,10 +122,59 @@ function plan(
       },
       reason:
         "the opening and seat must share an attitude at distinct positions",
-      fix: "author the opening and seat along a straight insertion corridor",
+      fix: "author the opening and seat in the same attitude at distinct positions",
     });
 
-  const plan: IAutoMovieMotionHumanActionPlan = putDown.plan(context, offset);
+  // Named approach and insertion sockets turn the straight passage into a
+  // route of fixed, aligned waypoints relative to the seat.
+  const approach: readonly string[] = onto.approach ?? [];
+  const insertion: readonly string[] = onto.insertion ?? [];
+  let route: putDownTravel.IRoute | undefined;
+  if (approach.length !== 0 || insertion.length !== 0) {
+    const ids: string[] = [
+      ...approach,
+      onto.aperture,
+      ...insertion,
+      onto.point,
+    ];
+    const reader: IAutoMovieMotionHumanPropReader = context.prop(onto.prop);
+    const offsets: IAutoMovieVector3[] = [];
+    for (const [index, id] of ids.entries()) {
+      const posed: IAutoMovieRigidTransform =
+        id === onto.aperture ? mouth : id === onto.point ? seat : through(id);
+      const next: IAutoMovieVector3 = Vector3.subtract(
+        posed.position,
+        seat.position,
+      );
+      const previous: IAutoMovieVector3 | undefined = offsets[index - 1];
+      if (
+        reader.prop.affordances?.find(
+          (item: IAutoMovieAffordance): boolean => item.id === id,
+        )?.rides !== undefined ||
+        !(Quaternion.angle(posed.rotation, seat.rotation) <= 1e-6) ||
+        (previous !== undefined &&
+          !(Vector3.distance(previous, next) > Number.EPSILON))
+      )
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "onto",
+          value: `${onto.prop}.${id}`,
+          reason:
+            "the insertion path needs fixed, aligned consecutive frames at distinct positions",
+          fix: "name fixed sockets with the seat's attitude in the order the hand travels",
+        });
+      offsets.push(next);
+    }
+    route = {
+      approach: offsets.slice(0, approach.length),
+      insertion: offsets.slice(approach.length + 1, -1),
+    };
+  }
+  const plan: IAutoMovieMotionHumanActionPlan = putDown.plan(
+    context,
+    offset,
+    route,
+  );
   if (onto.guide === undefined) return plan;
 
   // A guided receptacle carries the object from the opening to the seat: the

@@ -111,7 +111,7 @@ export namespace PlaygroundChain {
 
   /**
    * The laws the package exports by name at its top level, beside the
-   * lexicon's rows: a law a mutual action names but no family lists.
+   * lexicon's rows: a registered law no family lists.
    *
    * @returns Each law by its name.
    */
@@ -126,6 +126,19 @@ export namespace PlaygroundChain {
       )
         found.set((value as ILaw).name, value as ILaw);
     return found;
+  }
+
+  /**
+   * The laws available by the name a composition supplies. A lexicon row
+   * takes precedence if the released package also exposes that name directly.
+   *
+   * @returns Laws that can be appended by HumanChain.registered.
+   */
+  export function registeredLaws(): ReadonlyMap<string, ILaw> {
+    const laws: Map<string, ILaw> = exported();
+    for (const family of Object.values(lexicon()))
+      for (const law of family) laws.set(law.name, law);
+    return laws;
   }
 
   /**
@@ -191,11 +204,7 @@ export namespace PlaygroundChain {
    * @throws {Error} When the data asks for an operator the installed package lacks, names no action at all, or leaves a role of a mutual action without a performer.
    */
   export function build(data: IPlaygroundComposition): IBuilt {
-    const rows: Map<string, ILaw> = new Map(
-      Object.values(lexicon())
-        .flat()
-        .map((law: ILaw): [string, ILaw] => [law.name, law]),
-    );
+    const rows: ReadonlyMap<string, ILaw> = registeredLaws();
     const laws: Map<string, ILaw> = new Map();
     const objects: readonly IPlaygroundComposition.IObject[] =
       data.objects ?? [];
@@ -214,9 +223,8 @@ export namespace PlaygroundChain {
         objects.length === 0
           ? bound
           : PlaygroundObjects.resolve(bound, objects);
-      // A lexicon row is registered with the performance and appended by its
-      // name. Any other name goes to `act`, so a name the vocabulary lacks is
-      // refused by the package in its own words.
+      // A released row or standalone law is registered with the performance
+      // and appended by name. Other names go to act for normal SDK admission.
       const row: ILaw | undefined =
         action.name in HUMAN_ACTIONS ? undefined : rows.get(action.name);
       let next: ILoose;
@@ -311,7 +319,7 @@ export namespace PlaygroundChain {
         for (const role of record.roles) {
           const name: string = record.act(role, params, mutual.cast).name;
           if (name in HUMAN_ACTIONS) continue;
-          const law: ILaw | undefined = rows.get(name) ?? exported().get(name);
+          const law: ILaw | undefined = rows.get(name);
           if (law !== undefined) laws.set(law.name, law);
         }
         return join(

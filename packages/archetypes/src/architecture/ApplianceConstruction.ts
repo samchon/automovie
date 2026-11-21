@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { WasherDrum } from "./WasherDrum";
 import type { createAppliance } from "./createAppliance";
 
 /** The builder every kind's construction fills. */
@@ -396,16 +397,16 @@ export namespace ApplianceConstruction {
   /**
    * A front-loading washing machine: the body, a round door across it below the control panel and hinged on its `-X` edge, a handle bar at the door's free edge and the programme dial on the panel's `+X` side.
    *
-   * The door opens the 90 degrees at which the maker gives its open depth; the handle and dial are drawn but are not contacts, since no source read places them.
+   * The 160 degree door carries the handle at its free edge. Its opening and stable drum floor remain fixed in the body.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the door hinges, how far it opens and which parts are not contacts.
-   * @evidence contracts/development/implementation.md#principled-implementation The body at the maker's size and the door at the diameter its open depth gives, hinged at its own edge so a quarter turn reaches the sheet's open-door depth; the hinge line is vertical, so where along it its frame stands moves nothing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Body, door, handle, dial, then the two contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drum, detergent drawer or porthole glass; the panel's height and the door's thickness are construction estimates.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the door hinges, and which contacts belong to the door or drum.
+   * @evidence contracts/development/implementation.md#principled-implementation The maker-sized body surrounds the cavity built by WasherDrum. The door and handle move as one rigid hinge group.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the fixed drum, then the door group, handle and top.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The drum is stationary and coarse. It excludes the detergent drawer and transparent door material.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Uses a fixed number of drum cells, a door, a handle and a dial.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one appliance.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -417,9 +418,7 @@ export namespace ApplianceConstruction {
     const body: number = depth - E.door;
     const radius: number = d.door! / 2;
     const centre: number = height - E.panel - radius;
-    builder.box("body", v(width, height, body), v(0, height / 2, body / 2), {
-      color: WHITE,
-    });
+    WasherDrum(builder, width, height, body, centre);
     builder.rod("door-ring", radius, v(0, centre, body), v(0, centre, depth), {
       color: "#c9ccd1",
     });
@@ -445,6 +444,22 @@ export namespace ApplianceConstruction {
       extent: null,
       travel: WASHER_SWING,
       parts: ["door-ring", "door-handle"],
+    });
+    builder.affordance({
+      id: "doorHandle",
+      kind: "handle",
+      // The handle is a round bar wrapped alike from any side, like the fridge's.
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        v(radius - 0.04, centre, depth + 0.01),
+        v(0, 0, 1),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      grip: "power",
+      length: 0.1,
+      aperture: 0.02,
+      rides: "door",
     });
     builder.affordance({
       id: "top",

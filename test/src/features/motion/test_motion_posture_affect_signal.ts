@@ -28,7 +28,7 @@ import { throwsError } from "../internal/throwsError";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the display angles and the layer on a posture; a display that starts or ends off zero, jumps, loses the laugh's rhythm, touches a limb goal or ignores the base angles fails.
  * @evidence contracts/development/testing.md#independent-expectations The note interval is Provine's 210 ms; zero ends, continuity and untouched goals are the layer contract stated by IHumanLayer. The two half-phase samples follow the published 40 percent inhalation and the minimum-jerk midpoint of one half.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers all six displays, before, inside and after, overlap and an invalid length; the posed result on a body is reviewed in captures.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers all nine displays, before, inside and after, overlap and an invalid length; the posed result on a body is reviewed in captures.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory unit with one staged standing actor and the layer installed for the phase checks.
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario and what it pins.
  */
@@ -40,6 +40,9 @@ export function test_motion_posture_affect_signal(): void {
     "cough",
     "sneeze",
     "shiver",
+    "sob",
+    "weep",
+    "gasp",
   ];
   const total = (
     a: Partial<Record<string, readonly [number, number, number]>>,

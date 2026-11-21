@@ -184,7 +184,6 @@ export const SCENES_GESTURES: readonly IScene[] = [
       setting: "everyday",
       roles: { kas: "player", lin: "player", mia: "player", ned: "player" },
       needs: [],
-      refusedUntil: 3552,
     },
     "schoolyard-games",
     [
@@ -208,7 +207,6 @@ export const SCENES_GESTURES: readonly IScene[] = [
       setting: "everyday",
       roles: { ora: "host", pia: "guest", raf: "friend", sia: "friend" },
       needs: [],
-      refusedUntil: 3552,
     },
     "toasts",
     [
