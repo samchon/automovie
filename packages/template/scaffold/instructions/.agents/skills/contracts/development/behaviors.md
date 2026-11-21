@@ -17,11 +17,17 @@ A law names the study it follows in its studied laws answer, as `docs/research/<
 
 What facts or observations support the behavior's choices, timing and outcomes?
 
-Identify the screenplay facts, installed actions and operators the relation uses. For skilled practice, cite the [study](../../story/planning/research.md#performance-study) passage that supports how the participants coordinate their actions. Settle each action under [action axes](../../motion/compose/composition.md#action-axes). Under [meaningful documentation](common.md#meaningful-documentation), comment each value the relation sets, and each default it relies on, with the screenplay fact or study observation it realizes and how. Repair a faulty action at its owner. Test the relation's choices and coordination through [motion checks](../../development/testing.md#motion-checks).
+Identify the screenplay facts, installed actions and operators the relation uses. For skilled practice, cite the [study](../../story/planning/research.md#performance-study) passage that supports how the participants coordinate their actions. Settle each action under [action axes](../../motion/compose/composition.md#action-axes). Repair a faulty action at its owner. Test the relation's choices and coordination through [motion checks](../../development/testing.md#motion-checks).
 
 Add and [register](../../motion/laws/extension.md) a motion law only for an action the installed vocabulary cannot compose. Derive its poses, reach, contacts and variation from the study. Scale [time and speed](../../motion/laws/declaration.md#time-scale) to the body and test them against the observations. Give the factor and reason for deliberate stylization.
 
 Test a rule or table against independently expected classifications and boundaries.
+
+## Realization comments
+
+Can a reader trace each value the behavior sets, and each default it relies on, to the screenplay fact, study observation or rule it realizes?
+
+Under [meaningful documentation](common.md#meaningful-documentation), comment each such value with its source and how it realizes it. Write what a reader needs to check the value against its source, and nothing the value or its JSDoc already says.
 
 ## Relational goals
 

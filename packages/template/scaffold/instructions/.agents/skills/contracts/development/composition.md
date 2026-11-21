@@ -23,7 +23,19 @@ Does each scene realize every cited beat as written, and does the film play ever
 
 Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera and sound. For commissioned generation, carry reactions beyond the representation in the prompt.
 
-Under [meaningful documentation](common.md#meaningful-documentation), comment every value the scene passes and every default it relies on. Give the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) the value realizes and how, and the study section for skilled practice. Write what a reader needs to check the value against the beat, and nothing the value or its JSDoc already says. Realize every element of each cited beat in at least one commented value.
+If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
+
+### Film and catalog
+
+Play the numbered scenes with their transitions, titles and subtitles. Use the [delivery profile](../../production/project-context.md) for raster, frame rate and running time. Take grade and control channels from the screenplay and profile.
+
+For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
+
+## Realization comments
+
+Can a reader trace each value the declaration passes, and each default it relies on, back to what it realizes, and every element of each cited beat forward to its values?
+
+Under [meaningful documentation](common.md#meaningful-documentation), comment every value a scene passes and every default it relies on. Give the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) the value realizes and how, and the study section for skilled practice. Write what a reader needs to check the value against the beat, and nothing the value or its JSDoc already says. Realize every element of each cited beat in at least one commented value.
 
 ```ts
 const rush = jun.run({
@@ -42,14 +54,6 @@ overlay(rush, jun.raise(knife, { hand: "right" }));
 // #s02-b03 Intent, "before she can get round the table": he sets off on her first step back.
 sync(rush.start, maraBackStep.start);
 ```
-
-If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
-
-### Film and catalog
-
-Play the numbered scenes with their transitions, titles and subtitles. Use the [delivery profile](../../production/project-context.md) for raster, frame rate and running time. Take grade and control channels from the screenplay and profile.
-
-For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
 
 A film comments each value with the screenplay or profile entry it takes, and a catalog case with the fact or observed exchange it exhibits.
 
