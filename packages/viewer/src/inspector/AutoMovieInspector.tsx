@@ -1,5 +1,11 @@
-import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
-import { type IAutoMovieDrawSubject, selectAutoMovieDrawSubject } from "@automovie/render";
+import type {
+  IAutoMovieInspectionDiagnostics,
+  IAutoMovieInspectionLegendEntry,
+} from "@automovie/interface";
+import {
+  type IAutoMovieDrawSubject,
+  selectAutoMovieDrawSubject,
+} from "@automovie/render";
 import {
   type ChangeEvent,
   type Dispatch,
@@ -14,6 +20,7 @@ import {
   useState,
 } from "react";
 
+import { AutoMovieInspectorDiagnosticsPanel } from "./AutoMovieInspectorDiagnosticsPanel.js";
 import { AutoMovieInspectorMarksPanel } from "./AutoMovieInspectorMarksPanel.js";
 import { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
 import { AutoMovieInspectorRequestPanel } from "./AutoMovieInspectorRequestPanel.js";
@@ -43,7 +50,7 @@ const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
  *
  * The request is the component's only state that changes the picture. Every panel dispatches an edit to `reduceAutoMovieInspectorState`, the canvas is a plain three.js scene from `@automovie/render` mounted by `mountAutoMovieInspectorScene` in an effect, and every change of the request reaches `onRequestChange` as address text, so the page keeps its address equal to the request. The playhead is an `AutoMovieInspectorPlayhead` outside React that the render loop advances, so a playing frame re-renders only the time readout, and starting or stopping also the play button.
  *
- * The canvas has the transport directly under it. Beside it, or under the transport when the inspector is narrower than 900 pixels, a column holds one collapsible section per panel, each heading saying what is active: View and Shade start open, Marks, Selection and Request start closed, so a first look shows the picture and how it is drawn. While focus is inside the inspector, the playback keys of `handleAutoMovieInspectorKey` drive the playhead, except a key held with Ctrl, Meta or Alt and a key that goes to a control answering it itself.
+ * The canvas has the transport directly under it. Beside it, or under the transport when the inspector is narrower than 900 pixels, a column holds one collapsible section per panel, each heading saying what is active: View and Shade start open, Marks, Selection and Request start closed, so a first look shows the picture and how it is drawn, and Diagnostics opens once the mount reports a confirmed error. Diagnostics keeps the newest incidents the mount reports, which the console also receives, and moves the picture to a chosen witness through an ordinary request edit; hiding its witnesses hides the cubes and the status line, not the checks. While focus is inside the inspector, the playback keys of `handleAutoMovieInspectorKey` drive the playhead, except a key held with Ctrl, Meta or Alt and a key that goes to a control answering it itself.
  *
  * The mount effect depends on the chosen subject object only, which selectAutoMovieDrawSubject picks by the request's subject key, so each subject must keep its identity across renders; the request reaches a mounted scene through its `apply`, and a request the scene refuses is set back to the one it still draws, with the reason shown. Under StrictMode the mount effect runs, cleans up and runs again on the same canvas, which the mount supports with one renderer alive at the end.
  *
@@ -59,11 +66,11 @@ const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the component shows and how it is laid out, where its state lives and changes, how the address follows it, why a playing frame renders only the readout and a start or stop the play button too, the keys, the effect split and the StrictMode behaviour, and shows the mount.
  * @evidence contracts/development/implementation.md#principled-implementation React owns layout and dispatch only: `useReducer` holds the request, `useEffect` owns the scene's lifetime per subject and forwards each request, and the canvas is drawn by three.js outside React's render, as the campaign decides against a React scene graph.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One component composes six panels, each a function of the request and a dispatch, five of them in collapsible sections of the platform's `details` element; every state change is the reducer's and every scene change the mount's.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One component composes seven panels, each a function of the request and a dispatch, six of them in collapsible sections of the platform's `details` element; every request change is the reducer's and every scene change the mount's.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No panel writes the scene, and a scene refusal is answered by restoring the request, never by drawing a picture the address does not name.
  * @evidence contracts/development/implementation.md#efficient-algorithms A dispatched edit renders the panels once and re-applies the inspection only when its text changed; a playing frame renders the readout alone, and a start or stop the play button too.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The mount, its renderer and its instance live while the subject stays; a request change reuses them.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The component owns one playhead and at most one mount at a time, disposed by the effect cleanup when the subject changes or the component unmounts.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The component owns one playhead and at most one mount at a time, disposed by the effect cleanup when the subject changes or the component unmounts, and keeps at most INCIDENT_LIMIT incidents, cleared with the mount.
  */
 export function AutoMovieInspector(
   props: IAutoMovieInspectorProps,
@@ -83,6 +90,13 @@ export function AutoMovieInspector(
   const [labels, setLabels] =
     useState<IAutoMovieInspectorScene.ILabels>(UNLABELLED);
   const [failure, setFailure] = useState<string | null>(null);
+  const [diagnosticMessage, setDiagnosticMessage] = useState<string | null>(
+    null,
+  );
+  const [incidents, setIncidents] = useState<
+    IAutoMovieInspectorScene.IIncident[]
+  >([]);
+  const [witnesses, setWitnesses] = useState<boolean>(true);
   const canvas: RefObject<HTMLCanvasElement | null> =
     useRef<HTMLCanvasElement>(null);
   const scene: RefObject<IAutoMovieInspectorScene | null> =
@@ -117,6 +131,28 @@ export function AutoMovieInspector(
         legend: setLegend,
         labels: setLabels,
         error: setFailure,
+        diagnostics: (packet: IAutoMovieInspectionDiagnostics): void =>
+          setDiagnosticMessage(describeDiagnostics(packet)),
+        diagnosticIncident: (
+          entry: IAutoMovieInspectorScene.IIncident,
+        ): void => {
+          setIncidents(
+            (
+              list: IAutoMovieInspectorScene.IIncident[],
+            ): IAutoMovieInspectorScene.IIncident[] =>
+              [entry, ...list].slice(0, INCIDENT_LIMIT),
+          );
+          if (entry.kind === "first")
+            console.error(
+              `AutoMovie ${describeFinding(entry.observation)}`,
+              entry.observation,
+            );
+          else
+            console.error(
+              `AutoMovie ${entry.episode.first.finding.paths.join(" / ")} ${entry.basis === "frames" ? "on consecutive frames" : "in painted playback samples, unchecked between them,"} from ${describeTime(entry.firstSample)} to ${describeTime(entry.episode.last)}. Worst ${entry.basis === "frames" ? "measured" : "observed"} at ${describeFinding(entry.episode.worst)}`,
+              entry.episode,
+            );
+        },
         refused: (
           drawn: IAutoMovieInspectorState["request"],
           message: string,
@@ -129,9 +165,16 @@ export function AutoMovieInspector(
       scene.current = null;
       setFacts(null);
       setLabels(UNLABELLED);
+      setDiagnosticMessage(null);
+      setIncidents([]);
       mounted.dispose();
     };
   }, [subject, name, playhead]);
+
+  // Witness visibility is a display choice the mount reads on its next frame.
+  useEffect((): void => {
+    scene.current?.overlay(witnesses);
+  }, [witnesses, subject]);
 
   // Every request reaches the scene and the page's address.
   useEffect((): void => {
@@ -233,6 +276,11 @@ export function AutoMovieInspector(
             ),
           )}
         </div>
+        {witnesses && diagnosticMessage !== null && (
+          <p role="status" style={{ margin: "4px 0" }}>
+            {diagnosticMessage}
+          </p>
+        )}
         <AutoMovieInspectorTimePanel
           playhead={playhead}
           fps={facts?.fps ?? null}
@@ -328,6 +376,24 @@ export function AutoMovieInspector(
             dispatch={dispatch}
           />
         </Section>
+        <Section
+          title="Diagnostics"
+          open={incidents.length !== 0}
+          note={
+            incidents.length === 0
+              ? "none reported"
+              : `${incidents.length} reported`
+          }
+        >
+          <AutoMovieInspectorDiagnosticsPanel
+            incidents={incidents}
+            paths={facts?.paths ?? []}
+            witnesses={witnesses}
+            onWitnesses={setWitnesses}
+            playhead={playhead}
+            dispatch={dispatch}
+          />
+        </Section>
         <Section title="Request" note="address and capture command">
           <AutoMovieInspectorRequestPanel
             request={request}
@@ -341,6 +407,9 @@ export function AutoMovieInspector(
 
 /** Below this width, in pixels, the sections move under the transport. */
 const NARROW: number = 900;
+
+/** Most recent incidents the Diagnostics section keeps; the console keeps every one. */
+const INCIDENT_LIMIT: number = 50;
 
 /** One collapsible section of the column: a heading that says what is active, over its panel. */
 function Section(props: {
@@ -365,4 +434,60 @@ function Section(props: {
       <div style={{ paddingTop: 6 }}>{props.children}</div>
     </details>
   );
+}
+
+/** Describe a sample's clock to the millisecond without inventing an output frame; the logged object keeps the exact seconds. */
+function describeTime(time: IAutoMovieInspectionDiagnostics.ITime): string {
+  const seconds: string = `${Number(time.filmSeconds.toFixed(3))} s`;
+  return time.outputFrame === undefined
+    ? seconds
+    : `${seconds} (frame ${time.outputFrame})`;
+}
+
+/** Display the named parts and the checker-owned measurements of one finding. */
+function describeFinding(
+  observation: IAutoMovieInspectionDiagnostics.IObservation,
+): string {
+  const { finding, time } = observation;
+  const paths: string = finding.paths.join(" / ");
+  const measures: string[] = (finding.witness.measurements ?? []).map(
+    (entry: IAutoMovieInspectionDiagnostics.IMeasurement): string =>
+      `${entry.name} ${entry.value} ${entry.unit}`,
+  );
+  return [
+    `${describeTime(time)} · ${finding.message}`,
+    ...(paths === "" ? [] : [paths]),
+    ...measures,
+  ].join(" · ");
+}
+
+/** Show the strongest current finding and any limits on what this sample could check. */
+function describeDiagnostics(
+  packet: IAutoMovieInspectionDiagnostics,
+): string | null {
+  const strongest: IAutoMovieInspectionDiagnostics.IFinding | undefined =
+    packet.findings.find(
+      (finding: IAutoMovieInspectionDiagnostics.IFinding): boolean =>
+        finding.confidence === "confirmed" && finding.category === "error",
+    ) ?? packet.findings[0];
+  const unavailable: string[] = [];
+  for (const row of packet.coverage)
+    if (
+      row.status === "deferred" ||
+      (row.status === "unsupported" && row.required)
+    )
+      if (!unavailable.includes(row.reason)) unavailable.push(row.reason);
+  const messages: string[] = [];
+  if (strongest !== undefined) {
+    const status: string =
+      strongest.confidence === "candidate" ? "Possible" : "Confirmed";
+    messages.push(
+      `${status} — ${describeFinding({ finding: strongest, time: strongest.witness.time ?? packet.time })}`,
+    );
+  }
+  if (unavailable.length !== 0)
+    messages.push(
+      `At ${describeTime(packet.time)}. Inspection incomplete · ${unavailable.join(" · ")}`,
+    );
+  return messages.length === 0 ? null : messages.join(" · ");
 }

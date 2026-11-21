@@ -10,7 +10,6 @@ import type {
   IAutoMovieDrawnPass,
   IAutoMovieDrawnPicture,
   IAutoMovieInspectionRequest,
-  IAutoMovieRasterImage,
 } from "@automovie/interface";
 
 import { formatAutoMovieInspectionCameraView } from "../scene/inspection/formatAutoMovieInspectionCameraView.js";
@@ -201,6 +200,9 @@ export class AutoMovieDrawSession {
       camera: JSON.stringify(result.camera),
       repeat: formatAutoMovieInspectionCameraView(result.camera),
       resolved: result.resolved,
+      ...(result.diagnostics === undefined
+        ? {}
+        : { diagnostics: result.diagnostics }),
     };
   }
 
@@ -218,16 +220,14 @@ export class AutoMovieDrawSession {
   public async frame(
     seconds: number,
     passes: readonly AutoMovieInspectionShade[],
+    inspectionDiagnostics?: IAutoMovieDrawCall["inspectionDiagnostics"],
   ): Promise<IAutoMovieDrawnPass[]> {
     const plain: IAutoMovieInspectionRequest = parseAutoMovieInspectionRequest(
       (): undefined => undefined,
     );
-    const pictures: {
-      pass: AutoMovieInspectionShade;
-      picture: IAutoMovieRasterImage;
-    }[] = [];
+    const pictures: IAutoMovieDrawnPass[] = [];
     for (const pass of passes) {
-      const { picture } = await this.draw(
+      const { picture, result } = await this.draw(
         {
           seconds,
           view: "film",
@@ -236,10 +236,19 @@ export class AutoMovieDrawSession {
           height: this.subject.height,
           frame: [seconds],
           scale: 1,
+          ...(inspectionDiagnostics === undefined
+            ? {}
+            : { inspectionDiagnostics }),
         },
         `Frame at ${seconds} s in pass ${pass}`,
       );
-      pictures.push({ pass, picture });
+      pictures.push({
+        pass,
+        picture,
+        ...(result.diagnostics === undefined
+          ? {}
+          : { diagnostics: result.diagnostics }),
+      });
     }
     return pictures;
   }

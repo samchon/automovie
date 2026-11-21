@@ -1,4 +1,5 @@
 export * from "./AutoMovieInspector.js";
+export * from "./AutoMovieInspectorDiagnosticsPanel.js";
 export * from "./AutoMovieInspectorMarksPanel.js";
 export * from "./AutoMovieInspectorPlayhead.js";
 export * from "./AutoMovieInspectorRequestPanel.js";
@@ -14,6 +15,9 @@ export * from "./createAutoMovieInspectorState.js";
 export * from "./formatAutoMovieInspectorAddress.js";
 export * from "./formatAutoMovieInspectorCommand.js";
 export * from "./handleAutoMovieInspectorKey.js";
+export * from "./locateAutoMovieInspectorFinding.js";
+export * from "./showAutoMovieInspectorFinding.js";
+export * from "./stopAutoMovieInspectorTime.js";
 export * from "./IAutoMovieInspectorAction.js";
 export * from "./IAutoMovieInspectorPathNode.js";
 export * from "./IAutoMovieInspectorProps.js";

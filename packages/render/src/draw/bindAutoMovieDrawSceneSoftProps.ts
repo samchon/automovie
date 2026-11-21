@@ -32,6 +32,16 @@ export function bindAutoMovieDrawSceneSoftProps(
       if (closed) throw new Error("The soft prop draw subject is closed.");
       props.update(read(seconds));
     },
+    ...(subject.place === undefined
+      ? {}
+      : {
+          place: (seconds: number): void => {
+            if (closed)
+              throw new Error("The soft prop draw subject is closed.");
+            subject.place!(seconds);
+            props.update(read(seconds));
+          },
+        }),
     dispose: restoreAutoMovieRenderModeOnce((): void => {
       closed = true;
       restoreAutoMovieRenderModeState([

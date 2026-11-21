@@ -63,6 +63,7 @@ export function describeAutoMovieDrawScene(
     fps: scene.fps,
     width: scene.width,
     height: scene.height,
+    ...(scene.delivery === undefined ? {} : { delivery: scene.delivery }),
     views: [
       ...Object.keys(scene.views ?? {}),
       ...autoMovieViewerNamedViewpoints().map(
