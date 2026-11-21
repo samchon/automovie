@@ -420,7 +420,7 @@ export namespace ScenicContainerConstruction {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The legacy appearance and single stacking contact replay exactly.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three solids with at most sixteen corners each.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the historical selector calls this construction. It shares the pod geometry and draw namespace with mountedPod.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function scenicPod(
@@ -450,7 +450,7 @@ export namespace ScenicContainerConstruction {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The added socket is an authoring frame only. No fastener or extra shape is drawn.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three solids and two contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the named producer calls this construction. It shares the pod geometry and draw namespace with scenicPod, so both paths give the same parts at a seed.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function mountedPod(

@@ -5,26 +5,17 @@ import {
   ArchetypeDrawSession,
   type IArchetypeBand,
 } from "../core";
-import { TrayConstruction } from "./TrayConstruction";
 import { createCarryBasket } from "./createCarryBasket";
 import { createServingTray } from "./createServingTray";
 
 /** What no source read gives. */
 const UNREAD: string = "the IKEA pages read give no weight of the item alone";
 
-/** The canonical constructions for persisted tray selectors. */
-const PRODUCERS: Readonly<
-  Record<
-    createTray.Kind,
-    (
-      params: createTray.IParams,
-      seed?: number | string,
-    ) => Archetype<createTray.Affordance, createTray.Dimension>
-  >
-> = {
-  tray: (params, seed) => TrayConstruction.servingTray(params, seed),
-  basket: (params, seed) => TrayConstruction.basket(params, seed),
-};
+/** A saved recipe's producer as the dispatcher calls it. */
+type Producer = (
+  params: createTray.IParams,
+  seed?: number | string,
+) => Archetype<createTray.Affordance, createTray.Dimension>;
 
 /**
  * Replay a saved tray variant with the original dimensions, identifier and model choices.
@@ -35,11 +26,11 @@ const PRODUCERS: Readonly<
  * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved tray variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and run its original shape construction in the tray draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the table. Each construction owns its named geometry and contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the tray draw namespace.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected construction.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares each construction and its seed data with the named producer.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createTray(
@@ -52,7 +43,10 @@ export function createTray(
     params.kind,
     createTray.KINDS,
   );
-  return PRODUCERS[kind](params, seed);
+
+  // Saved inputs are a wider record. The selected producer checks them with its own draw.
+  const produce: Producer = createTray.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**

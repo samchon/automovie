@@ -6,7 +6,6 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-import { VesselConstruction } from "./VesselConstruction";
 import { createAshtray } from "./createAshtray";
 import { createBowl } from "./createBowl";
 import { createCookingPot } from "./createCookingPot";
@@ -27,24 +26,11 @@ const VASE: string =
 /** What no source read gives. */
 const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
 
-/** The canonical constructions for persisted vessel selectors. */
-const PRODUCERS: Readonly<
-  Record<
-    createVessel.Kind,
-    (
-      params: createVessel.IParams,
-      seed?: number | string,
-    ) => Archetype<createVessel.Affordance, createVessel.Dimension>
-  >
-> = {
-  bowl: (params, seed) => VesselConstruction.bowl(params, seed),
-  ashtray: (params, seed) => VesselConstruction.ashtray(params, seed),
-  saucepan: (params, seed) =>
-    VesselConstruction.cookingPot("saucepan", params, seed),
-  stockpot: (params, seed) =>
-    VesselConstruction.cookingPot("stockpot", params, seed),
-  vase: (params, seed) => VesselConstruction.vase(params, seed),
-};
+/** A saved recipe's producer as the dispatcher calls it. */
+type Producer = (
+  params: createVessel.IParams,
+  seed?: number | string,
+) => Archetype<createVessel.Affordance, createVessel.Dimension>;
 
 /**
  * Replay a saved vessel variant with the original dimensions, identifier and model choices.
@@ -55,11 +41,11 @@ const PRODUCERS: Readonly<
  * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved vessel variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and run its original shape construction in the vessel draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the table. Each construction owns its named geometry and contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the vessel draw namespace.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected construction.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares each construction and its seed data with the named producer.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createVessel(
@@ -72,7 +58,10 @@ export function createVessel(
     params.kind,
     createVessel.KINDS,
   );
-  return PRODUCERS[kind](params, seed);
+
+  // Saved inputs are a wider record. The selected producer checks them with its own draw.
+  const produce: Producer = createVessel.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**

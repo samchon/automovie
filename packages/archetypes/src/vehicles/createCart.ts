@@ -20,6 +20,12 @@ import { createShoppingTrolley } from "./createShoppingTrolley";
 import { createWagon } from "./createWagon";
 import { createWheelbarrow } from "./createWheelbarrow";
 
+/** A saved recipe's producer as the dispatcher calls it: the selected producer admits the saved parameter union at run time. */
+type Producer = (
+  params: Omit<createCart.IParams, "kind">,
+  seed?: number | string,
+) => Archetype<createCart.Affordance, createCart.Dimension>;
+
 /**
  * A wheeled load carrier, pushed by hand or drawn: a shopping trolley, a wheelbarrow, a horse's two-wheeled cart, a runner's rickshaw, a pair's chariot, an artillery limber, a four-wheeled wagon or a closed carriage.
  *
@@ -33,9 +39,9 @@ import { createWheelbarrow } from "./createWheelbarrow";
  * @evidence contracts/development/common.md#meaningful-documentation States how the carrier stands, where it is pushed or drawn from and where it is loaded.
  * @evidence contracts/development/implementation.md#principled-implementation Selects the canonical producer for the saved kind while preserving its original parameters and seed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One validated kind selects its own producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every unread place a builder uses is a named provisional constant here, stating the source to read.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most about twenty parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The saved parameters pass unchanged to the selected producer, which owns their admission and its provisional constants.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One kind check and one table lookup before the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createCart(
@@ -48,13 +54,6 @@ export function createCart(
     params.kind,
     createCart.KINDS,
   );
-  /** The legacy surface accepts a broad selector before runtime admission. */
-  type Producer = {
-    build(
-      params: Omit<createCart.IParams, "kind">,
-      seed?: number | string,
-    ): Archetype<createCart.Affordance, createCart.Dimension>;
-  }["build"];
   // The selected producer validates its options from the saved parameter union.
   const produce: Producer = createCart.PRODUCERS[kind] as Producer;
   return produce(params, seed);

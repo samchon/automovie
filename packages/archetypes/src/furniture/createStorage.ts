@@ -5,29 +5,15 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { STORAGE_BANDS } from "./STORAGE_BANDS";
-import { StorageMechanisms } from "./StorageMechanisms";
 import { createBookcase } from "./createBookcase";
 import { createDrawerUnit } from "./createDrawerUnit";
 import { createHingedCabinet } from "./createHingedCabinet";
 
-/** The canonical constructions for persisted storage selectors. */
-const PRODUCERS: Readonly<
-  Record<
-    createStorage.Kind,
-    (
-      params: createStorage.IParams,
-      seed?: number | string,
-    ) => Archetype<createStorage.Affordance, createStorage.Dimension>
-  >
-> = {
-  wardrobe: (params, seed) =>
-    StorageMechanisms.hinged("wardrobe", params, seed),
-  chest: (params, seed) => StorageMechanisms.sliding("chest", params, seed),
-  filingCabinet: (params, seed) =>
-    StorageMechanisms.sliding("filingCabinet", params, seed),
-  locker: (params, seed) => StorageMechanisms.hinged("locker", params, seed),
-  bookcase: (params, seed) => StorageMechanisms.bookcase(params, seed),
-};
+/** A saved storage recipe's producer as the dispatcher calls it. */
+type Producer = (
+  params: createStorage.IParams,
+  seed?: number | string,
+) => Archetype<createStorage.Affordance, createStorage.Dimension>;
 
 /**
  * Replay a saved storage variant with the original dimensions, identifier and model choices.
@@ -38,11 +24,11 @@ const PRODUCERS: Readonly<
  * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved storage variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and run its original shape construction in the storage draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the table. Each construction owns its named geometry and contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the storage draw namespace.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected construction.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares each construction and its seed data with the named producer.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createStorage(
@@ -55,7 +41,10 @@ export function createStorage(
     params.kind,
     createStorage.KINDS,
   );
-  return PRODUCERS[kind](params, seed);
+
+  // Saved inputs are a wider record. The selected producer checks them with its own draw.
+  const produce: Producer = createStorage.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**

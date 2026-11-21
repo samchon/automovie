@@ -10,6 +10,12 @@ import { createCanoe } from "./createCanoe";
 import { createPullingBoat } from "./createPullingBoat";
 import { createRowboat } from "./createRowboat";
 
+/** A saved recipe's producer as the dispatcher calls it: the selected producer admits the saved parameter union at run time. */
+type Producer = (
+  params: Omit<createBoat.IParams, "kind">,
+  seed?: number | string,
+) => Archetype<createBoat.Affordance, createBoat.Dimension>;
+
 /**
  * An open boat: a fixed-seat rowboat with its oars, a tandem canoe, or a Navy pulling boat for a landing party.
  *
@@ -23,9 +29,9 @@ import { createRowboat } from "./createRowboat";
  * @evidence contracts/development/common.md#meaningful-documentation States how the boat floats, its axes, who sits, stands and holds where, the oars' articulations, and what is out of scope.
  * @evidence contracts/development/implementation.md#principled-implementation Selects the canonical producer for the saved hull kind and forwards all dimensions and selectors.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One validated kind selects its own hull and outfit producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hull is flat panels to a stem and a transom, its curves not modelled; the unread places are named provisional constants here.
- * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The saved parameters pass unchanged to the selected producer, which owns their admission and its provisional constants.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One kind check and one table lookup before the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createBoat(
@@ -38,13 +44,6 @@ export function createBoat(
     params.kind,
     createBoat.KINDS,
   );
-  /** The legacy surface accepts a broad selector before runtime admission. */
-  type Producer = {
-    build(
-      params: Omit<createBoat.IParams, "kind">,
-      seed?: number | string,
-    ): Archetype<createBoat.Affordance, createBoat.Dimension>;
-  }["build"];
   // The selected producer validates its options from the saved parameter union.
   const produce: Producer = createBoat.PRODUCERS[kind] as Producer;
   return produce(params, seed);

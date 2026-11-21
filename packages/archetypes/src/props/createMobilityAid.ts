@@ -6,7 +6,6 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-import { MobilityAidConstruction } from "./MobilityAidConstruction";
 import { createCane } from "./createCane";
 import { createInfusionStand } from "./createInfusionStand";
 import { createWalker } from "./createWalker";
@@ -31,21 +30,11 @@ const PROVITA: string =
 const POWER: string =
   "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to a walker's frame, whose tube no maker read sizes";
 
-/** The canonical constructions for persisted mobilityAid selectors. */
-const PRODUCERS: Readonly<
-  Record<
-    createMobilityAid.Kind,
-    (
-      params: createMobilityAid.IParams,
-      seed?: number | string,
-    ) => Archetype<createMobilityAid.Affordance, createMobilityAid.Dimension>
-  >
-> = {
-  cane: (params, seed) => MobilityAidConstruction.cane(params, seed),
-  walker: (params, seed) => MobilityAidConstruction.walker(params, seed),
-  infusionStand: (params, seed) =>
-    MobilityAidConstruction.infusionStand(params, seed),
-};
+/** A saved mobility aid recipe's producer as the dispatcher calls it. */
+type Producer = (
+  params: createMobilityAid.IParams,
+  seed?: number | string,
+) => Archetype<createMobilityAid.Affordance, createMobilityAid.Dimension>;
 
 /**
  * Replay a saved mobilityAid variant with the original dimensions, identifier and model choices.
@@ -56,11 +45,11 @@ const PRODUCERS: Readonly<
  * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved mobilityAid variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and run its original shape construction in the mobilityAid draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the table. Each construction owns its named geometry and contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the mobilityAid draw namespace.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected construction.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares each construction and its seed data with the named producer.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createMobilityAid(
@@ -73,7 +62,10 @@ export function createMobilityAid(
     params.kind,
     createMobilityAid.KINDS,
   );
-  return PRODUCERS[kind](params, seed);
+
+  // Saved inputs are a wider record. The selected producer checks them with its own draw.
+  const produce: Producer = createMobilityAid.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**

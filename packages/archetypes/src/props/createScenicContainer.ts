@@ -11,45 +11,33 @@ import { createMoldedCrate } from "./createMoldedCrate";
 import { createPlankCoffer } from "./createPlankCoffer";
 import { createScenicBasket } from "./createScenicBasket";
 
-/** The canonical constructions for persisted scenicContainer selectors. */
-const PRODUCERS: Readonly<
-  Record<
-    createScenicContainer.Kind,
-    (
-      params: createScenicContainer.IParams,
-      seed?: number | string,
-    ) => Archetype<
-      createScenicContainer.Affordance,
-      createScenicContainer.Dimension
-    >
-  >
-> = {
-  coilBasket: (params, seed) =>
-    ScenicContainerConstruction.baskets("coilBasket", params, seed),
-  woodenFishBasket: (params, seed) =>
-    ScenicContainerConstruction.baskets("woodenFishBasket", params, seed),
-  plankCoffer: (params, seed) =>
-    ScenicContainerConstruction.closedCoffer(params, seed),
-  moldedCrate: (params, seed) =>
-    ScenicContainerConstruction.openCrate(params, seed),
-  cargoPod: (params, seed) =>
-    ScenicContainerConstruction.scenicPod(params, seed),
-};
+/** A saved recipe's producer as the dispatcher calls it. */
+type Producer = (
+  params: createScenicContainer.IParams,
+  seed?: number | string,
+) => Archetype<
+  createScenicContainer.Affordance,
+  createScenicContainer.Dimension
+>;
 
 /**
  * Replay a saved scenicContainer variant with the original dimensions, identifier and model choices.
+ *
+ * A saved cargo pod keeps its original single top surface. The named
+ * {@link createCargoPod} builds the same geometry and adds the bottom `mount`
+ * for stacking, so the saved selector keeps the surface-only construction.
  *
  * @param params The historic selector and optional fixed settings in the original units.
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
  * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Replay a saved scenicContainer variant with the original dimensions, identifier and model choices.
- * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and run its original shape construction in the scenicContainer draw namespace.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the table. Each construction owns its named geometry and contacts.
+ * @evidence contracts/development/common.md#meaningful-documentation Replay a saved scenicContainer variant with the original dimensions, identifier and model choices, and the cargo pod's retained contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the scenicContainer draw namespace. A saved cargo pod runs the shared pod construction without the added mount.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table, except the saved cargo pod whose contact set differs.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected construction.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares each construction and its seed data with the named producer.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls are the same producer with the same seed data. The cargo pod's two paths share its geometry construction and draw.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createScenicContainer(
@@ -65,7 +53,12 @@ export function createScenicContainer(
     params.kind,
     createScenicContainer.KINDS,
   );
-  return PRODUCERS[kind](params, seed);
+  if (kind === "cargoPod")
+    return ScenicContainerConstruction.scenicPod(params, seed);
+
+  // Saved inputs are a wider record. The selected producer checks them with its own draw.
+  const produce: Producer = createScenicContainer.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
 
 /**
@@ -77,7 +70,7 @@ export function createScenicContainer(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Illustrative bands carry provenance and the fictional kind is identified as such.
  */
 export namespace createScenicContainer {
-  /** Resolve the exact named producer for a saved selector on demand. */
+  /** The named producer for each saved selector, resolved on demand. A saved cargo pod keeps its surface-only contacts, so its entry names the producer the gallery opens. */
   export const PRODUCERS: Readonly<{
     coilBasket: typeof createScenicBasket;
     woodenFishBasket: typeof createScenicBasket;
