@@ -230,13 +230,13 @@ export namespace trampolineBounce {
     instants.push({ name: "relax", seconds: t });
 
     // The feet's height above the bed's rest at a second.
+    const final: IPhase = phases[phases.length - 1]!;
     const phaseAt: (s: number) => IPhase = (s: number): IPhase =>
-      phases.find((ph: IPhase): boolean => s >= ph.from && s <= ph.to) ??
-      phases[phases.length - 1]!;
+      phases.find((ph: IPhase): boolean => s >= ph.from && s <= ph.to) ?? final;
     const feet: (s: number) => number = (s: number): number => {
       const ph: IPhase = phaseAt(s);
       const u: number = Math.max(0, Math.min(ph.to - ph.from, s - ph.from));
-      if (s > phases[phases.length - 1]!.to) return 0;
+      if (s > final.to) return 0;
       if (ph.kind === "flight") return ph.inSpeed * u - 0.5 * g * u * u;
       if (ph.kind === "push")
         return u <= ph.down
@@ -261,7 +261,7 @@ export namespace trampolineBounce {
     // How deep the bed is, a share of its deflection, for the knees' give.
     const sunk: (s: number) => number = (s: number): number => {
       const ph: IPhase = phaseAt(s);
-      return ph.kind === "flight" || s > phases[phases.length - 1]!.to
+      return ph.kind === "flight" || s > final.to
         ? 0
         : Math.min(1, -feet(s) / Math.max(1e-9, ph.depth));
     };
