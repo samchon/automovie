@@ -435,11 +435,12 @@ function Section(props: {
   );
 }
 
-/** Describe a sample's exact clock without inventing an output frame. */
+/** Describe a sample's clock to the millisecond without inventing an output frame; the logged object keeps the exact seconds. */
 function describeTime(time: IAutoMovieInspectionDiagnostics.ITime): string {
+  const seconds: string = `${Number(time.filmSeconds.toFixed(3))} s`;
   return time.outputFrame === undefined
-    ? `${time.filmSeconds} s`
-    : `${time.filmSeconds} s (frame ${time.outputFrame})`;
+    ? seconds
+    : `${seconds} (frame ${time.outputFrame})`;
 }
 
 /** Display the named parts and the checker-owned measurements of one finding. */

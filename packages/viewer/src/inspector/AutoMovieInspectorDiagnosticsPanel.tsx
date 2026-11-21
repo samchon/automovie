@@ -113,9 +113,10 @@ export function AutoMovieInspectorDiagnosticsPanel(props: {
   );
 }
 
-/** A clock as seconds and, when it has one, its output frame. */
+/** A clock as seconds to the millisecond and, when it has one, its exact output frame; navigation still uses the exact seconds. */
 function clock(time: IAutoMovieInspectionDiagnostics.ITime): string {
+  const seconds: string = `${Number(time.filmSeconds.toFixed(3))} s`;
   return time.outputFrame === undefined
-    ? `${time.filmSeconds} s`
-    : `${time.filmSeconds} s (frame ${time.outputFrame})`;
+    ? seconds
+    : `${seconds} (frame ${time.outputFrame})`;
 }
