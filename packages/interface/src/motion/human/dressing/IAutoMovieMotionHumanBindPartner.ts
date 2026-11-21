@@ -1,5 +1,6 @@
 import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+import type { IAutoMovieMotionHumanTiming } from "../compose/IAutoMovieMotionHumanTiming";
 import type { IAutoMovieMotionHumanDressPartner } from "./IAutoMovieMotionHumanDressPartner";
 
 /**
@@ -13,10 +14,16 @@ import type { IAutoMovieMotionHumanDressPartner } from "./IAutoMovieMotionHumanD
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is carried where, what the link binds and when it frees.
  * @evidence contracts/development/design.md#principled-representation The dressing of a partner plus the link the wear carries, so custody and binding are one record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dressing's members and one link.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The dressing's members, the visit's pause for its hold, and one link.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A link naming both or neither end, or a bad slack, is refused at runtime by the law.
  */
-export interface IAutoMovieMotionHumanBindPartner extends IAutoMovieMotionHumanDressPartner {
+export interface IAutoMovieMotionHumanBindPartner extends Omit<
+  IAutoMovieMotionHumanDressPartner,
+  "hold"
+> {
+  /** How long the hand stays at the region before letting go: a pause of the arm phrase's visit; a beat when absent. */
+  hold?: IAutoMovieMotionHumanTiming.Pause;
+
   /** What the restraint binds the region to. */
   link: IAutoMovieMotionHumanBindPartner.ILink;
 }

@@ -155,6 +155,15 @@ export namespace lungeGrab {
       Vector3.scale(travel, STRIDE),
     );
     const stay: IAutoMovieVector3 = entry.feet[rear].ankle;
+    // How far the hips sink for the lunge's stance: the leg, hip to ankle,
+    // spans half the feet's spread at the depth it leaves.
+    const hip: number = context.body.measure.hipHeight;
+    const half: number =
+      Vector3.distance(
+        { x: to.x, y: 0, z: to.z },
+        { x: stay.x, y: 0, z: stay.z },
+      ) / 2;
+    const sink: number = hip - Math.sqrt(Math.max(0, hip * hip - half * half));
     const knee: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (
       ankle: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
@@ -215,7 +224,11 @@ export namespace lungeGrab {
         });
         return {
           ...shown,
-          root: Vector3.subtract(shown.root, Vector3.scale(travel, 1 - s)),
+          // The hips sink as the feet part, so both legs reach the floor.
+          root: Vector3.subtract(
+            Vector3.subtract(shown.root, Vector3.scale(travel, 1 - s)),
+            { x: 0, y: sink * s, z: 0 },
+          ),
           limbs: {
             ...shown.limbs,
             [`${side}Leg`]: {
