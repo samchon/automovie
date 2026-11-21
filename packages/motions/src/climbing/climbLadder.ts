@@ -149,7 +149,6 @@ export namespace climbLadder {
         ...planLadderAccess(context, ladder, context.params.landing),
         ladder,
       };
-    const spacing: number = ladder.spacing;
     const frame: IAutoMovieMotionHumanFrame = ladder.frame;
     const yaw: number = frame.yaw;
     const modifiers: IAutoMovieMotionManner.IModifiers =
