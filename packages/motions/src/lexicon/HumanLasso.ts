@@ -12,6 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -223,7 +225,7 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
           to: 1,
           support: { kind: "prop", subject: params.on },
         });
-      return {
+      const goals: IAutoMovieMotionHumanActionPlan = {
         duration,
         events: [
           ...Array.from({ length: params.swings }, (_: unknown, k: number) => ({
@@ -309,5 +311,25 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
           );
         },
       };
+      // The swinging arm is laid as a planned course on the loop's circle, paced at the hand's own peak speed: the reach into the swing, the swing held to the release; after it the arm keeps its angles until the dally.
+      let peak: number = 0;
+      for (let k: number = 1; k <= 64; ++k) {
+        const a: number = (release * (k - 1)) / 64;
+        const b: number = (release * k) / 64;
+        peak = Math.max(peak, Vector3.distance(placed(b), placed(a)) / (b - a));
+      }
+      return courseArmGoal({
+        body: context.body,
+        plan: goals,
+        side: "right",
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+        span: {
+          start: 0,
+          ready: Math.min(SWING.throw, release),
+          relax: release,
+          end: release,
+        },
+        pace: (): number => peak,
+      });
     },
   };

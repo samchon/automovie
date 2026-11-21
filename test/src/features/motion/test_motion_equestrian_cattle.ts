@@ -64,9 +64,16 @@ export function test_motion_equestrian_cattle(): void {
     "canter",
   );
   const lariat: ReturnType<typeof createLariat> = createLariat();
+  // Where an animal walking at the ox's 0.71 m/s must start to be beside the horse when the work begins, about the sit, the ride and two swings in: level with the horse a metre ahead.
+  const MEET: number = 2 * WAIT + 1.5;
+  const met = (horseRide: mountedHorseScene.Ride): number =>
+    horseRide.at(Math.min(horseRide.duration, MEET - WAIT)).placement
+      .translation.z +
+    1 -
+    0.71 * (MEET - WAIT);
   const ox = createOx({ mass: 250 } as Parameters<typeof createOx>[0], 5);
   const run = rideQuadruped(ox, {
-    start: { x: -1.6, z: 3, heading: 0 },
+    start: { x: -1.6, z: met(course), heading: 0 },
     legs: [{ kind: "straight", length: 80 }],
     cruise: 0.71,
     startSpeed: 0.71,
@@ -160,7 +167,7 @@ export function test_motion_equestrian_cattle(): void {
     ],
   );
   const fleeing = rideQuadruped(ox, {
-    start: { x: -1.6, z: 3, heading: 0 },
+    start: { x: -1.6, z: met(stopping), heading: 0 },
     legs: [{ kind: "straight", length: 40 }],
     cruise: 0.71,
     startSpeed: 0.71,
