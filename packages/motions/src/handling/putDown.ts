@@ -21,11 +21,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
-import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -397,7 +395,7 @@ export namespace putDown {
     const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const part: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
-    const goals: IAutoMovieMotionHumanActionPlan = {
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         ...(travel.aperture === undefined
@@ -512,35 +510,15 @@ export namespace putDown {
         };
       },
     };
-    // The contact is judged on the goal's own hand.
     if (displacement !== undefined)
       putDownTarget.checkContact(
         context,
-        goals.posture(down),
+        plan.posture(down),
         side,
         offset,
         down,
       );
-
-    // The wrist's goal moves along the carry, the opening and the retreat,
-    // so the arm is planned as one admitted course (`courseArmGoal`) instead
-    // of fitted afresh at each second, where two nearly tied arm solutions
-    // let one instant take the other branch. A carry and a retreat routed
-    // through an aperture are themselves the path, so their goal is held
-    // throughout, each instant fitted on the branch the one before chose.
-    const routed: boolean = travel.aperture !== undefined;
-    return courseArmGoal({
-      body: context.body,
-      plan: goals,
-      side,
-      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-      span: {
-        start: 0,
-        ready: routed ? 0 : down,
-        relax: routed ? duration : down + OPEN,
-        end: duration,
-      },
-    });
+    return plan;
   }
 
   /**
