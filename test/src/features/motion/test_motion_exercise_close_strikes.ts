@@ -4,6 +4,8 @@ import type {
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCloseStrike,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
@@ -91,8 +93,8 @@ const TOLERANCE: number = 10;
  *    folded past 120 degrees.
  * 3. A spinning strike turns the pelvis more than half a turn before the
  *    impact while the lead ball stays planted.
- * 4. The headbutt's hands hold either side of the partner's neck from before
- *    the impact to the end.
+ * 4. The headbutt's hands hold either side of the partner's neck from the
+ *    impact to the end of their declared grip.
  * 5. An elbow thrown at a person at punching range is refused with its band.
  * 6. The stage-fight palm strike and headbutt are placed as feints with no
  *    impact.
@@ -375,9 +377,25 @@ function play(
             )!,
           ).point,
         );
+      // The declared grip's own window: held from the impact to its release.
+      const segment: IAutoMovieMotionHumanSegment | undefined = film
+        .segments("a")
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean =>
+            s.start === strike.start && s.law.name === "closeStrike",
+        );
+      const grip: IAutoMovieMotionHumanContactWindow | undefined =
+        segment?.plan.contacts.find(
+          (c: IAutoMovieMotionHumanContactWindow): boolean =>
+            c.part === `${hand}Hand` && c.kind === "grip",
+        );
+      const released: number =
+        segment === undefined || grip === undefined
+          ? strike.end
+          : segment.start + grip.to * segment.plan.duration - STEP;
       complaints.check(
-        `${cell}: the ${hand} hand holds the neck at the impact and the end, ${held(impact)} and ${held(strike.end)} m`,
-        held(impact) <= GRIP && held(strike.end) <= GRIP,
+        `${cell}: the ${hand} hand holds the neck from the impact to its release, ${held(impact)} and ${held(released)} m`,
+        grip !== undefined && held(impact) <= GRIP && held(released) <= GRIP,
       );
     }
 }

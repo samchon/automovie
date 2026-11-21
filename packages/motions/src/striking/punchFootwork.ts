@@ -371,6 +371,12 @@ export namespace punchFootwork {
                 entry.joints,
                 SPINE_SHARE * turn * turning,
               ),
+              // The raised heel's toes bend to stay flat on the floor.
+              ...(which === "rear"
+                ? {
+                    [`${rear}Toes`]: [HEEL_RAISE * turning, 0, 0] as const,
+                  }
+                : {}),
             },
             turn * turning,
           ),

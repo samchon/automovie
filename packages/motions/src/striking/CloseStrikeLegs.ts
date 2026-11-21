@@ -146,7 +146,19 @@ export function CloseStrikeLegs(
           root: { ...root, y: entry.root.y + hop - drop },
           yaw,
           pitch: entry.pitch + motion.lean * share,
-          joints: StrikingStance.facing(posture.joints, yaw - entry.yaw),
+          joints: {
+            ...StrikingStance.facing(posture.joints, yaw - entry.yaw),
+            // A pivot's raised heel bends the toes to stay flat on the floor.
+            ...(motion.pivot === true && spun === 0
+              ? {
+                  [`${rear}Toes`]: [
+                    punchFootwork.HEEL_RAISE * share,
+                    0,
+                    0,
+                  ] as const,
+                }
+              : {}),
+          },
           limbs: {
             ...posture.limbs,
             ...legs(

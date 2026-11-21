@@ -94,6 +94,9 @@ export namespace closeStrike {
   /** The share of a headbutt's delivery by which both hands hold the neck, before the head drives (provisional). */
   export const TAKE: number = 0.5;
 
+  /** The share of a headbutt's recoil its hands hold the neck before they let go (provisional). */
+  export const RELEASE: number = 0.4;
+
   /** The share of a spin's delivery the arm waits at the guard before it extends (provisional). */
   export const SPIN_HOLD: number = 2 / 3;
 
@@ -432,6 +435,7 @@ export namespace closeStrike {
           context,
           subject: p.at.subject,
           take,
+          release: shown + RELEASE * recoil,
           duration,
         });
         primitives.push(...held.primitives);
