@@ -9,6 +9,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -46,10 +47,12 @@ const ORIGIN: IAutoMovieTransform = {
  *
  * Scenarios, on the average man and the small woman:
  * 1. The rider starts on the lower landing, steps onto one horizontal
- *    tread, and rides it to the upper horizontal run. Through the lower
- *    curve, the incline and the upper curve, each ankle keeps its place in
- *    the tread's frame, the tread stays level, and the right wrist keeps its
- *    place at the handrail grip above the tread.
+ *    tread, rides it to the upper horizontal run and steps off onto the
+ *    upper landing. Through the lower curve, the incline and the upper
+ *    curve, each ankle keeps its place in the tread's frame and the right
+ *    wrist its place at the handrail grip above the tread. Stepping on and
+ *    off, each planted foot stays still on the support it bears on, and
+ *    one foot bears on the landing while the other is on the tread.
  * 2. Standing on an inclined tread, the rider climbs four moving steps up.
  *    Each foot's ankle is still in the moving flight's frame while planted,
  *    and the climb's world displacement is the static climb's plus the
@@ -108,6 +111,10 @@ function escalatorRide(
   const station: number = 0.2;
   const tread = (seconds: number): IAutoMovieRigidTransform =>
     rigid(ride.tread(station, seconds));
+  const top: IAutoMovieVector3 = createEscalator.station(
+    ride.profile,
+    ride.profile.length,
+  );
   const board: number = 1.2;
   const seconds: number =
     (ride.profile.length - ride.profile.flat / 2 - station) /
@@ -133,13 +140,20 @@ function escalatorRide(
         tread,
       ),
     ],
-    laws: [HumanSurface.boardRide],
+    laws: [HumanSurface.supportStep, HumanSurface.boardRide],
     composition: HumanChain.subject("a")
-      .walk({ to: { x: 0, y: 0, z: station }, on: { prop: "step" } })
+      .registered("supportStep", {
+        to: { x: 0, y: 0, z: station },
+        onto: "step",
+      })
       .registered("boardRide", {
         on: "step",
         seconds,
         hands: { right: "rightRail" },
+      })
+      .registered("supportStep", {
+        to: { x: 0, y: ride.profile.rise, z: top.z + 0.45 },
+        from: "step",
       }).node,
   });
   const [walk, riding]: readonly IAutoMovieMotionHumanSegment[] =
@@ -178,9 +192,52 @@ function escalatorRide(
         `${key}: the right wrist leaves the handrail grip by ${hand.toFixed(3)} m at ${at.toFixed(2)} s`,
       );
   }
-  const top: IAutoMovieVector3 = tread(end).position;
-  if (Math.abs(top.y - ride.profile.rise) > 1e-9)
+  if (Math.abs(tread(end).position.y - ride.profile.rise) > 1e-9)
     failures.push(`${key}: the ride does not reach the upper run`);
+
+  // Stepping on and off: each plant stays still on the support it names,
+  // and one foot bears on the landing while the other is on the tread.
+  let mixed: boolean = false;
+  for (const step of film
+    .segments("a")
+    .filter(
+      (segment: IAutoMovieMotionHumanSegment): boolean =>
+        segment.name === "supportStep",
+    )) {
+    const plants: readonly IAutoMovieMotionHumanContactWindow[] =
+      step.plan.contacts.filter(
+        (window: IAutoMovieMotionHumanContactWindow): boolean =>
+          window.kind === "plant",
+      );
+    for (const window of plants) {
+      const side: AutoMovieHumanSide =
+        window.part === "leftFoot" ? "left" : "right";
+      const from: number = step.start + window.from * step.plan.duration;
+      const to: number = step.start + window.to * step.plan.duration;
+      const onTread: boolean = window.support.kind === "prop";
+      const frameAt = (at: number): IAutoMovieRigidTransform =>
+        onTread ? tread(at) : rigid(ORIGIN);
+      const drift: number = Vector3.distance(
+        local(frameAt(from), ankle(film, side, from)),
+        local(frameAt(to), ankle(film, side, to)),
+      );
+      if (drift > SLIP)
+        failures.push(
+          `${key}: a planted ${side} foot slips ${drift.toFixed(3)} m on the ${onTread ? "tread" : "landing"} while stepping`,
+        );
+      mixed ||= plants.some(
+        (other: IAutoMovieMotionHumanContactWindow): boolean =>
+          other.part !== window.part &&
+          other.support.kind !== window.support.kind &&
+          other.from < window.to &&
+          window.from < other.to,
+      );
+    }
+  }
+  if (!mixed)
+    failures.push(
+      `${key}: no instant bears one foot on the landing and one on the tread`,
+    );
 }
 
 /** Climb four moving steps up the incline from an inclined tread. */

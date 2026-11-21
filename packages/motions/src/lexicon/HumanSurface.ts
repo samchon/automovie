@@ -10,6 +10,7 @@ import { HumanMediumWalk } from "../carrier/HumanMediumWalk";
 import { HumanRoundaboutPush } from "../carrier/HumanRoundaboutPush";
 import { HumanSeesawRide } from "../carrier/HumanSeesawRide";
 import { HumanSnowGlide } from "../carrier/HumanSnowGlide";
+import { HumanSupportStep } from "../carrier/HumanSupportStep";
 import { HumanSurfaceBoard } from "../carrier/HumanSurfaceBoard";
 import { HumanSwingLeap } from "../carrier/HumanSwingLeap";
 import { HumanSwingPump } from "../carrier/HumanSwingPump";
@@ -37,7 +38,7 @@ const AT_END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the two support relationships and how to layer actions on them.
  * @evidence contracts/development/design.md#principled-representation Shares one bilateral trajectory law across level ice and graded snow and reuses the deck carrier to transport fixed roots and goals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Registers skate, curlDelivery, snowGlide, boardRide, the two board sport phrases, the four playground laws and the medium walk.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Registers skate, curlDelivery, snowGlide, boardRide, the two board sport phrases, the four playground laws, the step between supports and the medium walk.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinguishes surface bearing from fixed prop-local plants and leaves every law's constraints with its own planner.
  */
 export namespace HumanSurface {
@@ -130,6 +131,15 @@ export namespace HumanSurface {
       interrupts: AT_END,
       yields: YIELDS,
       plan: HumanSwingLeap,
+    };
+
+  /** Step from one support onto another, either of which may move. */
+  export const supportStep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISupportStepParams> =
+    {
+      name: "supportStep",
+      interrupts: AT_END,
+      yields: YIELDS,
+      plan: HumanSupportStep,
     };
 
   /** Walk through water, snow, sand or mud, or into a steady wind. */

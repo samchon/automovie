@@ -257,6 +257,27 @@ export namespace IAutoMovieMotionHumanSurface {
   }
 
   /**
+   * Stepping between two supports that may move, such as from a fixed
+   * landing onto an escalator tread or a walkway band and off it again:
+   * each foot bears on the support it stands on, and the feet that leave
+   * one support land on the other.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two supports, the world target and its frame.
+   * @evidence contracts/development/design.md#principled-representation A world target at the step's start and two optional scene ids; the fixed ground when absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanSupportStep`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The supports' motion belongs to the scene; the target is where the arrival point is at the step's start.
+   */
+  export interface ISupportStepParams {
+    /** World target at the step's start, metres: the arrival point as it stands then. */
+    to: IAutoMovieVector3;
+
+    /** Scene subject id of the support the feet start on; the fixed ground when absent. */
+    from?: string;
+
+    /** Scene subject id of the support the feet arrive on; the fixed ground when absent. */
+    onto?: string;
+  }
+  /**
    * A ride on an externally animated board after both feet are on its deck,
    * such as a skateboard, an escalator tread or a walkway band, optionally
    * with a hand on a point of that same support, such as the handrail that

@@ -20,6 +20,9 @@ export interface IAutoMovieMotionHumanLexiconSurfaceParams {
   /** Glide over snow on an authored grade. */
   snowGlide: IAutoMovieMotionHumanSurface.ISnowGlideParams;
 
+  /** Step from one support to another, either of which may move. */
+  supportStep: IAutoMovieMotionHumanSurface.ISupportStepParams;
+
   /** Keep a board-relative stance as the board moves. */
   boardRide: IAutoMovieMotionHumanSurface.IBoardRideParams;
   /** The ground push, flight, landing and recovery of a skateboard. */
