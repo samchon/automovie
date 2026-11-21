@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -27,6 +27,9 @@ type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSabre>;
 
 /** The longest a gallop stride lasts, seconds, the most a charge may take to come to the engage (provisional: a gallop of about two strides a second). */
 const STRIDE: number = 0.5;
+
+/** The share of the arm's full length the engage reaches forward, short of the straight elbow's singular reach (provisional). */
+const REACHED: number = 0.95;
 
 /** Seconds the arms take from the entry to the bridle and the carriage (provisional). */
 const REACH: number = 0.5;
@@ -125,7 +128,7 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
       const engageGrip: IAutoMovieVector3 = Vector3.add(shoulder, {
         x: 0,
         y: 0,
-        z: m.upperArm + m.forearm + 0.5 * m.hand,
+        z: REACHED * (m.upperArm + m.forearm + 0.5 * m.hand),
       });
       const stations = {
         slope: { grip: slopeGrip, axis: slopeAxis, edge: { x: 0, y: 0, z: 1 } },
@@ -229,23 +232,31 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
           const edge: IAutoMovieVector3 = Vector3.normalize(
             Vector3.lerp(stations.slope.edge, stations.engage.edge, s),
           );
-          const frame = StrikingHeld.hand(tool, tool.length, grip, axis, edge);
-          const armed: IAutoMovieMotionHumanPosture = {
-            ...local,
-            limbs: {
-              ...local.limbs,
-              rightArm: goal(
-                frame,
-                Vector3.add(shoulder, { x: -0.4, y: -0.4, z: -0.2 }),
-              ),
-            },
-          };
+          // The stations are laid in the seat frame and carried into the world before the hand is placed, so the goal is the world's own.
           const now: IAutoMovieRigidTransform = carrier(film);
+          const toWorld = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+            Vector3.add(now.position, Quaternion.rotateVector(now.rotation, p));
+          const turn = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+            Quaternion.rotateVector(now.rotation, v);
           const shown: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
-            armed,
+            local,
             HumanMountedFrame.LOCAL,
             now,
           );
+          const frame = StrikingHeld.hand(
+            tool,
+            tool.length,
+            toWorld(grip),
+            turn(axis),
+            turn(edge),
+          );
+          shown.limbs = {
+            ...shown.limbs,
+            rightArm: goal(
+              frame,
+              toWorld(Vector3.add(shoulder, { x: -0.4, y: -0.4, z: -0.2 })),
+            ),
+          };
           // The bridle hand: both reins at their middle.
           const reins: IAutoMovieVector3 = Vector3.lerp(
             HumanMountedFrame.contact(support, "leftRein", film),

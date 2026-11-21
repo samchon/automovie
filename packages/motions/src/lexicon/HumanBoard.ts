@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBoard,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
@@ -13,6 +14,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { seated } from "../everyday/seated";
 import { sitPlace } from "../everyday/sitPlace";
 import { HumanBound } from "../law/HumanBound";
@@ -35,6 +38,9 @@ const BOUNDS: Readonly<Record<"speed" | "reach" | "rise" | "drop", number>> = {
 
 /** Seconds the landed seat takes to settle (provisional). */
 const SETTLE: number = 0.3;
+
+/** Seconds the holding hand takes to close on its hold from the take-off (provisional). */
+const GRASP: number = 0.15;
 
 /** The share of the flight a held hand keeps its hold for: to the landing, so the support passes from the hold to the seat with no gap. */
 const LET_GO: number = 1;
@@ -219,7 +225,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
                 : { kind: "person", subject: hand.partner!, bone: hand.bone! },
           },
         ];
-  return {
+  const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [
       { name: "takeOff", share: 0 },
@@ -259,10 +265,25 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         carrier(film),
       );
       const point: IAutoMovieVector3 | undefined =
-        t < LET_GO * flight ? held(film) : undefined;
+        t <= LET_GO * flight ? held(film) : undefined;
       return point === undefined || hand === undefined
         ? world
         : HumanUnseatPose.reach(world, hand.side, point, 1);
     },
   };
+  if (hand === undefined) return goals;
+  // The holding arm is laid as a planned course on its hold: the reach at the take-off, the hold to the landing, the return in the settle.
+  const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+    start: 0,
+    ready: Math.min(GRASP, LET_GO * flight),
+    relax: LET_GO * flight,
+    end: duration,
+  };
+  return courseArmGoal({
+    body: context.body,
+    plan: goals,
+    side: hand.side,
+    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand.side),
+    span,
+  });
 }

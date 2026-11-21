@@ -51,7 +51,7 @@ export namespace QuadrupedEquipment {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the single non-equid contact vocabulary imported by the cohort producer; its lead geometry remains with QuadrupedLead.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown or free-text attachment identities cannot enter the builder through this contract.
    */
-  export type Affordance = "lead" | "leftLoad" | "rightLoad" | "hitch";
+  export type Affordance = "lead" | "leftLoad" | "rightLoad" | "hitch" | "head" | "horns" | "hind";
 
   /**
    * An open-up U hook made from three real circular bars, all lengths metres.

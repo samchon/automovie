@@ -92,10 +92,10 @@ export function test_motion_equestrian_lasso(): void {
       return { position: frame.translation, rotation: frame.rotation };
     };
     const head = (id: string, at: number): IAutoMovieTransform => {
-      const part = calfRide
-        .at(local(at))
-        .archetype.parts.find((p) => p.id.toLowerCase().includes(id))!;
-      return part.transform as IAutoMovieTransform;
+      return calfRide.frame(
+        id as Parameters<typeof calfRide.frame>[0],
+        local(at),
+      );
     };
     // The ride, holding the lariat by its spoke from its end: a fixture as the precision-sport specs use.
     const holding: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRide> = {

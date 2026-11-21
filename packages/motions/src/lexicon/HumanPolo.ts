@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPolo,
@@ -14,6 +15,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
@@ -150,23 +153,11 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     Quaternion.inverse(atContact.rotation),
     Vector3.subtract(ballWorld, atContact.position),
   );
-  const toBall: IAutoMovieVector3 = Vector3.subtract(ball, shoulder);
+  // The swing's plane: upright along the horse's side through the ball, its centre level with the shoulder over the ball's line, so the head sweeps outside the horse.
+  const centre: IAutoMovieVector3 = { x: ball.x, y: shoulder.y, z: shoulder.z };
+  const toBall: IAutoMovieVector3 = Vector3.subtract(ball, centre);
   const radius: number = Vector3.length(toBall);
   const arm: number = m.upperArm + m.forearm + 0.5 * m.hand;
-  if (radius - tool.length > arm || radius < tool.length)
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "ball",
-      value: radius,
-      feasible: {
-        kind: "range",
-        minimum: tool.length,
-        maximum: tool.length + arm,
-        unit: "m",
-      },
-      reason: `the ball lies ${radius.toFixed(3)} m from the leaned shoulder, and the mallet reaches ${tool.length.toFixed(3)} to ${(tool.length + arm).toFixed(3)} m`,
-      fix: "ride the horse closer to the ball, or lean further out",
-    });
   const u: IAutoMovieVector3 = Vector3.normalize(toBall);
   const forward: IAutoMovieVector3 = {
     x: 0,
@@ -179,14 +170,42 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const head = (theta: number): IAutoMovieVector3 => {
     const r: number = (theta * Math.PI) / 180;
     return Vector3.add(
-      shoulder,
+      centre,
       Vector3.add(
         Vector3.scale(u, radius * Math.cos(r)),
         Vector3.scale(w, radius * Math.sin(r)),
       ),
     );
   };
-
+  // The hand holds the mallet's working length behind its head, toward the circle's centre; every hand station of the swing lies within the arm's reach of the leaned shoulder.
+  const hand = (theta: number): IAutoMovieVector3 => {
+    const at: IAutoMovieVector3 = head(theta);
+    return Vector3.subtract(
+      at,
+      Vector3.scale(
+        Vector3.normalize(Vector3.subtract(at, centre)),
+        tool.length,
+      ),
+    );
+  };
+  let farthest: number = 0;
+  for (let k: number = 0; k <= 16; ++k)
+    farthest = Math.max(
+      farthest,
+      Vector3.distance(
+        hand(ANGLES.top + ((ANGLES.finish - ANGLES.top) * k) / 16),
+        shoulder,
+      ),
+    );
+  if (radius < tool.length || farthest > arm)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "ball",
+      value: farthest,
+      feasible: { kind: "range", minimum: 0, maximum: arm, unit: "m" },
+      reason: `the swing through the ball takes the hand ${farthest.toFixed(3)} m from the leaned shoulder, beyond the arm's ${arm.toFixed(3)} m`,
+      fix: "ride the horse closer to the ball, or lean further out",
+    });
   // The swing's head must stay clear of the horse: outside the straddle's half width wherever it is below the seat.
   const feet: number[] = (["left", "right"] as const)
     .map((side) => local.limbs[`${side}Leg`]?.point)
@@ -239,7 +258,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     w,
   );
   const grips: IAutoMovieMotionHumanContactWindow[] = StrikingHeld.grips(tool);
-  return {
+  const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [
       { name: "takeAway", share: takeAway / duration },
@@ -284,7 +303,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         return HumanMountedFrame.move(local, HumanMountedFrame.LOCAL, now);
       const at: IAutoMovieVector3 = head(theta(t));
       const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-        StrikingHeld.hand(tool, 0, at, Vector3.subtract(at, shoulder), w);
+        StrikingHeld.hand(tool, 0, at, Vector3.subtract(at, centre), w);
       const swung: IAutoMovieMotionHumanPosture = {
         ...shown,
         limbs: {
@@ -298,4 +317,28 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       return HumanMountedFrame.move(swung, HumanMountedFrame.LOCAL, now);
     },
   };
+  // The swinging arm is laid as a planned course on the head's circle: the reach into the carry over the lean, the swing held from the take-away to the finish at the swing's own peak speed, the return in the settle.
+  const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+    start: Math.max(0, takeAway - PHASES.lean),
+    ready: takeAway,
+    relax: finish,
+    end: duration,
+  };
+  let peak: number = 0;
+  for (let k: number = 1; k <= 64; ++k) {
+    const a: number = takeAway + ((finish - takeAway) * (k - 1)) / 64;
+    const b: number = takeAway + ((finish - takeAway) * k) / 64;
+    peak = Math.max(
+      peak,
+      Vector3.distance(hand(theta(b)), hand(theta(a))) / (b - a),
+    );
+  }
+  return courseArmGoal({
+    body: context.body,
+    plan: goals,
+    side: "right",
+    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+    span,
+    pace: (): number => peak,
+  });
 }

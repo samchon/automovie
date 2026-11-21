@@ -41,6 +41,7 @@ const HOLD: number = 0.15;
  * Cattle work from the saddle (#3952): tie-down roping, steer wrestling and team roping, composed of the lasso, unseat and clasp laws over a running ox.
  *
  * Scenarios:
+ * 0. The ox's `head` contact lies on the head's surface within 10 mm and its `horns` contact halfway between the two horns.
  * 1. Tie-down: the roper catches the calf's head and dallies; the standing rope, laid by `createLariat.standing` between the horn and the calf's head with 0.5 m of slack at the catch, keeps both ends at every sample, hangs slack just after the catch and is taut while the stopped horse sets back; the roper steps off onto the feet (hips at standing height within 30 mm), runs down the rope (hips within 0.6 m of its line) and holds the calf's hind leg (each wrist within 0.15 m).
  * 2. Steer wrestling: from the galloping horse the bulldogger takes the running steer's head with both hands (each wrist within 0.15 m of it), slides off onto the feet and keeps both hands on the head.
  * 3. Team roping: the header's loop meets the steer's head and the heeler's loop its hind legs at their catches within 50 mm, each read from its own launch under standard gravity.
@@ -80,10 +81,7 @@ export function test_motion_equestrian_cattle(): void {
     return { position: frame.translation, rotation: frame.rotation };
   };
   const part = (id: string, at: number): IAutoMovieTransform =>
-    run
-      .at(local(at))
-      .archetype.parts.find((p) => p.id.toLowerCase().includes(id))!
-      .transform as IAutoMovieTransform;
+    run.frame(id as Parameters<typeof run.frame>[0], local(at));
   const point = (id: string, at: number): IAutoMovieVector3 =>
     part(id, at).translation;
   const wrists = (
@@ -106,6 +104,32 @@ export function test_motion_equestrian_cattle(): void {
     }),
   };
 
+  // 0. The ox's roping contacts lie on its own geometry: the head's on the head's surface, the horns' halfway between the horns' roots, the heel loop's halfway between the hocks.
+  const headPart = ox.parts.find((p) => p.id === "head")!;
+  const headShape =
+    headPart.geometry.type === "primitive" ? headPart.geometry.shape : null;
+  const headRadius: number | undefined =
+    headShape === null
+      ? undefined
+      : (Reflect.get(headShape, "radius") as number | undefined);
+  const onHead: number = Vector3.distance(
+    ox.affordance("head").frame.translation,
+    headPart.transform!.translation,
+  );
+  if (headRadius === undefined || Math.abs(onHead - headRadius) > 0.01)
+    findings.push(
+      `ox: the head contact lies ${onHead.toFixed(3)} m from the head's centre, its radius ${headRadius}`,
+    );
+  const root = (id: string): IAutoMovieVector3 =>
+    ox.parts.find((p) => p.id === id)!.transform!.translation;
+  const hornsAt: IAutoMovieVector3 = ox.affordance("horns").frame.translation;
+  if (
+    Math.abs(
+      Vector3.distance(hornsAt, root("leftHorn")) -
+        Vector3.distance(hornsAt, root("rightHorn")),
+    ) > 1e-6
+  )
+    findings.push("ox: the horns' contact is not halfway between the horns");
   // 1. Tie-down: catch, the horse stops and sets back on the rope, the roper steps off, runs down the rope and holds the hind leg.
   const stopping: mountedHorseScene.Ride = rideHorse(horse, {
     start: { x: 0, z: 0, heading: 0 },
@@ -146,10 +170,7 @@ export function test_motion_equestrian_cattle(): void {
     return { position: frame.translation, rotation: frame.rotation };
   };
   const fleePart = (id: string, at: number): IAutoMovieTransform =>
-    fleeing
-      .at(fleeAt(at))
-      .archetype.parts.find((p) => p.id.toLowerCase().includes(id))!
-      .transform as IAutoMovieTransform;
+    fleeing.frame(id as Parameters<typeof fleeing.frame>[0], fleeAt(at));
   const calfStop: IAutoMovieVector3 = fleePlace(
     WAIT + fleeing.duration,
   ).position;

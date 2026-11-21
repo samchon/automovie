@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
@@ -13,6 +14,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
@@ -202,7 +205,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             : { kind: "prop", subject: on },
       });
   });
-  return {
+  const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: figures.map((figure, i: number) => ({
       name: `${figure.kind}:${i}`,
@@ -215,7 +218,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       const film: number = context.start + t;
       const { index, share } = at(t);
       const before: IAutoMovieMotionHumanPosture =
-        index === 0 ? entry : keys[index - 1]!.posture;
+        index === 0 ? legsOnly(entry) : keys[index - 1]!.posture;
       const now: IAutoMovieRigidTransform = carrier(film);
       let shown: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
         mixHumanPosture(before, keys[index]!.posture, share),
@@ -266,6 +269,65 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       return shown;
     },
   };
+  // A pickup's arms, the horn hand and the reaching hand, are laid as planned courses over its figure: the reach in its transfer, the hold, the return in the next transfer.
+  const pickups: number[] = figures.flatMap((figure, i: number): number[] =>
+    figure.kind === "pickup" ? [i] : [],
+  );
+  if (pickups.length === 0) return goals;
+  if (pickups.length > 1)
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "figures",
+      value: pickups,
+      feasible: null,
+      reason: "trick riding takes one pickup an act",
+      fix: "split the pickups into acts of their own",
+    });
+  const p: number = pickups[0]!;
+  const ready: number = starts[p]! + figures[p]!.transfer;
+  const relax: number = ready + figures[p]!.seconds;
+  const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+    start: starts[p]!,
+    ready,
+    relax,
+    end:
+      p + 1 < figures.length
+        ? starts[p + 1]! + figures[p + 1]!.transfer
+        : duration,
+  };
+  const side: AutoMovieHumanSide = figures[p]!.side ?? "left";
+  const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
+  return courseArmGoal({
+    body: context.body,
+    plan: goals,
+    side,
+    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+    span,
+    with: [
+      {
+        side: other,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
+        span,
+      },
+    ],
+  });
+}
+
+/** A posture with its leg goals only: the arms are laid by the act's course, never by goals carried from the entry. */
+function legsOnly(
+  posture: IAutoMovieMotionHumanPosture,
+): IAutoMovieMotionHumanPosture {
+  return {
+    ...posture,
+    limbs: {
+      ...(posture.limbs.leftLeg === undefined
+        ? {}
+        : { leftLeg: posture.limbs.leftLeg }),
+      ...(posture.limbs.rightLeg === undefined
+        ? {}
+        : { rightLeg: posture.limbs.rightLeg }),
+    },
+  };
 }
 
 /** A figure's key posture in the seat's frame and its bindings. */
@@ -283,7 +345,7 @@ function key(
     limbs: {},
     joints: {},
   };
-  if (figure.kind === "seat") return { posture: entry, binds: [] };
+  if (figure.kind === "seat") return { posture: legsOnly(entry), binds: [] };
   if (figure.kind === "hippodrome")
     return {
       posture: {

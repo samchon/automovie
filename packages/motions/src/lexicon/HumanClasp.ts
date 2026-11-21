@@ -1,9 +1,10 @@
-import { minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanClasp,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
@@ -11,6 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountedFrame } from "./HumanMountedFrame";
@@ -18,6 +21,9 @@ import { HumanUnseatPose } from "./HumanUnseatPose";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClasp>;
+
+/** How far out from a held limb's surface the palm lies, metres: a hand's thickness, provisional. */
+const SKIN: number = 0.03;
 
 /** Seconds a hand takes to reach its hold (provisional). */
 const REACH: number = 0.3;
@@ -38,7 +44,7 @@ export const HumanClasp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCla
      * Admit the holds, then sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a bad time, a carrier without its frame, a hold naming neither a bone nor a contact, and no hold at all.
-     * @evidence contracts/development/implementation.md#principled-implementation The entry carried by `HumanMountedFrame.move`; each hand's goal blended to its hold by a minimum-jerk share.
+     * @evidence contracts/development/implementation.md#principled-implementation The entry carried by `HumanMountedFrame.move`; each held hand laid by a planned course (`courseArmGoal`): the reach over `REACH`, then the hold; a partner's bone is held on its surface, out from the partner's hips by the limb's radius.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, windows, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
      * @evidence contracts/development/implementation.md#efficient-algorithms A sample reads at most one carrier frame and two held points.
@@ -101,10 +107,23 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         hold.contact,
         film,
       );
-    return context
-      .performer(hold.subject)
-      .bones(film, new Set([hold.bone!]))
-      .get(hold.bone!)!.worldPosition;
+    // A partner's bone is held on the body's surface: out from the partner's hips through the bone, by the limb's radius.
+    const partner = context.performer(hold.subject);
+    const bones = partner.bones(film, new Set([hold.bone!, "hips"]));
+    const at: IAutoMovieVector3 = bones.get(hold.bone!)!.worldPosition;
+    const out: IAutoMovieVector3 = {
+      ...Vector3.subtract(at, bones.get("hips")!.worldPosition),
+      y: 0,
+    };
+    return Vector3.length(out) < 1e-6
+      ? at
+      : Vector3.add(
+          at,
+          Vector3.scale(
+            Vector3.normalize(out),
+            partner.body.measure.thighRadius + SKIN,
+          ),
+        );
   };
   const duration: number = params.seconds;
   const windows: IAutoMovieMotionHumanContactWindow[] = sides.map(
@@ -122,7 +141,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       };
     },
   );
-  return {
+  const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [{ name: "held", share: Math.min(1, REACH / duration) }],
     contacts: [
@@ -147,10 +166,28 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         carrier === undefined
           ? entry
           : HumanMountedFrame.move(entry, origin!, carrier(film));
-      const share: number = minimumJerk.share(Math.min(1, t / REACH));
       for (const side of sides)
-        shown = HumanUnseatPose.reach(shown, side, point(side, film), share);
+        shown = HumanUnseatPose.reach(shown, side, point(side, film), 1);
       return shown;
     },
   };
+  // The arms are laid as planned courses on these holds: the reach over `REACH`, then the hold, so no instant refits them afresh.
+  const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+    start: 0,
+    ready: Math.min(REACH, duration),
+    relax: duration,
+    end: duration,
+  };
+  const rest = (side: AutoMovieHumanSide) =>
+    AutoMovieMotionHumanArm.angles(context.entry.pose, side);
+  return courseArmGoal({
+    body: context.body,
+    plan: goals,
+    side: sides[0]!,
+    rest: rest(sides[0]!),
+    span,
+    ...(sides.length === 2
+      ? { with: [{ side: sides[1]!, rest: rest(sides[1]!), span }] }
+      : {}),
+  });
 }
