@@ -1,7 +1,9 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -24,6 +26,12 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const CROSS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+
+/** Share of a curling delivery spent lowering into the slide (provisional staging; the cited study gives the stance, not its timing). */
+const CURL_SET: number = 0.3;
+
+/** Share of a curling delivery at which its `delivery` event is named, mid-slide (provisional staging). */
+const CURL_DELIVERY: number = 0.5;
 
 type Skate = IAutoMovieMotionHumanSurface.ISkateParams;
 type Curl = IAutoMovieMotionHumanSurface.ICurlDeliveryParams;
@@ -108,8 +116,10 @@ export namespace HumanIceGlide {
               { name: "bladeRelease", share: released },
               { name: "bladeAcquire", share: acquired },
             ].sort(
-              (left: { share: number }, right: { share: number }): number =>
-                left.share - right.share,
+              (
+                left: IAutoMovieMotionEvent,
+                right: IAutoMovieMotionEvent,
+              ): number => left.share - right.share,
             ),
       contacts:
         step === undefined
@@ -132,13 +142,17 @@ export namespace HumanIceGlide {
           edge === undefined
             ? 0
             : edge.degrees *
-              minimumJerk.share(share / 0.2) *
+              minimumJerk.share(share / HumanSurfaceGlide.ACQUIRE) *
               (context.params.stop === true
-                ? 1 - minimumJerk.share((share - 0.65) / 0.35)
+                ? 1 -
+                  minimumJerk.share(
+                    (share - 1 + HumanSurfaceGlide.BRAKE) /
+                      HumanSurfaceGlide.BRAKE,
+                  )
                 : 1);
         const limbs: Posture["limbs"] = { ...posture.limbs };
         for (const side of SIDES) {
-          const id: "leftLeg" | "rightLeg" = `${side}Leg`;
+          const id: AutoMovieHumanLimb = `${side}Leg`;
           const goal: IAutoMovieHumanLimbGoal = limbs[id]!;
           const canted: IAutoMovieHumanLimbGoal =
             edge === undefined
@@ -184,21 +198,24 @@ export namespace HumanIceGlide {
     HumanBound.within("heel", params.heel, 0, 90, "deg", "minimum");
     const side: AutoMovieHumanSide = params.lead === "left" ? "right" : "left";
     const ball: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");
-    const trailing: "leftLeg" | "rightLeg" = `${side}Leg`;
-    const leading: "leftLeg" | "rightLeg" = `${params.lead}Leg`;
+    const trailing: AutoMovieHumanLimb = `${side}Leg`;
+    const leading: AutoMovieHumanLimb = `${params.lead}Leg`;
     return {
       ...base,
-      events: [...base.events, { name: "delivery", share: 0.5 }].sort(
-        (left: { share: number }, right: { share: number }): number =>
+      events: [...base.events, { name: "delivery", share: CURL_DELIVERY }].sort(
+        (left: IAutoMovieMotionEvent, right: IAutoMovieMotionEvent): number =>
           left.share - right.share,
       ),
       posture: (at: number): Posture => {
         const posture: Posture = base.posture(at);
         const share: number = at / base.duration;
         const set: number =
-          minimumJerk.share(share / 0.3) *
+          minimumJerk.share(share / CURL_SET) *
           (params.stop === true
-            ? 1 - minimumJerk.share((share - 0.65) / 0.35)
+            ? 1 -
+              minimumJerk.share(
+                (share - 1 + HumanSurfaceGlide.BRAKE) / HumanSurfaceGlide.BRAKE,
+              )
             : 1);
         const facing: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
           UP,

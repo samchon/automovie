@@ -4,9 +4,11 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -30,6 +32,74 @@ import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
 /** The two sides are fitted independently. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
+/** The whole-body heading, pitch and roll of a staged surf posture, degrees. */
+type TorsoAngles = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
+
+// The staging coefficients below are provisional. The cited study orders
+// the palm and foot supports but measures no posture angles or heights, so
+// each value is an authored staging choice that the board-sport test
+// bounds through its support and clearance checks, not a measurement.
+
+/** Least entry pitch, degrees, that reads as lying prone in the water (provisional). */
+const PRONE_ENTRY_PITCH: number = 50;
+
+/** Greatest entry hip distance from the waterline, in leg lengths (provisional). */
+const PRONE_ENTRY_DEPTH: number = 0.4;
+
+/** Highest deck above the water at the mount, in leg lengths, that a prone paddler climbs onto (provisional). */
+const MOUNT_REACH: number = 1 / 3;
+
+/** Pitch of the prone paddling posture, degrees from upright (provisional). */
+const PRONE_PITCH: number = 86;
+
+/** Turn of the standing body from the nose into the side stance, degrees (provisional). */
+const STANCE_TURN: number = 52;
+
+/** Trunk pitch removed as the palms press, and again as the feet take the deck, degrees (provisional). */
+const PRESS_PITCH: number = 38;
+
+/** Further pitch removed while the pelvis tucks under the braced chest, degrees (provisional). */
+const TUCK_PITCH: number = 48;
+
+/** Spine flexion added at the full tuck, degrees (provisional). */
+const TUCK_SPINE: number = 75;
+
+/** Hip rise over the prone height at the full brace, in leg lengths (provisional). */
+const BRACE_RISE: number = 0.07;
+
+/** Hip rise at the full palm press, in leg lengths (provisional). */
+const PRESS_RISE: number = 0.16;
+
+/** Hip rise at the full tuck, in leg lengths (provisional). */
+const TUCK_RISE: number = 0.08;
+
+/** Hip rise when standing on the deck, in leg lengths (provisional). */
+const STAND_RISE: number = 0.45;
+
+/** Lead foot turn from board-backward toward the stance side, degrees (provisional). */
+const LEAD_FOOT_TURN: number = 25;
+
+/** Trail foot turn from board-backward toward the stance side, degrees (provisional). */
+const TRAIL_FOOT_TURN: number = 45;
+
+/** Outward paddle reach, as a share of the board's width (provisional). */
+const PADDLE_REACH: number = 0.45;
+
+/** Vertical paddle dip around the palm site, metres (provisional). */
+const PADDLE_DIP: number = 0.06;
+
+/** Fore-aft paddle stroke around the palm site, in leg lengths (provisional). */
+const PADDLE_STROKE: number = 0.23;
+
+/** Outward hand spread after release, in upper-arm lengths (provisional). */
+const RECOVER_SPREAD: number = 0.7;
+
+/** Hand rise after release, in leg lengths (provisional). */
+const RECOVER_RISE: number = 0.55;
+
+/** Forward hand travel after release, in leg lengths (provisional). */
+const RECOVER_FORWARD: number = 0.25;
+
 /**
  * Mount a staged surfboard, paddle and transfer from the palms to the
  * feet. Borgonovo-Santos et al. identify overlapping and unsupported
@@ -43,7 +113,7 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
  * @evidence contracts/development/common.md#meaningful-documentation States the water entry, phases and owner of their support.
  * @evidence contracts/development/implementation.md#principled-implementation Measure pelvis and free-limb transition in the moving board frame, place flat palms and feet against the board's own sites, and express overlap or free time by the order of their windows.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the board and entry, bind named phase targets and read their pose on the same clock.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keep the board's external bank and mount height. The two transition patterns differ in when the same constraints become active.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keep the board's external bank and mount height. The two transition patterns differ in when the same constraints become active. The entry limits, trunk angles, hip rises, foot turns and paddle path are named provisional staging coefficients, because the cited study orders the supports without measuring these postures.
  * @evidence contracts/development/implementation.md#efficient-algorithms Fixed preparation plus one board sample and up to four end-effector targets per pose.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses canonical HumanHand and HumanFoot placement and the existing prone posture and standing leg geometry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns only the board reader, anatomical offsets and stage parameters.
@@ -94,8 +164,8 @@ export function prepareSurfboardPhrase(
   )!.worldPosition;
   const localHip: IAutoMovieVector3 = HumanSurfaceBoard.local(origin, entryHip);
   if (
-    start.pitch < 50 ||
-    Math.abs(entryHip.y - water) > 0.4 * leg ||
+    start.pitch < PRONE_ENTRY_PITCH ||
+    Math.abs(entryHip.y - water) > PRONE_ENTRY_DEPTH * leg ||
     Vector3.distance(localHip, prone) > leg
   )
     HumanSurfaceBoard.refuseBoard(
@@ -108,7 +178,7 @@ export function prepareSurfboardPhrase(
   ).y;
   if (
     deckAtMount < water - HumanSurfaceBoard.GAP ||
-    deckAtMount > water + leg / 3
+    deckAtMount > water + MOUNT_REACH * leg
   )
     HumanSurfaceBoard.refuseBoard(
       params.on,
@@ -122,7 +192,7 @@ export function prepareSurfboardPhrase(
   const pronePose: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 180,
-    pitch: 86,
+    pitch: PRONE_PITCH,
     roll: 0,
     joints: lieDown.POSES.prone.joints,
     limbs: {},
@@ -143,9 +213,9 @@ export function prepareSurfboardPhrase(
     ...start.joints,
     ...pronePose.joints,
   }) as AutoMovieHumanoidBone[];
-  const leadFoot: "leftFoot" | "rightFoot" =
+  const leadFoot: IAutoMovieMotionHumanContactWindow["part"] =
     lead === "left" ? "leftFoot" : "rightFoot";
-  const trailFoot: "leftFoot" | "rightFoot" =
+  const trailFoot: IAutoMovieMotionHumanContactWindow["part"] =
     trail === "left" ? "leftFoot" : "rightFoot";
   const support: IAutoMovieMotionHumanContactWindow.Support = {
     kind: "prop",
@@ -201,7 +271,7 @@ export function prepareSurfboardPhrase(
     const pitchUp: number = fade(phases.release, phases.feet);
     const frontFacing: number = HumanSurfaceBoard.heading(frame.rotation) + 180;
     const stanceSide: number = lead === "left" ? -1 : 1;
-    const stanceTurn: number = stanceSide * 52;
+    const stanceTurn: number = stanceSide * STANCE_TURN;
     const yaw: number =
       start.yaw + mount * wrap(frontFacing - start.yaw) + standUp * stanceTurn;
     // Turn the pelvis under the braced chest so the lead knee can fold
@@ -210,11 +280,10 @@ export function prepareSurfboardPhrase(
     const pitch: number =
       start.pitch +
       (pronePose.pitch - start.pitch) * mount -
-      38 * press -
-      38 * pitchUp -
-      48 * tuck;
-    const torso: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> =
-      { yaw, pitch, roll: 0 };
+      PRESS_PITCH * press -
+      PRESS_PITCH * pitchUp -
+      TUCK_PITCH * tuck;
+    const torso: TorsoAngles = { yaw, pitch, roll: 0 };
     const bodyRotation: IAutoMovieQuaternion =
       resolveHumanPosture.heading(torso);
     // Keep the shoulders in reach while the palms bear. Centre between the
@@ -227,7 +296,11 @@ export function prepareSurfboardPhrase(
     );
     const bodyHeight: number =
       proneHeight +
-      (0.07 * brace + 0.16 * press + 0.08 * tuck + 0.45 * standUp) * leg;
+      (BRACE_RISE * brace +
+        PRESS_RISE * press +
+        TUCK_RISE * tuck +
+        STAND_RISE * standUp) *
+        leg;
     const hip: IAutoMovieVector3 = Vector3.lerp(
       entryHip,
       world({ ...supportCentre, y: supportCentre.y + bodyHeight }),
@@ -260,7 +333,7 @@ export function prepareSurfboardPhrase(
     // Bend the trunk toward the boardside grip while freeing the hips to
     // swing the lead leg under the body.
     const spine: readonly [number, number, number] = joints.spine ?? [0, 0, 0];
-    joints.spine = [spine[0] + 75 * tuck, spine[1], spine[2]];
+    joints.spine = [spine[0] + TUCK_SPINE * tuck, spine[1], spine[2]];
     const rest: IAutoMovieMotionHumanPosture = {
       root,
       ...torso,
@@ -277,7 +350,8 @@ export function prepareSurfboardPhrase(
       const raise: number = fade(phases.palms, acquired);
       swing[side] = raise;
       if (raise === 0) continue;
-      const heading: number = 180 + stanceSide * (side === lead ? 25 : 45);
+      const heading: number =
+        180 + stanceSide * (side === lead ? LEAD_FOOT_TURN : TRAIL_FOOT_TURN);
       const settledRotation: IAutoMovieQuaternion = Quaternion.multiply(
         frame.rotation,
         HumanFoot.rotation(heading, 0),
@@ -313,8 +387,7 @@ export function prepareSurfboardPhrase(
       ankles,
     );
     for (const side of SIDES) {
-      const limb: "leftLeg" | "rightLeg" =
-        side === "left" ? "leftLeg" : "rightLeg";
+      const limb: AutoMovieHumanLimb = side === "left" ? "leftLeg" : "rightLeg";
       const goal: Omit<IAutoMovieHumanLimbGoal, "bend"> | undefined =
         goals[side];
       if (goal !== undefined)
@@ -343,9 +416,16 @@ export function prepareSurfboardPhrase(
         x:
           palm.x +
           outward *
-            (paddle * board.width * 0.45 + lift * body.measure.upperArm * 0.7),
-        y: palm.y + 0.06 * paddle * Math.cos(phase) + lift * 0.55 * leg,
-        z: palm.z + 0.23 * leg * paddle * Math.sin(phase) + (lift * leg) / 4,
+            (paddle * board.width * PADDLE_REACH +
+              lift * body.measure.upperArm * RECOVER_SPREAD),
+        y:
+          palm.y +
+          PADDLE_DIP * paddle * Math.cos(phase) +
+          lift * RECOVER_RISE * leg,
+        z:
+          palm.z +
+          PADDLE_STROKE * leg * paddle * Math.sin(phase) +
+          RECOVER_FORWARD * lift * leg,
       });
       const palmNormal: IAutoMovieVector3 = Quaternion.rotateVector(
         frame.rotation,
@@ -362,8 +442,7 @@ export function prepareSurfboardPhrase(
         { point: p, normal: palmNormal, forward: palmForward },
         "flat",
       );
-      const arm: "leftArm" | "rightArm" =
-        side === "left" ? "leftArm" : "rightArm";
+      const arm: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
       const proneWrist: IAutoMovieResolvedBone = proneBones.get(`${side}Hand`)!;
       const paddleStart: number = fade(
         phases.mount,
@@ -406,7 +485,10 @@ export function prepareSurfboardPhrase(
       { name: "firstFoot", share: firstFoot },
       { name: "feet", share: phases.feet },
       { name: "settle", share: phases.settle },
-    ].sort((a, b): number => a.share - b.share),
+    ].sort(
+      (a: IAutoMovieMotionEvent, b: IAutoMovieMotionEvent): number =>
+        a.share - b.share,
+    ),
     contacts,
     physicalWindow: null,
     posture,

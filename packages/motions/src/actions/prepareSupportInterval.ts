@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -47,6 +48,9 @@ interface IInterval {
 
 /** A contact the root can keep through an interval. */
 type Pin = IAutoMovieMotionHumanSupport.IContact | undefined;
+
+/** A held leg's limb goal name: the legs are the limbs a floor lift clears. */
+type HeldLeg = `${AutoMovieHumanSide}Leg`;
 
 /**
  * Prepare one support interval: the joint blend between its two keys, the
@@ -304,7 +308,7 @@ function prepareLegs(
   const requested: Set<AutoMovieHumanoidBone> = new Set();
   for (const frame of frames) {
     if (!frame.limb.endsWith("Leg")) continue;
-    const side: "left" | "right" = frame.limb.startsWith("left")
+    const side: AutoMovieHumanSide = frame.limb.startsWith("left")
       ? "left"
       : "right";
     for (const bone of ["UpperLeg", "LowerLeg", "Foot", "Toes"] as const)
@@ -317,10 +321,8 @@ function prepareLegs(
   );
   const minimum: ReturnType<typeof HumanColliders.prepareMinima> =
     HumanColliders.prepareMinima(body, [requested]);
-  const held: ("leftLeg" | "rightLeg")[] = frames.flatMap(
-    (
-      frame: prepareSupportHeldFrames.IHeldFrames,
-    ): ("leftLeg" | "rightLeg")[] =>
+  const held: HeldLeg[] = frames.flatMap(
+    (frame: prepareSupportHeldFrames.IHeldFrames): HeldLeg[] =>
       frame.limb === "leftLeg" || frame.limb === "rightLeg" ? [frame.limb] : [],
   );
   return {
@@ -359,8 +361,7 @@ function prepareLegs(
           requested,
           project,
         ).seeds;
-      const out: Partial<Record<"leftLeg" | "rightLeg", IAutoMovieSwivelNear>> =
-        {};
+      const out: Partial<Record<HeldLeg, IAutoMovieSwivelNear>> = {};
       for (const limb of held) {
         const seed: IAutoMovieSwivelSeed | null | undefined = seeds[limb];
         if (seed !== null && seed !== undefined)
@@ -379,8 +380,7 @@ function prepareLegs(
     ): IAutoMovieMotionHumanResolveHumanPosture.INear => {
       // The swivel the shorter way round on the ends' common branch; a leg
       // whose ends differ in branch, or lack a seed, is swept as before.
-      const out: Partial<Record<"leftLeg" | "rightLeg", IAutoMovieSwivelNear>> =
-        {};
+      const out: Partial<Record<HeldLeg, IAutoMovieSwivelNear>> = {};
       for (const limb of held) {
         const from: IAutoMovieSwivelNear | undefined = a[limb];
         const to: IAutoMovieSwivelNear | undefined = b[limb];
@@ -405,7 +405,7 @@ function heldLimbs(
 ): prepareSupportHeldFrames.IHeld[] {
   const out: prepareSupportHeldFrames.IHeld[] = [];
   for (const contact of contacts) {
-    const side: "left" | "right" = contact.part.startsWith("left")
+    const side: AutoMovieHumanSide = contact.part.startsWith("left")
       ? "left"
       : "right";
     const held: prepareSupportHeldFrames.IHeld | undefined =

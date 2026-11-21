@@ -4,6 +4,8 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbReference,
   IAutoMovieHumanoidSurfaces,
@@ -78,7 +80,7 @@ export function prepareSupportHeldFrames(
   const soles = (
     limb: prepareSupportHeldFrames.IHeld,
   ): IAutoMovieHumanoidSurfaces.IFrame[] => {
-    const side: "Left" | "Right" = limb.end.startsWith("left")
+    const side: Capitalize<AutoMovieHumanSide> = limb.end.startsWith("left")
       ? "Left"
       : "Right";
     return [
@@ -183,7 +185,7 @@ function angles(
   posture: IAutoMovieMotionHumanPosture,
   limb: prepareSupportHeldFrames.IHeld,
 ): IAutoMovieHumanLimbReference {
-  const side: "left" | "right" = limb.limb.startsWith("left")
+  const side: AutoMovieHumanSide = limb.limb.startsWith("left")
     ? "left"
     : "right";
   const arm: boolean = limb.limb.endsWith("Arm");
@@ -219,7 +221,7 @@ export namespace prepareSupportHeldFrames {
    */
   export interface IHeld {
     /** The limb goal's name. */
-    limb: "leftArm" | "rightArm" | "leftLeg" | "rightLeg";
+    limb: AutoMovieHumanLimb;
 
     /** The wrist's or ankle's bone. */
     end: AutoMovieHumanoidBone;

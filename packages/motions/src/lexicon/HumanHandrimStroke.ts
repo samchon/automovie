@@ -5,6 +5,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -33,7 +34,7 @@ import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 
 /** The two hands that act together in this stroke. */
-const SIDES: readonly ("left" | "right")[] = ["left", "right"];
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /** The existing motion support bound in metres for a fitted contact. */
 const CONTACT_GAP: number = 0.01;
@@ -53,7 +54,7 @@ type Grip = Parameters<typeof HumanMountRider.hold>[3];
 /** The phase endpoints and live reader for one of the riding hands. */
 interface IHand {
   /** The hand controlled by this rim. */
-  side: "left" | "right";
+  side: AutoMovieHumanSide;
   /** Read the rim's material point at an action second. */
   gripAt: (at: number, frame: IAutoMovieRigidTransform) => Grip;
   /** Cached catch grip in the chair's catch placement. */
@@ -63,15 +64,23 @@ interface IHand {
   /** The radius of the declared rim in metres. */
   radius: number;
   /** Material rotation rates in radians per second at the window boundaries. */
-  rates: { catch: number; release: number };
+  rates: IRimRates;
   /** Finger joint angles fitted to the chair's coarse collider. */
   closed: IAutoMovieMotionHumanPosture["joints"];
+}
+
+/** A rim's material rotation rates at the grip window's ends, radians per second. */
+interface IRimRates {
+  /** The rate at the catch. */
+  catch: number;
+  /** The rate at the release. */
+  release: number;
 }
 
 /** One hand's declared wheel geometry before building its contact reader. */
 interface IRim {
   /** The side of the named wheel. */
-  side: "left" | "right";
+  side: AutoMovieHumanSide;
   /** The wheel's affordance id. */
   rim: string;
   /** Its declared axle frame and radius. */
@@ -103,7 +112,11 @@ const carry = (
 };
 
 /** Refuse a wheel selection without a usable circumferential material point. */
-const refuseRim = (on: string, rim: string, side: "left" | "right"): never => {
+const refuseRim = (
+  on: string,
+  rim: string,
+  side: AutoMovieHumanSide,
+): never => {
   throw new HumanRefusal({
     kind: "affordance",
     axis: `rims.${side}`,
@@ -203,11 +216,11 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           ...context,
           params: { on, seconds: duration },
         });
-      const active: readonly ("left" | "right")[] =
+      const active: readonly AutoMovieHumanSide[] =
         side === undefined ? SIDES : [side];
       if (side === undefined && rims?.left === rims?.right)
         refuseRim(on, rims?.right ?? "", "right");
-      const wheels: IRim[] = active.map((side: "left" | "right"): IRim => {
+      const wheels: IRim[] = active.map((side: AutoMovieHumanSide): IRim => {
         const rim: string = rims?.[side];
         const geometry: IAutoMovieAffordance | undefined =
           chair.prop.affordances?.find(
@@ -359,7 +372,7 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       );
 
       const windows: IAutoMovieMotionHumanContactWindow[] = active.map(
-        (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
+        (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
           part: `${side}Hand`,
           kind: "grip",
           from: approach / duration,

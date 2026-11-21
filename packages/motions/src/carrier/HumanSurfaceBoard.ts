@@ -176,11 +176,8 @@ export namespace HumanSurfaceBoard {
   }
 
   /** Admit the board and use the prop's existing local affordances throughout. */
-  export function deck(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext<unknown>,
-      "prop" | "start"
-    >,
+  export function deck<Params>(
+    context: IAutoMovieMotionHumanActionContext<Params>,
     on: string,
   ): IDeck {
     const prop: IAutoMovieMotionHumanPropReader = context.prop(on);

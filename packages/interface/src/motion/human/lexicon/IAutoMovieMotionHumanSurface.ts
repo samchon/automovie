@@ -135,10 +135,26 @@ export namespace IAutoMovieMotionHumanSurface {
     window: readonly [number, number];
 
     /** Metres of displacement along the moving stance's +X and forward +Z. */
-    offset: Readonly<{ x: number; z: number }>;
+    offset: Readonly<IStepOffset>;
 
     /** Peak height above the original runner plane, metres. */
     clearance: number;
+  }
+
+  /**
+   * A released skate's displacement on the ice plane of its moving stance.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the stance frame, its two horizontal axes and metres.
+   * @evidence contracts/development/design.md#principled-representation Two horizontal components leave the height to the step's own clearance and the ice plane.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The displacement `ISkateStep.offset` gives the skate planner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No vertical component exists, so a step cannot move the runner off its plane through the offset.
+   */
+  export interface IStepOffset {
+    /** Metres along the moving stance's +X. */
+    x: number;
+
+    /** Metres along the moving stance's forward +Z. */
+    z: number;
   }
 
   /**
@@ -298,9 +314,21 @@ export namespace IAutoMovieMotionHumanSurface {
     lead: AutoMovieHumanSide;
 
     /** Whether a foot settles before both hands release or after a free interval. */
-    transfer: "overlap" | "flight";
+    transfer: SurfboardTransfer;
 
     /** Elevation in metres of the water surface. Defaults to zero. */
     water?: number;
   }
+
+  /**
+   * The order of a surfboard pop-up's palm release and stance acquisition:
+   * `overlap` sets a foot down before both palms release, `flight` releases
+   * both palms before a foot lands.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines both transfer orders by their support events.
+   * @evidence contracts/development/design.md#principled-representation A closed literal union of the two support orders the surfing law plans.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `ISurfboardPhraseParams.transfer` and the surfboard phrase planner consume it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The union admits no third order that the planner would have to guess.
+   */
+  export type SurfboardTransfer = "overlap" | "flight";
 }

@@ -1,4 +1,8 @@
-import type { IAutoMovieTransform } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieAffordance,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import {
   type Archetype,
@@ -118,7 +122,7 @@ export namespace rideWheelchair {
     degrees: number;
 
     /** The acting hand; omission selects both rims. */
-    side?: "left" | "right";
+    side?: AutoMovieHumanSide;
   }
 
   /**
@@ -146,11 +150,16 @@ export namespace rideWheelchair {
     const rims: ReadonlySet<string> = new Set(
       ride
         .at(0)
-        .archetype.affordances.filter(({ kind }): boolean => kind === "wheel")
-        .map(({ id }): string => id),
+        .archetype.affordances.filter(
+          ({ kind }: IAutoMovieAffordance): boolean => kind === "wheel",
+        )
+        .map(({ id }: IAutoMovieAffordance): string => id),
     );
     for (const hold of [...holds].sort(
-      (a, b): number => a.catchAt - b.catchAt,
+      (
+        a: rideWheelchair.IHandrimHold,
+        b: rideWheelchair.IHandrimHold,
+      ): number => a.catchAt - b.catchAt,
     )) {
       if (
         !Number.isFinite(hold.catchAt) ||

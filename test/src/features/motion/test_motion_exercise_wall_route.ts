@@ -6,6 +6,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -294,7 +295,7 @@ function verifyRoute(
     pose: ReturnType<typeof bones>,
     limb: Limb,
   ): IAutoMovieVector3 => {
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+    const side: AutoMovieHumanSide = limb.startsWith("left") ? "left" : "right";
     return limb.endsWith("Hand")
       ? HumanHand.frame(body, pose, side, "grip").point
       : pose.get(`${side}Toes`)!.worldPosition;

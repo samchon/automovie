@@ -1,7 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -27,6 +29,29 @@ const WHEELS: readonly string[] = [
   "wheel-back-right",
 ];
 
+// The staging coefficients below are provisional. The cited studies time
+// the launch, landing and foot separation but give no posture heights, so
+// each value is an authored staging choice that the board-sport test
+// bounds through its deck, street and clearance checks, not a measurement.
+
+/** Push-foot clearance outside the deck's edge, in foot lengths (provisional). */
+const PUSH_MARGIN: number = 1 / 4;
+
+/** Toe lift over the deck while a foot travels or the board rises, in foot lengths (provisional). */
+const TOE_CLEARANCE: number = 1 / 3;
+
+/** Extra push-foot lift at take-off, in toe clearances (provisional). */
+const TAKEOFF_TOE_LIFT: number = 1.5;
+
+/** Pelvis drop loading the pop, in thigh lengths (provisional). */
+const LOAD_DROP: number = 0.18;
+
+/** Pelvis drop absorbing the landing, in thigh lengths (provisional). */
+const ABSORB_DROP: number = 0.24;
+
+/** Pelvis drop toward a street push, in thigh lengths, before the push fit lowers it to reach (provisional). */
+const PUSH_DROP: number = 0.17;
+
 /**
  * Transfer the entered stance between street and deck, then follow the
  * authored tail strike, flight and grounded landing. Frederick et al.
@@ -42,7 +67,7 @@ const WHEELS: readonly string[] = [
  * @evidence contracts/development/common.md#meaningful-documentation Names the acquired stance, actual board clock and floor contact refusal.
  * @evidence contracts/development/implementation.md#principled-implementation The push has one fixed world target. The tail meets the floor before flight, and the wheels must return to it before both foot plants resume.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the board and event frames, prepare the two feet's anchors, then bind the phase reader.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scene supplies the board's curve and the floor. A missing tail hit, air phase or landing refuses.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scene supplies the board's curve and the floor. A missing tail hit, air phase or landing refuses. The push margin, toe lifts and pelvis drops are named provisional staging coefficients, because the cited studies give no posture heights.
  * @evidence contracts/development/implementation.md#efficient-algorithms Fixed preparation probes and two sole goals per posture.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared board pose, HumanFoot sole geometry and standing leg goals.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns the board reader, entered posture and phase anchors.
@@ -54,9 +79,9 @@ export function prepareSkateboardPhrase(
   const duration: number = HumanBound.above("seconds", params.seconds, 0, "s");
   const lead: AutoMovieHumanSide = params.lead;
   const other: AutoMovieHumanSide = lead === "left" ? "right" : "left";
-  const leadFoot: "leftFoot" | "rightFoot" =
+  const leadFoot: IAutoMovieMotionHumanContactWindow["part"] =
     lead === "left" ? "leftFoot" : "rightFoot";
-  const pushFoot: "leftFoot" | "rightFoot" =
+  const pushFoot: IAutoMovieMotionHumanContactWindow["part"] =
     other === "left" ? "leftFoot" : "rightFoot";
   const ground: number = params.ground ?? 0;
   const board: HumanSurfaceBoard.IDeck = HumanSurfaceBoard.deck(
@@ -77,7 +102,7 @@ export function prepareSkateboardPhrase(
   const entryFoot = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
     if (
       !entry.supports.some(
-        ({ part, support }): boolean =>
+        ({ part, support }: (typeof entry.supports)[number]): boolean =>
           part === side + "Foot" &&
           support.kind === "prop" &&
           support.subject === params.on,
@@ -162,7 +187,7 @@ export function prepareSkateboardPhrase(
     HumanFoot.offset(body, other, "toe"),
   );
   const pushDeck: IAutoMovieVector3 = {
-    x: board.centre.x + outside * (board.width / 2 + footLength / 4),
+    x: board.centre.x + outside * (board.width / 2 + PUSH_MARGIN * footLength),
     y: rear.y,
     z: rear.z,
   };
@@ -225,7 +250,7 @@ export function prepareSkateboardPhrase(
     const takeoff: number =
       fade(phases.lift, phases.apex) - fade(phases.apex, phases.land);
     const settled: number = fade(0, phases.settle);
-    const toeClearance: number = footLength / 3;
+    const toeClearance: number = TOE_CLEARANCE * footLength;
     const tailFoot: IAutoMovieVector3 = Vector3.lerp(
       rear,
       tail,
@@ -265,7 +290,7 @@ export function prepareSkateboardPhrase(
         toeClearance *
           (Math.sin(Math.PI * departure) +
             Math.sin(Math.PI * recovery) +
-            1.5 * takeoff),
+            TAKEOFF_TOE_LIFT * takeoff),
     };
     const footRotations: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
       left: boardRotation(placed, "left"),
@@ -293,7 +318,9 @@ export function prepareSkateboardPhrase(
       y:
         moving.root.y -
         body.measure.thigh *
-          (0.18 * compression + 0.24 * absorption + 0.17 * inStreet) +
+          (LOAD_DROP * compression +
+            ABSORB_DROP * absorption +
+            PUSH_DROP * inStreet) +
         toeClearance * takeoff,
     };
     const goals: Record<
@@ -339,13 +366,12 @@ export function prepareSkateboardPhrase(
       },
     );
     for (const side of ["left", "right"] as const) {
-      const leg: "leftLeg" | "rightLeg" =
-        side === "left" ? "leftLeg" : "rightLeg";
+      const leg: AutoMovieHumanLimb = side === "left" ? "leftLeg" : "rightLeg";
       limbs[leg] = {
         ...limbs[leg]!,
         ...goals[side],
         planted: contacts.some(
-          ({ part, from, to }): boolean =>
+          ({ part, from, to }: IAutoMovieMotionHumanContactWindow): boolean =>
             part === side + "Foot" && share >= from && share <= to,
         ),
       };
@@ -354,7 +380,12 @@ export function prepareSkateboardPhrase(
   };
   return {
     duration,
-    events: Object.entries(phases).map(([name, share]) => ({ name, share })),
+    events: Object.entries(phases).map(
+      ([name, share]: [string, number]): IAutoMovieMotionEvent => ({
+        name,
+        share,
+      }),
+    ),
     contacts,
     physicalWindow: null,
     posture,

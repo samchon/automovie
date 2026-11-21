@@ -332,8 +332,7 @@ export function test_motion_exercise_wheelchair_travel(): void {
         );
         const neutral: IAutoMovieVector3 = local(
           origin,
-          restBones.get((side + "Hand") as "leftHand" | "rightHand")!
-            .worldPosition,
+          restBones.get(`${side}Hand`)!.worldPosition,
         );
         if (!drive && side === "right") {
           check(

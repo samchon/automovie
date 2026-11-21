@@ -201,7 +201,7 @@ export function test_motion_exercise_ice_support(): void {
   );
   const socketPoint = (
     sockets: typeof leading,
-    socket: "heel" | "ball",
+    socket: (typeof sockets)[number]["socket"],
   ): IAutoMovieVector3 =>
     sockets.find(
       (sample: (typeof sockets)[number]): boolean => sample.socket === socket,
@@ -229,7 +229,7 @@ export function test_motion_exercise_ice_support(): void {
   /** Mount a runner on the neutral displayed foot at the measured initial floor. */
   function pivot(
     side: AutoMovieHumanSide,
-    edge: "leftEdge" | "rightEdge",
+    edge: createIceSkate.Affordance,
   ): IAutoMovieVector3 {
     const foot: IAutoMovieResolvedBone = entry
       .bones("skater", 0)
