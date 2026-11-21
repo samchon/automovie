@@ -17,19 +17,19 @@ import { solvePhysicalFloorChainTarget } from "./solvePhysicalFloorChainTarget";
 
 /**
  * Fit declared support patches to a plane using their actual convex geometry.
- * Keep authored horizontal goals and solve the actual patch height together
- * with those goals, retaining unreachable endpoint/floor residuals.
+ * Keep authored endpoint goals and their floor constraints in the same fit,
+ * retaining any unresolved residual.
  * A shared root-drop budget is consumed across passes; cached bodies are never
  * corrected. Non-planted patches preserve their authored clearance, clamped
  * to the floor, so a root-drop correction cannot drive a swinging sole below it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Fit declared support patches to a plane using their actual convex geometry) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Fit declared support patches to a plane using their actual convex geometry) directly over its typed inputs (`input`) as nested iteration of depth 3 (some over Object.entries(input.endpointHeights ?? ; some over input.pattern.limbs; some over input.planted), delegating to `Number.isSafeInteger`, `Number.isFinite`, `isAutoMovieRecord`, `Object.entries(input.endpointHeights ?? {}).some`, `Object.entries`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (3 throw sites). Beyond structural 0, 1 and 2 the body uses the literal 16, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 129 lines and 10 top-level statements that reuses `Number.isSafeInteger`, `Number.isFinite`, `isAutoMovieRecord`, `Object.entries(input.endpointHeights ?? {}).some`, `Object.entries` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 13 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 3 (some over Object.entries(input.endpointHeights ?? ; some over input.pattern.limbs; some over input.planted), performed once per call with 14 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 14 allocation sites become the returned value or die with the call, so nothing grows.
+ * @evidence contracts/development/common.md#meaningful-documentation States how support plans use actual geometry, authored goals and the shared root-drop budget.
+ * @evidence contracts/development/implementation.md#principled-implementation Validates floor-fit controls and passes planted state with the original endpoint height so a patch without witnesses retains actual floor error.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuses the support planner for root and reach, then the floor-chain solver for each declared limb.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Measures the patch from its declared colliders and retains the fitted endpoint and floor residuals.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Applies the existing pass and iteration budgets and shares a limb's planted status across its floor constraints.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Fits one plan from the current arguments with invocation-local state.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows profile geometry and returns only its plan, with no retained resources.
  */
 export function planPhysicalFloorSupportTargets(
   input: IAutoMoviePlanPhysicalFloorSupportTargets.IInput,
@@ -111,6 +111,7 @@ export function planPhysicalFloorSupportTargets(
     targets = result.targets;
     rootDrop += result.rootDrop;
     for (const limb of input.pattern.limbs) {
+      const planted: boolean = input.planted.includes(limb.bone);
       const fitted: IAutoMovieSolvePhysicalArticulationTargets.IResult =
         solvePhysicalFloorChainTarget({
           profile: input.profile,
@@ -120,9 +121,8 @@ export function planPhysicalFloorSupportTargets(
           goal: goals[limb.bone]!,
           localPoint: limb.localPoint,
           endpointHeight: input.endpointHeights?.[limb.bone],
-          floorPoints: input.planted.includes(limb.bone)
-            ? limb.floorPoints
-            : undefined,
+          floorPoints: planted ? limb.floorPoints : undefined,
+          fitPatchMinimum: planted,
           floor: planes[limb.bone]!,
           iterations: input.iterations,
           tolerance: input.tolerance,

@@ -1,6 +1,6 @@
 # Programming a performance
 
-Start a scene from its screenplay or a standalone case from its subject facts and promised behavior. For skilled practice, use the [performance study](../story/planning/research.md#what-needs-a-study).
+Start a scene by [reading the scene](staging.md#reading-the-scene), or a standalone case from its subject facts and promised behavior. For skilled practice, use the [performance study](../story/planning/research.md#what-needs-a-study).
 
 1. Prepare the coarse [entities](../development/entities.md#coarse-first).
 2. [Compose the actions](compose/composition.md). Follow [refusals](compose/refusals.md) if the vocabulary cannot realize them.

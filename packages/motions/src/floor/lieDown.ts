@@ -34,6 +34,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { StrikingBody } from "../striking/StrikingBody";
+import { floorArmRoom } from "./floorArmRoom";
 import { floorEntry } from "./floorEntry";
 import { floorSeat } from "./floorSeat";
 import { prepareLieDownFootPins } from "./prepareLieDownFootPins";
@@ -256,6 +257,7 @@ export namespace lieDown {
     let bearing: Record<"left" | "right", IAutoMovieMotionHumanFoot.Socket> | undefined;
     let plants: Pins;
     let release: Release;
+    const arms: ReturnType<typeof floorArmRoom.prepare> = floorArmRoom.prepare(body);
     const rollSide: AutoMovieHumanSide | undefined =
       position === "lateralLeft" ? "left" : position === "lateralRight" ? "right" : undefined;
     const posedAt: (index: number, u: number) => IAutoMovieMotionHumanPosture = (index: number, u: number): IAutoMovieMotionHumanPosture => ({
@@ -403,11 +405,11 @@ export namespace lieDown {
         prepareHumanPoseResolution(resolution);
       const project: ReturnType<typeof prepareHumanPostureProjection> =
         projection ?? prepareHumanPostureProjection(body);
-      const rested: IAutoMovieMotionHumanPosture = entered === null && index === 1 && u < 1
+      const rested: IAutoMovieMotionHumanPosture = arms(index, u, (w: number): IAutoMovieMotionHumanPosture => entered === null && index === 1 && w < 1
         ? (release ??= floorEntry.between(
             body, GymnasticsFlight.frozen(body, placed(0, 1, read, project), read, project), placed(1, 1, read, project),
-          ))(u, read, project)
-        : placed(index, u, read, project);
+          ))(w, read, project)
+        : placed(index, w, read, project), read, project);
 
       // A folded sitting folds its legs over the last phase of its route.
       const out: IAutoMovieMotionHumanPosture =

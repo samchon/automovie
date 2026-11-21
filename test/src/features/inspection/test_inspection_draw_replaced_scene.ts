@@ -1,5 +1,11 @@
-import type { IAutoMovieMark } from "@automovie/interface";
+import { markAutoMovieContacts } from "@automovie/engine";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieInspectionLegendEntry,
+  IAutoMovieMark,
+} from "@automovie/interface";
 import {
+  type IAutoMovieDrawScene,
   type IAutoMovieInspectionHandle,
   replaceAutoMovieDrawInspection,
 } from "@automovie/render";
@@ -20,11 +26,15 @@ import { nclose } from "../internal/nclose";
  *    box corners. Changing the request selects the other current mesh.
  * 3. Failed asynchronous placement leaves the previous scene state restored
  *    and no inspection overlay attached; no stale handle remains active.
+ * 4. The declared contact kind is admitted on each replacement graph. Its
+ *    solver receipt draws one arrow per collider at the completed step,
+ *    expires, then reappears at the same second when the capture seeks
+ *    backwards.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States replacement identities, unchanged semantic names, current bounds and failure cleanup.
- * @evidence contracts/development/testing.md#behavioral-verification Uses the public draw-inspection lifecycle with actual Three meshes and the real inspection engine, observing current layer masks, selected paths, bounds and restoration without a fake renderer.
- * @evidence contracts/development/testing.md#independent-expectations Two authored unit boxes have literal x corners -4.5/-3.5 and4.5/5.5 at the selected positions. Default layer mask1 becomes0 only on the current unselected mesh; removed objects return to1 before the subject callback runs.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts initial and replacement identities, stable names with moved bounds, unchanged versus changed selection, successful versus failing placement and current versus detached object ownership.
+ * @evidence contracts/development/common.md#meaningful-documentation States replacement identities, current bounds, failure cleanup and the contact lifetime across draws.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses the public draw-inspection lifecycle with actual Three meshes and an authored solver receipt. It observes current masks, selection, bounds, restoration and contact legend counts.
+ * @evidence contracts/development/testing.md#independent-expectations Authored unit boxes give x bounds -4.5/-3.5 and 4.5/5.5. The current unselected mesh alone loses its default layer. The one contact acts during [1, 1.25) seconds as written in its receipt.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts current and detached objects, moved bounds, changed selection, successful and failed placements, and the declared contact before, during and after its active interval. A reverse seek revisits the active second.
  * @evidence contracts/development/testing.md#execution-ownership One portable async unit owns its scene, real geometries/materials and placement callbacks, disposes them in finally and starts no browser, process or compiler or foreign-method patch.
  */
 export async function test_inspection_draw_replaced_scene(): Promise<void> {
@@ -130,6 +140,63 @@ export async function test_inspection_draw_replaced_scene(): Promise<void> {
       findings,
       [],
     );
+
+    const sample: NonNullable<IAutoMovieContactReceipt["samples"]>[number] = {
+      seconds: 1,
+      duration: 0.25,
+      impulse: 0.5,
+      point: { x: 0, y: 0, z: 0 },
+      normal: { x: 0, y: 1, z: 0 },
+      separation: 0,
+      compression: 0,
+    };
+    const receipt: IAutoMovieContactReceipt = {
+      id: "floor-contact",
+      source: "solver",
+      a: { body: "floor", bone: "root", shape: "slab", material: "wood" },
+      b: { body: "left", bone: "root", shape: "box", material: "wood" },
+      seconds: sample.seconds,
+      endSeconds: sample.seconds,
+      impulse: sample.impulse,
+      point: sample.point,
+      normal: sample.normal,
+      separation: sample.separation,
+      compression: sample.compression,
+      samples: [sample],
+    };
+    const subject: Pick<IAutoMovieDrawScene, "scene" | "markKinds"> = {
+      scene,
+      markKinds: ["contact"],
+    };
+    // One contact draws the force on each of its two colliders.
+    for (const [seconds, count] of [
+      [0.75, 0],
+      [1, 2],
+      [1.25, 0],
+      [1, 2],
+    ] as const) {
+      active = await replaceAutoMovieDrawInspection({
+        ...subject,
+        previous: active,
+        request: InspectionScene.ask({ marks: ["contact"] }),
+        place: async (): Promise<IAutoMovieMark[]> => {
+          await place();
+          return markAutoMovieContacts({
+            receipts: [receipt],
+            seconds,
+            metresPerNewton: 0.125,
+          });
+        },
+      });
+      TestValidator.equals(
+        `contact marks at ${seconds}s`,
+        active.legend.find(
+          (entry: IAutoMovieInspectionLegendEntry): boolean =>
+            entry.label === "contact force",
+        )?.count ?? 0,
+        count,
+      );
+    }
   } finally {
     active?.restore();
     for (const mesh of [left, right]) if (mesh !== undefined) release(mesh);

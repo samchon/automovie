@@ -7,6 +7,7 @@ export type { IAutoMovieFramingGoal } from "./IAutoMovieFramingGoal";
 export type { IAutoMovieIntent } from "./IAutoMovieIntent";
 export type { IAutoMovieIntentTiming } from "./IAutoMovieIntentTiming";
 export type { IAutoMovieMarkContacts } from "./IAutoMovieMarkContacts";
+export type { IAutoMovieMarkSupportWrenches } from "./IAutoMovieMarkSupportWrenches";
 export type { IAutoMovieMeasureContact } from "./IAutoMovieMeasureContact";
 export type { IAutoMovieMeasureSchedule } from "./IAutoMovieMeasureSchedule";
 export type { IAutoMovieRelationalGoal } from "./IAutoMovieRelationalGoal";

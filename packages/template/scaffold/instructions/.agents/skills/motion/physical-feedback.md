@@ -12,7 +12,9 @@ In the scene's composition comment, name the required response, why it needs sim
 
 ### Simulated windows
 
-Initialize the engine's solver from the displayed entry state. Hand the resolved exit pose, velocity and retained contacts back to the composition. Judge whether the result realizes the scripted outcome and route an infeasible outcome through [refusals](compose/refusals.md).
+Initialize the engine's solver from the displayed entry state. Hand the resolved exit pose, velocity and retained contacts back to the composition.
+
+A Human that enters standing on the floor starts from `fitHumanPhysicalStandingPose` in `@automovie/human`: pass its displayed segment frames and floor height, and use the returned targets. The Human's drawn heel sits above the sole sockets the motion stands on, so the fit turns each foot about 16 degrees until heel and forefoot both touch, and lowers the body about 40 mm. Without it the body stands on its forefoot and falls. It also opens an arm whose forearm rests on the waist by the least shoulder abduction that clears the rigid hulls, since the display admits that rest as the skin's give. Expect that difference at the window's joins. A refusal means the displayed stance does not bear on the floor. Judge whether the result realizes the scripted outcome and route an infeasible outcome through [refusals](compose/refusals.md).
 
 Record the value and reason for any deliberately exaggerated impulse, gravity or compliance.
 

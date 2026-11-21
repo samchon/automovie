@@ -18,3 +18,4 @@ export * from "./resolveAutoMovieRelationalGoal";
 export * from "./resolveAutoMovieSchedule";
 export * from "./resolveAutoMovieZone";
 export * from "./markAutoMovieContacts";
+export * from "./markAutoMovieSupportWrenches";
