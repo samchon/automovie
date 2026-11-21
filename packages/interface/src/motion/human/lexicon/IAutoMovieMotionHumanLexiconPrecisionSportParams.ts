@@ -85,6 +85,13 @@ export namespace IAutoMovieMotionHumanLexiconPrecisionSportParams {
 
     /** The striking hand. Defaults to right. */
     hand?: AutoMovieHumanSide;
+
+    /**
+     * A swinging miss: the stroke passes one ball's diameter under the ball
+     * at the impact second, so it meets nothing and launches nothing, and
+     * the ball flies on. Absent, the stroke meets the ball.
+     */
+    miss?: true;
   }
   /**
    * A timed contact with a real scene ball and a separately authored outgoing shot.

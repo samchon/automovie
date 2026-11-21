@@ -164,9 +164,13 @@ export function createPrecisionSportStroke<P extends Stroke>(
         side,
         direction,
       );
+      // A swinging miss passes one ball's diameter under the ball.
       const contact: IAutoMovieVector3 = Vector3.subtract(
         ball.centre,
-        Vector3.scale(direction, ball.radius),
+        Vector3.add(
+          Vector3.scale(direction, ball.radius),
+          Vector3.scale(up, params.miss === true ? 2 * ball.radius : 0),
+        ),
       );
       const arc: IAutoMovieVector3 = Vector3.cross(axis, direction);
       const radius: number = tool.length + body.measure.forearm * 0.25;
@@ -431,25 +435,28 @@ export function createPrecisionSportStroke<P extends Stroke>(
         },
         ...(bridge === undefined ? {} : { hands: [side, guide] }),
         posture,
-        launches: [
-          {
-            prop: params.ball,
-            seconds: impact,
-            point: incoming.position,
-            rotation: incoming.rotation,
-            velocity: Vector3.add(
-              Vector3.scale(direction, speed * Math.cos(loft)),
-              Vector3.scale(up, speed * Math.sin(loft)),
-            ),
-            sphere: {
-              radius: ball.radius,
-              centre: Quaternion.rotateVector(
-                Quaternion.inverse(incoming.rotation),
-                Vector3.subtract(ball.centre, incoming.position),
-              ),
-            },
-          },
-        ],
+        launches:
+          params.miss === true
+            ? []
+            : [
+                {
+                  prop: params.ball,
+                  seconds: impact,
+                  point: incoming.position,
+                  rotation: incoming.rotation,
+                  velocity: Vector3.add(
+                    Vector3.scale(direction, speed * Math.cos(loft)),
+                    Vector3.scale(up, speed * Math.sin(loft)),
+                  ),
+                  sphere: {
+                    radius: ball.radius,
+                    centre: Quaternion.rotateVector(
+                      Quaternion.inverse(incoming.rotation),
+                      Vector3.subtract(ball.centre, incoming.position),
+                    ),
+                  },
+                },
+              ],
       };
       // The cue's bridge hand bears on a fixed point of the bed, so the cue
       // stroke keeps its fitted arms; every other stroke lays its arms as one
