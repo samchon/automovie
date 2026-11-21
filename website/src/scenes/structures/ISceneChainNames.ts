@@ -18,7 +18,7 @@ export interface ISceneChainNames {
   frames: string[];
 
   /** The archetype producers that take `format`. */
-  formats?: string[];
+  formats: string[];
 
   /** The laws the performance registers for the scene, as the expressions that name them, in the order the chain meets them. */
   laws: string[];

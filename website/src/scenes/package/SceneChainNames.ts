@@ -6,6 +6,7 @@ import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
 import { PlaygroundChain } from "../../playground/package/PlaygroundChain";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { ISceneChainNames } from "../structures/ISceneChainNames";
+import { SceneArchetype } from "./SceneArchetype";
 
 /**
  * The exported names the code of a scene's page refers to, read from the
@@ -57,9 +58,13 @@ export namespace SceneChainNames {
     }
     const frames: string[] = [];
     const formats: string[] = [];
-    for (const [name, producer] of Object.entries(archetypes)) {
+    for (const [name, producer] of Object.entries(archetypes) as [
+      string,
+      unknown,
+    ][]) {
       if (typeof producer !== "function") continue;
-      const variants = producer as { FRAMES?: unknown; FORMATS?: unknown };
+      const variants: SceneArchetype.IProducer =
+        producer as SceneArchetype.IProducer;
       if (Array.isArray(variants.FRAMES)) frames.push(name);
       else if (Array.isArray(variants.FORMATS)) formats.push(name);
     }

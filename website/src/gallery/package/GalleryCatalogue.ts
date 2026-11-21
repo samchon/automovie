@@ -41,15 +41,40 @@ export namespace GalleryCatalogue {
     FORMATS?: readonly string[];
 
     /** The stated reference parameters. A factory can prepare a required prop when the gallery opens it. */
-    REFERENCE?:
-      | Readonly<Record<string, unknown>>
-      | (() => Readonly<Record<string, unknown>>);
+    REFERENCE?: Reference;
 
     /** A dispatcher's public variant factories, each with its own reference parameters. */
     PRODUCERS?: Readonly<Record<string, IProducer>>;
 
     /** Target variant names when the old and new selectors use different IDs. */
     PRODUCER_VARIANTS?: Readonly<Record<string, string>>;
+  }
+
+  /** The parameters a producer needs beyond its variant, such as a cell front's narrowest width. */
+  export type ReferenceParams = Readonly<Record<string, unknown>>;
+
+  /** Stated reference parameters, or a factory that prepares them only when the gallery opens the subject. */
+  export type Reference = ReferenceParams | ReferenceFactory;
+
+  /** Prepares reference parameters on demand, such as a generated display a carrier is fitted to. */
+  export type ReferenceFactory = () => ReferenceParams;
+
+  /** A producer's variants and the parameter that names one. */
+  export interface IVariants {
+    /** The parameter name: `kind`, `frame` or `format`, or empty for a producer with one form. */
+    key: string;
+
+    /** The variant ids, in the producer's order; empty for a producer with one form. */
+    list: readonly string[];
+  }
+
+  /** One family's displayed name and its producers by export name, in export order. */
+  interface IFamilyEntries {
+    /** The family's subpath name, such as `furniture`. */
+    name: string;
+
+    /** Each producer with its export name. */
+    entries: [string, IProducer][];
   }
 
   /** The archetype families, by subpath, in the package's order. */
@@ -94,10 +119,7 @@ export namespace GalleryCatalogue {
    * @param made The producer.
    * @returns The parameter's name and the variants; an empty key and list for a producer with one form.
    */
-  export function variants(made: IProducer): {
-    key: string;
-    list: readonly string[];
-  } {
+  export function variants(made: IProducer): IVariants {
     if (Array.isArray(made.KINDS)) return { key: "kind", list: made.KINDS };
     if (Array.isArray(made.FRAMES)) return { key: "frame", list: made.FRAMES };
     if (Array.isArray(made.FORMATS))
@@ -112,24 +134,32 @@ export namespace GalleryCatalogue {
    */
   export function catalogue(): IGalleryCatalogue {
     const aliases: IGalleryCatalogue.IAlias[] = [];
-    const families = Object.entries(FAMILIES).map(([name, family]) => ({
-      name,
-      entries: Object.entries(producers(family)),
-    }));
+    const families: IFamilyEntries[] = Object.entries(FAMILIES).map(
+      ([name, family]: [
+        string,
+        Readonly<Record<string, unknown>>,
+      ]): IFamilyEntries => ({
+        name,
+        entries: Object.entries(producers(family)),
+      }),
+    );
     const subjects: Map<IProducer, string> = new Map(
-      families.flatMap(({ entries }) =>
-        entries.map(([id, made]): [IProducer, string] => [made, id]),
+      families.flatMap(({ entries }: IFamilyEntries) =>
+        entries.map(([id, made]: [string, IProducer]): [IProducer, string] => [
+          made,
+          id,
+        ]),
       ),
     );
     const groups: IGalleryCatalogue.IGroup[] = families.map(
-      ({ name, entries }): IGalleryCatalogue.IGroup => {
+      ({ name, entries }: IFamilyEntries): IGalleryCatalogue.IGroup => {
         return {
           name,
           subjects: entries.flatMap(
-            ([id, made]): IGalleryCatalogue.ISubject[] => {
-              const { key, list }: ReturnType<typeof variants> = variants(made);
+            ([id, made]: [string, IProducer]): IGalleryCatalogue.ISubject[] => {
+              const { key, list }: IVariants = variants(made);
               const replacements:
-                | IGalleryCatalogue.IAlias["variants"]
+                | IGalleryCatalogue.IAliasVariant[]
                 | undefined = replacementsOf(subjects, made, list);
               if (replacements !== undefined) {
                 aliases.push({ id, variants: replacements });
@@ -142,7 +172,7 @@ export namespace GalleryCatalogue {
                   group: name,
                   variantKey: key,
                   variants: list.map(
-                    (variant: string): { id: string; label: string } => ({
+                    (variant: string): IGalleryCatalogue.IVariant => ({
                       id: variant,
                       label: variant,
                     }),
@@ -162,9 +192,9 @@ export namespace GalleryCatalogue {
     subjects: ReadonlyMap<IProducer, string>,
     made: IProducer,
     list: readonly string[],
-  ): IGalleryCatalogue.IAlias["variants"] | undefined {
+  ): IGalleryCatalogue.IAliasVariant[] | undefined {
     if (made.PRODUCERS === undefined || list.length === 0) return undefined;
-    const replacements: IGalleryCatalogue.IAlias["variants"] = [];
+    const replacements: IGalleryCatalogue.IAliasVariant[] = [];
     const used: Set<string> = new Set();
     for (const id of list) {
       const selected: IProducer | undefined = made.PRODUCERS[id];

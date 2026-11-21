@@ -31,6 +31,16 @@ export function checkArchetypeAliases(): void {
   const listed = catalogue.groups.flatMap((group) =>
     group.subjects.map((subject) => subject.id),
   );
+  assert.equal(
+    new Set(listed).size,
+    listed.length,
+    "every displayed producer has exactly one catalogue entry",
+  );
+  const aliased = new Set(catalogue.aliases?.map((alias) => alias.id) ?? []);
+  assert(
+    listed.every((id) => !aliased.has(id)),
+    "no saved dispatcher is also listed beside its named forms",
+  );
   const animals = {
     horse: "createHorse",
     pony: "createPony",

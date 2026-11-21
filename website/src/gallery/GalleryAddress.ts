@@ -42,7 +42,7 @@ export namespace GalleryAddress {
     catalogue: IGalleryCatalogue,
   ): IGalleryRequest {
     const query: URLSearchParams = new URLSearchParams(search);
-    const address: ReturnType<typeof canonical> = canonical(
+    const address: IGalleryCatalogue.ITarget = canonical(
       catalogue,
       query.get("subject") ?? "",
       query.get("variant") ?? "",
@@ -74,18 +74,25 @@ export namespace GalleryAddress {
   /**
    * Resolve a saved dispatcher and variant to their displayed producer and variant.
    * Missing and unknown variants keep the dispatcher's former first choice.
+   *
+   * @param catalogue The catalogue whose aliases name the replacements.
+   * @param subject The saved subject, possibly a former dispatcher.
+   * @param variant The saved variant under that subject.
+   * @returns The displayed subject and variant; the input unchanged when it names no alias.
    */
   export function canonical(
     catalogue: IGalleryCatalogue,
     subject: string,
     variant: string,
-  ): { subject: string; variant: string } {
+  ): IGalleryCatalogue.ITarget {
     const alias: IGalleryCatalogue.IAlias | undefined = catalogue.aliases?.find(
       (entry: IGalleryCatalogue.IAlias): boolean => entry.id === subject,
     );
-    const selected: IGalleryCatalogue.IAlias["variants"][number] | undefined =
-      alias?.variants.find((entry): boolean => entry.id === variant) ??
-      alias?.variants[0];
+    const selected: IGalleryCatalogue.IAliasVariant | undefined =
+      alias?.variants.find(
+        (entry: IGalleryCatalogue.IAliasVariant): boolean =>
+          entry.id === variant,
+      ) ?? alias?.variants[0];
     return selected === undefined
       ? { subject, variant }
       : { subject: selected.subject, variant: selected.variant };

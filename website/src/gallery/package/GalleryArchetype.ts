@@ -20,8 +20,9 @@ export namespace GalleryArchetype {
   /** Read a reference recipe only when the gallery needs its subject. */
   function referenceOf(
     producer: GalleryCatalogue.IProducer | undefined,
-  ): Readonly<Record<string, unknown>> | undefined {
-    const reference = producer?.REFERENCE;
+  ): GalleryCatalogue.ReferenceParams | undefined {
+    const reference: GalleryCatalogue.Reference | undefined =
+      producer?.REFERENCE;
     return typeof reference === "function" ? reference() : reference;
   }
 

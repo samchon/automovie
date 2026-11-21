@@ -16,7 +16,31 @@ export namespace IGalleryCatalogue {
     id: string;
 
     /** Each earlier variant and the displayed subject and variant it opens. */
-    variants: { id: string; subject: string; variant: string }[];
+    variants: IAliasVariant[];
+  }
+
+  /** A displayed subject and the variant selected on it. */
+  export interface ITarget {
+    /** The displayed producer's name, such as `createCamera`. */
+    subject: string;
+
+    /** The selected variant id, or empty for a producer with one form. */
+    variant: string;
+  }
+
+  /** One earlier variant of an alias and the displayed target it opens. */
+  export interface IAliasVariant extends ITarget {
+    /** The variant id the saved address used under the earlier dispatcher. */
+    id: string;
+  }
+
+  /** One variant a picker offers. */
+  export interface IVariant {
+    /** The id an address names it by. */
+    id: string;
+
+    /** What a picker shows. */
+    label: string;
   }
 
   /** One group of subjects. */
@@ -43,6 +67,6 @@ export namespace IGalleryCatalogue {
     variantKey: string;
 
     /** Its variants, each with the id an address names it by and what a picker shows; empty when it has one form only. */
-    variants: { id: string; label: string }[];
+    variants: IVariant[];
   }
 }
