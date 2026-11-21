@@ -149,13 +149,13 @@ export namespace IAutoMovieMotionHumanRide {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No inferred horse motion, reassigned contact or invented touchdown is supplied by this interface.
    */
   export interface IEquestrianStride {
-    /** Performance cue-track id holding consecutive landings, in film seconds, of one hind hoof for walk, one diagonal for trot or the leading fore hoof for canter. */
+    /** Performance cue-track id holding consecutive landings, in film seconds, of one hind hoof for walk, one diagonal for trot or the leading fore hoof for canter and gallop. */
     cue: string;
 
     /** The carrier's gait over this track. */
     gait: EquestrianGait;
 
-    /** Canter lead, which sets the sign of the pelvic roll. Left when absent; not read for walk or trot. */
+    /** Canter or gallop lead, which sets the sign of the pelvic roll. Left when absent; not read for walk or trot. */
     lead?: EquestrianLead;
   }
 
@@ -174,15 +174,15 @@ export namespace IAutoMovieMotionHumanRide {
   /**
    * A mounted gait the rider's saddle response distinguishes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the three gaits whose pelvic response the ride models.
-   * @evidence contracts/development/design.md#principled-representation A closed literal union; gallop and the gaited breeds' clocks have no modeled rider response.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four gaits whose pelvic response the ride models; the gallop, like the canter, rocks once per stride and rolls to its lead, its amplitudes the canter's, provisional.
+   * @evidence contracts/development/design.md#principled-representation A closed literal union; the gaited breeds' clocks have no modeled rider response.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `IEquestrianStride.gait` and the ride's pitch and roll response.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export type EquestrianGait = "walk" | "trot" | "canter";
+  export type EquestrianGait = "walk" | "trot" | "canter" | "gallop";
 
   /**
-   * A canter lead: the side whose fore hoof lands last and reaches farthest.
+   * A canter or gallop lead: the side whose fore hoof lands last and reaches farthest.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what a lead is.
    * @evidence contracts/development/design.md#principled-representation A closed literal union of the two sides.

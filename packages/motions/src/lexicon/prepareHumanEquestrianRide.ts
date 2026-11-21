@@ -58,7 +58,9 @@ interface IPrepared {
  * walk and trot show opposing saddle and pelvic pitch during early stance,
  * with the lumbar spine extending in early trot stance (Byström et al.,
  * PMID 20525053 and 19469236). Uses that relative phase and small authored
- * amplitudes. Canter varies with lead, using authored timing and amplitude.
+ * amplitudes. Canter varies with lead, using authored timing and amplitude;
+ * the gallop rocks and rolls as the canter does, at the canter's amplitudes
+ * (provisional: no source read gives a rider's pelvis at the gallop).
  * Jump flight starts at last hind liftoff and ends at first fore landing
  * (Clayton 1989, doi:10.1016/S0737-0806(89)80073-5). The scene author supplies
  * those instants from a jumping support. The over-shoulder pose follows a
@@ -231,12 +233,16 @@ export function prepareHumanEquestrianRide(
         stride === undefined
           ? 0
           : active *
-            Math.sin(stride.gait === "canter" ? cycle : 2 * cycle) *
+            Math.sin(
+              stride.gait === "canter" || stride.gait === "gallop"
+                ? cycle
+                : 2 * cycle,
+            ) *
             (1 - Math.cos(cycle)) *
             (stride.gait === "walk" ? 1.5 : 2.5);
       const roll: number =
-        stride?.gait === "canter"
-          ? (stride.lead === "right" ? -1 : 1) *
+        stride?.gait === "canter" || stride?.gait === "gallop"
+          ? (stride!.lead === "right" ? -1 : 1) *
             active *
             Math.sin(cycle) *
             (1 - Math.cos(cycle))
