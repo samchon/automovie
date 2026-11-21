@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
  * Timed pool, aquatic team and small-craft performances. Water is a world
@@ -32,6 +33,37 @@ export namespace IAutoMovieMotionHumanAquatic {
     | "sailAbort";
 
   /**
+   * Seat of a rower in a two-person racing shell. The bow seat is nearest the
+   * bow, and the stroke seat sets the rhythm from the stern.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names both seats and where each sits in the shell.
+   * @evidence contracts/development/design.md#principled-representation A closed choice selects one station's own seat, stretcher and oar articulations.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The double-scull planner consumes it to choose the affordances it drives.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The name selects scene affordances and encodes no geometry.
+   */
+  export type Station = "bow" | "stroke";
+
+  /**
+   * The performer's part in a team or crew. Water polo uses attack, defend and
+   * keeper; artistic swimming uses figure, base and flyer; sailing uses helm
+   * and crew.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Groups each role with the kind that reads it.
+   * @evidence contracts/development/design.md#principled-representation A closed choice of sporting roles; the planner of the selected kind admits only its own.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The polo, artistic and sailing planners read it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Roles name what the performer does and carry no timing or geometry.
+   */
+  export type Role =
+    | "attack"
+    | "defend"
+    | "keeper"
+    | "figure"
+    | "base"
+    | "flyer"
+    | "helm"
+    | "crew";
+
+  /**
    * Authored staging inputs. The aquatic law admits the selected combination
    * and resolves named supports and participants on the film clock.
    *
@@ -60,24 +92,16 @@ export namespace IAutoMovieMotionHumanAquatic {
     at?: IAutoMovieVector3;
 
     /** Working side for single-blade canoe and water polo, the support hand of an artistic base, or the initial side of a dinghy. */
-    side?: "left" | "right";
+    side?: AutoMovieHumanSide;
 
     /** Start offset as a fraction of a stroke or figure for crew contrast, in [0, 1]. */
     phase?: number;
 
     /** Bow or stroke station on an articulated racing shell for double scull. */
-    station?: "bow" | "stroke";
+    station?: Station;
 
     /** Polo attack or defense, artistic figure role, or dinghy crew role. */
-    role?:
-      | "attack"
-      | "defend"
-      | "keeper"
-      | "figure"
-      | "base"
-      | "flyer"
-      | "helm"
-      | "crew";
+    role?: Role;
 
     /** Two distinct, previously composed base swimmers supplying the flyer's left and right foot supports. */
     bases?: readonly [string, string];

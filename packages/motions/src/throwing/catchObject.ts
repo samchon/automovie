@@ -166,16 +166,22 @@ export namespace catchObject {
       context.start,
       "ball",
     ).radius;
-    const standing: IAutoMovieMotionHumanPosture = stand
+    const neutral: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const frame: IAutoMovieMotionHumanFrame = {
-      origin: { ...standing.root, y: 0 },
-      yaw: standing.yaw,
+      origin: { ...neutral.root, y: 0 },
+      yaw: neutral.yaw,
     };
 
     const timing: IInterception = interception ?? approach(context, frame, arm);
     const contact: number = timing.contact;
+    // A staged overlay may meet the ball from a carrier such as an immersed
+    // body. Read its shoulders and elbow geometry at the interception.
+    const standing: IAutoMovieMotionHumanPosture =
+      interception === undefined
+        ? neutral
+        : (context.carrier?.posture(contact) ?? neutral);
     const meet: IAutoMovieVector3 = timing.before(contact);
     const along: IAutoMovieVector3 = Vector3.normalize(timing.speed);
     const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([

@@ -200,8 +200,12 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
         context.params.hands === "one"
           ? [context.params.side ?? "right"]
           : ["left", "right"];
+      // The catching hands are this plan's own: name them, so over a
+      // carrier the overlay keeps posing a hand that holds the ball instead
+      // of handing it to the carrier's carry fit.
       return {
         ...plan,
+        hands: [...(plan.hands ?? []), ...hands],
         holds: [
           ...(plan.holds ?? []),
           ...hands.map(

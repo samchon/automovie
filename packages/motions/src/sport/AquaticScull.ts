@@ -3,6 +3,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanAquatic,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
@@ -30,7 +31,7 @@ const SIDES = [
 ] as const;
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-type Station = "bow" | "stroke";
+type Station = IAutoMovieMotionHumanAquatic.Station;
 
 /**
  * A rower at a named racing-shell station. The rower's cycle drives its

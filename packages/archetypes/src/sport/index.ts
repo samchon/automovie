@@ -28,3 +28,5 @@ export * from "./createStick";
 export * from "./createSurfboard";
 export * from "./createVaultingPole";
 export * from "./createVaultingTable";
+export * from "./createWaterPoloBall";
+export * from "./createWaterPoloGoal";
