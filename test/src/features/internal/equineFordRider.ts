@@ -20,16 +20,26 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanHand, HumanObject } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanFloatBeside,
+  HumanFrame,
+  HumanHand,
+  HumanLeadHorse,
+  HumanMounted,
+  HumanObject,
+  HumanPerformance,
+  HumanRide,
+} from "@automovie/motions";
 
 import { equineFordScene } from "./equineFordScene";
 
 /**
- * The staged ford of `test_archetype_equine_ford_rider`: a horse that mounts on a level near bank, wades, swims, lands on a submerged far shelf and climbs a ramp to a dry level top where it halts, then, when a lead is laid, walks on led; its prop readers on the film clock, the rider's seat and mount chain, and the contact readers the spec measures with.
+ * The compact ford of the ford rider and float specs: a horse that the rider mounts on a level near bank, which wades, swims a few strokes, lands on a submerged far shelf and climbs a steep exit to a dry top where it halts, then, when a lead is laid, walks on led; its prop readers on the film clock, the rider's seat, mount chain and performance, and the contact readers the specs measure with.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staged crossing, the led walk and who reads it.
  * @evidence contracts/development/design.md#principled-representation A stage record and its builders.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ford rider spec only.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by test_archetype_equine_ford_rider and test_archetype_equine_ford_float.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace equineFordRider {
@@ -45,14 +55,26 @@ export namespace equineFordRider {
   /** The level near bank the rider mounts on, metres along +Z before the ford descends. */
   const BANK: number = 3;
 
-  /** The far ramp's grade up to the dry top: the near ford's descent. */
-  const GRADE: number = 0.08;
+  /** The water's surface, world metres: just under the dry banks at zero. */
+  export const WATER: number = -0.1;
 
-  /** Metres the climbing horse walks on the submerged shelf before the ramp. */
-  const SHORE: number = 2;
+  /** The near ford's descent: under the 0.11 at which the shared crossing's tail met the slope. */
+  const DESCENT: number = 0.1;
+
+  /** The wading course's end below the floating horse's standing sole level, metres: the shared scene's margin, so the bed under the last wading hooves lies below the stroke. */
+  const DEPTH_MARGIN: number = 0.11;
+
+  /** Metres the horse swims: a few strokes, longer than the rider's slide off. */
+  const SWIM: number = 6;
+
+  /** The far exit's grade up to the dry top, a steep river bank a horse climbs out on: authored. */
+  const GRADE: number = 0.25;
+
+  /** Metres the climbing horse walks on the submerged shelf before the exit. */
+  const SHORE: number = 1;
 
   /** Metres the horse walks on the dry top before it halts. */
-  const TOP: number = 4;
+  const TOP: number = 3;
 
   /** The horse producer's model. */
   export type Horse = ReturnType<typeof createHorse>;
@@ -120,11 +142,11 @@ export namespace equineFordRider {
    * @returns The stage.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the stage returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The near bank is level where the rider mounts; the far shelf is the crossing's admitted bank, and a ramp at the near ford's grade climbs from it to a dry top at the water's original ground.
+   * @evidence contracts/development/implementation.md#principled-implementation A compact ford: a level near bank where the rider mounts, a descent to just under the floating horse's standing sole level, a short swim, the crossing's admitted far shelf and a steep exit from it to a dry top level with the near bank.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Horse, footing, crossing, readers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms One crossing is planned; sampling is the caller's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared ford scene supplies the water, the swim and the near ford.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared ford scene supplies the immersion, the swim's speed and cycle and the courses' speeds.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The stage holds its rides for the caller.
    */
   export function stage(led?: ILed): IStage {
@@ -132,60 +154,49 @@ export namespace equineFordRider {
       { withersHeight: 1.65, stirrupDrop: 0.575, tempo: 0 },
       8,
     );
-    const level: number =
-      equineFordScene.WATER - equineFordScene.IMMERSION - 0.95 * 1.65;
+    // The floating horse's standing sole level: the water less the immersion and the back (0.95 of the withers).
+    const level: number = WATER - equineFordScene.IMMERSION - 0.95 * 1.65;
     const shelf: number = level - 0.05;
-    const authored: EquineFordPlan.IParams = equineFordScene.params(shelf);
-    // The swim starts where the wading course ends and lands its own length on; the ramp starts a shore's walk further.
-    const ramp: number =
-      equineFordScene.FLOAT_AT + equineFordScene.LENGTH + SHORE;
+    // The wading course descends to just under that level, as the shared scene's does, then the swim and a shore's walk.
+    const wade: number = (DEPTH_MARGIN - level) / DESCENT;
+    const float: number = BANK + wade;
+    const ramp: number = float + SWIM + SHORE;
     const climb: number = -shelf / GRADE;
-    const planes: QuadrupedFooting.IPlane[] = authored.footing.planes.flatMap(
-      (plane: QuadrupedFooting.IPlane): QuadrupedFooting.IPlane[] =>
-        plane.id === "ford"
-          ? [
-              { ...plane, id: "bank", z: [plane.z[0], BANK], slope: { x: 0, z: 0 } },
-              {
-                ...plane,
-                origin: { x: 0, y: 0, z: BANK },
-                z: [BANK, plane.z[1]],
-                slope: { x: 0, z: -0.08 },
-              },
-            ]
-          : plane.id === "shelf"
-            ? [
-                { ...plane, z: [plane.z[0], ramp] },
-                {
-                  ...plane,
-                  id: "ramp",
-                  origin: { x: 0, y: shelf, z: ramp },
-                  z: [ramp, ramp + climb],
-                  slope: { x: 0, z: GRADE },
-                },
-                {
-                  ...plane,
-                  id: "top",
-                  origin: { x: 0, y: 0, z: ramp + climb },
-                  z: [ramp + climb, ramp + climb + 30],
-                  slope: { x: 0, z: 0 },
-                },
-              ]
-            : [plane],
-    );
+    const plane = (
+      id: string,
+      y: number,
+      from: number,
+      to: number,
+      slope: number,
+    ): QuadrupedFooting.IPlane => ({
+      id,
+      origin: { x: 0, y, z: from },
+      x: [-6, 6],
+      z: [from, to],
+      slope: { x: 0, z: slope },
+    });
+    const authored: EquineFordPlan.IParams = equineFordScene.params(shelf);
     const crossing: EquineFordPlan.IClip<string, string> = EquineFord(horse, {
       ...authored,
-      footing: { planes },
+      water: WATER,
+      footing: {
+        planes: [
+          plane("bank", 0, -6, BANK, 0),
+          plane("ford", 0, BANK, float + 1.5, -DESCENT),
+          plane("channel", -3, float + 1.5, float + 3, 0),
+          plane("shelf", shelf, float + 3, ramp, 0),
+          plane("ramp", shelf, ramp, ramp + climb, GRADE),
+          plane("top", 0, ramp + climb, ramp + climb + 30, 0),
+        ],
+      },
       entry: {
         ...authored.entry,
         legs: [
           { kind: "straight", length: BANK },
-          {
-            kind: "straight",
-            length: equineFordScene.FLOAT_AT - BANK,
-            rise: -0.08 * (equineFordScene.FLOAT_AT - BANK),
-          },
+          { kind: "straight", length: wade, rise: -DESCENT * wade },
         ],
       },
+      swim: { ...authored.swim, length: SWIM },
       recovery: {
         ...authored.recovery,
         legs: [
@@ -194,8 +205,7 @@ export namespace equineFordRider {
           { kind: "straight", length: TOP },
         ],
       },
-    });
-    const local = (at: number): number =>
+    });    const local = (at: number): number =>
       Math.max(0, Math.min(crossing.duration, at - WAIT));
     const placed = (frame: IAutoMovieTransform): IAutoMovieRigidTransform => ({
       position: frame.translation,
@@ -306,6 +316,95 @@ export namespace equineFordRider {
     };
   }
 
+  /**
+   * The rider's performance on the stage: the rider beside the standing horse's saddle, the riding, lead and float laws.
+   *
+   * @param staged The stage.
+   * @param body The rider.
+   * @param chain The rider's chain.
+   * @returns The performance.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The mounted specs' start beside the saddle.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Sampling is the caller's.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by both specs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The performance is the caller's.
+   */
+  export function perform(
+    staged: IStage,
+    body: IAutoMovieMotionHumanBody,
+    chain: IAutoMovieMotionHumanChain,
+  ): HumanPerformance {
+    return new HumanPerformance({
+      seed: "equine-ford-rider",
+      props: [staged.prop],
+      laws: [HumanRide.ride, HumanMounted, HumanLeadHorse, HumanFloatBeside],
+      performers: [
+        {
+          subject: "rider",
+          body,
+          at: HumanFrame.point(
+            { origin: { ...staged.seat.at, y: 0 }, yaw: staged.seat.yaw },
+            { x: 0.6, y: 0, z: -0.2 },
+          ),
+          yaw: staged.seat.yaw,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: chain.node,
+    });
+  }
+
+  /**
+   * The horse's declaration of a contact.
+   *
+   * @param staged The stage.
+   * @param id The contact.
+   * @returns Its declaration.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The horse's own affordance.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the contacts.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by both specs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources None retained.
+   */
+  export function affordance(staged: IStage, id: string): IAutoMovieAffordance {
+    return staged.horse.affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === id,
+    )!;
+  }
+
+  /**
+   * A displayed point in the horse's frame at a film second, its +X the horse's left.
+   *
+   * @param staged The stage.
+   * @param point The world point.
+   * @param at The film second.
+   * @returns The point in the horse's frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame and its axis.
+   * @evidence contracts/development/implementation.md#principled-implementation The inverse of the horse's placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One placement read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by both specs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources None retained.
+   */
+  export function local(
+    staged: IStage,
+    point: IAutoMovieVector3,
+    at: number,
+  ): IAutoMovieVector3 {
+    const frame: IAutoMovieRigidTransform = staged.place(at);
+    return Quaternion.rotateVector(
+      Quaternion.inverse(frame.rotation),
+      Vector3.subtract(point, frame.position),
+    );
+  }
   /**
    * How far a held round contact is from the palm: the palm frame's centre against the contact's axis less its radius, metres, as the lead and the handles are checked.
    *

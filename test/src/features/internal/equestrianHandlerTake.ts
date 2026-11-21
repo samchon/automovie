@@ -30,6 +30,8 @@ import {
   HumanTendHorse,
 } from "@automovie/motions";
 
+import { equineLeadOut } from "./equineLeadOut";
+
 /**
  * The staged handler-and-horse take of `test_motion_equestrian_handler`: the horse's ride, stance and expression on one clock, its care points, the brush, halter and saddle props, and the handler's chain.
  *
@@ -145,7 +147,7 @@ export namespace equestrianHandlerTake {
       horse,
     );
     // The handler leads the horse in on a straight approach; its progress is later matched to the handler's walk.
-    const approach = (course: IMatchedCourse): Ride =>
+    const approach = (course: equineLeadOut.IMatchedCourse): Ride =>
       rideHorse(
         horse,
         {
@@ -351,13 +353,13 @@ export namespace equestrianHandlerTake {
     const span: number = walking.end - walking.start;
     const hips = (at: number): number =>
       rehearsal.bones("handler", at).get("hips")!.worldPosition.z;
-    const step: number = span / PROGRESS_SAMPLES;
+    const step: number = span / equineLeadOut.SAMPLES;
     const progress: readonly number[] = Array.from(
-      { length: PROGRESS_SAMPLES + 1 },
+      { length: equineLeadOut.SAMPLES + 1 },
       (_: unknown, i: number): number =>
         hips(walking.start + i * step) - hips(walking.start),
     );
-    ride = approach(matchCourse(progress, step));
+    ride = approach(equineLeadOut.match(progress, step));
     lowered.from = ride.duration + 0.5;
     lowered.to = ride.duration + HEAD_DOWN;
     const holds: readonly IAutoMovieMotionHumanSegment[] =
@@ -417,63 +419,4 @@ export namespace equestrianHandlerTake {
 
   /** Metres the handler leads the horse in. */
   const LEAD: number = 3;
-
-  /** Samples of the rehearsed walk's progress the approach is matched to. */
-  const PROGRESS_SAMPLES: number = 120;
-
-  /**
-   * A straight approach whose progress follows a walker's rehearsed progress.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit.
-   * @evidence contracts/development/design.md#principled-representation The length and the trapezoidal speed profile.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the approach course.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IMatchedCourse {
-    /** Metres walked. */
-    length: number;
-
-    /** The walker's steady speed, m/s. */
-    cruise: number;
-
-    /** The start's acceleration whose distance lag equals the walker's, m/s². */
-    acceleration: number;
-
-    /** The stop's deceleration whose distance lag equals the walker's, m/s². */
-    deceleration: number;
-  }
-
-  /** Match a trapezoidal course to a walker's displayed progress: a steady walk is the line `p(t) = v t - lag`, and a trapezoid reaching `v` at constant acceleration `a` lags its own steady line by `v² / 2a`, so equal lags give equal steady progress; the stop is matched the same way from the walk's end. */
-  function matchCourse(
-    progress: readonly number[],
-    step: number,
-  ): IMatchedCourse {
-    const count: number = progress.length - 1;
-    const from: number = Math.floor(count / 4);
-    const to: number = Math.ceil((3 * count) / 4);
-    let st: number = 0;
-    let sp: number = 0;
-    let stt: number = 0;
-    let stp: number = 0;
-    for (let i: number = from; i <= to; i++) {
-      const t: number = i * step;
-      st += t;
-      sp += progress[i]!;
-      stt += t * t;
-      stp += t * progress[i]!;
-    }
-    const n: number = to - from + 1;
-    const cruise: number = (n * stp - st * sp) / (n * stt - st * st);
-    const startLag: number = (cruise * st - sp) / n;
-    const length: number = progress[count]!;
-    const stopLag: number = cruise * count * step - length - startLag;
-    if (!(cruise > 0 && startLag > 0 && stopLag > 0))
-      throw new Error("The rehearsed walk has no steady stretch to match");
-    return {
-      length,
-      cruise,
-      acceleration: (cruise * cruise) / (2 * startLag),
-      deceleration: (cruise * cruise) / (2 * stopLag),
-    };
-  }
 }

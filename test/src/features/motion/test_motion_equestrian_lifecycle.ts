@@ -24,6 +24,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { equineLeadOut } from "../internal/equineLeadOut";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The horse producer's model. */
@@ -35,17 +36,6 @@ type Ride = ReturnType<typeof rideHorse>;
 /** Seconds the mounted ride waits before the horse sets off. */
 const MOUNT_WAIT: number = 6;
 
-/** Metres led on foot: long enough for the walk to reach a steady pace between its start and stop. */
-const LEAD_LENGTH: number = 6;
-
-/** Samples of the rehearsed walk's progress the led course is matched to. */
-const PROGRESS_SAMPLES: number = 120;
-
-/** Metres the handler's right shoulder walks outside the lead rope's held run: an authored staging choice. */
-const SHOULDER_CLEARANCE: number = 0.13;
-
-/** Share of the arm's length from the shoulder to the held rope: an authored staging choice that leaves the elbow part flexed. */
-const LEAD_REACH: number = 0.75;
 
 /** The rider attachment contract's 10 mm contact budget. */
 const CONTACT: number = 0.01;
@@ -101,45 +91,6 @@ export function test_motion_equestrian_lifecycle(): void {
   );
 }
 
-/** Where a handler stands relative to the lead rope's held run, world metres. */
-interface IStanding {
-  /** Toward +X, the horse's left, from the rope to the handler's root. */
-  lateral: number;
-
-  /** Toward +Z, the way led, from the rope to the handler's root; negative behind it. */
-  forward: number;
-}
-
-/**
- * The handler's place at the horse's head: the right shoulder
- * `SHOULDER_CLEARANCE` outside the rope and far enough behind it that the
- * rope lies `LEAD_REACH` of the arm's length ahead of the shoulder, so the
- * hand meets it with the elbow part extended, as a handler walks at the
- * horse's throat with the hand forward on the rope. Shoulder offset, height
- * and arm length are read from the body's own rest skeleton, standing on the
- * floor facing +Z with its right toward -X; 
-ope is the held run's height.
- */
-function standing(body: IAutoMovieMotionHumanBody, rope: number): IStanding {
-  const rest: IAutoMovieMotionHumanBody["rest"] = body.rest;
-  const shoulder: IAutoMovieVector3 = rest.get("rightUpperArm")!;
-  const elbow: IAutoMovieVector3 = rest.get("rightLowerArm")!;
-  const wrist: IAutoMovieVector3 = rest.get("rightHand")!;
-  const arm: number =
-    Vector3.distance(shoulder, elbow) + Vector3.distance(elbow, wrist);
-  const reach: number = LEAD_REACH * arm;
-  const drop: number = shoulder.y - rope;
-  return {
-    lateral: SHOULDER_CLEARANCE + rest.get("hips")!.x - shoulder.x,
-    forward: -Math.sqrt(
-      Math.max(
-        0,
-        reach * reach - SHOULDER_CLEARANCE * SHOULDER_CLEARANCE - drop * drop,
-      ),
-    ),
-  };
-}
-
 /** One actual sequence with separate horse and actor readers on the film clock. */
 interface Take {
   body: IAutoMovieMotionHumanBody;
@@ -167,67 +118,11 @@ interface ICarrierTrack {
   local: number;
 }
 
-/** A straight horse course whose progress follows a walker's rehearsed progress. */
-interface IMatchedCourse {
-  /** Metres walked. */
-  length: number;
-
-  /** The walker's steady speed, m/s. */
-  cruise: number;
-
-  /** The constant-acceleration start, m/s². */
-  acceleration: number;
-
-  /** The constant-deceleration stop, m/s². */
-  deceleration: number;
-}
-
-/**
- * Match a trapezoidal course to a walker's displayed progress. A steady
- * walk is a straight line in time, `p(t) = v t - lag`, fitted over its
- * middle half. A trapezoid that reaches `v` at constant acceleration `a`
- * lags its own steady line by `v² / 2a`, so equal lags give equal steady
- * progress; the stop is matched the same way from the walk's end. The
- * horse sets off and halts with the handler, as a led horse follows.
- */
-function matchCourse(
-  progress: readonly number[],
-  step: number,
-): IMatchedCourse {
-  const count: number = progress.length - 1;
-  const from: number = Math.floor(count / 4);
-  const to: number = Math.ceil((3 * count) / 4);
-  let st: number = 0;
-  let sp: number = 0;
-  let stt: number = 0;
-  let stp: number = 0;
-  for (let i: number = from; i <= to; i++) {
-    const t: number = i * step;
-    st += t;
-    sp += progress[i]!;
-    stt += t * t;
-    stp += t * progress[i]!;
-  }
-  const n: number = to - from + 1;
-  const cruise: number = (n * stp - st * sp) / (n * stt - st * st);
-  const startLag: number = (cruise * st - sp) / n;
-  const length: number = progress[count]!;
-  const stopLag: number = cruise * count * step - length - startLag;
-  if (!(cruise > 0 && startLag > 0 && stopLag > 0))
-    throw new Error("The rehearsed walk has no steady stretch to match");
-  return {
-    length,
-    cruise,
-    acceleration: (cruise * cruise) / (2 * startLag),
-    deceleration: (cruise * cruise) / (2 * stopLag),
-  };
-}
-
 /** Rehearse the handler's walk, then lay the led horse's course so its progress follows the walker's. */
 function build(
   body: IAutoMovieMotionHumanBody,
   gait: IAutoMovieMotionHumanRide.EquestrianGait,
-  staged?: IStanding,
+  staged?: equineLeadOut.IStanding,
 ): Take {
   const horse: Horse = createHorse(
     { withersHeight: 1.72, stirrupDrop: 0.66, tempo: 0 },
@@ -252,7 +147,8 @@ function build(
   );
   const origin: IAutoMovieTransform = mounted.at(mounted.duration).placement;
   const resting: IAutoMovieTransform = mounted.frame("lead", mounted.duration);
-  const stand: IStanding = staged ?? standing(body, resting.translation.y);
+  const stand: equineLeadOut.IStanding =
+    staged ?? equineLeadOut.standing(body, resting.translation.y);
   const approach: IAutoMovieVector3 = {
     x: resting.translation.x + stand.lateral,
     y: 0,
@@ -260,7 +156,7 @@ function build(
   };
   const advance: IAutoMovieVector3 = {
     ...approach,
-    z: approach.z + LEAD_LENGTH,
+    z: approach.z + equineLeadOut.LENGTH,
   };
   const led: ILed = { start: Infinity };
 
@@ -319,15 +215,18 @@ function build(
   const walkingSeconds: number = walking.end - walking.start;
 
   // The handler leads: the horse's course is laid after the walk, so its progress follows the hips' displayed progress.
-  const step: number = walkingSeconds / PROGRESS_SAMPLES;
+  const step: number = walkingSeconds / equineLeadOut.SAMPLES;
   const hips = (at: number): number =>
     rehearsal.bones("rider", at).get("hips")!.worldPosition.z;
   const begin: number = hips(walking.start);
   const progress: readonly number[] = Array.from(
-    { length: PROGRESS_SAMPLES + 1 },
+    { length: equineLeadOut.SAMPLES + 1 },
     (_: unknown, i: number): number => hips(walking.start + i * step) - begin,
   );
-  const matched: IMatchedCourse = matchCourse(progress, step);
+  const matched: equineLeadOut.IMatchedCourse = equineLeadOut.match(
+    progress,
+    step,
+  );
   led.start = walking.start;
   led.ride = rideHorse(
     horse,
