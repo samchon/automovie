@@ -144,6 +144,7 @@ export * from "./tasks/useTool";
 export * from "./tasks/wipe";
 export * from "./dressing/composeHumanAdjustCuff";
 export * from "./dressing/composeHumanStraightenTie";
+export * from "./dressing/bindPartner";
 export * from "./dressing/dress";
 export * from "./dressing/tipHat";
 export * from "./carrying/carry";

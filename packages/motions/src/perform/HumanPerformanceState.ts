@@ -39,6 +39,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
+import { HumanPerformanceBonds } from "./HumanPerformanceBonds";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
 import { HumanPerformanceKey } from "./HumanPerformanceKey";
@@ -375,6 +376,8 @@ export class HumanPerformanceState {
             : HumanPerformanceLayers.window(this, person, layer),
       );
     }
+    // A linked wear binds its wearer's limbs from where the schedule puts it.
+    HumanPerformanceBonds.attach(this);
     // Placement evaluated plans while later actions and people were not yet
     // placed; the contact resolution reads every plan as the whole placed
     // performance shows it. Every action is placed now, so displayed poses
