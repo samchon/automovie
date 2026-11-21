@@ -1,6 +1,6 @@
 # Composition
 
-Each exported function and method under `src/composition/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md). What it cites depends on what it composes:
+Each exported function and method under `src/composition/` answers these items in its doc comment, beside [implementation](implementation.md). It realizes a screenplay rather than serving callers, so it documents that realization here instead of under [common](common.md). What it cites depends on what it composes:
 
 | Declaration | Cites |
 | --- | --- |
@@ -31,11 +31,11 @@ Play the numbered scenes with their transitions, titles and subtitles. Use the [
 
 For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
 
-## Beat coverage
+## Realization comments
 
-Does every element of each cited beat reach a value that realizes it?
+Can a reader trace each value the declaration passes, and each default it relies on, to what it realizes, and every element of each cited beat to its values?
 
-Realize every [beat element](../../motion/staging.md#reading-the-scene) of each cited beat in at least one value. Its comment under [meaningful documentation](common.md#meaningful-documentation) gives the beat anchor, the element and how the value realizes it, and the study section for skilled practice.
+Comment each such value with what it realizes and how, so a reader can check it against that source without deriving it again. A scene's comment gives the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) and the study section for skilled practice, and every element of each cited beat reaches at least one commented value. A film cites the screenplay or profile entry a value takes, and a catalog case the fact or observed exchange it exhibits.
 
 ```ts
 const rush = jun.run({
