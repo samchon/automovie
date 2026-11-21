@@ -1,5 +1,6 @@
 import type {
   IAutoMovieContactReceipt,
+  IAutoMoviePhysicalCoupledTargetFit,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicsCache,
@@ -14,6 +15,8 @@ import RAPIER, {
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
+import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
+import type { IPhysicalCoupledTargetSchedule } from "./IPhysicalCoupledTargetSchedule";
 import { admitPhysicalSimulation } from "./admitPhysicalSimulation";
 import { assertPhysicalReturnPath } from "./assertPhysicalReturnPath";
 import { bindPhysicalWorld } from "./bindPhysicalWorld";
@@ -25,6 +28,7 @@ import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 import { isPhysicalPairExcluded } from "./isPhysicalPairExcluded";
 import { physicalInputDigest } from "./physicalInputDigest";
 import { physicalNativeVector } from "./physicalNativeVector";
+import { preparePhysicalCoupledTargetSchedule } from "./preparePhysicalCoupledTargetSchedule";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
 import { readPhysicalFrame } from "./readPhysicalFrame";
 import { recordPhysicalContact } from "./recordPhysicalContact";
@@ -60,6 +64,8 @@ export class AutoMoviePhysicalSimulation {
     public readonly recomputedSteps: number,
     /** Pre-solve PD demands exceeding the native enforced motor torque cap. */
     public readonly tracking: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
+    /** Converged coupled-group target fits by output step and group id; omitted when no target declares a group. */
+    public readonly coupledTargetFits?: IAutoMoviePhysicalCoupledTargetFit.ISeries,
   ) {}
 
   /**
@@ -106,13 +112,17 @@ export class AutoMoviePhysicalSimulation {
   public static identity(
     input: IAutoMoviePhysicalSimulationInput.IInput,
   ): string {
-    return physicalInputDigest(this.admitted(input));
+    return physicalInputDigest(this.admitted(input).owned);
   }
 
-  /** All identity callers and actual runs use exactly the same owned defaults and admission. */
-  private static admitted(
-    input: IAutoMoviePhysicalSimulationInput.IInput,
-  ): IAutoMoviePhysicalSimulationInput.IInput {
+  /**
+   * All identity callers and actual runs use exactly the same owned defaults
+   * and admission, including the coupled-group schedule.
+   */
+  private static admitted(input: IAutoMoviePhysicalSimulationInput.IInput): {
+    owned: IAutoMoviePhysicalSimulationInput.IInput;
+    schedule: IPhysicalCoupledTargetSchedule | undefined;
+  } {
     const owned: IAutoMoviePhysicalSimulationInput.IInput =
       structuredClone(input);
     if (owned.substeps === undefined) owned.substeps = 16;
@@ -130,7 +140,7 @@ export class AutoMoviePhysicalSimulation {
     }
     admitPhysicalSimulation(owned);
     freezePhysicalRecord(owned);
-    return owned;
+    return { owned, schedule: preparePhysicalCoupledTargetSchedule(owned) };
   }
 
   /**
@@ -141,13 +151,16 @@ export class AutoMoviePhysicalSimulation {
    * fully kinematic inputs generate frames without a native dynamics world.
    * Progress reports completed intervals synchronously. Cancellation or an
    * error rejects rather than returning a partial successful performance.
+   * Each declared coupled group fits its members against one snapshot. The
+   * result keeps every converged report, and a resumed run keeps the reports
+   * of its reused prefix. A failed group throws its typed error.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents owned admission, exact-result reuse, compatible-prefix resumption, kinematic execution and progress/cancellation behavior.
    * @evidence contracts/development/implementation.md#principled-implementation Integrates admitted SI inputs at 1/(rate*substeps) seconds, applies interval policy and first-substep impulses, and records completed cache frames and causal contacts. Prefix equivalence is established from actual settings/targets/impulses before restoration.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission/digest, prefix selection/restoration, world binding, tracking/contact owners and replay storage have separate responsibilities; this method coordinates their fixed-step order and native cleanup.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Kinematic and exaggerated modes are explicit authored policy. Admitted body/segment/target populations and selected checkpoints justify internal lookups; valid previous results must retain their original input/checkpoint consistency. Missing geometry or exceeded floor bounds remain errors.
    * @evidence contracts/development/implementation.md#efficient-algorithms For r recomputed steps and u substeps, native solves and tracking/contact work dominate, with segment/shape and active-contact populations as dimensions. Each substep also scans all impulses, and prefix selection serializes prior samples while scanning impulses per candidate step; replay storage grows with total steps*segments plus checkpoint and contact data.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Equal complete identity returns the prior object; compatible prefixes reuse prior frames/receipts and restore copied native/controller/balance state. A static promise shares concurrent WASM initialization. Changed solver/profile/settings force restart; separate effectful compute calls are otherwise not merged.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Equal complete identity returns the prior object; compatible prefixes reuse prior frames/receipts and coupled reports up to the resume step and restore copied native/controller/balance state. A static promise shares concurrent WASM initialization. Changed solver/profile/settings force restart; separate effectful compute calls are otherwise not merged.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Restoration copies the causal prefix before allocating its World and transfers native ownership immediately on return; nested finally blocks then free the World and EventQueue on success, error or cancellation. Returned inputs, frames, receipts and checkpoint bytes remain caller-owned; step/segment admission bounds their populations but there is no total retained-byte budget. The initialization promise persists process-wide.
    */
   public static async compute(
@@ -157,7 +170,10 @@ export class AutoMoviePhysicalSimulation {
     progress?: (completed: number, total: number) => void,
   ): Promise<IAutoMoviePhysicalSimulation> {
     signal?.throwIfAborted();
-    const owned: IAutoMoviePhysicalSimulationInput.IInput =
+    const {
+      owned,
+      schedule,
+    }: ReturnType<typeof AutoMoviePhysicalSimulation.admitted> =
       this.admitted(input);
     const identity: string = physicalInputDigest(owned);
     if (previous?.cache.identity === identity) {
@@ -176,6 +192,23 @@ export class AutoMoviePhysicalSimulation {
     const count: number = Math.round(owned.duration * owned.rate);
     const diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[] = [];
 
+    // A refit later in the same step replaces that step's report.
+    const fits:
+      | Record<
+          number,
+          Record<string, IAutoMoviePhysicalCoupledTargetFit.IConverged>
+        >
+      | undefined = schedule && Object.create(null);
+    const coupling: IPhysicalCoupledTargetRun | undefined = schedule && {
+      schedule,
+      record: (
+        reports: readonly IAutoMoviePhysicalCoupledTargetFit.IConverged[],
+      ): void => {
+        for (const report of reports)
+          (fits![report.step] ??= Object.create(null))[report.group] = report;
+      },
+    };
+
     // A fully kinematic film constructs no dynamics world and takes no native steps.
     if (
       owned.bodies.every(
@@ -183,9 +216,22 @@ export class AutoMoviePhysicalSimulation {
           body.mode.kind === "kinematic",
       )
     ) {
-      await computePhysicalKinematicFrames(owned, cache, signal, progress);
+      await computePhysicalKinematicFrames(
+        owned,
+        cache,
+        signal,
+        progress,
+        coupling,
+      );
       freezePhysicalRecord(cache);
-      return new AutoMoviePhysicalSimulation(owned, cache, 0, diagnostics);
+      if (fits) freezePhysicalRecord(fits);
+      return new AutoMoviePhysicalSimulation(
+        owned,
+        cache,
+        0,
+        diagnostics,
+        fits,
+      );
     }
     this.initialization ??= RAPIER.init();
     await this.initialization;
@@ -204,6 +250,16 @@ export class AutoMoviePhysicalSimulation {
         diagnostics,
       );
       const bound: Bound = bindPhysicalWorld(world, owned, start > 0);
+      bound.coupling = coupling;
+
+      // The equal prefix keeps the reports of its completed steps.
+      if (fits && start > 0)
+        for (const [step, groups] of Object.entries(
+          previous!.coupledTargetFits ?? {},
+        ))
+          if (Number(step) <= start && groups)
+            for (const report of Object.values(groups))
+              if (report) coupling!.record([report]);
       if (start === 0) cache.ownership.push(...bound.ownership);
       bound.ownership = cache.ownership;
       bound.supportWrenches = cache.supportWrenches;
@@ -498,11 +554,13 @@ export class AutoMoviePhysicalSimulation {
       }
       freezePhysicalRecord(cache);
       freezePhysicalRecord(diagnostics);
+      if (fits) freezePhysicalRecord(fits);
       return new AutoMoviePhysicalSimulation(
         owned,
         cache,
         count - start,
         diagnostics,
+        fits,
       );
     } finally {
       try {
