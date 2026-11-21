@@ -1,5 +1,6 @@
 import { Vector3, projectileFirstContact } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHit,
   IAutoMovieMotionHumanPerformanceState,
@@ -87,9 +88,25 @@ export namespace HumanPropSweep {
         { x: 0, y: 1, z: 0 },
       ),
     ];
+    // A later launch's touching hands (a deliberate deflection) are left to
+    // that launch through its action, as a staged catch's hands are.
+    const approaches: readonly HumanPropCatchHands.IApproach[] =
+      handback === undefined || handback.hands.length === 0
+        ? captureHands
+        : [
+            ...captureHands,
+            ...handback.hands.map(
+              (side: AutoMovieHumanSide): HumanPropCatchHands.IApproach => ({
+                subject: handback.subject,
+                side,
+                from: handback.from,
+                until: handback.at,
+              }),
+            ),
+          ];
     const maskedBones:
       | Map<string, ReturnType<typeof HumanPerformanceRead.prepareBones>>
-      | undefined = captureHands.length === 0 ? undefined : new Map();
+      | undefined = approaches.length === 0 ? undefined : new Map();
     for (const person of self.people.values()) {
       const subject: string = person.performer.subject;
       if (subject === launcher || `person:${subject}` === leave) continue;
@@ -100,7 +117,7 @@ export namespace HumanPropSweep {
       const reserved: readonly HumanPropCatchHands.IApproach[] | undefined =
         maskedBones === undefined
           ? undefined
-          : captureHands.filter((grip): boolean => grip.subject === subject);
+          : approaches.filter((grip): boolean => grip.subject === subject);
       const bones: typeof allBones =
         reserved === undefined || reserved.length === 0
           ? allBones
@@ -272,6 +289,9 @@ export namespace HumanPropSweep {
 
     /** The film second the launching action starts, from which its fit owns the approach. */
     from: number;
+
+    /** The launcher's hands that meet the prop at that launch (`IAutoMovieMotionPropLaunch.touching`); none for a launch made with a held instrument. */
+    hands: readonly AutoMovieHumanSide[];
   }
 
   /**

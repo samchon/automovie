@@ -137,6 +137,7 @@ export namespace HumanPropFlight {
             filmEnd,
             launches[index + 1]?.seconds,
             launches[index + 1]?.source,
+            launches[index + 1]?.launch.touching,
           ),
         );
       if (!self.resolving) admitCaptures(self, subject, out);
@@ -311,6 +312,7 @@ export namespace HumanPropFlight {
     filmEnd: number,
     nextLaunch: number | undefined,
     successor: IAutoMovieMotionHumanPropFlight.IFlight["source"] | undefined,
+    touching: IAutoMovieMotionPropLaunch["touching"],
   ): IAutoMovieMotionHumanPropFlight.IFlight {
     // The prop leaves from where it is shown at the launch, when a grip
     // shows it there; a prop set on its way leaves from the launch's point.
@@ -371,7 +373,12 @@ export namespace HumanPropFlight {
       successor !== undefined &&
       nextLaunch !== undefined &&
       supersededAt === nextLaunch
-        ? { subject: successor.subject, at: nextLaunch, from: successor.start }
+        ? {
+            subject: successor.subject,
+            at: nextLaunch,
+            from: successor.start,
+            hands: touching ?? [],
+          }
         : undefined;
     const friction: number | undefined = launch.sphere?.tangentialFriction;
     const outcomeProp: IAutoMovieMotionHumanProp =
