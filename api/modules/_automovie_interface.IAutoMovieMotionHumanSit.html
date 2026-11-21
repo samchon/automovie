@@ -1,0 +1,76 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieMotionHumanSit | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieMotionHumanSit</a></li></ul>
+<h1>Namespace IAutoMovieMotionHumanSit</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Sitting down on a chair, bench or stool from standing in front of it:
+the body's seat socket is lowered onto the seat while the trunk leans
+forward and the feet stay where they stand.</p>
+<p>Stand-to-sit is the rise reversed under eccentric control (Kralj, Jaeger
+and Munih 1990, J Biomech 23:1123): the hips travel back and down, the
+trunk flexes forward to keep the weight over the feet until the seat takes
+it, then the trunk settles into the seated posture. The goal is the seat
+socket on its point on the seat (seated); the root follows from
+that goal and the trunk's pitch, the planted legs and the hands are solved
+by inverse kinematics. The socket moves back over the first 70 % of the
+descent, no further than keeps the centre of mass where it stands over
+the feet until a pendulum's time constant before contact (Hof, Gazendam
+and Sinke 2005), over which the body comes down onto the seat, and down
+from 10 % to its end, so it reaches the seat from above;
+the trunk pitches forward to its peak by 45 % of the descent and settles
+after contact; each hand is brought to its rest along the arm trajectory
+planner's path, onto its armrest as the seat takes the body, the two
+supports loaded together where the armrest lies nearest the shoulder, or,
+with none, onto its thigh from contact to seated, once the thighs no longer
+rise under it, the fingers straightening to lie flat.</p>
+<p>Peak trunk flexion <code>35 + 50 (1 - r)</code> degrees and descent time
+<code>2 (1 + 0.6 (1 - r))</code> seconds for a seat at <code>r</code> of the popliteal height
+(provisional coefficients; a lower seat needs more trunk flexion and more
+time, Janssen, Bussmann and Stam 2002, and sit-to-stand takes about 1.5 to
+2.5 s in healthy adults). Contact comes at 75 % of the descent. The seated
+back is <code>upright</code> (pitch 0), <code>lean</code> (12 degrees back onto a backrest, which
+the seat must have) or <code>slump</code> (pelvis 10 degrees back, chest 12 and spine
+8 flexed), all provisional.</p>
+<p>The performer must stand facing within 20 degrees of the seat's heading
+with feet the legs can reach from the seat; otherwise the sit is refused
+with the range of foot distances that work. Events <code>commit</code> (the last
+instant the sitting can be abandoned for standing), <code>seatContact</code> and
+<code>seated</code>; the seat window starts at contact.</p>
+<p>A seat above 1.2 of the popliteal height, or one sat astride, is got onto
+instead (HumanMountOn): the feet leave the floor for the seat's
+rests or hang, under the same parameters, events and cancel table.</p>
+</div></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="interfaces">Interfaces<a href="#interfaces" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="iparams"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_interface.IAutoMovieMotionHumanSit.IParams.html">IParams</a><a href="#iparams" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary>
+<div><a href="#iparams"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Params</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

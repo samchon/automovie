@@ -1,0 +1,114 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>gestureStroke | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="_automovie_motions.html">@automovie/motions</a></li>
+<li><a href="" aria-current="page">gestureStroke</a></li></ul>
+<h1>Namespace gestureStroke</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The stroke of each gesture: where each hand surface goes, turned which
+way and in which shape, as a function of the stroke's progress, and which
+joints a gesture moves directly.</p>
+<p>Hand gestures are effector goals. Each names a hand surface, a world
+point and a hand rotation; the gesture law transports the hand there in the
+preparation phase and back in the retraction, and the arm is solved by
+inverse kinematics (<a href="_automovie_motions.HumanHand.html" class="tsd-kind-namespace">HumanHand</a>). Points are built in the performer's
+own frame (<code>x</code> left, <code>y</code> up, <code>z</code> forward from the root) from the body's
+measure, or on a target or on the body's own face, so every gesture fits
+any stature and proportion. A place of the air is written in the names of
+AutoMovieMotionHumanTargetGrid.Place (a height, a lateral and a
+distance, with a nudge in arm lengths where the stroke moves about it), a
+hand's turn in the axes of HumanHand.Direction, and a joint angle
+as a level of <a href="_automovie_motions.AutoMovieMotionHumanRange.html" class="tsd-kind-namespace">AutoMovieMotionHumanRange</a>:</p>
+<ul>
+<li><code>wave</code>: the open palm faces forward beside the head, at eye height,
+outside the shoulder and near; the hand swings side to side <code>0.06</code> arm
+lengths, tilting as the forearm turns about the elbow, about 2.5 cycles a
+second (provisional).</li>
+<li><code>raiseHand</code>: the open palm forward, raised from the shoulder to overhead
+by the extent; <code>cheer</code> raises both fists and pumps them <code>0.08</code> arm
+lengths.</li>
+<li><code>stopPalm</code>: the open palm faces forward at shoulder height, inside the
+shoulder and far, pushed <code>0.05</code> arm lengths further in the stroke.</li>
+<li><code>point</code>: the index fingertip on the line from the eye on the pointing
+side to the target, as people point (Henriques and Crawford 2002, J
+Neurophysiol 87:1677, found the fingertip placed on the line from the
+dominant eye; the side's eye is the provisional choice), at the distance
+where the arm reaches with <code>0.95</code> of its length, the fingers along the
+line and the palm down.</li>
+<li><code>palmsUp</code>: both open palms up, forearms forward at the waist, turned a
+quarter of the way out, set <code>0.15</code> arm lengths out and forward and
+lifted <code>0.03</code> in the stroke, the offering and not-knowing gesture;
+<code>shrug</code> adds it under raised shoulders.</li>
+<li><code>beckon</code>: the palm up at chest height, <code>0.05</code> arm lengths lower and
+nearer, while the fingers curl and open, about 1.7 cycles a second
+(provisional).</li>
+<li><code>clap</code>: both palms face each other ahead of the chest, <code>0.1</code> arm lengths
+below and <code>0.17</code> ahead of its place, part <code>0.09</code> and meet at the
+midpoint on each beat, four beats a second (free applause clusters near
+4 Hz, faster than the near-2 Hz synchronised rhythm, Neda et al.
+2000, Nature 403:849).</li>
+<li><code>thumbsDown</code>: the fist ahead of the chest, the palm outward and the
+knuckles ahead and 45 degrees down, so a straight thumb, which leans
+toward the knuckles, points down; the elbow is asked out at the
+shoulder's height, which leaves the forearm a quarter turn instead of a
+half (provisional place, tip and elbow).</li>
+<li><code>rubHands</code>: the palms together, sliding <code>0.03</code> arm lengths opposite ways
+along the fingers.</li>
+<li><code>palmsTogether</code>: the palms pressed together ahead of the chest, the
+fingers up and forward, held: the clap's hand pose without its parting
+(a prayer, a wai or gassho greeting).</li>
+<li><code>touchFace</code>: the index fingertip, hand flat, on a face region with the
+palm toward the face and the fingers up, held; <code>pushGlasses</code> slides it
+12 mm up the nose bridge; <code>scratchHead</code> rubs it 15 mm on the head's side
+four times a second (provisional).</li>
+</ul>
+<p>Gestures of the head, shoulders and trunk are joint angles, stated by
+gestureJoints; pointing and self-touch read the posed trunk in
+gestureTouch; the strokes ride the signals of <a href="_automovie_motions.gestureSignal.html" class="tsd-kind-namespace">gestureSignal</a>.
+Amplitudes and distances that express the gesture's size scale with the
+Effort extent; contact points and the pointing line do not. Each hand goal
+widens the elbow's hanging hint by its own share of the upper arm (<code>out</code>:
+0.3 for a wave, 0.2 for a raised hand, a cheer and open palms, 0.1 for
+palms together, none for the rest; provisional, read from no measured
+source). Every value above without a source is provisional.</p>
+</div></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="interfaces">Interfaces<a href="#interfaces" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="iinput"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_motions.gestureStroke.IInput.html">IInput</a><a href="#iinput" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Variables"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="variables">Variables<a href="#variables" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="hands"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/_automovie_motions.gestureStroke.HANDS.html">HANDS</a><a href="#hands" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="rhythm"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/_automovie_motions.gestureStroke.RHYTHM.html">RHYTHM</a><a href="#rhythm" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="functions">Functions<a href="#functions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="curl"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/_automovie_motions.gestureStroke.curl.html">curl</a><a href="#curl" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="hand"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/_automovie_motions.gestureStroke.hand.html">hand</a><a href="#hand" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary>
+<div><a href="#iinput"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Input</span></a></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Variables"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Variables</summary>
+<div><a href="#hands"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>HANDS</span></a><a href="#rhythm"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>RHYTHM</span></a></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Functions</summary>
+<div><a href="#curl"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>curl</span></a><a href="#hand"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>hand</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

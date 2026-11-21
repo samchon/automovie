@@ -1,0 +1,98 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieMotionHumanJump | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieMotionHumanJump</a></li></ul>
+<h1>Namespace IAutoMovieMotionHumanJump</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>A jump to a floor point: a push-off from a planted foot, a ballistic flight
+and a two-footed landing that absorbs and rises to standing.</p>
+<p>The push-off starts from the entry exactly, so a walk cut while a stance
+foot is planted continues without a jump in position or velocity: the root
+follows a quintic Hermite path from the entry root and velocity to the
+take-off root and velocity over <code>PUSH</code> seconds. The take-off foot is the
+planted one (the front one in the entered body's own frame when both are,
+the rear being about to leave),
+held on the floor while it comes down about its heel if it was still in its
+heel rocker and then rises about the toes' joint from its entry pitch to
+40°, its toes extending, the stance rockers in order and the forefoot rocker of a
+push-off, the floor contact it declares being the heel while it pivots
+there and the toes' joint after; the other leg, the reaching leg, leaves
+the floor at the cut and withdraws under the body, its
+ankle drawn under the hip and raised to 0.3 hip heights, the free-leg tuck
+of a one-foot take-off, its foot turning from its entry rotation. The arms
+swing forward and up from their entry angles with the push (shoulder
+flexion to 60°), the arm action that adds to take-off velocity
+(Ashby and Heegaard 2002, &quot;Role of arm motion in the standing long jump&quot;,
+J. Biomech. 35).</p>
+<p>Whatever the push-off moves on a path of its own (the take-off foot's
+pitch, the reaching foot, the turn to the jump's heading, the shoulders)
+also continues the rate it was entered with: the path starts at rest, and
+the entry rate times the engine's <code>carriedRate</code> term (unit slope and
+no acceleration at the cut, zero value, velocity and acceleration at its
+end) is added to it over the push. A rate is carried only as long as its
+room affords, the term peaking at <code>carriedRate.PEAK</code> of its duration times
+the rate: the reaching foot's velocity and spin, a rigid motion of the
+foot, for no longer than brings its heel or ball to the floor, and a
+take-off foot whose heel was coming down about its ball for no longer than
+lays it flat. The root's own push-off path starts at the entry's position,
+velocity and acceleration, so a walk's stance, whose root is accelerating
+downward at several metres per second squared, is not cut to a path at
+rest acceleration: the planted knee is solved from the root and would show
+that step as a change of its flexion rate within one frame. The reaching
+ankle carries its entry acceleration the same way (the engine's
+<code>carriedAcceleration</code>, over the carry of its velocity), so the reaching
+knee is not left to absorb the root's.</p>
+<p>Flight is ballistic in the centre of mass, the one point gravity alone
+moves while airborne: from the apex height <code>apex</code> above take-off (0.06 hip
+heights plus a tenth of the jump's length when absent, provisional), the
+vertical take-off speed is <code>sqrt(2 g apex)</code>, the flight time solves the
+centre's landing height, and the horizontal speed covers its distance in
+that time, the closed form of a drag-free projectile (<code>v = d / T - g T / 2</code>, as the engine's ballistic solvers). At each airborne instant the root
+is placed so the body's centre of mass, read by the engine's mass model
+from the posture there, lies on that parabola, so moving the limbs in
+flight shifts the trunk the way it would. The legs travel in the body's frame from their
+take-off placements to their landing footprints, lifted at mid-flight.
+Both feet land flat on footprints at the destination and at its height (a
+box's top, a step; the flight's default apex then also clears that rise,
+and an apex that does not is refused), at the body's rest
+separation, turned out by the stance angle; the root lands 0.03 hip
+heights low with the flight's velocity, absorbs to 0.12 hip heights low on
+a quintic path that brings that velocity to rest over <code>ABSORB</code> seconds,
+then rises to the upright stand (standUpright) over <code>RISE</code> seconds.
+Planted legs are kept reachable by <code>resolveHumanPosture.lower</code>. The
+push-off is drawn by <code>jumpPush</code>, the landing's places by <code>jumpLanding</code>
+and the paths by <code>jumpPath</code>.</p>
+</div></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="interfaces">Interfaces<a href="#interfaces" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="iparams"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_interface.IAutoMovieMotionHumanJump.IParams.html">IParams</a><a href="#iparams" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary>
+<div><a href="#iparams"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Params</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

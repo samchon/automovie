@@ -1,0 +1,87 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>prepareJointRotationProjection | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">prepareJointRotationProjection</a></li></ul>
+<h1>Function prepareJointRotationProjection</h1></div>
+<section class="tsd-panel">
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="preparejointrotationprojection"><span class="tsd-kind-call-signature">prepareJointRotationProjection</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">basis</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointAxes.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointAxes</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">clamp</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">joint</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointPose.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointPose</a><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointPose.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointPose</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">domain</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointRotationDomain.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointRotationDomain</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">frame</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieRestFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRestFrame</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMoviePrepareJointRotationProjection.html" class="tsd-signature-type tsd-kind-namespace">IAutoMoviePrepareJointRotationProjection</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMoviePrepareJointRotationProjection.IProjector.html" class="tsd-signature-type tsd-kind-interface">IProjector</a><a href="#preparejointrotationprojection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Prepare the nearest effector articulation under one unchanged clinical rig.
+The admitted normalized basis, rest frame, domain and clamp must describe the
+same joint and remain unchanged until the owning fit releases this closure.
+Targets are bone-local articulations after parent and fixed rest frames have
+been removed. The initial reference is the existing Euler reading clamped
+through the caller's actual clamp, so numerical ties keep that reading.</p>
+<p>A plain box with at most two positive-width coordinates has a bilinear
+quaternion objective. Actual Euler factor order and fixed-axis quaternions
+give four coefficients per actual fixed null/numeric mode; a finite SVD/boundary candidate list then
+contains its mathematical maximum. Every candidate is converted back to
+clinical degrees and clamped before its actual composed dot is compared.
+Within one query, exactly equal admitted clinical records share that
+composition and score. Their first occurrence also wins every later tie,
+so duplicate occurrences need no retained score or distance record.
+Full-turn aliases, neutral/sign maps and a fixed middle coordinate remain
+in that path. withQuaternion additionally returns the selected joint's
+already completed raw composition for a caller that will compose it again.
+The actual composer forwards four completed raw scalars into normalization,
+whose visitor reads the original normalized components directly into the
+score. Indexed numeric cells retain the raw values; only a selected paired
+result creates a quaternion record. Query-owned visitors keep every current
+input on its synchronous call stack. An exclusive projector-owned workspace
+reuses empty arrays and the row map; nested queries receive separate storage
+and finally clears all candidate references on return or throw.
+Unknown clamp outputs own copied bone/F/A/T values, so a callback reusing
+one mutable result cannot overwrite a retained reference or selected joint.
+Explicit swivelCandidates proposes intersections of an algebraic quaternion
+half-angle circle with a native two-axis product surface. Its deferred
+native-clamp gate leaves ordinary callable observations unchanged; actual
+angle ranges, clamping, FK and goals still belong to its curve consumer.</p>
+<p>Coupled swing/swing-twist gates, three mobile axes and unrepresentable alias
+arithmetic are refined one clinical coordinate at a time, at most four
+sweeps and none after a sweep that moves nothing. Along one coordinate the
+composed rotation's signed dot with the target is a sinusoid of half that
+coordinate's rig angle, so where the clamp returns the line's candidates as
+asked (a box's own coordinates) the line's least error is read at the
+sinusoid's stationary value inside the span or at the span's ends, with no
+search. Where the clamp moves a candidate off the line (a coupled gate or a
+foreign callback), nothing states what it composes there, and that line
+keeps its forty-step bracketed search.
+That fallback is a bounded local search, not a global-optimum guarantee.
+The analytic comparison identifies dots only within their summation error;
+it does not declare an unreachable rotation reached or change a ROM limit.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">props</span>: <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">basis</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointAxes.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointAxes</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">clamp</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">joint</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointPose.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointPose</a><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointPose.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointPose</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">domain</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointRotationDomain.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointRotationDomain</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">frame</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieRestFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRestFrame</a><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../modules/_automovie_interface.IAutoMoviePrepareJointRotationProjection.html" class="tsd-signature-type tsd-kind-namespace">IAutoMoviePrepareJointRotationProjection</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMoviePrepareJointRotationProjection.IProjector.html" class="tsd-signature-type tsd-kind-interface">IProjector</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/motion/prepareJointRotationProjection.ts#L112">packages/engine/src/motion/prepareJointRotationProjection.ts:112</a></li></ul></aside></div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

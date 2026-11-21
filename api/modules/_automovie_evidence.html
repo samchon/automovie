@@ -1,0 +1,154 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@automovie/evidence | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="" aria-current="page">@automovie/evidence</a></li></ul>
+<h1>Module @automovie/evidence</h1></div>
+<section class="tsd-panel tsd-typography"><h1 id="automovieevidence" class="tsd-anchor-link">@automovie/evidence<a href="#automovieevidence" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>Configures the evidence check of an AutoMovie production. A production's <code>evidence.config.ts</code> calls <code>createEvidenceConfig</code>, and <code>@wrtnlabs/evidence</code> then checks that the production's code, and its writing once <code>narrative</code> is set, answers the checklists in its contracts. A production created by <code>automovie create</code> already has this package and a working configuration.</p>
+<h2 id="configure" class="tsd-anchor-link">Configure<a href="#configure" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>To add the package to a project made another way, run <code>npm install --save-dev @automovie/evidence @wrtnlabs/evidence</code> and place the checklists it reads under <code>.agents/skills</code>. The package needs Node.js 22.23.2 or later.</p>
+<pre><code class="ts"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">createEvidenceConfig</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@automovie/evidence&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-3">export</span><span class="hl-1"> </span><span class="hl-3">default</span><span class="hl-1"> </span><span class="hl-0">createEvidenceConfig</span><span class="hl-1">({ </span><span class="hl-4">location:</span><span class="hl-1"> </span><span class="hl-3">import</span><span class="hl-1">.</span><span class="hl-4">meta</span><span class="hl-1">.</span><span class="hl-4">dirname</span><span class="hl-1"> });</span>
+</code><button type="button">Copy</button></pre>
+
+<p><code>location</code> is the production's absolute directory. With nothing else set, these engineering defaults apply, and the narrative checks are off:</p>
+<table>
+<thead>
+<tr>
+<th>Declarations</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exported types, interfaces and classes under <code>src/**/*.ts</code></td>
+<td><code>contracts/development/design.md</code></td>
+</tr>
+<tr>
+<td>Exported functions and class methods under <code>src/**/*.ts</code></td>
+<td><code>contracts/development/implementation.md</code></td>
+</tr>
+<tr>
+<td>Exported test functions under <code>test/**/test_*.ts</code></td>
+<td><code>contracts/development/testing.md</code></td>
+</tr>
+<tr>
+<td>All of the above</td>
+<td><code>contracts/development/common.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>A declaration answers a checklist in its doc comment, with one <code>@evidence &lt;checklist&gt;#&lt;item&gt;</code> tag per item followed by the answer.</p>
+<p>The bundled contracts are read from <code>&lt;location&gt;/.agents/skills</code>. A production inside a pnpm workspace, where the root holds the one shared skills tree, names that tree, absolute or relative to <code>location</code>:</p>
+<pre><code class="ts"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">createEvidenceConfig</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@automovie/evidence&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-3">export</span><span class="hl-1"> </span><span class="hl-3">default</span><span class="hl-1"> </span><span class="hl-0">createEvidenceConfig</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">location:</span><span class="hl-1"> </span><span class="hl-3">import</span><span class="hl-1">.</span><span class="hl-4">meta</span><span class="hl-1">.</span><span class="hl-4">dirname</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">skills:</span><span class="hl-1"> </span><span class="hl-2">&quot;../../../.agents/skills&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p>The production's own contracts, <code>work/**</code> and <code>language/**</code>, hold the questions specific to that work and to its language, and live under <code>&lt;location&gt;/docs/contracts</code> in either layout.</p>
+<p>Bundled story citations start at <code>contracts/story</code>. When upgrading, install the matching scaffold. For active answers to checklists that kept their names, drop the former <code>shared/</code> prefix. Final-expression questions moved into <code>principles/screenplay.md</code> for sections and <code>obligations/screenplay.md</code> for whole-film comparisons. For example, <code>shared/naturalness/realized.md#speech-yield</code> is now <code>principles/screenplay.md#speech-yield</code>.</p>
+<p>If the production supplied its own <code>docs/contracts/language/naturalness/</code> questions, merge the ones it still uses into the corresponding screenplay files under <code>docs/contracts/language/</code>. Reconcile active answers with their current questions and respondents. Preserve the revision a closed review covered.</p>
+<h3 id="narrative" class="tsd-anchor-link">Narrative<a href="#narrative" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Add <code>narrative</code> when the production writes a screenplay:</p>
+<pre><code class="ts"><span class="hl-3">export</span><span class="hl-1"> </span><span class="hl-3">default</span><span class="hl-1"> </span><span class="hl-0">createEvidenceConfig</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">location:</span><span class="hl-1"> </span><span class="hl-3">import</span><span class="hl-1">.</span><span class="hl-4">meta</span><span class="hl-1">.</span><span class="hl-4">dirname</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">narrative:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">mode:</span><span class="hl-1"> </span><span class="hl-2">&quot;short&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">construction:</span><span class="hl-1"> { </span><span class="hl-4">brief:</span><span class="hl-1"> </span><span class="hl-2">&quot;evidence&quot;</span><span class="hl-1">, </span><span class="hl-4">screenplay:</span><span class="hl-1"> </span><span class="hl-2">&quot;evidence&quot;</span><span class="hl-1"> },</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p><code>construction</code> checks how each layer is built from the one before it. Setting a layer to <code>&quot;evidence&quot;</code> turns its check on, and setting a finished layer back to <code>&quot;disabled&quot;</code> leaves the layers still running unaffected.</p>
+<p>Long-route scripts answer for scene progression, draft exchanges and event coverage. On both routes, final wording is checked during screenplay construction. Each section answers <code>principles/screenplay.md</code>. Each comparison across the film in <code>obligations/screenplay.md</code> takes one file answer.</p>
+<p><code>short</code> is a brief under <code>docs/body/brief</code> followed by the screenplay, and <code>long</code>, the mode of a series, has four layers: settings, treatments, scripts and screenplay. A layer you leave out stays a disabled draft. The checks cover the complete work unless <code>scope</code> names the first part that a pilot covers.</p>
+<p>The screenplay is one folder per film with one file per scene: <code>docs/body/screenplay/&lt;film&gt;/NNN-&lt;scene&gt;.md</code> for a short, and <code>docs/body/screenplay/NNN-part/NNN-episode/NNN-&lt;scene&gt;.md</code> for a series, where each scene file realizes one scene of its episode's script. Both depths are selected on either route.</p>
+<p><code>none</code> checks no narrative layer, for a screenplay no narrative pass writes, and takes no <code>construction</code> or <code>scope</code>.</p>
+<h3 id="research-and-development-contracts" class="tsd-anchor-link">Research and development contracts<a href="#research-and-development-contracts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>With <code>narrative.mode: &quot;short&quot;</code>, the first study under <code>docs/research/</code> activates research by default. The top-level index alone does not activate it. Set <code>research</code> explicitly on other routes or when closing a research stage. Use <code>development</code> when a production builds entities, behaviors and scenes in code.</p>
+<p>When composition Evidence opens for programmed scenes or films, it expects case sources under <code>src/composition/scenes/catalog/</code>, the film at <code>src/composition/films/catalog.ts</code> and the record at <code>docs/acceptance/catalog.md</code>. The catalog answers the composition checklist. Screenplay coverage comes from the production scenes and films. The director verifies the registered catalog plays and judges the tested conditions.</p>
+<pre><code class="ts"><span class="hl-3">export</span><span class="hl-1"> </span><span class="hl-3">default</span><span class="hl-1"> </span><span class="hl-0">createEvidenceConfig</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">location:</span><span class="hl-1"> </span><span class="hl-3">import</span><span class="hl-1">.</span><span class="hl-4">meta</span><span class="hl-1">.</span><span class="hl-4">dirname</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">research:</span><span class="hl-1"> </span><span class="hl-2">&quot;evidence&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">development:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">entities:</span><span class="hl-1"> </span><span class="hl-2">&quot;evidence&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">behaviors:</span><span class="hl-1"> </span><span class="hl-2">&quot;evidence&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">composition:</span><span class="hl-1"> </span><span class="hl-2">&quot;evidence&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Checks</th>
+<th>Against</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>research</code></td>
+<td>Each study in <code>docs/research/</code></td>
+<td><code>contracts/story/principles/research.md</code></td>
+</tr>
+<tr>
+<td><code>development.entities</code></td>
+<td>Exports under <code>src/entities/</code></td>
+<td><code>contracts/development/entities.md</code></td>
+</tr>
+<tr>
+<td><code>development.behaviors</code></td>
+<td>Exports under <code>src/laws/</code>, <code>src/interactions/</code> and <code>src/consequences/</code></td>
+<td><code>contracts/development/behaviors.md</code></td>
+</tr>
+<tr>
+<td><code>development.composition</code></td>
+<td>Exports under <code>src/composition/</code></td>
+<td><code>contracts/development/composition.md</code>, citing the screenplay scene files, sections and beats they realize</td>
+</tr>
+</tbody>
+</table>
+<p>When entities or composition are submitted, entity types cite the subject files in <code>cast/</code>, <code>crowds/</code>, <code>props/</code> and <code>sets/</code> under a short's <code>docs/body/brief/</code> or a long work's <code>docs/body/settings/</code>. For example, <code>@evidence docs/body/brief/props/ball.md The ball uses the brief's red panels.</code></p>
+<p>Every screenplay section and beat must be realized by some scene, and every scene file by the film that orders it. Under <code>narrative: { mode: &quot;none&quot; }</code> with <code>development.composition</code>, every section of <code>docs/instructions/</code> must be realized by some composition or entity too, with no exclusion, because no narrative layer cites them. An option you leave out stays disabled.</p>
+<h3 id="your-own-claims" class="tsd-anchor-link">Your own claims<a href="#your-own-claims" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>A claim binds a set of declarations to the checklist they answer. Top-level <code>claims</code> adds claims to the engineering defaults, and <code>narrative.claims</code> adds claims to the ones <code>narrative</code> configures. Both take <code>IEvidenceClaim[]</code> from <code>@wrtnlabs/evidence</code>.</p>
+<p><code>createEvidenceConfig</code> is the package's only entry. The <code>@automovie/evidence/internal</code> subpath serves this repository's own tests and tools and promises no stability.</p>
+<h2 id="run" class="tsd-anchor-link">Run<a href="#run" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">evidence</span>
+</code><button type="button">Copy</button></pre>
+
+<p>The exit code is 0 for a complete analysis without errors, 1 for violations and 2 for an invalid configuration or incomplete analysis. <code>npx evidence list</code> prints the configured targets, <code>npx evidence inspect &lt;target&gt;</code> explains one, and <code>npm run evidence -- --only &lt;targets...&gt;</code>, optionally with <code>--shallow</code>, checks only those targets. The <a href="https://github.com/wrtnlabs/evidence#readme"><code>@wrtnlabs/evidence</code> documentation</a> covers addresses, annotations and fingerprints.</p>
+<p>A passing check means the checklists were answered. Whether the writing and the delivered video are good is still decided in review.</p>
+</section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="interfaces">Interfaces<a href="#interfaces" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="iautomoviedevelopmentprops"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_evidence.IAutoMovieDevelopmentProps.html">IAutoMovieDevelopmentProps</a><a href="#iautomoviedevelopmentprops" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="iautomovieevidenceconfigprops"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_evidence.IAutoMovieEvidenceConfigProps.html">IAutoMovieEvidenceConfigProps</a><a href="#iautomovieevidenceconfigprops" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="iautomovienarrativeprops"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_evidence.IAutoMovieNarrativeProps.html">IAutoMovieNarrativeProps</a><a href="#iautomovienarrativeprops" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="iautomovienonarrativeprops"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_evidence.IAutoMovieNoNarrativeProps.html">IAutoMovieNoNarrativeProps</a><a href="#iautomovienonarrativeprops" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="iproductionconstruction"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_evidence.IProductionConstruction.html">IProductionConstruction</a><a href="#iproductionconstruction" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="type-aliases">Type Aliases<a href="#type-aliases" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="narrativescope"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><a href="../types/_automovie_evidence.NarrativeScope.html">NarrativeScope</a><a href="#narrativescope" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="productionstage"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><a href="../types/_automovie_evidence.ProductionStage.html">ProductionStage</a><a href="#productionstage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="functions">Functions<a href="#functions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="createevidenceconfig"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/_automovie_evidence.createEvidenceConfig.html">createEvidenceConfig</a><a href="#createevidenceconfig" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#automovieevidence"><span>@automovie/evidence</span></a>
+<ul>
+<li><a href="#configure"><span>Configure</span></a></li>
+<li>
+<ul>
+<li><a href="#narrative"><span>Narrative</span></a></li>
+<li><a href="#research-and-development-contracts"><span>Research and development contracts</span></a></li>
+<li><a href="#your-own-claims"><span>Your own claims</span></a></li></ul></li>
+<li><a href="#run"><span>Run</span></a></li></ul>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary>
+<div><a href="#iautomoviedevelopmentprops"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Auto<wbr/>Movie<wbr/>Development<wbr/>Props</span></a><a href="#iautomovieevidenceconfigprops"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Auto<wbr/>Movie<wbr/>Evidence<wbr/>Config<wbr/>Props</span></a><a href="#iautomovienarrativeprops"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Auto<wbr/>Movie<wbr/>Narrative<wbr/>Props</span></a><a href="#iautomovienonarrativeprops"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Auto<wbr/>Movie<wbr/>No<wbr/>Narrative<wbr/>Props</span></a><a href="#iproductionconstruction"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Production<wbr/>Construction</span></a></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Type Aliases"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Type Aliases</summary>
+<div><a href="#narrativescope"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><span>Narrative<wbr/>Scope</span></a><a href="#productionstage"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Type Alias"><use href="../assets/icons.svg#icon-2097152"></use></svg><span>Production<wbr/>Stage</span></a></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Functions</summary>
+<div><a href="#createevidenceconfig"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>create<wbr/>Evidence<wbr/>Config</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

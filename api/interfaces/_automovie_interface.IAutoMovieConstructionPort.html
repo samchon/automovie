@@ -1,0 +1,195 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieConstructionPort | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieConstructionPort</a></li></ul>
+<h1>Interface IAutoMovieConstructionPort</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>A part attached at a known port of a host face: a closed port curve on the host's chart, an ellipse about a published centre, is cut out of the host, and a band spans from that curve to the part's ring at <code>rail</code> (an arm on its armscye, a branch on a stem's side). The parent owns the port loop and the region inside it; the part keeps its stations beyond the rail.</p>
+<p>The port curve at clock <code>c</code> in <code>[0, 2 pi)</code> is the chart point <code>(centre[0] + semi[0] cos c, centre[1] + sense semi[1] sin c)</code>: station in metres, phase in radians. The band is the engine's join strip between two ribbons: the host surface's own 2-jet across the port curve, toward the curve's centre (the chart direction <code>(-semi[0] cos c, -sense semi[1] sin c)</code>), and the part's own 2-jet at its rail toward its kept side, both scaled by one factor at which no column turns back along its chord. The band is G2 to the host along the port curve and G2 to the part along its rail. A failed premise leaves the part, the band and the host's port as they were, with one diagnostic naming the port.</p>
+<p>Engine admission: <code>hostFace</code> a view part of the host's subtree and <code>partFace</code> one of the part's; the <code>band</code> name unique in the tree; <code>count</code> a multiple of 4 of at least 8; <code>rows</code> a positive integer; <code>rail</code> positive; <code>rails</code>, when given, at least 3 finite positive distances; the loop's centre finite, both semi-axes positive and the phase semi-axis under pi; a loop's shape, when given, <code>count</code> finite positive shares; each profile as <code>IAutoMovieConstructionBandProfile</code> states.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IAutoMovieConstructionPort</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#band">band</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#correspondence">correspondence</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;angle&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;length&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#count">count</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#host">host</a><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieConstructionNode.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieConstructionNode</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#hostface">hostFace</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#loop">loop</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieConstructionPortLoop.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieConstructionPortLoop</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#name">name</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#part">part</a><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieConstructionNode.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieConstructionNode</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#partend">partEnd</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;bottom&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;top&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#partface">partFace</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#profiles">profiles</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieConstructionBandProfile.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieConstructionBandProfile</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#rail">rail</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#rails">rails</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#ribbons">ribbons</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;common&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;column&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#rows">rows</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#type">type</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;port&quot;</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L17">packages/interface/src/construction/IAutoMovieConstructionPort.ts:17</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#band" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>band</span></a>
+<a href="#correspondence" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>correspondence?</span></a>
+<a href="#count" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>count</span></a>
+<a href="#host" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>host</span></a>
+<a href="#hostface" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>host<wbr/>Face</span></a>
+<a href="#loop" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>loop</span></a>
+<a href="#name" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>name</span></a>
+<a href="#part" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>part</span></a>
+<a href="#partend" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>part<wbr/>End</span></a>
+<a href="#partface" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>part<wbr/>Face</span></a>
+<a href="#profiles" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>profiles?</span></a>
+<a href="#rail" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rail</span></a>
+<a href="#rails" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rails?</span></a>
+<a href="#ribbons" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>ribbons?</span></a>
+<a href="#rows" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rows</span></a>
+<a href="#type" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>type</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="band"><span>band</span><a href="#band" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">band</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The band's face and chain name, unique in the tree.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L34">packages/interface/src/construction/IAutoMovieConstructionPort.ts:34</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="correspondence"><code class="tsd-tag">Optional</code><span>correspondence</span><a href="#correspondence" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">correspondence</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;angle&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;length&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>How the part's rail is matched to the port curve column by column. <code>angle</code> (the default): the rail point at the curve point's angle
+about the rail ring's centroid, which both curves must turn round once monotonically. <code>length</code>: the first column by that angle, every
+other at the same share of the rail's length round it as the column's of the port curve's, so neither need be star-shaped about the
+centroid, as a nose's rail is not where it runs back behind each nostril and its underside is lifted onto the skin.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L62">packages/interface/src/construction/IAutoMovieConstructionPort.ts:62</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="count"><span>count</span><a href="#count" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">count</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Columns of the band round its loop, a multiple of 4 of at least 8.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L81">packages/interface/src/construction/IAutoMovieConstructionPort.ts:81</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="host"><span>host</span><a href="#host" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">host</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieConstructionNode.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieConstructionNode</a></div>
+<div class="tsd-comment tsd-typography"><p>The solid whose face carries the port.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L25">packages/interface/src/construction/IAutoMovieConstructionPort.ts:25</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="hostface"><span>host<wbr/>Face</span><a href="#hostface" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">hostFace</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The host face the port curve lies on: a view part's name in the host's subtree.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L28">packages/interface/src/construction/IAutoMovieConstructionPort.ts:28</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="loop"><span>loop</span><a href="#loop" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">loop</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieConstructionPortLoop.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieConstructionPortLoop</a></div>
+<div class="tsd-comment tsd-typography"><p>The port curve on the host face's chart.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L31">packages/interface/src/construction/IAutoMovieConstructionPort.ts:31</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="name"><span>name</span><a href="#name" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The port's name, unique in its tree, named in diagnostics.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L22">packages/interface/src/construction/IAutoMovieConstructionPort.ts:22</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="part"><span>part</span><a href="#part" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">part</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieConstructionNode.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieConstructionNode</a></div>
+<div class="tsd-comment tsd-typography"><p>The attached part's subtree.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L37">packages/interface/src/construction/IAutoMovieConstructionPort.ts:37</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="partend"><span>part<wbr/>End</span><a href="#partend" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">partEnd</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;bottom&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;top&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>The part face's end that faces the host: the band replaces the part's surface between that end and the rail.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L43">packages/interface/src/construction/IAutoMovieConstructionPort.ts:43</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="partface"><span>part<wbr/>Face</span><a href="#partface" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">partFace</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The part face the band reaches: a view part's name in the part's subtree.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L40">packages/interface/src/construction/IAutoMovieConstructionPort.ts:40</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="profiles"><code class="tsd-tag">Optional</code><span>profiles</span><a href="#profiles" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">profiles</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieConstructionBandProfile.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieConstructionBandProfile</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Cross profiles of the band: over windows of its loop clock, the band is carried in along its own normal by a depth that is a function of
+its cross share, so it can leave the host into a hollow and come up again onto the part, as a profile blend's interior cross sections
+shape it between its rails. Absent, the band is the plain blend of the two sides' 2-jets.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L78">packages/interface/src/construction/IAutoMovieConstructionPort.ts:78</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="rail"><span>rail</span><a href="#rail" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">rail</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>The rail's distance from that end into the part along its station, metres, positive: the part keeps the stations beyond it. Not read when <code>rails</code> is given.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L46">packages/interface/src/construction/IAutoMovieConstructionPort.ts:46</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="rails"><code class="tsd-tag">Optional</code><span>rails</span><a href="#rails" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">rails</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>The rail as a closed curve round the part instead of one station: its distance from that end at the part phases <code>2 pi j / m</code>,
+<code>j = 0 .. m - 1</code>, metres, positive, joined round the part by the periodic cubic spline through them. The part keeps, at each phase,
+the stations beyond the curve. It serves a part whose root does not lie in one section plane, as a nose's does: its wings leave the
+face by the crease round them, far back, while its middle meets the lip far forward. Absent, the rail is the one station <code>rail</code>.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L54">packages/interface/src/construction/IAutoMovieConstructionPort.ts:54</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="ribbons"><code class="tsd-tag">Optional</code><span>ribbons</span><a href="#ribbons" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">ribbons</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;common&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;column&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>How far each column's ribbons reach into the band. <code>common</code> (the default): every column's ribbons are scaled by one factor, the
+largest at which no column turns back along its chord, so the hardest column sets the reach of all. <code>column</code>: each column takes its
+own factor from a field smooth along the loop that stays under every column's own largest, so a column where the port's loop and the
+part's ring disagree shortens only its neighbourhood and the band elsewhere turns from the host to the part over its whole length.
+Either way the band stays G2 to both sides.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L71">packages/interface/src/construction/IAutoMovieConstructionPort.ts:71</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="rows"><span>rows</span><a href="#rows" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">rows</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Grid stations of the band face across its span, at least 1.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L84">packages/interface/src/construction/IAutoMovieConstructionPort.ts:84</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="type"><span>type</span><a href="#type" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;port&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>Discriminator.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/construction/IAutoMovieConstructionPort.ts#L19">packages/interface/src/construction/IAutoMovieConstructionPort.ts:19</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#band"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>band</span></a><a href="#correspondence"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>correspondence</span></a><a href="#count"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>count</span></a><a href="#host"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>host</span></a><a href="#hostface"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>host<wbr/>Face</span></a><a href="#loop"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>loop</span></a><a href="#name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>name</span></a><a href="#part"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>part</span></a><a href="#partend"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>part<wbr/>End</span></a><a href="#partface"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>part<wbr/>Face</span></a><a href="#profiles"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>profiles</span></a><a href="#rail"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rail</span></a><a href="#rails"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rails</span></a><a href="#ribbons"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>ribbons</span></a><a href="#rows"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rows</span></a><a href="#type"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>type</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

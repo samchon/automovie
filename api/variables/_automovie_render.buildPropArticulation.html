@@ -1,0 +1,85 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>buildPropArticulation | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_render.html">@automovie/render</a></li>
+<li><a href="" aria-current="page">buildPropArticulation</a></li></ul>
+<h1>Variable buildPropArticulation<code class="tsd-tag">Const</code></h1></div>
+<div class="tsd-signature"><span class="tsd-kind-variable">buildPropArticulation</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_render.IBuildPropArticulationProps.html" class="tsd-signature-type tsd-kind-interface">IBuildPropArticulationProps</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_render.IAutoMovieBuiltPropArticulation.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieBuiltPropArticulation</a><span class="tsd-signature-symbol"> = ...</span></div>
+<div class="tsd-comment tsd-typography"><p>Build the moving parts of a shot's props into the scene a host assembled.</p>
+<p>A prop's articulation is data everywhere else in the pipeline: <code>forgeProp</code>
+gates it, <code>sceneToNodes</code> lowers it under the placement, and the performance
+boundary bounds a clip that drives it. On screen it was nothing at all: the
+viewer built one model object per scene node and added it to that node's
+group, so a hinge existed in the artifact and had no object to turn. A shot
+could therefore carry a validated, ROM-checked swing that rendered a door
+standing still, which is the silent drop this package refuses everywhere
+else.</p>
+<p>Two things make the joint real, and they are separate:</p>
+<ul>
+<li><strong>The frame.</strong> Each declared joint becomes a <code>THREE.Object3D</code> at its own
+local transform, parented to its declared parent joint or, for a root
+joint, to the placement group the host already built. Its name is
+<a href="_automovie_engine.placementChildNode.html" class="tsd-kind-variable">placementChildNode</a>'s, the engine's own lowering law, so the object a
+clip channel names is found by the same string the artifact was gated
+against rather than by a second spelling of the prefix.</li>
+<li><strong>The part.</strong> A joint that names a <code>mesh</code> takes that part of the prop's model
+out of the model root and carries it, so turning the joint turns something
+visible. The part does not move when it changes hands: its authored
+transform stays MODEL-local, which is the frame <code>propOccupancyBounds</code>
+measures the prop's volume in and every containment, bearing and clearance
+judgment is made against. A leaf hung on a hinge therefore stands exactly
+where the record says it stands, and only what carries it changes.</li>
+</ul>
+<p>Anything that cannot resolve throws rather than being skipped, the rule
+<a href="_automovie_render.buildScene.html" class="tsd-kind-variable">buildScene</a> states for an unresolvable node: a silently unparented leaf
+renders frozen at its model's origin while every other part of the frame
+looks right, and nothing downstream would report it.</p>
+<p>A prop drawing an imported appearance has no addressable parts (see
+<a href="_automovie_render.createImportedModelObject.html" class="tsd-kind-variable">createImportedModelObject</a>), so a joint of one may name no <code>mesh</code>; its
+frame is still built and still turns whatever it holds.</p>
+<p>What this does NOT do is run a prop profile's drivers. A profile's limits and
+drivers are resolved by <code>resolveFrame</code>, which is the engine's frame solver
+rather than the viewer's, so a handle declared to mirror its hinge is honored
+where the shot is gated and stands still where the shot is drawn. Only the
+channels a clip carries move here, exactly as <a href="_automovie_render.applyObjectMotions.html" class="tsd-kind-variable">applyObjectMotions</a>
+states for every other object it drives.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="__type"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_render.IBuildPropArticulationProps.html" class="tsd-signature-type tsd-kind-interface">IBuildPropArticulationProps</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_render.IAutoMovieBuiltPropArticulation.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieBuiltPropArticulation</a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">props</span>: <a href="../interfaces/_automovie_render.IBuildPropArticulationProps.html" class="tsd-signature-type tsd-kind-interface">IBuildPropArticulationProps</a></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_render.IAutoMovieBuiltPropArticulation.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieBuiltPropArticulation</a></h4></li></ul></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/render/src/scene/buildPropArticulation.ts#L82">packages/render/src/scene/buildPropArticulation.ts:82</a></li></ul></aside></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

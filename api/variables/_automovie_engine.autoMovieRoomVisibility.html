@@ -1,0 +1,82 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>autoMovieRoomVisibility | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">autoMovieRoomVisibility</a></li></ul>
+<h1>Variable autoMovieRoomVisibility<code class="tsd-tag">Const</code></h1></div>
+<div class="tsd-signature"><span class="tsd-kind-variable">autoMovieRoomVisibility</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieRoomVisibilityQuery.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieRoomVisibilityQuery</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_interface.IAutoMovieRoomVisibility.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRoomVisibility</a><span class="tsd-signature-symbol"> = ...</span></div>
+<div class="tsd-comment tsd-typography"><p>Decide which logical spaces a camera cannot possibly see.</p>
+<p>Cell-and-portal culling, run conservatively. Two spaces are joined when
+anything the design declares lets sight pass between them: an opening cut
+through a shared boundary, a connector such as a stair, lift, ramp or
+skybridge at every space it stops at rather than only at its two ends, or,
+for a space whose envelope carries an opening, the exterior itself. A space
+is hidden only when no such chain reaches it from the space the camera
+occupies.</p>
+<p>The exterior is a graph node, which is what makes the answer right in the
+case that motivates the whole hint: from a sealed interior room, the other
+windowed rooms of the same building are hidden, while from a windowed room
+they are kept, because sight can leave one window and enter another. A culler
+that treated &quot;outside&quot; as nothing would have hidden the second case and
+produced a frame the film does not contain.</p>
+<p>Containment is decided over LEAF spaces. A storey containing a room contains
+the camera too, and reading that as two candidate cells would make every
+ordinary building ambiguous; the storeys and building spaces above the
+camera's room are containers, and they are always kept.</p>
+<p>The cases that hide nothing are as important as the ones that hide something,
+and each states its reason:</p>
+<ul>
+<li>The camera is outside every declared leaf space, so it may see any facade;</li>
+<li>The camera lies in more than one leaf space, so which cell it occupies is not
+a fact the design settled;</li>
+<li>Some leaf space declares no cells, so its extent is unknown and a sight line
+through it cannot be ruled out. Placement and proof stay separate facts
+here: an unknown extent leaves the camera's own room reported when it is
+settled, and refuses to call the camera exterior when it is not, because a
+camera standing inside the one space nobody measured is exactly the case
+&quot;outside every space&quot; would get wrong;</li>
+<li>A boundary carrying an opening is a portal even when a door leaf fills it,
+because whether that leaf is shut is movable state this issue does not own.
+Proving a closed door would hide more, and proving it belongs to the
+openings issue rather than to a guess made here.</li>
+</ul>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="__type"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieRoomVisibilityQuery.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieRoomVisibilityQuery</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieRoomVisibility.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRoomVisibility</a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">props</span>: <a href="../types/_automovie_interface.IAutoMovieRoomVisibilityQuery.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieRoomVisibilityQuery</a></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_interface.IAutoMovieRoomVisibility.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRoomVisibility</a></h4></li></ul></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/render/autoMovieRoomVisibility.ts#L67">packages/engine/src/render/autoMovieRoomVisibility.ts:67</a></li></ul></aside></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

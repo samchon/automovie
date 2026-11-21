@@ -1,0 +1,98 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>rigAutoMovieSurfaceCurve | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">rigAutoMovieSurfaceCurve</a></li></ul>
+<h1>Variable rigAutoMovieSurfaceCurve<code class="tsd-tag">Const</code></h1></div>
+<div class="tsd-signature"><span class="tsd-kind-variable">rigAutoMovieSurfaceCurve</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieRigSurfaceCurve.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieRigSurfaceCurve</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieRigSurfaceCurve.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_interface.IAutoMovieSurfaceCurveRig.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSurfaceCurveRig</a><span class="tsd-signature-symbol"> = ...</span></div>
+<div class="tsd-comment tsd-typography"><p>Compile a network curve for per-pose evaluation.</p>
+<p>The curve is the centripetal Catmull-Rom spline through its start node,
+its through points and its end node, by chord-length share. At a node on a
+sweep its end direction is the spline's own less its part along the
+sweep's normal there, so it leaves or reaches the sweep in the sweep's
+tangent plane. A bridge leaving the curve under the <code>across</code> rule takes
+the declared normal at mid-curve, turning linearly toward each end to the
+sweep's normal at a sweep node; under the other rules it takes the
+declared direction. Through points, the normal and the direction ride the
+curve's bone when it has one, and the nodes are written by their own rig.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="__type"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieRigSurfaceCurve.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieRigSurfaceCurve</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieRigSurfaceCurve.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieSurfaceCurveRig.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSurfaceCurveRig</a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">props</span>: <a href="../modules/_automovie_interface.IAutoMovieRigSurfaceCurve.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieRigSurfaceCurve</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieRigSurfaceCurve.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a></span>
+<div class="tsd-comment tsd-typography"><p>Compile a network curve for per-pose evaluation.</p>
+<p>The curve is the centripetal Catmull-Rom spline through its start node,
+its through points and its end node, by chord-length share. At a node on a
+sweep its end direction is the spline's own less its part along the
+sweep's normal there, so it leaves or reaches the sweep in the sweep's
+tangent plane. A bridge leaving the curve under the <code>across</code> rule takes
+the declared normal at mid-curve, turning linearly toward each end to the
+sweep's normal at a sweep node; under the other rules it takes the
+declared direction. Through points, the normal and the direction ride the
+curve's bone when it has one, and the nodes are written by their own rig.</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5 id="bone"><span class="tsd-kind-property">bone</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Index into bones for transporting through points and declared directions. Negative means fixed at rest; this helper assumes a valid nonnegative index and does not validate it.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="bones"><span class="tsd-kind-property">bones</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_automovie_interface.IAutoMovieBoneBuffer.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieBoneBuffer</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></h5>
+<div class="tsd-comment tsd-typography"><p>Borrowed live bone-motion buffer, refreshed before curve update. Null disables transport even if bone is nonnegative; endpoint nodes still move through their own writers.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="curve"><span class="tsd-kind-property">curve</span><span class="tsd-signature-symbol">: </span><a href="../modules/_automovie_interface.IAutoMovieSurfaceNetwork.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieSurfaceNetwork</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieSurfaceNetwork.ICurve.html" class="tsd-signature-type tsd-kind-interface">ICurve</a></h5>
+<div class="tsd-comment tsd-typography"><p>Rest curve declaration. Through-point positions in model metres and direction/normal components are copied; presence of normal/direction is read later, so keep the declaration stable.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="from"><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_automovie_interface.IAutoMovieSurfacePoint.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSurfacePoint</a></h5>
+<div class="tsd-comment tsd-typography"><p>Borrowed start-node writer and optional sweep probe. Registry finalization must resolve it before the first update; each update reads its current posed position and tangent-plane normal.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="name"><span class="tsd-kind-property">name</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>Network curve key used in tangent, normal and direction failure messages. It does not determine geometry.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="to"><span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_automovie_interface.IAutoMovieSurfacePoint.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSurfacePoint</a></h5>
+<div class="tsd-comment tsd-typography"><p>Borrowed end node in the same model frame as from. Its current writer and probe are read every update, allowing deferred registry binding.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_interface.IAutoMovieSurfaceCurveRig.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSurfaceCurveRig</a></h4><p>The curve's rig.</p>
+</li></ul></li></ul></div>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-throws">
+<h4 class="tsd-anchor-link" id="throws">Throws<a href="#throws" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Error from <code>update</code> when the curve meets a sweep along its normal or the spline is refused by <code>transportAutoMovieSweepSpine</code>.</p>
+</div></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/geometry/sweep/rigAutoMovieSurfaceCurve.ts#L44">packages/engine/src/geometry/sweep/rigAutoMovieSurfaceCurve.ts:44</a></li></ul></aside></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

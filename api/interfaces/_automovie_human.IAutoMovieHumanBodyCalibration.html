@@ -1,0 +1,217 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieHumanBodyCalibration | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_human.html">@automovie/human</a></li>
+<li><a href="" aria-current="page">IAutoMovieHumanBodyCalibration</a></li></ul>
+<h1>Interface IAutoMovieHumanBodyCalibration</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Shared shape coefficients (theta) of the generated body surface.</p>
+<p>The chains are principal layers fitted from saved Recovery/Hermite
+sections of a calibration specimen in the registered frame: forward +X,
+up +Y, lateral +Z, millimetres, floor at y = 0. The generator reads this
+object and the public parameters only; it never reads reference files.</p>
+<h2 id="chain-tree" class="tsd-anchor-link">Chain tree<a href="#chain-tree" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Chains are joined by <a href="_automovie_interface.IAutoMovieHumanBranchEvent.html" class="tsd-kind-interface">IAutoMovieHumanBranchEvent</a>s. At an event the parent's end section
+is the contact of several child sections touching at pinch points: a
+<code>down</code> event sits at the parent's bottom with its children below (a
+crotch, an axilla, the webs between fingers), an <code>up</code> event at the
+parent's top with its children above (an ear rim leaving the head). The
+parent generates the contact ring once; each child's adjacent end is the
+arcs of that ring along the parent's phases, so the chains share those
+vertices. A chain end with no event closes at an <a href="_automovie_interface.IAutoMovieHumanSurfacePole.html" class="tsd-kind-interface">IAutoMovieHumanSurfacePole</a>.</p>
+<p>Calibration is one stage of the campaign plan: the coefficients first
+reproduce one specimen, then are replaced by laws in the public inputs
+identified across all references.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IAutoMovieHumanBodyCalibration</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#apertures">apertures</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_human.IAutoMovieHumanLoftAperture.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanLoftAperture</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#appendages">appendages</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanSurfaceAppendage.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanSurfaceAppendage</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#bodies">bodies</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieSolidBody.IPublished.html" class="tsd-signature-type tsd-kind-interface">IPublished</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#chains">chains</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieLoftChain.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLoftChain</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#diagnostics">diagnostics</a><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieLoftContract.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieLoftContract</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieLoftContract.IDiagnostic.html" class="tsd-signature-type tsd-kind-interface">IDiagnostic</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#events">events</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanBranchEvent.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanBranchEvent</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#eyes">eyes</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanEyeSeat.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanEyeSeat</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#head">head</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanHeadAttachmentLandmarks.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanHeadAttachmentLandmarks</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#merges">merges</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanSurfaceMerge.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanSurfaceMerge</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#mouth">mouth</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanOralAnatomy.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanOralAnatomy</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#nails">nails</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanNailWindow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanNailWindow</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#poles">poles</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanSurfacePole.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanSurfacePole</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#skeleton">skeleton</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanCalibrationBone.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanCalibrationBone</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#stature">stature</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#trunk">trunk</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_human.IAutoMovieHumanTrunkLandmarks.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanTrunkLandmarks</a><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L45">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:45</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#apertures" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>apertures</span></a>
+<a href="#appendages" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>appendages?</span></a>
+<a href="#bodies" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>bodies?</span></a>
+<a href="#chains" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>chains</span></a>
+<a href="#diagnostics" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>diagnostics?</span></a>
+<a href="#events" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>events</span></a>
+<a href="#eyes" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>eyes</span></a>
+<a href="#head" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>head?</span></a>
+<a href="#merges" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>merges?</span></a>
+<a href="#mouth" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>mouth?</span></a>
+<a href="#nails" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>nails?</span></a>
+<a href="#poles" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>poles</span></a>
+<a href="#skeleton" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>skeleton?</span></a>
+<a href="#stature" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>stature</span></a>
+<a href="#trunk" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>trunk?</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="apertures"><span>apertures</span><a href="#apertures" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">apertures</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_human.IAutoMovieHumanLoftAperture.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanLoftAperture</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Anatomical openings cut from the skin by world position, e.g. the eyelid apertures.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L59">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:59</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="appendages"><code class="tsd-tag">Optional</code><span>appendages</span><a href="#appendages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">appendages</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanSurfaceAppendage.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanSurfaceAppendage</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Chains rooted in a closed loop on another chain's surface (an auricle on
+the head, a limb on the trunk) instead of sharing a contact ring. Absent
+means none.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L80">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:80</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="bodies"><code class="tsd-tag">Optional</code><span>bodies</span><a href="#bodies" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">bodies</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieSolidBody.IPublished.html" class="tsd-signature-type tsd-kind-interface">IPublished</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Solids built as bodies of trimmed faces (<code>AutoMovieSolidBody</code>):
+merges onto merged hosts, whose rails cross faces, published with
+<code>AutoMovieSolidBody.publish</code>. Every face is a chain of <code>chains</code>
+(the blends included) and is drawn by the solid tessellation
+(<code>AutoMovieHumanBodySurfaceSolids</code>), not by events or rings. Absent means
+none.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L98">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:98</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="chains"><span>chains</span><a href="#chains" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">chains</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieLoftChain.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLoftChain</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>All chains of the tree.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L50">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:50</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="diagnostics"><code class="tsd-tag">Optional</code><span>diagnostics</span><a href="#diagnostics" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">diagnostics</span><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieLoftContract.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieLoftContract</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieLoftContract.IDiagnostic.html" class="tsd-signature-type tsd-kind-interface">IDiagnostic</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Contracts the body law's pieces broke while building this calibration,
+each piece degraded to its base (<code>construction-levels.md</code>, Totality and
+diagnostics). The body law creates the list once and every stage that
+spreads the calibration shares it, so a piece records into it where it
+degrades; <code>AutoMovieHuman.generate</code> carries it into the shape's own
+diagnostics. A calibration built by hand, as a part viewer's or a test's,
+may leave it out.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L73">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:73</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="events"><span>events</span><a href="#events" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">events</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanBranchEvent.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanBranchEvent</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Branch events, at most one per chain end.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L53">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:53</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="eyes"><span>eyes</span><a href="#eyes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">eyes</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanEyeSeat.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanEyeSeat</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Eyeball globes seated behind the eyelid apertures.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L62">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:62</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="head"><code class="tsd-tag">Optional</code><span>head</span><a href="#head" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">head</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanHeadAttachmentLandmarks.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanHeadAttachmentLandmarks</a></div>
+<div class="tsd-comment tsd-typography"><p>The head's landmarks as its construction solved them, so parts placed on
+the head (hair, garments) attach through landmarks instead of
+coordinates. Absent on a calibration whose head is not generated.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L118">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:118</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="merges"><code class="tsd-tag">Optional</code><span>merges</span><a href="#merges" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">merges</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanSurfaceMerge.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanSurfaceMerge</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Solid merges and diffs drawn by the solid tessellation
+(<code>AutoMovieHumanBodySurfaceSolids</code>): each a join's blend published as a
+chain between a host chain and a part chain. Every chain a merge names is
+drawn as a trimmed face, not by events or rings. Absent means none.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L88">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:88</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="mouth"><code class="tsd-tag">Optional</code><span>mouth</span><a href="#mouth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">mouth</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanOralAnatomy.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanOralAnatomy</a></div>
+<div class="tsd-comment tsd-typography"><p>The mouth behind the <code>mouth</code> aperture: the lips' contact line, the teeth,
+the cavity's lining and the tongue, placed by <code>AutoMovieHumanMouth</code>.
+Absent on a calibration whose head has no generated mouth.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L111">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:111</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="nails"><code class="tsd-tag">Optional</code><span>nails</span><a href="#nails" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">nails</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanNailWindow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanNailWindow</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>The nail plates, one per digit chain: a window of the digit chain's own
+surface from the plate's root to its free edge, as wide as the plate
+(<code>AutoMovieHumanNailPlate</code>). The skin's nail parts are that window of the
+chain lifted by the plate's thickness. Absent on a calibration without
+digits.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L135">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:135</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="poles"><span>poles</span><a href="#poles" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">poles</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanSurfacePole.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanSurfacePole</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Closing points of chain ends without an event.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L56">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:56</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="skeleton"><code class="tsd-tag">Optional</code><span>skeleton</span><a href="#skeleton" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">skeleton</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieHumanCalibrationBone.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanCalibrationBone</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>The bind skeleton the limbs were lofted on, placed before any limb skin
+by <code>AutoMovieHumanSkeletonLaw</code>. Absent on a calibration still being built.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L104">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:104</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="stature"><span>stature</span><a href="#stature" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">stature</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Achieved stature input of the calibration specimen in mm.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L47">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:47</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="trunk"><code class="tsd-tag">Optional</code><span>trunk</span><a href="#trunk" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">trunk</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_human.IAutoMovieHumanTrunkLandmarks.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanTrunkLandmarks</a></div>
+<div class="tsd-comment tsd-typography"><p>The trunk's landmarks as its solve placed them, left side: the shoulders'
+arm arc stands on their glenohumeral centre, so the arm and the skeleton
+stand on the same centre instead of reading one off the skin. Absent on a
+calibration whose trunk is not generated.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts#L126">interface/src/human/generation/IAutoMovieHumanBodyCalibration.ts:126</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#chain-tree"><span>Chain tree</span></a>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#apertures"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>apertures</span></a><a href="#appendages"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>appendages</span></a><a href="#bodies"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>bodies</span></a><a href="#chains"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>chains</span></a><a href="#diagnostics"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>diagnostics</span></a><a href="#events"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>events</span></a><a href="#eyes"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>eyes</span></a><a href="#head"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>head</span></a><a href="#merges"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>merges</span></a><a href="#mouth"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>mouth</span></a><a href="#nails"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>nails</span></a><a href="#poles"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>poles</span></a><a href="#skeleton"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>skeleton</span></a><a href="#stature"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>stature</span></a><a href="#trunk"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>trunk</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

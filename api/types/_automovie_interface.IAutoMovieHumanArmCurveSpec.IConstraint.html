@@ -1,0 +1,197 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IConstraint | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="../modules/_automovie_interface.IAutoMovieHumanArmCurveSpec.html">IAutoMovieHumanArmCurveSpec</a></li>
+<li><a href="" aria-current="page">IConstraint</a></li></ul>
+<h1>Type Alias IConstraint</h1></div>
+<div class="tsd-signature"><span class="tsd-kind-type-alias">IConstraint</span><span class="tsd-signature-symbol">:</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">datum</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;pass&quot;</span> <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;planar&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">normal</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">origin</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;perimeter&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">length</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">source</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieHumanArmCurveSpec.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieHumanArmCurveSpec</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieHumanArmCurveSpec.ISource.html" class="tsd-signature-type tsd-kind-type-alias">ISource</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;breadth&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">length</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">source</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieHumanArmCurveSpec.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieHumanArmCurveSpec</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieHumanArmCurveSpec.ISource.html" class="tsd-signature-type tsd-kind-type-alias">ISource</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;continuity&quot;</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">neighbour</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">order</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">0</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">1</span> <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">datum</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;tangent&quot;</span> <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">axis</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">datum</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">interval</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;extremum&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">sense</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;max&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;min&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">axis</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">interval</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;monotone&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">sense</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;increasing&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;decreasing&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">interval</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;curvature-sign&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">normal</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">sign</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">1</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">-1</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-comment tsd-typography"><p>A constraint the constructed curve must satisfy, checked independently of the constructor.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul>
+<li><span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">datum</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;pass&quot;</span> <span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">datum</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>Name of the previously declared datum that constrains this curve.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;pass&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The curve passes through the datum.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;planar&quot;</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">normal</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">origin</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a> <span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;planar&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The closed curve lies in the plane through <code>origin</code> with unit <code>normal</code>.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">normal</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a></h5>
+<div class="tsd-comment tsd-typography"><p>Plane normal in the curve's declared frame; its direction defines the constraint plane.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">origin</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a></h5>
+<div class="tsd-comment tsd-typography"><p>Point on the constraint plane in the curve's declared frame, millimetres.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;perimeter&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">length</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">source</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieHumanArmCurveSpec.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieHumanArmCurveSpec</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieHumanArmCurveSpec.ISource.html" class="tsd-signature-type tsd-kind-type-alias">ISource</a><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;perimeter&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The closed curve's perimeter equals the tape.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">length</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Required geometric distance or arc length, millimetres.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">source</span><span class="tsd-signature-symbol">: </span><a href="../modules/_automovie_interface.IAutoMovieHumanArmCurveSpec.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieHumanArmCurveSpec</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieHumanArmCurveSpec.ISource.html" class="tsd-signature-type tsd-kind-type-alias">ISource</a></h5>
+<div class="tsd-comment tsd-typography"><p>Measurement or construction provenance for this required distance.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;breadth&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">length</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">source</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieHumanArmCurveSpec.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieHumanArmCurveSpec</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieHumanArmCurveSpec.ISource.html" class="tsd-signature-type tsd-kind-type-alias">ISource</a><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a></h5>
+<div class="tsd-comment tsd-typography"><p>Tangent direction in the curve's declared frame, with magnitude ignored by the directional constraint.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;breadth&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The closed curve's extent along <code>direction</code> equals <code>length</code>.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">length</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Required geometric distance or arc length, millimetres.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">source</span><span class="tsd-signature-symbol">: </span><a href="../modules/_automovie_interface.IAutoMovieHumanArmCurveSpec.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieHumanArmCurveSpec</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieHumanArmCurveSpec.ISource.html" class="tsd-signature-type tsd-kind-type-alias">ISource</a></h5>
+<div class="tsd-comment tsd-typography"><p>Measurement or construction provenance for this required distance.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;continuity&quot;</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">neighbour</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">order</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">0</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">1</span> <span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;continuity&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The open curve shares the neighbour's position and tangent where they meet.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">neighbour</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>Identity of the adjacent curve whose boundary jet must agree.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">order</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">0</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">1</span></h5>
+<div class="tsd-comment tsd-typography"><p>Required boundary agreement: 0 for position, 1 for tangent direction.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">datum</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;tangent&quot;</span> <span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">datum</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>Name of the previously declared datum that constrains this curve.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a></h5>
+<div class="tsd-comment tsd-typography"><p>Tangent direction in the curve's declared frame, with magnitude ignored by the directional constraint.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;tangent&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Where the curve passes the named datum, its tangent is parallel to
+<code>direction</code> with the same sense (G1 to that direction). <code>direction</code>
+is a unit vector in the spec's frame; its length carries no speed.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">axis</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">datum</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">interval</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;extremum&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">sense</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;max&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;min&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">axis</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a></h5>
+<div class="tsd-comment tsd-typography"><p>Direction along which the extremum or monotonicity is tested in the declared frame.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">datum</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>Name of the previously declared datum that constrains this curve.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">interval</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Inclusive interval of the curve's declared parameter on which this constraint applies.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;extremum&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The curve's extremum along the unit <code>axis</code> (spec frame) on the
+parameter <code>interval</code> lies at the named datum: <code>sense</code> &quot;max&quot; means
+no point of the interval reaches farther along <code>axis</code> than the
+datum, &quot;min&quot; the reverse. <code>value</code> is the datum's coordinate along
+<code>axis</code> from the frame origin, calibration mm.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">sense</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;max&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;min&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Which extremum or direction of monotonic change the curve must have.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Required coordinate along the declared constraint axis, millimetres.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">axis</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">interval</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;monotone&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">sense</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;increasing&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;decreasing&quot;</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">axis</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a></h5>
+<div class="tsd-comment tsd-typography"><p>Direction along which the extremum or monotonicity is tested in the declared frame.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">interval</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Inclusive interval of the curve's declared parameter on which this constraint applies.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;monotone&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The coordinate along the unit <code>axis</code> (spec frame) is monotone over
+the parameter <code>interval</code>: &quot;increasing&quot; or &quot;decreasing&quot; in the
+curve's own parameter direction.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">sense</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;increasing&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;decreasing&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Which extremum or direction of monotonic change the curve must have.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">interval</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;curvature-sign&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">normal</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">sign</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">1</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">-1</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">interval</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Inclusive interval of the curve's declared parameter on which this constraint applies.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;curvature-sign&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The signed curvature of the curve projected on the plane with unit
+<code>normal</code> (spec frame) keeps <code>sign</code> over the parameter <code>interval</code>:
++1 turns counter-clockwise about <code>normal</code>, -1 clockwise. A straight
+interval satisfies neither sign.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">normal</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.AutoMovieVector3Tuple.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieVector3Tuple</a></h5>
+<div class="tsd-comment tsd-typography"><p>Plane normal in the curve's declared frame; its direction defines the constraint plane.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">sign</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">1</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">-1</span></h5>
+<div class="tsd-comment tsd-typography"><p>Required signed curvature orientation relative to the declared normal.</p>
+</div></li></ul></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/generation/arm/IAutoMovieHumanArmCurveSpec.ts#L119">packages/interface/src/human/generation/arm/IAutoMovieHumanArmCurveSpec.ts:119</a></li></ul></aside></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>solveDistalTwist | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">solveDistalTwist</a></li></ul>
+<h1>Function solveDistalTwist</h1></div>
+<section class="tsd-panel">
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="solvedistaltwist"><span class="tsd-kind-call-signature">solveDistalTwist</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_engine.solveDistalTwist.html" class="tsd-signature-type tsd-kind-namespace">solveDistalTwist</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_engine.solveDistalTwist.IProps.html" class="tsd-signature-type tsd-kind-interface">IProps</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointPose.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointPose</a><a href="#solvedistaltwist" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>The twist a distally twisting mid bone (a forearm, which pronates and
+supinates about its own length beyond the elbow's hinge) takes so its
+effector (a wrist, which flexes and deviates but cannot twist) can reach a
+requested rotation.</p>
+<p>The effector reads its rotation as clinical angles in its own Euler
+convention, and the share it cannot take is that convention's twist. The
+mid bone's twist composes last in its own articulation, <code>A = Abd Flex T(u, r)</code>, so the effector's local rotation is <code>rest^-1 T(u, -r) K</code> with <code>K</code>
+fixed by the pose above and the request. Explicit flexion-abduction-twist
+likewise keeps the lower twist last and selects the corresponding matrix
+entries when the effector uses that chart. The effector's rig twist is
+<code>atan2(P, Q)</code> of two components of that rotation applied to its flexion
+(and, for a distal effector, abduction) axis (<code>decomposeJointRotationOnBasis</code>),
+and each component of a vector turned about <code>u</code> by <code>-r</code> is
+<code>alpha + beta cos r + gamma sin r</code>. Asking the effector's twist to stand at
+its clinical zero is therefore one equation <code>A + B cos r + C sin r = 0</code>,
+solved in closed form: at most two forearm twists, the circle the hand
+turns on as the forearm twists crossing the rotations the wrist's two
+angles make. Of those inside the forearm's range, the range's two ends and
+the start, the one whose effector, clamped to its own range, shows the
+request most nearly is taken, and between equals the one nearest the
+start: the current twist plus the swing-twist share (<code>swingTwist</code>) of the
+change from the effector's current rotation to the requested one. So only
+the residual beyond the current pose moves, a request near the current
+hand rotation prefers a nearby forearm twist. The bounded candidate law is
+retained; it does not globally minimize over both joints. Every candidate
+is ranked through the same effector projection that final orientation uses.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">props</span>: <a href="../modules/_automovie_engine.solveDistalTwist.html" class="tsd-signature-type tsd-kind-namespace">solveDistalTwist</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_engine.solveDistalTwist.IProps.html" class="tsd-signature-type tsd-kind-interface">IProps</a></span>
+<div class="tsd-comment tsd-typography"><p>The mid joint's and the effector's current clinical angles;
+<code>above</code>, the world rotation the mid joint's articulation composes after
+(its parent's world rotation and its rest); the mid and effector bases
+(normalized) and rest frames; the fixed lower-to-effector rotation,
+including unchanged intermediate bones and the effector rest; the requested
+effector world rotation; the skeleton whose ranges clamp; and, from a
+caller that solves many candidates, the two joints' clamps resolved once
+on that skeleton (<code>clampJointToSkeleton.of</code>) and optional shared effector
+projection prepared for those same axes, frame, domain and clamp. An
+optional effectorRestInverse must be Quaternion.inverse of that exact
+fixed rest frame; otherwise this solve computes it once for all trials.
+Optional articulation readers return this joint's raw composition, its
+rig-zero-twist composition and the actual held effector world-relative
+composition. They run at the original first-use sites; callers may share
+only unchanged joint/basis/frame inputs, never target-dependent answers.
+An optional composeLower belongs to this request on that same admitted
+lower basis/frame; it shares pure axis factors with the caller's immediate
+lower recomposition while still validating each joint and returning its
+fresh outer product; a private matching inner pair may also be shared.
+Optional preparedEffector borrows the fixed effector-frame readings from
+prepare under exactly the same rest, admitted basis and clinical frame.
+readHeldInverse may share Quaternion.inverse of the actual held raw
+quaternion. Its raw reader and angle/frame admission still run first,
+and the inverse callback runs only at the original inverse-use site.
+The target, preceding frame and admitted inputs stay unchanged throughout
+this synchronous solve, including while its pure readers/clamps run.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_interface.IAutoMovieJointPose.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointPose</a></h4><p>The mid joint with its twist solved, clamped to the rig's range.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/motion/solveDistalTwist.ts#L87">packages/engine/src/motion/solveDistalTwist.ts:87</a></li></ul></aside></div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

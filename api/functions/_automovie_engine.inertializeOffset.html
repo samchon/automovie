@@ -1,0 +1,88 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>inertializeOffset | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">inertializeOffset</a></li></ul>
+<h1>Function inertializeOffset</h1></div>
+<section class="tsd-panel">
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="inertializeoffset"><span class="tsd-kind-call-signature">inertializeOffset</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">x0</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">v0</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">duration</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">elapsed</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">through</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieInertializeOffset.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieInertializeOffset</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieInertializeOffset.IState.html" class="tsd-signature-type tsd-kind-interface">IState</a><a href="#inertializeoffset" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>The decaying offset of one channel after a transition, by inertialization.</p>
+<p>Bollo (Inertialization: High-Performance Animation Transitions in Gears of
+War, GDC 2018) replaces a cross-fade with an offset: at the cut the new
+motion starts at once, and the difference between the old and the new
+value (<code>x0</code>) and velocity (<code>v0</code>) decays to zero over <code>t1</code> seconds on a
+quintic with zero value, velocity and acceleration at <code>t1</code>. Written about
+<code>s = t1 - t</code>, that quintic is <code>x(t) = s^4 (b + c s)</code> with
+<code>b = (5 x0 + v0 t1) / t1^4</code> and <code>c = -(4 x0 + v0 t1) / t1^5</code>: it starts at
+<code>x0</code> with slope <code>v0</code>, so the displayed value and velocity are continuous at
+the cut, and it keeps the sign of <code>x0</code> exactly when <code>b</code> does, that is when
+<code>t1 &lt;= -5 x0 / v0</code> for a velocity heading toward zero. Bollo's clamp
+shortens <code>t1</code> to that bound, so the offset never overshoots; a velocity
+heading away needs no clamp. A zero offset leaves the signed lobe
+<code>v0 s^4 t / t1^4</code>, which returns to zero without crossing it.</p>
+<p>Unlike a critically damped spring, which only approaches zero, the quintic
+ends at exactly zero at <code>t1</code>, so a transition has a finite, known end; it
+is closed-form in the elapsed time, so any frame can be evaluated alone, and
+it is the method of Unreal's Inertialization node.</p>
+<p>The clamp buys its guarantee with acceleration: the quintic starts at
+<code>-(8 v0 t1 + 20 x0) / t1^2</code>, which at the clamped time is
+<code>4 v0^2 / (5 x0)</code>, without bound as a channel is cut nearer the instant it
+passes its target. A channel cut there stops within milliseconds, a step
+in velocity in all but name. With <code>through</code> the clamp is not taken: the
+same quintic runs the whole <code>duration</code>, so its starting acceleration stays
+within <code>(8 |v0| duration + 20 |x0|) / duration^2</code>, and the offset passes
+through zero and returns, by no more than the velocity in excess of
+<code>5 |x0| / duration</code> times <code>256 duration / 3125</code>, the peak of the signed
+lobe. That is the follow-through of a body that reaches a pose at speed.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">x0</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>Offset at the cut, any unit.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">v0</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>Offset velocity at the cut, that unit per second.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">duration</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>Requested decay time <code>t1</code>, seconds; positive.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">elapsed</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>Seconds since the cut.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">through</span>: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></span>
+<div class="tsd-comment tsd-typography"><p>Whether an offset heading to zero faster than the decay
+absorbs passes through it, bounded as above, instead of stopping short.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../modules/_automovie_interface.IAutoMovieInertializeOffset.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieInertializeOffset</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieInertializeOffset.IState.html" class="tsd-signature-type tsd-kind-interface">IState</a></h4><p>The offset, its velocity and the decay time used.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/motion/inertializeOffset.ts#L52">packages/engine/src/motion/inertializeOffset.ts:52</a></li></ul></aside></div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

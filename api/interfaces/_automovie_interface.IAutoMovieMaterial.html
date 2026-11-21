@@ -1,0 +1,329 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieMaterial | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieMaterial</a></li></ul>
+<h1>Interface IAutoMovieMaterial</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>A physically-based (PBR) surface material: the &quot;what it's made of and how it catches light&quot; of a character or object surface.</p>
+<p>The base fields follow glTF's metallic-roughness model, and the optional transmission, volume, clearcoat, anisotropy, sheen and specular fields follow the corresponding glTF <code>KHR_materials_*</code> extensions; the viewer builds a <code>MeshPhysicalMaterial</code> from them, with optional subsurface, detail-normal and overlay shader approximations that have no glTF counterpart. Engine model admission owns coefficient domains, while direct viewer callers must supply admitted values.</p>
+<p>Texture images are referenced by id: an image the enclosing model carries, else a project asset. Their decoding and GPU lifetime belong to the renderer's texture resolver, rather than this authoring record.</p>
+<p>Reference: glTF 2.0 <code>pbrMetallicRoughness</code> (<a href="https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#materials">https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#materials</a>); Khronos <code>KHR_materials_anisotropy</code>, <code>KHR_materials_sheen</code>, <code>KHR_materials_specular</code> and <code>KHR_materials_volume</code>.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IAutoMovieMaterial</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#alphacutoff">alphaCutoff</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#alphamode">alphaMode</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;opaque&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mask&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;blend&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#anisotropy">anisotropy</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">rotationDeg</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">strength</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">texture</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#basecolor">baseColor</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#basecolortexture">baseColorTexture</a><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#clearcoat">clearcoat</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#detailnormalscale">detailNormalScale</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#detailnormaltexture">detailNormalTexture</a><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#doublesided">doubleSided</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#emissive">emissive</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#emissivetexture">emissiveTexture</a><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#id">id</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#ior">ior</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#metallic">metallic</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#metallicroughnesstexture">metallicRoughnessTexture</a><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#name">name</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#normalscale">normalScale</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#normaltexture">normalTexture</a><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#occlusionstrength">occlusionStrength</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#occlusiontexture">occlusionTexture</a><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#opacity">opacity</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#overlays">overlays</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieMaterialOverlay.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMaterialOverlay</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#roughness">roughness</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#sheen">sheen</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">color</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">roughness</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#specularintensity">specularIntensity</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#subsurfaceradius">subsurfaceRadius</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">b</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">g</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">r</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#thickness">thickness</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#thicknesstexture">thicknessTexture</a><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#transmission">transmission</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L19">packages/interface/src/material/IAutoMovieMaterial.ts:19</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#alphacutoff" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>alpha<wbr/>Cutoff?</span></a>
+<a href="#alphamode" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>alpha<wbr/>Mode?</span></a>
+<a href="#anisotropy" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>anisotropy?</span></a>
+<a href="#basecolor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>base<wbr/>Color</span></a>
+<a href="#basecolortexture" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>base<wbr/>Color<wbr/>Texture</span></a>
+<a href="#clearcoat" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>clearcoat?</span></a>
+<a href="#detailnormalscale" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>detail<wbr/>Normal<wbr/>Scale?</span></a>
+<a href="#detailnormaltexture" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>detail<wbr/>Normal<wbr/>Texture?</span></a>
+<a href="#doublesided" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>double<wbr/>Sided?</span></a>
+<a href="#emissive" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>emissive</span></a>
+<a href="#emissivetexture" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>emissive<wbr/>Texture?</span></a>
+<a href="#id" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>id</span></a>
+<a href="#ior" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>ior?</span></a>
+<a href="#metallic" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>metallic</span></a>
+<a href="#metallicroughnesstexture" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>metallic<wbr/>Roughness<wbr/>Texture?</span></a>
+<a href="#name" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>name</span></a>
+<a href="#normalscale" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>normal<wbr/>Scale?</span></a>
+<a href="#normaltexture" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>normal<wbr/>Texture?</span></a>
+<a href="#occlusionstrength" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>occlusion<wbr/>Strength?</span></a>
+<a href="#occlusiontexture" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>occlusion<wbr/>Texture?</span></a>
+<a href="#opacity" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>opacity</span></a>
+<a href="#overlays" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>overlays?</span></a>
+<a href="#roughness" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>roughness</span></a>
+<a href="#sheen" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sheen?</span></a>
+<a href="#specularintensity" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>specular<wbr/>Intensity?</span></a>
+<a href="#subsurfaceradius" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>subsurface<wbr/>Radius?</span></a>
+<a href="#thickness" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>thickness?</span></a>
+<a href="#thicknesstexture" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>thickness<wbr/>Texture?</span></a>
+<a href="#transmission" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>transmission?</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="alphacutoff"><code class="tsd-tag">Optional</code><span>alpha<wbr/>Cutoff</span><a href="#alphacutoff" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">alphaCutoff</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Alpha threshold used only by <code>mask</code>; defaults to 0.5.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L81">packages/interface/src/material/IAutoMovieMaterial.ts:81</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="alphamode"><code class="tsd-tag">Optional</code><span>alpha<wbr/>Mode</span><a href="#alphamode" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">alphaMode</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;opaque&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mask&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;blend&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>Explicit alpha handling. Omitted derives legacy blend behavior from opacity.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L78">packages/interface/src/material/IAutoMovieMaterial.ts:78</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="anisotropy"><code class="tsd-tag">Optional</code><span>anisotropy</span><a href="#anisotropy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">anisotropy</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">rotationDeg</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">strength</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">texture</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-comment tsd-typography"><p>Anisotropic specular lobe, which stretches highlights along one surface direction. The direction lies in the tangent frame of texture coordinates UV0, so every part citing the material must be a mesh with UV0, which tessellated primitives do not emit; when a normal map is bound, the viewer derives that frame from the normal map's transformed coordinates. Omitted, the specular lobe is isotropic.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">rotationDeg</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Finite direction in degrees, counterclockwise from the +u texture direction toward +v; 90 runs the highlight streak along +v.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">strength</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Strength in <code>[0, 1]</code>; zero is isotropic.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">texture</span><span class="tsd-signature-symbol">: </span><a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></h5>
+<div class="tsd-comment tsd-typography"><p>Linear texture whose red and green channels encode a tangent-space direction mapped from <code>[0, 1]</code> to <code>[-1, 1]</code> and then rotated by <code>rotationDeg</code>, and whose blue channel multiplies <code>strength</code>; null, the direction is <code>rotationDeg</code> everywhere.</p>
+</div></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L103">packages/interface/src/material/IAutoMovieMaterial.ts:103</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="basecolor"><span>base<wbr/>Color</span><a href="#basecolor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">baseColor</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a></div>
+<div class="tsd-comment tsd-typography"><p>Diffuse / albedo base color (linear).</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L29">packages/interface/src/material/IAutoMovieMaterial.ts:29</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="basecolortexture"><span>base<wbr/>Color<wbr/>Texture</span><a href="#basecolortexture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">baseColorTexture</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Id of an optional base-color texture map. <code>null</code> = flat <code>baseColor</code> only. The image is an engine-resolved asset, never LLM-emitted pixels.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L50">packages/interface/src/material/IAutoMovieMaterial.ts:50</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="clearcoat"><code class="tsd-tag">Optional</code><span>clearcoat</span><a href="#clearcoat" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">clearcoat</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Fractional clear-coat lobe strength, <code>[0, 1]</code>.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L98">packages/interface/src/material/IAutoMovieMaterial.ts:98</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="detailnormalscale"><code class="tsd-tag">Optional</code><span>detail<wbr/>Normal<wbr/>Scale</span><a href="#detailnormalscale" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">detailNormalScale</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Strength of <code>detailNormalTexture</code>'s slopes, a nonnegative finite factor; omitted, one.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L156">packages/interface/src/material/IAutoMovieMaterial.ts:156</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="detailnormaltexture"><code class="tsd-tag">Optional</code><span>detail<wbr/>Normal<wbr/>Texture</span><a href="#detailnormaltexture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">detailNormalTexture</span><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Optional second tangent-space normal map, blended over <code>normalTexture</code> (whiteout: the two maps' slopes add), usually a fine relief tiled with its own transform over a coarser map bound once across the surface. glTF has one normal slot, so this map has no glTF counterpart. Without a <code>normalTexture</code> it stands in as the normal map.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L151">packages/interface/src/material/IAutoMovieMaterial.ts:151</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="doublesided"><code class="tsd-tag">Optional</code><span>double<wbr/>Sided</span><a href="#doublesided" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">doubleSided</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>Whether both sides of the surface are visible.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L73">packages/interface/src/material/IAutoMovieMaterial.ts:73</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="emissive"><span>emissive</span><a href="#emissive" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">emissive</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Emissive RGB multiplier, or <code>null</code>. The viewer uses white when null and an emissive image resolves, otherwise its non-emitting default; this adds surface radiance without creating a scene light.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L40">packages/interface/src/material/IAutoMovieMaterial.ts:40</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="emissivetexture"><code class="tsd-tag">Optional</code><span>emissive<wbr/>Texture</span><a href="#emissivetexture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">emissiveTexture</span><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Emissive texture multiplied by authored emissive RGB, or white when that field is null.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L70">packages/interface/src/material/IAutoMovieMaterial.ts:70</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="id"><span>id</span><a href="#id" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">id</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Stable id so meshes / scene nodes can cite this material.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L21">packages/interface/src/material/IAutoMovieMaterial.ts:21</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="ior"><code class="tsd-tag">Optional</code><span>ior</span><a href="#ior" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">ior</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Index of refraction, finite and <code>&gt;= 1</code>.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L87">packages/interface/src/material/IAutoMovieMaterial.ts:87</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="metallic"><span>metallic</span><a href="#metallic" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">metallic</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Metalness, <code>[0, 1]</code>. <code>0</code> = dielectric, <code>1</code> = metal.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L32">packages/interface/src/material/IAutoMovieMaterial.ts:32</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="metallicroughnesstexture"><code class="tsd-tag">Optional</code><span>metallic<wbr/>Roughness<wbr/>Texture</span><a href="#metallicroughnesstexture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">metallicRoughnessTexture</span><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>GlTF-style combined metallic (B) and roughness (G) texture id.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L53">packages/interface/src/material/IAutoMovieMaterial.ts:53</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="name"><span>name</span><a href="#name" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Human / LLM readable label (e.g. <code>&quot;glossy red plastic&quot;</code>). Null if unnamed.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L26">packages/interface/src/material/IAutoMovieMaterial.ts:26</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="normalscale"><code class="tsd-tag">Optional</code><span>normal<wbr/>Scale</span><a href="#normalscale" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">normalScale</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Finite multiplier applied to the normal map's XY channels; negative flips them.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L61">packages/interface/src/material/IAutoMovieMaterial.ts:61</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="normaltexture"><code class="tsd-tag">Optional</code><span>normal<wbr/>Texture</span><a href="#normaltexture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">normalTexture</span><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Tangent-space normal-map texture id.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L56">packages/interface/src/material/IAutoMovieMaterial.ts:56</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="occlusionstrength"><code class="tsd-tag">Optional</code><span>occlusion<wbr/>Strength</span><a href="#occlusionstrength" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">occlusionStrength</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Occlusion strength in <code>[0, 1]</code>.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L67">packages/interface/src/material/IAutoMovieMaterial.ts:67</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="occlusiontexture"><code class="tsd-tag">Optional</code><span>occlusion<wbr/>Texture</span><a href="#occlusiontexture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">occlusionTexture</span><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Ambient-occlusion texture id.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L64">packages/interface/src/material/IAutoMovieMaterial.ts:64</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="opacity"><span>opacity</span><a href="#opacity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">opacity</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Surface alpha in <code>[0, 1]</code>, independent of <code>baseColor.a</code> in the viewer. Without <code>alphaMode</code>, values below one select alpha blending.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L45">packages/interface/src/material/IAutoMovieMaterial.ts:45</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="overlays"><code class="tsd-tag">Optional</code><span>overlays</span><a href="#overlays" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">overlays</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieMaterialOverlay.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMaterialOverlay</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>At most four ordered surface layers, each sampling a colour image and optionally a normal image. Colour/roughness and replacement normals use image coverage; multiply normals follow the separate formula on <code>IAutoMovieMaterialOverlay</code>. glTF has no counterpart. Omitted or empty, no overlay shader is installed.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L161">packages/interface/src/material/IAutoMovieMaterial.ts:161</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="roughness"><span>roughness</span><a href="#roughness" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">roughness</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>PBR microfacet roughness in <code>[0, 1]</code>, from smooth to maximally rough; one does not remove the specular lobe.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L35">packages/interface/src/material/IAutoMovieMaterial.ts:35</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="sheen"><code class="tsd-tag">Optional</code><span>sheen</span><a href="#sheen" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">sheen</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">color</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">roughness</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-comment tsd-typography"><p>Sheen lobe: a microfibre layer that adds back-scattered light at grazing angles. Omitted, there is no sheen.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">color</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a></h5>
+<div class="tsd-comment tsd-typography"><p>Linear sheen tint at full intensity; alpha is ignored. Black is no sheen.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">roughness</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Sheen roughness in <code>[0, 1]</code>, from a narrow grazing rim to a broad soft glow.</p>
+</div></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L121">packages/interface/src/material/IAutoMovieMaterial.ts:121</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="specularintensity"><code class="tsd-tag">Optional</code><span>specular<wbr/>Intensity</span><a href="#specularintensity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">specularIntensity</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Strength of the dielectric specular reflection in <code>[0, 1]</code>, scaling the Fresnel reflectance that <a href="#ior" class="tsd-kind-property">ior</a> implies; omitted, one. Metals ignore it.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L132">packages/interface/src/material/IAutoMovieMaterial.ts:132</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="subsurfaceradius"><code class="tsd-tag">Optional</code><span>subsurface<wbr/>Radius</span><a href="#subsurfaceradius" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">subsurfaceRadius</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">b</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">g</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">r</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-comment tsd-typography"><p>Nonnegative finite RGB radius parameters in metres for the viewer's direct-diffuse subsurface approximation. Screen-space normal curvature and a shared Gaussian-response lookup modify diffuse lighting; this does not transport light through a measured medium or establish an observed appearance. Omission keeps the ordinary physical material response; glTF has no counterpart.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">b</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Blue-channel scattering radius parameter, nonnegative metres.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">g</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Green-channel scattering radius parameter, nonnegative metres.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">r</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Red-channel scattering radius parameter, nonnegative metres.</p>
+</div></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L137">packages/interface/src/material/IAutoMovieMaterial.ts:137</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="thickness"><code class="tsd-tag">Optional</code><span>thickness</span><a href="#thickness" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">thickness</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Non-negative transmission volume thickness in metres.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L90">packages/interface/src/material/IAutoMovieMaterial.ts:90</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="thicknesstexture"><code class="tsd-tag">Optional</code><span>thickness<wbr/>Texture</span><a href="#thicknesstexture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">thicknessTexture</span><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureBinding.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureBinding</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Linear texture whose green channel, <code>[0, 1]</code>, multiplies <a href="#thickness" class="tsd-kind-property">thickness</a> per texel, so one surface can vary in volume thickness. Like <code>thickness</code>, it changes the render only where <code>transmission</code> is above zero.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L95">packages/interface/src/material/IAutoMovieMaterial.ts:95</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="transmission"><code class="tsd-tag">Optional</code><span>transmission</span><a href="#transmission" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">transmission</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Fraction of light transmitted through a physical dielectric, <code>[0, 1]</code>.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieMaterial.ts#L84">packages/interface/src/material/IAutoMovieMaterial.ts:84</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#alphacutoff"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>alpha<wbr/>Cutoff</span></a><a href="#alphamode"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>alpha<wbr/>Mode</span></a><a href="#anisotropy"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>anisotropy</span></a><a href="#basecolor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>base<wbr/>Color</span></a><a href="#basecolortexture"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>base<wbr/>Color<wbr/>Texture</span></a><a href="#clearcoat"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>clearcoat</span></a><a href="#detailnormalscale"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>detail<wbr/>Normal<wbr/>Scale</span></a><a href="#detailnormaltexture"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>detail<wbr/>Normal<wbr/>Texture</span></a><a href="#doublesided"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>double<wbr/>Sided</span></a><a href="#emissive"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>emissive</span></a><a href="#emissivetexture"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>emissive<wbr/>Texture</span></a><a href="#id"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>id</span></a><a href="#ior"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>ior</span></a><a href="#metallic"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>metallic</span></a><a href="#metallicroughnesstexture"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>metallic<wbr/>Roughness<wbr/>Texture</span></a><a href="#name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>name</span></a><a href="#normalscale"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>normal<wbr/>Scale</span></a><a href="#normaltexture"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>normal<wbr/>Texture</span></a><a href="#occlusionstrength"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>occlusion<wbr/>Strength</span></a><a href="#occlusiontexture"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>occlusion<wbr/>Texture</span></a><a href="#opacity"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>opacity</span></a><a href="#overlays"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>overlays</span></a><a href="#roughness"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>roughness</span></a><a href="#sheen"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sheen</span></a><a href="#specularintensity"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>specular<wbr/>Intensity</span></a><a href="#subsurfaceradius"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>subsurface<wbr/>Radius</span></a><a href="#thickness"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>thickness</span></a><a href="#thicknesstexture"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>thickness<wbr/>Texture</span></a><a href="#transmission"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>transmission</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

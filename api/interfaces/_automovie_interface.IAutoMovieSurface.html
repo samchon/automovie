@@ -1,0 +1,140 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieSurface | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieSurface</a></li></ul>
+<h1>Interface IAutoMovieSurface</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>One standable surface patch of a space: the semantic ground the engine queries where it previously assumed a single scalar plane.</p>
+<p>One outer XZ ring with optional holes defines the footprint, and one height representation defines support over it. A patch may supply its own opaque surface color when it defines the visible ground. A patch without color supplies semantic support and structural guides, so a separately authored model can own the visible floor.</p>
+<p><strong>A surface states its ground exactly one way.</strong> Either the general <a href="#height" class="tsd-kind-property">height</a> rule, which is the same rule a production world's terrain carries, or the two-anchor spelling below, which says the same thing for the flat and single-plane cases and is what every space authored before relief existed says. Stating both, or neither, is refused by <code>validateSpace</code>: a patch with two heights is a patch whose feet and whose renderer can disagree, which is the whole failure this record exists to prevent.</p>
+<p><strong>The ground over a footprint is single-valued, and that is a stated limit rather than an omission.</strong> An overhanging balcony soffit, a vertical face, and a ramp that spirals over its own lower flight all have two heights at one plan position, and no <a href="#height" class="tsd-kind-property">height</a> rule can say two. They are not approximated into one patch here: the ground query answers the topmost patch over a plan point, so a lower patch directly beneath another is ground nothing can be placed on. Author the flights as separate spaces, and read multi-valued ground as unsupported rather than as relief that came out flat.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IAutoMovieSurface</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#anchor">anchor</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#availablefrom">availableFrom</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#color">color</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#height">height</a><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.IAutoMovieHeightRule.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieHeightRule</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#holes">holes</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#id">id</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#kind">kind</a><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieSurfaceKind.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieSurfaceKind</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#polygon">polygon</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#rampto">rampTo</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/scene/IAutoMovieSurface.ts#L20">packages/interface/src/scene/IAutoMovieSurface.ts:20</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#anchor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>anchor?</span></a>
+<a href="#availablefrom" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>available<wbr/>From?</span></a>
+<a href="#color" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>color?</span></a>
+<a href="#height" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>height?</span></a>
+<a href="#holes" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>holes?</span></a>
+<a href="#id" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>id</span></a>
+<a href="#kind" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>kind</span></a>
+<a href="#polygon" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>polygon</span></a>
+<a href="#rampto" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>ramp<wbr/>To?</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="anchor"><code class="tsd-tag">Optional</code><span>anchor</span><a href="#anchor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">anchor</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></div>
+<div class="tsd-comment tsd-typography"><p>Height anchor: standing at this point's <code>(x, z)</code>, the surface height is its <code>y</code>. For a flat patch this is the height everywhere on the polygon.</p>
+<p>The two-anchor spelling of <a href="#height" class="tsd-kind-property">height</a>, and absent when that rule is given. Kept because it is what every authored space says and because two points are the plainest way to write a floor or a ramp.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/scene/IAutoMovieSurface.ts#L76">packages/interface/src/scene/IAutoMovieSurface.ts:76</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="availablefrom"><code class="tsd-tag">Optional</code><span>available<wbr/>From</span><a href="#availablefrom" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">availableFrom</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Inclusive shot-local second at which this patch becomes eligible for a
+scoped performer crossing. A generated doorway sets this from its open
+leaf clearance. Omission leaves a scoped patch eligible throughout.
+Timeless height and rendering queries continue to read the geometry.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/scene/IAutoMovieSurface.ts#L69">packages/interface/src/scene/IAutoMovieSurface.ts:69</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="color"><code class="tsd-tag">Optional</code><span>color</span><a href="#color" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">color</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a></div>
+<div class="tsd-comment tsd-typography"><p>Optional opaque linear RGB for the tessellated patch in beauty frames.</p>
+<p>Alpha is null or one. Omission preserves the guide-only support mesh.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/scene/IAutoMovieSurface.ts#L61">packages/interface/src/scene/IAutoMovieSurface.ts:61</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="height"><code class="tsd-tag">Optional</code><span>height</span><a href="#height" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.IAutoMovieHeightRule.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieHeightRule</a></div>
+<div class="tsd-comment tsd-typography"><p>The general ground rule: a <code>constant</code> level, a <code>plane</code> slope, or a <code>heightfield</code> lattice the surface interpolates bilinearly.</p>
+<p>Constant and plane rules cover level and tilted ground; a heightfield additionally describes sampled relief. World terrain and scene support share this evaluator, with the same interpolation and finite-derived-arithmetic limits.</p>
+<p>Present requires anchor to be absent and rampTo to be absent or null. Without this rule, an anchor is required and an optional nonnull rampTo defines its slope.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/scene/IAutoMovieSurface.ts#L54">packages/interface/src/scene/IAutoMovieSurface.ts:54</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="holes"><code class="tsd-tag">Optional</code><span>holes</span><a href="#holes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">holes</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Voids cut in the footprint: the atrium opening through a floor plate, a stairwell, a light well.</p>
+<p>This is what lets a slab with an atrium void be <strong>one</strong> support patch. Cut as a ring of separate patches instead, the void's edge becomes a seam between records that can be edited apart, and a foot planted on the seam asks two patches which ground it is on.</p>
+<p>Each hole is its own simple ring of at least three points, lying strictly inside <a href="#polygon" class="tsd-kind-property">polygon</a> and disjoint from every other hole; <code>validateSpace</code> refuses anything else. A plan point strictly inside a hole is <strong>off</strong> the surface, exactly as a point outside the outer ring is, while a point on a hole's own rim is still on the slab: the rings bound a closed region.</p>
+<p>The rings say where the surface is, never how high it is. What stands under a hole is whatever other patch is authored there, or nothing.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/scene/IAutoMovieSurface.ts#L45">packages/interface/src/scene/IAutoMovieSurface.ts:45</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="id"><span>id</span><a href="#id" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">id</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Stable id; <code>IAutoMovieSpace.walkable</code> cites surfaces by this.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/scene/IAutoMovieSurface.ts#L22">packages/interface/src/scene/IAutoMovieSurface.ts:22</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="kind"><span>kind</span><a href="#kind" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">kind</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieSurfaceKind.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieSurfaceKind</a></div>
+<div class="tsd-comment tsd-typography"><p>Discriminator-like semantic label (does not change the math).</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/scene/IAutoMovieSurface.ts#L25">packages/interface/src/scene/IAutoMovieSurface.ts:25</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="polygon"><span>polygon</span><a href="#polygon" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">polygon</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Outer footprint ring on the ground plan, at least three non-collinear points. Only <code>x</code> and <code>z</code> are used: the vertical extent comes from the height statement, so <code>y</code> here is ignored (write <code>0</code>).</p>
+<p>The ring is a simple polygon and <strong>may be concave</strong>: an L-shaped floor plate keeps its notch, because the ground query classifies against the ring itself rather than against its convex hull. What it may not do is cross itself, because a self-crossing ring has no inside for a foot to be on, and <code>validateSpace</code> refuses one.</p>
+<p>A curved edge has no spelling here. Author it as chords and read it as exactly those chords: the footprint is never resampled, so what the ground query answers is what was written rather than a curve somebody assumed.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/scene/IAutoMovieSurface.ts#L34">packages/interface/src/scene/IAutoMovieSurface.ts:34</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="rampto"><code class="tsd-tag">Optional</code><span>ramp<wbr/>To</span><a href="#rampto" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">rampTo</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Second height anchor for a sloped surface. The query extrapolates linearly along the XZ anchor-to-ramp direction and is constant perpendicular to it. Admission requires squared XZ separation at least 1e-9 square metres; the direct evaluator treats smaller spans as flat. Null or omission means anchor.y everywhere.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/scene/IAutoMovieSurface.ts#L81">packages/interface/src/scene/IAutoMovieSurface.ts:81</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#anchor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>anchor</span></a><a href="#availablefrom"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>available<wbr/>From</span></a><a href="#color"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>color</span></a><a href="#height"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>height</span></a><a href="#holes"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>holes</span></a><a href="#id"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>id</span></a><a href="#kind"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>kind</span></a><a href="#polygon"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>polygon</span></a><a href="#rampto"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>ramp<wbr/>To</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

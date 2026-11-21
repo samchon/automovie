@@ -1,0 +1,145 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IProps | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="../modules/_automovie_interface.IAutoMovieIntegrateMotionTrajectory.html">IAutoMovieIntegrateMotionTrajectory</a></li>
+<li><a href="" aria-current="page">IProps</a></li></ul>
+<h1>Interface IProps</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>What a trajectory is integrated from.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IProps</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#errorscope">errorScope</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">symbol</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#f">f</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">t</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-keyword">readonly</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">q</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../modules/_automovie_interface.IAutoMovieIntegrateMotionTrajectory.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieIntegrateMotionTrajectory</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieIntegrateMotionTrajectory.IRate.html" class="tsd-signature-type tsd-kind-interface">IRate</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#h">h</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#partition">partition</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieMotionTrajectoryPartition.IPartition.html" class="tsd-signature-type tsd-kind-interface">IPartition</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#q0">q0</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#rotationdefect">rotationDefect</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">seconds</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">q</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">w</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#t0">t0</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#t1">t1</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#tolerance">tolerance</a><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieIntegrateMotionTrajectory.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieIntegrateMotionTrajectory</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieIntegrateMotionTrajectory.ITolerance.html" class="tsd-signature-type tsd-kind-interface">ITolerance</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#x0">x0</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-keyword">readonly</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L23">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:23</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#errorscope" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>error<wbr/>Scope?</span></a>
+<a href="#f" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>f</span></a>
+<a href="#h" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>h?</span></a>
+<a href="#partition" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>partition?</span></a>
+<a href="#q0" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>q0?</span></a>
+<a href="#rotationdefect" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rotation<wbr/>Defect?</span></a>
+<a href="#t0" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>t0</span></a>
+<a href="#t1" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>t1</span></a>
+<a href="#tolerance" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>tolerance?</span></a>
+<a href="#x0" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>x0</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="errorscope"><code class="tsd-tag">Optional</code><span>error<wbr/>Scope</span><a href="#errorscope" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">errorScope</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">symbol</span></div>
+<div class="tsd-comment tsd-typography"><p>Optional caller-owned unique symbol correlating this operation's failures. Admitted before the first RHS and copied only to this integration's MotionTrajectoryFailure; it affects no numerical decision and is not passed to f or rotationDefect.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L90">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:90</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="f"><span>f</span><a href="#f" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">f</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">t</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-keyword">readonly</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">q</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../modules/_automovie_interface.IAutoMovieIntegrateMotionTrajectory.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieIntegrateMotionTrajectory</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieIntegrateMotionTrajectory.IRate.html" class="tsd-signature-type tsd-kind-interface">IRate</a></div>
+<div class="tsd-comment tsd-typography"><p>The right-hand side: the state's rate at a time, and with an orientation the body-frame angular velocity, radians per second. Pure.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L35">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:35</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="h"><code class="tsd-tag">Optional</code><span>h</span><a href="#h" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">h</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>The step, seconds, positive; <code>STEP</code> when absent. Under a <code>tolerance</code>, the first step tried.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L54">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:54</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="partition"><code class="tsd-tag">Optional</code><span>partition</span><a href="#partition" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">partition</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieMotionTrajectoryPartition.IPartition.html" class="tsd-signature-type tsd-kind-interface">IPartition</a></div>
+<div class="tsd-comment tsd-typography"><p>Optional operation-owned adaptive time mesh. Every trial still computes and admits its own states, RMS and dense physical defect; only exact interval boundaries are shared. The caller releases the mesh after its whole operation. Ignored in fixed-step mode.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L93">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:93</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="q0"><code class="tsd-tag">Optional</code><span>q0</span><a href="#q0" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">q0</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a></div>
+<div class="tsd-comment tsd-typography"><p>The orientation at <code>t0</code>, a unit quaternion; absent for a state without one.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L45">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:45</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="rotationdefect"><code class="tsd-tag">Optional</code><span>rotation<wbr/>Defect</span><a href="#rotationdefect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">rotationDefect</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">seconds</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">q</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">w</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Optional continuous rotation-defect admission. Receives film seconds,
+the dense orientation and its actual body angular velocity in rad/s.
+The pure callback returns a nonnegative error normalized in its own
+physical units: at most one admits, Infinity rejects. Adaptive dense
+control checks paired extensions independently of the existing RMS.
+Requires both q0 and an adaptive tolerance; otherwise admission throws.
+Smoothness underlies the sampled estimator; arbitrary unsampled history
+features and a downstream finite-difference observer are not certified.
+Borrowed numeric records must not be mutated or retained for mutation.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L83">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:83</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="t0"><span>t0</span><a href="#t0" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">t0</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>The first second.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L48">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:48</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="t1"><span>t1</span><a href="#t1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">t1</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>The last second, after <code>t0</code>.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L51">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:51</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="tolerance"><code class="tsd-tag">Optional</code><span>tolerance</span><a href="#tolerance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">tolerance</span><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieIntegrateMotionTrajectory.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieIntegrateMotionTrajectory</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieIntegrateMotionTrajectory.ITolerance.html" class="tsd-signature-type tsd-kind-interface">ITolerance</a></div>
+<div class="tsd-comment tsd-typography"><p>Error control: when given, the trajectory is integrated by the
+Dormand-Prince 5(4) pair with steps chosen so each step's error
+estimate stays within it, and read between knots by the pair's
+continuous extension; when absent, the fixed-step classical method.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L62">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:62</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="x0"><span>x0</span><a href="#x0" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">x0</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-keyword">readonly</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>The vector state at <code>t0</code>.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts#L42">packages/interface/src/motion/IAutoMovieIntegrateMotionTrajectory.ts:42</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#errorscope"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>error<wbr/>Scope</span></a><a href="#f"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>f</span></a><a href="#h"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>h</span></a><a href="#partition"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>partition</span></a><a href="#q0"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>q0</span></a><a href="#rotationdefect"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rotation<wbr/>Defect</span></a><a href="#t0"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>t0</span></a><a href="#t1"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>t1</span></a><a href="#tolerance"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>tolerance</span></a><a href="#x0"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>x0</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

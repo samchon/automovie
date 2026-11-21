@@ -1,0 +1,160 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IProps | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="../modules/_automovie_engine.plantStanceFeet.html">plantStanceFeet</a></li>
+<li><a href="" aria-current="page">IProps</a></li></ul>
+<h1>Interface IProps</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The planting props with an optional prepared rig.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IProps</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#groundy">groundY</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> (<span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">z</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">number</span>)<span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#jointaxes">jointAxes</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">,</span> <a href="_automovie_interface.IAutoMovieJointAxes.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointAxes</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#legs">legs</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <a href="_automovie_interface.IAutoMovieFootLeg.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieFootLeg</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#motion">motion</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieMotion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotion</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#openingplants">openingPlants</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><a href="_automovie_interface.IAutoMovieFootPlant.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieFootPlant</a><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">&quot;foot&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;position&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#poseresolution">poseResolution</a><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieSkeletonPoseResolution.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieSkeletonPoseResolution</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieSkeletonPoseResolution.IRig.html" class="tsd-signature-type tsd-kind-interface">IRig</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#restframes">restFrames</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">,</span> <a href="_automovie_interface.IAutoMovieRestFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRestFrame</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#samplerate">sampleRate</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#skeleton">skeleton</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieSkeleton.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSkeleton</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#support">support</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieTimedGround.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieTimedGround</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#tolerance">tolerance</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div>
+<section class="tsd-panel tsd-hierarchy" data-refl="90787">
+<h4>Hierarchy (<a href="../hierarchy.html#@automovie/engine.plantStanceFeet.IProps">View Summary</a>)</h4>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><a href="../modules/_automovie_interface.IAutoMoviePlantStanceFeet.html" class="tsd-signature-type tsd-kind-namespace">IAutoMoviePlantStanceFeet</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMoviePlantStanceFeet.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><span class="tsd-hierarchy-target">IProps</span></li></ul></li></ul></section><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/motion/plantStanceFeet.ts#L176">packages/engine/src/motion/plantStanceFeet.ts:176</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#groundy" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>ground<wbr/>Y?</span></a>
+<a href="#jointaxes" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>joint<wbr/>Axes?</span></a>
+<a href="#legs" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>legs?</span></a>
+<a href="#motion" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>motion</span></a>
+<a href="#openingplants" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>opening<wbr/>Plants?</span></a>
+<a href="#poseresolution" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>pose<wbr/>Resolution?</span></a>
+<a href="#restframes" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rest<wbr/>Frames?</span></a>
+<a href="#samplerate" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sample<wbr/>Rate?</span></a>
+<a href="#skeleton" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>skeleton</span></a>
+<a href="#support" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>support?</span></a>
+<a href="#tolerance" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>tolerance?</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="groundy"><code class="tsd-tag">Optional</code><span>ground<wbr/>Y</span><a href="#groundy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">groundY</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> (<span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">z</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">number</span>)</div>
+<div class="tsd-comment tsd-typography"><p>Ground height: plane scalar or <code>(x, z) → y</code> source. Defaults to <code>0</code> when support is omitted.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.groundY</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts#L35">packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts:35</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="jointaxes"><code class="tsd-tag">Optional</code><span>joint<wbr/>Axes</span><a href="#jointaxes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">jointAxes</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">,</span> <a href="_automovie_interface.IAutoMovieJointAxes.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointAxes</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>Optional clinical-axis remap used consistently by detection and IK.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.jointAxes</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts#L47">packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts:47</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="legs"><code class="tsd-tag">Optional</code><span>legs</span><a href="#legs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">legs</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <a href="_automovie_interface.IAutoMovieFootLeg.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieFootLeg</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Legs to plant. Defaults to both humanoid legs.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.legs</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts#L44">packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts:44</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="motion"><span>motion</span><a href="#motion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">motion</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieMotion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotion</a></div>
+<div class="tsd-comment tsd-typography"><p>The humanoid gait/motion to correct.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.motion</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts#L32">packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts:32</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="openingplants"><code class="tsd-tag">Optional</code><span>opening<wbr/>Plants</span><a href="#openingplants" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">openingPlants</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><a href="_automovie_interface.IAutoMovieFootPlant.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieFootPlant</a><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">&quot;foot&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;position&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Prior beat plants expressed in this motion's model frame.</p>
+<p>When a detected stance begins at the opening sample, its first pin resumes
+this authoritative position instead of deriving a nearby replacement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.openingPlants</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts#L61">packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts:61</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="poseresolution"><code class="tsd-tag">Optional</code><span>pose<wbr/>Resolution</span><a href="#poseresolution" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">poseResolution</span><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieSkeletonPoseResolution.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieSkeletonPoseResolution</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieSkeletonPoseResolution.IRig.html" class="tsd-signature-type tsd-kind-interface">IRig</a></div>
+<div class="tsd-comment tsd-typography"><p>Explicit immutable snapshot of this exact rig and clinical tables; omitted keeps full raw FK admission.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/motion/plantStanceFeet.ts#L178">packages/engine/src/motion/plantStanceFeet.ts:178</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="restframes"><code class="tsd-tag">Optional</code><span>rest<wbr/>Frames</span><a href="#restframes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">restFrames</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">,</span> <a href="_automovie_interface.IAutoMovieRestFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRestFrame</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>Optional clinical rest frames used consistently by detection and IK.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.restFrames</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts#L50">packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts:50</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="samplerate"><code class="tsd-tag">Optional</code><span>sample<wbr/>Rate</span><a href="#samplerate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">sampleRate</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Samples/second for detection and re-keying. Defaults to <code>24</code>.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.sampleRate</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts#L53">packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts:53</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="skeleton"><span>skeleton</span><a href="#skeleton" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">skeleton</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieSkeleton.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSkeleton</a></div>
+<div class="tsd-comment tsd-typography"><p>Rig for forward kinematics.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.skeleton</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts#L29">packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts:29</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="support"><code class="tsd-tag">Optional</code><span>support</span><a href="#support" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">support</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieTimedGround.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieTimedGround</a></div>
+<div class="tsd-comment tsd-typography"><p>Explicit time-dependent ground. Takes precedence over the scalar or positional query.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.support</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts#L38">packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts:38</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="tolerance"><code class="tsd-tag">Optional</code><span>tolerance</span><a href="#tolerance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">tolerance</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Contact tolerance above the plane counted as stance. Defaults to <code>0.02</code>.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.tolerance</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts#L41">packages/interface/src/motion/IAutoMoviePlantStanceFeet.ts:41</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#groundy" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>ground<wbr/>Y</span></a><a href="#jointaxes" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>joint<wbr/>Axes</span></a><a href="#legs" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>legs</span></a><a href="#motion" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>motion</span></a><a href="#openingplants" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>opening<wbr/>Plants</span></a><a href="#poseresolution"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>pose<wbr/>Resolution</span></a><a href="#restframes" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rest<wbr/>Frames</span></a><a href="#samplerate" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sample<wbr/>Rate</span></a><a href="#skeleton" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>skeleton</span></a><a href="#support" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>support</span></a><a href="#tolerance" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>tolerance</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

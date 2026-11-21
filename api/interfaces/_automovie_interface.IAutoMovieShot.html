@@ -1,0 +1,223 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieShot | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieShot</a></li></ul>
+<h1>Interface IAutoMovieShot</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>A shot: one continuous take (a scene, the camera that frames it, the camera's
+move, and what every placed node performs) over a local time range. This is
+the unit an LLM renders (&quot;render this shot&quot;) and the rung above a single clip
+on the road to assembling a film from objects and motion.</p>
+<p>Time is local to the shot (origin 0, seconds); a <a href="_automovie_interface.IAutoMovieSequence.html" class="tsd-kind-interface">IAutoMovieSequence</a>
+composes shots into a global timeline. The camera is a scene node, so its
+move is an ordinary <a href="_automovie_interface.IAutoMovieClip.html" class="tsd-kind-interface">IAutoMovieClip</a> of node transform tracks, with no
+special camera-animation concept.</p>
+<p><code>performShot</code> assembles the shot and <code>validateShotArtifact</code> is its structural
+contract, which every producer and consumer shares. A clip field admits only
+the channels its own applier writes: <code>cameraMotion</code> and <code>objectMotions</code> take
+node channels, and <code>lightMotions</code> takes light pointers, so a pointer such as
+a camera's field of view is refused rather than stored and ignored.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IAutoMovieShot</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#camera">camera</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#cameraclearance">cameraClearance</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieCameraClearanceReport.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieCameraClearanceReport</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#cameraintent">cameraIntent</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieCameraIntent.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieCameraIntent</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#cameramotion">cameraMotion</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieClip.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieClip</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#coverage">coverage</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieShotCoverage.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieShotCoverage</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#duration">duration</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#editorialmarkers">editorialMarkers</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <a href="_automovie_interface.IAutoMovieEditorialMarker.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieEditorialMarker</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#events">events</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieInteractionEvent.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieInteractionEvent</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#id">id</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#lightmotions">lightMotions</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieClip.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieClip</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#name">name</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#objectmotions">objectMotions</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieClip.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieClip</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#performances">performances</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieShotPerformance.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieShotPerformance</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#polygonbodycues">polygonBodyCues</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <a href="../types/_automovie_interface.IAutoMoviePolygonBodyCue.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMoviePolygonBodyCue</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#practicalsurfaces">practicalSurfaces</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <a href="_automovie_interface.IAutoMoviePracticalSurfaceTrack.html" class="tsd-signature-type tsd-kind-interface">IAutoMoviePracticalSurfaceTrack</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#scene">scene</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L33">packages/interface/src/cinematics/IAutoMovieShot.ts:33</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#camera" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>camera</span></a>
+<a href="#cameraclearance" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>camera<wbr/>Clearance?</span></a>
+<a href="#cameraintent" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>camera<wbr/>Intent?</span></a>
+<a href="#cameramotion" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>camera<wbr/>Motion</span></a>
+<a href="#coverage" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>coverage?</span></a>
+<a href="#duration" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>duration</span></a>
+<a href="#editorialmarkers" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>editorial<wbr/>Markers?</span></a>
+<a href="#events" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>events?</span></a>
+<a href="#id" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>id</span></a>
+<a href="#lightmotions" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>light<wbr/>Motions?</span></a>
+<a href="#name" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>name</span></a>
+<a href="#objectmotions" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>object<wbr/>Motions</span></a>
+<a href="#performances" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>performances</span></a>
+<a href="#polygonbodycues" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>polygon<wbr/>Body<wbr/>Cues?</span></a>
+<a href="#practicalsurfaces" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>practical<wbr/>Surfaces?</span></a>
+<a href="#scene" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>scene</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="camera"><span>camera</span><a href="#camera" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">camera</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Id of the scene camera that is live for this shot.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L44">packages/interface/src/cinematics/IAutoMovieShot.ts:44</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="cameraclearance"><code class="tsd-tag">Optional</code><span>camera<wbr/>Clearance</span><a href="#cameraclearance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">cameraClearance</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieCameraClearanceReport.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieCameraClearanceReport</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Swept-clearance reports for hero and alternate takes declaring physical envelopes, one per such camera. The performing producer checks the runtime revision; the stored report has no revision pair for an artifact reader to re-establish freshness independently.</p>
+<p>Omission is admitted only when no delivered camera declares an envelope. A present list must carry clear reports with empty findings; blocked or stale evaluation refuses publication by the performing producer.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L124">packages/interface/src/cinematics/IAutoMovieShot.ts:124</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="cameraintent"><code class="tsd-tag">Optional</code><span>camera<wbr/>Intent</span><a href="#cameraintent" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">cameraIntent</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieCameraIntent.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieCameraIntent</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>The camera's directorial intent per frame span: framing, move, the
+resolved focus point, and the lens intent. Structural guide metadata a
+diffusion or render host reads beside <code>cameraMotion</code>, as it reads <code>events</code>.
+The deterministic camera solve never consumes it. Absent means legacy; an
+empty array means the shot was assembled with no frame actions.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L105">packages/interface/src/cinematics/IAutoMovieShot.ts:105</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="cameramotion"><span>camera<wbr/>Motion</span><a href="#cameramotion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">cameraMotion</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieClip.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieClip</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>The camera's move for this shot: a clip of the camera node's transform
+tracks. <code>null</code> for a locked-off (static) camera.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L50">packages/interface/src/cinematics/IAutoMovieShot.ts:50</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="coverage"><code class="tsd-tag">Optional</code><span>coverage</span><a href="#coverage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">coverage</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieShotCoverage.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieShotCoverage</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>The alternate camera takes covering the same beat: one staged camera per
+additional angle, each with its own compiled move and intent. The hero
+take stays the singular <code>camera</code> and <code>cameraMotion</code> every consumer already
+reads; coverage rides beside it as structural guide metadata a diffusion
+or render host uses to render the beat from the other staged angles. The
+cut is untouched: coverage takes are alternates of this shot, never
+separate timeline entries. Absent means legacy or single-camera data; an
+empty array means the shot was assembled with one camera.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L117">packages/interface/src/cinematics/IAutoMovieShot.ts:117</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="duration"><span>duration</span><a href="#duration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Finite positive shot length in seconds (local time origin = 0).</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L127">packages/interface/src/cinematics/IAutoMovieShot.ts:127</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="editorialmarkers"><code class="tsd-tag">Optional</code><span>editorial<wbr/>Markers</span><a href="#editorialmarkers" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">editorialMarkers</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <a href="_automovie_interface.IAutoMovieEditorialMarker.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieEditorialMarker</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Authored shot-local annotations in authored order. Omit when no marker list was supplied.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L96">packages/interface/src/cinematics/IAutoMovieShot.ts:96</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="events"><code class="tsd-tag">Optional</code><span>events</span><a href="#events" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">events</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieInteractionEvent.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieInteractionEvent</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Computed or scripted interactions on this shot's local clock, ordered by
+time, then kind, then id. <code>performShot</code> emits this for contacts, hits,
+falls, and attach handoffs so downstream tools can follow the same timing
+the engine used. Absent means legacy or no-event data; an empty array
+means the shot was assembled and had none.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L93">packages/interface/src/cinematics/IAutoMovieShot.ts:93</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="id"><span>id</span><a href="#id" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">id</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Stable, non-blank id.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L35">packages/interface/src/cinematics/IAutoMovieShot.ts:35</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="lightmotions"><code class="tsd-tag">Optional</code><span>light<wbr/>Motions</span><a href="#lightmotions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">lightMotions</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieClip.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieClip</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Clips changing this shot's lighting over its local clock: a candle going
+out, a sunset. Each track addresses one staged light by the pointer
+<code>/lights/&lt;id&gt;/&lt;property&gt;</code>, where the property is <code>intensity</code>, <code>color</code>,
+<code>range</code>, <code>coneAngle</code>, <code>position</code> or <code>rotation</code>, and no two tracks across
+the list may address the same light property. Absent means legacy; an
+empty array means constant light.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L75">packages/interface/src/cinematics/IAutoMovieShot.ts:75</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="name"><span>name</span><a href="#name" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Human or LLM readable name, or <code>null</code> when unnamed.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L38">packages/interface/src/cinematics/IAutoMovieShot.ts:38</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="objectmotions"><span>object<wbr/>Motions</span><a href="#objectmotions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">objectMotions</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieClip.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieClip</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Node-transform clips for non-skeletal scene objects the shot animates (a
+launched projectile's baked flight, a prop carried along a path, a door
+panel or prop joint the source authored), each an ordinary
+<a href="_automovie_interface.IAutoMovieClip.html" class="tsd-kind-interface">IAutoMovieClip</a> with a unique id. Distinct from <code>performances</code>
+(skeletal pose motions played through a rig) and from <code>cameraMotion</code> (the
+one live camera): an object has no skeleton, so it moves the way the camera
+does, by a clip of transform tracks. Empty when the shot animates no such
+object.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L65">packages/interface/src/cinematics/IAutoMovieShot.ts:65</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="performances"><span>performances</span><a href="#performances" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">performances</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieShotPerformance.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieShotPerformance</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Per scene-node performances for this shot, at most one per node.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L53">packages/interface/src/cinematics/IAutoMovieShot.ts:53</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="polygonbodycues"><code class="tsd-tag">Optional</code><span>polygon<wbr/>Body<wbr/>Cues</span><a href="#polygonbodycues" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">polygonBodyCues</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <a href="../types/_automovie_interface.IAutoMoviePolygonBodyCue.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMoviePolygonBodyCue</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Polygon body changes in source-shot time. Each subject and bone pair may appear once.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L84">packages/interface/src/cinematics/IAutoMovieShot.ts:84</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="practicalsurfaces"><code class="tsd-tag">Optional</code><span>practical<wbr/>Surfaces</span><a href="#practicalsurfaces" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">practicalSurfaces</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <a href="_automovie_interface.IAutoMoviePracticalSurfaceTrack.html" class="tsd-signature-type tsd-kind-interface">IAutoMoviePracticalSurfaceTrack</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Material tracks for named parts of placed props. At most one per node and
+part. Omission or an empty list leaves the staged appearance in force.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L81">packages/interface/src/cinematics/IAutoMovieShot.ts:81</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="scene"><span>scene</span><a href="#scene" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">scene</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Id of the scene (placed models, lights, cameras) this shot renders.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/cinematics/IAutoMovieShot.ts#L41">packages/interface/src/cinematics/IAutoMovieShot.ts:41</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#camera"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>camera</span></a><a href="#cameraclearance"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>camera<wbr/>Clearance</span></a><a href="#cameraintent"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>camera<wbr/>Intent</span></a><a href="#cameramotion"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>camera<wbr/>Motion</span></a><a href="#coverage"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>coverage</span></a><a href="#duration"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>duration</span></a><a href="#editorialmarkers"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>editorial<wbr/>Markers</span></a><a href="#events"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>events</span></a><a href="#id"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>id</span></a><a href="#lightmotions"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>light<wbr/>Motions</span></a><a href="#name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>name</span></a><a href="#objectmotions"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>object<wbr/>Motions</span></a><a href="#performances"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>performances</span></a><a href="#polygonbodycues"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>polygon<wbr/>Body<wbr/>Cues</span></a><a href="#practicalsurfaces"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>practical<wbr/>Surfaces</span></a><a href="#scene"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>scene</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

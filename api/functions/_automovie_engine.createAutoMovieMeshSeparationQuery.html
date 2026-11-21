@@ -1,0 +1,93 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>createAutoMovieMeshSeparationQuery | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">createAutoMovieMeshSeparationQuery</a></li></ul>
+<h1>Function createAutoMovieMeshSeparationQuery</h1></div>
+<section class="tsd-panel">
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="createautomoviemeshseparationquery"><span class="tsd-kind-call-signature">createAutoMovieMeshSeparationQuery</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">mesh</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieMesh.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMesh</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">representation</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;source&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;float32&quot;</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieMeshSeparationQuery.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMeshSeparationQuery</a><a href="#createautomoviemeshseparationquery" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Compile a resident surface into a conservative whole-feature separation
+query.</p>
+<p>The mesh is snapshotted, so changing its positions or indices later needs a
+new query. Open sheets, disconnected components and degenerate triangles are
+admitted, since unsigned separation needs no winding, closure or volume.
+<code>representation</code> chooses whether the snapshot measures the source binary64
+coordinates or their Float32 roundings, the buffer an exporter will write;
+both keep the binary64 coordinates as the reference for attachment seats.
+Original triangle ordinals survive the hierarchy's reordering.</p>
+<p>A call takes a feature, a nonempty finite XYZ vertex run in the same metre
+frame measured as its convex hull, a nonnegative requested clearance and a
+caller-owned work budget. It bounds the feature's separation from every
+resident triangle: a hierarchy box is skipped only when an enclosed axis
+projection already proves the requested clearance, and every remaining
+triangle is bounded by <code>boundAutoMovieConvexSeparation</code>. This is neither ray
+sampling nor a nearest-corner test. <code>certified</code> means the complete feature
+is at least the clearance away, and at zero clearance strictly positive;
+false means unproved, including touches, crossings and rounding at an exact
+limit, and neither diagnoses penetration nor selects a closest point.
+<code>lowerBound</code> is capped at the clearance, or is the smallest positive double
+at zero clearance, which is a proof threshold rather than a distance
+estimate; <code>triangle</code> is the original ordinal of the triangle that lowered it
+below that cap, the lowest on ties, or -1 when none did.</p>
+<p>At zero clearance, a three-vertex fan may carry attachment metadata: its
+root's canonical barycentric seat on a source triangle and the original
+triangles incident to that seat. The root must equal that seat exactly, in
+the snapshot's representation, and each support must contain the seat's
+supporting corners. Each support must then bound the whole fan's contact
+through <code>boundAutoMovieTriangleAttachmentContact</code>, reported as an
+<code>attachmentCaps</code> entry, and every other triangle still needs strict positive
+separation. Such a result reports <code>lowerBound</code> zero, because certification
+is that combined proof and not positive separation. Without metadata a fan
+touching its root is simply unproved.</p>
+<p>Compilation throws on an unknown representation, a malformed or empty index
+buffer, a non-finite position, or a Float32 rounding that overflows.
+Every visited box, with its up to three axis projections, spends one budget
+unit, and every tested support, triangle, normal triple, projection axis and
+edge pair spends one more before its work. Exhaustion and malformed input
+throw by name; the caller owns the spent count and must not reset it during
+refinement. A failed call accepts no geometry and retries nothing. The
+returned query's <code>separated</code> runs the same walk and stops at the first
+triangle whose bound falls below the target; since the running bound only
+falls, its decision equals the full measurement's and it never spends more.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">mesh</span>: <a href="../interfaces/_automovie_interface.IAutoMovieMesh.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMesh</a></span>
+<div class="tsd-comment tsd-typography"><p>Resident surface, snapshotted.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">representation</span>: <span class="tsd-signature-type">&quot;source&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;float32&quot;</span><span class="tsd-signature-symbol"> = &quot;source&quot;</span></span>
+<div class="tsd-comment tsd-typography"><p>Coordinates the snapshot measures.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_interface.IAutoMovieMeshSeparationQuery.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMeshSeparationQuery</a></h4><p>The compiled query.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/geometry/createAutoMovieMeshSeparationQuery.ts#L82">packages/engine/src/geometry/createAutoMovieMeshSeparationQuery.ts:82</a></li></ul></aside></div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

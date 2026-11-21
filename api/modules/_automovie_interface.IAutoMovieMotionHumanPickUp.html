@@ -1,0 +1,99 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieMotionHumanPickUp | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieMotionHumanPickUp</a></li></ul>
+<h1>Namespace IAutoMovieMotionHumanPickUp</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Reaching for a prop's grip, grasping it and lifting it clear.</p>
+<p>The goal is the grip, not the arm: the hand's grip socket is brought onto
+the prop's grip affordance along its approach axis (<code>HumanGrasp</code>), taken
+as the archetype declares it: untilted, and from the side about the
+grip's axis the arm reaches with the least wrist error among the sides
+its declared symmetry allows (any side of a round grip, either of a
+half-symmetric one, the declared one otherwise; <code>pickUpSearch.TURNS</code>);
+a use's grasp is searched over its own turns and tilts. Then the
+fingers open to the peak aperture on the way and close on the prop's
+colliders until contact (<code>HumanGrip</code>), and inverse kinematics solves the
+arm. Where the arm reaches the grip from the posture the action is
+entered in, the rest of the body holds that posture, so a pick up
+continues a stand or the deepest point of a bend with its feet planted,
+and only the reaching arm and its fingers move. Where it does not, a
+standing body is lowered toward the grip over the reach, as the bend law
+lowers it (<code>pickUpPosture</code>): a slight lean at a counter, a stoop or a
+squat for a low one, the feet planted; a seated one leans from its seat;
+and where the arm still misses, the trunk turns toward the grip first
+and a standing body then takes one adjustment step (<code>pickUpAdjust</code>).
+The lift is the whole body's: the trunk or the stance carries what the
+arm cannot, and where neither does, the step is taken for the grip and
+the lifted place together (<code>pickUpStance</code>). A body that moved for the
+grip or the lift straightens after it over as long as the reach, the
+hand riding with the shoulder, and the event <code>upright</code> closes the
+action.</p>
+<p>Phases:</p>
+<ol>
+<li>Reach: the reach-to-grasp transport (<code>HumanPrehension</code>): the
+two-factor movement time of McIntosh et al. (2018) for the wrist's travel
+and the grasped width, with the performer's timing variability; the
+hand comes in the last stretch along the approach axis from a setback
+equal to the peak aperture, so the open hand clears the object, and the
+aperture peaks inside Jeannerod's 60 to 70 % band.</li>
+<li>Load: the hand holds still for 0.15 s with the fingers closed, the
+preload and load phases that precede lift-off in a precision lift
+(Johansson and Westling 1984, Exp. Brain Res. 56:550); the duration is
+provisional, as the phase durations themselves were not reached.</li>
+<li>Lift: the wrist rises <code>lift</code> metres (0.1 m when absent, provisional:
+about a hand's breadth clear of the support, or 0 when the other hand
+already holds it) on a minimum-jerk profile
+timed by the same movement-time law. Where the arm alone cannot bring
+the wrist to its lifted place, the trunk inclines toward it, or a
+lowered body straightens part of the way, over the lift
+(<code>pickUpLift.raise</code>); a lift the planned hand still falls short of by
+more than the arm solver's place tolerance is refused on <code>lift</code>
+(<code>pickUpLift.judged</code>).</li>
+</ol>
+<p>The hand grips the prop from <code>gripClosed</code> to the end, which attaches the
+prop to the hand (<code>HumanPerformance.prop</code>), so the prop rides the lift, and
+the plan declares a hold from <code>gripClosed</code>, so the hand keeps the prop with
+its closed fingers through later actions (carried with the trunk while a
+walk or a turn drives the body) until a put down or a hand over takes it.
+A second hand steadies a prop the other already carries; it takes the grip
+without a lift, and an independently requested lift is refused on <code>lift</code>.</p>
+<p>Events: <code>gripClosed</code>, <code>liftOff</code>, <code>lifted</code>, and <code>upright</code> after a body
+lowered for the grip or inclined for the lift straightens. A pick up cut
+into a stand before <code>gripClosed</code> abandons the reach; after <code>lifted</code> it continues into a stand, a walk, a put down or
+a hand over. A grip no lowering brings within the arm, or one beyond the
+arm of a body that is not standing, is refused with the step named.</p>
+</div></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="interfaces">Interfaces<a href="#interfaces" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="iparams"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_interface.IAutoMovieMotionHumanPickUp.IParams.html">IParams</a><a href="#iparams" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary>
+<div><a href="#iparams"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Params</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

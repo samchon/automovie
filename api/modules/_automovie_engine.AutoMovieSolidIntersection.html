@@ -1,0 +1,99 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>AutoMovieSolidIntersection | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">AutoMovieSolidIntersection</a></li></ul>
+<h1>Namespace AutoMovieSolidIntersection</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The curve where an attached part's surface meets its host's: the
+surface-surface intersection of the solid merge and diff, traced by a
+declared parameter <code>t</code> over one turn.</p>
+<p>The part <code>A(s, phi)</code> has a periodic phase <code>phi</code> (a limb, a digit, a muscle
+head, a cutter); the host <code>B(y, theta)</code> is any surface. A point of the
+curve solves four equations in the four unknowns <code>x = (s, phi, y, theta)</code>:</p>
+<pre><code class="text">F(x) = A(s, phi) - B(y, theta) = 0      (three, the meeting)
+g(x, t) = 0                               (one, the parameter)
+</code><button type="button">Copy</button></pre>
+
+<p>by Newton's method with the Jacobian <code>J = [A_s, A_phi, -B_y, -B_theta; grad g]</code>
+(Patrikalakis, Maekawa and Cho, Shape Interrogation for CAD and
+Manufacturing, ch. 5). Three parameters:</p>
+<ul>
+<li><code>phase</code>: <code>g = phi - t</code>, the part's phase. Each phase's station line
+crosses the host once near the curve: a limb, a digit, the neck.</li>
+<li><code>angle</code>: <code>g = (A - c) . m(t)</code>, the angle <code>t</code> about an axis through the
+footprint's centre <code>c</code> with normal <code>n</code>, <code>m(t) = -sin t e1 + cos t e2</code> square
+to the half plane of direction <code>d(t) = cos t e1 + sin t e2</code> (<code>e1</code> the
+reference square to <code>n</code>, <code>e2 = n x e1</code>). A part lying along its host
+(a groove, a muscle head, a crease, a nail fold), whose station lines run
+along the host and cross it twice or never, is traced so, since every
+half plane about its footprint's centre meets the curve once.</li>
+<li><code>arc</code>: requested normalized arclength, for a long thin part along its host
+(a lid, a lip, a helix rim, a groove) whose half planes about any one
+centre cross its curve twice; the loop is first walked by
+pseudo-arclength continuation (Allgower and Georg, Numerical
+Continuation Methods, 1990, ch. 2). The current equal-chord spline
+guide approximates this request rather than certifying exact arclength.</li>
+</ul>
+<p>Differentiating <code>F(x(t)) = 0</code> and <code>g(x(t), t) = 0</code> gives its local implicit
+jet by the implicit function theorem, with no difference of traced points:</p>
+<pre><code class="text">J x&#39;  = -(0, 0, 0, g_t)
+J x&#39;&#39; = -(Q_A - Q_B, Q_g)
+Q_A = A_ss s&#39;^2 + 2 A_sphi s&#39; phi&#39; + A_phiphi phi&#39;^2,  Q_B the same in B
+Q_g = Q_A . m + 2 P&#39; . m&#39; + (P - c) . m&#39;&#39;  (angle; 0 for phase)
+C&#39;  = A_s s&#39; + A_phi phi&#39;,   C&#39;&#39; = Q_A + A_s s&#39;&#39; + A_phi phi&#39;&#39;
+</code><button type="button">Copy</button></pre>
+
+<p>with <code>P = A</code>, <code>m' = -d</code>, <code>m'' = -m</code>, <code>g_t = -(P - c) . d</code> (angle) or <code>-1</code>
+(phase); each line collects every second-order term of the chain rule
+except the one linear in <code>x''</code>.</p>
+<p>Tracing is continuation in <code>t</code> from a seed (a landmark's feet on both
+surfaces, refined here by Newton): each step predicts by the second-order
+Taylor step of that jet and corrects by Newton, and a step whose correction
+fails, or lands farther from its prediction than a quarter of the step's own
+length (a jump to another branch), is halved. After one turn of <code>t</code>, a
+chart displacement scaled by the starting surface speeds checks closure
+within ten tolerances after whole-period phase shifts. This finite
+observation does not certify a globally closed, unique branch.</p>
+<p>Under regular surface charts, <code>J</code> is singular where the curve does not cross the parameter's
+level sets: at a tangential contact (normals parallel), or where the curve
+turns along the part's stations (phase) or along the half plane (angle).
+A failed solve or an observed grazing sample is reported; contacts between
+the finite observations are not excluded by that check.</p>
+</div></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Variables"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="variables">Variables<a href="#variables" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="closing_steps"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/_automovie_engine.AutoMovieSolidIntersection.CLOSING_STEPS.html">CLOSING_STEPS</a><a href="#closing_steps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="walk_points"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/_automovie_engine.AutoMovieSolidIntersection.WALK_POINTS.html">WALK_POINTS</a><a href="#walk_points" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="walk_steps"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><a href="../variables/_automovie_engine.AutoMovieSolidIntersection.WALK_STEPS.html">WALK_STEPS</a><a href="#walk_steps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="functions">Functions<a href="#functions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="atlas"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/_automovie_engine.AutoMovieSolidIntersection.atlas.html">atlas</a><a href="#atlas" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="beyond"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/_automovie_engine.AutoMovieSolidIntersection.beyond.html">beyond</a><a href="#beyond" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="trace"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/_automovie_engine.AutoMovieSolidIntersection.trace.html">trace</a><a href="#trace" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Variables"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Variables</summary>
+<div><a href="#closing_steps"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>CLOSING_<wbr/>STEPS</span></a><a href="#walk_points"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>WALK_<wbr/>POINTS</span></a><a href="#walk_steps"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Variable"><use href="../assets/icons.svg#icon-32"></use></svg><span>WALK_<wbr/>STEPS</span></a></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Functions</summary>
+<div><a href="#atlas"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>atlas</span></a><a href="#beyond"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>beyond</span></a><a href="#trace"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>trace</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

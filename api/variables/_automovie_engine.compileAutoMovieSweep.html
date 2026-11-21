@@ -1,0 +1,103 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>compileAutoMovieSweep | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">compileAutoMovieSweep</a></li></ul>
+<h1>Variable compileAutoMovieSweep<code class="tsd-tag">Const</code></h1></div>
+<div class="tsd-signature"><span class="tsd-kind-variable">compileAutoMovieSweep</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">sweep</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieSweep.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSweep</a><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_interface.IAutoMovieSweepSurface.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSweepSurface</a><span class="tsd-signature-symbol"> = ...</span></div>
+<div class="tsd-comment tsd-typography"><p>Compile a sweep into an evaluable surface.</p>
+<p>Under direction correspondence, the default, each station's section is
+sampled at 512 directions by <code>sampleAutoMovieSweepSection</code>. For each
+direction the radii of the stations form a profile along <code>u</code>, interpolated
+by <code>interpolateAutoMovieSpline</code>, a C2 spline under tension, so curvature is
+continuous at interior stations, with its sampled overshoot policy;
+queried non-positive radii are refused. Before the
+first or after the last station it holds that station's radius.</p>
+<p>Under parameter correspondence each loop of each station, the section and
+then its holes, is sampled at the same parameters of
+<code>parameterizeAutoMovieSweepSection</code>: a polygon at its corners, any other
+curve at 512 even parameters. Each sample's two coordinates are interpolated
+along <code>u</code> by the same spline and joined linearly round the loop,
+so corner <code>k</code> of every station meets corner <code>k</code> of the next, as a loft
+between corresponding polygons blends them. Guides and features read radii
+by direction and are refused here; the scale profile applies to every loop.</p>
+<p>Guides make the radius field a Gordon surface (Gordon 1969, &quot;Spline-blended
+surface interpolation through curve networks&quot;, J. Math. Mech. 18(10)): the
+Boolean sum <code>P + G - T</code> of the profile interpolant <code>P</code> (the stations, along
+<code>u</code>), the guide interpolant <code>G</code> (the guides, round the turn) and their
+tensor interpolant <code>T</code> (the profile interpolant read at the guide
+directions, round the turn). Both directions use the spline, round
+the turn its periodic form over the guide directions. At a guide's
+direction <code>G - T</code> is the guide's radius less the profile's, so the surface
+passes through every guide at every <code>u</code> on the sampled angular grid;
+non-grid guide directions are reconstructed linearly from that grid. Where a guide disagrees
+with a station at the station's <code>u</code>, the network is incompatible and the
+guide wins, so the station's section is moved by the guides' disagreement
+interpolated round the turn; a single guide moves the whole section by its
+one difference. Rows are cached by <code>u</code>.</p>
+<p>Features next: each feature curve is the smooth curve through its points
+that <code>compileAutoMovieSweepFeature</code> builds, and at a query point the radius
+moves by the feature's residual at the course point found by its
+dense-seeded local search in the cylindrical metric approximation, the declared radius less the guided radius there or
+the declared offset, times <code>(1 - (d / width)^2)^3</code> within <code>width</code>. The
+surface therefore follows each feature curve to the search's accuracy where no
+other feature's band overlaps it, and the band has no crease along it.</p>
+<p>A scale profile, where the sweep gives one, multiplies the result last,
+features included, so it resizes the section as shaped; <code>profile</code> reads the
+radius before it and <code>scale</code> the profile's factor. Posing relies on this
+order: it changes only the scale, so the shape before it is pose-invariant.</p>
+<p>The section plane at <code>u</code> is the spine's rotation-minimizing frame, or under
+the <code>fixed</code> orientation the start frame's axes at the spine point (a
+translational sweep), turned by the stations' rotations: each station's
+rotation relative to that frame at its <code>at</code> is interpolated by normalized linear quaternion interpolation
+between stations, as sweep-based deformation interpolates key-ellipse
+orientations (Hyun et al. 2005, The Visual Computer 21(8-10):542-550), and held
+beyond the end stations; <code>loadAutoMovieSweepSpine</code> and <code>orientAutoMovieSweep</code>
+compute both.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="__type"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">sweep</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieSweep.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSweep</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieSweepSurface.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSweepSurface</a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">sweep</span>: <a href="../interfaces/_automovie_interface.IAutoMovieSweep.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSweep</a></span>
+<div class="tsd-comment tsd-typography"><p>The sweep, only read and retained by the returned surface.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_interface.IAutoMovieSweepSurface.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSweepSurface</a></h4><p>The compiled surface.</p>
+</li></ul></li></ul></div>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-throws">
+<h4 class="tsd-anchor-link" id="throws">Throws<a href="#throws" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Error when the spine is refused by <code>frameAutoMovieSweepSpine</code>, a section by <code>sampleAutoMovieSweepSection</code>, a station, guide or feature is out of range, unordered or not finite, or two guides share a direction; and, when a row is first evaluated, when a profile, guide, feature or scale query is non-positive or not finite.</p>
+</div></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/geometry/sweep/compileAutoMovieSweep.ts#L106">packages/engine/src/geometry/sweep/compileAutoMovieSweep.ts:106</a></li></ul></aside></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

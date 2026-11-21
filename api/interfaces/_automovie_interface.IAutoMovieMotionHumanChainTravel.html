@@ -1,0 +1,531 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieMotionHumanChainTravel | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieMotionHumanChainTravel</a></li></ul>
+<h1>Interface IAutoMovieMotionHumanChainTravel</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The chain methods of standing and travelling: quiet standing, the gaits
+over the floor, and travel over stairs, a ladder, an obstacle and the
+floor itself.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IAutoMovieMotionHumanChainTravel</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#node">node</a><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieComposition.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieComposition</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#subject">subject</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#act-1">act</a><span class="tsd-signature-symbol">&lt;</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#actname">Name</a> <span class="tsd-signature-keyword">extends</span> <a href="../types/_automovie_interface.AutoMovieMotionHumanActionName.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieMotionHumanActionName</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <a class="tsd-signature-type tsd-kind-type-parameter" href="_automovie_interface.IAutoMovieMotionHumanChain.html#actname">Name</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-signature-symbol">...</span><span class="tsd-kind-parameter">args</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieMotionHumanChainCore.Arguments.html" class="tsd-signature-type tsd-kind-type-alias">Arguments</a><span class="tsd-signature-symbol">&lt;</span><a class="tsd-signature-type tsd-kind-type-parameter" href="_automovie_interface.IAutoMovieMotionHumanChain.html#actname">Name</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#approach-1">approach</a><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanApproach.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanApproach</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanApproach.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#carry-1">carry</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanCarry.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanCarry</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanCarry.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#climbladder-1">climbLadder</a><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanClimbLadder.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanClimbLadder</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanClimbLadder.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#climbstairs-1">climbStairs</a><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanClimbStairs.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanClimbStairs</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanClimbStairs.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#crawl-1">crawl</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanCrawl.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanCrawl</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanCrawl.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#jump-1">jump</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanJump.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanJump</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanJump.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#next-1">next</a><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span><span class="tsd-kind-parameter">parts</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieComposition.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieComposition</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieComposition.Part.html" class="tsd-signature-type tsd-kind-type-alias">Part</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#over-1">over</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">build</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">overlay</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotionHumanChainCore</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#pushpull-1">pushPull</a><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanPushPull.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanPushPull</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanPushPull.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#registered-1">registered</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#run-1">run</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanRun.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanRun</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanRun.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#stand-1">stand</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanStand.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanStand</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanStand.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#stepover-1">stepOver</a><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanStepOver.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanStepOver</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanStepOver.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#sync-1">sync</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">sync</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.ISync.html" class="tsd-signature-type tsd-kind-interface">ISync</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#until-1">until</a><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">until</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">NonNullable</span><span class="tsd-signature-symbol">&lt;</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">share</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">event</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">}</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">event</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">of</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">}</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>                <span class="tsd-kind-property">proximity</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>                    <span class="tsd-kind-property">distance</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>                    <span class="tsd-kind-property">effector</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieHumanoidRegion.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidRegion</a><span class="tsd-signature-symbol">;</span><br/>                    <span class="tsd-kind-property">target</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieMotionTarget.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieMotionTarget</a><span class="tsd-signature-symbol">;</span><br/>                <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-signature-symbol">}</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#walk-1">walk</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieMotionHumanWalkParams.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotionHumanWalkParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#with-1">with</a><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span><span class="tsd-kind-parameter">parts</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieComposition.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieComposition</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieComposition.Part.html" class="tsd-signature-type tsd-kind-type-alias">Part</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div>
+<section class="tsd-panel tsd-hierarchy" data-refl="133023">
+<h4>Hierarchy (<a href="../hierarchy.html#@automovie/interface.IAutoMovieMotionHumanChainTravel">View Summary</a>)</h4>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotionHumanChainCore</a>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><span class="tsd-hierarchy-target">IAutoMovieMotionHumanChainTravel</span>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><a href="_automovie_interface.IAutoMovieMotionHumanChainPosture.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotionHumanChainPosture</a></li></ul></li></ul></li></ul></section><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L24">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:24</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#node" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>node</span></a>
+<a href="#subject" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>subject</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="methods">Methods<a href="#methods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#act" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>act</span></a>
+<a href="#approach" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>approach</span></a>
+<a href="#carry" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>carry</span></a>
+<a href="#climbladder" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>climb<wbr/>Ladder</span></a>
+<a href="#climbstairs" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>climb<wbr/>Stairs</span></a>
+<a href="#crawl" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>crawl</span></a>
+<a href="#jump" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>jump</span></a>
+<a href="#next" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>next</span></a>
+<a href="#over" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>over</span></a>
+<a href="#pushpull" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>push<wbr/>Pull</span></a>
+<a href="#registered" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>registered</span></a>
+<a href="#run" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>run</span></a>
+<a href="#stand" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>stand</span></a>
+<a href="#stepover" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>step<wbr/>Over</span></a>
+<a href="#sync" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>sync</span></a>
+<a href="#until" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>until</span></a>
+<a href="#walk" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>walk</span></a>
+<a href="#with" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>with</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="node"><code class="tsd-tag">Readonly</code><span>node</span><a href="#node" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">node</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieComposition.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieComposition</a></div>
+<div class="tsd-comment tsd-typography"><p>Borrowed composition reference; readonly prevents reassignment through this view, not mutation of the tree.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html">IAutoMovieMotionHumanChainCore</a>.<a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html#node">node</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/composition/IAutoMovieChain.ts#L19">packages/interface/src/motion/composition/IAutoMovieChain.ts:19</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="subject"><code class="tsd-tag">Readonly</code><span>subject</span><a href="#subject" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">subject</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The person whose actions this chain appends.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html">IAutoMovieMotionHumanChainCore</a>.<a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html#subject">subject</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts#L26">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts:26</a></li></ul></aside></section></section></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="methods-1">Methods<a href="#methods-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="act"><span>act</span><a href="#act" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="act-1"><span class="tsd-kind-call-signature">act</span><span class="tsd-signature-symbol">&lt;</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#actname">Name</a> <span class="tsd-signature-keyword">extends</span> <a href="../types/_automovie_interface.AutoMovieMotionHumanActionName.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieMotionHumanActionName</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <a class="tsd-signature-type tsd-kind-type-parameter" href="_automovie_interface.IAutoMovieMotionHumanChain.html#actname">Name</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">...</span><span class="tsd-kind-parameter">args</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieMotionHumanChainCore.Arguments.html" class="tsd-signature-type tsd-kind-type-alias">Arguments</a><span class="tsd-signature-symbol">&lt;</span><a class="tsd-signature-type tsd-kind-type-parameter" href="_automovie_interface.IAutoMovieMotionHumanChain.html#actname">Name</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#act-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Append an action by name. The parameters are the named action's own, so
+a misspelt name, a parameter the action does not take and a wrong value
+are refused by the type checker; an action whose parameters are all
+optional may be appended without any.</p>
+</div>
+<section class="tsd-panel">
+<h4>Type Parameters</h4>
+<ul class="tsd-type-parameter-list">
+<li><span id="actname"><span class="tsd-kind-type-parameter">Name</span> <span class="tsd-signature-keyword">extends</span> <a href="../types/_automovie_interface.AutoMovieMotionHumanActionName.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieMotionHumanActionName</a></span></li></ul></section>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">name</span>: <a class="tsd-signature-type tsd-kind-type-parameter" href="_automovie_interface.IAutoMovieMotionHumanChain.html#actname">Name</a></span>
+<div class="tsd-comment tsd-typography"><p>The action.</p>
+</div></li>
+<li><span><span class="tsd-signature-symbol">...</span><span class="tsd-kind-parameter">args</span>: <a href="../types/_automovie_interface.IAutoMovieMotionHumanChainCore.Arguments.html" class="tsd-signature-type tsd-kind-type-alias">Arguments</a><span class="tsd-signature-symbol">&lt;</span><a class="tsd-signature-type tsd-kind-type-parameter" href="_automovie_interface.IAutoMovieMotionHumanChain.html#actname">Name</a><span class="tsd-signature-symbol">&gt;</span></span>
+<div class="tsd-comment tsd-typography"><p>Its parameters, then an optional anchor: a stable id another chain can align to or cut on.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html">IAutoMovieMotionHumanChainCore</a>.<a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html#act">act</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts#L46">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts:46</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="approach"><span>approach</span><a href="#approach" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="approach-1"><span class="tsd-kind-call-signature">approach</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanApproach.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanApproach</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanApproach.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#approach-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Walk up to a person, prop or point and stop at an interpersonal gap.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">params</span>: <a href="../modules/_automovie_interface.IAutoMovieMotionHumanApproach.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanApproach</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanApproach.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a></span>
+<div class="tsd-comment tsd-typography"><p>Target, gap and pace.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L108">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:108</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="carry"><span>carry</span><a href="#carry" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="carry-1"><span class="tsd-kind-call-signature">carry</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanCarry.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanCarry</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanCarry.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#carry-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Walk while carrying a load in one hand, a box in both, a child on the
+hip, or pushing a cart.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">params</span>: <a href="../modules/_automovie_interface.IAutoMovieMotionHumanCarry.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanCarry</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanCarry.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a></span>
+<div class="tsd-comment tsd-typography"><p>Destination, how the load is carried and its mass.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L129">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:129</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="climbladder"><span>climb<wbr/>Ladder</span><a href="#climbladder" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="climbladder-1"><span class="tsd-kind-call-signature">climbLadder</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanClimbLadder.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanClimbLadder</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanClimbLadder.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#climbladder-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Climb a fixed ladder in the four-beat pattern, three limbs always on it.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">params</span>: <a href="../modules/_automovie_interface.IAutoMovieMotionHumanClimbLadder.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanClimbLadder</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanClimbLadder.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a></span>
+<div class="tsd-comment tsd-typography"><p>The ladder, a fixture prop of the scene, and the rungs climbed.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L226">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:226</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="climbstairs"><span>climb<wbr/>Stairs</span><a href="#climbstairs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="climbstairs-1"><span class="tsd-kind-call-signature">climbStairs</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanClimbStairs.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanClimbStairs</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanClimbStairs.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#climbstairs-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Climb a flight of stairs up or down, step over step or step by step.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">params</span>: <a href="../modules/_automovie_interface.IAutoMovieMotionHumanClimbStairs.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanClimbStairs</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanClimbStairs.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a></span>
+<div class="tsd-comment tsd-typography"><p>The flight (treads, riser, tread depth, direction), the stepping pattern and the leading foot.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L167">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:167</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="crawl"><span>crawl</span><a href="#crawl" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="crawl-1"><span class="tsd-kind-call-signature">crawl</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanCrawl.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanCrawl</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanCrawl.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#crawl-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get down onto hands and knees and crawl in the diagonal pattern, crawl on
+the hands and feet with the knees off the floor (<code>bear</code>), or walk the
+hands out to a plank and the feet in to them (<code>inchworm</code>).</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">params</span>: <a href="../modules/_automovie_interface.IAutoMovieMotionHumanCrawl.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanCrawl</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanCrawl.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a></span>
+<div class="tsd-comment tsd-typography"><p>How many cycles.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L209">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:209</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="jump"><span>jump</span><a href="#jump" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="jump-1"><span class="tsd-kind-call-signature">jump</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanJump.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanJump</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanJump.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#jump-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Jump to a floor point: push off a planted foot, fly and land on both feet.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">params</span>: <a href="../modules/_automovie_interface.IAutoMovieMotionHumanJump.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanJump</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanJump.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a></span>
+<div class="tsd-comment tsd-typography"><p>Where to land and the flight's apex.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L91">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:91</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="next"><span>next</span><a href="#next" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="next-1"><span class="tsd-kind-call-signature">next</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span><span class="tsd-kind-parameter">parts</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieComposition.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieComposition</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieComposition.Part.html" class="tsd-signature-type tsd-kind-type-alias">Part</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#next-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Returns a new same-class chain that places these parts after this node.
+An existing sequence head is flattened; following nested sequences are
+preserved. With no parts, a sequence wrapper or copy is still returned.
+Existing child nodes are shared, and constructor/derive errors propagate.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-signature-symbol">...</span><span class="tsd-kind-parameter">parts</span>: <a href="../modules/_automovie_interface.IAutoMovieComposition.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieComposition</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieComposition.Part.html" class="tsd-signature-type tsd-kind-type-alias">Part</a><span class="tsd-signature-symbol">[]</span></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html">IAutoMovieMotionHumanChainCore</a>.<a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html#next">next</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/composition/IAutoMovieChain.ts#L35">packages/interface/src/motion/composition/IAutoMovieChain.ts:35</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="over"><span>over</span><a href="#over" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="over-1"><span class="tsd-kind-call-signature">over</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">build</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">overlay</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotionHumanChainCore</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#over-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Perform other actions over the last appended one, at the same time and
+on other parts of the body: a wave or a phone during a walk.</p>
+<p>The last action carries the body (its root, its legs and whatever it
+does not yield); the actions <code>build</code> appends to the empty chain it is
+given start with it, follow one another, and each takes only the
+channels it claims. The performance refuses an action that cannot ride
+a carrier, a carrier that does not yield the channels asked, and two
+overlays that claim one channel at one time, naming both claims.</p>
+<pre><code class="ts"><span class="hl-4">a</span><span class="hl-1">.</span><span class="hl-0">walk</span><span class="hl-1">({ </span><span class="hl-4">to</span><span class="hl-1"> }).</span><span class="hl-0">over</span><span class="hl-1">((</span><span class="hl-4">u</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-4">u</span><span class="hl-1">.</span><span class="hl-0">handToFace</span><span class="hl-1">({ </span><span class="hl-4">task:</span><span class="hl-1"> </span><span class="hl-2">&quot;phone&quot;</span><span class="hl-1"> }));</span>
+</code><button type="button">Copy</button></pre>
+
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">build</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">overlay</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotionHumanChainCore</a></span>
+<div class="tsd-comment tsd-typography"><p>Appends the overlaid actions to an empty chain of this person.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-throws">
+<h4 class="tsd-anchor-link" id="throws">Throws<a href="#throws" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>When the chain ends in no action, or in one already synced (put the overlays on it before syncing it).</p>
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html">IAutoMovieMotionHumanChainCore</a>.<a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html#over">over</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts#L151">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts:151</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="pushpull"><span>push<wbr/>Pull</span><a href="#pushpull" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="pushpull-1"><span class="tsd-kind-call-signature">pushPull</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanPushPull.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanPushPull</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanPushPull.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#pushpull-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Move a heavy load by its two handles: push it ahead, pull it walking
+backward or drag it behind, or press it and not move it.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">params</span>: <a href="../modules/_automovie_interface.IAutoMovieMotionHumanPushPull.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanPushPull</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanPushPull.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a></span>
+<div class="tsd-comment tsd-typography"><p>The load, its handles, the way, where to and the load's level.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L147">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:147</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="registered"><span>registered</span><a href="#registered" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="registered-1"><span class="tsd-kind-call-signature">registered</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#registered-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Append an action a production registered with the performance
+(<code>IAutoMovieMotionHumanPerformance.IInput.laws</code>), by the name its law carries. The
+parameters are the registered law's own and are not checked here;
+<code>HumanChain.extend</code> gives the same action a typed method, which is the
+way to call it from code that knows the law.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">name</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>The registered law's name.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">params</span>: <span class="tsd-signature-type">object</span></span>
+<div class="tsd-comment tsd-typography"><p>Its parameters.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>A stable id another chain can align to or cut on.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html">IAutoMovieMotionHumanChainCore</a>.<a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html#registered">registered</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts#L71">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts:71</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="run"><span>run</span><a href="#run" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="run-1"><span class="tsd-kind-call-signature">run</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanRun.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanRun</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanRun.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#run-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Run to a floor point at a jog, a run or a sprint.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">params</span>: <a href="../modules/_automovie_interface.IAutoMovieMotionHumanRun.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanRun</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanRun.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a></span>
+<div class="tsd-comment tsd-typography"><p>Destination, pace and path.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L74">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:74</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="stand"><span>stand</span><a href="#stand" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="stand-1"><span class="tsd-kind-call-signature">stand</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanStand.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanStand</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanStand.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#stand-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Stand quietly.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">params</span>: <a href="../modules/_automovie_interface.IAutoMovieMotionHumanStand.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanStand</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanStand.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a></span>
+<div class="tsd-comment tsd-typography"><p>How long.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L40">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:40</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="stepover"><span>step<wbr/>Over</span><a href="#stepover" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="stepover-1"><span class="tsd-kind-call-signature">stepOver</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanStepOver.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanStepOver</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanStepOver.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#stepover-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Step over a low obstacle ahead, lead foot then trail foot.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">params</span>: <a href="../modules/_automovie_interface.IAutoMovieMotionHumanStepOver.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanStepOver</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanStepOver.IParams.html" class="tsd-signature-type tsd-kind-interface">IParams</a></span>
+<div class="tsd-comment tsd-typography"><p>The obstacle and the leading foot.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L187">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:187</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="sync"><span>sync</span><a href="#sync" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="sync-1"><span class="tsd-kind-call-signature">sync</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">sync</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.ISync.html" class="tsd-signature-type tsd-kind-interface">ISync</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#sync-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Time the last appended action to an instant of another action or of a
+cue track, as BML's synchronisation constraints do: one of its own
+instants (<code>align</code>, its start when absent) falls on the instant named
+(<code>of</code> and <code>event</code>), <code>offset</code> seconds later.</p>
+<p>The action starts as early as that needs. Where its performer's previous
+action still runs then, that action is cut there, which its cancel table
+must allow; an action that would have to start before its performer's
+previous one, or before the film, is refused with the earliest instant
+it can meet. What follows in the chain starts when the synced action
+ends. Cut the action (<code>until</code>) and put overlays on it (<code>over</code>) before
+syncing it.</p>
+<pre><code class="ts"><span class="hl-4">a</span><span class="hl-1">.</span><span class="hl-0">stand</span><span class="hl-1">().</span><span class="hl-0">gesture</span><span class="hl-1">({ </span><span class="hl-4">kind:</span><span class="hl-1"> </span><span class="hl-2">&quot;beat&quot;</span><span class="hl-1"> }).</span><span class="hl-0">sync</span><span class="hl-1">({ </span><span class="hl-4">of:</span><span class="hl-1"> </span><span class="hl-2">&quot;dialogue&quot;</span><span class="hl-1">, </span><span class="hl-4">event:</span><span class="hl-1"> </span><span class="hl-2">&quot;accent&quot;</span><span class="hl-1">, </span><span class="hl-4">index:</span><span class="hl-1"> </span><span class="hl-8">2</span><span class="hl-1">, </span><span class="hl-4">align:</span><span class="hl-1"> </span><span class="hl-2">&quot;strokeEnd&quot;</span><span class="hl-1"> });</span><br/><span class="hl-4">b</span><span class="hl-1">.</span><span class="hl-0">stand</span><span class="hl-1">().</span><span class="hl-0">flinch</span><span class="hl-1">().</span><span class="hl-0">sync</span><span class="hl-1">({ </span><span class="hl-4">of:</span><span class="hl-1"> </span><span class="hl-2">&quot;strike&quot;</span><span class="hl-1">, </span><span class="hl-4">event:</span><span class="hl-1"> </span><span class="hl-2">&quot;contact&quot;</span><span class="hl-1"> });</span>
+</code><button type="button">Copy</button></pre>
+
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">sync</span>: <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.ISync.html" class="tsd-signature-type tsd-kind-interface">ISync</a></span>
+<div class="tsd-comment tsd-typography"><p>The instant to meet and which instant of the action meets it.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-throws">
+<h4 class="tsd-anchor-link" id="throws-1">Throws<a href="#throws-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>When the chain ends in no action, or in one already synced (an action meets one instant).</p>
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html">IAutoMovieMotionHumanChainCore</a>.<a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html#sync">sync</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts#L122">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts:122</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="until"><span>until</span><a href="#until" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="until-1"><span class="tsd-kind-call-signature">until</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">until</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">NonNullable</span><span class="tsd-signature-symbol">&lt;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">share</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">event</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">}</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">event</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">of</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">}</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>            <span class="tsd-kind-property">proximity</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>                <span class="tsd-kind-property">distance</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>                <span class="tsd-kind-property">effector</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieHumanoidRegion.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidRegion</a><span class="tsd-signature-symbol">;</span><br/>                <span class="tsd-kind-property">target</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieMotionTarget.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieMotionTarget</a><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-signature-symbol">}</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#until-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Cut the last appended action: at a share, at one of its events, at
+another action's event, or when a region comes near a target.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">until</span>: <span class="tsd-signature-type">NonNullable</span><span class="tsd-signature-symbol">&lt;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">share</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">event</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">event</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">of</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">proximity</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>            <span class="tsd-kind-property">distance</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-kind-property">effector</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieHumanoidRegion.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidRegion</a><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-kind-property">target</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.IAutoMovieMotionTarget.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieMotionTarget</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">&gt;</span></span>
+<div class="tsd-comment tsd-typography"><p>The cut.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-throws">
+<h4 class="tsd-anchor-link" id="throws-2">Throws<a href="#throws-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>When the chain ends in no action, or in one already synced (cut it before syncing it).</p>
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html">IAutoMovieMotionHumanChainCore</a>.<a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html#until">until</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts#L89">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainCore.ts:89</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="walk"><span>walk</span><a href="#walk" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="walk-1"><span class="tsd-kind-call-signature">walk</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieMotionHumanWalkParams.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotionHumanWalkParams</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">anchor</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#walk-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Walk to a floor point.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">params</span>: <a href="_automovie_interface.IAutoMovieMotionHumanWalkParams.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotionHumanWalkParams</a></span>
+<div class="tsd-comment tsd-typography"><p>Destination and pace.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">anchor</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional anchor id.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><p>The chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts#L57">packages/interface/src/motion/human/chain/IAutoMovieMotionHumanChainTravel.ts:57</a></li></ul></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="with"><span>with</span><a href="#with" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="with-1"><span class="tsd-kind-call-signature">with</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span><span class="tsd-kind-parameter">parts</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieComposition.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieComposition</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieComposition.Part.html" class="tsd-signature-type tsd-kind-type-alias">Part</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">this</span><a href="#with-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Returns a new same-class chain whose parts begin at the same film instant.
+An existing parallel head is flattened; following groups stay nested.
+Empty arguments still return a parallel wrapper or copy sharing the
+existing child nodes. Constructor/derive errors propagate.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-signature-symbol">...</span><span class="tsd-kind-parameter">parts</span>: <a href="../modules/_automovie_interface.IAutoMovieComposition.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieComposition</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieComposition.Part.html" class="tsd-signature-type tsd-kind-type-alias">Part</a><span class="tsd-signature-symbol">[]</span></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html">IAutoMovieMotionHumanChainCore</a>.<a href="_automovie_interface.IAutoMovieMotionHumanChainCore.html#with">with</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/composition/IAutoMovieChain.ts#L51">packages/interface/src/motion/composition/IAutoMovieChain.ts:51</a></li></ul></aside></div></li></ul></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#node" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>node</span></a><a href="#subject" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>subject</span></a></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Methods</summary>
+<div><a href="#act" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>act</span></a><a href="#approach"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>approach</span></a><a href="#carry"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>carry</span></a><a href="#climbladder"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>climb<wbr/>Ladder</span></a><a href="#climbstairs"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>climb<wbr/>Stairs</span></a><a href="#crawl"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>crawl</span></a><a href="#jump"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>jump</span></a><a href="#next" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>next</span></a><a href="#over" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>over</span></a><a href="#pushpull"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>push<wbr/>Pull</span></a><a href="#registered" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>registered</span></a><a href="#run"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>run</span></a><a href="#stand"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>stand</span></a><a href="#stepover"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>step<wbr/>Over</span></a><a href="#sync" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>sync</span></a><a href="#until" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>until</span></a><a href="#walk"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>walk</span></a><a href="#with" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>with</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

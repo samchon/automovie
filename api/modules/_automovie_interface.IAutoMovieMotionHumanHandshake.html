@@ -1,0 +1,103 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieMotionHumanHandshake | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieMotionHumanHandshake</a></li></ul>
+<h1>Namespace IAutoMovieMotionHumanHandshake</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Shaking hands with a partner: both bring the same hand's palm to one
+shared point, clasp, pump together and let go.</p>
+<p>The goal is the meeting, not the arm: each palm socket is brought to the
+point <code>handshakeOffer.point</code> places between the two offering elbows, where both forearms
+reach it with the upper arms as they offer (the taller of two unequal
+partners extends the elbow and reaches down, lowering the upper arm toward
+hanging before the arm straightens, the shorter flexes the elbow and
+raises the forearm, and neither raises the upper arm), with the palm facing
+the partner's palm across the line between the two people and the
+fingers pointing at the partner along the line that halves the angle
+between the two forearms, so two right hands meet web to web with
+their thumbs up; the two hands then turn in their palms' planes together,
+the palms' contact unchanged, to the pair of turns whose open hands keep
+every phalanx off the other's forearm and which both arms reach best at the
+clasp and at the pump's top and bottom alike (<code>HumanClasp.choose</code>), so each
+hand's fingers close round the other's hand rather than lie along its
+wrist. Inverse kinematics
+solves each arm (<code>HumanHand.place</code>, the Final IK and Unreal Control Rig
+practice of an effector socket on a world target), and through the clasp
+and the pump the arm keeps the configuration it clasped in
+(<code>IAutoMovieHumanLimbGoal.reference</code>); the feet stay planted as the stand law
+places them. Both partners read the point from one meeting record
+(<code>handshakeMeeting</code>), computed once from the two shoulders, so the palms
+meet without either reading the other's moving hand. A seated pair whose
+arms alone fall short leans its trunks forward over the seat, the hand's
+target first (<code>HumanSeatedReach</code>, Chan and Dubey 1995), the lean coming in
+over the reach and going over the return. The comfortable reach is the shoulder-to-palm distance of an arm
+offering a hand: the upper arm 30 degrees forward of hanging and the elbow
+flexed 45 degrees, which slopes the forearm 15 degrees down to the hand,
+both provisional, as no measurement of the offering arm was located. The
+slope is what lets two hands clasp with both elbows low: each hand's
+fingers clear the partner's forearm only when they point about 65 degrees
+off it (measured on the sweep's bodies between two turns of 30 and two of
+37.5 degrees), the wrist deviates 30 degrees less the 5.5 the pump takes,
+and two level forearms leave the rest to a raised elbow; two forearms each
+sloping 15 degrees down supply it. <code>gap</code> is the chest gap at
+which both such arms meet, the distance partners stand at to shake hands.
+The limit is the straight arm less the pump's amplitude, so the pump stays
+within reach above and below the meeting point.</p>
+<p>Phases, the handshake's reach, grasp, shake and release (Jindai et al.,
+reviewed by Prasad et al. 2022, Human-Robot Handshaking: A Review, Int. J.
+Soc. Robot.): the reach is a minimum-jerk transport whose time is the
+reach-to-grasp movement time over the comfortable reach (<code>HumanPrehension</code>),
+the longer of the two partners' so both palms arrive together; the hand
+opens during the reach to the offered hand of <code>HumanClasp.open</code> and its
+digits close from there on the partner's hand by the clasp (<code>HumanGrip</code>);
+the shake moves the shared point up and down at 2.43 Hz for
+two cycles, the greeting handshake of Tagne et al. 2016 (0.90 s of main
+shaking at 2.43 Hz, as tabulated by Prasad et al.), with a vertical
+amplitude of 25 mm about the point that is provisional (no study located
+reports the amplitude; the robot reference of Wang et al. used 10 cm peak to
+peak) and a <code>sin^2</code> envelope so the pump starts and stops at rest; then the
+fingers open and the hand returns to where it hung over another reach time.</p>
+<p>Events: <code>clasp</code> and <code>gripClosed</code> when the palms meet and the fingers close,
+<code>shakeEnd</code> when the pump ends, <code>release</code> as the hand opens. The hand grips
+the partner's palm region from <code>clasp</code> to <code>release</code>. A handshake cut into a
+stand before <code>clasp</code> is a declined reach: the hand returns under the
+transition's inertialization, continuous in velocity, with no offset left
+once the blend ends.</p>
+<p>Both partners must stand, or sit leaning, within reach when the handshake
+starts; the mutual goal refuses a gap neither arm can close. The partner's shoulder is
+read at the start, so the partner's earlier actions must be placed first,
+which <code>HumanChain.pair</code> arranges.</p>
+</div></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="interfaces">Interfaces<a href="#interfaces" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="iparams"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_interface.IAutoMovieMotionHumanHandshake.IParams.html">IParams</a><a href="#iparams" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary" id="istance"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><a href="../interfaces/_automovie_interface.IAutoMovieMotionHumanHandshake.IStance.html">IStance</a><a href="#istance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Interfaces"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Interfaces</summary>
+<div><a href="#iparams"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Params</span></a><a href="#istance"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface"><use href="../assets/icons.svg#icon-256"></use></svg><span>I<wbr/>Stance</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

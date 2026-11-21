@@ -1,0 +1,118 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>resolveAutoMovieContactEvents | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">resolveAutoMovieContactEvents</a></li></ul>
+<h1>Function resolveAutoMovieContactEvents</h1></div>
+<section class="tsd-panel">
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="resolveautomoviecontactevents"><span class="tsd-kind-call-signature">resolveAutoMovieContactEvents</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">input</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieResolveContactEvents.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieResolveContactEvents</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieResolveContactEvents.IInput.html" class="tsd-signature-type tsd-kind-interface">IInput</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieResolveContactEvents.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieResolveContactEvents</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieResolveContactEvents.IEvent.html" class="tsd-signature-type tsd-kind-interface">IEvent</a><span class="tsd-signature-symbol">[]</span><a href="#resolveautomoviecontactevents" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>The contacts of several moving weapons with several bodies that may each
+carry one of those weapons, resolved together and in time order: who
+meets what, and when.</p>
+<p>Every weapon is a sphere whose centre moves on its free path (the path it
+takes until it meets something), or a capsule, a segment swept by that
+radius, when it also gives the axis's other end: a shin, a forearm, any
+limb segment that strikes along its length, so another body crossing the
+segment between its ends is met, not passed between sparse points; a
+tapered capsule's radius runs linearly from one end to the other, as a
+limb narrows from one joint to the next. Every
+body is a signed distance at a second, from a point and, for capsule
+weapons, from a segment (the least signed distance over the segment's
+points). Both may depend on which weapons have already stopped, because a
+stopped weapon changes the pose of the body that carries it. The method is
+the event loop of impulse-based simulation (Mirtich 1996, Impulse-based
+Dynamic Simulation of Rigid Body Systems, ch. 3) with continuous collision
+detection for each candidate (Redon, Kheddar and Coquillart 2002): find
+every moving weapon's first time of impact against the bodies it does not
+belong to, stop only the earliest, and re-evaluate every other weapon
+against the poses that stop produces, until no weapon meets anything.
+Each first impact is found by a fixed-step scan of the signed gap and a
+bracketed root search of the first crossing to a nanosecond
+(<code>firstAutoMovieContactImpact</code>), so the result is deterministic; a
+contact shorter than one step (a weapon and a body passing through each
+other within it) is the scan's stated blind spot, so the step must stay
+below the time either needs to cross the other's thickness. A weapon
+that states the span it is live in (<code>from</code>, <code>to</code>) is scanned only on the
+scan's own steps that reach into that span, since outside it the weapon
+meets nothing; the steps are the same as a scan of the whole span, so the
+result is too, and a performance of many strikes scans each strike over
+its own window instead of over the whole performance. Since only the
+earliest impact is stopped, each round reads the moving weapons' scans
+together, one grid step at a time and in the order the weapons become
+live: the step at which a first scan finds a contact ends the round, so
+no weapon is read past the earliest impact, and one that becomes live
+after it cannot be earlier. Ties in
+time are broken by the weapons' ids, and a weapon that touches the moment
+another stops is stopped at that same second, so the result does not
+depend on the order the weapons are listed in.</p>
+<p>A weapon may produce both endpoints together through <code>sample</code>; this
+replaces its separate endpoint calls for that exact query. The declared
+presence of <code>tail</code> still fixes its sphere or capsule kind. Samples are
+recomputed at every query and after each committed stop, including when
+two events share the same second.</p>
+<p>Initial penetration or touch is a contact. A body may explicitly certify
+that this initial episode was resolved and is departing: either no new
+entry occurs in this search, or a finite positive-gap witness precedes any
+new entry. Only that pair is deferred until its witness; the scan clock,
+other bodies and later entry remain unchanged. Unknown departure retains
+initial reporting. The body's physical model owns this information because
+signed distance alone cannot establish it.</p>
+<p>A contact is mutual. A weapon and the body that carries it are two
+measures of one limb (a capsule and that body's signed distance), and they
+need not agree to the millimetre, so of two limbs swung into each other
+one weapon touches the other body before the other weapon touches back.
+When the part a weapon meets carries a weapon of its own that is still
+moving (the body says so through <code>carried</code>), that weapon stops at the same
+second against the striker's body: neither limb is driven on into the one
+that has already stopped on it.</p>
+<p>Weapons may be the capsules of one rigid part (<code>group</code>): an arm's upper
+arm, forearm and fist. The part stops where any of its capsules first
+meets a body, so once one stops, the others are scanned no more and give
+no event: what they touch afterwards is the stopped part resting on the
+body it met, not a second strike.</p>
+<p>This resolves simultaneous strikes consistently: two fists crossing each
+other's arms, two shins meeting, a block that arrives first. It is a
+kinematic resolution of contact times, not a force simulation.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">input</span>: <a href="../modules/_automovie_interface.IAutoMovieResolveContactEvents.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieResolveContactEvents</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieResolveContactEvents.IInput.html" class="tsd-signature-type tsd-kind-interface">IInput</a></span>
+<div class="tsd-comment tsd-typography"><p>The weapons, the bodies and the span.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../modules/_automovie_interface.IAutoMovieResolveContactEvents.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieResolveContactEvents</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieResolveContactEvents.IEvent.html" class="tsd-signature-type tsd-kind-interface">IEvent</a><span class="tsd-signature-symbol">[]</span></h4><p>The stops, in time order.</p>
+
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-throws">
+<h4 class="tsd-anchor-link" id="throws">Throws<a href="#throws" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>When the span or the step is not positive, the span or step is not finite or the scan grid's step count over the span is not a safe integer (a RangeError from the scan), a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a sample changes its declared sphere/capsule kind, a capsule weapon meets a body that measures no segment, a departure witness is invalid, or a body names a carried weapon that is not its own.</p>
+</div></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/composition/resolveAutoMovieContactEvents.ts#L96">packages/engine/src/composition/resolveAutoMovieContactEvents.ts:96</a></li></ul></aside></div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

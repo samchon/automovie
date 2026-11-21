@@ -1,0 +1,122 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>hingedArmArticulation | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">hingedArmArticulation</a></li></ul>
+<h1>Function hingedArmArticulation</h1></div>
+<section class="tsd-panel">
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="hingedarmarticulation"><span class="tsd-kind-call-signature">hingedArmArticulation</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_engine.hingedArmArticulation.html" class="tsd-signature-type tsd-kind-namespace">hingedArmArticulation</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_engine.hingedArmArticulation.IProps.html" class="tsd-signature-type tsd-kind-interface">IProps</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieHingedArticulation.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHingedArticulation</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><a href="#hingedarmarticulation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Two-bone arm IK whose mid joint bends only about its own flexion hinge, with
+the chain root's free swivel spent on the rig's range of motion.</p>
+<p>The elbow rotates by <code>θ</code> about <code>hinge</code> alone, so its abduction and twist
+decompose to zero, which is what an elbow's immobile axes require, and the
+bend plane is the hinge's own plane. Splitting the far segment into the part
+along the hinge and the part it swings gives the root-to-effector span</p>
+<pre><code>|m(θ)|² = k + α·cos θ + β·sin θ
+</code></pre>
+<p>so the span equals the target distance where <code>R·cos(θ − φ) = distance² − k</code>,
+with <code>R = hypot(α, β)</code> and <code>φ = atan2(β, α)</code>: an arccos whose two roots are
+the chain's two bend branches. A target outside the reachable span takes the
+fully extended or fully folded root, so the effector stops on the reachable
+shell along the line to the target. A root outside the mid joint's own
+<code>range</code> stops at the nearer limit in the same way, the effector resting on
+the legal shell along that line and the result reporting the <code>shortfall</code>;
+of two branches the one stopping nearer the target is swept, because a
+candidate past the hinge's limit would be clamped by the caller afterwards
+and land somewhere no candidate was scored at.</p>
+<p>The root joint first aims <code>m(θ)</code> at the target, then any extra rotation
+about <code>m(θ)</code> leaves the effector where it is. The function sweeps that swivel
+in <code>SWIVEL_STEP</code> increments on each branch, ordering candidates by the least
+<code>overshoot</code> (legal, zero, ahead of any other exactly; two positive ones
+tied within the decomposition's rounding, 1e-9 degree), then the
+least <code>deviation</code>, both from
+<code>score</code>. Every local minimum of a sweep is then refined between its
+neighbouring steps by golden-section search under the same ordering, and
+the best of the sweeps and the refinements is returned. A pass whose two
+probes tie closes the bracket onto both, so a request mirrored left to
+right, whose probes are the same two exchanged, refines to the mirrored
+swivel. So the chosen pose
+follows a moving target continuously rather than in swivel steps, a legal
+interval narrower than one step is still found from the dip it leaves in
+the sweep, and between two basins the truly better one wins rather than the
+one a sample happened to fall nearer the bottom of. The caller owns the
+decomposition and the rig's ROM, so the geometry here holds no rig policy.</p>
+<p>A caller that can certify swivels its score refuses (<code>excluded</code>) spares
+their scoring, and the pose is still the full sweep's. A step is skipped
+when every swivel within two steps of it is refused, and a step whose
+bracket, a step either way, is refused is not refined; every other step is
+scored and compared with its true neighbours, since a step that is not
+skipped and could be refined has both neighbours scored. When the pruned
+sweep finds a legal candidate, the full sweep's answer is that candidate:
+a refused swivel, a step or a refinement inside a refused bracket, is
+never legal, so it can never be ahead of a legal candidate (legality is
+compared exactly); every legal candidate of the full sweep is a scored
+step or the refinement of a step that is scored with the same neighbours,
+so it is the same candidate in both; and the ordering among legal
+candidates, met in the same order, is the same. When the pruned sweep
+finds none, the full sweep decides, so a chain that cannot reach legally
+still returns its least overshoot.</p>
+<p>A cold fit with <code>closed</code> candidates and no <code>tie</code> or <code>minimum</code> scores them
+alone and returns the best when it is legal and <code>met</code> accepts it: where a
+requested term is met only at isolated swivels, those are the whole
+admissible set and no search can add to it.</p>
+<p>A cold fit with a <code>pole</code> and no <code>tie</code> or <code>minimum</code> searches locally from
+it (<code>hingedSwivelPole</code>) and returns a legal result without the sweep, so
+it follows the bend hint rather than jumping to a far, marginally better swivel.</p>
+<p>A cold fit whose caller certifies that no candidate can pass <code>met</code>
+(<code>unmet</code>) skips the pole start, whose result <code>met</code> would refuse.</p>
+<p>A caller continuing a fit of a nearby target (<code>near</code>) skips the sweep: a
+<code>closed</code> candidate less than a step from the seed answers when legal and
+met (<code>hingedSwivelNear</code>), and otherwise the
+seed's branch, its swivel refined within one step either way by the same
+golden-section search under the same ordering, to the seed's <code>tolerance</code>
+(<code>IAutoMovieSwivelNear</code>). Every result names its branch and swivel, the
+seed a nearby fit continues from. If dividing a positive subnormal tolerance
+by the initial bracket width underflows, the difference of logarithms keeps
+the mathematically finite refinement count finite; ordinary ratios retain
+their original expression.
+With certified global score minima and no second key, the first scored
+coarse candidate ends a cold search only if its actual two keys equal both
+minima exactly. No later candidate can be strictly ahead, so the original
+candidate and complete-tie seed are preserved; later coarse candidates
+cannot use this shortcut because earlier refinements precede them.</p>
+<p>Returns <code>null</code> for a degenerate chain: a mid or end offset shorter than
+<code>1e-6</code>, a target within <code>1e-6</code> of the chain root, a hinge shorter than
+<code>1e-6</code>, or <code>R</code> below <code>1e-9</code>, a hinge parallel to the far segment that cannot
+change the span (<a href="../variables/_automovie_engine.armChainFault.html" class="tsd-kind-variable">armChainFault</a> reports that rig).</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">props</span>: <a href="../modules/_automovie_engine.hingedArmArticulation.html" class="tsd-signature-type tsd-kind-namespace">hingedArmArticulation</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_engine.hingedArmArticulation.IProps.html" class="tsd-signature-type tsd-kind-interface">IProps</a></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_interface.IAutoMovieHingedArticulation.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHingedArticulation</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/kinematics/hingedArmArticulation.ts#L122">packages/engine/src/kinematics/hingedArmArticulation.ts:122</a></li></ul></aside></div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

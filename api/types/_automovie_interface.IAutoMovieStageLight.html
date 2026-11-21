@@ -1,0 +1,209 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieStageLight | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieStageLight</a></li></ul>
+<h1>Type Alias IAutoMovieStageLight</h1></div>
+<div class="tsd-signature"><span class="tsd-kind-type-alias">IAutoMovieStageLight</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">color</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">intensity</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">node</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">role</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;key&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;fill&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rim&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;ambient&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;sun&quot;</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span> <span class="tsd-signature-symbol">&amp;</span> (<br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieLightShadow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLightShadow</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;directional&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieLightShadow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLightShadow</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;point&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieLightShadow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLightShadow</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;spot&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;area&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><br/>)</div>
+<div class="tsd-comment tsd-typography"><p>One physical light placed on the authored set.</p>
+<p>Each family takes exactly its own parameters: a field that cannot act on the declared family is refused, not ignored. <code>stageScene</code> lowers the placement to the scene light its <code>type</code> names, aiming local -Z along <code>direction</code> and translating to <code>position</code>.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">color</span><span class="tsd-signature-symbol">?: </span><a href="../interfaces/_automovie_interface.IAutoMovieColor.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieColor</a></h5>
+<div class="tsd-comment tsd-typography"><p>Linear light color with <code>r</code>, <code>g</code>, <code>b</code> in <code>[0, 1]</code> and <code>a</code> either <code>null</code> or in <code>[0, 1]</code>; omitted means neutral white with <code>a: null</code>.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">intensity</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Finite non-negative intensity, lowered verbatim: lux for directional, candela for point and spot, and nits for an area panel.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">node</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>Non-blank light identity, unique across every node of the stage.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">role</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;key&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;fill&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rim&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;ambient&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;sun&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Optional dramatic annotation for review; no engine stage reads it.</p>
+</div></li></ul>
+<ul>
+<li><span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieLightShadow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLightShadow</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;directional&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Enabling shadows requires the shadow-map tuning record.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>A parallel source has no cone.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></h5>
+<div class="tsd-comment tsd-typography"><p>Finite nonzero world aim; local -Z is aligned with this vector.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>A parallel source has no panel height.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>An infinitely distant source has no world position.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>Parallel illumination has no distance cutoff.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?: </span><a href="../interfaces/_automovie_interface.IAutoMovieLightShadow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLightShadow</a></h5>
+<div class="tsd-comment tsd-typography"><p>Allowed only with castShadow true.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;directional&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Parallel source; omission preserves the directional default.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>A parallel source has no panel width.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieLightShadow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLightShadow</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;point&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Enabling shadows requires the shadow-map tuning record.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>An omnidirectional source has no cone.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>Omnidirectional illumination has no aim vector.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>A punctual source has no panel height.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></h5>
+<div class="tsd-comment tsd-typography"><p>Finite world origin in metres.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Finite nonnegative cutoff in metres; omitted or zero is unbounded.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?: </span><a href="../interfaces/_automovie_interface.IAutoMovieLightShadow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLightShadow</a></h5>
+<div class="tsd-comment tsd-typography"><p>Allowed only with castShadow true.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;point&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Omnidirectional source at one world position.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>A punctual source has no panel width.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieLightShadow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLightShadow</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;spot&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Enabling shadows requires the shadow-map tuning record.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Cone half-angle in degrees, within (0, 90]; omitted means 45.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></h5>
+<div class="tsd-comment tsd-typography"><p>Finite nonzero world aim; local -Z is aligned with this vector.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>A spot source has no panel height.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></h5>
+<div class="tsd-comment tsd-typography"><p>Finite world origin in metres.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Finite nonnegative cutoff in metres; omitted or zero is unbounded.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?: </span><a href="../interfaces/_automovie_interface.IAutoMovieLightShadow.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieLightShadow</a></h5>
+<div class="tsd-comment tsd-typography"><p>Allowed only with castShadow true.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;spot&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Aimed punctual source with a conical beam.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>A spot source has no panel width.</p>
+</div></li></ul></li>
+<li><span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;area&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">castShadow</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>Area lights render no shadow map.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">coneAngle</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>A rectangular panel has no spot cone.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></h5>
+<div class="tsd-comment tsd-typography"><p>Finite nonzero world aim; local -Z is aligned with this vector.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Finite positive panel height along local Y, in metres.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></h5>
+<div class="tsd-comment tsd-typography"><p>Finite world centre in metres.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">range</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>Panel extent determines falloff without a separate cutoff.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">shadow</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">never</span></h5>
+<div class="tsd-comment tsd-typography"><p>Area lights render no shadow map.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;area&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Rectangular emitting panel with extent-dependent falloff.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Finite positive panel width along local X, in metres.</p>
+</div></li></ul></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/authoring/IAutoMovieStageLight.ts#L15">packages/interface/src/authoring/IAutoMovieStageLight.ts:15</a></li></ul></aside></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

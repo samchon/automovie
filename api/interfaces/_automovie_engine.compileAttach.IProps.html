@@ -1,0 +1,189 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IProps | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="../modules/_automovie_engine.compileAttach.html">compileAttach</a></li>
+<li><a href="" aria-current="page">IProps</a></li></ul>
+<h1>Interface IProps</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The attachment props with an optional prepared parent rig.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IProps</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#bone">bone</a><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#child">child</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#duration">duration</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#fps">fps</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#jointaxes">jointAxes</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">,</span> <a href="_automovie_interface.IAutoMovieJointAxes.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointAxes</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#offset">offset</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieRigidTransform.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRigidTransform</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#parentmotion">parentMotion</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieMotion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotion</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#parentskeleton">parentSkeleton</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieSkeleton.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSkeleton</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#parenttransform">parentTransform</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieTransform.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieTransform</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#parenttransformat">parentTransformAt</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">t</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="_automovie_interface.IAutoMovieTransform.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieTransform</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#poseresolution">poseResolution</a><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieSkeletonPoseResolution.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieSkeletonPoseResolution</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieSkeletonPoseResolution.IRig.html" class="tsd-signature-type tsd-kind-interface">IRig</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#restframes">restFrames</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">,</span> <a href="_automovie_interface.IAutoMovieRestFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRestFrame</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#shotduration">shotDuration</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#start">start</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div>
+<section class="tsd-panel tsd-hierarchy" data-refl="90201">
+<h4>Hierarchy (<a href="../hierarchy.html#@automovie/engine.compileAttach.IProps">View Summary</a>)</h4>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><a href="../modules/_automovie_interface.IAutoMovieCompileAttach.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieCompileAttach</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieCompileAttach.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><span class="tsd-hierarchy-target">IProps</span></li></ul></li></ul></section><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/film/compileAttach.ts#L145">packages/engine/src/film/compileAttach.ts:145</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#bone" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>bone</span></a>
+<a href="#child" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>child</span></a>
+<a href="#duration" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>duration</span></a>
+<a href="#fps" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>fps?</span></a>
+<a href="#jointaxes" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>joint<wbr/>Axes?</span></a>
+<a href="#offset" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>offset?</span></a>
+<a href="#parentmotion" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>parent<wbr/>Motion?</span></a>
+<a href="#parentskeleton" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>parent<wbr/>Skeleton</span></a>
+<a href="#parenttransform" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>parent<wbr/>Transform</span></a>
+<a href="#parenttransformat" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>parent<wbr/>Transform<wbr/>At?</span></a>
+<a href="#poseresolution" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>pose<wbr/>Resolution?</span></a>
+<a href="#restframes" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rest<wbr/>Frames?</span></a>
+<a href="#shotduration" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>shot<wbr/>Duration</span></a>
+<a href="#start" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>start</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="bone"><span>bone</span><a href="#bone" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">bone</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a></div>
+<div class="tsd-comment tsd-typography"><p>The parent bone the child rides.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.bone</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L40">packages/interface/src/production/IAutoMovieCompileAttach.ts:40</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="child"><span>child</span><a href="#child" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">child</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The coupled child's scene node: the clip's target.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.child</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L37">packages/interface/src/production/IAutoMovieCompileAttach.ts:37</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="duration"><span>duration</span><a href="#duration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Length of the coupling in seconds; must be finite and positive.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.duration</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L75">packages/interface/src/production/IAutoMovieCompileAttach.ts:75</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="fps"><code class="tsd-tag">Optional</code><span>fps</span><a href="#fps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">fps</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Samples per second of the baked follow; defaults to 30.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.fps</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L81">packages/interface/src/production/IAutoMovieCompileAttach.ts:81</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="jointaxes"><code class="tsd-tag">Optional</code><span>joint<wbr/>Axes</span><a href="#jointaxes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">jointAxes</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">,</span> <a href="_automovie_interface.IAutoMovieJointAxes.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointAxes</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>Clinical-axis remap for the parent's FK, such as <code>HUMANOID_JOINT_AXES</code>.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.jointAxes</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L84">packages/interface/src/production/IAutoMovieCompileAttach.ts:84</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="offset"><code class="tsd-tag">Optional</code><span>offset</span><a href="#offset" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">offset</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieRigidTransform.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRigidTransform</a></div>
+<div class="tsd-comment tsd-typography"><p>Child frame in the posed bone, with finite metre translation and a unit rotation. Defaults to the identity.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.offset</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L43">packages/interface/src/production/IAutoMovieCompileAttach.ts:43</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="parentmotion"><code class="tsd-tag">Optional</code><span>parent<wbr/>Motion</span><a href="#parentmotion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">parentMotion</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieMotion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotion</a></div>
+<div class="tsd-comment tsd-typography"><p>The parent's compiled pose motion; absent, the parent holds its rest pose.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.parentMotion</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L69">packages/interface/src/production/IAutoMovieCompileAttach.ts:69</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="parentskeleton"><span>parent<wbr/>Skeleton</span><a href="#parentskeleton" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">parentSkeleton</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieSkeleton.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSkeleton</a></div>
+<div class="tsd-comment tsd-typography"><p>The parent's rig, for the per-frame FK.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.parentSkeleton</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L66">packages/interface/src/production/IAutoMovieCompileAttach.ts:66</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="parenttransform"><span>parent<wbr/>Transform</span><a href="#parenttransform" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">parentTransform</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieTransform.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieTransform</a></div>
+<div class="tsd-comment tsd-typography"><p>The parent's staged world placement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.parentTransform</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L46">packages/interface/src/production/IAutoMovieCompileAttach.ts:46</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="parenttransformat"><code class="tsd-tag">Optional</code><span>parent<wbr/>Transform<wbr/>At</span><a href="#parenttransformat" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">parentTransformAt</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">t</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="_automovie_interface.IAutoMovieTransform.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieTransform</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>The parent's ridden world frame at shot-local second t, or null before its
+coupling starts. The staged parentTransform applies when no ridden frame
+exists. Omit for a parent that holds its staged placement throughout.
+Called synchronously once per baked key, including both endpoints; neither
+the callback nor returned frame is retained. Exceptions abort baking.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.parentTransformAt</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L63">packages/interface/src/production/IAutoMovieCompileAttach.ts:63</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="poseresolution"><code class="tsd-tag">Optional</code><span>pose<wbr/>Resolution</span><a href="#poseresolution" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">poseResolution</span><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMovieSkeletonPoseResolution.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieSkeletonPoseResolution</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieSkeletonPoseResolution.IRig.html" class="tsd-signature-type tsd-kind-interface">IRig</a></div>
+<div class="tsd-comment tsd-typography"><p>Explicit immutable snapshot of this exact parent rig and clinical mappings, kept unchanged throughout the bake. Omission preserves raw full FK.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/film/compileAttach.ts#L147">packages/engine/src/film/compileAttach.ts:147</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="restframes"><code class="tsd-tag">Optional</code><span>rest<wbr/>Frames</span><a href="#restframes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">restFrames</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">,</span> <a href="_automovie_interface.IAutoMovieRestFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRestFrame</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>Per-rig clinical rest-frame remap for the parent's FK.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.restFrames</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L87">packages/interface/src/production/IAutoMovieCompileAttach.ts:87</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="shotduration"><span>shot<wbr/>Duration</span><a href="#shotduration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">shotDuration</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>The shot's length in seconds, which the clip's duration spans.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.shotDuration</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L78">packages/interface/src/production/IAutoMovieCompileAttach.ts:78</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="start"><span>start</span><a href="#start" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">start</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Shot-local second the coupling begins.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from IProps.start</p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/production/IAutoMovieCompileAttach.ts#L72">packages/interface/src/production/IAutoMovieCompileAttach.ts:72</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#bone" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>bone</span></a><a href="#child" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>child</span></a><a href="#duration" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>duration</span></a><a href="#fps" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>fps</span></a><a href="#jointaxes" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>joint<wbr/>Axes</span></a><a href="#offset" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>offset</span></a><a href="#parentmotion" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>parent<wbr/>Motion</span></a><a href="#parentskeleton" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>parent<wbr/>Skeleton</span></a><a href="#parenttransform" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>parent<wbr/>Transform</span></a><a href="#parenttransformat" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>parent<wbr/>Transform<wbr/>At</span></a><a href="#poseresolution"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>pose<wbr/>Resolution</span></a><a href="#restframes" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rest<wbr/>Frames</span></a><a href="#shotduration" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>shot<wbr/>Duration</span></a><a href="#start" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>start</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>
