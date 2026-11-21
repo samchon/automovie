@@ -35,7 +35,7 @@ For a catalog case, name the fact it exhibits and use the case parameters. For s
 
 Can a reader trace each value the declaration passes, and each default it relies on, back to what it realizes, and every element of each cited beat forward to its values?
 
-Under [meaningful documentation](common.md#meaningful-documentation), comment every value a scene passes and every default it relies on. Give the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) the value realizes and how, and the study section for skilled practice. Write what a reader needs to check the value against the beat, and nothing the value or its JSDoc already says. Realize every element of each cited beat in at least one commented value.
+Comment every value a scene passes and every default it relies on. Give the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) the value realizes and how, and the study section for skilled practice. Write what a reader needs to check the value against the beat, and nothing the value or its JSDoc already says. Realize every element of each cited beat in at least one commented value.
 
 ```ts
 const rush = jun.run({

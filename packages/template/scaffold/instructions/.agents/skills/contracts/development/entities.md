@@ -25,7 +25,7 @@ Keep durable choices at their owner. Cite a [short's scene decisions](../../stor
 
 Can a reader trace each value the entity or its capabilities set, and each default they rely on, to the record fact, study section or decision it realizes?
 
-Under [meaningful documentation](common.md#meaningful-documentation), comment each such value with its source and how it realizes it. Write what a reader needs to check the value against its source, and nothing the value or its JSDoc already says.
+Comment each such value with its source and how it realizes it. Write what a reader needs to check the value against its source, and nothing the value or its JSDoc already says.
 
 ## Object shape
 
