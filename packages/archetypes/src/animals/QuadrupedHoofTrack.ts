@@ -386,6 +386,12 @@ export namespace QuadrupedHoofTrack {
       inverse,
       Vector3.subtract(world, state.placement.translation),
     );
+    // A body pitched against the ground (a lean or a tilt) sees the level ground as a plane through the hoof's world point.
+    const up: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
     return {
       x: local.x,
       z: local.z,
@@ -400,7 +406,9 @@ export namespace QuadrupedHoofTrack {
             ),
       ),
       ...(oldGround === undefined
-        ? {}
+        ? up.y === 1
+          ? {}
+          : { surface: { point: local, normal: up } }
         : {
             surface: {
               point: local,

@@ -182,7 +182,8 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     plan.bends.length > 0 ||
     departure !== undefined ||
     footwork.lateral.length > 0 ||
-    footwork.jump !== undefined;
+    footwork.jump !== undefined ||
+    course.lean !== undefined;
   const pose: QuadrupedRidePose.IPrepared<Affordance, Dimension> =
     QuadrupedRidePose.prepare(animal, species, rig, nativeCourse);
   const tucks: EquineTuck.IFores = EquineTuck.fores(rig.limbs);
