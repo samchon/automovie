@@ -371,6 +371,7 @@ export * from "./lexicon/stageBladeFootwork";
 export * from "./sport/aquatic";
 export * from "./sport/bakePrecisionDeck";
 export * from "./sport/bowlingPinfall";
+export * from "./sport/pocketedBalls";
 export * from "./sport/HumanBallPlay";
 export * from "./sport/stickBall";
 export * from "./reaction/give";

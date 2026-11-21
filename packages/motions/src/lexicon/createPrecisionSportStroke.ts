@@ -29,6 +29,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingQuality } from "../striking/StrikingQuality";
+import { addressPrecisionStroke } from "./addressPrecisionStroke";
 
 /** The shared authorship contract. Cue strokes also name a supporting surface. */
 type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke &
@@ -65,6 +66,9 @@ interface IPrecisionForm {
   /** A stroke that uses the racket hand without fixing the free hand to its handle. */
   oneHand?: true;
 }
+
+/** The cue's least lean over the bed while the bridge hand bears on it, degrees; provisional. */
+const BRIDGE_INCLINE: number = 27;
 
 /** Positive, finite authored timing and speed, with admission kept at the stroke. */
 function positive(axis: string, value: number): number {
@@ -261,17 +265,40 @@ export function createPrecisionSportStroke<P extends Stroke>(
         bridgeBones === undefined
           ? undefined
           : HumanHand.frame(body, bridgeBones, guide, "palm").point;
+      // A ball below the standing hand's reach, a golf ball on the ground or
+      // a cue ball on the bed, is played from an address stance. A bridged
+      // cue keeps at least its lean over the bed with the pelvis upright.
+      const address: ReturnType<typeof addressPrecisionStroke> =
+        addressPrecisionStroke(
+          body,
+          context.entry.posture,
+          context.entry.feet,
+          side,
+          path(1).point,
+          bridge === undefined ? 0 : BRIDGE_INCLINE,
+          bridge === undefined ? Infinity : 0,
+        );
       const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
         t,
         channels,
         source,
         projection,
       ): IAutoMovieMotionHumanPosture => {
-        const current: IAutoMovieMotionHumanPosture = plan.posture(
+        const influence: number = clock.envelope(
+          ["start", "ready"],
+          ["relax", "end"],
+          t,
+        );
+        const planned: IAutoMovieMotionHumanPosture = plan.posture(
           t,
           channels,
           source,
           projection,
+        );
+        if (influence <= 0) return planned;
+        const current: IAutoMovieMotionHumanPosture = address(
+          planned,
+          influence,
         );
         if (
           bridge === undefined ||
@@ -279,12 +306,6 @@ export function createPrecisionSportStroke<P extends Stroke>(
           bridgeBones === undefined
         )
           return current;
-        const influence: number = clock.envelope(
-          ["start", "ready"],
-          ["relax", "end"],
-          t,
-        );
-        if (influence <= 0) return current;
         const goal: IAutoMovieHumanLimbGoal =
           AutoMovieMotionHumanArmTarget.goal(body, guide, {
             surface: "palm",
@@ -299,7 +320,6 @@ export function createPrecisionSportStroke<P extends Stroke>(
           });
         return {
           ...current,
-          joints: HumanTrunk.incline(current.joints, 27 * influence, 0).joints,
           limbs: { ...current.limbs, [`${guide}Arm`]: goal },
         };
       };
