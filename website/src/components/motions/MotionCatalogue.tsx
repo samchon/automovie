@@ -103,9 +103,7 @@ export function MotionCatalogue(props: {
           />
         </label>
         <p className="am-index-shown" role="status">
-          {words.length === 0
-            ? `${props.index.total} motions`
-            : `${shown} of ${props.index.total} motions`}
+          {words.length === 0 ? "" : `${shown} found`}
         </p>
         <ol>
           {props.index.categories.map(

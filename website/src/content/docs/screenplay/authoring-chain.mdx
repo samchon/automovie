@@ -4,7 +4,7 @@ title: Authoring chain
 
 # Authoring chain
 
-A production writes its screenplay through a chain of layers. Each layer makes its own decisions, cites the decisions of the layer above it by anchor, and hands usable decisions to the next. The code continues the same chain: entities realize the canon, scenes realize the screenplay, and films order the scenes. No scene exists without a written basis, and no decision goes unrealized, because the [evidence graph](/docs/screenplay/evidence-graph) fails on either.
+A production writes its screenplay through a chain of layers. Each layer makes its own decisions, cites the decisions of the layer above it by anchor, and hands usable decisions to the next. The code continues the same chain: entities realize the canon, scenes realize the screenplay, and films order the scenes. The [evidence graph](/docs/screenplay/evidence-graph) holds each layer to the decisions above it, and each layer answers in writing for every one it keeps.
 
 ```mermaid
 flowchart LR
@@ -44,7 +44,7 @@ Every narrative document lives under `docs/body/`, one layer per folder:
 
 ### Settings and the brief
 
-Settings and the brief own what later layers keep true. Each subject has one file in a domain such as `cast`, `crowds`, `props`, `sets`, `world`, `cinematography` or `sound`. The file uses an H1 for the subject, H2s for its facets and anchored H3s for its facts and decisions. A brief holds only the decisions that several scenes must keep, while settings hold the world's facts, baseline states, relationships and what each person knows.
+Settings and the brief own what later layers keep true. Each subject has one file in a domain such as `cast`, `crowds`, `props`, `sets`, `world`, `cinematography` or `sound`. The file uses an H1 for the subject, H2s for its facets and anchored H3s for its facts and decisions. A brief holds a record for each cast character, location and recurring or plot-driving prop, and every rule the premise depends on, while settings hold the world's facts, baseline states, relationships and what each person knows.
 
 ### Treatments
 
@@ -58,35 +58,9 @@ Scripts partition the events into playable scenes and execute each one: dialogue
 
 The screenplay composes what the audience sees and hears, beat by beat, in one file per scene. It is the last place a decision is made; code only realizes it. On the long route each screenplay scene file realizes exactly one script scene. [Writing scenes](/docs/screenplay/writing-scenes) describes the format.
 
-## How a layer cites its parent
+## Citations
 
-A citation names the parent's file and anchor, so the graph can tell which decision a passage realizes. These are the citations each layer owes:
-
-| Respondent | Cites |
-| --- | --- |
-| Settings, or a short or directly written screenplay | The `docs/instructions/` sections it adopts or realizes |
-| Treatments | The settings facts and instruction sections they realize |
-| A script episode | Each treatment event it realizes |
-| A long screenplay scene file | The one script scene it realizes, and the treatments behind it |
-| A short screenplay section | The brief decisions it keeps |
-| A scene composition in `src/composition/scenes/` | Its screenplay scene file, or each section and beat it realizes |
-| A film in `src/composition/films/` | Each scene file it plays, in order |
-
-A script episode records its parents in an HTML comment above its first heading:
-
-```markdown
-<!--
-@evidence docs/body/treatments/001-arrival.md Opens with the arrival.
-@evidence docs/body/treatments/002-departure.md Ends with the departure.
--->
-# First
-
-## Arrival {#arrival}
-
-The guest arrives.
-```
-
-Removing the second citation leaves the departure event realized by no script, and the check reports it.
+A layer cites each parent decision it keeps by file and anchor, and answers each principle its contracts ask, each with a written reason. [Evidence configuration](/reference/evidence) gives the answer formats.
 
 ## Research
 

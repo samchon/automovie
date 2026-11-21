@@ -25,7 +25,7 @@ A channel is a pass drawn from the same performance and camera as the picture. `
 | `outline` | Edges, for edge-conditioned models |
 | `mask` | A semantic mask, rendered from the scene rather than estimated from pictures |
 
-The production renders only the channels its receiver requires, and records them in `PROJECT.md`. Each channel is read for its limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities. A structural channel's values stay free of exposure, tone mapping and overlays, and viewing encodes are kept separate so depth values and mask colors survive. The channels, their mappings, palettes, sidecars and digests are kept as media records.
+The production renders only the channels its receiver requires, and records them in `PROJECT.md`. Each channel is read for its limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities.
 
 A capture draws any pass at any second, sharing the view's camera across passes:
 
@@ -41,7 +41,7 @@ Each video model takes the hint its own way, and each way preserves different in
 | --- | --- |
 | Editing or restyling the hint video | Positions, timing and camera, while the surfaces change |
 | A reference video | Loose placement, motion and camera |
-| A gray-layout adapter | The camera path and placement, with coarse forms replaced by detailed ones |
+| A gray-layout adapter | The camera path and placement; the model draws the surfaces over the coarse forms |
 | Control adapters | Precise placements and contacts, at a strength each request sets |
 
 Dense channels carry both placement and shape, and a higher adherence preserves more of the coarse geometry. The agent chooses the method with you, records it with its default adherence in `PROJECT.md`, and tests it on takes.
@@ -50,13 +50,7 @@ Dense channels carry both placement and shape, and a higher adherence preserves 
 
 An accurate hint does not decide what the model makes of it. Generated takes are inspected against the hint at matched frames: stills extracted from the take beside stills drawn from the source at the same seconds. Contacts and outcomes are checked first, then identity, placement, camera and motion.
 
-`automovie capture --file` draws an encoded or generated file's own frames, around every cut and event:
-
-```bash
-pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from 60 --to 70
-```
-
-Compared against a capture round of the source, the file's cells pair by second, and a second the file lacks stays as an unmatched cell with its cause. A take that loses the action, the identity or the causality is repaired at the source, the request or the selection, never accepted for its look. The agent's report says what it verified and what only you watched.
+[Capturing a video file](/docs/delivery/capture-render-review#capturing-a-video-file) draws a take's own frames for that comparison. A take that loses the action, the identity or the causality is repaired at the source, the request or the selection, never accepted for its look. The agent's report says what it verified and what only you watched.
 
 ## The handoff
 

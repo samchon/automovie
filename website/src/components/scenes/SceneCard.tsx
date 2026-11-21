@@ -31,6 +31,8 @@ import { useSceneClock } from "./useSceneClock";
 export function SceneCard(props: {
   scene: IScene;
   baked: boolean;
+  /** The baked take's length, seconds; absent when it was not baked. */
+  seconds?: number;
 }): ReactElement {
   const { scene }: typeof props = props;
   const [live, setLive]: [boolean, Dispatch<SetStateAction<boolean>>] =
@@ -65,7 +67,9 @@ export function SceneCard(props: {
         <span className="am-scene-card-title">{scene.title}</span>
       </Link>
       <span className="am-scene-card-summary">{scene.summary}</span>
-      <span className="am-scene-card-facts">{SceneFacts.counts(scene)}</span>
+      <span className="am-scene-card-facts">
+        {SceneFacts.counts(scene, props.seconds)}
+      </span>
     </li>
   );
 }
@@ -74,6 +78,8 @@ export function SceneCard(props: {
 function LiveTake(props: {
   scene: IScene;
   baked: boolean;
+  /** The baked take's length, seconds; absent when it was not baked. */
+  seconds?: number;
   poster: string;
 }): ReactElement {
   const clock: SceneClock = useSceneClock();
