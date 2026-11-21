@@ -1,0 +1,498 @@
+import {
+  createBag,
+  createBowl,
+  createCarryBasket,
+  createServingTray,
+} from "@automovie/archetypes";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanPropFrame,
+  HumanRefusal,
+} from "@automovie/motions";
+
+import { assertTakeClean } from "../internal/assertTakeClean";
+import { everydayTake } from "../internal/everydayTake";
+import { motionComplaints } from "../internal/motionComplaints";
+import { motionHumanBody } from "../internal/motionHumanBody";
+
+/** A worn or held prop drifts at most this on its carrier, metres. */
+const HOLD: number = 0.005;
+/** A tray's surface stays within this of level, degrees. */
+const LEVEL: number = 10;
+/** Wheels on the floor within this, metres. */
+const FLOOR: number = 0.02;
+/** A strap lies over its shoulder within this, metres. */
+const STRAP: number = 0.1;
+/** A hand change's two-handed overlap lasts at most this, seconds. */
+const OVERLAP: number = 1.5;
+/** Where the backpack is set down once taken off, world metres. */
+const OFF: IAutoMovieVector3 = { x: 1.5, y: 0, z: 2.4 };
+/** Turned half round: a bag's back toward a wearer facing `+Z`. */
+const BEHIND: IAutoMovieQuaternion = { x: 0, y: 1, z: 0, w: 0 };
+
+/**
+ * Carriage through real affordances (#3992).
+ *
+ * Scenarios, on m-average and f-small:
+ * 1. Airport arrival: a backpack is put on by its strap onto the back,
+ *    both straps over the shoulders, and stays on its worn mount through a
+ *    walk and a turn, then comes off by its handle; a suitcase's handle is
+ *    drawn out and it is pulled through the turn, its wheels on the floor
+ *    and the case behind the walker.
+ * 2. A waiter's tray on the flat palm, with a bowl on it, carried level
+ *    through a walk and a turn, the bowl staying on it.
+ * 3. A basket on the head stays on the crown through a walk, no hand on it.
+ * 4. A child rides the shoulders: seat on the nape, the carrier's hands on
+ *    the shins, lifted and set down with one coupled support throughout.
+ * 5. A bag changes hands without being set down, both hands holding only
+ *    briefly. A load over the carriage band is refused.
+ * Every take passes the shipped verdicts, which include prop and body
+ * penetration: no backpack strap passes through an arm or the trunk.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States each scenario, the bodies and the refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes pickUp, putDown on a bone, operate, workHeld, walk, release and the coupled carry, and reads displayed props and bones.
+ * @evidence contracts/development/testing.md#independent-expectations The worn offsets and places are authored here; tolerances are named.
+ * @evidence contracts/development/testing.md#distinguishing-cases Worn against held, palm against head, a one-hand against a two-hand interval, a load within against over the band.
+ * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
+ */
+export function test_human_motion_carriage(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
+  for (const name of ["m-average", "f-small"] as const) {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    for (const scene of SCENES)
+      try {
+        scene.run(body, `${name} ${scene.label}`, checks);
+      } catch (error: unknown) {
+        checks.check(`${name} ${scene.label} refused: ${String(error)}`, false);
+      }
+  }
+  checks.assert("carriage");
+}
+
+/** The take with the shipped verdicts. */
+function play(
+  label: string,
+  body: IAutoMovieMotionHumanBody,
+  props: readonly IAutoMovieMotionHumanProp[],
+  chain: IAutoMovieMotionHumanChain,
+  others: readonly everydayTake.IOther[] = [],
+): HumanPerformance {
+  const take: HumanPerformance = everydayTake.perform(
+    `carriage-${label}`,
+    body,
+    props,
+    chain,
+    Object.values(HUMAN_LEXICON).flat(),
+    others,
+  );
+  assertTakeClean(label, take);
+  return take;
+}
+
+/** The segments of one law, in order. */
+function named(
+  take: HumanPerformance,
+  law: string,
+  subject: string = "actor",
+): IAutoMovieMotionHumanSegment[] {
+  return take
+    .segments(subject)
+    .filter((s: IAutoMovieMotionHumanSegment): boolean => s.law.name === law);
+}
+
+/** A prop's largest drift on a bone over a span. */
+function onBone(
+  take: HumanPerformance,
+  bone: AutoMovieHumanoidBone,
+  subject: string,
+  from: number,
+  to: number,
+): number {
+  const read: (t: number) => IAutoMovieRigidTransform = (
+    t: number,
+  ): IAutoMovieRigidTransform =>
+    HumanPropFrame.relative(
+      HumanPropFrame.bone(take.bones("actor", t).get(bone)!),
+      take.prop(subject, t),
+    );
+  const rest: IAutoMovieRigidTransform = read(from);
+  let most: number = 0;
+  for (let i: number = 1; i <= 24; ++i)
+    most = Math.max(
+      most,
+      Vector3.distance(
+        read(from + ((to - from) * i) / 24).position,
+        rest.position,
+      ),
+    );
+  return most;
+}
+
+/** A bone-local frame that puts a prop at a world frame, read off a still standing body. */
+function offsetOn(
+  body: IAutoMovieMotionHumanBody,
+  bone: "chest" | "head",
+  world: (b: IAutoMovieResolvedBone) => IAutoMovieRigidTransform,
+): IAutoMovieRigidTransform {
+  const still: HumanPerformance = everydayTake.perform(
+    "carriage-rest",
+    body,
+    [],
+    HumanChain.subject("actor").stand({ seconds: 0.2, sway: 0 }),
+  );
+  const b: IAutoMovieResolvedBone = still.bones("actor", 0.1).get(bone)!;
+  return HumanPropFrame.relative(HumanPropFrame.bone(b), world(b));
+}
+
+/** The airport arrival: backpack on, suitcase pulled through a turn, backpack off. */
+function arrival(
+  body: IAutoMovieMotionHumanBody,
+  label: string,
+  checks: motionComplaints.IGatherer,
+): void {
+  const pack = createBag({ id: "pack", kind: "backpack" });
+  const case_ = createBag({ id: "case", kind: "suitcase" });
+  const telescope: IAutoMovieAffordance = case_.affordances!.find(
+    (a: IAutoMovieAffordance): boolean => a.id === "telescope",
+  )!;
+  const worn: IAutoMovieRigidTransform = offsetOn(
+    body,
+    "chest",
+    (b: IAutoMovieResolvedBone): IAutoMovieRigidTransform => ({
+      position: Vector3.add(b.worldPosition, { x: 0, y: -0.35, z: -0.2 }),
+      rotation: BEHIND,
+    }),
+  );
+  const props: IAutoMovieMotionHumanProp[] = [
+    everydayTake.prop("pack", pack, { x: 0.35, y: 0.75, z: 0.25 }, BEHIND),
+    everydayTake.prop("case", case_, { x: -0.35, y: 0, z: 0.1 }),
+  ];
+  const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
+    .stand()
+    .pickUp({ prop: "pack", handle: "rightStrap", hand: "right", lift: 0.1 })
+    .putDown({
+      prop: "pack",
+      on: { bone: "chest", offset: worn },
+      hand: "right",
+    })
+    .operate({
+      hand: "left",
+      mechanism: {
+        kind: "slider",
+        at: { kind: "prop", subject: "case", point: "telescope" },
+        travel: telescope.travel!,
+      },
+    })
+    .pickUp({ prop: "case", handle: "pull", hand: "left", lift: 0 })
+    .walk({ to: { x: 0, y: 0, z: 1.5 } })
+    .walk({ to: { x: 1.2, y: 0, z: 2.2 } })
+    .putDown({ prop: "case", at: { x: 1.2, y: 0, z: 1.9 }, hand: "left" })
+    .pickUp({ prop: "pack", handle: "handle", hand: "right", lift: 0 })
+    .putDown({ prop: "pack", at: OFF, hand: "right" });
+  const take: HumanPerformance = play(`${label} arrival`, body, props, chain);
+  const walks: IAutoMovieMotionHumanSegment[] = named(take, "walk");
+  const donned: number = named(take, "putDown")[0]!.end;
+  for (const side of ["left", "right"] as const) {
+    const strap: IAutoMovieVector3 = everydayTake.point(
+      take,
+      pack,
+      "pack",
+      `${side}Strap`,
+      donned,
+    );
+    const shoulder: IAutoMovieVector3 = take
+      .bones("actor", donned)
+      .get(`${side}UpperArm`)!.worldPosition;
+    checks.check(
+      `${label}: the ${side} strap passes over the ${side} shoulder`,
+      Vector3.distance({ ...strap, y: 0 }, { ...shoulder, y: 0 }) <= STRAP,
+    );
+  }
+  checks.check(
+    `${label}: the backpack stays on its worn mount through the walk`,
+    onBone(take, "chest", "pack", walks[0]!.start, walks[1]!.end) <= HOLD,
+  );
+  let wheels: number = 0;
+  let behind: boolean = true;
+  for (const walk of walks)
+    for (let i: number = 0; i <= 12; ++i) {
+      const t: number = walk.start + ((walk.end - walk.start) * i) / 12;
+      const frame: IAutoMovieRigidTransform = take.prop("case", t);
+      wheels = Math.max(wheels, Math.abs(frame.position.y));
+      const hips: IAutoMovieResolvedBone = take.bones("actor", t).get("hips")!;
+      const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+        hips.worldRotation,
+        { x: 0, y: 0, z: 1 },
+      );
+      behind &&=
+        Vector3.dot(
+          Vector3.subtract(frame.position, hips.worldPosition),
+          forward,
+        ) < 0.1;
+    }
+  checks.check(
+    `${label}: the suitcase's wheels stay on the floor (${wheels.toFixed(3)} m)`,
+    wheels <= FLOOR,
+  );
+  checks.check(
+    `${label}: the suitcase tracks behind the walker through the turn`,
+    behind,
+  );
+  checks.check(
+    `${label}: the backpack comes off by its handle`,
+    Vector3.distance(take.prop("pack", take.duration).position, OFF) <= HOLD,
+  );
+}
+
+/** A waiter's tray on the palm, level through a walk and a turn. */
+function tray(
+  body: IAutoMovieMotionHumanBody,
+  label: string,
+  checks: motionComplaints.IGatherer,
+): void {
+  const board = createServingTray({ id: "tray" });
+  const props: IAutoMovieMotionHumanProp[] = [
+    everydayTake.prop("tray", board, { x: -0.3, y: 1.0, z: 0.3 }),
+    {
+      ...everydayTake.prop("bowl", createBowl({ id: "bowl" }), {
+        x: -0.3,
+        y: 1.01,
+        z: 0.3,
+      }),
+      mounted: {
+        prop: "tray",
+        point: "rest",
+        offset: {
+          position: { x: 0, y: 0, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+        },
+      },
+    },
+  ];
+  const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
+    .stand()
+    .pickUp({ prop: "tray", handle: "palm", hand: "right", lift: 0 })
+    .registered("workHeld", {
+      prop: "tray",
+      side: "right",
+      at: {
+        out: 0.3,
+        up: body.measure.shoulderHeight,
+        forward: 0.25,
+        level: true,
+      },
+      seconds: 0.5,
+    })
+    .walk({ to: { x: 0, y: 0, z: 1.5 } })
+    .walk({ to: { x: -1.2, y: 0, z: 2.2 } });
+  const take: HumanPerformance = play(`${label} tray`, body, props, chain);
+  const walks: IAutoMovieMotionHumanSegment[] = named(take, "walk");
+  let tilt: number = 0;
+  for (let t: number = walks[0]!.start; t <= walks[1]!.end; t += 1 / 24) {
+    const up: IAutoMovieVector3 = Quaternion.rotateVector(
+      take.prop("tray", t).rotation,
+      { x: 0, y: 1, z: 0 },
+    );
+    tilt = Math.max(tilt, (Math.acos(Math.min(1, up.y)) * 180) / Math.PI);
+  }
+  checks.check(
+    `${label}: the tray stays level (${tilt.toFixed(1)} degrees)`,
+    tilt <= LEVEL,
+  );
+  const offset: (t: number) => number = (t: number): number =>
+    Vector3.distance(
+      take.prop("bowl", t).position,
+      take.prop("tray", t).position,
+    );
+  checks.check(
+    `${label}: the bowl stays on the tray`,
+    Math.abs(offset(take.duration) - offset(walks[0]!.start)) <= HOLD,
+  );
+  const palm: IAutoMovieVector3 = take
+    .bones("actor", walks[0]!.start)
+    .get("rightHand")!.worldPosition;
+  const centre: IAutoMovieVector3 = take.prop("tray", walks[0]!.start).position;
+  checks.check(
+    `${label}: the palm stays under the tray's centre`,
+    Vector3.distance({ ...palm, y: 0 }, { ...centre, y: 0 }) <= 0.1 &&
+      palm.y < centre.y,
+  );
+}
+
+/** A basket carried on the head through a walk. */
+function headLoad(
+  body: IAutoMovieMotionHumanBody,
+  label: string,
+  checks: motionComplaints.IGatherer,
+): void {
+  const basket = createCarryBasket({ id: "basket" });
+  const crown: IAutoMovieRigidTransform = offsetOn(
+    body,
+    "head",
+    (b: IAutoMovieResolvedBone): IAutoMovieRigidTransform => ({
+      position: Vector3.add(b.worldPosition, { x: 0, y: 0.2, z: 0 }),
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    }),
+  );
+  const props: IAutoMovieMotionHumanProp[] = [
+    everydayTake.prop("basket", basket, { x: 0.3, y: 0.9, z: 0.3 }),
+  ];
+  const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
+    .stand()
+    .pickUp({ prop: "basket", handle: "handle", hand: "right", lift: 0.1 })
+    .putDown({
+      prop: "basket",
+      on: { bone: "head", offset: crown },
+      hand: "right",
+    })
+    .walk({ to: { x: 0, y: 0, z: 2 } });
+  const take: HumanPerformance = play(`${label} head load`, body, props, chain);
+  const walk: IAutoMovieMotionHumanSegment = named(take, "walk")[0]!;
+  checks.check(
+    `${label}: the basket's base stays on the crown through the walk`,
+    onBone(take, "head", "basket", walk.start, walk.end) <= HOLD,
+  );
+  checks.check(
+    `${label}: the basket rests on the head`,
+    take.prop("basket", walk.end).position.y >
+      take.bones("actor", walk.end).get("head")!.worldPosition.y,
+  );
+}
+
+/** A child on the shoulders, lifted, carried and set down. */
+function shoulders(
+  body: IAutoMovieMotionHumanBody,
+  label: string,
+  checks: motionComplaints.IGatherer,
+): void {
+  const rider: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
+  const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
+    .stand({ seconds: 0.3 })
+    .registered("bearing", { carry: "shoulders", seconds: 3 });
+  const take: HumanPerformance = play(`${label} shoulders`, body, [], chain, [
+    {
+      subject: "rider",
+      body: rider,
+      at: { x: 0, y: 0, z: -0.35 },
+      yaw: 0,
+      chain: HumanChain.subject("rider")
+        .stand({ seconds: 0.3 })
+        .registered("borne", { by: "actor", carry: "shoulders", seconds: 3 }),
+    },
+  ]);
+  const borne: IAutoMovieMotionHumanSegment = named(take, "borne", "rider")[0]!;
+  const middle: number = (borne.start + borne.end) / 2;
+  const seat: IAutoMovieVector3 = take
+    .bones("rider", middle)
+    .get("hips")!.worldPosition;
+  const nape: IAutoMovieVector3 = take
+    .bones("actor", middle)
+    .get("neck")!.worldPosition;
+  checks.check(
+    `${label}: the child's seat is on the carrier's shoulders`,
+    Vector3.distance({ ...seat, y: 0 }, { ...nape, y: 0 }) <= 0.15 &&
+      seat.y > nape.y,
+  );
+  for (const side of ["left", "right"] as const) {
+    const hand: IAutoMovieVector3 = take
+      .bones("actor", middle)
+      .get(`${side}Hand`)!.worldPosition;
+    const shin: IAutoMovieVector3 = take
+      .bones("rider", middle)
+      .get(`${side}LowerLeg`)!.worldPosition;
+    checks.check(
+      `${label}: the carrier's ${side} hand holds the child's shin`,
+      Vector3.distance(hand, shin) <= 0.2,
+    );
+  }
+}
+
+/** A bag passed from hand to hand, and a load over the band refused. */
+function changeHands(
+  body: IAutoMovieMotionHumanBody,
+  label: string,
+  checks: motionComplaints.IGatherer,
+): void {
+  const tote = createBag({ id: "tote", kind: "tote" });
+  const props: IAutoMovieMotionHumanProp[] = [
+    everydayTake.prop("tote", tote, { x: -0.3, y: 0.7, z: 0.3 }),
+  ];
+  const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
+    .stand()
+    .pickUp({ prop: "tote", handle: "handle", hand: "right", lift: 0.2 })
+    .pickUp({ prop: "tote", handle: "handle", hand: "left", lift: 0 })
+    .release({ hand: "right" });
+  const take: HumanPerformance = play(
+    `${label} change hands`,
+    body,
+    props,
+    chain,
+  );
+  const second: IAutoMovieMotionHumanSegment = named(take, "pickUp")[1]!;
+  const release: IAutoMovieMotionHumanSegment = named(take, "release")[0]!;
+  checks.check(
+    `${label}: both hands hold only briefly`,
+    release.end - second.end <= OVERLAP,
+  );
+  checks.check(
+    `${label}: the left hand bears the bag after the change`,
+    everydayTake.drift(take, "left", "tote", release.end, take.duration) <=
+      HOLD,
+  );
+  let low: number = Infinity;
+  for (let t: number = second.start; t <= take.duration; t += 1 / 24)
+    low = Math.min(low, take.prop("tote", t).position.y);
+  checks.check(`${label}: the bag is never set down`, low > 0.3);
+  const heavy: HumanRefusal | undefined = everydayTake.refusal(() =>
+    everydayTake.perform(
+      `carriage-${label}-heavy`,
+      body,
+      [],
+      HumanChain.subject("actor")
+        .stand()
+        .carry({ to: { x: 0, y: 0, z: 2 }, how: "oneHand", load: 0.4 }),
+      Object.values(HUMAN_LEXICON).flat(),
+    ),
+  );
+  checks.check(
+    `${label}: a load over the carriage band is refused`,
+    heavy !== undefined,
+  );
+}
+
+/** One scenario of the spec. */
+interface IScene {
+  /** Its name. */
+  label: string;
+
+  /** Its run on one body. */
+  run: (
+    body: IAutoMovieMotionHumanBody,
+    label: string,
+    checks: motionComplaints.IGatherer,
+  ) => void;
+}
+
+/** The scenarios. */
+const SCENES: readonly IScene[] = [
+  { label: "arrival", run: arrival },
+  { label: "tray", run: tray },
+  { label: "head load", run: headLoad },
+  { label: "shoulders", run: shoulders },
+  { label: "change hands", run: changeHands },
+];

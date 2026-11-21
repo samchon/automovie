@@ -279,8 +279,9 @@ export namespace writeWith {
   }
 
   /**
-   * A prop set on a socket at a share of the work, refused when the socket
-   * does not exist.
+   * A prop set on a contact at a share of the work, refused when the
+   * contact does not exist: a socket, or a working point such as a fork's
+   * face, which the prop then rides as it rides a socket.
    *
    * @param context The action's context.
    * @param mount The prop and the socket.
@@ -292,7 +293,7 @@ export namespace writeWith {
    * @evidence contracts/development/common.md#meaningful-documentation States the instant and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The plan's mount record; the performance keeps the prop where it lies at that instant.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing socket is refused with the prop's sockets.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing contact is refused with the prop's contacts.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No equivalent builder exists.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -303,22 +304,19 @@ export namespace writeWith {
     onto: string,
     share: number,
   ): IAutoMovieMotionPropMount {
-    const sockets: readonly IAutoMovieAffordance[] = (
-      context.prop(onto).prop.affordances ?? []
-    ).filter((a: IAutoMovieAffordance): boolean => a.kind === "socket");
-    if (
-      !sockets.some((a: IAutoMovieAffordance): boolean => a.id === mount.point)
-    )
+    const sites: readonly IAutoMovieAffordance[] =
+      context.prop(onto).prop.affordances ?? [];
+    if (!sites.some((a: IAutoMovieAffordance): boolean => a.id === mount.point))
       throw new HumanRefusal({
         kind: "affordance",
         axis: "point",
         value: mount.point,
         feasible: {
           kind: "alternatives",
-          values: sockets.map((a: IAutoMovieAffordance): string => a.id),
+          values: sites.map((a: IAutoMovieAffordance): string => a.id),
         },
-        reason: `${onto} has no socket called ${mount.point}`,
-        fix: "name a socket the receiving prop declares",
+        reason: `${onto} has no contact called ${mount.point}`,
+        fix: "name a contact the receiving prop declares",
       });
     return { prop: mount.prop, onto, point: mount.point, from: share };
   }

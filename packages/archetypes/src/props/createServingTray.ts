@@ -3,7 +3,8 @@ import { TrayConstruction } from "./TrayConstruction";
 import type { createTray } from "./createTray";
 
 /**
- * A low serving tray with a real floor and side grips at its short ends.
+ * A low serving tray with a real floor and side grips at its short ends,
+ * a flat-hand hold under its centre and a glass socket on its floor.
  *
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
@@ -14,7 +15,7 @@ import type { createTray } from "./createTray";
  * @evidence contracts/development/implementation.md#principled-implementation The grips close over the two short side rims. The inside surface is measured up from the bottom box.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Call the corresponding geometry owner with this producer's parameters.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Width, depth and height belong to the selected recorded model.
- * @evidence contracts/development/implementation.md#efficient-algorithms Five boxes and three contacts.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Five boxes and five contacts.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The legacy selector calls the same geometry owner and keeps its original draw namespace.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
@@ -41,7 +42,12 @@ export namespace createServingTray {
   export type Dimension = "depth" | "height" | "mass" | "width";
 
   /** The contact IDs declared by this producer. */
-  export type Affordance = "inside" | "leftHandle" | "rightHandle";
+  export type Affordance =
+    | "inside"
+    | "leftHandle"
+    | "rightHandle"
+    | "palm"
+    | "rest";
 
   /** The admitted settings and optional model ID. */
   export interface IParams extends Pick<createTray.IParams, "id" | "mass"> {

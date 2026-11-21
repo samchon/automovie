@@ -108,16 +108,22 @@ export namespace TrayConstruction {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Only servingTray and the named producers that call it read this union.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
-  export type ServingTrayContact = "inside" | "leftHandle" | "rightHandle";
+  export type ServingTrayContact =
+    | "inside"
+    | "leftHandle"
+    | "rightHandle"
+    | "palm"
+    | "rest";
 
   /**
-   * Build a low serving tray with opposing end grips.
+   * Build a low serving tray with opposing end grips, a flat-hand hold under
+   * its floor's centre for a waiter's carry and a socket there for a glass.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Build a low serving tray with opposing end grips.
    * @evidence contracts/development/implementation.md#principled-implementation Use the side wall thickness and location to define each hook grip, and floor height for the interior placement.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Recorded models own the overall sizes. The decorative rim retains its documented wall estimate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Five boxes and three contacts.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Five boxes and five contacts.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
@@ -148,6 +154,24 @@ export namespace TrayConstruction {
         aperture: wall,
         length: d.depth / 2,
       });
+    // A waiter's flat hand under the floor's centre, fingers spread
+    // forward, and the floor's centre where a glass stands.
+    builder.affordance({
+      id: "palm",
+      kind: "handle",
+      symmetry: "none",
+      frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(0, 0, 1)),
+      extent: null,
+      grip: "hook",
+      aperture: wall,
+      length: d.depth / 2,
+    });
+    builder.affordance({
+      id: "rest",
+      kind: "socket",
+      frame: ArchetypeFrame.upright(v(0, wall, 0)),
+      extent: null,
+    });
     return builder.build(d.mass);
   }
 

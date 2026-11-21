@@ -14,6 +14,7 @@ export * from "./createPlayingCard";
 export * from "./createChopsticks";
 export * from "./createCraftTool";
 export * from "./createEasel";
+export * from "./createFoodPortion";
 export * from "./createFoldingKnife";
 export * from "./createPalette";
 export * from "./createPotteryWheel";
