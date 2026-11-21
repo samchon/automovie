@@ -62,8 +62,12 @@ export namespace hurdleClear {
 
   /** Cancel table: from the lead foot's touchdown, into the run that takes the stride on, or a stand. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    run: [{ window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: 0.1 }],
-    stand: [{ window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: 0.2 }],
+    run: [
+      { window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: 0.1 },
+    ],
+    stand: [
+      { window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: 0.2 },
+    ],
   };
 
   /** What may be cut into a clearance: a run, at the take-off foot's footfall. */
@@ -77,13 +81,11 @@ export namespace hurdleClear {
   /** The lead foot's landing beyond the bar, metres: about 1.1 (McDonald and Dapena 1991; provisional). */
   export const LANDING: number = 1.1;
 
-
   /** The margin each swinging ankle and the hips keep over the bar's top, metres (provisional). */
   export const CLEAR: number = 0.05;
 
   /** The trunk's forward dip at the crossing, degrees (provisional). */
   export const DIP: number = 25;
-
 
   /** The lead foot's toes drawn up as its heel leads over the bar, degrees of pitch (provisional). */
   export const LEAD: number = 15;
@@ -94,9 +96,11 @@ export namespace hurdleClear {
   /** The take-off leg's hip-to-ankle reach at toe-off, a share of the leg's length: a knee near 165 degrees (McLean 1994; provisional). */
   export const REACH: number = 0.98;
 
+  /** The landing leg's hip-to-ankle reach at touchdown, a share of the leg's length: a knee flexed for the landing (provisional). */
+  export const LAND: number = 0.9;
+
   /** How far the hips have passed the bar when the trail foot crosses it, metres (provisional). */
   export const TUCK: number = 0.2;
-
 
   /** The tucked trail foot's reach out to its side, a share of the leg's length (provisional). */
   export const OUT: number = 0.15;
@@ -147,7 +151,9 @@ export namespace hurdleClear {
     const lead: AutoMovieHumanSide = take === "left" ? "right" : "left";
     const ahead: IAutoMovieVector3 = approach.heading;
     const left: IAutoMovieVector3 = { x: ahead.z, y: 0, z: -ahead.x };
-    const along: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => Vector3.dot(p, ahead);
+    const along: (p: IAutoMovieVector3) => number = (
+      p: IAutoMovieVector3,
+    ): number => Vector3.dot(p, ahead);
     const before: number = along(Vector3.subtract(bar.at, approach.ankle));
     if (!(before >= TAKEOFF[0] && before <= TAKEOFF[1]))
       throw new HumanRefusal({
@@ -167,9 +173,13 @@ export namespace hurdleClear {
     // The places: each foot's line across the run, the bar's middle, the
     // lead landing on its forefoot, the trail's recovery ahead of it.
     const top: number = bar.at.y + bar.height;
-    const across: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => Vector3.dot(p, left);
+    const across: (p: IAutoMovieVector3) => number = (
+      p: IAutoMovieVector3,
+    ): number => Vector3.dot(p, left);
     const rootLine: number = across(entry.root);
-    const line: (side: AutoMovieHumanSide) => number = (side: AutoMovieHumanSide): number =>
+    const line: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
+    ): number =>
       side === take
         ? across(approach.ankle)
         : 2 * rootLine - across(approach.ankle);
@@ -189,7 +199,10 @@ export namespace hurdleClear {
       return {
         ...Vector3.add(
           bar.at,
-          Vector3.add(Vector3.scale(ahead, distance), Vector3.scale(left, lateral)),
+          Vector3.add(
+            Vector3.scale(ahead, distance),
+            Vector3.scale(left, lateral),
+          ),
         ),
         y: height,
       };
@@ -207,10 +220,7 @@ export namespace hurdleClear {
       yaw,
       0,
     );
-    const recovery: IAutoMovieMotionHumanFoot.IPlacement = {
-      ankle: on(take, bar.depth + LANDING + 0.4 * leg, bar.at.y + 0.35 * leg),
-      rotation: landing.rotation,
-    };
+
     const middle: number = bar.depth / 2;
 
     // The hips: from the entry to the run's own toe-off over the stance,
@@ -242,9 +252,26 @@ export namespace hurdleClear {
       ),
     };
     const reachAhead: number = along(Vector3.subtract(approach.ankle, r0));
+    // The landing leg meets the floor flexed to `LAND` of its length, so
+    // the hips come down no higher than that reach above the lead ankle.
     const r2: IAutoMovieVector3 = {
       ...Vector3.subtract(landing.ankle, Vector3.scale(ahead, reachAhead)),
-      y: r0.y,
+      y: Math.min(
+        r0.y,
+        landing.ankle.y +
+          Math.sqrt(Math.max(0, (LAND * leg) ** 2 - reachAhead ** 2)),
+      ),
+    };
+    // At the lead touchdown the trail knee drives forward: its ankle a
+    // tenth of the leg ahead of the hips, a third of the leg up
+    // (provisional), for the next stride.
+    const recovery: IAutoMovieMotionHumanFoot.IPlacement = {
+      ankle: on(
+        take,
+        along(Vector3.subtract(r2, bar.at)) + 0.1 * leg,
+        bar.at.y + 0.35 * leg,
+      ),
+      rotation: landing.rotation,
     };
     const fly: number = along(Vector3.subtract(r2, r1)) / approach.speed;
     const vy: number = (r2.y - r1.y) / fly + (g * fly) / 2;
@@ -253,7 +280,11 @@ export namespace hurdleClear {
     const down: number = off + fly;
     const duration: number = down + SETTLE;
     const crossing: number =
-      off + along(Vector3.subtract(Vector3.add(bar.at, Vector3.scale(ahead, middle)), r1)) / approach.speed;
+      off +
+      along(
+        Vector3.subtract(Vector3.add(bar.at, Vector3.scale(ahead, middle)), r1),
+      ) /
+        approach.speed;
     const hipsAt: number =
       r1.y + vy * (crossing - off) - (g * (crossing - off) ** 2) / 2;
     if (!(crossing > off && crossing < down && hipsAt >= top + CLEAR))
@@ -271,7 +302,9 @@ export namespace hurdleClear {
         fix: "use a lower hurdle or take off farther from it",
       });
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
-    const root: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => {
+    const root: (t: number) => IAutoMovieVector3 = (
+      t: number,
+    ): IAutoMovieVector3 => {
       if (t <= off) {
         const s: number = t / off;
         const h00: number = 2 * s ** 3 - 3 * s ** 2 + 1;
@@ -412,8 +445,7 @@ export namespace hurdleClear {
         placement: (
           _: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): IAutoMovieMotionHumanFoot.IPlacement =>
-          leadSwing(seconds / down),
+        ): IAutoMovieMotionHumanFoot.IPlacement => leadSwing(seconds / down),
         planted: (seconds: number): boolean => seconds >= down,
       }),
     ];

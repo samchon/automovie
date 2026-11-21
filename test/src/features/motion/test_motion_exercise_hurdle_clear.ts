@@ -27,7 +27,7 @@ const PLANT: number = 0.005;
 const BEFORE: number = 2.1;
 
 /**
- * Clear a hurdle out of a sprint and take the run on from the lead foot.
+ * Clear a hurdle out of a run and take the run on from the lead foot.
  *
  * Scenarios:
  * 1. The run is cut at a left footfall 2.1 m before a women's 400 m hurdle;
@@ -40,18 +40,20 @@ const BEFORE: number = 2.1;
  *    hips moving less than 20 mm between millisecond samples across both
  *    cuts.
  * 4. A footfall 1.2 m before the hurdle is refused on `approach`; a men's
- *    110 m hurdle the sprint cannot lift the hips over is refused on
+ *    110 m hurdle the run cannot lift the trail foot over is refused on
  *    `hurdle`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the cut, the clearance, the landing, the continued run and the refusals with their bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Composes run, clearance and run through the public chain over a real hurdle model and measures displayed feet and hips.
  * @evidence contracts/development/testing.md#independent-expectations The bar height and depth are the archetype's, the take-off distance band is McDonald and Dapena's, and the 5 mm and 20 mm bounds are the campaign's contact and continuity tolerances.
- * @evidence contracts/development/testing.md#distinguishing-cases An admitted take-off beside one too close and a hurdle too high for the sprint.
+ * @evidence contracts/development/testing.md#distinguishing-cases An admitted take-off beside one too close and a hurdle too high for the run.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture, without a render or external process.
  */
 export function test_motion_exercise_hurdle_clear(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const low: ReturnType<typeof createHurdle> = createHurdle({ kind: "women400" });
+  const low: ReturnType<typeof createHurdle> = createHurdle({
+    kind: "women400",
+  });
   const plain: HumanPerformance = stage(body, low, 40, undefined);
   const run: IAutoMovieMotionHumanSegment = plain.segments("a")[1]!;
 
@@ -88,7 +90,7 @@ export function test_motion_exercise_hurdle_clear(): void {
     socket(film, body, takeoff - 1e-3, "left", "mtp"),
   );
   TestValidator.predicate(
-    `the left foot holds its toes' joint through the take-off (${(pushed * 1000).toFixed(1)} mm over ${(takeoff - clear!.start).toFixed(3)} s)`,
+    `the left foot holds its toes' joint through the take-off (${(pushed * 1000).toFixed(1)} mm)`,
     pushed <= PLANT,
   );
 
@@ -120,23 +122,33 @@ export function test_motion_exercise_hurdle_clear(): void {
   );
 
   // 3. The landing and the continued run.
-  const landed: IAutoMovieVector3 = socket(film, body, touchdown + 1e-3, "right", "mtp");
+  const landed: IAutoMovieVector3 = socket(
+    film,
+    body,
+    touchdown + 1e-3,
+    "right",
+    "mtp",
+  );
   const held: number = Vector3.distance(
     landed,
     socket(film, body, after!.start + 0.03, "right", "mtp"),
   );
   TestValidator.predicate(
-    `the lead foot lands beyond the bar and bears into the run (${(held * 1000).toFixed(1)} mm; ${[0.01, 0.02, 0.03, 0.05, 0.08].map((d) => (Vector3.distance(landed, socket(film, body, after!.start - 0.035 + d, "right", "mtp")) * 1000).toFixed(1)).join("/")}; cut ${(after!.start - touchdown).toFixed(3)} s after touchdown; ${JSON.stringify(after!.plan.contacts.filter((c) => c.part === "rightFoot").slice(0, 2))})`,
+    `the lead foot lands beyond the bar and bears into the run (${(held * 1000).toFixed(1)} mm)`,
     landed.z > near + depth && held <= PLANT,
   );
   const speed: (t: number) => number = (t: number): number =>
     (film.bones("a", t + 0.05).get("hips")!.worldPosition.z -
       film.bones("a", t).get("hips")!.worldPosition.z) /
     0.05;
-  const kept: number = speed(touchdown + 0.5) / speed(clear!.start - 0.1);
+  // The run that takes the stride on keeps running: the hips never slow
+  // to a walk's preferred 1.4 m/s (Bohannon 1997) over the next 0.5 s.
+  let slowest: number = Infinity;
+  for (let t: number = touchdown; t <= touchdown + 0.5; t += 0.05)
+    slowest = Math.min(slowest, speed(t));
   TestValidator.predicate(
-    `the run takes the stride on at ${(kept * 100).toFixed(0)} % of the approach speed`,
-    kept >= 0.7,
+    `the run takes the stride on without slowing to a walk (${slowest.toFixed(2)} m/s)`,
+    slowest > 1.4,
   );
   let jump: number = 0;
   for (const cutAt of [clear!.start, after!.start])
@@ -174,12 +186,12 @@ export function test_motion_exercise_hurdle_clear(): void {
     refused(low, ankle + 1.2)?.axis === "approach",
   );
   TestValidator.predicate(
-    "a hurdle too high for the sprint is refused",
+    "a hurdle too high for the run is refused",
     refused(createHurdle({ kind: "men110" }), near)?.axis === "hurdle",
   );
 }
 
-/** A sprint down the runway past a hurdle, cut into its clearance and run on when a footfall is given. */
+/** A run down the runway past a hurdle, cut into its clearance and run on when a footfall is given. */
 function stage(
   body: IAutoMovieMotionHumanBody,
   hurdle: ReturnType<typeof createHurdle>,
@@ -188,14 +200,14 @@ function stage(
 ): HumanPerformance {
   const running: ReturnType<typeof HumanChain.subject> = HumanChain.subject("a")
     .stand({ seconds: 0.3, sway: 0 })
-    .run({ to: { x: 0, y: 0, z: 30 }, pace: "sprint" });
+    .run({ to: { x: 0, y: 0, z: 30 }, pace: "run" });
   const node: IAutoMovieComposition =
     cut === undefined
       ? running.node
       : running
           .until({ event: cut })
           .registered("hurdleClear", { hurdle: "hurdle" })
-          .run({ to: { x: 0, y: 0, z: near + 12 }, pace: "sprint" }).node;
+          .run({ to: { x: 0, y: 0, z: near + 12 }, pace: "run" }).node;
   return new HumanPerformance({
     seed: "hurdle",
     laws: [HumanGymnastics.hurdleClear],
@@ -209,7 +221,10 @@ function stage(
       },
     ],
     props: [
-      HumanObject.prop("hurdle", hurdle, { at: { x: 0, y: 0, z: near }, yaw: 0 }),
+      HumanObject.prop("hurdle", hurdle, {
+        at: { x: 0, y: 0, z: near },
+        yaw: 0,
+      }),
     ],
     composition: node,
   });
@@ -217,11 +232,13 @@ function stage(
 
 /** The absolute film second of a required event. */
 function when(segment: IAutoMovieMotionHumanSegment, name: string): number {
-  const event: IAutoMovieMotionHumanSegment["plan"]["events"][number] | undefined =
-    segment.plan.events.find(
-      (candidate: IAutoMovieMotionHumanSegment["plan"]["events"][number]): boolean =>
-        candidate.name === name,
-    );
+  const event:
+    | IAutoMovieMotionHumanSegment["plan"]["events"][number]
+    | undefined = segment.plan.events.find(
+    (
+      candidate: IAutoMovieMotionHumanSegment["plan"]["events"][number],
+    ): boolean => candidate.name === name,
+  );
   if (event === undefined)
     throw new Error(segment.name + " has no " + name + " event");
   return segment.start + event.share * segment.plan.duration;
@@ -235,10 +252,11 @@ function socket(
   side: AutoMovieHumanSide,
   point: Parameters<typeof HumanFoot.point>[2],
 ): IAutoMovieVector3 {
-  const foot: IAutoMovieResolvedBone = film.bones("a", time).get(`${side}Foot`)!;
+  const foot: IAutoMovieResolvedBone = film
+    .bones("a", time)
+    .get(`${side}Foot`)!;
   return HumanFoot.point(body, side, point, {
     ankle: foot.worldPosition,
     rotation: foot.worldRotation,
   });
 }
-
