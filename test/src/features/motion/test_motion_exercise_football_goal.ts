@@ -15,6 +15,7 @@ import {
   HumanPerformance,
   HumanSportThrow,
   stageCatch,
+  stageDeflect,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,9 +28,15 @@ interface IKeeper {
   /** Floor position, world metres. */
   at: IAutoMovieVector3;
 
-  /** Seconds after the kick at which the keeper's hands close. */
+  /** Seconds after the kick at which the keeper's hands meet the ball. */
   intercept: number;
+
+  /** Whether the keeper's hands catch the ball or parry it back out. */
+  save: KeeperSave;
 }
+
+/** How a keeper stops the shot: held in the hands, or parried back by the ball's own rebound. */
+type KeeperSave = "stageCatch" | "stageDeflect";
 
 /**
  * A penalty kick sends one football from the spot through the goal mouth,
@@ -41,6 +48,8 @@ interface IKeeper {
  * 2. A keeper placed on the shot's flight, 0.6 m off the line, catches the
  *    same ball at the instant its path reaches the keeper's plane; the
  *    ball never crosses the line.
+ * 3. The same keeper parries it instead, sending it back out by the ball's
+ *    FIFA rebound, and it never crosses the line.
  *
  * IFAB Laws of the Game: the penalty mark is 11 m from the goal line (Law
  * 1) and the goal is 7.32 m between the posts with the crossbar's lower
@@ -50,9 +59,9 @@ interface IKeeper {
  * plant bound is the kick fixture's support tolerance.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two plays, the Laws' geometry and the bounds.
- * @evidence contracts/development/testing.md#behavioral-verification Runs kickRight and stageCatch through HumanPerformance and reads the ball's play, its goal-line crossing and the displayed support foot.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs kickRight, stageCatch and stageDeflect through HumanPerformance and reads the ball's play, its goal-line crossing and the displayed support foot.
  * @evidence contracts/development/testing.md#independent-expectations Goal and spot distances are the Laws'; the keeper's intercept is read from the shot's own flight.
- * @evidence contracts/development/testing.md#distinguishing-cases The same kick scores against an empty goal and is held by a keeper on its line.
+ * @evidence contracts/development/testing.md#distinguishing-cases The same kick scores against an empty goal, is held by a keeper on its line, and is parried back by the same keeper.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory performances of two polygon men, one ball and one goal.
  */
 export function test_motion_exercise_football_goal(): void {
@@ -96,7 +105,7 @@ export function test_motion_exercise_football_goal(): void {
       });
       parts.push(
         HumanChain.subject("keeper")
-          .registered("stageCatch", {
+          .registered(keeper.save, {
             from: "shot",
             ball: "ball",
             hands: "two",
@@ -106,8 +115,8 @@ export function test_motion_exercise_football_goal(): void {
       );
     }
     return new HumanPerformance({
-      seed: keeper === undefined ? "penalty-goal" : "penalty-save",
-      laws: [HumanSportThrow.kickRight, stageCatch],
+      seed: keeper === undefined ? "penalty-goal" : `penalty-${keeper.save}`,
+      laws: [HumanSportThrow.kickRight, stageCatch, stageDeflect],
       performers,
       props: [
         HumanObject.prop("ball", ball, { at: spot, yaw: 0 }),
@@ -183,6 +192,7 @@ export function test_motion_exercise_football_goal(): void {
   const saved: HumanPerformance = take({
     at: { x: reach.point.x, y: 0, z: reach.point.z + 0.46 },
     intercept: reach.seconds - shot.seconds,
+    save: "stageCatch",
   });
   const play: IAutoMovieMotionHumanBallPlay = saved.play("ball");
   const held: IAutoMovieMotionHumanBallPlay.Event | undefined =
@@ -207,5 +217,29 @@ export function test_motion_exercise_football_goal(): void {
         saved.duration,
         centre,
       ) === undefined,
+  );
+
+  // 3. The same keeper parries instead: the hands send the ball back out by
+  // its FIFA rebound, and it never crosses the line.
+  const parried: HumanPerformance = take({
+    at: { x: reach.point.x, y: 0, z: reach.point.z + 0.46 },
+    intercept: reach.seconds - shot.seconds,
+    save: "stageDeflect",
+  });
+  TestValidator.equals(
+    "the keeper parries the same ball back out",
+    ballPossessions(parried.play("ball")),
+    ["launch:striker", "launch:keeper"],
+  );
+  TestValidator.predicate(
+    "the parried ball never crosses the line",
+    HumanBallPlay.crossing(
+      parried,
+      "ball",
+      mouth,
+      shot.seconds,
+      parried.duration,
+      centre,
+    ) === undefined,
   );
 }
