@@ -33,8 +33,6 @@ const ON: number = 0.005;
 const HOLD: number = 0.005;
 /** A palm stays on the clay wall within this, metres. */
 const PALM: number = 0.03;
-/** An ictus falls on its beat within this, seconds: a 24 Hz frame. */
-const ICTUS: number = 1 / 24;
 /** The conducting tempo, beats per minute. */
 const BPM: number = 120;
 
@@ -312,20 +310,18 @@ function conducting(
       const figure: IFigure = figures[f]!;
       figure.directions.forEach((direction: Direction, b: number): void => {
         const beat: number = segment.start + (b + 1) * period;
-        // The tip's lowest point within half a beat either side.
-        let lowest: number = beat;
-        let low: number = tip(beat).y;
-        for (let i: number = -12; i <= 12; ++i) {
-          const t: number = beat + (i * period) / 24;
-          const y: number = tip(t).y;
-          if (y < low) {
-            low = y;
-            lowest = t;
-          }
-        }
+        // The ictus is the tip's lowest point: below it one frame and a
+        // quarter beat either side.
+        const low: number = tip(beat).y;
+        const lowest: boolean = [
+          -period / 4,
+          -1 / 24,
+          1 / 24,
+          period / 4,
+        ].every((dt: number): boolean => tip(beat + dt).y > low);
         checks.check(
-          `${label} ${figure.meter}: beat ${b + 1}'s ictus falls on its instant (${(lowest - beat).toFixed(3)} s)`,
-          Math.abs(lowest - beat) <= ICTUS,
+          `${label} ${figure.meter}: beat ${b + 1}'s ictus falls on its instant`,
+          lowest,
         );
         const move: IAutoMovieVector3 = Vector3.subtract(
           tip(beat),

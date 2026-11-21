@@ -140,13 +140,36 @@ function knitting(
   const right = createCraftTool({ id: "rightNeedle", kind: "knittingNeedle" });
   const props: IAutoMovieMotionHumanProp[] = [
     HumanObject.prop("chair", chair, placement),
-    everydayTake.prop("leftNeedle", left, { x: 0.2, y: 0.75, z: 0.1 }),
-    everydayTake.prop("rightNeedle", right, { x: -0.2, y: 0.75, z: 0.1 }),
+    // Each needle lies pointing across the lap toward the other hand.
+    everydayTake.prop(
+      "leftNeedle",
+      left,
+      { x: 0.25, y: 0.7, z: 0.15 },
+      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -90),
+    ),
+    everydayTake.prop(
+      "rightNeedle",
+      right,
+      { x: -0.25, y: 0.7, z: 0.15 },
+      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    ),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .sit({ seat: HumanObject.seat(chair, placement), seconds: 1 })
     .pickUp({ prop: "leftNeedle", handle: "grip", hand: "left", lift: 0.1 })
     .pickUp({ prop: "rightNeedle", handle: "grip", hand: "right", lift: 0.1 })
+    .registered("workHeld", {
+      prop: "leftNeedle",
+      side: "left",
+      at: { out: 0.1, up: 0.72, forward: 0.28 },
+      seconds: 0.5,
+    })
+    .registered("workHeld", {
+      prop: "rightNeedle",
+      side: "right",
+      at: { out: 0.1, up: 0.76, forward: 0.28 },
+      seconds: 0.5,
+    })
     .registered("write", {
       tool: "rightNeedle",
       tip: "tip",
@@ -202,7 +225,7 @@ function pottery(
   const wheel = createPotteryWheel({ id: "wheel" });
   const props: IAutoMovieMotionHumanProp[] = [
     HumanObject.prop("chair", chair, placement),
-    everydayTake.prop("wheel", wheel, { x: 0, y: 0, z: 0.25 }, undefined, true),
+    everydayTake.prop("wheel", wheel, { x: 0, y: 0, z: 0.12 }, undefined, true),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .sit({ seat: HumanObject.seat(chair, placement), seconds: 1 })

@@ -40,7 +40,7 @@ const SIZE: Readonly<createPotteryWheel.ISize> = {
  * @returns The wheel and its contacts, metres.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, the head's articulation, the rise and why a contact on the round wall holds in the turning frame.
- * @evidence contracts/development/implementation.md#principled-implementation A stand, a head on a crank, a lump and a wall on a slider; the wall's contacts ride the slider.
+ * @evidence contracts/development/implementation.md#principled-implementation A column stand the potter's legs straddle, a head on a crank, a lump and a wall on a slider; the wall's contacts ride the slider.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Record the size, lay the stand and head, the clay, then the articulations and contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clay's flow is not modelled: the wall is a rigid ring raised whole. Every size is a named provisional estimate.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts and four contacts.
@@ -71,7 +71,8 @@ export function createPotteryWheel(
     draw,
   });
   const top: number = SIZE.height;
-  builder.box("stand", v(0.5, top - 0.03, 0.5), v(0, (top - 0.03) / 2, 0), {
+  // A column under the head, so a seated potter's legs straddle it.
+  builder.rod("stand", 0.06, v(0, 0, 0), v(0, top - 0.03, 0), {
     color: "#5b6168",
   });
   builder.rod("head", SIZE.head / 2, v(0, top - 0.03, 0), v(0, top, 0), {

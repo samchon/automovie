@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanHeldWork,
   IAutoMovieMotionHumanPosture,
@@ -31,7 +32,9 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
+import { HumanGrasp } from "./HumanGrasp";
 import { heldDigits } from "./heldDigits";
+import { pickUp } from "./pickUp";
 import { workHeldPush } from "./workHeldPush";
 import { writeWith } from "./writeWith";
 
@@ -235,23 +238,54 @@ function place(
     ),
     rotation: Quaternion.multiply(inverse, prop.rotation),
   };
-  // A level prop rests at its declared attitude turned to the heading.
-  const rest: IAutoMovieQuaternion =
+  // A level prop keeps its declared up on the world's up at whichever
+  // heading the arm holds it exactly (`HumanGrasp.reachable`), as a level
+  // put down does; another keeps its attitude in the hand.
+  const holding: (
+    rest: IAutoMovieQuaternion,
+  ) => IAutoMovieMotionHumanHand.IWrist = (
+    rest: IAutoMovieQuaternion,
+  ): IAutoMovieMotionHumanHand.IWrist => {
+    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.multiply(rest, Quaternion.inverse(offset.rotation)),
+    );
+    return {
+      point: Vector3.subtract(
+        point,
+        Quaternion.rotateVector(rotation, offset.position),
+      ),
+      rotation,
+    };
+  };
+  const declared: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(
+      HumanFrame.turn(posture.yaw),
+      context.prop(subject).prop.frame.rotation,
+    ),
+  );
+  const chosen: IAutoMovieMotionHumanHand.IWrist =
     at.level === true
-      ? Quaternion.normalize(
-          Quaternion.multiply(
-            HumanFrame.turn(posture.yaw),
-            context.prop(subject).prop.frame.rotation,
-          ),
-        )
-      : prop.rotation;
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(rest, Quaternion.inverse(offset.rotation)),
-  );
-  const wrist: IAutoMovieVector3 = Vector3.subtract(
-    point,
-    Quaternion.rotateVector(rotation, offset.position),
-  );
+      ? HumanGrasp.reachable(
+          context.body,
+          posture,
+          side,
+          AutoMovieMotionHumanBend.hang(context.body, posture, side),
+          (turn: number): IAutoMovieMotionHumanHand.IWrist =>
+            holding(
+              Quaternion.multiply(
+                Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn),
+                declared,
+              ),
+            ),
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          pickUp.reaches(context, side),
+        ).wrist
+      : holding(prop.rotation);
+  const rotation: IAutoMovieQuaternion = chosen.rotation;
+  const wrist: IAutoMovieVector3 = chosen.point;
   writeWith.reach(context, side, [wrist], { x: 0, y: 0, z: 0 });
   return {
     wrist,

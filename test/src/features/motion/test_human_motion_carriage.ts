@@ -38,8 +38,6 @@ const FLOOR: number = 0.02;
 const STRAP: number = 0.1;
 /** A hand change's two-handed overlap lasts at most this, seconds. */
 const OVERLAP: number = 1.5;
-/** Where the backpack is set down once taken off, world metres. */
-const OFF: IAutoMovieVector3 = { x: 1.5, y: 0, z: 2.4 };
 /** Turned half round: a bag's back toward a wearer facing `+Z`. */
 const BEHIND: IAutoMovieQuaternion = { x: 0, y: 1, z: 0, w: 0 };
 
@@ -49,7 +47,7 @@ const BEHIND: IAutoMovieQuaternion = { x: 0, y: 1, z: 0, w: 0 };
  * Scenarios, on m-average and f-small:
  * 1. Airport arrival: a backpack is put on by its strap onto the back,
  *    both straps over the shoulders, and stays on its worn mount through a
- *    walk and a turn, then comes off by its handle; a suitcase's handle is
+ *    walk and a turn, then comes off by its strap; a suitcase's handle is
  *    drawn out and it is pulled through the turn, its wheels on the floor
  *    and the case behind the walker.
  * 2. A waiter's tray on the flat palm, with a bowl on it, carried level
@@ -192,6 +190,8 @@ function arrival(
       on: { bone: "chest", offset: worn },
       hand: "right",
     })
+    // Down to the case's handle, as one bends to draw it out.
+    .crouch({ depth: "partial" })
     .operate({
       hand: "left",
       mechanism: {
@@ -203,9 +203,18 @@ function arrival(
     .pickUp({ prop: "case", handle: "pull", hand: "left", lift: 0 })
     .walk({ to: { x: 0, y: 0, z: 1.5 } })
     .walk({ to: { x: 1.2, y: 0, z: 2.2 } })
-    .putDown({ prop: "case", at: { x: 1.05, y: 0, z: 2.46 }, hand: "left" })
-    .pickUp({ prop: "pack", handle: "handle", hand: "right", lift: 0 })
-    .putDown({ prop: "pack", at: OFF, hand: "right" });
+    // Off the shoulder by its strap and swung round before the body.
+    .pickUp({ prop: "pack", handle: "rightStrap", hand: "right", lift: 0 })
+    .registered("workHeld", {
+      prop: "pack",
+      side: "right",
+      at: {
+        out: body.measure.shoulderHalfWidth + 0.05,
+        up: body.measure.hipHeight + 0.1,
+        forward: 0.15,
+      },
+      seconds: 0.6,
+    });
   const take: HumanPerformance = play(`${label} arrival`, body, props, chain);
   const walks: IAutoMovieMotionHumanSegment[] = named(take, "walk");
   const donned: number = named(take, "putDown")[0]!.end;
@@ -255,9 +264,13 @@ function arrival(
     `${label}: the suitcase tracks behind the walker through the turn`,
     behind,
   );
+  // Taken off: the grip lifts it off the back, and it rides the hand.
+  const doff: IAutoMovieMotionHumanSegment = named(take, "pickUp").at(-1)!;
   checks.check(
-    `${label}: the backpack comes off by its handle`,
-    Vector3.distance(take.prop("pack", take.duration).position, OFF) <= HOLD,
+    `${label}: the backpack comes off by its strap`,
+    onBone(take, "chest", "pack", doff.start, take.duration) >= 0.05 &&
+      everydayTake.drift(take, "right", "pack", doff.end, take.duration) <=
+        HOLD,
   );
 }
 
@@ -313,7 +326,20 @@ function tray(
     tilt = Math.max(tilt, (Math.acos(Math.min(1, up.y)) * 180) / Math.PI);
   }
   checks.check(
-    `${label}: the tray stays level (${tilt.toFixed(1)} degrees)`,
+    `${label}: the tray stays level (${tilt.toFixed(1)} degrees, ${(
+      (Math.acos(
+        Math.min(
+          1,
+          Quaternion.rotateVector(take.prop("tray", walks[0]!.start).rotation, {
+            x: 0,
+            y: 1,
+            z: 0,
+          }).y,
+        ),
+      ) *
+        180) /
+      Math.PI
+    ).toFixed(1)} as the walk starts)`,
     tilt <= LEVEL,
   );
   const offset: (t: number) => number = (t: number): number =>
@@ -437,8 +463,8 @@ function changeHands(
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()
-    .pickUp({ prop: "tote", handle: "handle", hand: "right", lift: 0.3 })
-    .pickUp({ prop: "tote", handle: "strap", hand: "left", lift: 0 })
+    .pickUp({ prop: "tote", handle: "strap", hand: "right", lift: 0 })
+    .pickUp({ prop: "tote", handle: "handle", hand: "left", lift: 0 })
     .release({ hand: "right" });
   const take: HumanPerformance = play(
     `${label} change hands`,
