@@ -56,7 +56,8 @@ export namespace HumanSegmentEntry {
     blend?: number,
   ): IAutoMovieMotionHumanEntryState {
     const body: IAutoMovieMotionHumanBody = person.performer.body;
-    const prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(body);
+    const prepared: prepareHumanSegmentPose.IPrepared =
+      prepareHumanSegmentPose(body);
 
     // The difference interval of every rate read here, seconds.
     const step: number = HumanSegmentPose.STEP;
@@ -118,11 +119,15 @@ export namespace HumanSegmentEntry {
     // The same three samples the pose velocity was read from, so a foot's
     // rate is the one-sided difference of the motion that ends here.
     const frames = (pose: IAutoMoviePose): ReturnType<typeof poseBones> =>
-      pose === state.pose ? bones : poseBones(body, pose, prepared.resolution(), FEET);
+      pose === state.pose
+        ? bones
+        : poseBones(body, pose, prepared.resolution(), FEET);
     const instant: ReturnType<typeof poseBones> = frames(read.samples[0]);
     const near: ReturnType<typeof poseBones> = frames(read.samples[1]);
     const far: ReturnType<typeof poseBones> = frames(read.samples[2]);
-    const foot: (side: "left" | "right") => IAutoMovieMotionHumanEntryState.IFoot = (
+    const foot: (
+      side: "left" | "right",
+    ) => IAutoMovieMotionHumanEntryState.IFoot = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanEntryState.IFoot => {
       const here: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
@@ -206,7 +211,10 @@ export namespace HumanSegmentEntry {
       left: foot("left"),
       right: foot("right"),
     };
-    const bearing: IAutoMovieMotionHumanEntryState.ISupport[] = supports(previous, seconds);
+    const bearing: IAutoMovieMotionHumanEntryState.ISupport[] = supports(
+      previous,
+      seconds,
+    );
     return {
       seconds,
       pose: state.pose,
@@ -230,14 +238,17 @@ export namespace HumanSegmentEntry {
             (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
               h.from <= seconds && seconds < h.until,
           )
-          .map((h: IAutoMovieMotionHumanSegment.IHeld): ["left" | "right", string] => [
-            h.side,
-            h.prop,
-          ]),
+          .map(
+            (
+              h: IAutoMovieMotionHumanSegment.IHeld,
+            ): ["left" | "right", string] => [h.side, h.prop],
+          ),
       ),
       uses: Object.fromEntries(
         person.holds.flatMap(
-          (h: IAutoMovieMotionHumanSegment.IHeld): [["left" | "right", IAutoMovieMotionHumanGraspUse.IUse]] | [] =>
+          (
+            h: IAutoMovieMotionHumanSegment.IHeld,
+          ): [["left" | "right", IAutoMovieMotionHumanGraspUse.IUse]] | [] =>
             h.from <= seconds && seconds < h.until && h.use !== undefined
               ? [[h.side, h.use]]
               : [],
@@ -287,7 +298,9 @@ export namespace HumanSegmentEntry {
   ): IAutoMovieMotionHumanEntryState.ISupport[] {
     if (previous === undefined)
       return (["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanEntryState.ISupport => ({
+        (
+          part: "leftFoot" | "rightFoot",
+        ): IAutoMovieMotionHumanEntryState.ISupport => ({
           part,
           kind: "plant",
           support: { kind: "ground" },
@@ -306,7 +319,9 @@ export namespace HumanSegmentEntry {
           u <= c.to + 1e-9,
       )
       .map(
-        (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanEntryState.ISupport => ({
+        (
+          c: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanEntryState.ISupport => ({
           part: c.part,
           kind: c.kind,
           support: c.support,
@@ -334,9 +349,19 @@ export namespace HumanSegmentEntry {
   ): HumanSegmentPose.IContinued {
     const rig: ReturnType<typeof humanRig> = humanRig(person.performer.body);
     if (previous === undefined) {
-      const pose: IAutoMoviePose = HumanSegmentPose.initial(person, undefined, prepared);
+      const pose: IAutoMoviePose = HumanSegmentPose.initial(
+        person,
+        undefined,
+        prepared,
+      );
       return {
-        state: samplePoseVelocity((): IAutoMoviePose => pose, seconds, step, "before", rig),
+        state: samplePoseVelocity(
+          (): IAutoMoviePose => pose,
+          seconds,
+          step,
+          "before",
+          rig,
+        ),
         samples: [pose, pose, pose],
       };
     }
@@ -392,4 +417,7 @@ export namespace HumanSegmentEntry {
 }
 
 /** Entry foot rates consume no world frames outside these two end bones. */
-const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftFoot", "rightFoot"]);
+const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  "leftFoot",
+  "rightFoot",
+]);

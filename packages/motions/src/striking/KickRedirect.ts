@@ -97,41 +97,61 @@ export namespace KickRedirect {
     const blend = (t: number): number => minimumJerk.share((t - cut) / span);
     const mix = (from: number, to: number, w: number): number =>
       from + (to - from) * w;
-    return KickGeometry.compose(body, timing, t0, {
-      line: fresh.line,
-      carriage: fresh.carriage,
-      base: fresh.base,
-      shown: (turning: number): IAutoMovieMotionHumanKickGeometry.ICarriage => {
-        const w: number = blend(turning);
-        const from: IAutoMovieMotionHumanKickGeometry.ICarriage = old.shown(turning);
-        const to: IAutoMovieMotionHumanKickGeometry.ICarriage = fresh.shown(turning);
-        return {
-          turn: mix(from.turn, to.turn, w),
-          lean: mix(from.lean, to.lean, w),
-          pitch: mix(from.pitch, to.pitch, w),
-          step: to.step,
-          drive: to.drive,
-        };
+    return KickGeometry.compose(
+      body,
+      timing,
+      t0,
+      {
+        line: fresh.line,
+        carriage: fresh.carriage,
+        base: fresh.base,
+        shown: (
+          turning: number,
+        ): IAutoMovieMotionHumanKickGeometry.ICarriage => {
+          const w: number = blend(turning);
+          const from: IAutoMovieMotionHumanKickGeometry.ICarriage =
+            old.shown(turning);
+          const to: IAutoMovieMotionHumanKickGeometry.ICarriage =
+            fresh.shown(turning);
+          return {
+            turn: mix(from.turn, to.turn, w),
+            lean: mix(from.lean, to.lean, w),
+            pitch: mix(from.pitch, to.pitch, w),
+            step: to.step,
+            drive: to.drive,
+          };
+        },
+        leg: (
+          clock: number,
+          base: IAutoMovieMotionHumanPosture,
+          shift: IAutoMovieVector3,
+          hip?: IAutoMovieVector3,
+        ): IAutoMovieMotionHumanKickGeometry.ILeg => {
+          const from: IAutoMovieMotionHumanKickGeometry.ILeg = old.leg(
+            clock,
+            base,
+            shift,
+            hip,
+          );
+          const to: IAutoMovieMotionHumanKickGeometry.ILeg = fresh.leg(
+            clock,
+            base,
+            shift,
+            hip,
+          );
+          const w: number = blend(clock);
+          return {
+            ankle: Vector3.lerp(from.ankle, to.ankle, w),
+            hint: Vector3.lerp(from.hint, to.hint, w),
+            rotation: Quaternion.slerp(from.rotation, to.rotation, w),
+          };
+        },
+        origin: fresh.origin,
+        back: fresh.back,
+        contacts: fresh.contacts,
+        record: fresh.record,
       },
-      leg: (
-        clock: number,
-        base: IAutoMovieMotionHumanPosture,
-        shift: IAutoMovieVector3,
-        hip?: IAutoMovieVector3,
-      ): IAutoMovieMotionHumanKickGeometry.ILeg => {
-        const from: IAutoMovieMotionHumanKickGeometry.ILeg = old.leg(clock, base, shift, hip);
-        const to: IAutoMovieMotionHumanKickGeometry.ILeg = fresh.leg(clock, base, shift, hip);
-        const w: number = blend(clock);
-        return {
-          ankle: Vector3.lerp(from.ankle, to.ankle, w),
-          hint: Vector3.lerp(from.hint, to.hint, w),
-          rotation: Quaternion.slerp(from.rotation, to.rotation, w),
-        };
-      },
-      origin: fresh.origin,
-      back: fresh.back,
-      contacts: fresh.contacts,
-      record: fresh.record,
-    }, launch.props.recovery);
+      launch.props.recovery,
+    );
   }
 }

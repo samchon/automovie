@@ -22,7 +22,6 @@ import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { humanRig } from "../posture/humanRig";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLayer } from "./HumanSegmentLayer";
@@ -32,6 +31,7 @@ import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 import { HumanSegmentStop } from "./HumanSegmentStop";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 
 /**
  * A person's displayed pose: the layered action, carried holds, overlays,
@@ -97,7 +97,8 @@ export namespace HumanSegmentPose {
     prepared?: prepareHumanSegmentPose.IPrepared,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): IAutoMoviePose {
-    return seeded(person, segment, seconds, undefined, prepared, requested).pose;
+    return seeded(person, segment, seconds, undefined, prepared, requested)
+      .pose;
   }
 
   /**
@@ -133,13 +134,22 @@ export namespace HumanSegmentPose {
   ): ISeeded {
     const body: IAutoMovieMotionHumanBody = person.performer.body;
     if (prepared.body !== body)
-      throw new Error("A displayed evaluation borrows its own body's rig preparation");
+      throw new Error(
+        "A displayed evaluation borrows its own body's rig preparation",
+      );
     const clamp: (pose: IAutoMoviePose) => IAutoMoviePose = prepared.clamp;
-    const transition: IAutoMovieMotionHumanSegment["transition"] = segment.transition;
+    const transition: IAutoMovieMotionHumanSegment["transition"] =
+      segment.transition;
     const observed: ReadonlySet<AutoMovieHumanoidBone> | undefined =
-      requested !== undefined && near === undefined && person.holds.length === 0 && person.stops.size === 0 &&
-      !(transition !== undefined && transition.kind !== "redirect" &&
-        seconds - transition.cut < transition.blend)
+      requested !== undefined &&
+      near === undefined &&
+      person.holds.length === 0 &&
+      person.stops.size === 0 &&
+      !(
+        transition !== undefined &&
+        transition.kind !== "redirect" &&
+        seconds - transition.cut < transition.blend
+      )
         ? requested
         : undefined;
 
@@ -183,10 +193,8 @@ export namespace HumanSegmentPose {
     // overlay drives is that overlay's, faded in and out by `overlaid`.
     let kept: IAutoMovieMotionHumanSegment.IHeld[] = carried;
     if (carried.length !== 0) {
-      const active: IAutoMovieMotionHumanSegment.IOverlay[] = HumanSegmentOverlay.running(
-        person,
-        seconds,
-      );
+      const active: IAutoMovieMotionHumanSegment.IOverlay[] =
+        HumanSegmentOverlay.running(person, seconds);
       const driven: Partial<Record<"left" | "right", boolean>> = {};
       kept = carried.filter(
         (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
@@ -201,7 +209,14 @@ export namespace HumanSegmentPose {
         ...posture,
         limbs: {
           ...posture.limbs,
-          ...Object.fromEntries(HumanSegmentCarry.carries(person, kept, prepared.resolution, prepared)),
+          ...Object.fromEntries(
+            HumanSegmentCarry.carries(
+              person,
+              kept,
+              prepared.resolution,
+              prepared,
+            ),
+          ),
         },
       };
 
@@ -214,11 +229,8 @@ export namespace HumanSegmentPose {
           HumanSegment.weapon(segment, w.id),
         );
         if (s === undefined || seconds <= s) continue;
-        const goal: IAutoMovieHumanLimbGoal = (stopped ??= HumanSegmentStop.reader(
-          person,
-          segment,
-          prepared,
-        ))(w, s);
+        const goal: IAutoMovieHumanLimbGoal = (stopped ??=
+          HumanSegmentStop.reader(person, segment, prepared))(w, s);
         posture = { ...posture, limbs: { ...posture.limbs, [w.limb]: goal } };
         pose = fit(`stop:${w.id}:${w.limb}`, pose, w.limb, goal);
         plain = false;
@@ -233,7 +245,8 @@ export namespace HumanSegmentPose {
       // the motion rather than differences in fit resolution.
       if (transition.offset === undefined || transition.offset === null) {
         const rig: IAutoMoviePoseRig = humanRig(body);
-        const codec: () => IAutoMoviePoseJointCodec.ICodec = poseJointCodec.prepare(rig);
+        const codec: () => IAutoMoviePoseJointCodec.ICodec =
+          poseJointCodec.prepare(rig);
         transition.offset = inertializePose(
           continued(
             (t: number, near?: INear): ISeeded =>
@@ -280,8 +293,9 @@ export namespace HumanSegmentPose {
     // In the plain case every record of the pose is the range clamp's own
     // at the joints whose clamp gives it back (`IHumanBody.settled`), so
     // those are kept and the rest clamped; otherwise every joint is.
-    const joint: ReturnType<typeof prepareHumanPostureProjection.joints> =
-      plain ? prepareHumanPostureProjection.joints(body, clamp) : undefined;
+    const joint: ReturnType<typeof prepareHumanPostureProjection.joints> = plain
+      ? prepareHumanPostureProjection.joints(body, clamp)
+      : undefined;
     if (joint === undefined) pose = clamp(pose);
     else {
       const settled: ReadonlySet<AutoMovieHumanoidBone> = body.settled;
@@ -289,7 +303,9 @@ export namespace HumanSegmentPose {
         skeleton: pose.skeleton,
         root: pose.root,
         joints: pose.joints.map(
-          (record: IAutoMoviePose["joints"][number]): IAutoMoviePose["joints"][number] =>
+          (
+            record: IAutoMoviePose["joints"][number],
+          ): IAutoMoviePose["joints"][number] =>
             settled.has(record.bone) ? record : joint(record),
         ),
       };
@@ -299,15 +315,21 @@ export namespace HumanSegmentPose {
     // it) the leaf fitted these same goal objects and only the clamp stands
     // between its fits and the plants; a plant the clamp left untouched
     // keeps the leaf's solution (`HumanSegmentPlant.settled`).
-    if (plain && posture.digits === undefined && posture.rotation === undefined &&
-      HumanSegmentPlant.settled(fitted, pose, posture.limbs, seeds)) return { pose, seeds };
-    const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = HumanSegmentPlant.fit(
-      body,
-      pose,
-      posture.limbs,
-      near,
-      prepared.resolution,
-    );
+    if (
+      plain &&
+      posture.digits === undefined &&
+      posture.rotation === undefined &&
+      HumanSegmentPlant.settled(fitted, pose, posture.limbs, seeds)
+    )
+      return { pose, seeds };
+    const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+      HumanSegmentPlant.fit(
+        body,
+        pose,
+        posture.limbs,
+        near,
+        prepared.resolution,
+      );
     for (const [limb, seed] of Object.entries(planted.seeds))
       seeds.set(`planted:${limb}`, seed ?? null);
     return { pose: planted.pose, seeds };
@@ -378,7 +400,8 @@ export namespace HumanSegmentPose {
    * and copied degree tolerance. This alias adds no wrapper, transformed
    * seed, numerical result or retained query state.
    */
-  export const nearby: typeof HumanSegmentPoseSeeds.nearby = HumanSegmentPoseSeeds.nearby;
+  export const nearby: typeof HumanSegmentPoseSeeds.nearby =
+    HumanSegmentPoseSeeds.nearby;
 
   /**
    * The evaluator's named fit seeds, owned by HumanSegmentPoseSeeds.
@@ -465,8 +488,14 @@ export namespace HumanSegmentPose {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
-    return resolveHumanPosture.seeded(person.performer.body, person.initial,
-      undefined, undefined, prepared?.resolution, requested, prepared?.clamp).pose;
+    return resolveHumanPosture.seeded(
+      person.performer.body,
+      person.initial,
+      undefined,
+      undefined,
+      prepared?.resolution,
+      requested,
+      prepared?.clamp,
+    ).pose;
   }
 }
-

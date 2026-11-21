@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBreath } from "../everyday/HumanBreath";
+import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
@@ -91,26 +91,45 @@ export namespace HumanSegmentLayer {
           const edge: number = Math.min(seconds - from, to - seconds);
           if (!(edge > 0) || (phase === "entry" && HumanBreath.isNative(layer)))
             return current;
-          const weight: number = edge >= fade ? 1 : minimumJerk.share(edge / fade);
+          const weight: number =
+            edge >= fade ? 1 : minimumJerk.share(edge / fade);
           const borrowed: ReturnType<typeof borrowResolution> | undefined =
             resolution === undefined ? undefined : borrowResolution(resolution);
           const projected: ReturnType<typeof borrowProjection> | undefined =
-            projection === undefined ? undefined : borrowProjection(person.performer.body, projection);
+            projection === undefined
+              ? undefined
+              : borrowProjection(person.performer.body, projection);
           try {
             const context: IAutoMovieMotionHumanLayer.IContext = {
               ...person.layer,
               action,
               ...(borrowed === undefined ? {} : { resolution: borrowed.read }),
-              ...(projected === undefined ? {} : { projection: projected.read }),
+              ...(projected === undefined
+                ? {}
+                : { projection: projected.read }),
               random: (channel: string): IAutoMovieRandom =>
-                HumanSkill.stream(person.skill, person.performer.subject,
-                  `layer:${layer.name}`, 0, channel),
+                HumanSkill.stream(
+                  person.skill,
+                  person.performer.subject,
+                  `layer:${layer.name}`,
+                  0,
+                  channel,
+                ),
             };
             if (layer.blend !== undefined) {
-              const native: HumanAirborneShape.ShapeBlend | undefined = assembly === undefined ? undefined : HumanAirborneShape.prepared(layer);
-              return native === undefined ? layer.blend(current, seconds, context, weight) : native(current, seconds, context, weight, assembly);
+              const native: HumanAirborneShape.ShapeBlend | undefined =
+                assembly === undefined
+                  ? undefined
+                  : HumanAirborneShape.prepared(layer);
+              return native === undefined
+                ? layer.blend(current, seconds, context, weight)
+                : native(current, seconds, context, weight, assembly);
             }
-            return mixHumanPosture(current, layer.apply(current, seconds, context), weight);
+            return mixHumanPosture(
+              current,
+              layer.apply(current, seconds, context),
+              weight,
+            );
           } finally {
             borrowed?.release();
             projected?.release();
@@ -126,25 +145,36 @@ export namespace HumanSegmentLayer {
 }
 
 /** A layer may borrow only a same-body exact FK getter during its current apply. */
-type Resolution = NonNullable<IAutoMovieMotionHumanLayer.IContext["resolution"]>;
+type Resolution = NonNullable<
+  IAutoMovieMotionHumanLayer.IContext["resolution"]
+>;
 
 /** A genuine direct-joint projector borrowed within this layer application. */
 type Projection = ReturnType<typeof prepareHumanPostureProjection>;
 
 /** A retained getter cannot retain the parent operation's ROM preparation. */
-function borrowProjection(body: IAutoMovieMotionHumanBody, source: Projection | undefined): {
-  read: NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>; release: () => void;
+function borrowProjection(
+  body: IAutoMovieMotionHumanBody,
+  source: Projection | undefined,
+): {
+  read: NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>;
+  release: () => void;
 } {
   let borrowed: Projection | undefined = source;
   source = undefined;
   return {
     read: (): Projection => borrowed ?? prepareHumanPostureProjection(body),
-    release: (): void => { borrowed = undefined; },
+    release: (): void => {
+      borrowed = undefined;
+    },
   };
 }
 
 /** Revoke a synchronous loan even if a layer retains its context or getter. */
-function borrowResolution(source: Resolution | undefined): { read: Resolution; release: () => void } {
+function borrowResolution(source: Resolution | undefined): {
+  read: Resolution;
+  release: () => void;
+} {
   let borrowed: Resolution | undefined = source;
   source = undefined;
   return {
@@ -152,6 +182,8 @@ function borrowResolution(source: Resolution | undefined): { read: Resolution; r
       const current: Resolution | undefined = borrowed;
       return current === undefined ? preparePoseResolution() : current();
     },
-    release: (): void => { borrowed = undefined; },
+    release: (): void => {
+      borrowed = undefined;
+    },
   };
 }
