@@ -201,7 +201,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   );
   const pose: QuadrupedRidePose.IPrepared<Affordance, Dimension> =
     QuadrupedRidePose.prepare(animal, species, rig, nativeCourse);
-  const tucks: EquineTuck.IFores = EquineTuck.fores(rig.limbs);
+  const tucks: EquineTuck.IFores = EquineTuck.fores(rig.limbs, withers);
 
   /** Assemble the stride plan, instants and pose function, with a jump's flight when it is known. A jump's trial assembly, flown without its arc, skips the footing check its displayed ride must pass. */
   function assemble(
@@ -363,19 +363,25 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         };
         goals.set(
           limb,
-          !fore
-            ? EquineFootwork.slideGoal(footwork.slide, seconds, rest[4]!, goal)
-            : carry === undefined
+          carry !== undefined
+            ? tucks[limb](
+                goal,
+                EquineTuck.weight(
+                  seconds,
+                  strides.secondsAt(landed + step.from.duty),
+                  takeoff,
+                  landing,
+                  strides.secondsAt(coming),
+                  fore,
+                ),
+              )
+            : fore
               ? goal
-              : (limb === "leftFore" ? tucks.leftFore : tucks.rightFore)(
+              : EquineFootwork.slideGoal(
+                  footwork.slide,
+                  seconds,
+                  rest[4]!,
                   goal,
-                  EquineTuck.weight(
-                    seconds,
-                    strides.secondsAt(landed + step.from.duty),
-                    takeoff,
-                    landing,
-                    strides.secondsAt(coming),
-                  ),
                 ),
         );
       }
@@ -471,10 +477,8 @@ export namespace rideQuadruped {
   export type ILeg = ArchetypeCourse.Leg & {
     /** The gait the leg is taken at; the speed chooses when absent. */
     gait?: QuadrupedGait.Gait;
-
     /** The lead of a leaded gait on the leg; the left when absent. */
     lead?: QuadrupedGait.Lead;
-
     /** Optional film-specific hoof work, lateral figure, jump or baulk on a supported individual equine route. */
     equineFootwork?: EquineFootwork.Technique;
   };
@@ -483,16 +487,12 @@ export namespace rideQuadruped {
   export interface ICourse extends Omit<ArchetypeCourse.ICourse, "legs"> {
     /** Begin a zero-speed course with all four actual neutral hoof anchors. */
     startFromStanding?: true;
-
     /** Independently authored world landing surfaces and optional pole obstacles. */
     footing?: QuadrupedFooting.IScene;
-
     /** A lame limb and its grade, at the walk or trot (`QuadrupedLameness`); an unnamed leg's automatic gait is checked as the fastest it could reach. */
     lameness?: QuadrupedLameness.ILameness;
-
     /** An optional trunk pitch about the root at each film second, degrees, positive nose-down, such as a draught horse's forward lean into its load; the planted hooves keep their footprints. */
     lean?: Lean;
-
     /** The legs in order, at least one. */
     legs: readonly ILeg[];
   }
