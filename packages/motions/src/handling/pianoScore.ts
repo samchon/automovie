@@ -27,6 +27,7 @@ import type {
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { typeText } from "../everyday/typeText";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
@@ -393,7 +394,7 @@ function readHand(
     return {
       note: final,
       previous: undefined,
-      transport: 1 - minimumJerk(Math.min(1, share)).s,
+      transport: 1 - minimumJerk.share(Math.min(1, share)),
     };
   }
 
@@ -407,9 +408,11 @@ function readHand(
   const note: IVoicing = timeline[first]!;
   const previous: IVoicing | undefined = timeline[first - 1];
   const start: number = previous?.score.to ?? 0;
-  const transport: number = minimumJerk(
-    Math.max(0, Math.min(1, (seconds - start) / (note.score.from - start))),
-  ).s;
+  const transport: number = AutoMovieMotionInterval.progress(
+    start,
+    note.score.from,
+    seconds,
+  );
   return { note, previous, transport };
 }
 

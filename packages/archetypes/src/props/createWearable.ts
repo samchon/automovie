@@ -1,5 +1,6 @@
 import { type Archetype, ArchetypeDraw } from "../core";
 import { WornPropDraw } from "./WornPropDraw";
+import { createCyclingHelmet } from "./createCyclingHelmet";
 import { createHat } from "./createHat";
 import { createSpectacles } from "./createSpectacles";
 import { createWatch } from "./createWatch";
@@ -81,5 +82,6 @@ export namespace createWearable {
     watch: createWatch,
     hat: createHat,
     spectacles: createSpectacles,
+    helmet: createCyclingHelmet,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 }

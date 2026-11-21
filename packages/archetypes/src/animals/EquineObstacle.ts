@@ -189,10 +189,7 @@ export namespace EquineObstacle {
         );
         for (const obstacle of obstacles) {
           const short: number = obstacle.top + clearance - low!;
-          if (
-            -front! > obstacle.from - start &&
-            rear! < obstacle.to - start
-          )
+          if (-front! > obstacle.from - start && rear! < obstacle.to - start)
             extra = Math.max(
               extra,
               short / ((AutoMovieGravity.STANDARD / 2) * (at - takeoff)),

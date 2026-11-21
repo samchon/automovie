@@ -20,7 +20,7 @@ import type { createBicycle } from "./createBicycle";
  *
  * @param bicycle The bicycle.
  * @param course The course its root follows, or its plan, such as a timed course's.
- * @param gear Teeth in use and an optional road freewheel interval measured in course metres. The default teeth are 34 and 17, a ratio of 2 from the compact road chainsets and 11 to 28 tooth cassettes Wikipedia's Bicycle gearing article lists (https://en.wikipedia.org/wiki/Bicycle_gearing). Omit coasting for fixed-drive behavior. UCI article 1.3.025 separates competition road and track drive equipment, https://www.uci.org/regulations/3MyLDDrwJCJJ0BGGOFzOat .
+ * @param gear Teeth in use and optional freewheel intervals in course metres, such as a road coast or the stretches a bicycle is wheeled by hand. The default teeth are 34 and 17, a ratio of 2 from the compact road chainsets and 11 to 28 tooth cassettes Wikipedia's Bicycle gearing article lists (https://en.wikipedia.org/wiki/Bicycle_gearing). Omit coasting for fixed-drive behavior. UCI article 1.3.025 separates competition road and track drive equipment, https://www.uci.org/regulations/3MyLDDrwJCJJ0BGGOFzOat .
  * @returns The ride.
  * @throws {ArchetypeRefusal} When a tooth count is not a positive whole number, a leg is reversed (a bicycle freewheels backward, so its crank would run back by the distance, which no rider does), a bend at the fastest the course lets it be taken needs more than `rideBicycle.LEAN` degrees of lean (as `ArchetypeCourse.admitLean` refuses), or the course is malformed.
  *
@@ -35,11 +35,7 @@ import type { createBicycle } from "./createBicycle";
 export function rideBicycle(
   bicycle: Archetype<createBicycle.Affordance, createBicycle.Dimension>,
   course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
-  gear: {
-    chainring: number;
-    sprocket: number;
-    coast?: readonly [number, number];
-  } = {
+  gear: rideBicycle.IGear = {
     chainring: 34,
     sprocket: 17,
   },
@@ -81,48 +77,65 @@ export function rideBicycle(
       },
     );
   ArchetypeCourse.admitLean("bicycle", plan, rideBicycle.LEAN);
-  const coast: typeof gear.coast = gear.coast;
-  if (
-    coast !== undefined &&
-    !(coast[0] >= 0 && coast[1] > coast[0] && coast[1] <= plan.length)
-  )
-    throw new ArchetypeRefusal({
-      kind: "parameter",
-      archetype: "bicycle",
-      axis: "gear.coast",
-      value: coast,
-      feasible: null,
-      reason: "the freewheel interval must be ordered within the course",
-      fix: "give an increasing pair of course distances in metres",
-    });
-  const coastLength: number = coast === undefined ? 0 : coast[1] - coast[0];
+
+  // One interval, or several in course order that do not overlap: a
+  // bicycle wheeled by hand out of a transition and back into it coasts twice.
+  const coasts: readonly rideBicycle.Interval[] =
+    gear.coast === undefined
+      ? []
+      : single(gear.coast)
+        ? [gear.coast]
+        : gear.coast;
+  coasts.forEach((coast: rideBicycle.Interval, index: number): void => {
+    const previous: number = index === 0 ? 0 : coasts[index - 1]![1];
+    if (
+      !(coast[0] >= previous && coast[1] > coast[0] && coast[1] <= plan.length)
+    )
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "bicycle",
+        axis: "gear.coast",
+        value: gear.coast!,
+        feasible: null,
+        reason:
+          "each freewheel interval must be ordered within the course, after the one before it",
+        fix: "give increasing, non-overlapping pairs of course distances in metres",
+      });
+  });
 
   /** Distance of chain-driven travel up to a course position, metres. */
   const pedalled = (distance: number): number =>
-    coast === undefined
-      ? distance
-      : distance - Math.min(coastLength, Math.max(0, distance - coast[0]));
+    coasts.reduce(
+      (driven: number, coast: rideBicycle.Interval): number =>
+        driven -
+        Math.min(coast[1] - coast[0], Math.max(0, distance - coast[0])),
+      distance,
+    );
+
+  /** The course position at a distance of chain-driven travel, metres. */
+  const position = (powered: number): number =>
+    coasts.reduce(
+      (distance: number, coast: rideBicycle.Interval): number =>
+        distance > coast[0] ? distance + coast[1] - coast[0] : distance,
+      powered,
+    );
 
   // A crank arm is straight up every half turn: the left at whole turns, the right between them.
-  const instants: { seconds: number; label: string }[] = [];
-  for (let k: number = 1; (k * development) / 2 <= pedalled(plan.length); k++) {
-    const powered: number = (k * development) / 2;
+  const instants: rideBicycle.IInstant[] = [];
+  for (let k: number = 1; (k * development) / 2 <= pedalled(plan.length); k++)
     instants.push({
-      seconds: plan.when(
-        coast !== undefined && powered > coast[0]
-          ? powered + coastLength
-          : powered,
-      ),
+      seconds: plan.when(position((k * development) / 2)),
       label: k % 2 === 0 ? "leftTopDeadCentre" : "rightTopDeadCentre",
     });
-  }
-  if (coast !== undefined) {
+  for (const coast of coasts)
     instants.push(
       { seconds: plan.when(coast[0]), label: "coastStart" },
       { seconds: plan.when(coast[1]), label: "coastEnd" },
     );
-    instants.sort((left, right): number => left.seconds - right.seconds);
-  }
+  instants.sort(
+    (left: rideBicycle.IInstant, right: rideBicycle.IInstant): number =>
+      left.seconds - right.seconds,
+  );
   return ArchetypeRide.along(
     bicycle,
     plan,
@@ -143,17 +156,49 @@ export function rideBicycle(
   );
 }
 
+/** Whether a coast is one interval rather than a list of them. */
+function single(coast: rideBicycle.Coast): coast is rideBicycle.Interval {
+  return typeof coast[0] === "number";
+}
+
 /**
- * The bicycle lean limit and an airborne take over a grounded ride.
+ * The bicycle lean limit, the drive gear and an airborne take over a grounded ride.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the provisional lean limit, horizontal drive, gravitational flight, and refused approaches for the hop.
- * @evidence contracts/development/design.md#principled-representation A named lean angle and disjoint flight intervals on the course and contact clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bicycle owns the lean limit and the optional jump over its own ride.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the provisional lean limit, the gear with its freewheel stretches and the instant shape, the horizontal drive, gravitational flight, and refused approaches for the hop.
+ * @evidence contracts/development/design.md#principled-representation A named lean angle, course intervals in metres as ordered pairs, teeth as counts, and disjoint flight intervals on the course and contact clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The bicycle owns the lean limit, the gear its ride reads and the optional jump over its own ride.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the authored wheel and rider contact clock. A returned ride publishes each flight as takeoff and touchdown instants, which a later hop reads so it cannot overlap them.
  */
 export namespace rideBicycle {
   /** The greatest lean, degrees: provisional. No figure for a bicycle was read at a source; the road motorcycle's limit of `rideMotorcycle.LEAN` is taken as the bound a narrower tyre does not exceed. */
   export const LEAN: number = 50;
+
+  /** A stretch of the course from one distance to another, metres. */
+  export type Interval = readonly [number, number];
+
+  /** One freewheel interval, or several in course order without overlap. */
+  export type Coast = Interval | readonly Interval[];
+
+  /** The drive: the teeth in use and where the crank freewheels. */
+  export interface IGear {
+    /** Chainring teeth, a positive whole number. */
+    chainring: number;
+
+    /** Sprocket teeth, a positive whole number. */
+    sprocket: number;
+
+    /** Course stretches over which the wheels roll and the crank holds its phase: a road coast, or a bicycle wheeled by hand. Absent, the drive is fixed. */
+    coast?: Coast;
+  }
+
+  /** A labelled instant of the ride, film seconds from the course's clock. */
+  export interface IInstant {
+    /** Seconds. */
+    seconds: number;
+
+    /** What happens then. */
+    label: string;
+  }
 
   /**
    * Carry a bicycle through one level hop over a straight approach.

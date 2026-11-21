@@ -308,7 +308,7 @@ function plan(
       // The hand leaves and approaches the rail at zero world velocity.
       const open: number = 16 * u ** 2 * (1 - u) ** 2;
       const grip: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(start, Vector3.scale(delta, minimumJerk(u).s)),
+        Vector3.add(start, Vector3.scale(delta, minimumJerk.share(u))),
         Vector3.scale(inward, clearance * open),
       );
       const joints: IAutoMovieMotionHumanPosture["joints"] = {

@@ -67,10 +67,25 @@ export function addressPrecisionStroke(
   posture: IAutoMovieMotionHumanPosture,
   share: number,
 ) => IAutoMovieMotionHumanPosture {
-  const inclined = (angle: number): IAutoMovieMotionHumanPosture => ({
-    ...entry,
-    joints: HumanTrunk.incline(entry.joints, angle, pelvisLimit).joints,
-  });
+  // The incline bends the spine in the joints and returns the pelvis's
+  // share as a pitch the posture carries.
+  const tip = (
+    posture: IAutoMovieMotionHumanPosture,
+    angle: number,
+  ): IAutoMovieMotionHumanPosture => {
+    const bent: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
+      posture.joints,
+      angle,
+      pelvisLimit,
+    );
+    return {
+      ...posture,
+      pitch: posture.pitch + bent.pitch,
+      joints: bent.joints,
+    };
+  };
+  const inclined = (angle: number): IAutoMovieMotionHumanPosture =>
+    tip(entry, angle);
   const standing: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.shoulders(
     body,
     entry,
@@ -140,10 +155,12 @@ export function addressPrecisionStroke(
   return (
     posture: IAutoMovieMotionHumanPosture,
     share: number,
-  ): IAutoMovieMotionHumanPosture => ({
-    ...posture,
-    root: Vector3.add(posture.root, Vector3.scale(move, share)),
-    joints: HumanTrunk.incline(posture.joints, hinge * share, pelvisLimit)
-      .joints,
-  });
+  ): IAutoMovieMotionHumanPosture =>
+    tip(
+      {
+        ...posture,
+        root: Vector3.add(posture.root, Vector3.scale(move, share)),
+      },
+      hinge * share,
+    );
 }

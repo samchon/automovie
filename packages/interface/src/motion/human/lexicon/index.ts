@@ -15,6 +15,7 @@ export type { IAutoMovieMotionHumanGunCrew } from "./IAutoMovieMotionHumanGunCre
 export type { IAutoMovieMotionHumanHoldMesh } from "./IAutoMovieMotionHumanHoldMesh";
 export type { IAutoMovieMotionHumanLexiconArcheryParams } from "./IAutoMovieMotionHumanLexiconArcheryParams";
 export type { IAutoMovieMotionHumanBicycleEffort } from "./IAutoMovieMotionHumanBicycleEffort";
+export type { IAutoMovieMotionHumanBikeGuide } from "./IAutoMovieMotionHumanBikeGuide";
 export type { IAutoMovieMotionHumanBikeTransfer } from "./IAutoMovieMotionHumanBikeTransfer";
 export type { IAutoMovieMotionHumanSittingVolley } from "./IAutoMovieMotionHumanSittingVolley";
 export type { IAutoMovieMotionHumanStageBladeFootwork } from "./IAutoMovieMotionHumanStageBladeFootwork";

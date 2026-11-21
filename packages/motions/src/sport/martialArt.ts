@@ -56,8 +56,10 @@ import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
  *   slow, continuous form of tai chi (Wu and Hitt 2005).
  *
  * The karate and tai chi stance phrases link their own support transfers
- * and arm carriage on a single clock. Forms can combine these phrases with
- * other named techniques.
+ * and arm carriage on a single clock. The taekwondo and Muay Thai solo
+ * resets share that support and recovery clock under their styles' low and
+ * high guards. Their distinct pelvis paths and guard sites are authored
+ * blocking for screen animation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each technique's geometry, timing with its source, provisional values and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record of root, leg and placed-arm rows on one clock.
@@ -109,7 +111,12 @@ export namespace martialArt {
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    if (p.kind === "karateStanceTransfer" || p.kind === "taiChiTransfer")
+    if (
+      p.kind === "karateStanceTransfer" ||
+      p.kind === "taiChiTransfer" ||
+      p.kind === "taekwondoStanceReset" ||
+      p.kind === "muayThaiStanceReset"
+    )
       return MartialArtStancePhrase(context, p.kind, hold, modifiers);
 
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;

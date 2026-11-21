@@ -50,7 +50,10 @@ export namespace EquineTuck {
   export function prepare(chain: readonly IAutoMovieVector3[]): Tuck {
     const limb: QuadrupedLimb.IPrepared = QuadrupedLimb.prepare(chain, true);
     const top: IAutoMovieVector3 = chain[0]!;
-    return (goal: QuadrupedRidePose.IGoal, weight: number): QuadrupedRidePose.IGoal => {
+    return (
+      goal: QuadrupedRidePose.IGoal,
+      weight: number,
+    ): QuadrupedRidePose.IGoal => {
       if (!(weight > 0)) return goal;
       const fold: number = Math.max(goal.fold, weight * FOLD);
       const reach: number = limb.range(fold).maximum;
@@ -93,7 +96,8 @@ export namespace EquineTuck {
     const middle: number = (takeoff + landing) / 2;
     const rising: number =
       takeoff > lift ? (seconds - lift) / (takeoff - lift) : 1;
-    const falling: number = land > middle ? (land - seconds) / (land - middle) : 0;
+    const falling: number =
+      land > middle ? (land - seconds) / (land - middle) : 0;
     return (
       minimumJerk(Math.max(0, Math.min(1, rising))).s *
       minimumJerk(Math.max(0, Math.min(1, falling))).s

@@ -156,19 +156,20 @@ export function test_archetype_equine_jump(): void {
         if (part.geometry.shape.type === "plane") continue;
         const extent: IExtent = measure(part, sample.placement);
         for (const rail of rails)
-          if (
-            extent.front > rail.z - 0.05 &&
-            extent.back < rail.z + 0.05
-          ) {
+          if (extent.front > rail.z - 0.05 && extent.back < rail.z + 0.05) {
             const margin: number = extent.low - (rail.y + 0.05);
             tightest = Math.min(tightest, margin);
             if (margin < CLEARANCE - 1e-6)
-              issues.push(`${label}: ${part.id} ${margin} m over the rail at ${at}`);
+              issues.push(
+                `${label}: ${part.id} ${margin} m over the rail at ${at}`,
+              );
           }
       }
     }
     if (rails.length > 0 && !(tightest < CLEARANCE + TIGHT))
-      issues.push(`${label}: the body overjumps, tightest margin ${tightest} m`);
+      issues.push(
+        `${label}: the body overjumps, tightest margin ${tightest} m`,
+      );
     const quarter: number = takeoff + (landing - takeoff) / 4;
     for (const side of ["left", "right"] as const) {
       const fold: number = carpus(ride, side, quarter) - carpus(ride, side, 0);
@@ -310,7 +311,11 @@ function carpus(ride: Ride, side: "left" | "right", at: number): number {
       (p: IAutoMovieModelPart): boolean =>
         p.id === QuadrupedBody.BONES[`${side}Fore`][index],
     )!;
-    return Quaternion.rotateVector(part.transform!.rotation, { x: 0, y: 1, z: 0 });
+    return Quaternion.rotateVector(part.transform!.rotation, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
   };
   const cosine: number = Vector3.dot(axis(1), axis(2));
   return (Math.acos(Math.max(-1, Math.min(1, cosine))) * 180) / Math.PI;

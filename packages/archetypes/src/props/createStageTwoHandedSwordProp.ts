@@ -59,8 +59,8 @@ export namespace createStageTwoHandedSwordProp {
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "length";
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "grip";
+  /** The contacts this producer builds: the grip and the point. */
+  export type Affordance = "grip" | "point";
 
   /** The model identity, dimensions. */
   export type IParams = Pick<createStageBladeProp.IParams, "id" | "length">;

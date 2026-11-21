@@ -81,6 +81,9 @@ export namespace IAutoMovieMotionHumanWalkPace {
     /** How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent. */
     lead?: number;
 
+    /** The pelvis's speed along the way as the gait is entered, m/s, never negative: the ramp up starts from it, and from rest when absent. */
+    entrySpeed?: number;
+
     /**
      * The share of the way the pelvis has gone at a second of the walk, from 0, never falling and reaching 1, when the way is set from outside (a cadenced station, `walkStation.cadenced`); the pelvis ramps, cruises and ramps by itself when absent.
      *

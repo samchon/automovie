@@ -192,7 +192,7 @@ function plan(
 
   /** Raise the shoe over the floor and plate during approach and recovery. */
   const move = (progress: number): IAutoMovieMotionHumanFoot.IPlacement => {
-    const blend: number = minimumJerk(progress).s;
+    const blend: number = minimumJerk.share(progress);
     const ankle: IAutoMovieVector3 = Vector3.lerp(
       foot.worldPosition,
       staged.ankle,

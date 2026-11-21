@@ -166,6 +166,10 @@ export namespace EquineJump {
     approach: number;
     /** Phase of the recovery cue, the leading fore's second landing after the flight. */
     recovery: number;
+    /** Phase the push-off begins: the trailing hind's takeoff landing, both hinds then down. */
+    push: number;
+    /** Phase the landing is absorbed: the end of the first fore's stance. */
+    absorb: number;
   }
 
   /**
@@ -328,6 +332,8 @@ export namespace EquineJump {
             landing: candidate.landing,
             approach: candidate.approach,
             recovery: candidate.recovery,
+            push: candidate.push,
+            absorb: candidate.absorb,
           },
         };
     }
@@ -438,6 +444,10 @@ export namespace EquineJump {
     approach: number;
     /** Phase of the recovery cue. */
     recovery: number;
+    /** Phase the push-off begins. */
+    push: number;
+    /** Phase the landing is absorbed. */
+    absorb: number;
   }
 
   /** The takeoff stride's moved landings and event phases, when its order permits a flight. */
@@ -477,6 +487,8 @@ export namespace EquineJump {
       hold: takeoff + FORE / 2,
       approach: strides.landing(lead, n - 1),
       recovery: strides.landing(lead, n + 2),
+      push: first + GAP,
+      absorb: landing + timing.duty,
     };
   }
 }

@@ -106,8 +106,7 @@ export async function test_motion_exercise_golf_putt(): Promise<void> {
   const resting: IAutoMovieVector3 = {
     x: 0.6 * hand.x + working.x,
     y: radius,
-    // Addressed out in front, under the shoulders of the hinged stance.
-    z: 0.45,
+    z: 0.24,
   };
   const cup: IAutoMovieVector3 = { x: resting.x, y: 0, z: resting.z + 1.5 };
 

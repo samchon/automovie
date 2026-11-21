@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -23,6 +23,7 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -82,10 +83,20 @@ export namespace putDown {
   /** Cancel table. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["release", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     walk: [
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["release", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
   };
 
@@ -156,13 +167,12 @@ export namespace putDown {
       .prop.frame.rotation;
     const declaredHeading: number = heading(authored);
     const unhold: IAutoMovieQuaternion = Quaternion.inverse(offset.rotation);
-    const holding: (yaw: number) => IAutoMovieMotionHumanHand.IWrist = (yaw: number): IAutoMovieMotionHumanHand.IWrist => {
+    const holding: (yaw: number) => IAutoMovieMotionHumanHand.IWrist = (
+      yaw: number,
+    ): IAutoMovieMotionHumanHand.IWrist => {
       const rest: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(
-          Quaternion.fromAxisAngle(
-            { x: 0, y: 1, z: 0 },
-            yaw - declaredHeading,
-          ),
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw - declaredHeading),
           authored,
         ),
       );
@@ -186,7 +196,8 @@ export namespace putDown {
       side,
     );
     const on = context.params.on;
-    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] = context.params.onto;
+    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
+      context.params.onto;
     const wearing: IAutoMovieRigidTransform | undefined = putDownTarget.of(
       context,
       context.entry.pose,
@@ -237,10 +248,11 @@ export namespace putDown {
           : holding(context.params.yaw);
 
     // The arm keeps the configuration it carried the prop in.
-    const reference: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
-      context.entry.pose,
-      side === "left" ? "leftArm" : "rightArm",
-    );
+    const reference: IAutoMovieHumanLimbReference =
+      resolveHumanPosture.reference(
+        context.entry.pose,
+        side === "left" ? "leftArm" : "rightArm",
+      );
     const rotation: IAutoMovieQuaternion = chosen.rotation;
     const place: IAutoMovieVector3 = chosen.point;
 
@@ -290,10 +302,18 @@ export namespace putDown {
     // Timing: carry down, open, return.
     const hanging: IAutoMovieMotionHumanPosture["limbs"] = { ...held.limbs };
     delete hanging[side === "left" ? "leftArm" : "rightArm"];
-    const handBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
+    const handBones: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     const home: IAutoMovieResolvedBone = poseBones(
       body,
-      resolveHumanPosture.seeded(body, { ...held, limbs: hanging }, undefined, {}, undefined, handBones).pose,
+      resolveHumanPosture.seeded(
+        body,
+        { ...held, limbs: hanging },
+        undefined,
+        {},
+        undefined,
+        handBones,
+      ).pose,
       undefined,
       handBones,
     ).get(`${side}Hand`)!;
@@ -337,10 +357,24 @@ export namespace putDown {
       context.entry.pose,
       side,
     );
-    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
-    const openAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape({ entry: closed, open: flat, closed: flat }, 1);
-    const returnShape: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape({ entry: flat, open: relaxed, closed: relaxed }, 1);
+    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "flat",
+    );
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
+    const openAt: ReturnType<typeof HumanPrehension.prepareShape> =
+      HumanPrehension.prepareShape(
+        { entry: closed, open: flat, closed: flat },
+        1,
+      );
+    const returnShape: ReturnType<typeof HumanPrehension.prepareShape> =
+      HumanPrehension.prepareShape(
+        { entry: flat, open: relaxed, closed: relaxed },
+        1,
+      );
     const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const part: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
@@ -423,10 +457,15 @@ export namespace putDown {
         if (displacement !== undefined) {
           const follow: number =
             t <= down
-              ? minimumJerk(t / down).s
+              ? AutoMovieMotionInterval.progress(0, down, t)
               : t <= down + OPEN
                 ? 1
-                : minimumJerk((duration - t) / back).s;
+                : 1 -
+                  AutoMovieMotionInterval.progress(
+                    duration - back,
+                    duration,
+                    t,
+                  );
           wrist = Vector3.add(wrist, Vector3.scale(displacement(t), follow));
         }
         return {
@@ -497,7 +536,9 @@ export namespace putDown {
       (): ReturnType<typeof resolveHumanPosture> =>
         resolveHumanPosture(ahead.body, ahead.grip.posture),
     )!;
-    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = ahead.grip.tool({ tip: via });
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = ahead.grip.tool({
+      tip: via,
+    });
     const frame: IAutoMovieRigidTransform = HumanPropFrame.parent(
       destination,
       tool.held!.frame,

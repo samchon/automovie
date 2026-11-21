@@ -22,6 +22,7 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
@@ -109,7 +110,12 @@ export namespace pickUp {
   /** Cancel table. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: [0, "gripClosed"], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: [0, "gripClosed"],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
       {
         window: ["lifted", 1],
         kind: "inertialize",
@@ -221,7 +227,10 @@ export namespace pickUp {
     );
     const { chosen, bend, stance }: pickUpSearch.ISearched = found;
     const held: IAutoMovieMotionHumanPosture = stance.posture;
-    const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
+    const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(
+      authored,
+      chosen.turn,
+    );
     const grasp: IAutoMovieMotionHumanHand.IWrist = chosen.wrist;
     pickUpPosture.reachable(context, side, grasp.point, held);
 
@@ -254,11 +263,17 @@ export namespace pickUp {
     const rising: boolean = raise.trunk !== null || raise.share < 1;
     // The stance's body a share of the way down; the entry's when it was
     // not lowered.
-    const way: pickUpPosture.IStance["at"] = (share: number,
+    const way: pickUpPosture.IStance["at"] = (
+      share: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture =>
       lowered === null ? held : lowered.at(share, resolution, projection);
-    const raisedAt: ReturnType<typeof pickUpLift.prepare> = pickUpLift.prepare(body, raise, way);
+    const raisedAt: ReturnType<typeof pickUpLift.prepare> = pickUpLift.prepare(
+      body,
+      raise,
+      way,
+    );
 
     // The digits close on the prop where the arm actually puts the hand.
     const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.close(
@@ -305,14 +320,15 @@ export namespace pickUp {
     const end: number = liftOff + rise;
     const up: number = lowered === null && !rising ? 0 : reach;
     const duration: number = end + up;
-    const transport: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
-      entry.worldPosition,
-      grasp.point,
-      target.approach,
-      HumanPrehension.aperture(target.width),
-      { from: entry.worldRotation, to: grasp.rotation },
-      reach,
-    );
+    const transport: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        entry.worldPosition,
+        grasp.point,
+        target.approach,
+        HumanPrehension.aperture(target.width),
+        { from: entry.worldRotation, to: grasp.rotation },
+        reach,
+      );
     const peak: number = HumanPrehension.peak(context.random("peak"));
     /** Add the support's remaining displacement as the fingers close, then brake. */
     const interceptionOffset = (
@@ -324,7 +340,7 @@ export namespace pickUp {
       return Vector3.scale(
         velocity,
         elapsed < 0
-          ? elapsed * minimumJerk((at / reach - peak) / (1 - peak)).s
+          ? elapsed * AutoMovieMotionInterval.progress(peak, 1, at / reach)
           : load * (1 - load / (2 * LOAD)),
       );
     };
@@ -333,22 +349,30 @@ export namespace pickUp {
       open,
       closed,
     };
-    const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, peak);
+    const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> =
+      HumanPrehension.prepareShape(shapes, peak);
     const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const rest: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const hand: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
-    const shoulder: (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieVector3 =
-      (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieVector3 =>
-        HumanTrunk.resolve(body, posture, undefined, resolution, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!.worldPosition;
+    const shoulder: (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    ) => IAutoMovieVector3 = (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    ): IAutoMovieVector3 =>
+      HumanTrunk.resolve(
+        body,
+        posture,
+        undefined,
+        resolution,
+        new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]),
+      ).get(`${side}UpperArm`)!.worldPosition;
     // Where the straightening after the lift starts from.
     const bottom: IAutoMovieVector3 | null =
-      up === 0
-        ? null
-        : shoulder(
-            rising ? raisedAt(raise.share, 1) : held,
-          );
+      up === 0 ? null : shoulder(rising ? raisedAt(raise.share, 1) : held);
     const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
@@ -367,7 +391,9 @@ export namespace pickUp {
               s.part !== "leftFoot" && s.part !== "rightFoot",
           )
           .map(
-            (s: IAutoMovieMotionHumanEntryState.ISupport): IAutoMovieMotionHumanContactWindow => ({
+            (
+              s: IAutoMovieMotionHumanEntryState.ISupport,
+            ): IAutoMovieMotionHumanContactWindow => ({
               ...s,
               from: 0,
               to: 1,
@@ -387,13 +413,18 @@ export namespace pickUp {
           prop: context.params.prop,
           from: reach / duration,
           fingers: closed,
-          ...(context.params.use === undefined ? {} : { use: context.params.use }),
+          ...(context.params.use === undefined
+            ? {}
+            : { use: context.params.use }),
         },
       ],
       contact: reach,
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
 
         // The body at the second: the entry, lowered over the reach; over the
@@ -401,7 +432,12 @@ export namespace pickUp {
         // straightened after it, back to the entry.
         let base: IAutoMovieMotionHumanPosture = held;
         if (t < reach) {
-          if (lowered !== null) base = lowered.at(minimumJerk.share(t / reach), resolution, projection);
+          if (lowered !== null)
+            base = lowered.at(
+              minimumJerk.share(t / reach),
+              resolution,
+              projection,
+            );
         } else if (t <= end) {
           const k: number =
             rising && rise > 0
@@ -449,7 +485,13 @@ export namespace pickUp {
 
         // The posture whose arm goal is the transport's at a second of the
         // action, with the fingers shaped as they are at `shaped`.
-        const goaled: (at: number, shaped: number) => IAutoMovieMotionHumanPosture = (at: number, shaped: number): IAutoMovieMotionHumanPosture => ({
+        const goaled: (
+          at: number,
+          shaped: number,
+        ) => IAutoMovieMotionHumanPosture = (
+          at: number,
+          shaped: number,
+        ): IAutoMovieMotionHumanPosture => ({
           ...base,
           joints: {
             ...base.joints,
@@ -508,7 +550,9 @@ export namespace pickUp {
       const loading: IAutoMovieMotionHumanPosture = plan.posture(reach);
       HumanPreparedPlayback.attach(plan, body, {
         mode: "posture",
-        phases: [{ from: reach, to: liftOff, sample: () => ({ posture: loading }) }],
+        phases: [
+          { from: reach, to: liftOff, sample: () => ({ posture: loading }) },
+        ],
       });
     }
     return plan;

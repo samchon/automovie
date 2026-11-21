@@ -106,6 +106,7 @@ export namespace createHorse {
    * - `lead`: the middle of the lead rope's held run beside the head on the horse's left, running up to the halter.
    * - `hitch`: in harness, the middle between the tugs at the driving saddle, where a cart's shafts are held and its `coupling` is drawn from.
    * - `leftLoad`, `rightLoad`: under a pack saddle, the middle of each side's pad, facing out, where a load rests.
+   * - `tie`: under a pack saddle, the pads' back on the spine, where a following animal's lead is made fast in a pack string.
    * - `fixedHead`, `leapingHead`: on a side saddle, the upper pommel the right thigh goes over and the lower one over the left thigh (`HorseSideSaddle`).
    * - `leftHandle`, `rightHandle`, `pad`: on a vaulting surcingle, its two handles and the back pad's top (`HorseSurcingle`).
    *
@@ -123,6 +124,7 @@ export namespace createHorse {
     | "hitch"
     | "leftLoad"
     | "rightLoad"
+    | "tie"
     | "fixedHead"
     | "leapingHead"
     | "leftHandle"
