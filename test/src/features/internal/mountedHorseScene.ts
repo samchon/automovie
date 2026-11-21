@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -92,6 +93,9 @@ export namespace mountedHorseScene {
 
     /** The acts after sitting. */
     acts: (seated: Seated) => Seated;
+
+    /** The grade the horse stands and goes on, degrees, nose up; level when absent: the whole ride turned about the world's lateral axis through the origin. */
+    grade?: number;
   }
 
   /**
@@ -105,12 +109,22 @@ export namespace mountedHorseScene {
     const ride: Ride = props.course ?? course(horse, gait);
     const local = (at: number): number =>
       Math.max(0, Math.min(ride.duration, at - wait));
+    // A forward axis turned up by the grade: a turn of minus the grade about +X.
+    const tilt: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      { x: 1, y: 0, z: 0 },
+      -(props.grade ?? 0),
+    );
+    const graded = (frame: IAutoMovieTransform): IAutoMovieTransform => ({
+      ...frame,
+      translation: Quaternion.rotateVector(tilt, frame.translation),
+      rotation: Quaternion.multiply(tilt, frame.rotation),
+    });
     const place = (at: number): IAutoMovieRigidTransform => {
-      const frame: IAutoMovieTransform = ride.at(local(at)).placement;
+      const frame: IAutoMovieTransform = graded(ride.at(local(at)).placement);
       return { position: frame.translation, rotation: frame.rotation };
     };
     const part = (id: string, at: number): IAutoMovieTransform =>
-      ride.frame(id as Parameters<Ride["frame"]>[0], local(at));
+      graded(ride.frame(id as Parameters<Ride["frame"]>[0], local(at)));
     const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
       ride.at(0).archetype,
       place(0),

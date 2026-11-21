@@ -53,6 +53,12 @@ export namespace IAutoMovieMotionHumanSeated {
     /** The heading a sitter faces, degrees about +Y. */
     yaw: number;
 
+    /** The sitting surface's forward tip, degrees, front edge down, as a posture's pitch; level when absent, as on a horse standing on a grade. */
+    pitch?: number;
+
+    /** The sitting surface's sideways tilt, degrees, as a posture's roll; level when absent. */
+    roll?: number;
+
     /** Depth back from the front edge, metres; deep enough for the thigh when absent. */
     depth?: number;
 
