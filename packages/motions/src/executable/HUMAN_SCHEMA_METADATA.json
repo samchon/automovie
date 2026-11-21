@@ -783,6 +783,14 @@
     },
     "pour": {},
     "putDownAperture": {},
+    "takeFromCarrier": {},
+    "drawFromCarrier": {},
+    "collapse": {},
+    "thrown": {},
+    "wireFlight": {},
+    "shamble": {},
+    "lurch": {},
+    "stalk": {},
     "ropeSkip": {
       "properties": {
         "flightSeconds": {
