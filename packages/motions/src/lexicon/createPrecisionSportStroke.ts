@@ -22,13 +22,16 @@ import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingQuality } from "../striking/StrikingQuality";
+import { PrecisionStrokeForms } from "./PrecisionStrokeForms";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
+import { coursePrecisionStroke } from "./coursePrecisionStroke";
 
 /** The shared authorship contract. Cue strokes also name a supporting surface. */
 type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
@@ -49,39 +52,6 @@ function implement(params: Stroke): string {
     reason: "an implement stroke needs the implement its hand holds",
     fix: "name the held implement in tool",
   });
-}
-
-/**
- * Fixed geometry and provisional neutral timing for one sporty stroke. Angles are degrees,
- * timing is seconds, and a linear draw is in forearm lengths.
- */
-interface IPrecisionForm {
-  /** Implement's active working affordance. */
-  point: string;
-
-  /** Working shaft direction at impact, down from horizontal. A cue points along the shot. */
-  down: number;
-
-  /** Angular travel to and through the strike for the swinging rows. */
-  sweep: number;
-
-  /** Backward and forward travel for short linear rows. */
-  draw: number;
-
-  /** Trunk turn toward the shot during the swing. */
-  turn: number;
-
-  /** The outgoing ball's inclination above horizontal. */
-  loft: number;
-
-  /** Neutral time between action start and strike. */
-  impact: number;
-
-  /** A stroke that uses the racket hand without fixing the free hand to its handle. */
-  oneHand?: true;
-
-  /** A stroke whose striking surface is the bare hand: no implement is held. */
-  bare?: true;
 }
 
 /** The cue's least lean over the bed while the bridge hand bears on it, degrees; provisional. */
@@ -106,8 +76,9 @@ function positive(axis: string, value: number): number {
  */
 export function createPrecisionSportStroke<P extends Stroke>(
   name: string,
-  form: IPrecisionForm,
+  form: PrecisionStrokeForms.IForm,
 ): IAutoMovieMotionHumanActionLaw<P> {
+  PrecisionStrokeForms.FORMS.set(name, form);
   return {
     name,
     interrupts: StrikingHeld.follows("strokeEnd"),
@@ -187,16 +158,12 @@ export function createPrecisionSportStroke<P extends Stroke>(
             edge: face,
           };
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-      const across: IAutoMovieVector3 = Vector3.cross(up, direction);
-      const down: number = (form.down * Math.PI) / 180;
       const sign: number = side === "right" ? 1 : -1;
-      const reachSide: number = form.oneHand === true ? -sign : sign;
-      const axis: IAutoMovieVector3 = cue
-        ? direction
-        : Vector3.add(
-            Vector3.scale(across, reachSide * Math.cos(down)),
-            Vector3.scale(up, -Math.sin(down)),
-          );
+      const axis: IAutoMovieVector3 = PrecisionStrokeForms.axis(
+        form,
+        side,
+        direction,
+      );
       const contact: IAutoMovieVector3 = Vector3.subtract(
         ball.centre,
         Vector3.scale(direction, ball.radius),
@@ -245,12 +212,42 @@ export function createPrecisionSportStroke<P extends Stroke>(
         );
       };
 
+      // The follow-through sweeps in front of the trunk: past the contact the
+      // swing goes on only while the hand stays ahead of the trunk's front,
+      // half the chest's depth before the root's frontal plane, and holds
+      // where it would pass into the trunk.
+      const forward: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: context.entry.posture.yaw },
+        { x: 0, y: 0, z: 1 },
+      );
+      const front = (progress: number): number =>
+        Vector3.dot(
+          Vector3.subtract(path(progress).point, context.entry.posture.root),
+          forward,
+        ) -
+        body.measure.chestDepth / 2;
+      let cap: number = Infinity;
+      if (form.sweep !== 0 && front(1) > 0 && !(front(2) > 0)) {
+        let ahead: number = 1;
+        let behind: number = 2;
+        for (let i: number = 0; i < 40; i++) {
+          const middle: number = (ahead + behind) / 2;
+          if (front(middle) > 0) ahead = middle;
+          else behind = middle;
+        }
+        cap = ahead;
+      }
+      const swept = (
+        progress: number,
+      ): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
+        path(Math.min(progress, cap));
+
       const plan: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
         context,
         {
           tool,
           clock,
-          path,
+          path: swept,
           back: 0,
           advance: "none",
           line: direction,
@@ -426,7 +423,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
       }
 
       const loft: number = (form.loft * Math.PI) / 180;
-      return {
+      const goals: IAutoMovieMotionHumanActionPlan = {
         ...plan,
         physicalWindow: {
           from: clock.at("strokeStart"),
@@ -454,6 +451,19 @@ export function createPrecisionSportStroke<P extends Stroke>(
           },
         ],
       };
+      // The cue's bridge hand bears on a fixed point of the bed, so the cue
+      // stroke keeps its fitted arms; every other stroke lays its arms as one
+      // course on the stroke's goals, both hands on a two-handed grip.
+      return cue
+        ? goals
+        : coursePrecisionStroke(
+            goals,
+            body,
+            side,
+            context.entry.pose,
+            clock,
+            form.oneHand === true || held === undefined ? undefined : guide,
+          );
     },
   };
 }

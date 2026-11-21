@@ -412,6 +412,7 @@ export * from "./lexicon/HumanSwordTiming";
 export * from "./lexicon/HumanSport";
 export * from "./lexicon/HumanSittingVolley";
 export * from "./lexicon/HumanPrecisionSport";
+export * from "./lexicon/PrecisionStrokeForms";
 export * from "./lexicon/HumanSurface";
 export * from "./lexicon/composeHumanStageProp";
 export * from "./lexicon/stageBladeFootwork";
