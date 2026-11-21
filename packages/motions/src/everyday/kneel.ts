@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -163,12 +163,22 @@ export namespace kneel {
     );
     const standing: IAutoMovieMotionHumanPosture = probe.posture(0);
     const yaw: number = standing.yaw;
-    const solved: kneelKeys.IKeys = kneelKeys.solve(body, standing, kind, k);
+    const solved: kneelKeys.IKeys = kneelKeys.solve(
+      body,
+      standing,
+      kind,
+      k,
+      context.params.at === undefined ? undefined : context.aim(context.params.at, 0).point,
+    );
     const keys: kneelKeys.IKey[] = solved.keys;
     const length: number = m.thigh + m.shank;
     const kneeling: number = Vector3.dot(
       Vector3.subtract(keys[2]!.root, standing.root),
       solved.forward,
+    );
+    const aside: IAutoMovieVector3 = Vector3.subtract(
+      { ...keys[2]!.root, y: standing.root.y },
+      Vector3.add(standing.root, Vector3.scale(solved.forward, kneeling)),
     );
 
     // Phases: down through the keys, a hold, and back up when rising.
@@ -270,6 +280,7 @@ export namespace kneel {
       phases,
     );
 
+
     // A foot between two keys: pivoting on its toes' joint when that stays,
     // swinging on an arc when it moves.
     const geometry: ReturnType<typeof prepareKneelPhases> = prepareKneelPhases(
@@ -339,9 +350,10 @@ export namespace kneel {
             : phase.from === 1
               ? course * (1 - u ** 4)
               : course);
+        // A knee placed aside carries the hips aside as the foot travels.
         const flat: IAutoMovieVector3 = Vector3.add(
-          standing.root,
-          Vector3.scale(solved.forward, s),
+          Vector3.add(standing.root, Vector3.scale(solved.forward, s)),
+          Vector3.scale(aside, minimumJerk.share(step)),
         );
         const reach: number =
           (solved.extension + (REACH - solved.extension) * step) * length;
