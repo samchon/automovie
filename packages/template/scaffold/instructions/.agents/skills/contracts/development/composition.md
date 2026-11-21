@@ -23,7 +23,14 @@ Does each scene realize every cited beat as written, and does the film play ever
 
 Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera and sound. For commissioned generation, carry reactions beyond the representation in the prompt.
 
-Put a line comment above each composed action, such as `// #s02-b03: sprint at Mara, full effort, 0.9 s to contact`. Give the beat anchor, the study section for skilled practice, and the chosen [Action, Travel, Manner and Timing](../../motion/compose/composition.md#action-axes) in the units of the action's JSDoc. Leave other parameters uncommented.
+Comment every value the scene passes to an action, camera, light or sound, and every default it relies on. Each comment gives the beat anchor, the element of the [beat record](../../story/layers/notation.md#records) or action block the value realizes, and how it realizes it, citing the study section for skilled practice. Every element of each cited beat is realized by at least one commented value:
+
+```ts
+sprint({
+  to: kitchen.sink.front, // #s02-b03 Space, "Mara at the sink": ends at her mark.
+  // #s02-b03 action, "he rushes her": pace omitted, the sprint's own.
+});
+```
 
 If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
 
