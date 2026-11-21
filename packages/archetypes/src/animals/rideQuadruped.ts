@@ -168,8 +168,9 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     };
   }
 
+  const slowest: QuadrupedGait.Gait = species.table.order[0]!;
   const initial: QuadrupedStridePlan.IStride = {
-    gait: gait ?? species.table.order[0]!,
+    gait: gait ?? slowest,
     lead: "left",
   };
   const worldAnchors: boolean =
