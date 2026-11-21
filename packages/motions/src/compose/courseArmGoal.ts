@@ -36,6 +36,10 @@ import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHuman
  * the law's plan stays readable for judgements of the goal (`goals`). A
  * stroke whose hold is its delivery declares its own speed bound (`pace`),
  * which the course is admitted against in place of a reach's pace.
+ * A goal on another performer is laid causally: the law gives the goal as
+ * the performer perceived it when the plan starts (`perceived`), so the
+ * course never reads the other performer ahead of that second, and may
+ * follow the live goal on the hold by a bounded correction (`tracked`).
  * After the span the arm keeps the angles its course ended with, carried by
  * the body: a hand that holds what it lifted rides up with a body that
  * straightens, with no goal left to solve.
@@ -121,6 +125,8 @@ export function courseArmGoal(
       ? {}
       : { skinDistance: props.skinDistance }),
     ...(props.pace === undefined ? {} : { pace: props.pace }),
+    ...(props.perceived === undefined ? {} : { perceived: props.perceived }),
+    ...(props.tracked === undefined ? {} : { tracked: props.tracked }),
     body: props.body,
     side,
     from: span.start,
@@ -212,7 +218,13 @@ export namespace courseArmGoal {
   export interface IProps extends Partial<
     Pick<
       IAutoMovieMotionHumanArmCarry.ICarry,
-      "together" | "beside" | "disc" | "skinDistance" | "pace"
+      | "together"
+      | "beside"
+      | "disc"
+      | "skinDistance"
+      | "pace"
+      | "perceived"
+      | "tracked"
     >
   > {
     /** The body. */
