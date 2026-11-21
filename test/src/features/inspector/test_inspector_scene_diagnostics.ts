@@ -52,7 +52,7 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
   prop.name = "prop";
   scene.add(hero, prop);
   let seeks: number = 0;
-  let completeSeek: (() => void) | undefined;
+  let completeSeek: ((value: undefined) => void) | undefined;
   const samples: IAutoMovieDrawScene.IPlacedSample[] = [];
   const propMasks: number[] = [];
   const positions: number[] = [];
@@ -68,9 +68,11 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
     },
     seek: async (seconds: number): Promise<void> => {
       if (++seeks > 1)
-        await new Promise<void>((resolve: () => void): void => {
-          completeSeek = resolve;
-        });
+        await new Promise<undefined>(
+          (resolve: (value: undefined) => void): void => {
+            completeSeek = resolve;
+          },
+        );
       hero.position.x = seeks > 1 ? seconds + 1 : 0;
     },
     inspectPlaced: (
@@ -200,7 +202,7 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
     [seeks, samples.length, renders.length],
     [2, 0, 0],
   );
-  completeSeek!();
+  completeSeek!(undefined);
   await settle();
   const packet: IAutoMovieInspectionDiagnostics = reported[0]!;
   const observed: IAutoMovieDrawScene.IPlacedSample = samples[0]!;
@@ -235,7 +237,7 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
   const tick: () => Promise<void> = async (): Promise<void> => {
     frame!(timestamp);
     timestamp += 16;
-    completeSeek!();
+    completeSeek!(undefined);
     await settle();
   };
   const visit: (outputFrame: number) => Promise<void> = async (
@@ -350,7 +352,7 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
   playhead.seek(0.5);
   frame!(timestamp);
   mounted.dispose();
-  completeSeek!();
+  completeSeek!(undefined);
   await settle();
   TestValidator.equals(
     "a disposed late seek paints and reports nothing",

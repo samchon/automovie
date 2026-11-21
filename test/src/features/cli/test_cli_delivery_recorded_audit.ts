@@ -6,10 +6,8 @@ import {
   runAutoMovieDeliveryReferenceDecode,
 } from "automovie";
 
-import {
-  deliveryDecodeRecordingFilter,
-  deliveryDecodeRecordings,
-} from "../internal/deliveryDecodeRecordings";
+import { deliveryDecodeRecordingFilter } from "../internal/deliveryDecodeRecordingFilter";
+import { deliveryDecodeRecordings } from "../internal/deliveryDecodeRecordings";
 
 type Audit = IAutoMovieDeliveryContentAudit.IProps;
 type Timestamp = IAutoMovieDeliveryContentAudit.ITimestamp;

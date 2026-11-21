@@ -249,7 +249,14 @@ export function test_inspection_placed_contact_checks(): void {
   const native = packet(0).findings.map(({ paths }) => paths[0]);
   TestValidator.equals(
     "a corrupt ancestor is reported once at each displayed node",
-    native.sort(),
+    native.sort(
+      (left: string | undefined, right: string | undefined): number =>
+        String(left) < String(right)
+          ? -1
+          : String(left) > String(right)
+            ? 1
+            : 0,
+    ),
     [
       "rig.matrixWorld",
       "rig/arm.children[0].matrixWorld",

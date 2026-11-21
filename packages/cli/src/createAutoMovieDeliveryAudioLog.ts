@@ -31,6 +31,8 @@ interface IAudioFormat {
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads only ashowinfo rows and retains the first format, the last frame size and the last timing boundary.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Marks unsupported evidence, byte count mismatches and differing container and decoder clocks uncovered instead of inferring sample counts. Never trims to the commissioned length.
  * @evidence contracts/development/implementation.md#efficient-algorithms Retains constant timing state, with one visit per logged audio frame.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each decode log is read by its own accumulator once; no other reader needs its partial state.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The accumulator keeps only its constant timing state for the one decode it reads and acquires no handle, so it is released with the caller's reference.
  */
 export function createAutoMovieDeliveryAudioLog() {
   let format: IAudioFormat | undefined;

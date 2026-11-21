@@ -1,17 +1,7 @@
 /**
- * The video filter chain planAutoMovieDeliveryDecode plans for 10 fps with a
- * 0.2 s black minimum, a 0.3 s freeze minimum, pic_th 0.98, pix_th 0.1 and a
- * 0.001 freeze noise level; every recording below was made with it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the plan inputs that produce this chain and that the recordings used it.
- */
-export const deliveryDecodeRecordingFilter =
-  "showinfo=checksum=0,blackdetect=d=0:pic_th=0.98:pix_th=0.1,freezedetect=n=0.001:d=199998us,metadata=mode=print";
-
-/**
  * Real FFmpeg decode logs of tiny encoded delivery fixtures and of the drawn
  * image sequences they were encoded from, recorded once with ffmpeg version 6.1.1-essentials_build-www.gyan.dev Copyright (c) 2000-2023 the FFmpeg developers
- * (fmpeg-static 5.3.0) through deliveryDecodeRecordingFilter.
+ * (ffmpeg-static 5.3.0) through deliveryDecodeRecordingFilter.
  *
  * Every source is twelve 16x16 frames at 10 fps whose luma pattern
  * mod(7x + 13y + 37n, 256) changes every frame. sourceFade fades it to

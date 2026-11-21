@@ -22,6 +22,8 @@ import { planAutoMovieDeliveryInput } from "./planAutoMovieDeliveryInput";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds one filter chain followed by a null output.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Supplies the input file as a separate argument and asks FFmpeg to fail on decoding errors.
  * @evidence contracts/development/implementation.md#efficient-algorithms Uses one decode for both video detectors. Disables extra per-frame checksums and pixel statistics.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure plan of one decode; its few arguments cost less than any cache.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh argument list and keeps nothing.
  */
 export function planAutoMovieDeliveryDecode(
   path: string,

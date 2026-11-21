@@ -23,6 +23,8 @@ type Audit = IAutoMovieDeliveryContentAudit.IProps;
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses the established process owner and delegates log and sample interpretation to the respective decoder owners.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves explicit missing and uncovered coverage states and cannot manufacture a pass after a process failure.
  * @evidence contracts/development/implementation.md#efficient-algorithms Uses one video pass and no audio process for a video-only source.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The primary video decode's input inventory addresses the audio pass, so no separate probe of the same file runs.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each FFmpeg process is started, awaited and released by the process owner; the function keeps nothing after it returns.
  */
 export async function runAutoMovieDeliveryDecode(
   binary: string,
