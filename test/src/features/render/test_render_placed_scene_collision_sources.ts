@@ -30,7 +30,9 @@ type ILayer = Parameters<
  *    closed sphere, are confirmed by a drawn vertex inside the other solid. An
  *    open floor plane is unsupported with its reason, and a required layer
  *    makes that row required. One actor's bent closed arm through another
- *    actor's closed arm is confirmed the same way.
+ *    actor's closed arm is confirmed the same way. A thin slab through a
+ *    coarse cylinder and a thin rod through a sphere, which leave no vertex
+ *    inside the other solid, are confirmed by a drawn edge.
  * 2. Formation members drawn as instances are named by their generator slots.
  *    Members overlapping each other are skipped as one managed formation, a
  *    member inside a barrier is confirmed, and a zero-scale member is absent.
@@ -128,6 +130,38 @@ export async function test_render_placed_scene_collision_sources(): Promise<void
       status: "unsupported",
       reason: "open-surface",
     },
+  );
+
+  // Crossings that leave no vertex inside the other solid: a thin slab through
+  // a coarse cylinder, and a thin rod through a sphere beside its pole.
+  const slices: THREE.Scene = new THREE.Scene();
+  const drum: THREE.Mesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.3, 0.3, 1, 8),
+    material,
+  );
+  drum.name = "drum";
+  const slab: THREE.Mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(2, 0.05, 2),
+    material,
+  );
+  slab.name = "slab";
+  const ball: THREE.Mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.5, 16, 8),
+    material,
+  );
+  ball.name = "ball";
+  ball.position.x = 5;
+  const rod: THREE.Mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.02, 4, 0.02),
+    material,
+  );
+  rod.name = "rod";
+  rod.position.set(5.03, 0, 0.03);
+  slices.add(drum, slab, ball, rod);
+  TestValidator.equals(
+    "edges confirm crossings that leave no vertex inside",
+    confirmed(observe(slices)),
+    ["ball|rod", "drum|slab"],
   );
 
   // One actor's bent arm through another actor's upright arm.

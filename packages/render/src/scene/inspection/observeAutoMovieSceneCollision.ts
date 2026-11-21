@@ -48,12 +48,22 @@ interface IProps {
   };
 }
 
-/** A solid a surface vertex can be tested against. */
+/** A solid a drawn surface vertex or edge can be tested against. */
 interface ISolid {
+  /** World bounds of the solid, or null when its distance is cheap everywhere. */
   bounds: THREE.Box3 | null;
+  /** Pose error of the solid's surface in world metres. */
   error: number;
+  /** Triangle visits one point query costs. */
   cost: number;
+  /** Signed distance of a point, negative inside. */
   distance: (point: THREE.Vector3) => number;
+  /** The point of a drawn edge deepest inside, with its signed distance, or null when the edge cannot pass the limit. */
+  deepest: (
+    a: THREE.Vector3,
+    b: THREE.Vector3,
+    limit: number,
+  ) => { point: THREE.Vector3; separation: number; cost: number } | null;
 }
 
 const CHECK = "collision";
@@ -65,14 +75,15 @@ const FOUR_PI: number = 4 * Math.PI;
  *
  * Every drawn object of a layer is collected once: exact boxes, closed stock
  * meshes, stock skins, each drawn member of an instanced formation by its slot
- * and each solver segment of a cord. A candidate pair is confirmed by a drawn
- * surface vertex lying inside the other part's displayed solid or closed
- * surface beyond the active allowance. Every unresolved row inherits the
+ * and each solver segment of a cord. A candidate pair is confirmed by a point
+ * of a drawn surface, a vertex or else a point on a drawn edge, lying inside
+ * the other part's displayed solid or closed surface beyond the active
+ * allowance. Every unresolved row inherits the
  * layer's delivery requirement, and motion cells use the same named allowances
  * as placed frames.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Explains how layer clocks, placed shapes, source groups, witnesses, allowances and each check's coverage determine world-space evidence.
- * @evidence contracts/development/implementation.md#principled-implementation Confirms only with a drawn vertex inside an exact box or a closed drawn surface, by signed distance and generalized winding number. Interval checks use the Engine sweep owner with the allowance active over the whole cell.
+ * @evidence contracts/development/implementation.md#principled-implementation Confirms only with a drawn vertex or edge point inside an exact solid or a closed drawn surface, by signed distance, a convex bracketing search or the crossings and generalized winding number of the closed surface. Interval checks use the Engine sweep owner with the allowance active over the whole cell.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Collection, the Engine layer search, witness search and interval checks run in that order, each reporting into one coverage list.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No resampling, grouping by nesting or arbitrary-motion interpolation. An allowance knot inside a motion cell defers that cell. A missing witness leaves a candidate with its coverage unresolved.
  * @evidence contracts/development/implementation.md#efficient-algorithms Surfaces are posed only for candidate pairs, and points outside the other solid's bounds skip its distance. Comparison, vertex, triangle and interval work each has its own limit.
@@ -171,6 +182,7 @@ export function observeAutoMovieSceneCollision(
           error: 0,
           cost: 0,
           distance: (point) => distance(point, point),
+          deepest: (a, b, limit) => convexDeepest(distance, a, b, limit),
         };
       }
       const surface = collected.surfaces.get(id);
@@ -183,6 +195,7 @@ export function observeAutoMovieSceneCollision(
         error: posed.error,
         cost: posed.triangles.length / 3,
         distance: (point) => closedDistance(posed, point),
+        deepest: (a, b) => closedDeepest(posed, a, b),
       };
     };
     for (const hit of result.findings) {
@@ -356,7 +369,7 @@ function cellAllowance(
   return limit ?? 0;
 }
 
-/** Search drawn vertices of either part for one inside the other's solid beyond the allowance. */
+/** Search drawn vertices, then drawn edges, of either part for a point inside the other's solid beyond the allowance. */
 function findWitness(
   hit: Collision.IFinding,
   surfaces: collectAutoMovieCollisionParts.IResult["surfaces"],
@@ -403,20 +416,182 @@ function findWitness(
       } catch (_error) {
         continue;
       }
-      const tolerance: number =
-        posed.error +
-        solid.error +
-        32 *
-          2 ** -23 *
-          Math.max(1, Math.abs(point.x), Math.abs(point.y), Math.abs(point.z));
-      if (Number.isFinite(separation) && separation < -allowance - tolerance)
+      if (
+        Number.isFinite(separation) &&
+        separation < -allowance - tolerance(posed.error + solid.error, point)
+      )
         return {
           point: { x: point.x, y: point.y, z: point.z },
           separation,
         };
     }
+    if (limited) continue;
+    // Two penetrating closed surfaces meet along curves that end where an edge
+    // of one crosses the other, so a drawn edge completes the vertex search.
+    const segment: THREE.Box3 = new THREE.Box3();
+    for (const [a, b] of drawnEdges(posed)) {
+      const start: THREE.Vector3 = posed.values[a]!;
+      const end: THREE.Vector3 = posed.values[b]!;
+      if (
+        reach !== null &&
+        !reach.intersectsBox(segment.setFromPoints([start, end]))
+      )
+        continue;
+      if (source.owns !== undefined && !source.owns(start) && !source.owns(end))
+        continue;
+      if (budget.comparisons === 0 || budget.surfaceTriangles < solid.cost) {
+        limited = true;
+        break;
+      }
+      --budget.comparisons;
+      const limit: number =
+        -allowance - tolerance(posed.error + solid.error, start, end);
+      let deepest: ReturnType<ISolid["deepest"]>;
+      try {
+        deepest = solid.deepest(start, end, limit);
+      } catch (_error) {
+        continue;
+      }
+      if (deepest === null) continue;
+      budget.surfaceTriangles = Math.max(
+        0,
+        budget.surfaceTriangles - deepest.cost,
+      );
+      if (
+        Number.isFinite(deepest.separation) &&
+        deepest.separation < limit &&
+        (source.owns === undefined || source.owns(deepest.point))
+      )
+        return {
+          point: {
+            x: deepest.point.x,
+            y: deepest.point.y,
+            z: deepest.point.z,
+          },
+          separation: deepest.separation,
+        };
+    }
   }
   return limited ? "budget" : null;
+}
+
+/** Pose error plus the single-precision allowance at these coordinates. */
+function tolerance(error: number, ...points: THREE.Vector3[]): number {
+  let scale: number = 1;
+  for (const point of points)
+    scale = Math.max(
+      scale,
+      Math.abs(point.x),
+      Math.abs(point.y),
+      Math.abs(point.z),
+    );
+  return error + 32 * 2 ** -23 * scale;
+}
+
+/** Distinct undirected edges of the drawn triangles, read once per posed surface. */
+const EDGES: WeakMap<
+  collectAutoMovieCollisionParts.ISurface,
+  readonly (readonly [number, number])[]
+> = new WeakMap();
+
+function drawnEdges(
+  surface: collectAutoMovieCollisionParts.ISurface,
+): readonly (readonly [number, number])[] {
+  const cached = EDGES.get(surface);
+  if (cached !== undefined) return cached;
+  const seen: Set<string> = new Set();
+  const edges: [number, number][] = [];
+  const { triangles } = surface;
+  for (let i: number = 0; i < triangles.length; i += 3)
+    for (const [p, q] of [
+      [triangles[i]!, triangles[i + 1]!],
+      [triangles[i + 1]!, triangles[i + 2]!],
+      [triangles[i + 2]!, triangles[i]!],
+    ] as const) {
+      const key: string = p < q ? `${p},${q}` : `${q},${p}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      edges.push([p, q]);
+    }
+  EDGES.set(surface, edges);
+  return edges;
+}
+
+/**
+ * The deepest point of a segment inside a convex solid. The Engine reads the
+ * segment's least signed distance first; along a segment the signed distance
+ * to a convex solid is convex, so a bracketing search locates the point.
+ */
+function convexDeepest(
+  distance: (a: THREE.Vector3, b: THREE.Vector3) => number,
+  a: THREE.Vector3,
+  b: THREE.Vector3,
+  limit: number,
+): { point: THREE.Vector3; separation: number; cost: number } | null {
+  if (!(distance(a, b) < limit)) return null;
+  const at = (t: number): THREE.Vector3 =>
+    new THREE.Vector3().lerpVectors(a, b, t);
+  const value = (t: number): number => {
+    const point: THREE.Vector3 = at(t);
+    return distance(point, point);
+  };
+  let low: number = 0;
+  let high: number = 1;
+  for (let step: number = 0; step < 48; ++step) {
+    const left: number = low + (high - low) / 3;
+    const right: number = high - (high - low) / 3;
+    if (value(left) <= value(right)) high = right;
+    else low = left;
+  }
+  const point: THREE.Vector3 = at((low + high) / 2);
+  return { point, separation: distance(point, point), cost: 0 };
+}
+
+/**
+ * The deepest point of a segment inside a closed drawn surface. The segment
+ * changes side only where it crosses a triangle, so the middle of each span
+ * between consecutive crossings is tested for containment and depth.
+ */
+function closedDeepest(
+  surface: collectAutoMovieCollisionParts.ISurface,
+  a: THREE.Vector3,
+  b: THREE.Vector3,
+): { point: THREE.Vector3; separation: number; cost: number } | null {
+  const ray: THREE.Ray = new THREE.Ray(a, new THREE.Vector3().subVectors(b, a));
+  const length: number = ray.direction.length();
+  if (!(length > 0)) return null;
+  ray.direction.divideScalar(length);
+  const crossings: number[] = [0, 1];
+  const hit: THREE.Vector3 = new THREE.Vector3();
+  const { triangles, values } = surface;
+  for (let i: number = 0; i < triangles.length; i += 3)
+    if (
+      ray.intersectTriangle(
+        values[triangles[i]!]!,
+        values[triangles[i + 1]!]!,
+        values[triangles[i + 2]!]!,
+        false,
+        hit,
+      ) !== null
+    ) {
+      const t: number = hit.distanceTo(a) / length;
+      if (t > 0 && t < 1) crossings.push(t);
+    }
+  crossings.sort((x: number, y: number): number => x - y);
+  let best: { point: THREE.Vector3; separation: number } | null = null;
+  for (let i: number = 0; i + 1 < crossings.length; ++i) {
+    if (crossings[i + 1]! - crossings[i]! <= 0) continue;
+    const point: THREE.Vector3 = new THREE.Vector3().lerpVectors(
+      a,
+      b,
+      (crossings[i]! + crossings[i + 1]!) / 2,
+    );
+    const separation: number = closedDistance(surface, point);
+    if (best === null || separation < best.separation)
+      best = { point, separation };
+  }
+  const cost: number = (triangles.length / 3) * crossings.length;
+  return best === null ? null : { ...best, cost };
 }
 
 /**
