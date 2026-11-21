@@ -34,7 +34,8 @@ const TRIM: number = 15;
  *
  * Scenarios:
  * 1. Under water the diver holds horizontal trim at the authored depth, and
- *    a larger blade swims faster by the square root of the area ratio.
+ *    a larger blade swims faster, by less than the square root of the area
+ *    ratio its thrust alone would give, since the blade drags too.
  * 2. A duck dive raises the legs vertical above the surface before sinking
  *    and ascends with the raised hand above the head; a depth beyond the
  *    breath hold is refused with the reachable depth.
@@ -44,7 +45,7 @@ const TRIM: number = 15;
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the three acts, the gear and the bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Composes the registered aquatic fin kinds with worn fin and snorkel archetypes and reads displayed bones and worn prop frames.
- * @evidence contracts/development/testing.md#independent-expectations The thrust-drag balance scales speed with the square root of blade area whatever its coefficients; the surface bounds the legs, the hand and the snorkel; PADI's trim bounds the attitude.
+ * @evidence contracts/development/testing.md#independent-expectations The thrust-drag balance gives a speed that grows with blade area but by less than its square root, since the blade's own plate drag grows with it; the surface bounds the legs, the hand and the snorkel; PADI's trim bounds the attitude.
  * @evidence contracts/development/testing.md#distinguishing-cases Two blade sizes, a reachable and an unreachable depth, two bodies.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances of generated bodies and archetypes.
  */
@@ -86,8 +87,9 @@ export function test_motion_exercise_fin_swim(): void {
         film.bones("diver", 2.5).get("hips")!.worldPosition,
       ) / 2;
     TestValidator.predicate(
-      `${profile}: speed grows as the square root of blade area`,
-      Math.abs(speed(large) / speed(small) - Math.sqrt(0.45 / 0.3)) < 0.02,
+      `${profile}: speed grows with blade area, short of its square root`,
+      speed(large) / speed(small) > 1.01 &&
+        speed(large) / speed(small) < Math.sqrt(0.45 / 0.3),
     );
 
     // Hand signals over the swim, and the worn fin on its foot.

@@ -20,9 +20,6 @@ import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPaddleCraft } from "./AquaticPaddleCraft";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** The radius about its grip a paddling hand lands within on the hold, and the most its skin stands off the shaft, metres: provisional, a hand closed on a shaft. */
-const GRIP_DISC: number = 0.005;
-
 /**
  * Loaded drive and airborne recovery for rowing and racing paddle strokes.
  * Double-scull landmarks follow Cuijpers et al. at 26 strokes/min
@@ -237,7 +234,7 @@ export namespace AquaticPaddle {
     // With a native paddle the hands hold its grips through the strokes:
     // both arms are laid as one course on the one implement, each hand from
     // the entered arm to its grip by the paddle-ready instant, held with
-    // branch and swivel continuity and within `GRIP_DISC` of its grip
+    // branch and swivel continuity
     // (`courseArmGoal`). The hands on the paddle are its grasp, not a
     // collision. Hands that hold the paddle from the start (no lead) begin
     // on their grips.
@@ -252,15 +249,11 @@ export namespace AquaticPaddle {
       side: "left",
       rest: AutoMovieMotionHumanArm.angles(start, "left"),
       grasp: ["hand"],
-      disc: GRIP_DISC,
-      skinDistance: GRIP_DISC,
       with: [
         {
           side: "right",
           rest: AutoMovieMotionHumanArm.angles(start, "right"),
           grasp: ["hand"],
-          disc: GRIP_DISC,
-          skinDistance: GRIP_DISC,
         },
       ],
       span: { start: 0, ready: lead, relax: duration, end: duration },

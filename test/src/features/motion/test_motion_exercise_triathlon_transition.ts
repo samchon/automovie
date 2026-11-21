@@ -392,7 +392,8 @@ function take(
     { x: 0.45, y: 0, z: 0.1 },
   );
 
-  // The rack bar sits under the saddle; the helmet waits on it.
+  // The rack bar sits under the saddle; the helmet waits on it, on the
+  // athlete's left, away from the bicycle, so the left hand takes it.
   const rack: IAutoMovieMotionHumanProp = HumanObject.prop(
     "rack",
     createTransitionRack({ height: seat.at.y, length: 1.6 }, 1),
@@ -420,8 +421,8 @@ function take(
     .swim({ kind: "frontCrawl", water: SURFACE, cycles: 1 })
     .registered("aquatic", { kind: "waterExit", water: SURFACE })
     .run({ to: station, pace: "jog", face: seat.yaw })
-    .pickUp({ prop: "helmet", handle: "hold", hand: "right" })
-    .dress({ item: "hat", prop: "helmet", hand: "right" });
+    .pickUp({ prop: "helmet", handle: "hold", hand: "left" })
+    .dress({ item: "hat", prop: "helmet", hand: "left" });
   const lane: ReturnType<typeof HumanChain.subject> = prefix
     .registered("bikeGuide", {
       on: "bike",
@@ -460,8 +461,8 @@ function take(
                 side: "left",
                 seconds: plan.when(plan.length) - stop,
               })
-              .pickUp({ prop: "helmet", handle: "hold", hand: "right" })
-              .putDown({ prop: "helmet", at: rest, yaw: 0, hand: "right" })
+              .pickUp({ prop: "helmet", handle: "hold", hand: "left" })
+              .putDown({ prop: "helmet", at: rest, yaw: 0, hand: "left" })
               .run({ to: { x: 4, y: 0, z: 1 }, pace: "jog" }).node,
   });
 }

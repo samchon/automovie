@@ -143,7 +143,7 @@ export namespace AquaticSail {
     const trailEnd: number = trailStart + 0.19;
     const clearance: number = body.measure.stature * 0.075;
 
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [
+    const plants: IAutoMovieMotionHumanContactWindow[] = [
       AquaticCrew.bear(hull.id, `${lead}Foot`, "plant", 0, leadStart),
       AquaticCrew.bear(
         hull.id,
@@ -166,6 +166,28 @@ export namespace AquaticSail {
         trailEnd,
         1,
       ),
+    ];
+    // On a deck a foot rolls on its forefoot for `EASE` before it lifts and
+    // after it lands, the heel off and the toes flat (below): it bears there
+    // as a pivot, not a flat plant.
+    const rocker = (
+      window: IAutoMovieMotionHumanContactWindow,
+    ): IAutoMovieMotionHumanContactWindow[] => {
+      const roll: number = EASE / duration;
+      const from: number = window.from > 0 ? window.from + roll : window.from;
+      const to: number = window.to < 1 ? window.to - roll : window.to;
+      return [
+        ...(from > window.from
+          ? [{ ...window, kind: "pivot" as const, to: from }]
+          : []),
+        { ...window, from, to },
+        ...(to < window.to
+          ? [{ ...window, kind: "pivot" as const, from: to }]
+          : []),
+      ];
+    };
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
+      ...(deck ? plants.flatMap(rocker) : plants),
       // A hand takes its handle control at the helm-in instant, after it
       // has reached there from the entered pose; placed grips hold from entry.
       ...AquaticCrew.grips(hull, params).map(
@@ -430,15 +452,16 @@ export namespace AquaticSail {
           for (const side of ["left", "right"] as const) {
             const leg: AquaticCrew.Leg = `${side}Leg`;
             const window: IAutoMovieMotionHumanContactWindow | undefined =
-              contacts.find(
+              plants.find(
                 (contact: IAutoMovieMotionHumanContactWindow): boolean =>
                   contact.part === `${side}Foot` &&
-                  contact.kind === "plant" &&
                   contact.from <= u &&
                   u <= contact.to,
               );
-            // The foot keeps its ball as the heel's pivot through its swing,
-            // so it leaves and meets the deck without a jump. Unloaded, it
+            // The foot keeps its toes' joint as the heel's pivot through its
+            // swing, so it leaves and meets the deck without a jump, and a
+            // heel the fit raises turns about it with the toes flat and
+            // still. Unloaded, it
             // turns toes down as far as its ankle would otherwise dorsiflex
             // past a weightless ankle's limit. The heel rises into that turn
             // over the last `EASE` of a plant before a lift and lowers out
@@ -453,14 +476,10 @@ export namespace AquaticSail {
                     window.to < 1 ? near((window.to - u) * duration) : 0,
                     window.from > 0 ? near((u - window.from) * duration) : 0,
                   );
-            const ball: IAutoMovieVector3 = HumanFoot.offset(
-              body,
-              side,
-              "ball",
-            );
+            const mtp: IAutoMovieVector3 = HumanFoot.offset(body, side, "mtp");
             const goal: IAutoMovieHumanLimbGoal = {
               ...posture.limbs[leg]!,
-              contact: ball,
+              contact: mtp,
               planted: window !== undefined,
             };
             if (weight === 0 || goal.rotation === undefined) {
@@ -474,14 +493,14 @@ export namespace AquaticSail {
               HumanFrame.forward(posture.yaw),
               weight,
             );
-            // The heel rises about the ball, which stays where the flat
-            // foot puts it on the deck, and the toes extend at their joint
-            // by as much as the foot turned, so they stay flat: the
+            // The heel rises about the toes' joint, which stays where the
+            // flat foot puts it, and the toes extend at it by as much as the
+            // foot turned, so they stay flat and still on the deck: the
             // forefoot rocker (Perry and Burnfield). The ankle and the
             // knee's hint move instead.
             const shift: IAutoMovieVector3 = Vector3.subtract(
-              Quaternion.rotateVector(goal.rotation, ball),
-              Quaternion.rotateVector(turned.rotation!, ball),
+              Quaternion.rotateVector(goal.rotation, mtp),
+              Quaternion.rotateVector(turned.rotation!, mtp),
             );
             posture.joints = {
               ...posture.joints,

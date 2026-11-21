@@ -131,6 +131,18 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
       composition: {
         kind: "parallel",
         parts: [
+          // The rescuer's anchor is composed before the victim waits on it.
+          HumanChain.subject("rescuer").registered(
+            "aquatic",
+            {
+              kind: "rescueTow",
+              water: WATER,
+              partner: "victim",
+              at: EDGE,
+              seconds,
+            },
+            "rescue",
+          ).node,
           HumanChain.subject("victim")
             .registered("aquatic", {
               kind: "distress",
@@ -144,17 +156,6 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
               at: EDGE,
             })
             .sync({ of: "rescue", event: "hold" }).node,
-          HumanChain.subject("rescuer").registered(
-            "aquatic",
-            {
-              kind: "rescueTow",
-              water: WATER,
-              partner: "victim",
-              at: EDGE,
-              seconds,
-            },
-            "rescue",
-          ).node,
         ],
       },
     });
