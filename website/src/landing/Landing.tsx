@@ -9,11 +9,6 @@ import { CopyCommand } from "../components/landing/CopyCommand";
 import { EvidenceGraph } from "../components/landing/EvidenceGraph";
 import { Reveal } from "../components/landing/Reveal";
 import { ScriptStage } from "../components/landing/ScriptStage";
-import { TakeBench } from "../components/landing/TakeBench";
-import { GalleryCatalogue } from "../gallery/package/GalleryCatalogue";
-import type { IGalleryCatalogue } from "../gallery/structures/IGalleryCatalogue";
-import { MotionReference } from "../motions/package/MotionReference";
-import type { IMotionReference } from "../motions/structures/IMotionReference";
 import { SCENES } from "../scenes/SCENES";
 import type { IScene } from "../scenes/structures/IScene";
 import { LANDING_FILM } from "./LANDING_FILM";
@@ -22,29 +17,17 @@ import { LANDING_RAIL } from "./LANDING_RAIL";
 /**
  * The landing page. It follows one scene from the decisions it rests on to
  * the frames it computes: the screenplay beside its take, the chain of
- * documents and code, the evidence graph that checks the chain, the takes
- * that vary one choice, the vocabulary it is composed from, and how to
- * start. The counts are read from the installed packages while the site is
- * exported.
+ * documents and code, the evidence graph that makes each layer state how it
+ * keeps the decisions above it, the takes
+ * that vary one choice, how any action is composed, and how to start.
  *
  * @returns The page.
  */
 export function Landing(): ReactElement {
   const manifest: IBakedManifest = BakedManifest.read();
-  const reference: IMotionReference = MotionReference.read();
-  const rows: number = reference.families.reduce(
-    (sum: number, f: IMotionReference.IFamily): number => sum + f.rows.length,
-    0,
-  );
-  const archetypes: number = GalleryCatalogue.catalogue().groups.reduce(
-    (sum: number, group: IGalleryCatalogue.IGroup): number =>
-      sum + group.subjects.length,
-    0,
-  );
   const scene: IScene = SCENES.find(
     (s: IScene): boolean => s.id === LANDING_FILM.scene,
   )!;
-  const playing: number = Object.keys(manifest.scenes).length;
   const rail: string[] = LANDING_RAIL.filter(
     (name: string): boolean => manifest.motions[name] !== undefined,
   );
@@ -61,16 +44,17 @@ export function Landing(): ReactElement {
           </h1>
           <div className="am-hero-side">
             <p className="am-hero-lede">
-              Your coding agent writes the screenplay and programs every
-              performance as code. AutoMovie computes the same frames every
-              time, as a motion hint for video diffusion.
+              Your coding agent writes the screenplay, answers every decision in
+              writing so nothing drifts, and programs each performance as code.
+              AutoMovie computes the same frames every time, as a motion hint
+              for video diffusion.
             </p>
             <div className="am-hero-actions">
               <Link className="am-button am-button-primary" href="/docs/">
                 Read the docs
               </Link>
               <Link className="am-button" href="/scenes/">
-                See the scenes
+                Scene studies
               </Link>
             </div>
             <CopyCommand command="npx automovie create my-film" />
@@ -95,9 +79,9 @@ export function Landing(): ReactElement {
             </p>
             <p>
               AutoMovie gives the model who is where, what they do, what they
-              touch and when: a hint video and the control channels a model
-              takes, pose, depth, normal, outline and mask, rendered from one
-              performance and aligned frame for frame.
+              touch and when. It renders a hint video and the control channels
+              the model takes (pose, depth, normal, outline and mask) from one
+              performance, aligned frame for frame.
             </p>
           </div>
         </Reveal>
@@ -109,13 +93,20 @@ export function Landing(): ReactElement {
           <h2 id="am-chain-title" className="am-section-title">
             From a decision to a frame,
             <br />
-            every link is written down.
+            nothing drifts.
           </h2>
           <p>
             A short runs brief to screenplay; a series runs settings, treatments
-            and scripts first. Each layer cites the one above it, and the code
-            cites the screenplay, so nothing in the film exists without a
-            written reason.
+            and scripts first. Each layer states in writing how it keeps the
+            world, the characters, the places and the era decided above it, and
+            the code states how it plays the screenplay, so the film keeps to
+            both.{" "}
+            <Link
+              className="am-text-link"
+              href="/docs/screenplay/authoring-chain/"
+            >
+              The authoring chain
+            </Link>
           </p>
         </header>
         <ol className="am-chain-steps">
@@ -124,9 +115,10 @@ export function Landing(): ReactElement {
               <span className="am-chain-number">1</span>
               <h3>Decide</h3>
               <p>
-                The brief holds only the decisions several scenes must keep
-                true: a fighter&apos;s stance, his temper, the ring. Each has an
-                anchor a scene can cite.
+                The brief gives each character, place and recurring prop a
+                record, and settles every rule the premise depends on: a
+                fighter&apos;s stance, his temper, the ring. The screenplay must
+                answer each one.
               </p>
             </div>
             <div className="am-chain-panel">
@@ -157,10 +149,10 @@ export function Landing(): ReactElement {
               <span className="am-chain-number">3</span>
               <h3>Program</h3>
               <p>
-                The agent composes each performance from typed actions and cites
-                the beats it realizes. An action the vocabulary lacks does not
-                type-check; a placement the body cannot reach is refused with
-                the reason and a fix.
+                The agent composes each performance from typed actions and
+                states, beside the code, how it plays each beat. An action the
+                vocabulary lacks does not type-check; a placement the body
+                cannot reach is refused with the reason and a fix.
               </p>
             </div>
             <div className="am-chain-panel">
@@ -173,22 +165,17 @@ export function Landing(): ReactElement {
           <Reveal as="li" className="am-chain-step">
             <div className="am-chain-text">
               <span className="am-chain-number">4</span>
-              <h3>Check</h3>
+              <h3>Answer</h3>
               <p>
-                With the composition check on, <code>pnpm run evidence</code>{" "}
-                counts every beat, section and scene file and fails while one is
-                not realized, so an agent cannot report a scene done while a
-                beat is missing.
+                Every beat answers in writing for each principle and decision it
+                keeps. <code>pnpm run evidence</code> fails while one is left
+                without its answer, and the error list is the agent&apos;s list
+                of work, so it cannot report a scene done while one is open.
               </p>
             </div>
-            <div className="am-chain-panel am-chain-panel-dark">
-              <pre className="am-terminal" data-failed="true">
-                {LANDING_FILM.report.failing.join("\n")}
-              </pre>
-              <p className="am-panel-note">
-                An abridged report in the format <code>@wrtnlabs/evidence</code>{" "}
-                prints; the counts are this example production&apos;s.
-              </p>
+            <div className="am-chain-panel">
+              <p className="am-panel-file">{LANDING_FILM.answer.file}</p>
+              <pre className="am-doc">{lines(LANDING_FILM.answer.text)}</pre>
             </div>
           </Reveal>
           <Reveal as="li" className="am-chain-step">
@@ -202,13 +189,17 @@ export function Landing(): ReactElement {
               </p>
             </div>
             <div className="am-chain-panel am-chain-panel-still">
-              <img
-                src={BakedClient.address("scene", LANDING_FILM.scene, "svg")}
-                alt="A still of the kickboxing take: the key pose solid, the poses around it faint, and the hands' paths."
-                width={480}
-                height={360}
-                loading="lazy"
-              />
+              {manifest.scenes[LANDING_FILM.scene] === undefined ? (
+                <div className="am-figure-canvas" aria-hidden="true" />
+              ) : (
+                <img
+                  src={BakedClient.address("scene", LANDING_FILM.scene, "svg")}
+                  alt="A still of the kickboxing take: the key pose solid, the poses around it faint, and the hands' paths."
+                  width={480}
+                  height={360}
+                  loading="lazy"
+                />
+              )}
               <ul className="am-channels" aria-label="What a hint delivers">
                 {[
                   "hint video",
@@ -233,13 +224,15 @@ export function Landing(): ReactElement {
         <div className="am-room-inner">
           <header className="am-room-head">
             <h2 id="am-room-title" className="am-section-title">
-              The evidence graph checks every link.
+              Every decision, answered in writing.
             </h2>
             <p>
-              Every citation is an obligation <code>pnpm run evidence</code>{" "}
-              counts on its own, so one reference never covers another. Point at
-              a node to see what it rests on and what rests on it. Then delete a
-              citation.
+              Every principle and every decision is an obligation: the beat or
+              the code that keeps it must say how, or why it does not apply.
+              That is how a world, its people, its places and its era hold
+              without a slip from the brief to the screenplay to the frames.
+              Point at a node to see what it answers to. Then delete one
+              statement.
             </p>
           </header>
           <EvidenceGraph film={LANDING_FILM} />
@@ -260,10 +253,10 @@ export function Landing(): ReactElement {
               </p>
             </li>
             <li>
-              <h3>Verified or watched</h3>
+              <h3>Acceptance</h3>
               <p>
-                The acceptance record says what the agent verified on stills and
-                what only you watched.
+                The acceptance record names who examined the frames and who
+                watched the film at normal speed.
               </p>
             </li>
           </ul>
@@ -274,6 +267,59 @@ export function Landing(): ReactElement {
             How the evidence graph works
           </Link>
         </div>
+      </section>
+
+      {/* Library */}
+      <section className="am-library" aria-labelledby="am-library-title">
+        <header className="am-library-head">
+          <h2 id="am-library-title" className="am-section-title">
+            Any human action, the same few lines.
+          </h2>
+          <p>
+            The engine solves the primitives: a hand reaching its target, a foot
+            planted, a grip closed, the balance kept, an instant timed to
+            another body. Every action is a typed call over them, and actions
+            chain, overlay and sync into a performance, so a jab, a handshake
+            and a cartwheel are written the same way. What the library lacks, a
+            production adds as one more action of its own.
+          </p>
+        </header>
+        <ul className="am-rail" aria-label="Some motions">
+          {rail.map(
+            (name: string): ReactElement => (
+              <li key={name}>
+                <a href={`${SITE_BASE}/motions/${name}/`}>
+                  <img
+                    src={BakedClient.address("motion", name, "svg")}
+                    alt=""
+                    width={240}
+                    height={180}
+                    loading="lazy"
+                  />
+                  <span>{name}</span>
+                </a>
+              </li>
+            ),
+          )}
+        </ul>
+        <nav className="am-library-links" aria-label="Library">
+          <Link href="/scenes/">
+            <strong>Scene studies</strong>
+            <span>Whole performances, each with its takes and its code.</span>
+          </Link>
+          <Link href="/motions/">
+            <strong>Motions</strong>
+            <span>Every action and its named variants, by family.</span>
+          </Link>
+          <Link href="/archetypes/">
+            <strong>Archetypes</strong>
+            <span>Coarse seeded objects and the contacts an action reads.</span>
+          </Link>
+          <Link href="/playground/">
+            <strong>Playground</strong>
+            <span>Compose a performance and watch it computed.</span>
+          </Link>
+        </nav>
       </section>
 
       {/* Coarse models, detailed motion */}
@@ -300,62 +346,20 @@ export function Landing(): ReactElement {
             Motion as code
           </Link>
         </div>
-        <TakeBench
-          scene={scene}
-          baked={manifest.scenes[scene.id] !== undefined}
-        />
-      </section>
-
-      {/* Library */}
-      <section className="am-library" aria-labelledby="am-library-title">
-        <header className="am-library-head">
-          <h2 id="am-library-title" className="am-section-title">
-            A vocabulary to compose from.
-          </h2>
-          <p>
-            {reference.actions.length} actions and {rows} named rows in{" "}
-            {reference.families.length} families, {archetypes} archetypes of
-            things people hold, sit on, ride and fight with, and {playing}{" "}
-            scenes composed from them. A production writes a law of its own only
-            for what the vocabulary lacks.
-          </p>
-        </header>
-        <ul className="am-rail" aria-label="Some motions">
-          {rail.map(
-            (name: string): ReactElement => (
-              <li key={name}>
-                <a href={`${SITE_BASE}/motions/${name}/`}>
-                  <img
-                    src={BakedClient.address("motion", name, "svg")}
-                    alt=""
-                    width={240}
-                    height={180}
-                    loading="lazy"
-                  />
-                  <span>{name}</span>
-                </a>
-              </li>
-            ),
-          )}
-        </ul>
-        <nav className="am-library-links" aria-label="Library">
-          <Link href="/scenes/">
-            <strong>Scenes</strong>
-            <span>Whole performances, each with its takes and its code.</span>
-          </Link>
-          <Link href="/motions/">
-            <strong>Motions</strong>
-            <span>Every action and row, by family, with its parameters.</span>
-          </Link>
-          <Link href="/archetypes/">
-            <strong>Archetypes</strong>
-            <span>Coarse seeded objects and the contacts an action reads.</span>
-          </Link>
-          <Link href="/playground/">
-            <strong>Playground</strong>
-            <span>Compose a performance and watch it computed.</span>
-          </Link>
-        </nav>
+        <figure className="am-chain-panel am-motion-code">
+          <p className="am-panel-file">{LANDING_FILM.second.file}</p>
+          <pre className="am-doc am-doc-code">
+            {lines(LANDING_FILM.second.text, LANDING_FILM.second.marked)}
+          </pre>
+          <figcaption className="am-panel-note">
+            The code of the round at the top of this page from Kai&apos;s answer
+            on: he rolls under Ren&apos;s hook, and a feint, a liver hook and a
+            head kick put him down. Every instant is computed from these lines.{" "}
+            <Link className="am-text-link" href={`/scenes/${scene.id}/`}>
+              The whole scene
+            </Link>
+          </figcaption>
+        </figure>
       </section>
 
       {/* Start */}
@@ -381,9 +385,9 @@ export function Landing(): ReactElement {
           </li>
           <li>
             <p>
-              The agent records your decisions in PROJECT.md, writes the
-              screenplay, programs the scenes and hands you the hint with what
-              it verified.
+              The agent asks which decisions you keep, records them in
+              PROJECT.md, writes the screenplay, programs the scenes and hands
+              you the hint with what it verified.
             </p>
             <div className="am-hero-actions">
               <Link className="am-button am-button-primary" href="/docs/setup/">
@@ -400,16 +404,27 @@ export function Landing(): ReactElement {
   );
 }
 
-/** Lines of code, each `@evidence` tag and its reason marked, so the citations stand out. */
-function lines(text: readonly string[]): ReactElement[] {
+/**
+ * Lines of code, each `@evidence` tag and its reason marked so the citations
+ * stand out, and each line holding one of the given fragments marked as the
+ * line a passage points at.
+ */
+function lines(
+  text: readonly string[],
+  marked: readonly string[] = [],
+): ReactElement[] {
   return text.map(
     (line: string, index: number): ReactElement => (
       <span
         key={index}
         className={
-          line.includes("@evidence") || line.startsWith(" *   ")
+          line.includes("@evidence") ||
+          line.startsWith(" *   ") ||
+          line.startsWith("## @")
             ? "am-line-evidence"
-            : undefined
+            : marked.some((m: string): boolean => line.includes(m))
+              ? "am-line-mark"
+              : undefined
         }
       >
         {line}

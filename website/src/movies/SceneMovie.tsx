@@ -99,7 +99,7 @@ export default function SceneMovie(props: {
   const head: ReactElement = (
     <header className="am-scene-head">
       <nav aria-label="Breadcrumb" className="am-crumbs">
-        <Link href="/scenes/">Scenes</Link>
+        <Link href="/scenes/">Scene studies</Link>
         <span aria-hidden="true">/</span>
         <Link href={`/scenes/?setting=${scene.setting}`}>
           {IScene.SETTING_LABELS[scene.setting]}
