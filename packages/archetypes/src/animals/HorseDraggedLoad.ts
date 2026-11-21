@@ -22,6 +22,7 @@ import type { createDragged } from "../vehicles/createDragged";
 import { HorseHarness } from "./HorseHarness";
 import { QuadrupedFooting } from "./QuadrupedFooting";
 import type { createHorse } from "./createHorse";
+import type { rideQuadruped } from "./rideQuadruped";
 
 /** World up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -271,6 +272,21 @@ export function HorseDraggedLoad(
 export namespace HorseDraggedLoad {
   /** A side of the horse and the load. */
   export type Side = "left" | "right";
+
+  /** The horse's forward lean into its collar at its full declared capacity, degrees nose-down: an authored estimate, no measured lean having been read. */
+  export const LEAN: number = 8;
+
+  /**
+   * The horse's forward lean under a declared draught, for its course's `lean` (`rideQuadruped.ICourse.lean`): `LEAN` degrees scaled by the share of the horse's declared capacity the load's declared draught takes, held through the take: the horse is under its load from the first second.
+   *
+   * @param draught The load's declared draught, newtons.
+   * @param capacity The horse's declared capacity, newtons, positive.
+   * @returns The lean in degrees, positive nose-down, at each film second.
+   */
+  export function lean(draught: number, capacity: number): rideQuadruped.Lean {
+    const share: number = Math.min(1, Math.max(0, draught / capacity));
+    return (): number => LEAN * share;
+  }
 
   /** A headland interval the plough is lifted over, film seconds. */
   export interface ILift {

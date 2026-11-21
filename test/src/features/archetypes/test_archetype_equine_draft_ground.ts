@@ -29,6 +29,7 @@ const LIFT: number = 0.05;
  * 3. Each trace runs from its posed point of draft to a point fixed on the load.
  * 4. A log and a sledge dragged round a turn keep their lowest surface on the ground.
  * 5. A load whose declared draught exceeds the horse's declared capacity is refused.
+ * 6. Under a declared draught of 800 N against a 1200 N capacity the horse's trunk pitches nose-down by the authored full lean of 8 degrees times that share, 5.33 degrees, against the same ride without it; the planted hooves under a lean belong to the ride's own lean spec.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Drives public rides and reads the emitted loads' parts and traces; a share at the wrong depth, a plough sunk at the headland, a load sliding sideways off its trace line, a floating log or an admitted overload is caught.
@@ -119,6 +120,62 @@ export function test_archetype_equine_draft_ground(): void {
   }
   if (!(refused instanceof ArchetypeRefusal && refused.axis === "draught"))
     issues.push(`an overload was not refused: ${String(refused)}`);
+
+  // 6. The horse leans into the collar under its draught.
+  const leaned: ArchetypeRide.IRide<
+    createHorse.Affordance,
+    createHorse.Dimension
+  > = rideHorse(
+    horse,
+    {
+      start: { x: 0, z: 0, heading: 0 },
+      legs: [{ kind: "straight", length: 10 }],
+      cruise: 1.3,
+      acceleration: 0.6,
+      deceleration: 0.6,
+      lean: HorseDraggedLoad.lean(800, 1200),
+    },
+    "walk",
+  );
+  const upright: ArchetypeRide.IRide<
+    createHorse.Affordance,
+    createHorse.Dimension
+  > = rideHorse(
+    horse,
+    {
+      start: { x: 0, z: 0, heading: 0 },
+      legs: [{ kind: "straight", length: 10 }],
+      cruise: 1.3,
+      acceleration: 0.6,
+      deceleration: 0.6,
+    },
+    "walk",
+  );
+  for (const seconds of [2, 4, 6]) {
+    const axis = (
+      sample: ArchetypeRide.ISample<
+        createHorse.Affordance,
+        createHorse.Dimension
+      >,
+    ): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
+        ArchetypeFrame.compose(
+          sample.placement,
+          sample.archetype.parts.find(
+            (part: IAutoMovieModelPart): boolean => part.id === "trunk",
+          )!.transform!,
+        ).rotation,
+        { x: 0, y: 1, z: 0 },
+      );
+    const a: IAutoMovieVector3 = axis(leaned.at(seconds));
+    const b: IAutoMovieVector3 = axis(upright.at(seconds));
+    const pitch: number =
+      (Math.acos(Math.min(1, Math.abs(Vector3.dot(a, b)))) * 180) / Math.PI;
+    if (Math.abs(pitch - (8 * 800) / 1200) > 0.01)
+      issues.push(
+        `lean at ${seconds} s is ${pitch} degrees, not ${(8 * 800) / 1200}`,
+      );
+  }
   TestValidator.equals(
     "ground-drawn loads follow their traces on the ground",
     issues,
