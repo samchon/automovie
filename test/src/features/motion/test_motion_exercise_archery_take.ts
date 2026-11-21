@@ -90,12 +90,12 @@ export function test_motion_exercise_archery_take(): void {
         HumanObject.prop(
           "bow",
           bow,
-          rested(bow, "grip", { x: 0.18, y: TOP + 0.03, z: 0.42 }),
+          onCounter(bow, "grip", { x: 0.18, y: TOP + 0.03, z: 0.42 }),
         ),
         HumanObject.prop(
           "arrow",
           arrow,
-          rested(arrow, "shaft", { x: -0.18, y: TOP + 0.01, z: 0.42 }),
+          onCounter(arrow, "shaft", { x: -0.18, y: TOP + 0.01, z: 0.42 }),
         ),
         carrier(),
       ];
@@ -282,7 +282,7 @@ interface IHandled<Handle extends string> {
 }
 
 /** A model lying on its side across the counter, placed so its handle lies at a point within the archer's reach. */
-function rested<Handle extends string>(
+function onCounter<Handle extends string>(
   model: IHandled<Handle>,
   handle: Handle,
   at: IAutoMovieVector3,
