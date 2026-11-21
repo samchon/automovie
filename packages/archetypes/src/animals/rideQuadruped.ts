@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -11,6 +11,8 @@ import {
   ArchetypeRide,
 } from "../core";
 import { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
+import { EquineArc } from "./EquineArc";
+import { EquineFlightClock } from "./EquineFlightClock";
 import { EquineFootwork } from "./EquineFootwork";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
@@ -51,7 +53,7 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * Limb roots remain fixed in their actual parent's local frame. Four unchanged foot goals and actual cylinder/capsule soles constrain one body-root height; the gait's bob is its soft preference, while the horizontal course is kept. The shared generic FK must reproduce every solved origin and endpoint.
  *
  * @param animal The animal, as `createQuadruped` or its kind's producer builds it.
- * @param course The course its root follows; a leg may name the `gait`, the `lead` and an equine technique.
+ * @param route The course its root follows, or a planned course such as a timed one (`ArchetypeCourse.timed`), ridden as one leg whose strides take the gait its speed calls for; a leg may name the `gait`, the `lead` and an equine technique.
  * @param gait The gait of every stride whose leg names none; absent, the speed chooses it.
  * @param table Optional admitted authoring table, replacing only this ride's gait data.
  * @returns The ride.
@@ -68,7 +70,7 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  */
 export function rideQuadruped<Affordance extends string, D extends string>(
   animal: Archetype<Affordance, D | QuadrupedBody.Dimension>,
-  course: rideQuadruped.ICourse,
+  route: rideQuadruped.ICourse | ArchetypeCourse.IPlan,
   gait?: QuadrupedGait.Gait,
   table?: QuadrupedGait.ITable,
 ): ArchetypeRide.IRide<Affordance, D | QuadrupedBody.Dimension> {
@@ -107,10 +109,30 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   const nativeCourse: boolean =
     Object.getOwnPropertyDescriptor(ArchetypeCourse, "plan")?.value ===
     NATIVE_PLAN;
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan(
-    species.archetype,
-    course,
-  );
+  // A timed plan is ridden as given: one leg naming no gait, so each stride's
+  // gait follows the plan's speed, and one span at the plan's peak, so the
+  // speed admission covers its fastest second.
+  const plan: ArchetypeCourse.IPlan =
+    route.kind === "plan"
+      ? route.legSpans.length > 0
+        ? route
+        : {
+            ...route,
+            legSpans: [{ from: 0, span: route.length, fastest: route.peak }],
+          }
+      : ArchetypeCourse.plan(species.archetype, route);
+  const course: rideQuadruped.ICourse =
+    route.kind === "plan"
+      ? {
+          start: {
+            x: route.at(0).placement.translation.x,
+            z: route.at(0).placement.translation.z,
+            heading: 0,
+          },
+          legs: [{ kind: "straight", length: Math.max(route.length, 1e-9) }],
+          cruise: Math.max(route.peak, 1e-9),
+        }
+      : route;
   const departure: ArchetypeCourse.IState | undefined =
     QuadrupedHoofTrack.departure(
       plan,
@@ -235,31 +257,15 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           label: `lead:${was.lead}-${will.lead}`,
         });
     }
-    const takeoff: number =
-      flight === undefined ? 0 : strides.secondsAt(flight.takeoff);
-    const landing: number =
-      flight === undefined ? 0 : strides.secondsAt(flight.landing);
-    if (flight !== undefined)
-      instants.push(
-        {
-          seconds: strides.secondsAt(flight.approach),
-          label: "jumpApproach",
-        },
-        { seconds: takeoff, label: "jumpTakeoff" },
-        { seconds: landing, label: "jumpLanding" },
-        {
-          seconds: strides.secondsAt(flight.recovery),
-          label: "jumpRecovery",
-        },
-      );
-    const shift: IAutoMovieVector3 | undefined =
-      flight === undefined
-        ? undefined
-        : Vector3.subtract(
-            plan.at(flight.hold.start + flight.hold.duration).placement
-              .translation,
-            plan.at(flight.hold.start).placement.translation,
-          );
+    const {
+      push,
+      takeoff,
+      landing,
+      absorb,
+      shift,
+      instants: cues,
+    }: EquineFlightClock.IClock = EquineFlightClock.of(flight, strides, plan);
+    instants.push(...cues);
 
     /** The body's world placement: the course's, turned by a lateral figure and lifted on a jump's ballistic arc. */
     const body = (
@@ -268,11 +274,9 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     ): IAutoMovieTransform => {
       const yaw: number = EquineLateral.heading(footwork.lateral, seconds);
       const rise: number =
-        seconds > takeoff && seconds < landing
-          ? (AutoMovieGravity.STANDARD / 2) *
-            (seconds - takeoff) *
-            (landing - seconds)
-          : 0;
+        flight === undefined
+          ? 0
+          : EquineArc(seconds, push, takeoff, landing, absorb);
       if (yaw === 0 && rise === 0) return state.placement;
       return {
         translation: Vector3.add(state.placement.translation, {
