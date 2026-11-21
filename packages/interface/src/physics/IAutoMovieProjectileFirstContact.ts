@@ -1,4 +1,5 @@
 import type { IAutoMovieResolveContactEvents } from "../geometry/IAutoMovieResolveContactEvents";
+import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieProjectile } from "./IAutoMovieProjectile";
 
@@ -146,4 +147,78 @@ export namespace IAutoMovieProjectileFirstContact {
     /** Finite last second relative to launch, strictly greater than from. */
     to: number;
   };
+
+  /**
+   * A placed shape's actual pose and optional continuous motion knowledge.
+   *
+   * Both readers use seconds since the supplied projectile's launch. The pose
+   * path gives the unchanged shape's parent translation in world metres and
+   * a unit parent-to-world orientation. The bounded shape builder admits
+   * finite samples and normalizes rotations within the rigid-pose norm
+   * tolerance. The motion declaration describes this same physical path.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines launch seconds, world metres, parent orientation, and the authority of each reader.
+   * @evidence contracts/development/design.md#principled-representation Absolute continuity and velocity bounds describe a prefix of the exact pose path; quaternion sign choices do not change the physical orientation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Callers supply an actual pose and continuous bounds, while the Engine derives the signed-gap proof from the placed convex geometry and ballistic flight.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Discrete pose differences establish no interval bound. An unavailable prefix preserves ordinary initial contact.
+   */
+  export interface IContinuousPose {
+    /**
+     * Read the actual parent pose at this launch-relative second. Both the
+     * ordinary scalar/nearest queries and the clearance witness use this pose.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Gives the launch clock, world rigid frame and common consumers.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The producer owns the continuous pose calculation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature has no executable body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer establishes that the actual path agrees with its bound.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Pose reading cost belongs to the producer.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature contains no work to share.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned pose and any state.
+     */
+    at(seconds: number): IAutoMovieRigidTransform;
+
+    /**
+     * Give a continuous bound for a prefix starting at from and ending by to.
+     * Only the resolved initial pair can request this bound. Return undefined
+     * when the continuous motion is unknown. A malformed bound raises
+     * RangeError and callback errors propagate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the requested seconds, optional prefix, opt-in pair and refusal.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The producer proves the motion's continuous bounds.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature has no executable body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The bound covers every instant of its interval and carries no caller-selected clearance time.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Bound construction cost belongs to the producer.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature contains no work to share.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The producer owns any state retained by the reader.
+     */
+    bound(from: number, to: number): IMotionBound | undefined;
+  }
+
+  /**
+   * Bounds for an absolutely continuous rigid-pose prefix.
+   *
+   * The world velocity of the parent origin stays within velocityError of
+   * referenceVelocity in Euclidean norm. The physical orientation's angular
+   * speed stays within angularSpeed regardless of quaternion sign, with both
+   * bounds valid almost everywhere on the entire prefix. A shape's local
+   * offset turns about that parent origin.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the seconds and SI units, pivot, velocity norm and angular-speed meaning.
+   * @evidence contracts/development/design.md#principled-representation A world-space linear-velocity ball and an SO(3) speed cap enclose the same continuous motion.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The shape departure builder admits these finite inputs and derives the point movement and proof.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Data describe a bounded motion prefix and neither authorize ignoring the pair nor supply a contact time.
+   */
+  export interface IMotionBound {
+    /** Finite last launch-relative second, after the requested start and no later than the requested end. */
+    to: number;
+
+    /** Finite reference velocity of the shape's parent origin, world metres per second. */
+    referenceVelocity: IAutoMovieVector3;
+
+    /** Finite nonnegative bound on the velocity's deviation, metres per second. */
+    velocityError: number;
+
+    /** Finite nonnegative bound on angular speed about the parent origin, radians per second. */
+    angularSpeed: number;
+  }
 }

@@ -9,7 +9,7 @@ Every respondent here is an exported declaration that answers in its own doc com
 
 | Contract | Respondent |
 | --- | --- |
-| [Common](common.md) | Every declaration, tests included |
+| [Common](common.md) | Every declaration outside `src/composition/`, tests included |
 | [Design](design.md) | Each type, interface, type alias and class |
 | [Implementation](implementation.md) | Each function and class method |
 | [Testing](testing.md) | Each test function |

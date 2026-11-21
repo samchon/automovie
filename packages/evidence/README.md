@@ -19,7 +19,9 @@ export default createEvidenceConfig({ location: import.meta.dirname });
 | Exported types, interfaces and classes under `src/**/*.ts` | `contracts/development/design.md` |
 | Exported functions and class methods under `src/**/*.ts` | `contracts/development/implementation.md` |
 | Exported test functions under `test/**/test_*.ts` | `contracts/development/testing.md` |
-| All of the above | `contracts/development/common.md` |
+| All of the above, except under `src/composition/` | `contracts/development/common.md` |
+
+Scenes, films and catalog cases under `src/composition/` realize a screenplay rather than serve callers, so they document that realization under `contracts/development/composition.md` instead of `common.md`.
 
 A declaration answers a checklist in its doc comment, with one `@evidence <checklist>#<item>` tag per item followed by the answer.
 

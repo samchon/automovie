@@ -1,5 +1,6 @@
-import type {
+﻿import type {
   IAutoMovieCrowdAgent,
+  IAutoMovieSolveHalfPlaneProgram,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -7,8 +8,9 @@ import type {
  * The geometry the crowd steering pass reads (`steerAutoMovieCrowd`): an
  * agent's goal path and the point it heads for, the time to collision of two
  * discs and of a disc with a convex obstacle, the reciprocal half-plane of
- * velocities that keeps two discs apart, a point's distance from an
- * obstacle, and a moving obstacle's footprint and velocity.
+ * velocities that keeps two discs apart, the half-plane that keeps a disc
+ * clear of a moving obstacle, a point's distance from an obstacle, and a
+ * moving obstacle's footprint and velocity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds and who reads it.
  * @evidence contracts/development/design.md#principled-representation Pure functions of floor-plan geometry in world metres and seconds, and the two records they exchange.
@@ -576,5 +578,275 @@ export namespace steerAutoMovieCrowdGeometry {
     const a: IAutoMovieVector3 = obstacle.motion(seconds - h).position;
     const b: IAutoMovieVector3 = obstacle.motion(seconds + h).position;
     return { x: (b.x - a.x) / (2 * h), y: 0, z: (b.z - a.z) / (2 * h) };
+  }
+
+  /**
+   * The half-plane of velocities that keeps an agent's disc clear of a
+   * moving convex obstacle for a time horizon, taken by the agent alone.
+   *
+   * The construction is the obstacle's velocity obstacle (Fiorini and Shiller
+   * 1998, Motion planning in dynamic environments using velocity obstacles,
+   * Int J Robot Res 17(7):760). It contains every velocity relative to the
+   * obstacle that brings the disc into it within the horizon, so it is the
+   * union over `s >= 1 / horizon` of `s Q`, where `Q` is the footprint grown
+   * by the radius and seen from the agent. That union is the convex set
+   * `Q / horizon + cone(Q)`: the near side of the scaled footprint between
+   * two legs through the origin.
+   *
+   * The half-plane is the obstacle's line of optimal reciprocal collision
+   * avoidance (van den Berg, Guy, Lin and Manocha 2011) with the agent's
+   * share whole, since an obstacle does not avoid. Outside the velocity
+   * obstacle, the line touches its nearest boundary point, so the current
+   * velocity stays admissible. Inside it, the nearest exit can lie beyond the
+   * agent's speed. A walker cannot outrun a carriage that overtakes it, nor
+   * back away from one met head-on. The line therefore touches the nearest
+   * boundary point whose absolute velocity is within `top`: Fiorini and
+   * Shiller's reachable avoidance velocities. Only when none is reachable
+   * does it touch the nearest point.
+   *
+   * The footprint grows by the radius with mitred corners, which covers the
+   * rounded sum and exceeds it at a corner by at most `r (sec(罐 / 2) - 1)`
+   * for a turn `罐`. An agent already inside the grown footprint is sent out
+   * through its nearest side within one step.
+   *
+   * Coordinates are the floor's `x` and `z` as the plane's two; a returned
+   * line's `y` is the floor's `z`.
+   *
+   * @param px The agent's x, metres.
+   * @param pz The agent's z.
+   * @param vx The agent's velocity x, metres per second.
+   * @param vz The agent's velocity z.
+   * @param wx The obstacle's velocity x.
+   * @param wz The obstacle's velocity z.
+   * @param corners The obstacle's convex footprint in the world, in either winding.
+   * @param r The agent's radius, metres.
+   * @param horizon The time horizon, seconds.
+   * @param step The integration step, seconds, for an agent already inside.
+   * @param top The agent's speed cap, metres per second.
+   * @returns The half-plane, its admissible side on its direction's left, or null for a footprint with no area.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the set constructed, its sources, which boundary point the line touches and why, the corner approximation and the overlap case.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the velocity obstacle as the published union of scaled footprints, in its closed convex form. Takes the reachable exit Fiorini and Shiller define, so the line asks only what the agent's speed allows.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Winds and grows the footprint, handles an overlap, then lists the boundary's edges and legs, finds the point the line touches and returns the line.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An infeasible request keeps its nearest exit rather than dropping the obstacle, so the half-plane program still sees the violation. A degenerate footprint returns null, and the pass's anticipatory push still applies.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the footprint's corners, with a fixed amount of work per boundary piece.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads one agent against one obstacle at one stage. The pass shares the obstacle's placement and velocity across agents.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates arrays sized by the corners that die with the call and keeps nothing.
+   */
+  export function obstacle(
+    px: number,
+    pz: number,
+    vx: number,
+    vz: number,
+    wx: number,
+    wz: number,
+    corners: readonly IAutoMovieVector3[],
+    r: number,
+    horizon: number,
+    step: number,
+    top: number,
+  ): IAutoMovieSolveHalfPlaneProgram.ILine | null {
+    // The footprint counter-clockwise in (x, z), without repeated corners.
+    const ring: { x: number; z: number }[] = [];
+    for (const c of corners) {
+      const last: { x: number; z: number } | undefined = ring[ring.length - 1];
+      if (last === undefined || Math.hypot(c.x - last.x, c.z - last.z) > 1e-12)
+        ring.push({ x: c.x, z: c.z });
+    }
+    while (
+      ring.length > 1 &&
+      Math.hypot(
+        ring[0]!.x - ring[ring.length - 1]!.x,
+        ring[0]!.z - ring[ring.length - 1]!.z,
+      ) <= 1e-12
+    )
+      ring.pop();
+    const m: number = ring.length;
+    if (m < 3) return null;
+    let area: number = 0;
+    for (let i: number = 0; i < m; ++i) {
+      const a: { x: number; z: number } = ring[i]!;
+      const b: { x: number; z: number } = ring[(i + 1) % m]!;
+      area += a.x * b.z - b.x * a.z;
+    }
+    if (Math.abs(area) < 1e-12) return null;
+    if (area < 0) ring.reverse();
+
+    // Each edge's outward unit normal, then the footprint grown by the radius
+    // with mitred corners, seen from the agent.
+    const normals: { x: number; z: number }[] = ring.map(
+      (a: { x: number; z: number }, i: number): { x: number; z: number } => {
+        const b: { x: number; z: number } = ring[(i + 1) % m]!;
+        const length: number = Math.hypot(b.x - a.x, b.z - a.z);
+        return { x: (b.z - a.z) / length, z: -(b.x - a.x) / length };
+      },
+    );
+    const q: { x: number; z: number }[] = ring.map(
+      (c: { x: number; z: number }, i: number): { x: number; z: number } => {
+        const n1: { x: number; z: number } = normals[(i + m - 1) % m]!;
+        const n2: { x: number; z: number } = normals[i]!;
+        const scale: number = r / (1 + n1.x * n2.x + n1.z * n2.z);
+        return {
+          x: c.x + (n1.x + n2.x) * scale - px,
+          z: c.z + (n1.z + n2.z) * scale - pz,
+        };
+      },
+    );
+    const line = (
+      cx: number,
+      cz: number,
+      nx: number,
+      nz: number,
+    ): IAutoMovieSolveHalfPlaneProgram.ILine => ({
+      point: { x: cx + wx, y: cz + wz },
+      direction: { x: nz, y: -nx },
+    });
+
+    // Already inside: out through the nearest side within one step.
+    let outside: number = -Infinity;
+    let side: number = 0;
+    for (let e: number = 0; e < m; ++e) {
+      const distance: number = -(
+        normals[e]!.x * q[e]!.x +
+        normals[e]!.z * q[e]!.z
+      );
+      if (distance > outside) {
+        outside = distance;
+        side = e;
+      }
+    }
+    if (outside <= 0) {
+      const n: { x: number; z: number } = normals[side]!;
+      return line((n.x * -outside) / step, (n.z * -outside) / step, n.x, n.z);
+    }
+
+    // The velocity obstacle's boundary: the scaled footprint's edges that
+    // face the agent, and the two legs through its extreme corners.
+    const s0: number = 1 / horizon;
+    let left: number = 0;
+    let right: number = 0;
+    for (let i: number = 1; i < m; ++i) {
+      if (q[left]!.x * q[i]!.z - q[left]!.z * q[i]!.x > 0) left = i;
+      if (q[right]!.x * q[i]!.z - q[right]!.z * q[i]!.x < 0) right = i;
+    }
+    let mx: number = 0;
+    let mz: number = 0;
+    for (const c of q) {
+      mx += (2 * s0 * c.x) / m;
+      mz += (2 * s0 * c.z) / m;
+    }
+    const pieces: {
+      ax: number;
+      az: number;
+      dx: number;
+      dz: number;
+      length: number;
+      nx: number;
+      nz: number;
+    }[] = [];
+    for (let e: number = 0; e < m; ++e) {
+      const n: { x: number; z: number } = normals[e]!;
+      const ax: number = s0 * q[e]!.x;
+      const az: number = s0 * q[e]!.z;
+      if (n.x * ax + n.z * az >= 0) continue;
+      const bx: number = s0 * q[(e + 1) % m]!.x;
+      const bz: number = s0 * q[(e + 1) % m]!.z;
+      const length: number = Math.hypot(bx - ax, bz - az);
+      pieces.push({
+        ax,
+        az,
+        dx: (bx - ax) / length,
+        dz: (bz - az) / length,
+        length,
+        nx: n.x,
+        nz: n.z,
+      });
+    }
+    for (const corner of [right, left]) {
+      const c: { x: number; z: number } = q[corner]!;
+      const length: number = Math.hypot(c.x, c.z);
+      const dx: number = c.x / length;
+      const dz: number = c.z / length;
+      const ax: number = s0 * c.x;
+      const az: number = s0 * c.z;
+      // The leg's normal, turned away from a point inside the velocity obstacle.
+      const flip: boolean = dz * (mx - ax) - dx * (mz - az) > 0;
+      pieces.push({
+        ax,
+        az,
+        dx,
+        dz,
+        length: Infinity,
+        nx: flip ? -dz : dz,
+        nz: flip ? dx : -dx,
+      });
+    }
+
+    // The relative velocity, whether it lies inside, and the boundary point the line touches.
+    const ux: number = vx - wx;
+    const uz: number = vz - wz;
+    const inside: boolean = pieces.every(
+      (piece: (typeof pieces)[number]): boolean =>
+        piece.nx * (ux - piece.ax) + piece.nz * (uz - piece.az) <= 0,
+    );
+    const nearest = (
+      reachable: boolean,
+    ): {
+      x: number;
+      z: number;
+      nx: number;
+      nz: number;
+      distance: number;
+    } | null => {
+      let best: {
+        x: number;
+        z: number;
+        nx: number;
+        nz: number;
+        distance: number;
+      } | null = null;
+      for (const piece of pieces) {
+        let lo: number = 0;
+        let hi: number = piece.length;
+        if (reachable) {
+          // Where the piece's absolute velocity lies within the speed cap.
+          const ex: number = piece.ax + wx;
+          const ez: number = piece.az + wz;
+          const b: number = ex * piece.dx + ez * piece.dz;
+          const disc: number = b * b - (ex * ex + ez * ez - top * top);
+          if (disc < 0) continue;
+          lo = Math.max(lo, -b - Math.sqrt(disc));
+          hi = Math.min(hi, -b + Math.sqrt(disc));
+          if (lo > hi) continue;
+        }
+        const t: number = Math.min(
+          hi,
+          Math.max(lo, (ux - piece.ax) * piece.dx + (uz - piece.az) * piece.dz),
+        );
+        const x: number = piece.ax + piece.dx * t;
+        const z: number = piece.az + piece.dz * t;
+        const distance: number = Math.hypot(ux - x, uz - z);
+        if (best === null || distance < best.distance)
+          best = { x, z, nx: piece.nx, nz: piece.nz, distance };
+      }
+      return best;
+    };
+    // The two legs always bound the velocity obstacle, so the unrestricted search finds a point.
+    const touched: {
+      x: number;
+      z: number;
+      nx: number;
+      nz: number;
+      distance: number;
+    } | null = (inside ? nearest(true) : null) ?? nearest(false);
+    if (touched === null) return null;
+    if (!inside && touched.distance > 1e-12)
+      return line(
+        touched.x,
+        touched.z,
+        (ux - touched.x) / touched.distance,
+        (uz - touched.z) / touched.distance,
+      );
+    return line(touched.x, touched.z, touched.nx, touched.nz);
   }
 }

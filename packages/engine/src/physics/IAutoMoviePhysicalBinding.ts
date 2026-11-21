@@ -13,6 +13,8 @@ import type {
 } from "@automovie/interface";
 import type { ImpulseJoint, RigidBody } from "@dimforge/rapier3d-compat";
 
+import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
+
 /**
  * Solver handles are transient and rebuilt in creation order after snapshot restore.
  *
@@ -113,4 +115,5 @@ export interface IAutoMoviePhysicalBinding {
     string,
     IAutoMoviePhysicalTargetInterval.IPlan
   >;
+  /** Admitted coupled groups and their report sink; omitted when no target declares a group. */ coupling?: IPhysicalCoupledTargetRun;
 }

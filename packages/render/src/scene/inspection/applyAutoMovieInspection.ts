@@ -1,7 +1,5 @@
 import type {
-  IAutoMovieInspectionColorAssignment,
   IAutoMovieInspectionFocus,
-  IAutoMovieInspectionKind,
   IAutoMovieInspectionLabel,
   IAutoMovieInspectionLegendEntry,
   IAutoMovieInspectionRequest,
@@ -22,6 +20,7 @@ import type { IAutoMovieInspectionMarkSet } from "./IAutoMovieInspectionMarkSet.
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 import type { IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
+import { admitAutoMovieInspectionPatterns } from "./admitAutoMovieInspectionPatterns.js";
 import { applyAutoMovieInspectionSection } from "./applyAutoMovieInspectionSection.js";
 import { applyAutoMovieInspectionShade } from "./applyAutoMovieInspectionShade.js";
 import { autoMovieInspectionPathOf } from "./autoMovieInspectionPathOf.js";
@@ -30,7 +29,6 @@ import { chooseAutoMovieInspectionMarks } from "./chooseAutoMovieInspectionMarks
 import { colorAutoMovieInspectionObjects } from "./colorAutoMovieInspectionObjects.js";
 import { focusAutoMovieInspection } from "./focusAutoMovieInspection.js";
 import { legendAutoMovieInspectionMarks } from "./legendAutoMovieInspectionMarks.js";
-import { listAutoMovieInspectionKinds } from "./listAutoMovieInspectionKinds.js";
 import { listAutoMovieInspectionPaths } from "./listAutoMovieInspectionPaths.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBounds.js";
@@ -45,7 +43,7 @@ import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionCo
  *
  * The applied scene is drawn by three.js like any other, so the inspector page and the draw-only function show the same picture. In order:
  *
- * 1. **Kinds.** The kinds that exist are those `listAutoMovieInspectionKinds` lists: the supplied marks' kinds and the inspection's own, `edge`, the triangle sides of a mesh, the `defect/<kind>` kinds, `defect/sliver` only while `sliver` is set, and `trail` and `trail/now` while `trail` names objects. A `marks` pattern that matches none of them throws and lists them. A kind is drawn when a `marks` pattern matches it.
+ * 1. **Kinds.** `listAutoMovieInspectionKindOptions` admits lifetime declarations, supplied kinds, and kinds the inspection measures under the request. A `marks` pattern that matches none throws and lists the available names. Matching supplied or measured marks provide the geometry to draw.
  * 2. **Measured marks.** Asked edges and defect kinds are measured on every drawn, visible mesh that `hide` does not leave out; batched meshes are not measured. Edges drawn over a surface show how its triangles follow the form, and with `surface` off they are drawn alone; no material is switched to wireframe.
  * 3. **Selection.** Every drawn object and every mark of an asked kind has a path, and a mark's path extends the path of the object it belongs to, so one pattern selects, hides, labels and colours objects and marks alike: `parts=hero/torso/section/3` draws one curve. An object or a mark is selected when `parts` is empty or one of its patterns matches, and no `hide` pattern matches; a mark whose anchor object is invisible or matched by `hide` is left out too. A `parts`, `hide`, `label` or `color` pattern that matches no object, mark or kind throws before anything changes, so a mistyped name is not an empty picture.
  * 4. **Isolation.** Unselected objects, and every mesh when `surface` is off, are taken off all layers. A layer is tested per object, so the objects beneath an isolated one stay as they were selected, which hiding it would not allow.
@@ -70,7 +68,7 @@ import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionCo
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the shared result for both renderers, each step with its rule and reason, the measured kinds, the colour law, what the legend counts, the failure behaviour, and shows the apply, seek, update, draw and restore order.
  * @evidence contracts/development/implementation.md#principled-implementation Each step changes one kind of scene state and records how to put it back, and the steps are ordered so a later one sees the earlier one's result: patterns are checked before anything changes, overrides exist before clipping is set on them, and marks exist before the cut. A mark is identified by its path and its kind, never by a list of meanings, so any producer's finding is drawn by the same rule.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The documented steps share one undo list; selection, shade, mark building, edge and defect measurement, colours, legends and bounds each belong to their own module, and one local function chooses and builds supplied marks for both the apply and every update.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The steps share one undo list. Pattern admission, shade, mark building, measurements, colours, legends and bounds each have their own module. One local function chooses and builds supplied marks for apply and update.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Objects and marks are chosen by path pattern and marks by kind pattern only, no curve or defect kind is named outside the defect producer, an unmatched pattern is refused, prior layers and clipping state are recorded and put back instead of reset to defaults, and a setup failure never leaves the scene half inspected.
  * @evidence contracts/development/implementation.md#efficient-algorithms Selection is decided once per distinct path and kind, defects are measured once per geometry however many meshes share it, and each frame costs one world-matrix pass plus the marks and, under the outline or pose pass, its shells or bone links.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Guide passes, material overrides, section planes, restoration and the once guard are the renderer's existing owners; defect measurement is the engine's.
@@ -86,7 +84,7 @@ export function applyAutoMovieInspection(
       `Inspection stroke ${request.stroke} is not a positive width`,
     );
 
-  // Kinds: what the owners supplied and what the inspection measures itself.
+  // Kind admission includes names declared for frames outside the current one.
   const supplied: readonly IAutoMovieMark[] = props.marks ?? [];
   const defects: IAutoMovieMeshDefect.Kind[] = (
     Object.keys(
@@ -96,20 +94,8 @@ export function applyAutoMovieInspection(
     (kind: IAutoMovieMeshDefect.Kind): boolean =>
       kind !== "sliver" || request.sliver !== null,
   );
-  const available: string[] = listAutoMovieInspectionKinds({
-    request,
-    marks: supplied,
-  }).map((entry: IAutoMovieInspectionKind): string => entry.kind);
-  const unknown: string[] = request.marks.filter(
-    (pattern: string): boolean =>
-      !available.some((kind: string): boolean =>
-        matchAutoMovieInspectionPath(kind, pattern),
-      ),
-  );
-  if (unknown.length !== 0)
-    throw new Error(
-      `Inspection marks patterns match no kind: ${unknown.join(", ")}; the kinds available are ${available.join(", ") || "none"}`,
-    );
+  const admitPaths: ReturnType<typeof admitAutoMovieInspectionPatterns> =
+    admitAutoMovieInspectionPatterns(request, supplied, props.markKinds);
   const asks: (kind: string) => boolean = memo((kind: string): boolean =>
     request.marks.some((pattern: string): boolean =>
       matchAutoMovieInspectionPath(kind, pattern),
@@ -137,40 +123,7 @@ export function applyAutoMovieInspection(
     hidden,
   });
 
-  // Selection: object paths and the paths of marks of asked kinds, one verdict per distinct path.
-  const known: Set<string> = new Set<string>([
-    ...drawn.map((entry: IAutoMovieInspectionPath): string => entry.path),
-    ...supplied
-      .filter((mark: IAutoMovieMark): boolean => asks(mark.kind))
-      .map((mark: IAutoMovieMark): string => mark.path),
-    ...measured.flatMap((set: IAutoMovieInspectionMeasured): string[] =>
-      set.marks.map((mark: IAutoMovieMark): string => mark.path),
-    ),
-  ]);
-  const unmatched: string[] = [...request.parts, ...request.hide].filter(
-    (pattern: string): boolean =>
-      ![...known].some((path: string): boolean =>
-        matchAutoMovieInspectionPath(path, pattern),
-      ),
-  );
-  const unlabelled: string[] = request.label.filter(
-    (pattern: string): boolean =>
-      ![...known].some((path: string): boolean =>
-        matchAutoMovieInspectionPath(path, pattern),
-      ),
-  );
-  const uncoloured: string[] = request.color
-    .map((entry: IAutoMovieInspectionColorAssignment): string => entry.pattern)
-    .filter(
-      (pattern: string): boolean =>
-        ![...known, ...available].some((name: string): boolean =>
-          matchAutoMovieInspectionPath(name, pattern),
-        ),
-    );
-  if (unmatched.length + unlabelled.length + uncoloured.length !== 0)
-    throw new Error(
-      `Inspection patterns match no object, mark or kind of the scene: ${[...unmatched, ...unlabelled, ...uncoloured].join(", ")}`,
-    );
+  admitPaths(drawn, measured, asks);
   const selects: (path: string) => boolean = memo(
     (path: string): boolean =>
       (request.parts.length === 0 ||

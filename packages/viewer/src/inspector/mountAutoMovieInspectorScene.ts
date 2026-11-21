@@ -138,6 +138,7 @@ export function mountAutoMovieInspectorScene(props: {
       // Paths are listed before the inspection adds its own objects to the scene.
       const marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]> =
         instance.marks?.(seconds) ?? [];
+      const markKinds: readonly string[] = instance.markKinds ?? [];
       const facts: IAutoMovieInspectorScene.IFacts = {
         paths: [
           ...listAutoMovieInspectionPaths(instance.scene).map(
@@ -146,6 +147,7 @@ export function mountAutoMovieInspectorScene(props: {
           ...marks.map(({ path }: { path: string }): string => path),
         ],
         marks,
+        markKinds,
 
         views: [
           ...Object.keys(instance.views ?? {}),
@@ -172,6 +174,7 @@ export function mountAutoMovieInspectorScene(props: {
           request: request.inspection,
           renderer,
           marks,
+          markKinds,
         });
 
       // The newest request, or the one that asks for nothing when the scene refuses it.
@@ -395,6 +398,7 @@ export function mountAutoMovieInspectorScene(props: {
         request: next.inspection,
         renderer: now.renderer,
         ...(marks === undefined ? {} : { marks }),
+        markKinds: now.instance.markKinds ?? [],
       });
     try {
       now.inspection = inspect(request);

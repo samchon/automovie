@@ -58,7 +58,6 @@
 .am-command button:focus-visible,
 .am-rail a:focus-visible,
 .am-library-links a:focus-visible,
-.am-bench-takes button:focus-visible,
 .am-graph-switch:focus-visible,
 .am-figure-canvas-toggle:focus-visible {
   outline: 2px solid var(--am-focus);

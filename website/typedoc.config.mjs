@@ -2,7 +2,7 @@
 import { OptionDefaults } from "typedoc";
 
 /**
- * The API reference of every package, generated into `public/api/` so the
+ * The API reference of every library package, generated into `public/api/` so the
  * export serves it at `/api/`. Each package is documented from its
  * `src/index.ts` under its own name. The `@evidence` tags are the
  * repository's contract citations, so they are known to TypeDoc and left out
@@ -14,6 +14,8 @@ const config = {
   name: "AutoMovie API",
   entryPointStrategy: "packages",
   entryPoints: ["../packages/*"],
+  // The `automovie` command is a program, not an API, so it is left out.
+  exclude: ["../packages/cli"],
   packageOptions: {
     entryPoints: ["src/index.ts"],
     skipErrorChecking: true,

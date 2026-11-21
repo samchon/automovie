@@ -120,6 +120,7 @@ export function trackPhysicalWorld(
         recovery[body.id]?.revision ?? 0,
         scene,
         recovery[body.id],
+        { contacts, recovery },
       );
     const dynamic: Set<string> = advancePhysicalOwnership({
       body,
@@ -404,6 +405,7 @@ export function trackPhysicalWorld(
         assessment?.state.revision ?? 0,
         scene,
         assessment?.state,
+        { contacts, recovery },
       );
     for (const joint of body.profile.joints) {
       if (!dynamic.has(joint.child)) continue;

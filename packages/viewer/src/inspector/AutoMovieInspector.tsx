@@ -353,6 +353,7 @@ export function AutoMovieInspector(
           <AutoMovieInspectorMarksPanel
             request={request}
             marks={facts?.marks ?? []}
+            markKinds={facts?.markKinds ?? []}
             legend={legend}
             dispatch={dispatch}
           />

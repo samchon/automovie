@@ -159,6 +159,7 @@ export function installAutoMovieDraw(
         scene: loaded.scene.scene,
         request,
         renderer: loaded.renderer,
+        markKinds: loaded.scene.markKinds,
         place: (): Promise<IAutoMovieMark[]> =>
           place(loaded, request, seconds, onPlaced),
       });

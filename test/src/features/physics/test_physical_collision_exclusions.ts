@@ -1,6 +1,9 @@
 import {
   AutoMoviePhysicalSimulation as Simulation,
   Vector3,
+  bindPhysicalWorld,
+  isPhysicalPairExcluded,
+  preparePhysicalContactHooks,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalFrame,
@@ -10,6 +13,7 @@ import type {
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
+import RAPIER, { type PhysicsHooks } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -23,12 +27,13 @@ const DURATION: number = 0.1;
  * 1. Two nonadjacent overlapping spheres on free hinges remain at zero-load rest when excluded.
  * 2. Removing only that exclusion produces an actual contact-driven displacement.
  * 3. A late external impulse resumes with the same exclusion and bit-identical frames.
+ * 4. Real collider handles exercise both orders in the contact and sensor masks, and the public lookup reads a later mutable declaration.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Vector3`, `AutoMoviePhysicalSimulation`, `AutoMoviePhysicsCache` on in-memory inputs and asserts the returned observations through 3x TestValidator.predicate; 3 numbered scenarios (first: Two nonadjacent overlapping spheres on free hinges remain at zero-load rest when excluded.; last: A late external impulse resumes with the same exclusion and bit-identical frames.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
- * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (2 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
- * @evidence contracts/development/testing.md#distinguishing-cases Contributes 3 numbered scenarios (first: Two nonadjacent overlapping spheres on free hinges remain at zero-load rest when excluded.; last: A late external impulse resumes with the same exclusion and bit-identical frames.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#behavioral-verification Native simulation observes the explicit exclusion, resulting displacement when allowed and exact states after prefix restoration. A real temporary binding exercises both returned hook masks using controlled collider identities.
+ * @evidence contracts/development/testing.md#independent-expectations The declared profile adjacency, exclusion and ownership rules give explicit expected masks for both orders; none of those expectations call the old Engine helper. Rest drift and stimulated displacement have independent numeric bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers same-bone shapes, adjacent, declared and undeclared pairs, matching names across two bodies, floor, absent handles, actual handle zero and a later declaration observed by the unprepared caller.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_collision_exclusions`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two nonadjacent overlapping spheres on free hinges remain at zero-load rest when excluded.).
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the overlap, late-edit and callback cases and the expected native isolation.
  */
 export async function test_physical_collision_exclusions(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere();
@@ -94,6 +99,7 @@ export async function test_physical_collision_exclusions(): Promise<void> {
   input.checkpointEvery = 4;
   const excluded: IAutoMoviePhysicalSimulation =
     await Simulation.compute(input);
+  verifyHookScope(excluded.input);
   const includedInput: IAutoMoviePhysicalSimulationInput.IInput =
     structuredClone(input);
   includedInput.bodies[0]!.profile.collisionExclusions = [];
@@ -138,4 +144,110 @@ export async function test_physical_collision_exclusions(): Promise<void> {
     `restored exclusions preserve exact dynamics; first divergent frame ${firstDifference}`,
     firstDifference === -1,
   );
+}
+
+/**
+ * Check contact and sensor callback values against explicit scope on actual
+ * handles, including zero. Synthetic non-collider arguments carry no policy.
+ */
+function verifyHookScope(
+  admitted: IAutoMoviePhysicalSimulationInput.IInput,
+): void {
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(admitted);
+  const original: IAutoMoviePhysicalSimulationInput.IBody = input.bodies[0]!;
+  const root: IAutoMoviePhysicalSegment = original.profile.segments[0]!;
+  const baseShape: IAutoMoviePhysicalSegment["shapes"][number] =
+    root.shapes[0]!;
+  root.shapes.push({ ...structuredClone(baseShape), id: "second-root-shape" });
+  const other: IAutoMoviePhysicalSimulationInput.IBody =
+    structuredClone(original);
+  other.id = "other";
+  other.profile.collisionExclusions = [];
+  input.bodies.push(other);
+
+  const world: RAPIER.World = new RAPIER.World(input.gravity);
+  try {
+    const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
+      world,
+      input,
+      false,
+    );
+    const hooks: PhysicsHooks = preparePhysicalContactHooks(input, bound);
+    const first: number = handle("rig", "root", baseShape.id);
+    TestValidator.equals("the native first collider handle is zero", first, 0);
+    const missing: number = Number.POSITIVE_INFINITY;
+    const pairs: readonly [string, number, number, boolean][] = [
+      [
+        "same segment, different shapes",
+        first,
+        handle("rig", "root", "second-root-shape"),
+        true,
+      ],
+      ["direct joint neighbours", first, handle("rig", "carrier"), true],
+      ["declared overlap", first, handle("rig", "tip"), true],
+      [
+        "undeclared self contact",
+        handle("other", "root"),
+        handle("other", "tip"),
+        false,
+      ],
+      [
+        "same segment name across bodies",
+        first,
+        handle("other", "root"),
+        false,
+      ],
+      ["excluded names across bodies", first, handle("other", "tip"), false],
+      ["floor collider", first, handle("floor", "floor"), false],
+      ["unregistered collider", first, missing, false],
+    ];
+    for (const [label, a, b, veto] of pairs) {
+      const contact: RAPIER.SolverFlags | null = veto
+        ? null
+        : RAPIER.SolverFlags.COMPUTE_IMPULSE;
+      TestValidator.equals(
+        label,
+        [
+          hooks.filterContactPair(a, b, missing, missing),
+          hooks.filterContactPair(b, a, missing, missing),
+          hooks.filterIntersectionPair(a, b, missing, missing),
+          hooks.filterIntersectionPair(b, a, missing, missing),
+        ],
+        [contact, contact, !veto, !veto],
+      );
+    }
+
+    const otherRoot: number = handle("other", "root");
+    const otherTip: number = handle("other", "tip");
+    TestValidator.equals(
+      "the live public lookup keeps undeclared self contact",
+      isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
+      false,
+    );
+    other.profile.collisionExclusions.push({
+      a: "tip",
+      b: "root",
+      reason: "Explicit mutable caller declaration.",
+    });
+    TestValidator.equals(
+      "the live public lookup observes mutable caller data",
+      isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
+      true,
+    );
+
+    /** Actual Rapier handle for this known shape in the temporary binding. */
+    function handle(id: string, bone: string, shape?: string): number {
+      for (const [key, side] of bound.colliders)
+        if (
+          side.body === id &&
+          side.bone === bone &&
+          (shape === undefined || side.shape === shape)
+        )
+          return key;
+      throw new Error(`Missing test collider ${id}/${bone}/${shape ?? ""}`);
+    }
+  } finally {
+    world.free();
+  }
 }

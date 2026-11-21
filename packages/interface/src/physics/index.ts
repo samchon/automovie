@@ -56,6 +56,7 @@ export type { IAutoMoviePhysicalSegmentState } from "./IAutoMoviePhysicalSegment
 export type { IAutoMoviePhysicalShape } from "./IAutoMoviePhysicalShape";
 export type { IAutoMoviePhysicalShapeNearest } from "./IAutoMoviePhysicalShapeNearest";
 export type { IAutoMoviePhysicalShapeSurfaceAnchor } from "./IAutoMoviePhysicalShapeSurfaceAnchor";
+export type { IAutoMoviePhysicalCoupledTargetFit } from "./IAutoMoviePhysicalCoupledTargetFit";
 export type { IAutoMoviePhysicalSimulation } from "./IAutoMoviePhysicalSimulation";
 export type { IAutoMoviePhysicalSimulationInput } from "./IAutoMoviePhysicalSimulationInput";
 export type { IAutoMoviePhysicalSupportPatch } from "./IAutoMoviePhysicalSupportPatch";

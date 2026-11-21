@@ -3,7 +3,9 @@ import type {
   IAutoMovieDeliveryContentAudit,
   IAutoMovieMark,
   IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalOwnershipEvent,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSupportWrench,
   IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
 import type {
@@ -78,7 +80,7 @@ export interface IFilmProduction {
   /** Inspection mark kinds that may first appear after second zero; `marks` still supplies their actual geometry at the drawn second. */
   markKinds?: readonly string[];
 
-  /** Optional physical review source: `markFilmProduction` draws its bodies' skeleton and its contact forces as `joint`, `bone` and `contact` marks. */
+  /** Optional physical review source: `markFilmProduction` draws its bodies' skeleton, its contact forces and, when supplied, its support allocation as `joint`, `bone`, `contact`, `support/allocated` and `support/shortfall` marks. */
   performance?: {
     /** Scene ids and profiles for the displayed bodies. */
     bodies: { id: string; profile: IAutoMoviePhysicalProfile }[];
@@ -86,8 +88,17 @@ export interface IFilmProduction {
     frame: () => IAutoMoviePhysicalFrame;
     /** Actual geometric or solved contact episodes. */
     contacts: () => readonly IAutoMovieContactReceipt[];
-    /** Inspection vector length per newton of step-mean force. */
+    /** Optional ownership history of the same physics cache or playback, which tells the dynamic bodies a contact must reach from static and kinematic ones. Absent, no contact is flagged as unfelt. */
+    ownership?: () => readonly IAutoMoviePhysicalOwnershipEvent[];
+    /** Optional support wrenches of the same physics cache or playback, with the cache step each governs in seconds (the reciprocal of its rate). Absent, no support marks exist. */
+    supports?: () => {
+      wrenches: readonly IAutoMoviePhysicalSupportWrench[];
+      interval: number;
+    };
+    /** Inspection vector length per newton of contact step-mean force or support force. */
     metresPerNewton: number;
+    /** Optional longest contact arrow, metres, such as the height the camera frames around a body; a longer one, as an impact's, is drawn at this length as a `contact/clamped` mark whose label states the clamp. Absent, contact arrows keep their scaled length. */
+    maximumArrowLength?: number;
   };
 
   /**
