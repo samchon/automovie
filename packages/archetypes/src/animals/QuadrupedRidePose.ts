@@ -289,10 +289,6 @@ export namespace QuadrupedRidePose {
       // Spans and any old source effects remain live on every call. Only the
       // geometry following this actual floor observation can share exact work.
       const floor: number = -pose.bodyFloor(preview.frames);
-      const range: QuadrupedRootRange.IRange = QuadrupedRootRange.intersect(
-        constraints,
-        floor,
-      );
       const coordinateScale: number = Math.max(
         sourceScale,
         ...[...targets.values()].flatMap((target: Target): number[] => [
@@ -301,6 +297,20 @@ export namespace QuadrupedRidePose {
           Math.abs(target.endpoint.z),
         ]),
       );
+      // A swinging limb unfolds only as far as the common root requires, keeping twice the root chooser's roundoff erosion of reach.
+      const settled: QuadrupedRootRange.IRelaxed = QuadrupedRootRange.relax(
+        constraints,
+        floor,
+        (limb: QuadrupedBody.Limb, fold: number): QuadrupedLimb.IRange =>
+          targets.get(limb)!.solver.range(fold),
+        512 * Number.EPSILON * Math.max(1, coordinateScale, Math.abs(floor)),
+      );
+      const range: QuadrupedRootRange.IRange = settled.range;
+      for (const limb of QuadrupedBody.LIMBS) {
+        const target: Target = targets.get(limb)!;
+        target.constraint = settled.constraints[limb];
+        target.fold = target.constraint.fold ?? target.fold;
+      }
       /** Solve the shared-root limbs and prove their actual canonical FK. */
       const geometry = (): ReturnType<typeof pose.position> => {
         const height: number = chooseQuadrupedBodyRoot(
@@ -463,6 +473,7 @@ export namespace QuadrupedRidePose {
           attachment,
           goal: support.solver.target(endpoint),
           reach: support.solver.range(goal.fold),
+          fold: goal.fold,
           ...(blade === undefined
             ? {}
             : {

@@ -98,7 +98,7 @@ export namespace QuadrupedHoofTrack {
    * Read a stance from the admitted course and its gait clock.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Connects actual touchdown phase and hoof duty to the route's signed stance advance.
-   * @evidence contracts/development/implementation.md#principled-implementation Read native body states at touchdown and separately at release, and a two-track figure's crossover from the optional `crossing` reader over the same seconds and travel. A rein-back keeps at least one diagonal down.
+   * @evidence contracts/development/implementation.md#principled-implementation Read native body states at touchdown and separately at release; a stance after the course's end, such as the next footfall of a timed path that ends at speed, follows the course's final velocity (`onward`), and a two-track figure's crossover from the optional `crossing` reader over the same seconds and travel. A rein-back keeps at least one diagonal down.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reusable query combines phase-to-time, course distance and this gait's fore or hind duty.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Forward motion and signed reverse progress read the same route instead of synthesizing stance travel from speed.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two existing course reads and one gait timing read per queried stance.
@@ -125,14 +125,14 @@ export namespace QuadrupedHoofTrack {
       fore: boolean,
     ): IStance => {
       const seconds: number = secondsAt(at);
-      const route: ArchetypeCourse.IState = plan.at(seconds);
+      const route: ArchetypeCourse.IState = onward(plan, seconds);
       const timing: QuadrupedGait.ITiming = clock.timing(stride.gait, seconds);
       const observed: number = fore
         ? timing.duty
         : (timing.hindDuty ?? timing.duty);
       const duty: number = stride.reinBack ? Math.max(0.5, observed) : observed;
       const release: number = secondsAt(at + duty);
-      const travel: number = plan.at(release).progress - route.progress;
+      const travel: number = onward(plan, release).progress - route.progress;
       if (body === undefined) return { duty, landed: route, travel };
       const across: ICross | undefined = crossing?.(
         seconds,
@@ -144,9 +144,53 @@ export namespace QuadrupedHoofTrack {
         duty,
         landed: { ...route, placement: body(route, seconds) },
         travel,
-        lifted: body(plan.at(release), release),
+        lifted: body(onward(plan, release), release),
         ...(across === undefined ? {} : { across }),
       };
+    };
+  }
+
+  /**
+   * The course state at a second, continued past its end at its final velocity: a horse at speed at the last mark runs on, so a footfall after the end lands where the run carries it; a course ending at a halt stays where it stopped.
+   *
+   * @param plan The course plan.
+   * @param seconds The film second.
+   * @returns The state.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the continuation.
+   * @evidence contracts/development/implementation.md#principled-implementation Within the course its own state; after it, the final state advanced along its heading by its speed times the overrun.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound check, one advance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The course itself is never edited.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over one plan read.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one state.
+   */
+  export function onward(
+    plan: ArchetypeCourse.IPlan,
+    seconds: number,
+  ): ArchetypeCourse.IState {
+    if (!(seconds > plan.duration)) return plan.at(seconds);
+    const last: ArchetypeCourse.IState = plan.at(plan.duration);
+    const over: number = (seconds - plan.duration) * last.speed;
+    if (!(over > 0)) return last;
+    return {
+      ...last,
+      progress: last.progress + over,
+      distance: last.distance + over,
+      placement: {
+        ...last.placement,
+        translation: Vector3.add(
+          last.placement.translation,
+          Vector3.scale(
+            Quaternion.rotateVector(last.placement.rotation, {
+              x: 0,
+              y: 0,
+              z: 1,
+            }),
+            over,
+          ),
+        ),
+      },
     };
   }
 
