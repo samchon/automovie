@@ -288,7 +288,9 @@ function reader(
       hold.bone === undefined ? [] : [hold.bone],
     ),
   ];
-  const key: string = [...new Set(names)].sort().join(",");
+  const key: string = [...new Set(names)]
+    .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
+    .join(",");
   let known:
     | Map<string, ReturnType<typeof HumanTrunk.prepareResolve>>
     | undefined = READERS.get(body);
