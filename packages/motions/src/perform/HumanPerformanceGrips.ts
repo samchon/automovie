@@ -147,6 +147,12 @@ export namespace HumanPerformanceGrips {
     for (const w of worn)
       for (const g of carriers)
         if (g.from > w.from + 1e-9 && g.from < w.to) w.to = g.from;
+    // Likewise a hand's hold ends where a wear or a mount that starts
+    // within it takes the prop: a prop set on a socket or a bone is carried
+    // by it alone from then on, not by the hand that let it go.
+    for (const g of out)
+      for (const w of worn)
+        if (w.from > g.from + 1e-9 && w.from < g.to) g.to = w.from;
     out.push(...worn);
     out.sort(
       (
