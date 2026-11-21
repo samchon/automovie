@@ -670,6 +670,7 @@
     "stuntFall": {},
     "climbTree": {},
     "skydive": {},
+    "edgeRescue": {},
     "crossObstacle": {
       "alternatives": [
         {

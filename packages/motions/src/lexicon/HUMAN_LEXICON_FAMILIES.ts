@@ -123,6 +123,7 @@ import { HumanRope } from "./HumanRope";
 import { HumanStuntFall } from "./HumanStuntFall";
 import { HumanTreeClimb } from "./HumanTreeClimb";
 import { HumanSkydive } from "./HumanSkydive";
+import { HumanEdgeRescue } from "./HumanEdgeRescue";
 import { HumanUpperRows } from "./HumanUpperRows";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
@@ -154,6 +155,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
     HumanStuntFall,
     HumanTreeClimb,
     HumanSkydive,
+    HumanEdgeRescue,
     HumanEnvironmentRecovery,
     HumanTravelCar,
     HumanTravelLeaf,

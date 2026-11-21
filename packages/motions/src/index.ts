@@ -381,6 +381,7 @@ export * from "./lexicon/HumanRope";
 export * from "./lexicon/HumanStuntFall";
 export * from "./lexicon/HumanTreeClimb";
 export * from "./lexicon/HumanSkydive";
+export * from "./lexicon/HumanEdgeRescue";
 export * from "./lexicon/HumanEnvironmentRecovery";
 export * from "./lexicon/HumanTravelCar";
 export * from "./lexicon/HumanTravelCarExit";

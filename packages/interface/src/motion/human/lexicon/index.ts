@@ -102,6 +102,7 @@ export type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
 export type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";
 export type { IAutoMovieMotionHumanTreeClimb } from "./IAutoMovieMotionHumanTreeClimb";
 export type { IAutoMovieMotionHumanSkydive } from "./IAutoMovieMotionHumanSkydive";
+export type { IAutoMovieMotionHumanEdgeRescue } from "./IAutoMovieMotionHumanEdgeRescue";
 export type { IAutoMovieMotionHumanEnvironmentRecovery } from "./IAutoMovieMotionHumanEnvironmentRecovery";
 export type { IAutoMovieMotionHumanTravelLeaf } from "./IAutoMovieMotionHumanTravelLeaf";
 export type { IAutoMovieMotionHumanWeaponHeld } from "./IAutoMovieMotionHumanWeaponHeld";

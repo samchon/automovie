@@ -7,6 +7,7 @@ import type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
 import type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";
 import type { IAutoMovieMotionHumanTreeClimb } from "./IAutoMovieMotionHumanTreeClimb";
 import type { IAutoMovieMotionHumanSkydive } from "./IAutoMovieMotionHumanSkydive";
+import type { IAutoMovieMotionHumanEdgeRescue } from "./IAutoMovieMotionHumanEdgeRescue";
 import type { IAutoMovieMotionHumanEnvironmentRecovery } from "./IAutoMovieMotionHumanEnvironmentRecovery";
 import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanCrabWalk } from "../floor/IAutoMovieMotionHumanCrabWalk";
@@ -100,6 +101,9 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
 
   /** Jump from an edge under a parachute and land. */
   skydive: IAutoMovieMotionHumanSkydive.IParams;
+
+  /** One role of a rescue at a ledge: the catch and haul, or the hang and fall. */
+  edgeRescue: IAutoMovieMotionHumanEdgeRescue.IParams;
 
   /** Resolve a named walking trip or slip by a recovery or a fall. */
   environmentalRecovery: IAutoMovieMotionHumanEnvironmentRecovery.IParams;
