@@ -7,11 +7,15 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
+import { AquaticDistress } from "./AquaticDistress";
 import { AquaticDive } from "./AquaticDive";
+import { AquaticEdgeExit } from "./AquaticEdgeExit";
 import { AquaticExit } from "./AquaticExit";
+import { AquaticFin } from "./AquaticFin";
 import { AquaticPaddle } from "./AquaticPaddle";
 import { AquaticPolo } from "./AquaticPolo";
 import { AquaticPool } from "./AquaticPool";
+import { AquaticRescue } from "./AquaticRescue";
 import { AquaticSail } from "./AquaticSail";
 import { AquaticScull } from "./AquaticScull";
 import { AquaticTeam } from "./AquaticTeam";
@@ -62,6 +66,18 @@ export namespace aquatic {
         return AquaticSail.plan(context, context.params.kind === "sailAbort");
       case "waterExit":
         return AquaticExit.plan(context, water);
+      case "distress":
+        return AquaticDistress.plan(context, water);
+      case "rescueTow":
+        return AquaticRescue.rescuer(context, water);
+      case "towed":
+        return AquaticRescue.towed(context, water);
+      case "edgeExit":
+        return AquaticEdgeExit.plan(context, water);
+      case "finSwim":
+      case "duckDive":
+      case "snorkel":
+        return AquaticFin.plan(context, water, context.params.kind);
     }
   }
 }

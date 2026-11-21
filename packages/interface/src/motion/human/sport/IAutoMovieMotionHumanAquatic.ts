@@ -14,7 +14,11 @@ export namespace IAutoMovieMotionHumanAquatic {
   /**
    * Aquatic sequence selected by the caller. The two race kinds include a
    * start and turn, the two sailing kinds distinguish completion and abort,
-   * and `waterExit` stands a swimmer up in the shallows onto the ground.
+   * `waterExit` stands a swimmer up in the shallows onto the ground,
+   * `distress` is the instinctive drowning response, `rescueTow` and `towed`
+   * are a rescuer and the victim it tows, `edgeExit` climbs out over a pool
+   * edge, and `finSwim`, `duckDive` and `snorkel` swim with fins under or at
+   * the surface.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the named variants select and distinguishes the authored outcomes.
    * @evidence contracts/development/design.md#principled-representation Closed choices identify distinct motions or outcomes without requiring combinations of flags.
@@ -32,7 +36,14 @@ export namespace IAutoMovieMotionHumanAquatic {
     | "kayakStroke"
     | "sailTack"
     | "sailAbort"
-    | "waterExit";
+    | "waterExit"
+    | "distress"
+    | "rescueTow"
+    | "towed"
+    | "edgeExit"
+    | "finSwim"
+    | "duckDive"
+    | "snorkel";
 
   /**
    * Seat of a rower in a two-person racing shell. The bow seat is nearest the
@@ -104,6 +115,15 @@ export namespace IAutoMovieMotionHumanAquatic {
 
     /** Polo attack or defense, artistic figure role, or dinghy crew role. */
     role?: Role;
+
+    /** Seconds of a distress before submersion (20 to 60, 30 when absent), or of a fin swim or snorkel (4 when absent). */
+    seconds?: number;
+
+    /** The victim a rescuer tows, or the rescuer a towed victim holds on to. */
+    partner?: string;
+
+    /** Metres below the surface a duck dive reaches before it ascends. */
+    depth?: number;
 
     /** Two distinct, previously composed base swimmers supplying the flyer's left and right foot supports. */
     bases?: readonly [string, string];
