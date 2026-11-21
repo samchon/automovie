@@ -97,7 +97,11 @@ export namespace EquineEarMass {
         rig,
         1.6,
         {
-          ...createHorse.BODY.head,
+          // The head capsule and pinnae only: the horse's massless jaw is no fracture piece.
+          poll: createHorse.BODY.head.poll,
+          nose: createHorse.BODY.head.nose,
+          radius: createHorse.BODY.head.radius,
+          mouth: createHorse.BODY.head.mouth,
           ears: {
             length: 0.2,
             width: 0.08,

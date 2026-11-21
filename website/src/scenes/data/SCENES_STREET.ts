@@ -10,7 +10,7 @@ const { act, at, person, scene, to }: typeof SceneBuild = SceneBuild;
  * @param z World metres.
  * @returns The target.
  */
-const shop = (x: number, z: number): Record<string, unknown> => ({
+const shop = (x: number, z: number): SceneBuild.PointTarget => ({
   kind: "point",
   frame: "world",
   at: { x, y: 1.6, z },

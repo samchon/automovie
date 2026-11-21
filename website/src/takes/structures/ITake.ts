@@ -16,6 +16,8 @@ export interface ITake {
   /**
    * The placements, `SceneTrack`'s layout: the figures in `figures` order,
    * then the props in `props` order, each group in its `track.orders` entry.
+   * A prop group starts with its world frame and may include model-local
+   * transforms of its articulated rigid parts.
    */
   track: SceneTrack.ITrack;
 

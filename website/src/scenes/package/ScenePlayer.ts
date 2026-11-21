@@ -17,6 +17,19 @@ import { computeSceneTake } from "../computeSceneTake";
 import type { IScene } from "../structures/IScene";
 import type { IScenePlayer } from "../structures/IScenePlayer";
 import { SceneArchetype } from "./SceneArchetype";
+import { scenePracticalLight } from "./scenePracticalLight";
+
+/** A drawn prop: its moving group, its articulated parts by id and the practical lights it carries. */
+interface IPropDrawing {
+  /** The prop's world group, moved by its frame. */
+  group: THREE.Group;
+
+  /** The model's articulated parts by part id. */
+  parts: IAutoMovieModelObject["parts"];
+
+  /** Each light's setter for a film second. */
+  lights: ((seconds: number) => void)[];
+}
 
 /**
  * Plays a take the take worker computed: the polygon man of every performer,
@@ -152,17 +165,24 @@ export namespace ScenePlayer {
     // Each prop as its archetype, moved by its frame.
     const objects: readonly IPlaygroundComposition.IObject[] =
       record.composition?.objects ?? [];
-    const props: THREE.Object3D[] = take.props.map(
-      (subject: string): THREE.Object3D => {
+    const props: IPropDrawing[] = take.props.map(
+      (subject: string): IPropDrawing => {
         const placed: IPlaygroundComposition.IObject | undefined = objects.find(
           (o: IPlaygroundComposition.IObject): boolean => o.subject === subject,
         );
         const group: THREE.Group = new THREE.Group();
+        let parts: IAutoMovieModelObject["parts"] = new Map();
+        const lights: ((seconds: number) => void)[] = [];
         if (placed !== undefined) {
-          const model: IAutoMovieModelObject = buildModel(
-            SceneArchetype.model(placed) as Parameters<typeof buildModel>[0],
-          );
+          const archetype: SceneArchetype.Model = SceneArchetype.model(placed);
+          const model: IAutoMovieModelObject = buildModel(archetype);
           group.add(model.object);
+          parts = model.parts;
+          for (const light of record.practicalLights ?? [])
+            if (light.prop === subject)
+              lights.push(
+                scenePracticalLight(group, archetype, take.timeline, light),
+              );
           disposers.push((): void =>
             model.object.traverse((node: THREE.Object3D): void => {
               if (!(node instanceof THREE.Mesh)) return;
@@ -173,7 +193,7 @@ export namespace ScenePlayer {
           );
         }
         scene.add(group);
-        return group;
+        return { group, parts, lights };
       },
     );
 
@@ -186,11 +206,23 @@ export namespace ScenePlayer {
         (drawing: AutoMovieHumanPolygon.IDrawing, i: number): void =>
           drawing.setPose({ posed: sampled[i]! }),
       );
-      props.forEach((object: THREE.Object3D, i: number): void => {
-        const entry: SceneTrack.IPlacement = sampled[figures.length + i]![0]!;
-        object.position.fromArray(entry.position);
-        object.quaternion.fromArray(entry.rotation);
-      });
+      props.forEach(
+        ({ group, parts, lights }: IPropDrawing, i: number): void => {
+          const [entry, ...articulation]: SceneTrack.IPlacement[] =
+            sampled[figures.length + i]!;
+          group.position.fromArray(entry!.position);
+          group.quaternion.fromArray(entry!.rotation);
+          for (const setLight of lights) setLight(seconds);
+          for (const moved of articulation) {
+            const part: THREE.Object3D | undefined = parts.get(
+              moved.bone.slice(SceneTrack.PROP_PART.length),
+            );
+            if (part === undefined) continue;
+            part.position.fromArray(moved.position);
+            part.quaternion.fromArray(moved.rotation);
+          }
+        },
+      );
     };
     seek(0);
 
@@ -198,6 +230,8 @@ export namespace ScenePlayer {
     // position. Interpolated positions lie between the recorded endpoints.
     const box: THREE.Box3 = new THREE.Box3().setFromObject(scene);
     const point: THREE.Vector3 = new THREE.Vector3();
+    const propFrame: THREE.Vector3 = new THREE.Vector3();
+    const propRotation: THREE.Quaternion = new THREE.Quaternion();
     let offset: number = 0;
     for (let frame: number = 0; frame < track.frames; frame++)
       for (const [group, order] of track.orders.entries())
@@ -206,6 +240,11 @@ export namespace ScenePlayer {
             .fromArray(track.values, offset)
             .divideScalar(SceneTrack.POSITION_SCALE);
           if (group < figures.length) point.applyMatrix4(reflect);
+          else if (entry === 0) {
+            propFrame.copy(point);
+            propRotation.fromArray(track.values, offset + 3);
+            propRotation.normalize();
+          } else point.applyQuaternion(propRotation).add(propFrame);
           box.expandByPoint(point);
           offset += SceneTrack.STRIDE;
         }

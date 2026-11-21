@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -22,6 +23,7 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingQuality } from "../striking/StrikingQuality";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { HumanSwordFollow } from "./HumanSwordFollow";
 import { HumanSwordLanding } from "./HumanSwordLanding";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
@@ -79,7 +81,11 @@ export namespace HumanSword {
    * hilt, the middle and the foible by the point (Angelo 1763, The School of
    * Fencing), the forte parrying and the foible being parried.
    */
-  export const THIRDS: readonly [number, number, number] = [1 / 6, 1 / 2, 5 / 6];
+  export const THIRDS: readonly [number, number, number] = [
+    1 / 6,
+    1 / 2,
+    5 / 6,
+  ];
 
   /** Where a cut lands, as a share of the held thing's edge from its end by the hand (`StrikingHeld.ITool.span`): the centre of percussion of a uniform bar swung about that end, two thirds of it, where the blow leaves no shock in the hand (`I / (m d)` with `I = m L^2 / 3` and `d = L / 2`); and where a parry first receives, as a share of the blade's length from the hand: the forte's middle (`THIRDS`). A thing that declares no edge lands a cut with its working point. */
   export const LANDS: Readonly<Record<"cut" | "parry", number>> = {
@@ -169,7 +175,6 @@ export namespace HumanSword {
         HumanSkill.quantity(context.skill, "speed", pair[0], pair[1]),
     };
   };
-
 
   /** Read an attack's target, line and advance: the target named, or with none a stand-in opponent of the performer's own measure whose sternum lies straight ahead at the arm's `REACH` and the landing part's span from the shoulder, the centre of the fencing target; and with no advance named the least that reaches. */
   export const aim = (
@@ -399,27 +404,50 @@ export namespace HumanSword {
           context,
           s.tool.side,
         );
-        return StrikingBlade.plan(context, {
-          tool: s.tool,
-          clock: timed(
-            context,
-            ((SWING * Math.PI) / 180) * (s.tool.length - back) +
-              Vector3.length(Vector3.subtract(landed.point, chamber)),
-            s.skill(SPEED.cut),
-            1,
-            0,
-            HumanSwordTiming.travel(s.tool, entered, path(0)),
-            HumanSwordTiming.travel(s.tool, path(2), entered),
-          ),
-          path,
-          back,
-          support: s.support,
-          advance: a.advance,
-          travel: a.travel,
-          line: a.line,
-          stay: false,
-          stop: stopped(context.params),
-        });
+        const clock: IAutoMovieMotionClock = timed(
+          context,
+          ((SWING * Math.PI) / 180) * (s.tool.length - back) +
+            Vector3.length(Vector3.subtract(landed.point, chamber)),
+          s.skill(SPEED.cut),
+          1,
+          0,
+          HumanSwordTiming.travel(s.tool, entered, path(0)),
+          HumanSwordTiming.travel(s.tool, path(2), entered),
+        );
+
+        // The landing follows a target that moves after the start.
+        const follow: HumanSwordFollow.IFollower = HumanSwordFollow(
+          context,
+          a.target,
+          clock.at("stroke"),
+        );
+        const planned: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
+          context,
+          {
+            tool: s.tool,
+            clock,
+            path,
+            back,
+            follow: follow.at,
+            support: s.support,
+            advance: a.advance,
+            travel: a.travel,
+            line: a.line,
+            stay: false,
+            stop: stopped(context.params),
+          },
+        );
+
+        // Observations read while the schedule was being resolved are
+        // dropped once the performance settles. The plan is extended in
+        // place, so any getter it carries is not read early.
+        const settled: IAutoMovieMotionHumanActionPlan["settle"] =
+          planned.settle;
+        planned.settle = (): void => {
+          follow.settle();
+          settled?.call(planned);
+        };
+        return planned;
       },
     };
 }

@@ -11,14 +11,14 @@ const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
  * @param z Forward.
  * @returns The target.
  */
-const point = (x: number, y: number, z: number): Record<string, unknown> => ({
+const point = (x: number, y: number, z: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",
 });
 
 /** Inside the stove counter's saucepan, where the cook's spoon stirs. */
-const PAN: Record<string, unknown> = {
+const PAN: SceneBuild.PropTarget = {
   kind: "prop",
   subject: "pan",
   point: "inside",
@@ -98,7 +98,7 @@ export const SCENES_LABOUR: readonly IScene[] = [
       object("stove", "createTable", "counter", -2, 0.6, 180),
       object(
         "pan",
-        "createVessel",
+        "createCookingPot",
         "saucepan",
         -1.95,
         0.5,
@@ -106,13 +106,13 @@ export const SCENES_LABOUR: readonly IScene[] = [
         SceneBuild.COUNTER_TOP,
       ),
       // The spoon lies level on the counter by the pan, its bowl toward the
-      // far side: `createTool` stands a tool along +Y from the butt of its
+      // far side: `createSpoon` stands the spoon along +Y from the butt of its
       // handle, so it is turned a quarter turn about +X.
       {
         ...object(
           "spoon",
-          "createTool",
-          "spoon",
+          "createSpoon",
+          undefined,
           -2.2,
           0.34,
           0,

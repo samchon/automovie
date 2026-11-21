@@ -8,7 +8,8 @@ import type { IAutoMovieMotionHumanWalkPace } from "@automovie/interface";
  * accelerating steps absorb the part of the distance left by the whole
  * cruising steps. The cruise can retain both its step and its cadence.
  *
- * The pelvis gathers its speed over a ramp, cruises one step per period and
+ * The pelvis gathers its speed over a ramp, from rest or from the speed the
+ * gait is entered at (`IProps.entrySpeed`), cruises one step per period and
  * sheds the speed over a second ramp, each ramp a smooth step of the speed
  * (zero rate and zero rate of rate at both ends). At a heel strike the
  * landing footprint lies `front` steps ahead of the pelvis. A gait with a
@@ -87,6 +88,9 @@ export class WalkPace {
   /** The cruising speed, m/s. */
   private readonly speed: number;
 
+  /** The pelvis's speed along the way at the start, m/s: the ramp up starts from it. */
+  private readonly entry: number;
+
   /** The path's length, metres. */
   private readonly distance: number;
 
@@ -107,7 +111,9 @@ export class WalkPace {
     const first: number = WalkPace.FIRST;
     const n: number = props.steps;
     const floor: number = WalkPace.FLOOR;
-    const base: number = props.period(Math.max(props.longest, floor) / props.speed);
+    const base: number = props.period(
+      Math.max(props.longest, floor) / props.speed,
+    );
     const front: number =
       props.share > 1
         ? Math.max(
@@ -153,7 +159,11 @@ export class WalkPace {
         // leaving 2^-40 of the bracket.
         let low: number = formula;
         let high: number = formula * 2;
-        for (let i: number = 0; i < WalkPace.DOUBLINGS && gone(high) > trail * T; i++)
+        for (
+          let i: number = 0;
+          i < WalkPace.DOUBLINGS && gone(high) > trail * T;
+          i++
+        )
           high *= 2;
         for (let i: number = 0; i < 40; i++) {
           const middle: number = (low + high) / 2;
@@ -181,12 +191,23 @@ export class WalkPace {
     // remaining departure duration from D = v (last - (accel + decel)/2)
     // with v = step/T, respecting the opening leg's existing reach bound.
     if (!fixedCadence && props.share < 1 && props.distance > floor && n > 2)
-      accel = Math.max(accel, 2 * (this.last - props.distance * T / props.longest) - decel);
+      accel = Math.max(
+        accel,
+        2 * (this.last - (props.distance * T) / props.longest) - decel,
+      );
     const ramps: number = Math.min(1, this.last / (accel + decel));
     this.accel = ramps * accel;
     this.decel = ramps * decel;
+
+    // A gait entered moving ramps from its entry speed v0 instead of rest:
+    // the ramp up then covers v0 accel / 2 beyond its smooth step's half,
+    // so D = v (last - (accel + decel) / 2) + v0 accel / 2.
+    this.entry =
+      fixedCadence || !(props.distance > floor)
+        ? 0
+        : Math.max(0, props.entrySpeed ?? 0);
     this.speed =
-      props.distance /
+      (props.distance - (this.entry * this.accel) / 2) /
       Math.max(1e-6, this.last - (this.accel + this.decel) / 2);
     this.stride = this.speed * T;
     this.distance = props.distance;
@@ -257,7 +278,11 @@ export class WalkPace {
           (0.5 -
             WalkPace.integral(1 - (t - (this.last - this.decel)) / this.decel))
         : 0;
-    return this.speed * (rise + cruise + fall);
+    // The ramp up blends the entry speed into the cruise by the same smooth
+    // step: v(t) = v0 + (v - v0) step(t / accel), so the entry speed adds
+    // v0 (t - rise) while it lasts.
+    const carried: number = this.entry * (Math.min(t, this.accel) - rise);
+    return this.speed * (rise + cruise + fall) + carried;
   }
 
   /**
@@ -277,7 +302,9 @@ export class WalkPace {
     travel: (seconds: number) => number,
     longest: number,
   ): WalkPace {
-    const T: number = props.period(Math.max(longest, WalkPace.FLOOR) / props.speed);
+    const T: number = props.period(
+      Math.max(longest, WalkPace.FLOOR) / props.speed,
+    );
     let low: number = 0;
     let high: number = 1;
     while (travel(high) < 1 - 1e-9 && high < WalkPace.LONGEST) high *= 2;

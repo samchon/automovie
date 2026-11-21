@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
+import type { IAutoMovieMotionHumanCrossing } from "./IAutoMovieMotionHumanCrossing";
+import type { IAutoMovieMotionHumanEnvironmentRecovery } from "./IAutoMovieMotionHumanEnvironmentRecovery";
 import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanTravelCar } from "./IAutoMovieMotionHumanTravelCar";
 import type { IAutoMovieMotionHumanTravelCarExit } from "./IAutoMovieMotionHumanTravelCarExit";
@@ -71,6 +73,12 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
   /** Walk through a named opening. */
   passThrough: IAutoMovieMotionHumanTravelDoor.IParams;
 
+  /** Cross a real stage obstacle or the gap between fixed surfaces. */
+  crossObstacle: IAutoMovieMotionHumanCrossing.IParams;
+
+  /** Resolve a named walking trip or slip by a recovery or a fall. */
+  environmentalRecovery: IAutoMovieMotionHumanEnvironmentRecovery.IParams;
+
   /** Get into a car seat through its door. */
   getIn: IAutoMovieMotionHumanTravelCar.IParams;
 
@@ -79,4 +87,13 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
 
   /** Swing out of a vehicle seat and stand clear. */
   getOut: IAutoMovieMotionHumanTravelCarExit.IParams;
+
+  /** A shamble: a dragged stiff leg stood on briefly, the trunk leaning and the arms hanging. */
+  shamble: IAutoMovieMotionHumanGait.ILimp;
+
+  /** A lurch: one knee held stiff at a slow cadence, the arms held still. */
+  lurch: IAutoMovieMotionHumanGait.ILimp;
+
+  /** A stalk: a hunched creep on deeply bent knees. */
+  stalk: IAutoMovieMotionHumanGait.IParams;
 }

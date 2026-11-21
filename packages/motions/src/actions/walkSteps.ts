@@ -203,6 +203,19 @@ export namespace walkSteps {
         : (HumanFoot.offset(body, "left", "heel").z +
             HumanFoot.offset(body, "left", "mtp").z) /
           2;
+    // A gait entered moving (a run out of a hurdle clearance) keeps the
+    // pelvis's horizontal speed along the way's opening direction.
+    const ahead: IAutoMovieVector3 = path.at(Math.min(D, WalkPace.FLOOR));
+    const reach: number = Math.hypot(ahead.x - S.x, ahead.z - S.z);
+    const entrySpeed: number =
+      reach > 0
+        ? Math.max(
+            0,
+            (input.entry.velocity.linear.x * (ahead.x - S.x) +
+              input.entry.velocity.linear.z * (ahead.z - S.z)) /
+              reach,
+          )
+        : 0;
     const pace: WalkPace = WalkPace.fit(
       {
         ...input,
@@ -210,6 +223,7 @@ export namespace walkSteps {
         share: input.swing ?? 0.8,
         period: (seconds: number): number => input.period(seconds),
         lead: rolled,
+        entrySpeed,
       },
       input.longest,
     );

@@ -18,6 +18,7 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPoleVault,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
@@ -72,7 +73,9 @@ import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
  * pole, which a bending pole and a body that rocks back over its hands
  * give a vaulter (the multi-axis case is #3416); the pole's own mass and
  * the body's inertia about its centre are left out of the pendulum; the
- * other hand keeps the jump's arm swing; the released pole is not planned.
+ * other hand keeps the jump's arm swing; the released pole flies from the
+ * velocity of its origin in the swing (`launches`) rather than pivoting on
+ * in the box.
  *
  * Events: `takeoff` (the plant), `release`, `touchdown`, `settled`, `relax`.
  *
@@ -457,10 +460,29 @@ export namespace poleVault {
       { name: "settled", share: settled / duration },
       { name: "relax", share: settled / duration },
     ];
+
+    // The released pole leaves its held frame on the grip with the velocity
+    // the rigid swing about the planted end gives its origin.
+    const releasedGrip: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      readGrip(resolveHumanPosture(body, released));
+    const hand: IAutoMovieResolvedBone = releasedGrip.get(`${side}Hand`)!;
+    const origin: IAutoMovieVector3 = Vector3.add(
+      HumanHand.frame(body, releasedGrip, side, "grip").point,
+      Quaternion.rotateVector(hand.worldRotation, held.frame.position),
+    );
+    const arm: IAutoMovieVector3 = Vector3.subtract(origin, tipAt);
+    const launch: IAutoMovieMotionPropLaunch = {
+      prop: p.pole,
+      seconds: release,
+      point: origin,
+      velocity: Vector3.add(Vector3.scale(ahead, omega * arm.y), { x: 0, y: -omega * Vector3.dot(arm, ahead), z: 0 }),
+      rotation: Quaternion.multiply(hand.worldRotation, held.frame.rotation),
+    };
     return {
       duration,
       events,
       contacts,
+      launches: [launch],
       contact: off,
       base: { kind: "lying" },
       posture: (t: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {

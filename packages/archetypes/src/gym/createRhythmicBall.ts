@@ -1,0 +1,116 @@
+import { Vector3 } from "@automovie/engine";
+
+import {
+  Archetype,
+  ArchetypeBand,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+  type IArchetypeBand,
+} from "../core";
+
+/** The permissible diameter and minimum mass of a rhythmic ball. */
+const NORMS: string =
+  "World Gymnastics Apparatus Norms, RG 4 (https://www.gymnastics.sport/publicdir/rules/files/en_Apparatus%20Norms.pdf)";
+
+/**
+ * A rubber competition ball for rhythmic gymnastics. It rests at the origin.
+ * `grip` gives throws and catches its centre and diameter. `palm` marks the
+ * lower pole where the upward-facing hand can bear the ball in a held pose.
+ *
+ * @param params Fixed dimensions inside their admitted bands and its model id.
+ * @param seed Draws unspecified dimensions within their bands; absent selects their midpoints.
+ * @returns The ball with its handling and palm contacts.
+ * @throws {ArchetypeRefusal} When a fixed dimension lies outside its band.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the model's floor, centre and palm references and their use.
+ * @evidence contracts/development/implementation.md#principled-implementation One sphere places both contacts at its physical centre and lower pole.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, record the sphere and place both contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contact for a palm on the surface has no artificial grasp handle or area. The ball is rigid in the hints.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One sphere and two contacts.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each constructor call builds an independent model.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Construction retains no external resources.
+ */
+export function createRhythmicBall(
+  params: createRhythmicBall.IParams = {},
+  seed?: number | string,
+): Archetype<createRhythmicBall.Affordance, createRhythmicBall.Dimension> {
+  const draw: ArchetypeDrawSession<createRhythmicBall.Dimension> =
+    new ArchetypeDrawSession(
+      "rhythmicBall",
+      createRhythmicBall.UNITS,
+      seed,
+      params,
+    );
+  const values: Record<createRhythmicBall.Dimension, number> = draw.dimensions(
+    createRhythmicBall.BANDS,
+  );
+  const builder: ArchetypeBuilder<
+    createRhythmicBall.Affordance,
+    createRhythmicBall.Dimension
+  > = new ArchetypeBuilder({
+    material: "rubber",
+    id: params.id,
+    name: "rhythmic gymnastics ball",
+    draw,
+  });
+  const point: typeof Vector3.create = Vector3.create;
+  const radius: number = values.diameter / 2;
+  const centre = point(0, radius, 0);
+  builder.ball("ball", radius, centre, { color: "#e84d71" });
+  builder.affordance({
+    id: "grip",
+    kind: "handle",
+    extent: null,
+    frame: ArchetypeFrame.upright(centre),
+    aperture: values.diameter,
+    symmetry: "round",
+  });
+  builder.affordance({
+    id: "palm",
+    kind: "surface",
+    extent: null,
+    frame: ArchetypeFrame.facing(point(0, 0, 0), point(0, -1, 0)),
+  });
+  return builder.build(values.mass);
+}
+
+/**
+ * The rhythmic ball dimensions and its handling contacts.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the centre and the palm point and the limits of the mass evidence.
+ * @evidence contracts/development/design.md#principled-representation The official diameter band and maker's minimum mass bound one rubber model.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the existing handle and surface kinds.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The handling centre and palm point read the same rigid sphere and use the common collision response.
+ */
+export namespace createRhythmicBall {
+  /** The centre and lower surface of the ball. */
+  export type Affordance = "grip" | "palm";
+
+  /** Diameter in metres and mass in kilograms. */
+  export type Dimension = "diameter" | "mass";
+
+  /** Fixed dimensions and the scene model id. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Model id, defaulting to the producer id. */
+    id?: string;
+  }
+
+  /** Units shared by all admitted dimensions and bands. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    mass: "kg",
+  };
+
+  /** Official diameter band and a provisional range just above the minimum mass. */
+  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+    diameter: ArchetypeBand.metres(0.18, 0.2, NORMS),
+    mass: ArchetypeBand.of(
+      "kg",
+      0.4,
+      0.42,
+      "Provisional upper mass. World Gymnastics RG 4 and SASAKI Gym Star both give a 400 g minimum (https://www.sasakisports-onlineshop.jp/products/m20af).",
+      true,
+    ),
+  };
+}

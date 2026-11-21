@@ -59,7 +59,8 @@ import { HumanBound } from "../law/HumanBound";
  *   1 degree.
  *
  * The phase runs on film seconds from a seeded offset, so breathing continues
- * smoothly across action boundaries.
+ * smoothly across action boundaries. The displayed pose evaluates this
+ * layer at its own film second, independent of the preceding action.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the law, its sources, its units and frames, and which values are provisional.
  * @evidence contracts/development/design.md#principled-representation Pure functions and constants over the interface's vectors and the engine's streams.
@@ -70,10 +71,9 @@ import { HumanBound } from "../law/HumanBound";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range inputs throw; provisional constants are named and marked.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call, and O(B^3) in a call's B exertion bouts for the exact phase integral.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The TIDAL table's entries are listed once for the module. Each layer keeps its last stream seed with the rate and phase drawn from it, since a stream's seed and index fix its values; exertion, time, sighs and joint writes are evaluated at every call.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module holds the five tidal entries. Each layer holds its options and two last-seed records until it is released; the standalone functions retain nothing.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module holds the five tidal entries and a weak record of each produced layer's callable. Each layer holds its options and two last-seed records for its own lifetime.
  */
 export namespace HumanBreath {
-
   /** Resting band, breaths a minute (Cretikos et al. 2008). */
   export const BAND: readonly [number, number] = [12, 20];
 
@@ -146,18 +146,21 @@ export namespace HumanBreath {
     sigh: IAutoMovieRandom,
   ): IAutoMovieMotionHumanBreath.IStateResult {
     HumanBound.above("rate", rate, 0, "breaths per minute");
-    const bouts: IBout[] = exertion.map((bout: IAutoMovieMotionHumanBreath.IExertion): IBout => {
-      HumanBound.within("exertion.level", bout.level, 0, 1);
-      const recovery: number = bout.recovery ?? RECOVERY;
-      HumanBound.above("exertion.recovery", recovery, 0, "s");
-      if (bout.from !== undefined) HumanBound.least("exertion.at", bout.at, bout.from, "s");
-      return {
-        weight: Math.cbrt(bout.level),
-        from: bout.from ?? -Infinity,
-        at: bout.at,
-        recovery,
-      };
-    });
+    const bouts: IBout[] = exertion.map(
+      (bout: IAutoMovieMotionHumanBreath.IExertion): IBout => {
+        HumanBound.within("exertion.level", bout.level, 0, 1);
+        const recovery: number = bout.recovery ?? RECOVERY;
+        HumanBound.above("exertion.recovery", recovery, 0, "s");
+        if (bout.from !== undefined)
+          HumanBound.least("exertion.at", bout.at, bout.from, "s");
+        return {
+          weight: Math.cbrt(bout.level),
+          from: bout.from ?? -Infinity,
+          at: bout.at,
+          recovery,
+        };
+      },
+    );
 
     // The hardest bout's drive at this second, and its integral since film
     // second 0: the rate's excess integrates to the phase.
@@ -198,12 +201,14 @@ export namespace HumanBreath {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A stream's seed and index fix its values, so a draw for the same seed is the same draw; time, exertion, volume and sighs are evaluated at every call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer holds its options and two last-seed records until it is released.
    */
-  export function layer(options: IAutoMovieMotionHumanBreath.IOptions = {}): IAutoMovieMotionHumanLayer {
+  export function layer(
+    options: IAutoMovieMotionHumanBreath.IOptions = {},
+  ): IAutoMovieMotionHumanLayer {
     const rateAt: (random: IAutoMovieRandom) => number = fixedDraw(restingRate);
     const phaseAt: (random: IAutoMovieRandom) => number = fixedDraw(
       (random: IAutoMovieRandom): number => random.float(0),
     );
-    return {
+    const layer: IAutoMovieMotionHumanLayer = {
       name: "breath",
 
       // The spine, the chest and the shoulder girdles (`TIDAL`).
@@ -226,6 +231,32 @@ export namespace HumanBreath {
         return add(posture, volume);
       },
     };
+    NATIVE_LAYER_APPLY.set(layer, layer.apply);
+    return layer;
+  }
+
+  /**
+   * Whether the layer still uses the native respiratory contribution.
+   *
+   * @param layer A layer from the performance.
+   * @returns Whether this is an unmodified native breath layer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the native layer identity used to keep breath in the displayed pose.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the producer's weak layer identity and checks the callable still owns its contribution.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak lookup and one callable comparison, with blend ownership checked for native records.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A layer's name or channels cannot establish provenance. A replaced apply or effective blend retains caller-authored behavior.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time and no allocation beyond the property descriptor for a native layer.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each query checks the effective layer instead of caching a result across consumer changes.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The check retains no data and returns a boolean.
+   */
+  export function isNative(layer: IAutoMovieMotionHumanLayer): boolean {
+    const native: IAutoMovieMotionHumanLayer["apply"] | undefined =
+      NATIVE_LAYER_APPLY.get(layer);
+    return (
+      native !== undefined &&
+      Object.getOwnPropertyDescriptor(layer, "apply")?.value === native &&
+      layer.blend === undefined
+    );
   }
 
   /**
@@ -235,8 +266,13 @@ export namespace HumanBreath {
    * @param volume Volume in tidal breaths above the end of exhalation.
    * @returns The posture with breathing added; its limb goals unchanged.
    */
-  export function add(posture: IAutoMovieMotionHumanPosture, volume: number): IAutoMovieMotionHumanPosture {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+  export function add(
+    posture: IAutoMovieMotionHumanPosture,
+    volume: number,
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
     for (const [bone, angles] of TIDAL_ENTRIES) {
       const base: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
       joints[bone] = [
@@ -248,6 +284,12 @@ export namespace HumanBreath {
     return { ...posture, joints };
   }
 }
+
+/** A layer's native apply function, held only for that layer's lifetime. */
+const NATIVE_LAYER_APPLY: WeakMap<
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanLayer["apply"]
+> = new WeakMap();
 
 /** One admitted bout: the cube root of its level, its start (`-Infinity` when under way since before the film), its end and its recovery, seconds. */
 interface IBout {
@@ -304,7 +346,8 @@ function integral(bouts: readonly IBout[], lo: number, hi: number): number {
       (1 + bout.from / HumanBreath.ONSET + bout.at / bout.recovery) /
         (1 / HumanBreath.ONSET + 1 / bout.recovery),
     ];
-    for (const t of own) if (Number.isFinite(t) && t > lo && t < hi) knots.push(t);
+    for (const t of own)
+      if (Number.isFinite(t) && t > lo && t < hi) knots.push(t);
   }
   knots.sort((a: number, b: number): number => a - b);
   let total: number = 0;
@@ -317,8 +360,12 @@ function integral(bouts: readonly IBout[], lo: number, hi: number): number {
     const cuts: number[] = [a, b];
     for (let i: number = 0; i < bouts.length; i++)
       for (let j: number = i + 1; j < bouts.length; j++) {
-        const da: number = bouts[i]!.weight * share(bouts[i]!, a) - bouts[j]!.weight * share(bouts[j]!, a);
-        const db: number = bouts[i]!.weight * share(bouts[i]!, b) - bouts[j]!.weight * share(bouts[j]!, b);
+        const da: number =
+          bouts[i]!.weight * share(bouts[i]!, a) -
+          bouts[j]!.weight * share(bouts[j]!, a);
+        const db: number =
+          bouts[i]!.weight * share(bouts[i]!, b) -
+          bouts[j]!.weight * share(bouts[j]!, b);
         if (da * db < 0) cuts.push(a + ((b - a) * da) / (da - db));
       }
     cuts.sort((x: number, y: number): number => x - y);
@@ -327,15 +374,21 @@ function integral(bouts: readonly IBout[], lo: number, hi: number): number {
       const q: number = cuts[c]!;
       const vp: number = envelope(bouts, p);
       const vq: number = envelope(bouts, q);
-      total += ((q - p) * (vp ** 3 + vp * vp * vq + vp * vq * vq + vq ** 3)) / 4;
+      total +=
+        ((q - p) * (vp ** 3 + vp * vp * vq + vp * vq * vq + vq ** 3)) / 4;
     }
   }
   return total;
 }
 
 /** The tidal angle table's entries, listed once. */
-const TIDAL_ENTRIES: readonly [AutoMovieHumanoidBone, readonly [number, number, number]][] =
-  Object.entries(HumanBreath.TIDAL) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
+const TIDAL_ENTRIES: readonly [
+  AutoMovieHumanoidBone,
+  readonly [number, number, number],
+][] = Object.entries(HumanBreath.TIDAL) as [
+  AutoMovieHumanoidBone,
+  readonly [number, number, number],
+][];
 
 /** Reuse one fixed-index scalar draw only while its pure stream seed is identical. */
 function fixedDraw(

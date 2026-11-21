@@ -7,6 +7,7 @@ import { jump } from "../actions/jump";
 import { run } from "../actions/run";
 import { kickBall } from "../ballStrike/kickBall";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { bowlingSlide as bowlingSlideLaw } from "../sport/bowlingSlide";
 import { cartwheel } from "../sport/cartwheel";
 import { salto } from "../sport/salto";
 import { catchObject } from "../throwing/catchObject";
@@ -55,6 +56,11 @@ export namespace HumanSportThrow {
   export const cricketBowl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["cricketBowl"]
   > = HumanActionRow.of("cricketBowl", throwObject, { style: "cricket" });
+
+  /** Slide on the supporting foot before a delivery. */
+  export const bowlingSlide: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["bowlingSlide"]
+  > = bowlingSlideLaw;
 
   /** The low delivery of a one-handed ten-pin bowling approach. */
   export const bowlingDelivery: IAutoMovieMotionHumanActionLaw<

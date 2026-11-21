@@ -24,10 +24,11 @@ import { catchObject } from "./catchObject";
  * actual flight before this law gives its grip custody of the prop. An
  * authored `intercept` reads that flight at release plus its seconds,
  * including any intervening rebound, and uses the same arm planner.
- * The source window supplies the provisional planning horizon. Final flight
+ * The interception second is the flight's provisional planning horizon, so
+ * a long pass is caught after the thrower's action has ended. Final flight
  * admission checks that the launch survives and its frame matches the grip.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the registered use, relevant source window, supported prop and authoritative catch instant.
+ * @evidence contracts/development/common.md#meaningful-documentation States the registered use, the planning horizon, supported prop and authoritative catch instant.
  * @evidence contracts/development/design.md#principled-representation The base catch owns arm goals and timing. A hold publishes the borrowed launch identity and frame check at the interception the base plan names.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses the catch's parameter and plan types plus the prop reader's public placement. The film and hand carry still belong to the performance.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No second catch trajectory, grip proxy or special body model. The opt-in law admits a staged capture only where its existing arm plan and the authoritative prop trajectory agree.
@@ -83,19 +84,14 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
       let approach: IAutoMovieMotionHumanPropReader.IFlightApproach | undefined;
       if (specified !== undefined) {
         const at: number = released + specified;
-        if (
-          !Number.isFinite(at) ||
-          !(specified > 0) ||
-          at > source.end ||
-          !(at > context.start)
-        )
+        if (!Number.isFinite(at) || !(specified > 0) || !(at > context.start))
           throw new HumanRefusal({
             kind: "reach",
             axis: "intercept",
             value: specified,
             reason:
               "the prop must be on the anchored launch during the placed interception",
-            fix: "give positive seconds after release within the source and catcher windows",
+            fix: "give positive seconds after release, within the catcher's window",
           });
         const previous: number = at - Math.min((at - released) / 2, 1e-4);
         approach = reader.flightApproach?.(at, previous);
@@ -139,16 +135,15 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
       if (
         contact === undefined ||
         released < source.entryTime ||
-        !(context.start + contact > released) ||
-        context.start + contact > source.end
+        !(context.start + contact > released)
       )
         throw new HumanRefusal({
           kind: "reach",
           axis: "from",
           value: from,
           reason:
-            "the source action must stay placed from release through interception",
-          fix: "extend the anchored launch action through the proposed catch",
+            "the source action must release the ball before the interception",
+          fix: "place the catch after the anchored action's release",
         });
 
       const placedAt: number = context.start + contact;
@@ -200,8 +195,12 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
         context.params.hands === "one"
           ? [context.params.side ?? "right"]
           : ["left", "right"];
+      // The catching hands are this plan's own: name them, so over a
+      // carrier the overlay keeps posing a hand that holds the ball instead
+      // of handing it to the carrier's carry fit.
       return {
         ...plan,
+        hands: [...(plan.hands ?? []), ...hands],
         holds: [
           ...(plan.holds ?? []),
           ...hands.map(

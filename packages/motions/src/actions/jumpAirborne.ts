@@ -2,7 +2,6 @@ import {
   Quaternion,
   Vector3,
   inertializeOffset,
-  integrateMotionTrajectory,
   minimumJerk,
 } from "@automovie/engine";
 import type {
@@ -24,6 +23,7 @@ import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
 import { hipJoints } from "../posture/hipJoints";
 import type { jumpState } from "./jumpState";
+import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { walkLeg } from "./walkLeg";
 
 /** How far each free foot lifts above its straight path at mid-flight, hip heights (provisional). */
@@ -364,9 +364,10 @@ export namespace jumpAirborne {
      * A landing posture carrying the flight's touchdown attitude away: the
      * laws' own rule at a change of motion (Bollo 2018, inertialization).
      * The turn the flight hands back at touchdown, its residual from the
-     * landing's unturned attitude, and that turn's rate there decay on
-     * Bollo's quintic (`inertializeOffset`) over the landing's absorption,
-     * from touchdown to settled, as a rigid turn about the touchdown centre.
+     * landing's unturned attitude decays on Bollo's quintic
+     * (`inertializeOffset`) over the landing's absorption, from touchdown
+     * to settled, as a rigid turn about the touchdown centre. The two-foot
+     * contact arrests the free-flight angular rate at the impact.
      * A posture rotation turns the root and the free goals only, so the
      * planted feet keep their places and the legs are re-solved onto them.
      *
@@ -375,7 +376,7 @@ export namespace jumpAirborne {
      * @returns The posture, turned by the decaying offset, or unchanged outside the absorption, without a handed-back turn or with an admitted turned stance.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the rule, its source, the offset, its window and what the turn reaches.
-     * @evidence contracts/development/implementation.md#principled-implementation The offset is the flight's own handed-back turn at touchdown and its rate by the plan-time step's backward difference, decayed by the engine's inertialization quintic.
+     * @evidence contracts/development/implementation.md#principled-implementation Decays the actual touchdown attitude about its own centre through the engine's inertialization quintic. The plant is the contact impulse boundary for the airborne angular rate.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One offset read once, one quintic a call.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turn reaches the root and free goals only; planted goals stay in the world, never moved by the offset.
      * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work a call.
@@ -392,7 +393,7 @@ export namespace jumpAirborne {
    * Identify the actual flight request whose ground phase owns a turned landing.
    *
    * @param flight The plan's original flight request.
-   * @returns Whether its constructor installed a returned-touchdown check.
+   * @returns Whether its ground phase already adopts the terminal yaw.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the identity prerequisite and what the originating jump verifies.
    * @evidence contracts/development/implementation.md#principled-implementation Native request identity carries the verified ground-phase intent through placement. The jump's own callback still verifies the handed-back rotation.
@@ -405,7 +406,27 @@ export namespace jumpAirborne {
   export function hasTurnedLanding(
     flight: IAutoMovieMotionHumanFlight,
   ): boolean {
-    return TURNED_LANDINGS.has(flight);
+    return TOUCHDOWNS.get(flight)?.turnedLanding === true;
+  }
+
+  /**
+   * The geometry requirement belonging to a native planted touchdown.
+   *
+   * @param flight The original placed flight request.
+   * @returns The angular target and the exact read-back check for this request, if present.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the native flight, geometry target, read-back check and ordinary fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation The same native requirement supplies the physical shooting target and verifies the returned rotation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup by the original request's identity.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Copies or custom flights cannot add a solver requirement to a native landing.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One weak-map read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the requirement already set by the jump plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak membership does not retain the flight request.
+   */
+  export function touchdown(
+    flight: IAutoMovieMotionHumanFlight,
+  ): jumpTouchdownRotation.IRequirement | undefined {
+    return TOUCHDOWNS.get(flight);
   }
 
   /**
@@ -418,7 +439,7 @@ export namespace jumpAirborne {
    * @param touchdown Seconds of the jump at touchdown.
    * @param duration The jump's duration, seconds.
    * @param settled Seconds of the jump where the landing's absorption ends.
-   * @param admitTouchdown Verifies the returned rotation when footprints already use the terminal stance.
+   * @param touchdownRequirement The native geometry target and check for the returned rotation.
    * @returns The turning.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the signs, the side salto's frame and when the rotation applies.
@@ -435,7 +456,7 @@ export namespace jumpAirborne {
     touchdown: number,
     duration: number,
     settled: number,
-    admitTouchdown?: (rotation: IAutoMovieHumanPostureRotation) => void,
+    touchdownRequirement?: jumpTouchdownRotation.IRequirement,
   ): ITurning {
     const somersault: number =
       (rotation?.somersault ?? 0) * (rotation?.way === "backward" ? -1 : 1);
@@ -470,14 +491,15 @@ export namespace jumpAirborne {
             airborne: (
               handed: (seconds: number) => IAutoMovieHumanPostureRotation,
             ): void => {
-              admitTouchdown?.(handed(to));
+              if (touchdownRequirement?.turnedLanding === true)
+                touchdownRequirement.check(handed(to));
               rotated = handed;
               known = false;
               offset = STILL;
             },
           };
-    if (admitTouchdown !== undefined && declared.flight !== undefined)
-      TURNED_LANDINGS.add(declared.flight);
+    if (touchdownRequirement !== undefined && declared.flight !== undefined)
+      TOUCHDOWNS.set(declared.flight, touchdownRequirement);
 
     // Every reader reconstructs seconds from the public shares. Use those
     // same representable boundaries for both phase selection and handback.
@@ -485,56 +507,33 @@ export namespace jumpAirborne {
       declared.flight === undefined ? takeoff : declared.flight.from * duration;
     const to: number =
       declared.flight === undefined ? touchdown : declared.flight.to * duration;
-    // The touchdown offset: the handed-back turn there as an axis and an
-    // angle, and its rate by the backward difference over the plan-time step.
-    // None (a zero turn, which decays to nothing) until read, and where the
-    // turn has no axis.
+    // Read the actual touchdown attitude once. The planted ground phase
+    // absorbs the landing and settles this pose offset after contact.
     const touched = (): ITouchdown => {
       if (known || rotated === null) return offset;
       known = true;
-      const h: number = Math.min(integrateMotionTrajectory.STEP, to - from);
       const at: IAutoMovieHumanPostureRotation = rotated(to);
       const turn: IAutoMovieQuaternion =
         at.turn.w < 0
           ? { x: -at.turn.x, y: -at.turn.y, z: -at.turn.z, w: -at.turn.w }
           : at.turn;
       const sine: number = Math.hypot(turn.x, turn.y, turn.z);
-      if (!(sine > 0) || !(h > 0)) return offset;
+      if (!(sine > 0)) return offset;
       const axis: IAutoMovieVector3 = {
         x: turn.x / sine,
         y: turn.y / sine,
         z: turn.z / sine,
       };
       const angle: number = (2 * Math.atan2(sine, turn.w) * 180) / Math.PI;
-      const step: IAutoMovieQuaternion = Quaternion.multiply(
-        at.turn,
-        Quaternion.inverse(rotated(to - h).turn),
-      );
-      const signed: IAutoMovieQuaternion =
-        step.w < 0 ? { x: -step.x, y: -step.y, z: -step.z, w: -step.w } : step;
-      const swept: number =
-        (2 *
-          Math.atan2(Math.hypot(signed.x, signed.y, signed.z), signed.w) *
-          180) /
-        Math.PI;
-      const along: number =
-        Math.hypot(signed.x, signed.y, signed.z) > 0
-          ? (signed.x * axis.x + signed.y * axis.y + signed.z * axis.z) /
-            Math.hypot(signed.x, signed.y, signed.z)
-          : 0;
-      return (offset = {
-        about: at.about,
-        axis,
-        angle,
-        rate: (swept * along) / h,
-      });
+      return (offset = { about: at.about, axis, angle });
     };
     return {
       from,
       to,
       declared,
       prepareLanding: (): void => {
-        if (admitTouchdown === undefined && settled > to) touched();
+        if (touchdownRequirement?.turnedLanding !== true && settled > to)
+          touched();
       },
       turned: (
         posture: IAutoMovieMotionHumanPosture,
@@ -551,7 +550,7 @@ export namespace jumpAirborne {
       ): IAutoMovieMotionHumanPosture => {
         // Turned footprints already place the body in the admitted terminal stance.
         if (
-          admitTouchdown !== undefined ||
+          touchdownRequirement?.turnedLanding === true ||
           rotated === null ||
           !(t > to) ||
           !(t < settled) ||
@@ -561,7 +560,7 @@ export namespace jumpAirborne {
         const touch: ITouchdown = touched();
         const decayed: number = inertializeOffset(
           touch.angle,
-          touch.rate,
+          0,
           settled - to,
           t - to,
         ).value;
@@ -582,13 +581,16 @@ export namespace jumpAirborne {
   }
 }
 
-/** Originating jump requests with a touchdown check on their turned stance. */
-const TURNED_LANDINGS: WeakSet<IAutoMovieMotionHumanFlight> = new WeakSet();
+/** Native flight requests and their planned planted touchdown requirements. */
+const TOUCHDOWNS: WeakMap<
+  IAutoMovieMotionHumanFlight,
+  jumpTouchdownRotation.IRequirement
+> = new WeakMap();
 
 /** Action-plan members supplied for an authored turning flight. */
 type FlightMember = "flight" | "airborne";
 
-/** A flight's turn at touchdown as the landing carries it away: about the touchdown centre, an axis, an angle (degrees) and its rate there (degrees a second). */
+/** The flight's actual touchdown attitude: centre, world axis and angle in degrees. */
 interface ITouchdown {
   /** The touchdown centre the turn is about, world metres. */
   about: IAutoMovieVector3;
@@ -598,17 +600,13 @@ interface ITouchdown {
 
   /** The turn's angle, degrees. */
   angle: number;
-
-  /** The angle's rate at touchdown, degrees a second. */
-  rate: number;
 }
 
-/** No turn to carry away: a zero angle and rate decay to nothing. */
+/** An upright touchdown has no attitude offset. */
 const STILL: ITouchdown = {
   about: { x: 0, y: 0, z: 0 },
   axis: { x: 0, y: 1, z: 0 },
   angle: 0,
-  rate: 0,
 };
 
 /** One fixed endpoint joint and its clinical difference, prepared once per flight. */

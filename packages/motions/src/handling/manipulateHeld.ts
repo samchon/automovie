@@ -6,7 +6,6 @@ import {
   Vector3,
   fitDigitToTarget,
   indexSkeletonTopology,
-  minimumJerk,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -31,6 +30,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegment } from "../perform/HumanSegment";
 import { HumanDigitFit } from "../posture/HumanDigitFit";
@@ -291,12 +291,11 @@ export function manipulateHeld(
     channels: [`${side}Thumb`],
     posture: (seconds: number): IAutoMovieMotionHumanPosture => {
       const [before, after]: readonly [IKnot, IKnot] = bracket(knots, seconds);
-      const share: number = minimumJerk(
-        Math.max(
-          0,
-          Math.min(1, (seconds - before.time) / (after.time - before.time)),
-        ),
-      ).s;
+      const share: number = AutoMovieMotionInterval.progress(
+        before.time,
+        after.time,
+        seconds,
+      );
       const joints: IAutoMovieMotionHumanPosture["joints"] = {};
       bones.forEach((bone: AutoMovieHumanoidBone, index: number): void => {
         joints[bone] = blendHumanJoint(

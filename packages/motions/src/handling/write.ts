@@ -1,9 +1,4 @@
-import {
-  AffordanceArticulation,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -29,6 +24,7 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
@@ -47,7 +43,8 @@ interface IVertex {
  *
  * Register the law and perform `registered("write", params)` after taking
  * the tool in the orientation used to write. The surface belongs to a fixed
- * prop without an articulation reader. The arm approaches and leaves the
+ * rigid prop. A prop that supplies a frame reader declares its rigidity with
+ * `hasArticulations: false`. The arm approaches and leaves the
  * stroke with the entry wrist attitude as its goal. The target gives each
  * edge time proportional to its length and zero speed at each vertex, using
  * Flash and Hogan's planar minimum-jerk law (1985,
@@ -121,7 +118,7 @@ function planWrite(
     tool.prop.motion !== undefined ||
     support.prop.fixed !== true ||
     support.prop.motion !== undefined ||
-    support.prop.articulate !== undefined
+    (support.prop.hasArticulations ?? support.prop.articulate !== undefined)
   )
     throw new HumanRefusal({
       kind: "affordance",
@@ -334,6 +331,6 @@ function strokePoint(
   return Vector3.lerp(
     a.point,
     b.point,
-    minimumJerk((distance - a.length) / (b.length - a.length)).s,
+    AutoMovieMotionInterval.progress(a.length, b.length, distance),
   );
 }

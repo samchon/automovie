@@ -16,6 +16,7 @@ import type {
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
@@ -193,7 +194,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const pass: IAutoMovieVector3 = Vector3.subtract(second, first);
 
   // A symmetric extension makes one minimum-jerk stroke cross at both time thirds.
-  const firstShare: number = minimumJerk(1 / 3).s;
+  const firstShare: number = minimumJerk.share(1 / 3);
   const extension: number = firstShare / (1 - 2 * firstShare);
   const overrun: IAutoMovieVector3 = Vector3.scale(pass, extension);
   if (
@@ -473,7 +474,5 @@ function wrist(
 
 /** Minimum-jerk progress between ordered instants. */
 function ease(seconds: number, start: number, end: number): number {
-  return minimumJerk(
-    Math.max(0, Math.min(1, (seconds - start) / (end - start))),
-  ).s;
+  return AutoMovieMotionInterval.progress(start, end, seconds);
 }

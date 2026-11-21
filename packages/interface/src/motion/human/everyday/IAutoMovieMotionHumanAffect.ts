@@ -1,6 +1,6 @@
 /**
  * Affect displays as an additive layer: laughing, sighing, yawning,
- * coughing, sneezing and shivering, each a short pattern of trunk, shoulder,
+ * coughing, sneezing, shivering, sobbing, weeping and gasping, each a short pattern of trunk, shoulder,
  * head and jaw angles over any action, starting and ending at zero.
  *
  * These are joint-angle patterns because no body point is brought anywhere:
@@ -31,6 +31,15 @@
  *   at 4 Hz, a visible shivering burst rate below the 12 Hz Nyquist limit of
  *   a 24 Hz film (shivering muscle tremor itself is faster, near 10 Hz, and
  *   would alias; provisional).
+ * - `sob`: a train of short convulsive inspirations, each lifting the
+ *   shoulders and extending the upper chest, over a trunk and head flexed
+ *   forward; the intervals vary by a seeded draw, and the intensity scales
+ *   both the amplitudes and how dense the train is (provisional).
+ * - `weep`: quieter, slower crying: the head lowered, a slow shoulder heave
+ *   and an occasional sniff at seeded times (provisional).
+ * - `gasp`: one sudden deep inspiration that extends the head and raises the
+ *   shoulders within a quarter second, then a recovering exhalation
+ *   (provisional).
  *
  * Amplitudes and timings are provisional except where cited; an intensity
  * scales every amplitude.
@@ -42,21 +51,30 @@
  */
 export namespace IAutoMovieMotionHumanAffect {
   /**
-   * A display, one of the six affect patterns the namespace documents.
+   * A display, one of the nine affect patterns the namespace documents.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the closed set of displays; each one's pattern is documented on the namespace.
-   * @evidence contracts/development/design.md#principled-representation A string union over the six displays, so an unknown display cannot be written; `angles` switches over it exhaustively.
+   * @evidence contracts/development/design.md#principled-representation A string union over the nine displays, so an unknown display cannot be written; `angles` switches over it exhaustively.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by `IDisplay`, `LENGTH`, `angles` and the affect test.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No shortcut present: one discriminant for all displays, no per-consumer member.
    */
-  export type Kind = "laugh" | "sigh" | "yawn" | "cough" | "sneeze" | "shiver";
+  export type Kind =
+    | "laugh"
+    | "sigh"
+    | "yawn"
+    | "cough"
+    | "sneeze"
+    | "shiver"
+    | "sob"
+    | "weep"
+    | "gasp";
 
   /**
    * One display at a film time, as the affect layer schedules it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit (film seconds, seconds, a scale) and the meaning of an absent length or intensity.
-   * @evidence contracts/development/design.md#principled-representation A display's kind, its start on the film timebase, its length in seconds and an amplitude scale; positive length is validated at runtime by `angles`, intensity is not range-checked.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by `layer` and the affect test; the optional length and intensity default to `LENGTH` and 1.
+   * @evidence contracts/development/design.md#principled-representation A display's kind, its start on the film timebase, its length in seconds, an amplitude scale and the key of its seeded timing; positive length is validated at runtime by `angles`, intensity is not range-checked.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by `layer` and the affect test; the optional length, intensity and seed default to `LENGTH`, 1 and the display's kind and start.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No shortcut present: the optional members default independently and combine into no meaningless state.
    */
   export interface IDisplay {
@@ -71,7 +89,10 @@ export namespace IAutoMovieMotionHumanAffect {
      */
     seconds?: number;
 
-    /** Amplitude scale; 1 when absent. */
+    /** Amplitude scale; 1 when absent. For a sob it also scales how closely its inspirations follow each other. */
     intensity?: number;
+
+    /** The key of a sob's or weep's seeded irregular timing; the display's kind and start when absent, so equal displays repeat. */
+    seed?: string;
   }
 }

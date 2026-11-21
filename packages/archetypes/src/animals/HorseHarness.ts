@@ -329,6 +329,42 @@ export namespace HorseHarness {
     });
   }
 
+  /**
+   * A hooked trace or strap hanging slack between its two world ends: `count` points on a parabola whose middle hangs `sag` metres below the chord, an authored look rather than a cable simulation.
+   *
+   * @param from The end on the horse, world metres.
+   * @param to The end on the vehicle or bar, world metres.
+   * @param sag The middle's drop below the chord, metres.
+   * @param count The points laid, ends included, at least three.
+   * @returns The points in order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the ends, the sag's meaning and that the shape is authored.
+   * @evidence contracts/development/implementation.md#principled-implementation A parabola through both ends, `4 sag u (1 - u)` below the chord, the small-sag form of a hanging strap.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the points.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse; callers admit the sag.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(count).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of a slack strap's look, used by a single horse's draft and by a team's.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh points and retains nothing.
+   */
+  export function slack(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    sag: number,
+    count: number,
+  ): IAutoMovieVector3[] {
+    return Array.from(
+      { length: count },
+      (_: unknown, k: number): IAutoMovieVector3 => {
+        const u: number = k / (count - 1);
+        return Vector3.add(Vector3.lerp(from, to, u), {
+          x: 0,
+          y: -4 * sag * u * (1 - u),
+          z: 0,
+        });
+      },
+    );
+  }
+
   /** The two sides, `+X` first, with the sign of `X` on each: the one list a harness and a harnessed vehicle iterate. */
   export const SIDES: readonly (readonly ["left" | "right", number])[] = [
     ["left", 1],

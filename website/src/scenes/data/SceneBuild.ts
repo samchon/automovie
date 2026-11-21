@@ -1,6 +1,17 @@
+import { createHolster } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanGraspUse,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
+import type { SceneBuildTypes } from "./SceneBuildTypes";
 import { SceneTakes } from "./SceneTakes";
+
+/** A region of another performer, as a motion target. */
+type PersonTarget = Extract<IAutoMovieMotionTarget, { kind: "person" }>;
 
 /**
  * Shorthands the scene records are written with, so each record reads as
@@ -8,10 +19,19 @@ import { SceneTakes } from "./SceneTakes";
  */
 export namespace SceneBuild {
   /** An action: a name, its parameters, and the optional members. */
-  export type Action = IPlaygroundComposition.IAction;
+  export type Action = SceneBuildTypes.AuthoredAction;
 
   /** A performer: a body at a place, with its actions. */
-  export type Performer = IPlaygroundComposition.IPerformer;
+  export type Performer = SceneBuildTypes.IAuthoredPerformer;
+
+  /** A plain composition with law-checked action inputs. */
+  export type Composition = SceneBuildTypes.IAuthoredComposition;
+
+  /** A point targeted by a law, with its declared coordinate frame. */
+  export type PointTarget = Extract<IAutoMovieMotionTarget, { kind: "point" }>;
+
+  /** A named point of a placed prop, as a motion target. */
+  export type PropTarget = Extract<IAutoMovieMotionTarget, { kind: "prop" }>;
 
   /**
    * A floor point, world metres.
@@ -20,7 +40,7 @@ export namespace SceneBuild {
    * @param z Forward.
    * @returns The point.
    */
-  export function to(x: number, z: number): Record<string, number> {
+  export function to(x: number, z: number): IAutoMovieVector3 {
     return { x, y: 0, z };
   }
 
@@ -31,7 +51,10 @@ export namespace SceneBuild {
    * @param region The region.
    * @returns The target.
    */
-  export function at(subject: string, region: string): Record<string, unknown> {
+  export function at(
+    subject: string,
+    region: PersonTarget["region"],
+  ): PersonTarget {
     return { kind: "person", subject, region };
   }
 
@@ -44,10 +67,20 @@ export namespace SceneBuild {
    * @returns The action.
    */
   export function act(
+    name: SceneBuildTypes.OptionalActionName,
+    params?: undefined,
+    more?: SceneBuildTypes.IActionOptions,
+  ): Action;
+  export function act<N extends SceneBuildTypes.ActionName>(
+    name: N,
+    params: SceneBuildTypes.ActionParams<NoInfer<N>>,
+    more?: SceneBuildTypes.IActionOptions,
+  ): Action;
+  export function act(
     name: string,
     params: Record<string, unknown> = {},
-    more: Partial<Omit<Action, "name" | "params">> = {},
-  ): Action {
+    more: SceneBuildTypes.IActionOptions = {},
+  ): IPlaygroundComposition.IAction {
     return { name, params, ...more };
   }
 
@@ -71,7 +104,7 @@ export namespace SceneBuild {
     yaw: number,
     actions: Action[],
     proficiency: IPlaygroundComposition.Proficiency = "trained",
-  ): IPlaygroundComposition.IPerformer {
+  ): Performer {
     return { subject, body, x, z, yaw, proficiency, actions };
   }
 
@@ -96,7 +129,7 @@ export namespace SceneBuild {
     z: number,
     yaw: number = 0,
     y: number = 0,
-    params?: Record<string, number>,
+    params?: Record<string, number | string>,
   ): IPlaygroundComposition.IObject {
     return {
       subject,
@@ -111,7 +144,7 @@ export namespace SceneBuild {
   }
 
   /** How a blade is taken up for its use, as the package's own blade tests take it: its point the working tip, its line rising across the palm as a cutting grip holds it. */
-  export const BLADE_USE: Record<string, string> = {
+  export const BLADE_USE: IAutoMovieMotionHumanGraspUse.IUse = {
     tip: "point",
     line: "oblique",
   };
@@ -138,7 +171,7 @@ export namespace SceneBuild {
     stand: string,
     thing: string,
     producer: string,
-    kind: string,
+    kind: string | undefined,
     x: number,
     z: number,
   ): IPlaygroundComposition.IObject[] {
@@ -184,6 +217,145 @@ export namespace SceneBuild {
     };
   }
 
+  /** How far a drawn blade's point clears its carrier's mouth, metres: an authored margin. */
+  export const SHEATH_CLEARANCE: number = 0.03;
+
+  /**
+   * A scabbard or a sheath (`createHolster`) made to one blade and worn at a
+   * hip from the start: its mouth just above the hip joint, 0.2 m to the
+   * side and 0.12 m ahead of it in the hips' frame, tilted forward about
+   * the hip's lateral axis by `cant` degrees, the scene's authored hang.
+   *
+   * @param subject The carrier's id.
+   * @param kind A scabbard or a sheath.
+   * @param blade The blade it is made to (`createHolster`'s `blade`).
+   * @param wearer The person who wears it.
+   * @param side The hip it hangs at.
+   * @param cant The forward tilt of its mouth from plumb, degrees.
+   * @returns The carrier.
+   */
+  export function carrier(
+    subject: string,
+    kind: "scabbard" | "sheath",
+    blade: string,
+    wearer: string,
+    side: "left" | "right",
+    cant: number,
+  ): IPlaygroundComposition.IObject {
+    const length: number = createHolster({
+      kind,
+      blade: blade as createHolster.Blade,
+    }).affordance("mouth").frame.translation.y;
+    const half: number = (cant * Math.PI) / 360;
+    return {
+      subject,
+      producer: "createHolster",
+      kind,
+      params: { blade },
+      x: 0,
+      z: 0,
+      yaw: 0,
+      worn: {
+        subject: wearer,
+        bone: "hips",
+        offset: {
+          // The carrier stands on its tip, so its origin lies the length
+          // down the tilted axis from the mouth.
+          position: {
+            x: side === "left" ? 0.2 : -0.2,
+            y: 0.05 - length * Math.cos(2 * half),
+            z: 0.12 - length * Math.sin(2 * half),
+          },
+          rotation: { x: Math.sin(half), y: 0, z: 0, w: Math.cos(half) },
+        },
+      },
+    };
+  }
+
+  /**
+   * A blade (`createSword`) seated in a carrier object from the start, its
+   * shoulder on the carrier's mouth (`HumanSheath.of`), drawn by `drawn` and
+   * returned by `sheathe`.
+   *
+   * @param blade The blade's id.
+   * @param kind The blade's kind.
+   * @param holder The carrier's id.
+   * @param model The blade's read model, when the kind has them.
+   * @returns The blade.
+   */
+  export function seated(
+    blade: string,
+    kind: string,
+    holder: string,
+    model?: string,
+  ): IPlaygroundComposition.IObject {
+    return {
+      subject: blade,
+      producer: "createSword",
+      kind,
+      ...(model === undefined ? {} : { params: { model } }),
+      x: 0,
+      z: 0,
+      yaw: 0,
+      sheath: {
+        carrier: holder,
+        mouth: "mouth",
+        tip: "point",
+        handle: "grip",
+        clearance: SHEATH_CLEARANCE,
+      },
+    };
+  }
+
+  /**
+   * Grip a seated blade and draw it out along its carrier's line: the
+   * carrier pickup with no lift, then `drawFromCarrier`.
+   *
+   * @param blade The blade's id.
+   * @param holder The carrier's id.
+   * @param handle The blade's handle the hand grips.
+   * @returns The two actions.
+   */
+  export function drawn(
+    blade: string,
+    holder: string,
+    handle: string = "grip",
+  ): Action[] {
+    return [
+      act("takeFromCarrier", { prop: blade, handle, lift: 0 }),
+      act("drawFromCarrier", {
+        prop: blade,
+        from: {
+          prop: holder,
+          aperture: "sheathEntry",
+          point: "sheathSeat",
+          slider: "sheathSlider",
+          slide: "sheathSlide",
+        },
+      }),
+    ];
+  }
+
+  /**
+   * Return a held blade through its carrier's entry to its seat
+   * (`putDownAperture`).
+   *
+   * @param blade The blade's id.
+   * @param holder The carrier's id.
+   * @returns The action.
+   */
+  export function sheathe(blade: string, holder: string): Action {
+    return act("putDownAperture", {
+      prop: blade,
+      onto: {
+        prop: holder,
+        aperture: "sheathEntry",
+        point: "sheathSeat",
+        guide: { slider: "sheathSlider", slide: "sheathSlide" },
+      },
+    });
+  }
+
   /**
    * A thing worn on a person's bone from the start, until a hand takes it
    * up by a grip, such as a camera hanging from a strap at the chest.
@@ -199,7 +371,7 @@ export namespace SceneBuild {
   export function worn(
     thing: string,
     producer: string,
-    kind: string,
+    kind: string | undefined,
     wearer: string,
     bone: string,
     position: { x: number; y: number; z: number },
@@ -207,7 +379,7 @@ export namespace SceneBuild {
     return {
       subject: thing,
       producer,
-      kind,
+      ...(kind === undefined ? {} : { kind }),
       x: 0,
       z: 0,
       yaw: 0,
@@ -226,7 +398,10 @@ export namespace SceneBuild {
    * @param id The seat's affordance id, for an object with several seats; its only seat when absent.
    * @returns The seat reference.
    */
-  export function seat(subject: string, id?: string): Record<string, string> {
+  export function seat(
+    subject: string,
+    id?: string,
+  ): SceneBuildTypes.ISeatReference {
     return id === undefined ? { $seat: subject } : { $seat: subject, id };
   }
 
@@ -238,6 +413,9 @@ export namespace SceneBuild {
    * @param params The shared parameters.
    * @returns The mutual action.
    */
+  export function mutual(
+    ...args: SceneBuildTypes.MutualArguments
+  ): SceneBuildTypes.AuthoredMutual;
   export function mutual(
     name: string,
     cast: Record<string, string>,
@@ -281,6 +459,9 @@ export namespace SceneBuild {
     /** Its place in the landing page's hero. */
     featured?: number;
 
+    /** Emitters switched on by the scene's named action events. */
+    practicalLights?: IScene.IPracticalLight[];
+
     /** The issue that fixes the refusal the installed packages give this scene today; it is written as it should play and shows that refusal until then. */
     refusedUntil?: number;
   }
@@ -299,9 +480,9 @@ export namespace SceneBuild {
   export function scene(
     about: IAbout,
     seed: string,
-    performers: IPlaygroundComposition.IPerformer[],
+    performers: Performer[],
     objects: IPlaygroundComposition.IObject[] = [],
-    mutuals: IPlaygroundComposition.IMutual[] = [],
+    mutuals: SceneBuildTypes.AuthoredMutual[] = [],
     forces: NonNullable<IPlaygroundComposition["forces"]> = [],
   ): IScene {
     const composition: IPlaygroundComposition = {
@@ -336,6 +517,9 @@ export namespace SceneBuild {
         ...(about.distance === undefined ? {} : { distance: about.distance }),
       },
       needs: about.needs,
+      ...(about.practicalLights === undefined
+        ? {}
+        : { practicalLights: about.practicalLights }),
       ...(about.featured === undefined ? {} : { featured: about.featured }),
       ...(about.refusedUntil === undefined
         ? {}

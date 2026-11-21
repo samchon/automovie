@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
  * Timed pool, aquatic team and small-craft performances. Water is a world
@@ -12,7 +13,12 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 export namespace IAutoMovieMotionHumanAquatic {
   /**
    * Aquatic sequence selected by the caller. The two race kinds include a
-   * start and turn, and the two sailing kinds distinguish completion and abort.
+   * start and turn, the two sailing kinds distinguish completion and abort,
+   * `waterExit` stands a swimmer up in the shallows onto the ground,
+   * `distress` is the instinctive drowning response, `rescueTow` and `towed`
+   * are a rescuer and the victim it tows, `edgeExit` climbs out over a pool
+   * edge, and `finSwim`, `duckDive` and `snorkel` swim with fins under or at
+   * the surface.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the named variants select and distinguishes the authored outcomes.
    * @evidence contracts/development/design.md#principled-representation Closed choices identify distinct motions or outcomes without requiring combinations of flags.
@@ -29,7 +35,46 @@ export namespace IAutoMovieMotionHumanAquatic {
     | "canoeStroke"
     | "kayakStroke"
     | "sailTack"
-    | "sailAbort";
+    | "sailAbort"
+    | "waterExit"
+    | "distress"
+    | "rescueTow"
+    | "towed"
+    | "edgeExit"
+    | "finSwim"
+    | "duckDive"
+    | "snorkel";
+
+  /**
+   * Seat of a rower in a two-person racing shell. The bow seat is nearest the
+   * bow, and the stroke seat sets the rhythm from the stern.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names both seats and where each sits in the shell.
+   * @evidence contracts/development/design.md#principled-representation A closed choice selects one station's own seat, stretcher and oar articulations.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The double-scull planner consumes it to choose the affordances it drives.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The name selects scene affordances and encodes no geometry.
+   */
+  export type Station = "bow" | "stroke";
+
+  /**
+   * The performer's part in a team or crew. Water polo uses attack, defend and
+   * keeper; artistic swimming uses figure, base and flyer; sailing uses helm
+   * and crew.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Groups each role with the kind that reads it.
+   * @evidence contracts/development/design.md#principled-representation A closed choice of sporting roles; the planner of the selected kind admits only its own.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The polo, artistic and sailing planners read it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Roles name what the performer does and carry no timing or geometry.
+   */
+  export type Role =
+    | "attack"
+    | "defend"
+    | "keeper"
+    | "figure"
+    | "base"
+    | "flyer"
+    | "helm"
+    | "crew";
 
   /**
    * Authored staging inputs. The aquatic law admits the selected combination
@@ -59,22 +104,26 @@ export namespace IAutoMovieMotionHumanAquatic {
     /** World point in metres through which a held ball should pass after release. */
     at?: IAutoMovieVector3;
 
-    /** Working side for single-blade canoe and water polo, or initial side of the dinghy. */
-    side?: "left" | "right";
+    /** Working side for single-blade canoe and water polo, the support hand of an artistic base, or the initial side of a dinghy. */
+    side?: AutoMovieHumanSide;
 
     /** Start offset as a fraction of a stroke or figure for crew contrast, in [0, 1]. */
     phase?: number;
 
+    /** Bow or stroke station on an articulated racing shell for double scull. */
+    station?: Station;
+
     /** Polo attack or defense, artistic figure role, or dinghy crew role. */
-    role?:
-      | "attack"
-      | "defend"
-      | "keeper"
-      | "figure"
-      | "base"
-      | "flyer"
-      | "helm"
-      | "crew";
+    role?: Role;
+
+    /** Seconds of a distress before submersion (20 to 60, 30 when absent), or of a fin swim or snorkel (4 when absent). */
+    seconds?: number;
+
+    /** The victim a rescuer tows, or the rescuer a towed victim holds on to. */
+    partner?: string;
+
+    /** Metres below the surface a duck dive reaches before it ascends. */
+    depth?: number;
 
     /** Two distinct, previously composed base swimmers supplying the flyer's left and right foot supports. */
     bases?: readonly [string, string];

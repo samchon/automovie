@@ -24,7 +24,14 @@ import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHum
  * of #3201): `straight` lands nearly extended (elbow 5 to 25 degrees) along the
  * line, palm down; `hook` lands with the elbow near a right angle (70 to 100
  * degrees), arriving across the line, palm down; `uppercut` rises from below
- * with the elbow at 60 to 100 degrees, palm toward the puncher. A rear-hand
+ * with the elbow at 60 to 100 degrees, palm toward the puncher. The close
+ * hand strikes land other surfaces of the hand: `palmHeel` drives the heel of
+ * the open palm along the line with the wrist extended and the fingers up,
+ * the arm nearly extended like the straight; `backfist` swings the back of
+ * the fist out across the line onto the target with the arm nearly
+ * extended; `hammerfist` brings the fist's little-finger edge down onto the
+ * target with the elbow bent 30 to 90 degrees. No located study gives their
+ * delivery times, so they keep the punch's measured timing. A rear-hand
  * punch turns the trunk through to bring the rear shoulder forward and
  * pivots the rear foot on its ball; a lead hook turns the other way. A body
  * punch lowers the root through the knees. When the arm's band falls short,
@@ -64,7 +71,7 @@ export namespace IAutoMovieMotionHumanPunch {
    */
   export interface IParams {
     /** The technique. */
-    technique: "straight" | "hook" | "uppercut";
+    technique: IAutoMovieMotionHumanPunch.Technique;
 
     /** Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. */
     hand?: "lead" | "rear";
@@ -86,4 +93,21 @@ export namespace IAutoMovieMotionHumanPunch {
      */
     manner?: Pick<IAutoMovieMotionManner, "variation" | "proficiency">;
   }
+
+  /**
+   * The technique: the punches by their path and the close hand strikes by
+   * the surface of the hand they land.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the three punches and the three close hand strikes.
+   * @evidence contracts/development/design.md#principled-representation A closed union; each literal selects the striking surface, the arrival direction, the hand's attitude and the elbow band.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the punch law and its strike rows.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Explicit literals; the punch law owns each technique's geometry.
+   */
+  export type Technique =
+    | "straight"
+    | "hook"
+    | "uppercut"
+    | "palmHeel"
+    | "backfist"
+    | "hammerfist";
 }

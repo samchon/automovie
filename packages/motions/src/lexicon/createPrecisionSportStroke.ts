@@ -21,7 +21,6 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -29,12 +28,28 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingQuality } from "../striking/StrikingQuality";
+import { addressPrecisionStroke } from "./addressPrecisionStroke";
 
 /** The shared authorship contract. Cue strokes also name a supporting surface. */
-type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke &
+type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
+  Partial<
+    Pick<IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke, "tool">
+  > &
   Partial<
     Pick<IAutoMovieMotionHumanLexiconPrecisionSportParams.ICue, "bridge">
   >;
+
+/** The held implement an implement row names; a bare-hand row names none. */
+function implement(params: Stroke): string {
+  if (params.tool !== undefined) return params.tool;
+  throw new HumanRefusal({
+    kind: "parameter",
+    axis: "tool",
+    value: params.tool,
+    reason: "an implement stroke needs the implement its hand holds",
+    fix: "name the held implement in tool",
+  });
+}
 
 /**
  * Fixed geometry and provisional neutral timing for one sporty stroke. Angles are degrees,
@@ -64,7 +79,13 @@ interface IPrecisionForm {
 
   /** A stroke that uses the racket hand without fixing the free hand to its handle. */
   oneHand?: true;
+
+  /** A stroke whose striking surface is the bare hand: no implement is held. */
+  bare?: true;
 }
+
+/** The cue's least lean over the bed while the bridge hand bears on it, degrees; provisional. */
+const BRIDGE_INCLINE: number = 27;
 
 /** Positive, finite authored timing and speed, with admission kept at the stroke. */
 function positive(axis: string, value: number): number {
@@ -129,19 +150,30 @@ export function createPrecisionSportStroke<P extends Stroke>(
         });
       const direction: IAutoMovieVector3 = Vector3.normalize(horizontal);
 
-      const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
-        context,
-        side,
-        params.tool,
+      // A held implement strikes with its named working point and face; a
+      // bare hand strikes with its grip socket and the palm's normal, read
+      // in the hand bone's frame at the entry pose.
+      const held: IAutoMovieMotionHumanHeld.IHeld | undefined =
+        form.bare === true
+          ? undefined
+          : AutoMovieMotionHumanHeld.of(context, side, implement(params));
+      const read: IAutoMovieMotionHumanStrikingHeld.ITool =
+        held === undefined
+          ? StrikingHeld.bare(body, side)
+          : StrikingHeld.read(held, { tip: form.point });
+      const entryBones: ReturnType<typeof poseBones> = poseBones(
+        body,
+        context.entry.pose,
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
       );
-      const read: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.read(
-        held,
-        { tip: form.point },
-      );
-      const face: IAutoMovieVector3 = AutoMovieMotionHumanHeld.point(
-        held,
-        form.point,
-      ).direction;
+      const face: IAutoMovieVector3 =
+        held === undefined
+          ? Quaternion.rotateVector(
+              Quaternion.inverse(entryBones.get(`${side}Hand`)!.worldRotation),
+              HumanHand.frame(body, entryBones, side, "palm").normal,
+            )
+          : AutoMovieMotionHumanHeld.point(held, form.point).direction;
       const tool: IAutoMovieMotionHumanStrikingHeld.ITool = cue
         ? read
         : {
@@ -226,7 +258,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
           stop: 1,
           turn: sign * form.turn,
           support:
-            cue || form.oneHand === true
+            cue || form.oneHand === true || held === undefined
               ? null
               : {
                   handle: "axis",
@@ -261,17 +293,41 @@ export function createPrecisionSportStroke<P extends Stroke>(
         bridgeBones === undefined
           ? undefined
           : HumanHand.frame(body, bridgeBones, guide, "palm").point;
+      // A ball below the standing hand's reach, a golf ball on the ground or
+      // a cue ball on the bed, is played from an address stance. A bridged
+      // cue keeps at least its lean over the bed with the pelvis upright.
+      const address: ReturnType<typeof addressPrecisionStroke> =
+        addressPrecisionStroke(
+          body,
+          context.entry.posture,
+          context.entry.feet,
+          side,
+          path(1).point,
+          bridge,
+          bridge === undefined ? 0 : BRIDGE_INCLINE,
+          bridge === undefined ? Infinity : 0,
+        );
       const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
         t,
         channels,
         source,
         projection,
       ): IAutoMovieMotionHumanPosture => {
-        const current: IAutoMovieMotionHumanPosture = plan.posture(
+        const influence: number = clock.envelope(
+          ["start", "ready"],
+          ["relax", "end"],
+          t,
+        );
+        const planned: IAutoMovieMotionHumanPosture = plan.posture(
           t,
           channels,
           source,
           projection,
+        );
+        if (influence <= 0) return planned;
+        const current: IAutoMovieMotionHumanPosture = address(
+          planned,
+          influence,
         );
         if (
           bridge === undefined ||
@@ -279,12 +335,6 @@ export function createPrecisionSportStroke<P extends Stroke>(
           bridgeBones === undefined
         )
           return current;
-        const influence: number = clock.envelope(
-          ["start", "ready"],
-          ["relax", "end"],
-          t,
-        );
-        if (influence <= 0) return current;
         const goal: IAutoMovieHumanLimbGoal =
           AutoMovieMotionHumanArmTarget.goal(body, guide, {
             surface: "palm",
@@ -299,7 +349,6 @@ export function createPrecisionSportStroke<P extends Stroke>(
           });
         return {
           ...current,
-          joints: HumanTrunk.incline(current.joints, 27 * influence, 0).joints,
           limbs: { ...current.limbs, [`${guide}Arm`]: goal },
         };
       };
@@ -340,7 +389,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
             maximum: tolerance,
             unit: "m",
           },
-          reason: `${params.tool}'s working point misses the ball surface by ${error.toFixed(3)} m`,
+          reason: `${params.tool ?? `the ${side} hand`}'s working point misses the ball surface by ${error.toFixed(3)} m`,
           fix: "position the performer or choose a grip that reaches the ball at impact",
         });
       const facing: number = Vector3.dot(

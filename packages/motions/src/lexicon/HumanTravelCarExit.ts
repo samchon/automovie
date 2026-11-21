@@ -14,6 +14,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { rise } from "../everyday/rise";
 import { seated } from "../everyday/seated";
@@ -357,11 +358,12 @@ export namespace HumanTravelCarExit {
           if (time >= prepare) {
             const elapsed: number = Math.min(up.duration, time - prepare);
             const held: number =
-              1 - minimumJerk((elapsed - seatOff) / (up.duration - seatOff)).s;
+              1 -
+              AutoMovieMotionInterval.progress(seatOff, up.duration, elapsed);
             return ducked(up.posture(elapsed), duckDegrees * held);
           }
           const u: number = time / prepare;
-          const share: number = minimumJerk(u).s;
+          const share: number = minimumJerk.share(u);
           const heading: number = entry.posture.yaw + turn * share;
           const rock: number =
             minimumJerk.share(u / firstSill) *
@@ -404,7 +406,7 @@ export namespace HumanTravelCarExit {
               continue;
             }
 
-            const flight: number = minimumJerk(phase).s;
+            const flight: number = minimumJerk.share(phase);
             limbs[part] = {
               point: carExitAnkleAt(
                 initial.ankle,

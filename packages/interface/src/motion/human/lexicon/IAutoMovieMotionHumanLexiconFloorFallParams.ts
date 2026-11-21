@@ -1,4 +1,7 @@
 import type { IAutoMovieMotionHumanDive } from "../floor/IAutoMovieMotionHumanDive";
+import type { IAutoMovieMotionHumanCollapse } from "../reaction/IAutoMovieMotionHumanCollapse";
+import type { IAutoMovieMotionHumanThrown } from "../reaction/IAutoMovieMotionHumanThrown";
+import type { IAutoMovieMotionHumanWireFlight } from "../reaction/IAutoMovieMotionHumanWireFlight";
 
 /**
  * Open parameters of the floorFall lexicon family, keyed by each runtime export name.
@@ -19,4 +22,13 @@ export interface IAutoMovieMotionHumanLexiconFloorFallParams {
 
   /** A sliding tackle: leaning back onto the hip and sliding forward with the lead leg reaching ahead. */
   slidingTackle: Omit<IAutoMovieMotionHumanDive.IParams, "kind">;
+
+  /** A staged collapse forward, sideways, backward or in place, limp or protective, for a faint or a fatal hit. */
+  collapse: IAutoMovieMotionHumanCollapse.IParams;
+
+  /** A struck body thrown clear of the floor by a blast or a jerk-back, landing on its back. */
+  thrown: IAutoMovieMotionHumanThrown.IParams;
+
+  /** A body flown on wires along an authored path in a flight shape. */
+  wireFlight: IAutoMovieMotionHumanWireFlight.IParams;
 }

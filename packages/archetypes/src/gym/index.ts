@@ -1,3 +1,4 @@
+export * from "./createBalanceBeam";
 export * from "./createBarbell";
 export * from "./createBench";
 export * from "./createBoxingGlove";
@@ -12,6 +13,10 @@ export * from "./createParallelBars";
 export * from "./createPlyoBox";
 export * from "./createPullUpBar";
 export * from "./createRack";
+export * from "./createRhythmicBall";
 export * from "./createRing";
 export * from "./createRowingMachine";
 export * from "./createSled";
+export * from "./createSpringboard";
+export * from "./createStillRings";
+export * from "./createUnevenBars";

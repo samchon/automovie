@@ -9,6 +9,8 @@ import { clinch } from "../grappling/clinch";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { give } from "../reaction/give";
 import { stagger } from "../reaction/stagger";
+import { closeStrike } from "../striking/closeStrike";
+import { punch } from "../striking/punch";
 import { step } from "../striking/step";
 import { touch } from "../touch/touch";
 
@@ -27,6 +29,23 @@ import { touch } from "../touch/touch";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
  */
 export namespace HumanStageFight {
+  /** A stage palm strike: the rear palm heel driven at the target and stopped short at 0.85 of its delivery (provisional), with no contact declared. */
+  export const stagePalmStrike: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["stageFight"]["stagePalmStrike"]
+  > = HumanActionRow.of("stagePalmStrike", punch, {
+    technique: "palmHeel",
+    hand: "rear",
+    feint: 0.85,
+  });
+
+  /** A stage headbutt: the forehead driven at the target and stopped short at 0.85 of its delivery (provisional), the hands on a person's neck, with no contact declared. */
+  export const stageHeadbutt: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["stageFight"]["stageHeadbutt"]
+  > = HumanActionRow.of("stageHeadbutt", closeStrike, {
+    technique: "headbutt",
+    feint: 0.85,
+  });
+
   /** A forehand slap: one tap of the open palm. The composition gives the cheek as the target. */
   export const slap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stageFight"]["slap"]

@@ -201,7 +201,7 @@ export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
             path.length - 2,
             Math.floor(share * (path.length - 1)),
           );
-          const amount = minimumJerk(share * (path.length - 1) - phase).s;
+          const amount = minimumJerk.share(share * (path.length - 1) - phase);
           const posed = fitSeatedAnkleCross.interpolate(
             path[phase]!,
             path[phase + 1]!,

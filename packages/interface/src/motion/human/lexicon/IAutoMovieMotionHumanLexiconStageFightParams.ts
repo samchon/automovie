@@ -4,6 +4,8 @@ import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanGrapple } from "../grappling/IAutoMovieMotionHumanGrapple";
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
+import type { IAutoMovieMotionHumanCloseStrike } from "../striking/IAutoMovieMotionHumanCloseStrike";
+import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHumanPunch";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
 import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanStageProp } from "./IAutoMovieMotionHumanStageProp";
@@ -24,6 +26,18 @@ export interface IAutoMovieMotionHumanLexiconStageFightParams {
 
   /** Perform a role in a staged grappling exchange. */
   grapple: IAutoMovieMotionHumanGrapple.IParams;
+
+  /** A stage palm strike: the rear palm heel driven at the target and stopped short at 0.85 of its delivery (provisional), with no contact declared. */
+  stagePalmStrike: Omit<
+    IAutoMovieMotionHumanPunch.IParams,
+    "technique" | "hand" | "feint"
+  >;
+
+  /** A stage headbutt: the forehead driven at the target and stopped short at 0.85 of its delivery (provisional), the hands on a person's neck, with no contact declared. */
+  stageHeadbutt: Omit<
+    IAutoMovieMotionHumanCloseStrike.IParams,
+    "technique" | "arm" | "feint"
+  >;
 
   /** A forehand slap: one tap of the open palm. The composition gives the cheek as the target. */
   slap: Omit<

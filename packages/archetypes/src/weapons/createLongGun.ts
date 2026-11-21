@@ -245,7 +245,7 @@ export namespace createLongGun {
    * - `sight`: the rear of the sight line, above the barrel's line.
    * - `stock`: a carbine's stock, a slider drawn back to lengthen the pull.
    * - `pump`: a shotgun's fore-end slide, drawn back.
-   * - `cock`, `spur`, `frizzen`, `pan`, `ramrod`, `pipe`, `bayonet`: a musket's lock, the cock's thumb piece riding it, its rod and their sockets (`LongGunLock.musket`); a musket's `muzzle` is a socket.
+   * - `cock`, `spur`, `frizzen`, `pan`, `ramrod`, `pipe`, `bayonet`: a musket's lock, the cock's thumb piece riding it, its rod and their sockets (`LongGunLock.musket`); a musket's `muzzle` is a socket. `bayonetEntry` shares the `bayonet` socket's attitude ahead of the muzzle, where a socket bayonet starts its slide on.
    * - `bolt`, `boltSlide`, `magazine`: a bolt action's lift, its draw and its magazine (`LongGunLock.bolt`).
    * - `lever`, `hammer`: a lever action's lever and the hammer that follows it (`LongGunLock.lever`).
    */
@@ -265,6 +265,7 @@ export namespace createLongGun {
     | "ramrod"
     | "pipe"
     | "bayonet"
+    | "bayonetEntry"
     | "bolt"
     | "boltSlide"
     | "magazine"

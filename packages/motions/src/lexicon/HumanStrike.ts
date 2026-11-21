@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanActionRow } from "../law/HumanActionRow";
+import { closeStrike } from "../striking/closeStrike";
 import { kick } from "../striking/kick";
 import { knee } from "../striking/knee";
 import { punch } from "../striking/punch";
@@ -18,6 +19,11 @@ import { punch } from "../striking/punch";
  * | `jab`, `cross` | `punch` | straight, lead or rear hand |
  * | `leadHook`, `rearHook` | `punch` | hook, lead or rear hand |
  * | `leadUppercut`, `rearUppercut` | `punch` | uppercut, lead or rear hand |
+ * | `backfist` | `punch` | backfist, lead hand |
+ * | `hammerfist`, `palmHeel` | `punch` | hammerfist or palm heel, rear hand |
+ * | `horizontalElbow`, `risingElbow`, `descendingElbow` | `closeStrike` | the elbow's path, rear arm |
+ * | `spinningElbow`, `spinningBackfist` | `closeStrike` | a whole turn, rear arm |
+ * | `headbutt` | `closeStrike` | the forehead |
  * | `roundKick`, `switchKick` | `kick` | round, rear or lead leg |
  * | `pushKick`, `teep` | `kick` | push, lead or rear leg |
  * | `leadKnee`, `rearKnee` | `knee` | lead or rear leg |
@@ -80,6 +86,77 @@ export namespace HumanStrike {
   > = HumanActionRow.of("rearUppercut", punch, {
     technique: "uppercut",
     hand: "rear",
+  });
+
+  /** A backfist with the lead hand. */
+  export const backfist: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["backfist"]
+  > = HumanActionRow.of("backfist", punch, {
+    technique: "backfist",
+    hand: "lead",
+  });
+
+  /** A hammerfist with the rear hand. */
+  export const hammerfist: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["hammerfist"]
+  > = HumanActionRow.of("hammerfist", punch, {
+    technique: "hammerfist",
+    hand: "rear",
+  });
+
+  /** A palm-heel strike with the rear hand. */
+  export const palmHeel: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["palmHeel"]
+  > = HumanActionRow.of("palmHeel", punch, {
+    technique: "palmHeel",
+    hand: "rear",
+  });
+
+  /** A horizontal elbow with the rear arm, swept across the line. */
+  export const horizontalElbow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["horizontalElbow"]
+  > = HumanActionRow.of("horizontalElbow", closeStrike, {
+    technique: "horizontalElbow",
+    arm: "rear",
+  });
+
+  /** A rising elbow with the rear arm, brought up under the target. */
+  export const risingElbow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["risingElbow"]
+  > = HumanActionRow.of("risingElbow", closeStrike, {
+    technique: "risingElbow",
+    arm: "rear",
+  });
+
+  /** A descending elbow with the rear arm, brought down onto the target. */
+  export const descendingElbow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["descendingElbow"]
+  > = HumanActionRow.of("descendingElbow", closeStrike, {
+    technique: "descendingElbow",
+    arm: "rear",
+  });
+
+  /** A spinning elbow: a whole turn on the lead ball, the rear elbow landing as it comes past. */
+  export const spinningElbow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["spinningElbow"]
+  > = HumanActionRow.of("spinningElbow", closeStrike, {
+    technique: "spinningElbow",
+    arm: "rear",
+  });
+
+  /** A spinning backfist: a whole turn on the lead ball, the back of the rear fist landing as it comes past. */
+  export const spinningBackfist: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["spinningBackfist"]
+  > = HumanActionRow.of("spinningBackfist", closeStrike, {
+    technique: "spinningBackfist",
+    arm: "rear",
+  });
+
+  /** A headbutt: the forehead driven onto the target, the hands on a person's neck. */
+  export const headbutt: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["headbutt"]
+  > = HumanActionRow.of("headbutt", closeStrike, {
+    technique: "headbutt",
   });
 
   /** A round kick with the rear leg's shin. */

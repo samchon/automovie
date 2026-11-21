@@ -27,7 +27,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 
 /** Where the pelvis is at an instant of getting on: the root, the heading, the pelvis pitch and the set joints. */
-type Frame = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "joints">;
+type Frame = Pick<
+  IAutoMovieMotionHumanPosture,
+  "root" | "yaw" | "pitch" | "roll" | "joints"
+>;
 
 /**
  * Getting onto a high seat, or a seat sat astride, from standing beside or
@@ -199,10 +202,14 @@ export namespace HumanMountOn {
       const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"]; } =
         HumanTrunk.incline(joints, lean);
       const yaw: number = yaw0 + turn * across;
+      // A tipped or tilted seat, as a saddle on a grade, tips the pelvis with it as the body crosses onto it.
+      const pitch: number = tilt.pitch + (seat.pitch ?? 0) * across;
+      const roll: number = (seat.roll ?? 0) * across;
       return {
-        root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
+        root: seated.root(body, socket, { yaw, pitch, roll }),
         yaw,
-        pitch: tilt.pitch,
+        pitch,
+        roll,
         joints: tilt.joints,
       };
     };
@@ -211,7 +218,7 @@ export namespace HumanMountOn {
       return hipJoints(
         body,
         frame.root,
-        resolveHumanPosture.heading({ ...frame, roll: 0 }),
+        resolveHumanPosture.heading(frame),
         frame.joints.hips,
       );
     };
@@ -463,7 +470,7 @@ export namespace HumanMountOn {
         }
         return seated.arms(
           body,
-          { ...frame, roll: 0, limbs },
+          { ...frame, limbs },
           minimumJerk.share((t - 0.5 * climb) / (0.5 * climb)),
           resolution,
           projection,
