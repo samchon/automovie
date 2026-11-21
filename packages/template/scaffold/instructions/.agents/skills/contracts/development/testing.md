@@ -4,19 +4,19 @@ Each exported test function answers this checklist and [common](common.md) from 
 
 ## Behavioral verification
 
-Exercise the behavior and assert its observable result. For a scene, assert its resolved performance at the named instants: a contact, an outcome, or a speed, spacing or interval its beat or study fixes. Delete checks of repository layout or source text and checks that repeat tuned constants, fitted results or implementation output.
+Exercise the behavior and assert its observable result. For a registered row or law, assert each bound [motion verification](../../motion/laws/verification.md) lists on the displayed result. Delete checks of repository layout or source text and checks that repeat tuned constants, fitted results or implementation output.
 
 State the operation exercised, the defect the assertions catch, and the valid behavior they allow.
 
 ## Independent expectations
 
-Derive expected values and tolerances from the screenplay beat, subject record or study the code realizes, or from a specification, physical requirement or other independent reference. Never derive them from the implementation under test, the values a scene passes or a snapshot of its output.
+Derive expected values and tolerances from the study, subject record or screenplay fact the module realizes, or from a specification, physical requirement or other independent reference, never from the implementation under test or a snapshot of its output.
 
 State that basis, how the assertion would catch a wrong implementation, and any oracle limitation.
 
 ## Distinguishing cases
 
-Cover positive, adjacent negative and boundary cases. Identify the input that must change, the meaning to preserve, and any empty, singleton, limit, malformed or failure case the decision requires. Hold a scripted outcome across the seeds and bodies it must survive. Keep the assertions and cases when optimizing runtime.
+Cover positive, adjacent negative and boundary cases. Identify the input that must change, the meaning to preserve, and any empty, singleton, limit, malformed or failure case the decision requires. For a row or law, cover the bodies, partners and props motion verification requires. Keep the assertions and cases when optimizing runtime.
 
 State this test's contribution and the cases another test owns.
 

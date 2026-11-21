@@ -18,7 +18,7 @@ Do the participants' preparation, support, movement and recovery produce the res
 
 ### Pace
 
-Do each participant's speed, effort, spacing and timing perform what the beat shows? For skilled practice, do the cues, spacing, simultaneous responses and elapsed times match the study? Measure intervals and spacing at times sampled under [frame evaluation](frame-evaluation.md), and keep each measure the beat or study fixes as a [motion check](../development/testing.md#motion-checks).
+Do each participant's speed, effort, spacing and timing perform what the beat shows? For skilled practice, do the cues, spacing, simultaneous responses and elapsed times match the study? Measure intervals and spacing at times sampled under [frame evaluation](frame-evaluation.md).
 
 ### Staging
 
