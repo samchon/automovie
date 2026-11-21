@@ -67,8 +67,10 @@ export namespace HumanRideHands {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The palm depth is filled once measured, never assumed.
    */
   export interface IHandle {
-    /** The holding hand and its measured depth after a full articulated frame is observed. */
+    /** The holding hand. */
     side: AutoMovieHumanSide;
+
+    /** The hand's measured palm depth to the held surface, metres; absent until a full articulated frame has been observed. */
     palmDepth?: number;
     /** The canonical palm frame retained for a rein over all pose reads. */
     reinPalm?: IAutoMovieMotionHumanHand.IFrame;
