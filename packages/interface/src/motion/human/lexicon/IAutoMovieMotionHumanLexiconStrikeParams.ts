@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionHumanCloseStrike } from "../striking/IAutoMovieMotionHumanCloseStrike";
+import type { IAutoMovieMotionHumanFootStrike } from "../striking/IAutoMovieMotionHumanFootStrike";
 import type { IAutoMovieMotionHumanKick } from "../striking/IAutoMovieMotionHumanKick";
 import type { IAutoMovieMotionHumanKnee } from "../striking/IAutoMovieMotionHumanKnee";
 import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHumanPunch";
@@ -73,6 +74,60 @@ export interface IAutoMovieMotionHumanLexiconStrikeParams {
 
   /** A headbutt: the forehead driven onto the target, the hands on a person's neck. */
   headbutt: Omit<IAutoMovieMotionHumanCloseStrike.IParams, "technique" | "arm">;
+
+  /** A side kick with the lead leg: the heel driven along the line, the hip turned over. */
+  sideKick: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
+
+  /** A back kick with the rear leg: turned away, the heel thrust behind. */
+  backKick: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
+
+  /** A hook kick with the lead leg: the heel swept toward the kicker's own side. */
+  hookKick: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
+
+  /** A crescent kick with the rear leg: the sole swept away from the kicker's side. */
+  crescentKick: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
+
+  /** An axe kick with the rear leg: the heel brought down from above. */
+  axeKick: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
+
+  /** A stomp with the rear leg: the sole driven straight down onto a floor-level target. */
+  stomp: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
+
+  /** A leg sweep with the lead leg: the sole reaping the partner's support ankle. */
+  legSweep: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
+
+  /** A spinning hook kick with the rear leg: a whole turn, then the heel swept across. */
+  spinningHookKick: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
+
+  /** A jumping side kick with the lead leg: off the floor at the contact. */
+  jumpingSideKick: Omit<
+    IAutoMovieMotionHumanFootStrike.IParams,
+    "technique" | "leg" | "spin" | "jump"
+  >;
 
   /** A rear round kick. */
   roundKick: Omit<IAutoMovieMotionHumanKick.IParams, "technique" | "leg">;

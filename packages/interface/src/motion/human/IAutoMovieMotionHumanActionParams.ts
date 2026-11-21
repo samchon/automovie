@@ -50,6 +50,7 @@ import type { IAutoMovieMotionHumanDefend } from "./striking/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanGuard } from "./striking/IAutoMovieMotionHumanGuard";
 import type { IAutoMovieMotionHumanKick } from "./striking/IAutoMovieMotionHumanKick";
 import type { IAutoMovieMotionHumanCloseStrike } from "./striking/IAutoMovieMotionHumanCloseStrike";
+import type { IAutoMovieMotionHumanFootStrike } from "./striking/IAutoMovieMotionHumanFootStrike";
 import type { IAutoMovieMotionHumanKnee } from "./striking/IAutoMovieMotionHumanKnee";
 import type { IAutoMovieMotionHumanPunch } from "./striking/IAutoMovieMotionHumanPunch";
 import type { IAutoMovieMotionHumanStep } from "./striking/IAutoMovieMotionHumanStep";
@@ -137,6 +138,9 @@ export interface IAutoMovieMotionHumanActionParams {
 
   /** An elbow, a spinning elbow or backfist, or a headbutt. */
   closeStrike: IAutoMovieMotionHumanCloseStrike.IParams;
+
+  /** A side, back, hook, crescent, axe kick, a stomp or a leg sweep. */
+  footStrike: IAutoMovieMotionHumanFootStrike.IParams;
 
   /** Sitting down. */
   sit: IAutoMovieMotionHumanSit.IParams;

@@ -33,6 +33,7 @@
  * - `stagger`: one unplanned capture step after a push.
  * - `knockdown`: the legs giving way and the body going down to lie supine.
  * - `knee`: a knee driven onto a target, in the clinch or free.
+ * - `footStrike`: a side, back, hook, crescent, axe kick, a stomp or a leg sweep, spun or jumped.
  * - `closeStrike`: an elbow, a spinning elbow or backfist, or a headbutt brought onto a target inside the punch's range.
  * - `touch`: a hand laid on a partner's or one's own region and moved on it by a kind of touch.
  * - `handToFace`: a hand-to-face task of daily living (drink, eat, phone, read, groom).
@@ -94,6 +95,7 @@ export type AutoMovieMotionHumanActionName =
   | "perturb"
   | "knee"
   | "closeStrike"
+  | "footStrike"
   | "sit"
   | "rise"
   | "shift"

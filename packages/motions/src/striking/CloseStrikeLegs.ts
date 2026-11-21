@@ -101,6 +101,14 @@ export function CloseStrikeLegs(
         lead === "left"
           ? { left: pivoted, right: risen }
           : { left: risen, right: pivoted };
+      // A jump lifts the root and both feet together.
+      const hop: number = motion.hop === undefined ? 0 : motion.hop(seconds);
+      if (hop > 0)
+        for (const side of ["left", "right"] as const)
+          placed[side] = {
+            ...placed[side],
+            ankle: { ...placed[side].ankle, y: placed[side].ankle.y + hop },
+          };
       const root: IAutoMovieVector3 = Vector3.add(
         turnAbout(entry.root),
         Vector3.scale(motion.shift, share),
@@ -110,15 +118,15 @@ export function CloseStrikeLegs(
         body,
         {
           ...posture,
-          root: { ...root, y: entry.root.y },
+          root: { ...root, y: entry.root.y + hop },
           yaw,
           pitch: entry.pitch + motion.lean * share,
           joints: StrikingStance.facing(posture.joints, yaw - entry.yaw),
           limbs: {
             ...posture.limbs,
             ...StrikingStance.legs(body, placed, {
-              left: !(rear === "left" && spun !== 0),
-              right: !(rear === "right" && spun !== 0),
+              left: hop === 0 && !(rear === "left" && spun !== 0),
+              right: hop === 0 && !(rear === "right" && spun !== 0),
             }),
           },
         },
@@ -161,5 +169,8 @@ export namespace CloseStrikeLegs {
 
     /** The spin about the lead ball at an action second, degrees; 0 without a spin. */
     spin: (seconds: number) => number;
+
+    /** The height both feet and the root are lifted at an action second, metres; none when absent. */
+    hop?: (seconds: number) => number;
   }
 }

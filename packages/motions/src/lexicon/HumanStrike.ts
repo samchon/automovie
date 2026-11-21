@@ -5,6 +5,7 @@ import type {
 
 import { HumanActionRow } from "../law/HumanActionRow";
 import { closeStrike } from "../striking/closeStrike";
+import { footStrike } from "../striking/footStrike";
 import { kick } from "../striking/kick";
 import { knee } from "../striking/knee";
 import { punch } from "../striking/punch";
@@ -24,6 +25,8 @@ import { punch } from "../striking/punch";
  * | `horizontalElbow`, `risingElbow`, `descendingElbow` | `closeStrike` | the elbow's path, rear arm |
  * | `spinningElbow`, `spinningBackfist` | `closeStrike` | a whole turn, rear arm |
  * | `headbutt` | `closeStrike` | the forehead |
+ * | `sideKick`, `hookKick`, `legSweep`, `jumpingSideKick` | `footStrike` | technique, lead leg, the jump |
+ * | `backKick`, `crescentKick`, `axeKick`, `stomp`, `spinningHookKick` | `footStrike` | technique, rear leg, the spin |
  * | `roundKick`, `switchKick` | `kick` | round, rear or lead leg |
  * | `pushKick`, `teep` | `kick` | push, lead or rear leg |
  * | `leadKnee`, `rearKnee` | `knee` | lead or rear leg |
@@ -157,6 +160,80 @@ export namespace HumanStrike {
     IAutoMovieMotionHumanLexiconParams["strike"]["headbutt"]
   > = HumanActionRow.of("headbutt", closeStrike, {
     technique: "headbutt",
+  });
+
+  /** A side kick with the lead leg: the heel driven along the line, the hip turned over. */
+  export const sideKick: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["sideKick"]
+  > = HumanActionRow.of("sideKick", footStrike, {
+    technique: "side",
+    leg: "lead",
+  });
+
+  /** A back kick with the rear leg: turned away, the heel thrust behind. */
+  export const backKick: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["backKick"]
+  > = HumanActionRow.of("backKick", footStrike, {
+    technique: "back",
+    leg: "rear",
+  });
+
+  /** A hook kick with the lead leg: the heel swept toward the kicker's own side. */
+  export const hookKick: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["hookKick"]
+  > = HumanActionRow.of("hookKick", footStrike, {
+    technique: "hook",
+    leg: "lead",
+  });
+
+  /** A crescent kick with the rear leg: the sole swept away from the kicker's side. */
+  export const crescentKick: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["crescentKick"]
+  > = HumanActionRow.of("crescentKick", footStrike, {
+    technique: "crescent",
+    leg: "rear",
+  });
+
+  /** An axe kick with the rear leg: the heel brought down from above. */
+  export const axeKick: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["axeKick"]
+  > = HumanActionRow.of("axeKick", footStrike, {
+    technique: "axe",
+    leg: "rear",
+  });
+
+  /** A stomp with the rear leg: the sole driven straight down onto a floor-level target. */
+  export const stomp: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["stomp"]
+  > = HumanActionRow.of("stomp", footStrike, {
+    technique: "stomp",
+    leg: "rear",
+  });
+
+  /** A leg sweep with the lead leg: the sole reaping the partner's support ankle. */
+  export const legSweep: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["legSweep"]
+  > = HumanActionRow.of("legSweep", footStrike, {
+    technique: "sweep",
+    leg: "lead",
+  });
+
+  /** A spinning hook kick with the rear leg: a whole turn, then the heel swept across. */
+  export const spinningHookKick: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["spinningHookKick"]
+  > = HumanActionRow.of("spinningHookKick", footStrike, {
+    technique: "hook",
+    leg: "rear",
+    spin: true,
+  });
+
+  /** A jumping side kick with the lead leg: off the floor at the contact. */
+  export const jumpingSideKick: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["strike"]["jumpingSideKick"]
+  > = HumanActionRow.of("jumpingSideKick", footStrike, {
+    technique: "side",
+    leg: "lead",
+    jump: true,
   });
 
   /** A round kick with the rear leg's shin. */
