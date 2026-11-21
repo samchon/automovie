@@ -32,6 +32,7 @@ const MARGIN: number = 0.3;
  * 1. Four pairs deploy from a column into a line 3 m apart and rally back into column, each to its nearest slot, keeping the mounts' margin; a line too tight for the margin refuses at its close with both neighbours named.
  * 2. A line halting short of a person standing before a wall is admitted; one that rides on to the wall refuses with the horse and the person.
  * 3. In a caracole each rank fires only while it is the front rank: the first rank fires, wheels off to the rear at the trot, and the second rank comes up and fires.
+ * 5. Meeting an opposing infantry line, riders aligned with its gaps pass through and a rider whose lane meets a soldier pulls up and halts short of him.
  * 4. In a skirmish screen in open order, alternate files advance, fire on the move and wheel about to retire, each volley fired by the files in front, without contact.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the three stagings and their expectations.
@@ -319,6 +320,53 @@ export function test_world_mounted_formations(): void {
       step: STEP,
     }),
     [],
+  );
+  // 5. Meeting an opposing line: riders aligned with its gaps pass through, and one whose lane meets a soldier pulls up short of him.
+  const soldiers: ArchetypePassage.IObstacle[] = [-4.5, -1.5, 1.5, 4.5].map(
+    (x: number, k: number): ArchetypePassage.IObstacle => ({
+      id: `soldier${k}`,
+      footprint: { outline: [point(x, 20)], radius: 0.3 },
+      margin: MARGIN,
+    }),
+  );
+  const charge: ArchetypePassage.IParticipant[] = [-3, 0, 1.5].map(
+    (x: number, k: number): ArchetypePassage.IParticipant => ({
+      id: `rider${k}`,
+      plan: ArchetypeCourse.timed(
+        `rider${k}`,
+        x === 1.5
+          ? [
+              sample(0, point(x, 0)),
+              sample(3, point(x, 9)),
+              sample(6, point(x, 15)),
+              sample(9, point(x, 15)),
+            ]
+          : [
+              sample(0, point(x, 0)),
+              sample(3, point(x, 9)),
+              sample(6, point(x, 18)),
+              sample(9, point(x, 27)),
+            ],
+      ),
+      footprint,
+      margin: MARGIN,
+    }),
+  );
+  TestValidator.equals(
+    "riders pass through the line's gaps and the blocked rider pulls up short of his soldier",
+    ArchetypePassage.conflicts("line", {
+      participants: charge,
+      obstacles: soldiers,
+      step: STEP,
+    }).filter((found: ArchetypePassage.IConflict): boolean =>
+      found.other.startsWith("soldier"),
+    ),
+    [],
+  );
+  TestValidator.predicate(
+    "the blocked rider halts before the line",
+    charge[2]!.plan.at(9).speed === 0 &&
+      charge[2]!.plan.at(9).placement.translation.z < 20,
   );
 }
 
