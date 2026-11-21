@@ -1,98 +1,50 @@
-import {
-  type ArchetypeRide,
-  EquineCare,
-  EquineExpression,
-  EquineStance,
-  createGroomingBrush,
-  createHorse,
-  rideHorse,
-} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanObject,
-  IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanHand,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  HumanTendHorse,
-} from "@automovie/motions";
+import { HumanHand, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { equestrianHandlerTake as Take } from "../internal/equestrianHandlerTake";
 import { motionHumanBody } from "../internal/motionHumanBody";
-
-/** The horse producer's model. */
-type Horse = ReturnType<typeof createHorse>;
-
-/** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
-
-/** The horse prop's model and readers for one displayed ride. */
-interface IStagedHorse {
-  /** The prop model: the horse's contacts and its care points. */
-  model: IAutoMovieMotionHumanObject.IModel;
-
-  /** The horse's world placement at a film second. */
-  place: (at: number) => IAutoMovieRigidTransform;
-
-  /** A contact's world frame at a film second. */
-  part: (id: string, at: number) => IAutoMovieTransform;
-}
-
-/** The body brush the handler grooms with. */
-const BRUSH: ReturnType<typeof createGroomingBrush> = createGroomingBrush();
 
 /** The rider attachment contract's 10 mm contact budget. */
 const CONTACT: number = 0.01;
 
-/** One staged take: the film, the horse's displayed ride and its care points. */
-interface ITake {
-  /** The handler's performance. */
-  film: HumanPerformance;
-
-  /** The horse as displayed. */
-  horse: Ride;
-
-  /** The horse's contact frames, care points included, at a film second. */
-  part: (id: string, at: number) => IAutoMovieTransform;
-
-  /** The horse prop's contacts at rest, care points included. */
-  affordances: readonly IAutoMovieAffordance[];
-}
-
 /**
- * A handler brushes, handles the headgear, settles the saddle and holds a lifted hoof on one scene clock with the horse's own responses.
+ * A handler leads a horse in, brushes it with a held brush, puts on its halter, saddles it and holds a lifted hoof on one scene clock with the horse's own responses.
  *
  * Scenarios:
- * 1. The displayed palm meets each named horse contact while held: the bristle face of a body brush the handler picks up, along a stroke on the barrel, before putting the brush back, the poll the horse lowers its head to bring within reach, the saddle's left stirrup and the hoof the horse lifts; it is clear of it before acquisition and after release.
- * 2. Every held window names the horse as its support, the hand as its part and the touch or grip its task asks for.
- * 3. The horse lifts the hoof the handler holds only after moving its weight, and the startle it gives after the hoof is put down replays identically when the take is built again.
- * 4. A care placement on the horse's far side refuses as out of reach.
+ * 1. The handler walks the horse in, the displayed palm on the moving lead rope from acquisition to release while the horse travels.
+ * 2. The displayed palm meets each named horse contact while held: the bristle face of a body brush the handler picks up, along a stroke on the barrel, before putting the brush back, and the hoof the horse lifts; it is clear of it before acquisition and after release.
+ * 3. Every held window names the horse as its support, the hand as its part and the touch or grip its task asks for. A halter fitted to the horse hangs on a hook, rides the hand by its grip, and once put on the horse's lowered head rides its head socket; a saddle made of the same horse's saddle parts is carried from its rack and laid on the bareback horse's back, where it rides the trunk through the horse's later weight shift and startle.
+ * 4. The horse lifts the hoof the handler holds only after moving its weight, and the startle it gives after the hoof is put down replays identically when the take is built again.
+ * 5. A care placement on the horse's far side refuses as out of reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names every scenario and what it checks.
  * @evidence contracts/development/testing.md#behavioral-verification Plays the public care overlay over shipped stands and a crouch against the public horse stance and expression layers through the performance's readers.
  * @evidence contracts/development/testing.md#independent-expectations Each contact is the displayed palm's distance to the horse contact's surface read from the horse's own displayed parts, against the attachment contract's 10 mm budget.
- * @evidence contracts/development/testing.md#distinguishing-cases Brush, headgear, saddle and hoof; before, during and after each hold; a reachable side versus the far side.
+ * @evidence contracts/development/testing.md#distinguishing-cases Lead, brush, halter, saddle and hoof; before, during and after each hold; a reachable side versus the far side.
  * @evidence contracts/development/testing.md#execution-ownership A deterministic in-memory scene; the horse's whole-body responses are `test_archetype_equine_reaction`'s and leading is `test_motion_equestrian_lifecycle`'s.
  */
 export function test_motion_equestrian_handler(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const first: ITake = take(body, "groomLeft");
-  const again: ITake = take(body, "groomLeft");
-  const overlays: readonly IAutoMovieMotionHumanSegment[] =
-    first.film.overlays("handler");
+  const first: Take.ITake = Take.take(body, "groomLeft");
+  const again: Take.ITake = Take.take(body, "groomLeft");
+  const caring = (film: HumanPerformance): IAutoMovieMotionHumanSegment[] =>
+    film
+      .overlays("handler")
+      .filter((overlay: IAutoMovieMotionHumanSegment): boolean =>
+        overlay.name.startsWith("tendHorse"),
+      );
+  const overlays: readonly IAutoMovieMotionHumanSegment[] = caring(first.film);
   const palm: IAutoMovieVector3 = HumanHand.offset(body, "right", "palm").point;
   const shown = (film: HumanPerformance, at: number): IAutoMovieVector3 => {
     const hand: IAutoMovieResolvedBone = film
@@ -110,17 +62,12 @@ export function test_motion_equestrian_handler(): void {
       frame.position,
       Quaternion.rotateVector(
         frame.rotation,
-        BRUSH.affordance("face").frame.translation,
+        Take.BRUSH.affordance("face").frame.translation,
       ),
     );
   };
-  const names: readonly string[] = [
-    "groomLeft",
-    "poll",
-    "leftStirrup",
-    "leftForeHoof",
-  ];
-  TestValidator.equals("four care overlays", overlays.length, names.length);
+  const names: readonly string[] = ["groomLeft", "leftForeHoof"];
+  TestValidator.equals("two care overlays", overlays.length, names.length);
   overlays.forEach((overlay: IAutoMovieMotionHumanSegment, k: number): void => {
     const name: string = names[k]!;
     const window: IAutoMovieMotionHumanContactWindow | undefined =
@@ -180,8 +127,102 @@ export function test_motion_equestrian_handler(): void {
       );
   });
 
+  // 0. The handler leads the horse in, the displayed palm on the moving lead rope while the rope travels.
+  const lead: IAutoMovieMotionHumanSegment = first.film
+    .overlays("handler")
+    .find((overlay: IAutoMovieMotionHumanSegment): boolean =>
+      overlay.name.startsWith("leadHorse"),
+    )!;
+  const leadWindow: IAutoMovieMotionHumanContactWindow =
+    lead.plan.contacts.find(
+      (contact: IAutoMovieMotionHumanContactWindow): boolean =>
+        contact.part === "rightHand",
+    )!;
+  const leadOn: number = lead.start + leadWindow.from * (lead.end - lead.start);
+  const leadOff: number = lead.start + leadWindow.to * (lead.end - lead.start);
+  const rope: number =
+    (first.affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === "lead",
+    )!.aperture ?? 0) / 2;
+  for (let i: number = 1; i < 8; i++) {
+    const at: number = leadOn + ((leadOff - leadOn) * i) / 8;
+    const frame: IAutoMovieTransform = first.part("lead", at);
+    TestValidator.predicate(
+      `the palm holds the lead at ${at}`,
+      Vector3.distance(
+        shown(first.film, at),
+        Vector3.addScaled(
+          frame.translation,
+          Quaternion.rotateVector(frame.rotation, { x: 0, y: 1, z: 0 }),
+          rope,
+        ),
+      ) <= CONTACT,
+    );
+  }
+  TestValidator.predicate(
+    "the led horse travels",
+    Vector3.distance(
+      first.part("lead", leadOn).translation,
+      first.part("lead", leadOff).translation,
+    ) > 1.5,
+  );
+  // The halter hangs on its hook, rides the hand by its grip, and once put on rides the horse's head socket; the saddle, carried from its rack, rides the trunk once laid on the back.
+  const exchange: readonly IAutoMovieMotionHumanSegment[] = first.film
+    .segments("handler")
+    .filter(
+      (segment: IAutoMovieMotionHumanSegment): boolean =>
+        segment.name.startsWith("pickUp") || segment.name.startsWith("putDown"),
+    );
+  const sits = (prop: string, socket: string, at: number): boolean =>
+    Vector3.distance(
+      first.film.prop(prop, at).position,
+      first.part(socket, at).translation,
+    ) <= 1e-3;
+  TestValidator.predicate(
+    "the halter waits on its hook",
+    Vector3.distance(
+      first.film.prop("halter", exchange[2]!.start).position,
+      first.hook,
+    ) <= 1e-6,
+  );
+  const carried: number = (exchange[2]!.end + exchange[3]!.start) / 2;
+  const held: IAutoMovieRigidTransform = first.film.prop("halter", carried);
+  TestValidator.predicate(
+    "the carried halter rides the hand by its grip",
+    Vector3.distance(
+      Vector3.add(
+        held.position,
+        Quaternion.rotateVector(
+          held.rotation,
+          first.halter.affordance("grip").frame.translation,
+        ),
+      ),
+      shown(first.film, carried),
+    ) <= 0.06,
+  );
+  TestValidator.predicate(
+    "the saddle waits on its rack",
+    Vector3.distance(
+      first.film.prop("saddle", exchange[4]!.start).position,
+      first.rack,
+    ) <= 1e-6,
+  );
+  for (const at of [
+    exchange[5]!.end,
+    overlays[1]!.start + 1,
+    overlays[1]!.end + 2,
+  ]) {
+    TestValidator.predicate(
+      `the halter rides the head at ${at}`,
+      sits("halter", "headgear", at),
+    );
+    TestValidator.predicate(
+      `the saddle rides the back at ${at}`,
+      sits("saddle", "saddle", at),
+    );
+  }
   // 3. The horse's hoof is up while the handler holds it, and the take replays.
-  const hoof: IAutoMovieMotionHumanSegment = overlays[3]!;
+  const hoof: IAutoMovieMotionHumanSegment = overlays[1]!;
   const middle: number = (hoof.start + hoof.end) / 2;
   TestValidator.predicate(
     "the held hoof is off the floor",
@@ -197,9 +238,8 @@ export function test_motion_equestrian_handler(): void {
   // 4. The far side is out of reach.
   let caught: unknown = null;
   try {
-    const far: ITake = take(body, "groomRight");
-    const brush: IAutoMovieMotionHumanSegment =
-      far.film.overlays("handler")[0]!;
+    const far: Take.ITake = Take.take(body, "groomRight");
+    const brush: IAutoMovieMotionHumanSegment = caring(far.film)[0]!;
     far.film.bones("handler", (brush.start + brush.end) / 2);
   } catch (error) {
     caught = error;
@@ -208,204 +248,4 @@ export function test_motion_equestrian_handler(): void {
     "a far-side brush refuses as out of reach",
     caught instanceof HumanRefusal && caught.axis === "careReach",
   );
-}
-
-/** Rehearse the handler's carriers, then lay the horse's responses on their clock and stage the take. */
-function take(body: IAutoMovieMotionHumanBody, brushPoint: string): ITake {
-  const horse: Horse = createHorse(
-    { tack: "saddle", withersHeight: 1.6, tempo: 0 },
-    5,
-  );
-  const ride: Ride = rideHorse(
-    horse,
-    {
-      start: { x: 0, z: 0, heading: 0 },
-      cruise: 1.2,
-      startSpeed: 0,
-      endSpeed: 0,
-      acceleration: 1,
-      deceleration: 1,
-      startFromStanding: true,
-      legs: [{ kind: "straight", length: 1.5 }],
-    },
-    "walk",
-  );
-  const care: EquineCare.IPoints = EquineCare.of(horse);
-  const halt: ArchetypeRide.ISample<
-    createHorse.Affordance,
-    createHorse.Dimension
-  > = ride.at(ride.duration);
-  const girth: IAutoMovieTransform = care.frame(halt, "groomLeft");
-  const hoofAt: IAutoMovieVector3 = care.frame(
-    halt,
-    "leftForeHoof",
-  ).translation;
-  const beside: IAutoMovieVector3 = {
-    x: hoofAt.x + 0.32,
-    y: 0,
-    z: hoofAt.z - 0.2,
-  };
-  const start: number = ride.duration + 0.5;
-
-  // The brush waits on a shelf at the handler's right front, its back up.
-  const shelf: IAutoMovieVector3 = {
-    x: girth.translation.x + 0.23,
-    y: 1,
-    z: girth.translation.z + 0.05,
-  };
-  const performer: IAutoMovieMotionHumanPerformer = {
-    subject: "handler",
-    body,
-    at: { x: girth.translation.x + 0.38, y: 0, z: girth.translation.z + 0.3 },
-    yaw: -90,
-    proficiency: { level: "trained" },
-  };
-  const chain = (): IAutoMovieMotionHumanChain =>
-    HumanChain.subject("handler")
-      .stand({ seconds: start })
-      .pickUp({ prop: "brush", handle: "grip", hand: "right" })
-      .stand({ seconds: 4 })
-      .over(
-        (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-          hand.registered("tendHorse", {
-            on: "horse",
-            side: "right",
-            point: brushPoint,
-            task: "brush",
-            seconds: 3.6,
-            transition: 0.6,
-            stroke: 0.3,
-            tool: { prop: "brush", face: "face" },
-          }),
-      )
-      .putDown({ prop: "brush", hand: "right", at: shelf })
-      .stand({ seconds: 4 })
-      .over(
-        (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-          hand.registered("tendHorse", {
-            on: "horse",
-            side: "right",
-            point: "poll",
-            task: "headgear",
-            seconds: 3.6,
-            transition: 0.6,
-          }),
-      )
-      .stand({ seconds: 3 })
-      .over(
-        (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-          hand.registered("tendHorse", {
-            on: "horse",
-            side: "right",
-            point: "leftStirrup",
-            task: "saddle",
-            seconds: 2.6,
-            transition: 0.5,
-          }),
-      )
-      .walk({ to: beside, face: -90 })
-      .crouch({ depth: "full", hold: 4 }, "low")
-      .over(
-        (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-          hand.registered("tendHorse", {
-            on: "horse",
-            side: "right",
-            point: "leftForeHoof",
-            task: "hoof",
-            seconds: 3.4,
-            transition: 0.6,
-          }),
-      );
-  const prop = (shown: Ride): IStagedHorse => {
-    const model: IAutoMovieMotionHumanObject.IModel = {
-      affordances: [...horse.affordances, ...care.affordances],
-      shapes: (): ReturnType<Horse["shapes"]> => horse.shapes(),
-      hasArticulations: false,
-    };
-    const place = (at: number): IAutoMovieRigidTransform => {
-      const frame: IAutoMovieTransform = shown.at(at).placement;
-      return { position: frame.translation, rotation: frame.rotation };
-    };
-    const part = (id: string, at: number): IAutoMovieTransform =>
-      care.affordances.some((a: IAutoMovieAffordance): boolean => a.id === id)
-        ? care.frame(shown.at(at), id)
-        : shown.frame(id as createHorse.Affordance, at);
-    return { model, place, part };
-  };
-  const stage = (shown: Ride): HumanPerformance => {
-    const { model, place, part } = prop(shown);
-    return new HumanPerformance({
-      seed: "equine-handler",
-      performers: [performer],
-      laws: [HumanTendHorse],
-      props: [
-        HumanObject.prop("horse", model, place(0), place, part),
-        HumanObject.prop("brush", BRUSH, { at: shelf, yaw: 0, fixed: false }),
-      ],
-      composition: chain().node,
-    });
-  };
-
-  // The handler's carriers do not depend on the horse, so a rehearsal over the halted horse fixes the clock the horse's responses are laid on.
-  const rehearsal: HumanPerformance = stage(ride);
-  const holds: readonly IAutoMovieMotionHumanSegment[] =
-    rehearsal.overlays("handler");
-  const poll: IAutoMovieMotionHumanSegment = holds[1]!;
-  const hoof: IAutoMovieMotionHumanSegment = holds[3]!;
-  const stance: Ride = EquineStance.after(horse, ride, [
-    {
-      kind: "hoof",
-      limb: "leftFore",
-      from: hoof.start - 1.2,
-      entry: 1.4,
-      hold: hoof.end - hoof.start - 0.6,
-      exit: 1,
-    },
-    {
-      kind: "startle",
-      from: hoof.end + 1.5,
-      entry: 0.15,
-      hold: 0.5,
-      exit: 0.8,
-    },
-  ]);
-  const chest: IAutoMovieVector3 = {
-    x: performer.at.x - 0.25,
-    y: 1.15,
-    z: performer.at.z,
-  };
-  const shown: Ride = EquineExpression.layer(horse, stance, [
-    {
-      kind: "reach",
-      act: "sniff",
-      from: poll.start - 1,
-      to: poll.end + 0.5,
-      ease: 0.9,
-      target: { kind: "point", point: chest },
-      gap: 0.12,
-    },
-    {
-      kind: "ear",
-      side: "left",
-      carriage: "lateral",
-      from: hoof.start,
-      to: hoof.end,
-      ease: 0.3,
-    },
-    {
-      kind: "ear",
-      side: "right",
-      carriage: "forward",
-      from: hoof.end + 1.4,
-      to: hoof.end + 3,
-      ease: 0.2,
-    },
-  ]);
-  const { part } = prop(shown);
-  return {
-    film: stage(shown),
-    horse: shown,
-    part,
-    affordances: [...horse.affordances, ...care.affordances],
-  };
 }

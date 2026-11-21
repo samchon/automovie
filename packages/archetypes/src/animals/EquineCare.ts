@@ -16,7 +16,7 @@ import {
 import { QuadrupedBody } from "./QuadrupedBody";
 
 /**
- * The places a handler touches when caring for an equid, read from its actual parts: each side of the barrel to brush, the poll a headstall crosses, and each hoof to hold up.
+ * The places a handler touches when caring for an equid, read from its actual parts: each side of the barrel to brush, the poll a headstall crosses, the head's socket a halter is put on, the trunk's socket a saddle is laid on, and each hoof to hold up.
  *
  * Each care point is a contact on the surface of one actual part, its frame's +Y the outward normal and +X the direction a brush strokes along the coat (backward along the barrel) or the bar's axis for a held hoof. A point is carried by its part, so in any posed sample of the equid its frame is the rest frame moved by that part's own rigid change.
  *
@@ -135,6 +135,24 @@ export namespace EquineCare {
       { x: 1, y: 0, z: 0 },
       null,
     );
+
+    // The headgear socket is the head's own frame at the poll, +Y along the head and +X to the left: a fitted halter's `seat` (`createHalter`) is laid on it.
+    bound.set("headgear", "head");
+    affordances.push({
+      id: "headgear",
+      kind: "socket",
+      frame: ArchetypeFrame.facing(head.from, along, { x: 1, y: 0, z: 0 }),
+      extent: null,
+    });
+
+    // The saddle socket is the model's own frame carried by the trunk: a saddle prop made in that frame (`HorseSaddleProp`) is laid on it.
+    bound.set("saddle", "trunk");
+    affordances.push({
+      id: "saddle",
+      kind: "socket",
+      frame: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+      extent: null,
+    });
 
     // Each hoof held round the middle of its pastern bar, a handle whose frame lies on the bar's axis with its outer side as the normal, as a handler beside the limb takes it.
     for (const limb of QuadrupedBody.LIMBS) {
