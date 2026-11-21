@@ -55,7 +55,10 @@ export function equidAttachmentMatrix(
     gallop: [5, 0.472, 0.176],
   };
   const contactIds: Readonly<
-    Record<Exclude<createHorse.Tack, "bare">, readonly string[]>
+    Record<
+      Exclude<createHorse.Tack, "bare" | createHorse.Alternative>,
+      readonly string[]
+    >
   > = {
     saddle: [
       "seat",

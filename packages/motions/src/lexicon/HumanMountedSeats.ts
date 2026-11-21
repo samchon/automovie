@@ -62,7 +62,7 @@ export namespace HumanMountedSeats {
    * @returns The required and the optional supporting parts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what each kind reads.
-   * @evidence contracts/development/implementation.md#principled-implementation The side saddle's two leg supports with optional reins, the bench's knees and handles, the basic seat's free arms, and the entered seat's optional hands.
+   * @evidence contracts/development/implementation.md#principled-implementation The side saddle's two leg supports with optional reins, the bench's knees and handles, the basic seat's free arms, the out-of-saddle seats' two stirrups with optional reins, and the entered seat's optional hands and the stirrups its entry stands in.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One choice per kind.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
@@ -80,7 +80,12 @@ export namespace HumanMountedSeats {
     if (seat === "bench")
       return [["leftKnee", "rightKnee", "leftHand", "rightHand"], []];
     if (seat === "basic") return [[], []];
-    return [[], ["leftHand", "rightHand"]];
+    if (seat === "twoPoint" || seat === "crouch" || seat === "standing")
+      return [
+        ["leftFoot", "rightFoot"],
+        ["leftHand", "rightHand"],
+      ];
+    return [[], ["leftHand", "rightHand", "leftFoot", "rightFoot"]];
   }
 
   /**
@@ -131,6 +136,9 @@ export namespace HumanMountedSeats {
 
     /** A carrier contact's declaration. */
     contact(id: string): IAutoMovieAffordance;
+
+    /** How far the carrier contact rises or falls along its own up from its stride-averaged path, metres: what a leg out of the saddle must absorb; 0 without a stride. */
+    slack: number;
 
     /** How far a segment given in the carrier frame lies from the carrier's colliders, metres, negative inside. */
     clear(a: IAutoMovieVector3, b: IAutoMovieVector3): number;

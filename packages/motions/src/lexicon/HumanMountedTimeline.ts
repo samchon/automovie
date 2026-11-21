@@ -36,6 +36,7 @@ export class HumanMountedTimeline {
    * Lay the clock out.
    *
    * @param figures The admitted figures.
+   * @param gripped The hands the entry already holds on the first figure's contacts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is laid out.
    * @evidence contracts/development/implementation.md#principled-implementation A running sum of each figure's transfer and hold.
@@ -47,6 +48,7 @@ export class HumanMountedTimeline {
    */
   public constructor(
     private readonly figures: readonly IAutoMovieMotionHumanMounted.IFigure[],
+    private readonly gripped: ReadonlySet<AutoMovieHumanSide> = new Set(),
   ) {
     const starts: number[] = [];
     const arrivals: number[] = [];
@@ -90,7 +92,7 @@ export class HumanMountedTimeline {
   }
 
   /**
-   * How far a hand has taken the contact it holds at a second, 0 free to 1 holding: held through a transfer between two figures that both name it, taken over a transfer into a figure that newly names it, and let go over a transfer into one that drops it.
+   * How far a hand has taken the contact it holds at a second, 0 free to 1 holding: held through a transfer between two figures that both name it, or from the entry when it already holds the first figure's contact, taken over a transfer into a figure that newly names it, and let go over a transfer into one that drops it.
    *
    * @param side The hand.
    * @param at Local seconds.
@@ -109,8 +111,9 @@ export class HumanMountedTimeline {
     const now: boolean =
       this.figures[index]!.supports?.[`${side}Hand`] !== undefined;
     const was: boolean =
-      index > 0 &&
-      this.figures[index - 1]!.supports?.[`${side}Hand`] !== undefined;
+      index > 0
+        ? this.figures[index - 1]!.supports?.[`${side}Hand`] !== undefined
+        : this.gripped.has(side);
     return now ? (was ? 1 : share) : was ? 1 - share : 0;
   }
 

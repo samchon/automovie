@@ -22,7 +22,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what frame is read, its axes and why a trunk-borne contact is used.
  * @evidence contracts/development/design.md#principled-representation A rigid transform per film second and the re-expression of a posture between two rigid frames.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The reader and the move `HumanMounted` uses.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The reader, the contact point and the move `HumanMounted` uses.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact's frame is the carrier's own reading; nothing is extrapolated.
  */
 export namespace HumanMountedFrame {
@@ -88,11 +88,41 @@ export namespace HumanMountedFrame {
     };
   }
 
-  /** The identity frame a posture is planned in before it is carried. */
-  export const LOCAL: IAutoMovieRigidTransform = {
-    position: { x: 0, y: 0, z: 0 },
-    rotation: { x: 0, y: 0, z: 0, w: 1 },
-  };
+  /**
+   * A carrier contact's world point at a film second: the carrier's own moving reading, or the contact's model point under the carrier's frame where it publishes none.
+   *
+   * @param support The carrier.
+   * @param id The contact's id, which the carrier declares.
+   * @param film Film seconds.
+   * @returns World metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both readings.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A read or one rigid transform.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One branch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller admits the contact first; nothing is guessed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One carrier reading and at most one contact lookup.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function contact(
+    support: IAutoMovieMotionHumanPropReader,
+    id: string,
+    film: number,
+  ): IAutoMovieVector3 {
+    const read: ReturnType<NonNullable<typeof support.prop.point>> =
+      support.prop.point?.(id, film);
+    if (read !== undefined) return read.point;
+    const declared: IAutoMovieAffordance = support.prop.affordances!.find(
+      (a: IAutoMovieAffordance): boolean => a.id === id,
+    )!;
+    return carryHumanPoint(support.frame(film), declared.frame.translation);
+  }
+
+  /** The identity frame a posture is planned in before it is carried. */ export const LOCAL: IAutoMovieRigidTransform =
+    {
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    };
 
   /**
    * A posture re-expressed from one frame to another: its world points and

@@ -76,7 +76,7 @@ export namespace mountedHorseScene {
     body: IAutoMovieMotionHumanBody;
 
     /** The gait. */
-    gait: "walk" | "trot" | "canter";
+    gait: "walk" | "trot" | "canter" | "gallop";
 
     /** Seconds the horse stands before it goes. */
     wait: number;
@@ -85,7 +85,7 @@ export namespace mountedHorseScene {
     from: IAutoMovieVector3;
 
     /** The acts after sitting. */
-    then: (seated: Seated) => Seated;
+    acts: (seated: Seated) => Seated;
   }
 
   /**
@@ -96,20 +96,7 @@ export namespace mountedHorseScene {
    */
   export function build(props: IProps): IScene {
     const { horse, body, gait, wait } = props;
-    const scale: number = Math.sqrt(horse.dimensions.withersHeight! / 1.38);
-    const speed: number =
-      ({ walk: 1.4, trot: 3, canter: 5 } as const)[gait] * scale;
-    const ride: Ride = rideHorse(
-      horse,
-      {
-        start: { x: 0, z: 0, heading: 0 },
-        cruise: speed,
-        startSpeed: speed,
-        endSpeed: speed,
-        legs: [{ kind: "straight", length: speed * 12 }],
-      },
-      gait,
-    );
+    const ride: Ride = course(horse, gait);
     const local = (at: number): number =>
       Math.max(0, Math.min(ride.duration, at - wait));
     const place = (at: number): IAutoMovieRigidTransform => {
@@ -138,7 +125,7 @@ export namespace mountedHorseScene {
           proficiency: { level: "trained" },
         },
       ],
-      composition: props.then(
+      composition: props.acts(
         HumanChain.subject("rider").sit({ seat, seconds: 0.5 }),
       ).node,
     });
@@ -153,6 +140,30 @@ export namespace mountedHorseScene {
       place,
       segments: film.segments("rider"),
     };
+  }
+
+  /**
+   * The horse's ride: a straight course of twelve seconds at its gait's steady speed, scaled by the square root of its height at the withers (Froude similarity).
+   *
+   * @param horse The horse.
+   * @param gait The gait.
+   * @returns The ride.
+   */
+  export function course(horse: Horse, gait: IProps["gait"]): Ride {
+    const scale: number = Math.sqrt(horse.dimensions.withersHeight! / 1.38);
+    const speed: number =
+      ({ walk: 1.4, trot: 3, canter: 5, gallop: 8 } as const)[gait] * scale;
+    return rideHorse(
+      horse,
+      {
+        start: { x: 0, z: 0, heading: 0 },
+        cruise: speed,
+        startSpeed: speed,
+        endSpeed: speed,
+        legs: [{ kind: "straight", length: speed * 12 }],
+      },
+      gait,
+    );
   }
 
   /**

@@ -61,7 +61,7 @@ export function test_archetype_equine_tack(): void {
     }
 
     // 2. Mass.
-    const added: number = horse.mass - bare.mass;
+    const added: number = horse.properties.mass - bare.properties.mass;
     const wanted: number = tack === "sidesaddle" ? 10 : 0;
     if (Math.abs(added - wanted) > 1e-9)
       findings.push(`${tack}: adds ${added} kg, wanted ${wanted}`);

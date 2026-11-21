@@ -18,7 +18,9 @@ import { HumanMountedSeats } from "./HumanMountedSeats";
  * @param index The figure admitted.
  * @param parts Every supporting part, in the order the law lists them.
  * @param hands The contact each hand holds so far, filled as figures are admitted.
- * @throws {HumanRefusal} For a transfer of no time, a negative hold, a support the seat kind lacks or does not read, a contact the carrier lacks, a hand that changes contact, or a transfer that holds no support through it.
+ * @param planted Whether each entry foot stands on something.
+ * @param stride The performance's stride, seconds, when given.
+ * @throws {HumanRefusal} For a transfer of no time, a negative hold, a support the seat kind lacks or does not read, a contact the carrier lacks, a hand that changes contact, a transfer that holds no support through it, an entered figure naming a stirrup the entry's foot is not in, or a hand ride without a stride and both reins.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is admitted and every refusal.
  * @evidence contracts/development/implementation.md#principled-implementation The seat kind's required and optional parts (`HumanMountedSeats.parts`) against the figure's named supports, the carrier's declared contacts, and the shared-support rule for a transfer (motion skill, contacts: transfer weight to the next support before releasing the current one).
@@ -35,6 +37,8 @@ export function admitHumanMountedFigure(
   index: number,
   parts: readonly HumanMountedSeats.Part[],
   hands: Partial<Record<AutoMovieHumanSide, string>>,
+  planted: Readonly<Record<AutoMovieHumanSide, boolean>>,
+  stride: number | undefined,
 ): void {
   const figure: IAutoMovieMotionHumanMounted.IFigure = figures[index]!;
   HumanBound.above(`figures.${index}.transfer`, figure.transfer, 0, "s");
@@ -118,5 +122,35 @@ export function admitHumanMountedFigure(
       feasible: null,
       reason: `the transfer into figure ${index} keeps neither the seat nor a support on the same contact, so the body would let go of every support`,
       fix: "hold a handle or a stirrup through the transfer, or keep the seat",
+    });
+  // An entered figure's stirrups are the entry's own, and a hand ride pushes both reins once a stride.
+  for (const side of ["left", "right"] as const)
+    if (
+      figure.seat === "entered" &&
+      figure.supports?.[`${side}Foot`] !== undefined &&
+      !planted[side]
+    )
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: `figures.${index}.supports.${side}Foot`,
+        value: figure.supports[`${side}Foot`],
+        feasible: null,
+        reason: `the entered seat names the ${side} stirrup, and the entry's ${side} foot rests on nothing`,
+        fix: "enter with that foot in its stirrup, or leave it out of the entered figure",
+      });
+  if (
+    figure.handRide === true &&
+    (stride === undefined ||
+      figure.supports?.leftHand === undefined ||
+      figure.supports.rightHand === undefined)
+  )
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: `figures.${index}.handRide`,
+      value: true,
+      feasible: null,
+      reason:
+        "a hand ride pushes both held reins once a stride, and the performance names no stride or the figure holds no two reins",
+      fix: "give the carrier's stride and both hands' reins",
     });
 }

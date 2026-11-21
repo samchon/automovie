@@ -360,7 +360,7 @@ function stage(
     gait: "canter",
     wait: WAIT,
     from: { x: 0.6, y: 0, z: -0.2 },
-    then: (seated) =>
+    acts: (seated) =>
       seated
         .registered("ride", { on: "horse", seconds: 2, seat: "seat" })
         .registered("mounted", { on: "horse", frame: "seat", figures }),

@@ -18,20 +18,21 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanMountedFrame } from "./HumanMountedFrame";
+import { HumanMountedPaths } from "./HumanMountedPaths";
 import { HumanMountedSeats } from "./HumanMountedSeats";
+import { HumanMountedStirrups } from "./HumanMountedStirrups";
+import { HumanMountedStride } from "./HumanMountedStride";
 import { HumanMountedTimeline } from "./HumanMountedTimeline";
 import { HumanRideHands } from "./HumanRideHands";
 import { admitHumanMountedFigure } from "./admitHumanMountedFigure";
 
 /** The mounted law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMounted>;
-
-/** How far above the higher end of its way a foot that must swing over the carrier passes, thigh lengths (provisional). */
-const RISE: number = 0.25;
 
 /** A supporting part a figure can name. */
 type Part = HumanMountedSeats.Part;
@@ -41,6 +42,7 @@ const PARTS: readonly Part[] = [
   "leftHand",
   "rightHand",
   "leftFoot",
+  "rightFoot",
   "leftKnee",
   "rightKnee",
   "rightThigh",
@@ -109,8 +111,23 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     });
   const support: IAutoMovieMotionHumanPropReader = context.prop(on);
   const hands: Partial<Record<AutoMovieHumanSide, string>> = {};
+  const stride: number | undefined = context.params.stride;
+  const planted: Record<AutoMovieHumanSide, boolean> = {
+    left: context.entry.feet.left.planted,
+    right: context.entry.feet.right.planted,
+  };
+  if (stride !== undefined) HumanBound.above("stride", stride, 0, "s");
   figures.forEach((_: IAutoMovieMotionHumanMounted.IFigure, i: number): void =>
-    admitHumanMountedFigure(on, support, figures, i, PARTS, hands),
+    admitHumanMountedFigure(
+      on,
+      support,
+      figures,
+      i,
+      PARTS,
+      hands,
+      planted,
+      stride,
+    ),
   );
 
   // The figures are solved in the carrier contact's frame as it stands at the start.
@@ -146,11 +163,42 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       HumanMountedFrame.LOCAL,
     ),
   );
+  // A hand the entry already holds on the first figure's contact, its wrist within a hand's length of it, stays held from the start.
+  const gripped: Set<AutoMovieHumanSide> = new Set();
+  for (const side of ["left", "right"] as const) {
+    const id: string | undefined = figures[0]!.supports?.[`${side}Hand`];
+    const arm: IAutoMovieMotionHumanPosture["limbs"]["leftArm"] =
+      context.entry.posture.limbs[`${side}Arm`];
+    if (
+      id !== undefined &&
+      arm !== undefined &&
+      arm.on === undefined &&
+      Vector3.distance(
+        arm.point,
+        HumanMountedFrame.contact(support, id, context.start),
+      ) <= context.body.measure.hand
+    )
+      gripped.add(side);
+  }
+
+  // The clock, and how far the carrier strays from its stride-averaged path out of the saddle.
+  const clock: HumanMountedTimeline = new HumanMountedTimeline(
+    figures,
+    gripped,
+  );
+  const slack: number = HumanMountedPaths.slack(
+    carrier,
+    context.start,
+    clock,
+    figures,
+    stride,
+  );
   const seats: HumanMountedSeats.IContext = {
     body: context.body,
     entry,
+    slack,
     point: (id: string): IAutoMovieVector3 =>
-      back(contactAt(support, id, context.start)),
+      back(HumanMountedFrame.contact(support, id, context.start)),
     contact: (id: string): IAutoMovieAffordance =>
       support.prop.affordances!.find(
         (a: IAutoMovieAffordance): boolean => a.id === id,
@@ -171,13 +219,15 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       figure: IAutoMovieMotionHumanMounted.IFigure,
     ): IAutoMovieMotionHumanPosture => {
       const key: IAutoMovieMotionHumanPosture = unarmed(
-        figure.seat === "aside"
-          ? HumanMountedSeats.aside(seats, figure.supports!)
-          : figure.seat === "bench"
-            ? HumanMountedSeats.bench(seats, figure.supports!)
-            : figure.seat === "basic"
-              ? HumanMountedSeats.basic(seats)
-              : entry,
+        HumanMountedStirrups.free(figure.seat)
+          ? HumanMountedStirrups.solve(seats, figure.supports!, figure.seat)
+          : figure.seat === "aside"
+            ? HumanMountedSeats.aside(seats, figure.supports!)
+            : figure.seat === "bench"
+              ? HumanMountedSeats.bench(seats, figure.supports!)
+              : figure.seat === "basic"
+                ? HumanMountedSeats.basic(seats)
+                : entry,
       );
       const points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
       for (const side of ["left", "right"] as const) {
@@ -191,46 +241,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     },
   );
 
-  // A foot whose straight way to its next place would pass through the carrier swings over it instead, through a point above the higher end.
+  const hipsOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
+    HumanMountedPaths.hips(context.body, posture);
+  const middles: IAutoMovieVector3[] = keys.map(hipsOf);
   const arcs: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>[] =
-    keys.map(
-      (
-        key: IAutoMovieMotionHumanPosture,
-        i: number,
-      ): Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> => {
-        const out: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
-        for (const side of ["left", "right"] as const) {
-          const a: IAutoMovieVector3 | undefined = (
-            i === 0 ? entry : keys[i - 1]!
-          ).limbs[`${side}Leg`]?.point;
-          const b: IAutoMovieVector3 | undefined =
-            key.limbs[`${side}Leg`]?.point;
-          if (
-            a === undefined ||
-            b === undefined ||
-            Vector3.distance(a, b) < 1e-6
-          )
-            continue;
-          let clear: boolean = true;
-          for (let k: number = 0; k < 4 && clear; ++k)
-            clear =
-              seats.clear(
-                Vector3.lerp(a, b, k / 4),
-                Vector3.lerp(a, b, (k + 1) / 4),
-              ) >= context.body.measure.shankRadius;
-          if (!clear)
-            out[side] = {
-              x: b.x,
-              y: Math.max(a.y, b.y) + RISE * context.body.measure.thigh,
-              z: (a.z + b.z) / 2,
-            };
-        }
-        return out;
-      },
-    );
+    HumanMountedPaths.arcs(seats, entry, keys, figures, planted);
 
-  // The clock, and the windows each support holds.
-  const clock: HumanMountedTimeline = new HumanMountedTimeline(figures);
+  // The windows each support holds.
   const bears = (
     part: IAutoMovieMotionHumanContactWindow["part"],
     kind: IAutoMovieMotionHumanContactWindow["kind"],
@@ -243,12 +260,16 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     support: { kind: "prop", subject: on },
     ...(region === undefined ? {} : { region }),
   });
+  // The entry's planted feet are held on the stirrups the first figure names, or on whatever they rest on.
   const held: Set<string> = new Set(["seat"]);
+  for (const side of gripped)
+    held.add(`${side}Hand:${figures[0]!.supports![`${side}Hand`]}`);
   const kept: Map<string, IAutoMovieMotionHumanContactWindow> = new Map();
   for (const side of ["left", "right"] as const)
     if (context.entry.feet[side].planted) {
-      held.add(`${side}Foot:entry`);
-      kept.set(`${side}Foot:entry`, bears(`${side}Foot`, "plant"));
+      const key: string = `${side}Foot:${figures[0]!.supports?.[`${side}Foot`] ?? "entry"}`;
+      held.add(key);
+      kept.set(key, bears(`${side}Foot`, "plant"));
     }
   const members: Map<string, IAutoMovieMotionHumanContactWindow>[] =
     figures.map(
@@ -314,6 +335,19 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         keys[index]!,
         share,
       );
+      // The hips travel straight between the keys while the pelvis turns about them, so no leg is stretched past both ends.
+      if (share > 0 && share < 1)
+        local.root = Vector3.add(
+          local.root,
+          Vector3.subtract(
+            Vector3.lerp(
+              index === 0 ? hipsOf(entry) : middles[index - 1]!,
+              middles[index]!,
+              share,
+            ),
+            hipsOf(local),
+          ),
+        );
       if (share > 0 && share < 1)
         for (const [side, over] of Object.entries(arcs[index]!) as [
           AutoMovieHumanSide,
@@ -340,12 +374,49 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             },
           };
         }
-      const shown: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
+      const moved: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
         local,
         HumanMountedFrame.LOCAL,
         carrier(film),
       );
+
+      // Out of the saddle the pelvis rides the stride-averaged path, faded in and out over the transfers.
+      const out = (i: number): boolean =>
+        i >= 0 && HumanMountedStirrups.free(figures[i]!.seat);
+      const level: number =
+        stride === undefined
+          ? 0
+          : out(index)
+            ? out(index - 1)
+              ? 1
+              : share
+            : out(index - 1)
+              ? 1 - share
+              : 0;
+      const shown: IAutoMovieMotionHumanPosture =
+        level === 0
+          ? moved
+          : {
+              ...moved,
+              root: Vector3.lerp(
+                moved.root,
+                HumanMountedStride.level(carrier, film, local.root, stride!),
+                level,
+              ),
+            };
       if (grips === undefined) return shown;
+      const riding = (i: number): boolean =>
+        i >= 0 && figures[i]!.handRide === true;
+      const pushed: number =
+        (riding(index)
+          ? riding(index - 1)
+            ? 1
+            : share
+          : riding(index - 1)
+            ? 1 - share
+            : 0) *
+        HumanMountedStride.PUSH *
+        context.body.measure.forearm;
       const read: ReturnType<HumanRideHands.IHands["gripsAt"]> = grips.gripsAt(
         film,
         support.frame(film),
@@ -356,8 +427,12 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       };
       for (const side of holding) {
         const taken: number = clock.hand(side, time);
-        const grip: HumanRideHands.IMaterialGrip | undefined = read[side];
-        if (taken <= 0 || grip === undefined) continue;
+        const reading: HumanRideHands.IMaterialGrip | undefined = read[side];
+        if (taken <= 0 || reading === undefined) continue;
+        const grip: HumanRideHands.IMaterialGrip =
+          pushed === 0
+            ? reading
+            : HumanMountedStride.push(reading, time, stride!, pushed);
         const hold: ReturnType<typeof HumanMountRider.hold> =
           HumanMountRider.hold(
             context.body,
@@ -387,27 +462,8 @@ function window(
   ) => IAutoMovieMotionHumanContactWindow,
 ): IAutoMovieMotionHumanContactWindow {
   if (part === "leftHand" || part === "rightHand") return bears(part, "grip");
-  if (part === "leftFoot") return bears(part, "plant");
+  if (part === "leftFoot" || part === "rightFoot") return bears(part, "plant");
   if (part === "leftKnee") return bears("leftLowerLeg", "bear", "kneeLeft");
   if (part === "rightKnee") return bears("rightLowerLeg", "bear", "kneeRight");
   return bears("rightUpperLeg", "bear");
-}
-
-/** A carrier contact's world point at a film second. */
-function contactAt(
-  support: IAutoMovieMotionHumanPropReader,
-  id: string,
-  film: number,
-): IAutoMovieVector3 {
-  const read: ReturnType<NonNullable<typeof support.prop.point>> =
-    support.prop.point?.(id, film);
-  if (read !== undefined) return read.point;
-  const frame: IAutoMovieRigidTransform = support.frame(film);
-  const contact: IAutoMovieAffordance = support.prop.affordances!.find(
-    (a: IAutoMovieAffordance): boolean => a.id === id,
-  )!;
-  return Vector3.add(
-    frame.position,
-    Quaternion.rotateVector(frame.rotation, contact.frame.translation),
-  );
 }

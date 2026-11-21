@@ -49,7 +49,7 @@ const FIGURES: IAutoMovieMotionHumanMounted.IFigure[] = [
  * 2. Pelvis attitude: in the hold the displayed pelvis faces within 15 degrees of the horse's front, the Side Saddle Association's "straight and square"; sideways, before the turn and after the release, within 25 degrees of the near side.
  * 3. Asymmetry: in the hold both displayed knees lie on the near side of the horse's midline, and the right thigh's axis passes over the fixed head, within the head's and the thigh's radii plus 20 mm and between the hip and the knee.
  * 4. Support: the displayed ball of the left foot stays within 10 mm of the stirrup's tread plane and slides less than 10 mm on it; the seat region stays within 10 mm of the seat; each palm stays within 10 mm of its rein.
- * 5. Windows: the right thigh, the left foot and both hands are acquired when the turn arrives and released when the turn back begins; after the release the right thigh clears the fixed head by more than 20 mm beyond the two radii.
+ * 5. Windows: the right thigh and both hands are acquired when the turn arrives and released when the turn back begins; the left foot bears through the whole hold (the leg-up may already set it in the stirrup, and the sideways seat keeps it there); after the release the right thigh clears the fixed head by more than 20 mm beyond the two radii.
  * 6. An aside figure without its stirrup is refused on the missing support, and a stirrup beyond the leg's band on its reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the take, the six scenarios and each bound's source.
@@ -243,10 +243,11 @@ export function test_motion_equestrian_sidesaddle(): void {
         `${part} windows ${JSON.stringify(found)}, wanted [[${arrive(0)}, ${begin(1)}]]`,
       );
   }
+  // The sideways leg-up may already set the left foot in the stirrup, where the sideways seat keeps it; either way it bears through the whole side-saddle hold.
   if (
     !windows("leftFoot").some(
       (w: number[]): boolean =>
-        Math.abs(w[0]! - arrive(0)) < 1e-6 && Math.abs(w[1]! - begin(1)) < 1e-6,
+        w[0]! <= arrive(0) + 1e-6 && w[1]! >= begin(1) - 1e-6,
     )
   )
     findings.push(
@@ -272,7 +273,11 @@ export function test_motion_equestrian_sidesaddle(): void {
       );
   };
   refused("no stirrup", "figures.0.supports.leftFoot", () => {
-    const { leftFoot: _leftFoot, ...rest } = FIGURES[0]!.supports!;
+    const rest: IAutoMovieMotionHumanMounted.ISupports = {
+      rightThigh: "fixedHead",
+      leftHand: "leftRein",
+      rightHand: "rightRein",
+    };
     const missing: mountedHorseScene.IScene = stage(
       createHorse(
         {
@@ -320,7 +325,7 @@ function stage(
     gait: "walk",
     wait: WAIT,
     from: { x: 0, y: 0, z: 0.35 },
-    then: (seated) =>
+    acts: (seated) =>
       seated.registered("mounted", { on: "horse", frame: "seat", figures }),
   });
 }

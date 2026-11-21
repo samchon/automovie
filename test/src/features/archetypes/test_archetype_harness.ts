@@ -58,7 +58,14 @@ export function test_archetype_harness(): void {
 
   // 1 and 2. The body and the harness.
   for (const seed of [1, 2, 3])
-    for (const tack of createHorse.TACKS) {
+    // The four tacks and the untacked horse this spec states; the alternative mounted supports are `test_archetype_equine_tack`'s.
+    for (const tack of [
+      "saddle",
+      "harness",
+      "both",
+      "pack",
+      "bare",
+    ] as const satisfies readonly createHorse.Tack[]) {
       const horse: Archetype<createHorse.Affordance, createHorse.Dimension> =
         createHorse({ tack }, seed);
       const label: string = `${tack} ${seed}`;
