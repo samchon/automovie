@@ -356,8 +356,8 @@ export function checkArchetypeAliases(): void {
   const namedObjects = PlaygroundAddress.decode(
     PlaygroundAddress.encode(canonical),
   )!.objects!;
-  const placed = PlaygroundObjects.props(savedObjects)!;
-  const namedPlaced = PlaygroundObjects.props(namedObjects)!;
+  const placed = PlaygroundObjects.props(savedObjects, restored.performers)!;
+  const namedPlaced = PlaygroundObjects.props(namedObjects, restored.performers)!;
   assert.deepEqual(
     placed.map((prop) => prop.subject),
     ["lens-fixture", "edit-laptop", "saved-phone"],

@@ -10,7 +10,7 @@ const { act, object, person, scene, to }: typeof SceneBuild = SceneBuild;
 const TOP: number = SceneBuild.COUNTER_TOP;
 
 /** Refer to a placed object's own contact site. */
-function site(subject: string, point: string): Record<string, string> {
+function site(subject: string, point: string): SceneBuild.PropTarget {
   return { kind: "prop", subject, point };
 }
 

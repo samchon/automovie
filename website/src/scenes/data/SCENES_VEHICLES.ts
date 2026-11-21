@@ -101,7 +101,7 @@ function carRide(): IScene {
         side,
         approach,
         enter,
-      }: ICarRider): IPlaygroundComposition.IPerformer =>
+      }: ICarRider): SceneBuild.Performer =>
         person(subject, body, 1.15 * side, -0.2, approach, [
           act("openDoor", {
             door: "car",
