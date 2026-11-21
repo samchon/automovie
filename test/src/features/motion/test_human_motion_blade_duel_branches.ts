@@ -1,4 +1,7 @@
-import { createStageBladeProp } from "@automovie/archetypes";
+import {
+  createCostumeCuirass,
+  createStageBladeProp,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieChain,
@@ -10,6 +13,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieScheduleEntry,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -26,6 +30,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The stage blade model. */
 type Blade = ReturnType<typeof createStageBladeProp>;
+/** The costume cuirass model. */
+type Cuirass = ReturnType<typeof createCostumeCuirass>;
+
+/** An axis-aligned box in a model's frame, metres. */
+interface IBox {
+  /** The least corner. */
+  min: IAutoMovieVector3;
+
+  /** The greatest corner. */
+  max: IAutoMovieVector3;
+}
 
 /** One declared branch of the exchange. */
 interface IBranch {
@@ -34,12 +49,16 @@ interface IBranch {
 
   /** Whether the defender answers with a riposte. */
   reply: boolean;
+
+  /** Whether the defender wears a costume cuirass on the chest. */
+  armour: boolean;
 }
 
 /** The two branches: a cut parried in a bind and answered, and the same cut authored to land unblocked. */
 const BRANCHES: readonly IBranch[] = [
-  { name: "bind and reply", reply: true },
-  { name: "landed", reply: false },
+  { name: "bind and reply", reply: true, armour: false },
+  { name: "armoured bind and reply", reply: true, armour: true },
+  { name: "landed", reply: false, armour: false },
 ];
 
 /** The performers' separation, metres: a cutting distance for two sabres. */
@@ -65,7 +84,10 @@ const LEAD: number = 0.4;
  *    the block ends.
  * 3. In the landing branch the blades never come within the bind's
  *    distance and the cut's edge reaches the target shoulder at contact.
- * 4. Seeks in reverse order and a rebuilt take read the same blade frames.
+ * 4. With the defender in a costume cuirass, the same bind and reply keeps
+ *    its cue; the cuirass rides the chest bone rigidly and the attacking
+ *    blade stays outside its shell.
+ * 5. Seeks in reverse order and a rebuilt take read the same blade frames.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the branches, the grip, bind and cue checks and the seek check.
  * @evidence contracts/development/testing.md#behavioral-verification Composes the registered blade rows through composeHumanBladeExchange and HumanPerformance and reads displayed hands, blades and the placed schedule.
@@ -77,10 +99,13 @@ export function test_human_motion_blade_duel_branches(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const checks: motionComplaints.IGatherer = motionComplaints();
   const blade: Blade = createStageBladeProp({ kind: "sabre", id: "blade" });
+  const cuirass: Cuirass = createCostumeCuirass({ id: "cuirass" });
+  const shell: IBox = bounds(cuirass);
   const tip: IAutoMovieVector3 = blade.affordance("point").frame.translation;
   for (const branch of BRANCHES)
     try {
-      const play = (): HumanPerformance => stage(body, blade, branch);
+      const play = (): HumanPerformance =>
+        stage(body, blade, branch, branch.armour ? cuirass : undefined);
       const film: HumanPerformance = play();
       const again: HumanPerformance = play();
       const placed = (anchor: string): IAutoMovieScheduleEntry | undefined =>
@@ -150,6 +175,38 @@ export function test_human_motion_blade_duel_branches(): void {
         );
       }
 
+      // A worn cuirass rides the chest bone rigidly, and the attacking blade
+      // stays clear of its shell through the exchange.
+      if (branch.armour) {
+        const worn = (t: number): IAutoMovieRigidTransform =>
+          HumanPropFrame.relative(
+            HumanPropFrame.bone(film.bones("b", t).get("chest")!),
+            film.prop("cuirass", t),
+          );
+        const rest: IAutoMovieRigidTransform = worn(from);
+        let clear: number = Infinity;
+        for (let i: number = 0; i <= 24; ++i) {
+          const t: number = from + ((to - from) * i) / 24;
+          checks.check(
+            `${branch.name}: the cuirass rides the chest at ${t.toFixed(2)}`,
+            Vector3.distance(worn(t).position, rest.position) <= HOLD,
+          );
+          clear = Math.min(
+            clear,
+            outside(
+              film.prop("a.blade", t),
+              tip,
+              film.prop("cuirass", t),
+              shell,
+            ),
+          );
+        }
+        checks.check(
+          `${branch.name}: the blade stays outside the cuirass (${clear.toFixed(3)} m)`,
+          clear > 0,
+        );
+      }
+
       // Reverse seeks and a rebuilt take read the same frames.
       const times: number[] = [from, contact, to, film.duration];
       const forward: IAutoMovieRigidTransform[] = times.map(
@@ -183,6 +240,7 @@ function stage(
   body: IAutoMovieMotionHumanBody,
   blade: Blade,
   branch: IBranch,
+  cuirass?: Cuirass,
 ): HumanPerformance {
   const grip: IAutoMovieVector3 = blade.affordance("grip").frame.translation;
   const use: IAutoMovieMotionHumanGraspUse.IUse = {
@@ -280,9 +338,84 @@ function stage(
     props: [
       held("a", { x: 0, y: 0, z: 0 }, 0),
       held("b", { x: 0, y: 0, z: APART }, 180),
+      ...(cuirass === undefined ? [] : [wear(cuirass)]),
     ],
     composition: node,
   });
+}
+
+/** The cuirass worn on the defender's chest with its `wear` socket on the chest bone. */
+function wear(cuirass: Cuirass): IAutoMovieMotionHumanProp {
+  const socket: IAutoMovieTransform = cuirass.affordance("wear").frame;
+  return {
+    ...HumanObject.prop("cuirass", cuirass, {
+      at: { x: 0, y: 0, z: 0 },
+      yaw: 0,
+    }),
+    worn: {
+      subject: "b",
+      bone: "chest",
+      offset: HumanPropFrame.relative(
+        { position: socket.translation, rotation: socket.rotation },
+        { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
+      ),
+    },
+  };
+}
+
+/** The cuirass's collider bounds in its own frame. */
+function bounds(cuirass: Cuirass): IBox {
+  const corners: IAutoMovieVector3[] = [];
+  for (const shape of cuirass.shapes?.() ?? []) {
+    const h: IAutoMovieVector3 =
+      shape.kind === "box"
+        ? shape.halfExtents
+        : { x: shape.radius ?? 0, y: shape.radius ?? 0, z: shape.radius ?? 0 };
+    const c: IAutoMovieVector3 = shape.transform.position;
+    corners.push(Vector3.subtract(c, h), Vector3.add(c, h));
+  }
+  return {
+    min: {
+      x: Math.min(...corners.map((p: IAutoMovieVector3): number => p.x)),
+      y: Math.min(...corners.map((p: IAutoMovieVector3): number => p.y)),
+      z: Math.min(...corners.map((p: IAutoMovieVector3): number => p.z)),
+    },
+    max: {
+      x: Math.max(...corners.map((p: IAutoMovieVector3): number => p.x)),
+      y: Math.max(...corners.map((p: IAutoMovieVector3): number => p.y)),
+      z: Math.max(...corners.map((p: IAutoMovieVector3): number => p.z)),
+    },
+  };
+}
+
+/** How far a blade's axis stays outside a box in another frame, metres; zero or less inside. */
+function outside(
+  blade: IAutoMovieRigidTransform,
+  tip: IAutoMovieVector3,
+  frame: IAutoMovieRigidTransform,
+  box: IBox,
+): number {
+  const inverse: IAutoMovieQuaternion = Quaternion.inverse(frame.rotation);
+  let best: number = Infinity;
+  for (let i: number = 0; i <= 40; ++i) {
+    const p: IAutoMovieVector3 = Quaternion.rotateVector(
+      inverse,
+      Vector3.subtract(
+        Vector3.add(
+          blade.position,
+          Quaternion.rotateVector(blade.rotation, Vector3.scale(tip, i / 40)),
+        ),
+        frame.position,
+      ),
+    );
+    const d: IAutoMovieVector3 = {
+      x: Math.max(box.min.x - p.x, 0, p.x - box.max.x),
+      y: Math.max(box.min.y - p.y, 0, p.y - box.max.y),
+      z: Math.max(box.min.z - p.z, 0, p.z - box.max.z),
+    };
+    best = Math.min(best, Math.hypot(d.x, d.y, d.z));
+  }
+  return best;
 }
 
 /** A performer's blade in its right hand's displayed frame. */
