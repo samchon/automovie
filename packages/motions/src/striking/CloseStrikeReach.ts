@@ -103,13 +103,22 @@ export function CloseStrikeReach(
   }
 
   const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  // An elbow brings the shoulder forward by leaning the trunk before the
-  // hips shift, so the hips stay clear of the person struck.
+  // An elbow below the shoulder brings the shoulder forward by leaning the
+  // trunk before the hips shift, so the hips stay clear of the person
+  // struck. A lean lowers the shoulder too, so an elbow at or above the
+  // shoulder (the chin of a person one's own height) keeps the trunk upright:
+  // the elbow cannot rise more than one upper arm above the shoulder.
+  const upright = (shift: IAutoMovieVector3): IAutoMovieVector3 =>
+    read(at(0, shift), `${side}UpperArm`).get(`${side}UpperArm`)!.worldPosition;
   const bow: number =
-    technique === "spinningBackfist" ? 0 : CloseStrikeReach.ELBOW_LEAN;
+    technique === "spinningBackfist" || target.y >= upright(still).y
+      ? 0
+      : CloseStrikeReach.ELBOW_LEAN;
   const shoulderAt = (shift: IAutoMovieVector3): IAutoMovieVector3 =>
-    read(at(bow, shift), `${side}UpperArm`).get(`${side}UpperArm`)!
-      .worldPosition;
+    bow === 0
+      ? upright(shift)
+      : read(at(bow, shift), `${side}UpperArm`).get(`${side}UpperArm`)!
+          .worldPosition;
   const outward: IAutoMovieVector3 = Vector3.subtract(
     shoulderAt(still),
     read(at(bow, still), "chest").get("chest")!.worldPosition,
