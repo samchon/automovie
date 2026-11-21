@@ -72,12 +72,17 @@ export namespace ballSport {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "ballSport";
 
-  /** Cancel table. */
+  /**
+   * Cancel table. A staged catch may cut in from the stroke, once the ball
+   * has left the hands: a dribbler gathers the rebound, a passer takes the
+   * return.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       ballSport: ["fromRelax", "smooth"],
       walk: ["fromRelax", "smooth"],
+      stageCatch: ["fromStroke", "smooth"],
     });
 
   /** Dribble bounces per second (provisional). */
