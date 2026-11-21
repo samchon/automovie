@@ -1,7 +1,4 @@
-import {
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanOperate,
@@ -11,6 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
+import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
 import { wipe } from "../../tasks/wipe";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
@@ -112,7 +110,7 @@ export function householdCases(
           m.forearm / 4,
           0,
           3,
-          minimumJerk((t - from) / (to - from)).s,
+          AutoMovieMotionInterval.progress(from, to, t),
         );
         path = Math.max(path, Math.hypot(p.x - want.x, p.z - want.z));
       }

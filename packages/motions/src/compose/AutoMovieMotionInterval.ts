@@ -1,7 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-
 /**
  * Named clock intervals resolved once for repeated progress reads.
  *
@@ -25,6 +24,26 @@ export namespace AutoMovieMotionInterval {
   export function linear(from: number, to: number, seconds: number): number {
     if (to - from < 1e-12) return seconds >= to ? 1 : 0;
     return Math.min(1, Math.max(0, (seconds - from) / (to - from)));
+  }
+
+  /**
+   * Minimum-jerk progress over a window given by its two seconds.
+   *
+   * @param from The window's opening second.
+   * @param to The window's closing second.
+   * @param seconds The second read, on the same clock.
+   * @returns The Flash and Hogan share in [0,1]: zero before the window, one after it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the window's seconds, the shared clock, the clamped [0,1] share and its holds outside the window.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine minimum-jerk share of this namespace's uniform progress. The profile holds at 0 and 1 outside [0,1], so the clamp leaves every proper window's value unchanged; a window under 1e-12 s steps at its close instead of dividing by its length.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Laws with seconds rather than named instants read their windows here instead of restating the share.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rounding, sampled value or alternate easing; the original short-span step is the linear owner's.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic and no allocation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A single scalar query coordinates no retained work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no data or handle.
+   */
+  export function progress(from: number, to: number, seconds: number): number {
+    return minimumJerk.share(linear(from, to, seconds));
   }
 
   /**
