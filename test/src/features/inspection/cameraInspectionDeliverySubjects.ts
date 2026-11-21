@@ -32,7 +32,7 @@ import { renderFixtureNode } from "../internal/renderFixtureNode";
  * @evidence contracts/development/common.md#meaningful-documentation
  * Records every posed control, camera units and computed pixel expectations.
  */
-export const subjects: AutoMovieDrawSubjects = () => ({
+export const cameraInspectionDeliverySubjects: AutoMovieDrawSubjects = () => ({
   "camera-inspection": { create },
 });
 

@@ -229,7 +229,8 @@ function readMarkers(
           : carrier;
       if (
         start !== undefined ||
-        origin == null ||
+        origin === undefined ||
+        origin === null ||
         origin.index > carrier.index ||
         origin.ptsTime !== marker.ptsTime
       )

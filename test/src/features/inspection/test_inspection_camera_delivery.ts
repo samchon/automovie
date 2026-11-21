@@ -2,7 +2,7 @@ import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import type { IAutoMovieDrawScene } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { subjects } from "./cameraInspectionDeliverySubjects";
+import { cameraInspectionDeliverySubjects } from "./cameraInspectionDeliverySubjects";
 
 /**
  * Active source requirements reach the camera packet at the host's time.
@@ -29,7 +29,7 @@ import { subjects } from "./cameraInspectionDeliverySubjects";
  */
 export async function test_inspection_camera_delivery(): Promise<void> {
   const instance: IAutoMovieDrawScene =
-    await subjects(null)["camera-inspection"]!.create();
+    await cameraInspectionDeliverySubjects(null)["camera-inspection"]!.create();
   try {
     const inspectPlaced: NonNullable<IAutoMovieDrawScene["inspectPlaced"]> =
       instance.inspectPlaced!;

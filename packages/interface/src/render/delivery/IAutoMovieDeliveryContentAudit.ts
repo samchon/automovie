@@ -1,7 +1,7 @@
 /**
  * Timing and content evidence from decoding one hashed delivery artifact.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the native measurement, commissioned intent, and findings that a delivery host passes to and receives from the pure audit.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the native measurement, commissioned intent, reference measurement and findings that a delivery host passes to and receives from the pure audit.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps FFmpeg and file access out of the Interface and Render contract.
  */
 export namespace IAutoMovieDeliveryContentAudit {
@@ -10,7 +10,9 @@ export namespace IAutoMovieDeliveryContentAudit {
 
   /** A signed, safe integer tick count in the source clock. */
   export interface ITimestamp {
+    /** Whole ticks since the stream's zero, as the decoder reports them. */
     ticks: number;
+    /** Seconds per tick of the stream's own clock. */
     timeBase: Ratio;
   }
 
@@ -22,29 +24,38 @@ export namespace IAutoMovieDeliveryContentAudit {
 
   /** A measured detector interval. A null end extends to the verified decoded stream end. */
   export interface IObservation {
+    /** The detector that reported the interval. */
     detector: Detector;
+    /** The first decoded frame or sample inside the interval. */
     start: ITimestamp;
+    /** The first frame or sample after it, or null when it runs to the stream end. */
     end: ITimestamp | null;
   }
 
   /** An explicitly authored half-open film interval that allows a detector condition. */
   export interface IAllowance {
+    /** The condition the author allows. */
     detector: Detector;
+    /** Inclusive film time where the allowance begins. */
     start: ITimestamp;
+    /** Exclusive film time where it ends, no later than the film's end. */
     end: ITimestamp;
   }
 
   /** Effective settings used to measure content. Pixel values, mean differences and amplitude are ratios in [0, 1]. */
   export interface IThresholds {
+    /** Shortest reported black interval, the share of the picture that must be dark and the darkness level. */
     black: {
       minimumDuration: ITimestamp;
       minimumPictureRatio: number;
       maximumPixelThreshold: number;
     };
+    /** Shortest reported freeze and the largest mean picture change still counted as unchanged. */
     frozen: {
       minimumDuration: ITimestamp;
       maximumMeanDifference: number;
     };
+    /** Shortest reported silence and the loudest amplitude still counted as quiet on every channel. */
     silence: {
       minimumDuration: ITimestamp;
       maximumAmplitude: number;
@@ -78,7 +89,9 @@ export namespace IAutoMovieDeliveryContentAudit {
 
   /** SHA-256 of the exact encoded file handed to the decoder and its identifying filename. */
   export interface ISource {
+    /** The decoded file's name, relative to the delivery folder. */
     file: string;
+    /** Lowercase hexadecimal SHA-256 of the file's bytes. */
     sha256: string;
   }
 
@@ -94,7 +107,13 @@ export namespace IAutoMovieDeliveryContentAudit {
 
   /** The complete evidence and commissioned presentation for a single audit. */
   export interface IProps {
+    /** The exact file the streams were decoded from. */
     source: ISource;
+    /**
+     * The commissioned clock and approval policy: frame count and rate,
+     * whether sound is required, whether drawn intervals need an allowance,
+     * and the authored allowances.
+     */
     expected: {
       frameCount: number;
       frameRate: Ratio;
@@ -107,7 +126,9 @@ export namespace IAutoMovieDeliveryContentAudit {
       contentRequired?: boolean;
       allowances?: readonly IAllowance[];
     };
+    /** The detector settings both the delivery and the reference were measured with. */
     thresholds: IThresholds;
+    /** Decoded evidence of the delivered file's primary video and audio streams. */
     streams: Readonly<Record<Media, Stream>>;
     /**
      * The encoder's own inputs measured by the same detectors and thresholds:
@@ -153,12 +174,19 @@ export namespace IAutoMovieDeliveryContentAudit {
 
   /** Audit decision with the original evidence, effective thresholds and all findings retained. */
   export interface IResult {
+    /** The audited file, as supplied. */
     source: ISource;
+    /** The commissioned clock and approval policy, as supplied. */
     expected: IProps["expected"];
+    /** The detector settings the evidence was measured with. */
     thresholds: IThresholds;
+    /** The delivered file's decoded evidence, as supplied. */
     streams: IProps["streams"];
+    /** The reference measurement of the encoder's input, when supplied. */
     reference?: IProps["reference"];
+    /** Every coverage and content finding, in stream and time order. */
     findings: Finding[];
+    /** Whether no finding blocks delivery. */
     passed: boolean;
   }
 }

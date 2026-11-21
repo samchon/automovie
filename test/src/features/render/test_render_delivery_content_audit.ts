@@ -292,6 +292,13 @@ export function test_render_delivery_content_audit(): void {
     ],
   );
 
+  // Every reference case below yields only content findings; anything else fails.
+  const content = (result: IAutoMovieDeliveryContentAudit.IResult) =>
+    result.findings.map((finding) => {
+      if (finding.kind !== "content")
+        throw new Error("Unexpected " + finding.kind + " finding");
+      return finding;
+    });
   // The drawn frame sequence on its own 1/30 clock, black from frame 2 to EOF.
   const drawnVideo = {
     status: "decoded",
@@ -315,7 +322,7 @@ export function test_render_delivery_content_audit(): void {
   const split = auditAutoMovieDeliveryContent(encodedBlack);
   TestValidator.equals(
     "the reference separates drawn black from encoded black",
-    split.findings.map(({ outcome, blocking, start, end }) => ({
+    content(split).map(({ outcome, blocking, start, end }) => ({
       outcome,
       blocking,
       start,
@@ -349,7 +356,7 @@ export function test_render_delivery_content_audit(): void {
   });
   TestValidator.equals(
     "an allowance outranks the reference",
-    allowedFirst.findings.map(({ outcome, start, end }) => [
+    content(allowedFirst).map(({ outcome, start, end }) => [
       outcome,
       start,
       end,
@@ -371,7 +378,7 @@ export function test_render_delivery_content_audit(): void {
   });
   TestValidator.equals(
     "a one-frame boundary shift below the detector minimum is not a finding",
-    [shifted.findings.map((finding) => finding.outcome), shifted.passed],
+    [content(shifted).map((finding) => finding.outcome), shifted.passed],
     [["drawn"], true],
   );
 
@@ -398,7 +405,7 @@ export function test_render_delivery_content_audit(): void {
   };
   TestValidator.equals(
     "the padded soundtrack explains only its own silence",
-    auditAutoMovieDeliveryContent(quiet).findings.map(
+    content(auditAutoMovieDeliveryContent(quiet)).map(
       ({ outcome, blocking, start, end }) => [outcome, blocking, start, end],
     ),
     [
@@ -408,10 +415,12 @@ export function test_render_delivery_content_audit(): void {
   );
   TestValidator.equals(
     "a reference that stops short of the film explains nothing",
-    auditAutoMovieDeliveryContent({
-      ...quiet,
-      reference: { audio: { ...drawnAudio, end: audio(4800) } },
-    }).findings.map(({ outcome, blocking }) => [outcome, blocking]),
+    content(
+      auditAutoMovieDeliveryContent({
+        ...quiet,
+        reference: { audio: { ...drawnAudio, end: audio(4800) } },
+      }),
+    ).map(({ outcome, blocking }) => [outcome, blocking]),
     [["unclassified", true]],
   );
 }
