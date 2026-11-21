@@ -7,10 +7,11 @@ import {
   ArchetypeDraw,
   ArchetypeDrawSession,
   ArchetypeFrame,
+  type IArchetypeBand,
 } from "../core";
 
 /** Authored internal coarse footwear sizes in metres. */
-const BANDS = {
+const BANDS: Readonly<Record<createStageFootwear.Dimension, IArchetypeBand>> = {
   length: ArchetypeBand.metres(
     0.21,
     0.36,
@@ -31,13 +32,20 @@ const BANDS = {
   ),
 };
 
+/** One kind's wall thickness in metres, colour and mass in kilograms. */
+interface IFootwearProfile {
+  /** The upper's wall thickness, metres. */
+  thickness: number;
+
+  /** The drawn colour. */
+  tint: string;
+
+  /** The mass, kilograms. */
+  mass: number;
+}
+
 /** The coarse shoe and the thinner soft-looking sock are the same geometric family. */
-const PROFILES: Readonly<
-  Record<
-    createStageFootwear.Kind,
-    { thickness: number; tint: string; mass: number }
-  >
-> = {
+const PROFILES: Readonly<Record<createStageFootwear.Kind, IFootwearProfile>> = {
   shoe: { thickness: 0.012, tint: "#375d88", mass: 0.24 },
   sock: { thickness: 0.004, tint: "#a4645c", mass: 0.04 },
 };
@@ -98,7 +106,7 @@ export function createStageFootwear(
   });
   const outerWidth: number = width + 2 * wall;
   const outerLength: number = length + 2 * wall;
-  const color: { color: string } = { color: profile.tint };
+  const color: ArchetypeBuilder.IOptions = { color: profile.tint };
   const center: number = wall + height / 2;
   builder.box(
     "sole",
@@ -192,7 +200,7 @@ export namespace createStageFootwear {
   export type Affordance = "hold" | "opening" | "wear";
 
   /** Metres of cavity length, width and height. */
-  export type Dimension = keyof typeof BANDS;
+  export type Dimension = "length" | "width" | "height";
 
   /** Input constraints and optional model identity. */
   export interface IParams extends Partial<Record<Dimension, number>> {

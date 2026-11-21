@@ -2,12 +2,17 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRide,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -19,35 +24,53 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 /** Fit explicitly staged feet to the moving support and verify the displayed soles. */
 export namespace placeRideFeet {
   /** A named foot bearing uses the same target for pose writing and admission. */
-  interface IRideFoot {
+  export interface IRideFoot {
     /** The rider's foot that bears. */
     side: AutoMovieHumanSide;
+
     /** The supporting affordance on the carried model. */
     id: string;
+
     /** The ball of the foot in its bone frame, metres. */
     contact: IAutoMovieVector3;
+
     /** Read the support point and its outward normal in world coordinates. */
-    at(film: number): { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+    at(film: number): IAutoMovieMotionHumanProp.IPlacedPoint;
   }
 
   /** A foot already resting on a part preserves its entry offset during a ride. */
-  interface IRidePedal {
+  export interface IRidePedal {
+    /** The rider's foot on the part. */
     side: AutoMovieHumanSide;
+
+    /** The part's point on the carried model. */
     id: string;
+
+    /** The point in the world when the ride begins, metres. */
     began: IAutoMovieVector3;
+  }
+
+  /** A ride's feet: those that keep a part-relative entry, and those fitted to a named support. */
+  export interface ISupports {
+    /** Feet already resting on a moving part. */
+    pedals: IRidePedal[];
+
+    /** Feet acquired onto their named support. */
+    placed: IRideFoot[];
   }
 
   /** Separate explicitly acquired supports from the existing part-relative pedal reads. */
   export function supports(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
     support: IAutoMovieMotionHumanPropReader,
-  ): { pedals: IRidePedal[]; placed: IRideFoot[] } {
-    const { feet, on, placeFeet } = context.params;
-    const { limbs } = context.entry.posture;
+  ): ISupports {
+    const { feet, on, placeFeet }: IAutoMovieMotionHumanRide.IParams =
+      context.params;
+    const { limbs }: IAutoMovieMotionHumanPosture = context.entry.posture;
     const pedals: IRidePedal[] = [];
     const placed: IRideFoot[] = [];
     for (const side of ["left", "right"] as const) {
-      const id = feet?.[side];
+      const id: string | undefined = feet?.[side];
       if (id === undefined) continue;
       if (
         support.prop.points[id] === undefined ||
@@ -70,7 +93,10 @@ export namespace placeRideFeet {
       if (placeFeet === true)
         placed.push(placedRideFoot(context, support, side, id));
       else {
-        const began = support.prop.point?.(id, context.start)?.point;
+        const began: IAutoMovieVector3 | undefined = support.prop.point?.(
+          id,
+          context.start,
+        )?.point;
         if (began !== undefined) pedals.push({ side, id, began });
       }
     }
@@ -84,9 +110,17 @@ export namespace placeRideFeet {
     side: AutoMovieHumanSide,
     id: string,
   ): IRideFoot {
-    const contact = HumanFoot.offset(context.body, side, "ball");
-    const rest = support.prop.points[id]!;
-    const surface = support.prop.affordances?.find((item) => item.id === id);
+    const contact: IAutoMovieVector3 = HumanFoot.offset(
+      context.body,
+      side,
+      "ball",
+    );
+    const rest: IAutoMovieMotionHumanProp["points"][string] =
+      support.prop.points[id]!;
+    const surface: IAutoMovieAffordance | undefined =
+      support.prop.affordances?.find(
+        (item: IAutoMovieAffordance): boolean => item.id === id,
+      );
     if (
       surface === undefined ||
       !["pedal", "bar", "stirrup", "surface"].includes(surface.kind)
@@ -103,10 +137,11 @@ export namespace placeRideFeet {
       side,
       id,
       contact,
-      at(film) {
-        const point = support.prop.point?.(id, film);
+      at(film: number): IAutoMovieMotionHumanProp.IPlacedPoint {
+        const point: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+          support.prop.point?.(id, film);
         if (point !== undefined) return point;
-        const frame = support.frame(film);
+        const frame: IAutoMovieRigidTransform = support.frame(film);
         return {
           point: Vector3.add(
             frame.position,
@@ -125,12 +160,13 @@ export namespace placeRideFeet {
     film: number,
     share: number,
   ): IAutoMovieHumanLimbGoal {
-    const goal = pose.limbs[foot.side === "left" ? "leftLeg" : "rightLeg"]!;
+    const goal: IAutoMovieHumanLimbGoal =
+      pose.limbs[foot.side === "left" ? "leftLeg" : "rightLeg"]!;
     if (share <= 0) return goal;
-    const level = resolveHumanPosture.heading(pose);
-    const entry = goal.rotation ?? level;
-    const target = foot.at(film);
-    const normal = Quaternion.rotateVector(
+    const level: IAutoMovieQuaternion = resolveHumanPosture.heading(pose);
+    const entry: IAutoMovieQuaternion = goal.rotation ?? level;
+    const target: IAutoMovieMotionHumanProp.IPlacedPoint = foot.at(film);
+    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.inverse(level),
       target.normal,
     );
@@ -141,8 +177,12 @@ export namespace placeRideFeet {
         (Math.atan2(normal.z, normal.y) * 180) / Math.PI,
       ),
     );
-    const rotation = Quaternion.slerp(entry, bearing, share);
-    const ball = Vector3.lerp(
+    const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+      entry,
+      bearing,
+      share,
+    );
+    const ball: IAutoMovieVector3 = Vector3.lerp(
       Vector3.add(goal.point, Quaternion.rotateVector(entry, foot.contact)),
       target.point,
       share,
@@ -165,29 +205,37 @@ export namespace placeRideFeet {
     posture: (local: number) => IAutoMovieMotionHumanPosture,
     from: number,
   ): void {
-    const sockets = feet.map(
-      ({ side }) =>
+    const sockets: IAutoMovieHumanoidSurfaces.IFrame[] = feet.map(
+      ({ side }: IRideFoot): IAutoMovieHumanoidSurfaces.IFrame =>
         context.body.surfaces.sockets[
           side === "left" ? "ballLeft" : "ballRight"
         ],
     );
-    const bones = poseBones.prepare(
+    const bones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
       context.body,
-      new Set<AutoMovieHumanoidBone>(sockets.map(({ bone }) => bone)),
+      new Set<AutoMovieHumanoidBone>(
+        sockets.map(
+          ({
+            bone,
+          }: IAutoMovieHumanoidSurfaces.IFrame): AutoMovieHumanoidBone => bone,
+        ),
+      ),
     );
-    const duration = context.params.seconds;
-    const sampleCount = Math.max(1, Math.ceil((duration - from) * 24));
-    for (let index = 0; index <= sampleCount; ++index) {
-      const local = from + ((duration - from) * index) / sampleCount;
-      const placed = bones(resolveHumanPosture(context.body, posture(local)));
+    const duration: number = context.params.seconds;
+    const sampleCount: number = Math.max(1, Math.ceil((duration - from) * 24));
+    for (let index: number = 0; index <= sampleCount; ++index) {
+      const local: number = from + ((duration - from) * index) / sampleCount;
+      const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
+        resolveHumanPosture(context.body, posture(local)),
+      );
       for (const [index, foot] of feet.entries()) {
-        const socket = sockets[index]!;
-        const bone = placed.get(socket.bone)!;
-        const shown = Vector3.add(
+        const socket: IAutoMovieHumanoidSurfaces.IFrame = sockets[index]!;
+        const bone: IAutoMovieResolvedBone = placed.get(socket.bone)!;
+        const shown: IAutoMovieVector3 = Vector3.add(
           bone.worldPosition,
           Quaternion.rotateVector(bone.worldRotation, socket.point),
         );
-        const gap = Vector3.distance(
+        const gap: number = Vector3.distance(
           shown,
           foot.at(context.start + local).point,
         );

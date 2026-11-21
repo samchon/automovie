@@ -166,7 +166,8 @@ export namespace PlaygroundAddress {
               Number.isFinite(leg.angle)),
       ) &&
       ["acceleration", "deceleration", "startSpeed", "endSpeed", "at"].every(
-        (field) => value[field] === undefined || Number.isFinite(value[field]),
+        (field: string): boolean =>
+          value[field] === undefined || Number.isFinite(value[field]),
       ) &&
       (value.speeds === undefined ||
         (Array.isArray(value.speeds) && value.speeds.every(Number.isFinite)))

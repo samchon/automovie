@@ -16,8 +16,9 @@ export function playgroundAidWalkAction(
   performers: readonly IPlaygroundComposition.IPerformer[],
 ): IAutoMovieMotionHumanAidWalk | undefined {
   if (object.aidWalk === undefined) return undefined;
-  const action = performers.find(
-    ({ subject }) => subject === object.aidWalk!.subject,
+  const action: IPlaygroundComposition.IAction | undefined = performers.find(
+    ({ subject }: IPlaygroundComposition.IPerformer): boolean =>
+      subject === object.aidWalk!.subject,
   )?.actions[0];
   if (
     action?.name !== "aidWalk" ||

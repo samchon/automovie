@@ -226,7 +226,9 @@ export namespace householdFilm {
     failures: string[],
     side: AutoMovieHumanSide = "right",
   ): void {
-    const handLocal = (t: number): IAutoMovieVector3 => {
+    const handLocal: (t: number) => IAutoMovieVector3 = (
+      t: number,
+    ): IAutoMovieVector3 => {
       const hand: IAutoMovieResolvedBone = film
         .bones("a", t)
         .get(`${side}Hand`)!;

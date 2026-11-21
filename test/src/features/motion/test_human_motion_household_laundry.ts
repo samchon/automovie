@@ -178,7 +178,9 @@ function laundry(body: IAutoMovieMotionHumanBody, failures: string[]): void {
     adjacentAutoMovieFloat64(closeEnd, true),
     closeFrom + 0.793 * (closeEnd - closeFrom),
   ];
-  const doorAt = (t: number): IAutoMovieVector3 =>
+  const doorAt: (t: number) => IAutoMovieVector3 = (
+    t: number,
+  ): IAutoMovieVector3 =>
     machine
       .articulate(film.performance.state("washer", t))
       .affordance("doorHandle").frame.translation;
@@ -216,7 +218,8 @@ function laundry(body: IAutoMovieMotionHumanBody, failures: string[]): void {
     const t: number =
       pick.gripClosed! + ((transfer.placed! - pick.gripClosed!) * i) / samples;
     const pose: IAutoMovieRigidTransform = film.performance.prop("cloth", t);
-    const [back, front] = physicalShapeSpan(pose, shape, FORWARD);
+    const [back, front]: ReturnType<typeof physicalShapeSpan> =
+      physicalShapeSpan(pose, shape, FORWARD);
     const dx: number = pose.position.x - opening.x;
     const dy: number = pose.position.y - opening.y;
     crossedMouth ||=
@@ -316,7 +319,7 @@ function load(aperture: string, lead: string): IAutoMovieMotionHumanChain {
 
 /** The least signed distance, metres, from the cloth to any piece of a placed model. */
 function clearance(
-  model: Washer | Basket,
+  model: Archetype,
   frame: IAutoMovieRigidTransform,
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,

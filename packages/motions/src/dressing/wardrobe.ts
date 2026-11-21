@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,24 +20,13 @@ import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { wardrobeFoot } from "./wardrobeFoot";
 import { wardrobeHands } from "./wardrobeHands";
+import type { wardrobeModes } from "./wardrobeModes";
 
 /** How far a hand clears the physical sleeve plane on each side, metres. */
 const CLEAR: number = 0.034;
 
 /** The installed wardrobe actions and their requested direction and side. */
-type Params =
-  | { kind: "jacketOn"; prop: string; hand?: AutoMovieHumanSide }
-  | {
-      kind: "sleeveIn" | "sleeveOut" | "closeZip" | "openZip";
-      prop: string;
-      side: AutoMovieHumanSide;
-    }
-  | {
-      kind: "footwearOn" | "footwearOff";
-      prop: string;
-      side: AutoMovieHumanSide;
-      hand?: AutoMovieHumanSide;
-    };
+type Params = wardrobeModes.Params;
 
 /**
  * Put coarse stage wearables onto or take them off a real performer.
@@ -165,7 +155,9 @@ function jacket(
   const durationSeconds: number =
     finish + wardrobeHands.duration(kept, carrying);
 
-  const holding = (t: number): IAutoMovieRigidTransform =>
+  const holding: (t: number) => IAutoMovieRigidTransform = (
+    t: number,
+  ): IAutoMovieRigidTransform =>
     t < finish
       ? wardrobeHands.path(carrying, kept, t / arrival)
       : wardrobeHands.path(
@@ -175,7 +167,9 @@ function jacket(
         );
 
   // The free hand waits above the opening before the axial sleeve crossing.
-  const posture = (t: number): IAutoMovieMotionHumanPosture => {
+  const posture: (t: number) => IAutoMovieMotionHumanPosture = (
+    t: number,
+  ): IAutoMovieMotionHumanPosture => {
     const inSleeve: IAutoMovieRigidTransform =
       t <= arrival
         ? wardrobeHands.path(free, reach.before, t / arrival)
@@ -195,7 +189,10 @@ function jacket(
   ] as const)
     wardrobeHands.verify(context, posture(t), acting, goal, wardrobeHands.MISS);
   const time: number = finish / durationSeconds;
-  const base = AutoMovieMotionHumanBase.under(context, durationSeconds);
+  const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
+    context,
+    durationSeconds,
+  );
   return {
     ...base,
     events: [
@@ -277,7 +274,9 @@ function thread(
   const across: number = wardrobeHands.duration(first, last);
   const finish: number = prepare + across;
   const total: number = finish + 0.18;
-  const posture = (t: number): IAutoMovieMotionHumanPosture =>
+  const posture: (t: number) => IAutoMovieMotionHumanPosture = (
+    t: number,
+  ): IAutoMovieMotionHumanPosture =>
     wardrobeHands.arm(
       body,
       entry.posture,
@@ -322,7 +321,9 @@ function collar(
 ): IAutoMovieRigidTransform {
   const rotation: IAutoMovieRigidTransform["rotation"] =
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, context.entry.posture.yaw);
-  const shoulder = (name: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+  const shoulder: (name: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
+    name: AutoMovieHumanoidBone,
+  ): IAutoMovieVector3 =>
     wardrobeHands.bone(context.body, context.entry.posture, name).position;
   return {
     position: Vector3.add(
@@ -410,16 +411,21 @@ function sleeve(
     z: 1,
   });
   // A square sleeve leaves the hand's roll around the passage axis free.
-  const rotations = [0, 45, -45, 90, -90, 135, -135, 180].map((angle) =>
-    HumanHand.rotation(side, {
-      fingers: Vector3.scale(openingOut, -1),
-      palm: Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(openingOut, angle),
-        facing,
-      ),
-    }),
+  const rotations: IAutoMovieQuaternion[] = [
+    0, 45, -45, 90, -90, 135, -135, 180,
+  ].map(
+    (angle: number): IAutoMovieQuaternion =>
+      HumanHand.rotation(side, {
+        fingers: Vector3.scale(openingOut, -1),
+        palm: Quaternion.rotateVector(
+          Quaternion.fromAxisAngle(openingOut, angle),
+          facing,
+        ),
+      }),
   );
-  const endpoint = (position: IAutoMovieVector3): IAutoMovieRigidTransform => ({
+  const endpoint: (position: IAutoMovieVector3) => IAutoMovieRigidTransform = (
+    position: IAutoMovieVector3,
+  ): IAutoMovieRigidTransform => ({
     position,
     rotation: wardrobeHands.fittedGrip(
       context,
@@ -434,7 +440,7 @@ function sleeve(
   let earlier: number = 0;
   let later: number = 1;
   // Invert the monotonic timing curve at the actual axial distance to the opening.
-  for (let step = 0; step < 14; ++step) {
+  for (let step: number = 0; step < 14; ++step) {
     const middle: number = (earlier + later) / 2;
     if (minimumJerk.share(middle) < crossing) earlier = middle;
     else later = middle;

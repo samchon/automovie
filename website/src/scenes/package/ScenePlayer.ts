@@ -19,6 +19,18 @@ import type { IScenePlayer } from "../structures/IScenePlayer";
 import { SceneArchetype } from "./SceneArchetype";
 import { scenePracticalLight } from "./scenePracticalLight";
 
+/** A drawn prop: its moving group, its articulated parts by id and the practical lights it carries. */
+interface IPropDrawing {
+  /** The prop's world group, moved by its frame. */
+  group: THREE.Group;
+
+  /** The model's articulated parts by part id. */
+  parts: IAutoMovieModelObject["parts"];
+
+  /** Each light's setter for a film second. */
+  lights: ((seconds: number) => void)[];
+}
+
 /**
  * Plays a take the take worker computed: the polygon man of every performer,
  * drawn by `@automovie/render` from the take's rest bones, and every placed
@@ -153,39 +165,37 @@ export namespace ScenePlayer {
     // Each prop as its archetype, moved by its frame.
     const objects: readonly IPlaygroundComposition.IObject[] =
       record.composition?.objects ?? [];
-    const props: {
-      group: THREE.Group;
-      parts: IAutoMovieModelObject["parts"];
-      lights: ((seconds: number) => void)[];
-    }[] = take.props.map((subject: string) => {
-      const placed: IPlaygroundComposition.IObject | undefined = objects.find(
-        (o: IPlaygroundComposition.IObject): boolean => o.subject === subject,
-      );
-      const group: THREE.Group = new THREE.Group();
-      let parts: IAutoMovieModelObject["parts"] = new Map();
-      const lights: ((seconds: number) => void)[] = [];
-      if (placed !== undefined) {
-        const archetype: SceneArchetype.Model = SceneArchetype.model(placed);
-        const model: IAutoMovieModelObject = buildModel(archetype);
-        group.add(model.object);
-        parts = model.parts;
-        for (const light of record.practicalLights ?? [])
-          if (light.prop === subject)
-            lights.push(
-              scenePracticalLight(group, archetype, take.timeline, light),
-            );
-        disposers.push((): void =>
-          model.object.traverse((node: THREE.Object3D): void => {
-            if (!(node instanceof THREE.Mesh)) return;
-            node.geometry.dispose();
-            for (const material of [node.material].flat())
-              (material as THREE.Material).dispose();
-          }),
+    const props: IPropDrawing[] = take.props.map(
+      (subject: string): IPropDrawing => {
+        const placed: IPlaygroundComposition.IObject | undefined = objects.find(
+          (o: IPlaygroundComposition.IObject): boolean => o.subject === subject,
         );
-      }
-      scene.add(group);
-      return { group, parts, lights };
-    });
+        const group: THREE.Group = new THREE.Group();
+        let parts: IAutoMovieModelObject["parts"] = new Map();
+        const lights: ((seconds: number) => void)[] = [];
+        if (placed !== undefined) {
+          const archetype: SceneArchetype.Model = SceneArchetype.model(placed);
+          const model: IAutoMovieModelObject = buildModel(archetype);
+          group.add(model.object);
+          parts = model.parts;
+          for (const light of record.practicalLights ?? [])
+            if (light.prop === subject)
+              lights.push(
+                scenePracticalLight(group, archetype, take.timeline, light),
+              );
+          disposers.push((): void =>
+            model.object.traverse((node: THREE.Object3D): void => {
+              if (!(node instanceof THREE.Mesh)) return;
+              node.geometry.dispose();
+              for (const material of [node.material].flat())
+                (material as THREE.Material).dispose();
+            }),
+          );
+        }
+        scene.add(group);
+        return { group, parts, lights };
+      },
+    );
 
     const seek: (seconds: number) => void = (seconds: number): void => {
       const sampled: SceneTrack.IPlacement[][] = SceneTrack.sample(
@@ -196,21 +206,23 @@ export namespace ScenePlayer {
         (drawing: AutoMovieHumanPolygon.IDrawing, i: number): void =>
           drawing.setPose({ posed: sampled[i]! }),
       );
-      props.forEach(({ group, parts, lights }, i: number): void => {
-        const [entry, ...articulation]: SceneTrack.IPlacement[] =
-          sampled[figures.length + i]!;
-        group.position.fromArray(entry!.position);
-        group.quaternion.fromArray(entry!.rotation);
-        for (const setLight of lights) setLight(seconds);
-        for (const moved of articulation) {
-          const part: THREE.Object3D | undefined = parts.get(
-            moved.bone.slice(SceneTrack.PROP_PART.length),
-          );
-          if (part === undefined) continue;
-          part.position.fromArray(moved.position);
-          part.quaternion.fromArray(moved.rotation);
-        }
-      });
+      props.forEach(
+        ({ group, parts, lights }: IPropDrawing, i: number): void => {
+          const [entry, ...articulation]: SceneTrack.IPlacement[] =
+            sampled[figures.length + i]!;
+          group.position.fromArray(entry!.position);
+          group.quaternion.fromArray(entry!.rotation);
+          for (const setLight of lights) setLight(seconds);
+          for (const moved of articulation) {
+            const part: THREE.Object3D | undefined = parts.get(
+              moved.bone.slice(SceneTrack.PROP_PART.length),
+            );
+            if (part === undefined) continue;
+            part.position.fromArray(moved.position);
+            part.quaternion.fromArray(moved.rotation);
+          }
+        },
+      );
     };
     seek(0);
 

@@ -1,3 +1,5 @@
+import type { AutoMovieHumanSide } from "@automovie/interface";
+
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
@@ -26,7 +28,10 @@ function fixture(
 }
 
 /** Move the same hinge's riding handle by a relative swing in degrees. */
-function washerDoor(hand: "left" | "right", swing: number): SceneBuild.Action {
+function washerDoor(
+  hand: AutoMovieHumanSide,
+  swing: number,
+): SceneBuild.Action {
   return act("operate", {
     hand,
     mechanism: { kind: "hinge", at: site("washer", "doorHandle"), swing },

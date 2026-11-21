@@ -21,17 +21,34 @@ interface ISection {
   color: string;
 }
 
+/** Where one angular ray meets the cavity and the outside of the body, metres. */
+interface IDrumStation {
+  /** The ray's point on the polygonal cavity. */
+  interior: IAutoMovieVector3;
+
+  /** The ray's point on the rectangular outside. */
+  exterior: IAutoMovieVector3;
+}
+
 /** Keep angular stations in one turn. */
 const TURN: number = 2 * Math.PI;
 
 /** The maker's drum volume, in cubic metres. */
 const DRUM_VOLUME: number = 0.065;
 
-/** Coarse approximations for the cavity and the rubber lip. */
+/** The drum polygon's circumradius, metres; a coarse construction estimate. */
 const DRUM_RADIUS: number = 0.22;
+
+/** The drum polygon's side count; a coarse construction estimate. */
 const DRUM_SIDES: number = 8;
+
+/** The rubber lip's depth, metres; a coarse construction estimate. */
 const LIP_DEPTH: number = 0.03;
+
+/** The rubber lip polygon's circumradius, metres, near the 300 mm porthole. */
 const LIP_RADIUS: number = 0.15;
+
+/** The rubber lip polygon's side count; a coarse construction estimate. */
 const LIP_SIDES: number = 12;
 
 /**
@@ -163,10 +180,7 @@ function shell(
     TURN + Math.atan2(-centre, -half),
     TURN + Math.atan2(-centre, half),
   ].sort((a: number, b: number): number => a - b);
-  const stations: {
-    interior: IAutoMovieVector3;
-    exterior: IAutoMovieVector3;
-  }[] = angles.map((angle: number) => {
+  const stations: IDrumStation[] = angles.map((angle: number): IDrumStation => {
     const x: number = Math.cos(angle);
     const y: number = Math.sin(angle);
     const inner: number =
@@ -181,8 +195,7 @@ function shell(
     };
   });
   for (const [index, current] of stations.entries()) {
-    const next: (typeof stations)[number] =
-      stations[(index + 1) % stations.length]!;
+    const next: IDrumStation = stations[(index + 1) % stations.length]!;
     const perimeter: readonly IAutoMovieVector3[] = [
       current.interior,
       current.exterior,

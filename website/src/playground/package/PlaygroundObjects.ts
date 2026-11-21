@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieMotionHumanAidWalk,
   IAutoMovieMotionHumanProp,
   IAutoMovieTransform,
 } from "@automovie/interface";
@@ -80,9 +81,11 @@ export namespace PlaygroundObjects {
     return objects.map(
       (object: IPlaygroundComposition.IObject): IAutoMovieMotionHumanProp => {
         const rest: SceneArchetype.Model = SceneArchetype.model(object);
-        const travel = playgroundVehicleCourse(object, rest);
-        const placed = placement(object);
-        const aid = playgroundAidWalkAction(object, performers);
+        const travel: playgroundVehicleCourse.ICourse | undefined =
+          playgroundVehicleCourse(object, rest);
+        const placed: IPlacement = placement(object);
+        const aid: IAutoMovieMotionHumanAidWalk | undefined =
+          playgroundAidWalkAction(object, performers);
         if (
           aid !== undefined &&
           (travel !== undefined || object.fixed || object.worn)

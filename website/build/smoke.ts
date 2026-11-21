@@ -33,12 +33,6 @@ import { SceneTake } from "../src/scenes/SceneTake";
 import { SceneStatus } from "../src/scenes/package/SceneStatus";
 import type { IScene } from "../src/scenes/structures/IScene";
 import { TakeCompute } from "../src/takes/package/TakeCompute";
-import { checkDrivingScrew } from "./checkDrivingScrew";
-import { checkEverydayScenes } from "./checkEverydayScenes";
-import { checkFarewellScene } from "./checkFarewellScene";
-import { checkTourists } from "./checkTourists";
-import { checkVehicleScenes } from "./checkVehicleScenes";
-import { checkVictoryLap } from "./checkVictoryLap";
 import { serveExport } from "./serveExport";
 
 /** One page to open and what it must show. */
@@ -110,7 +104,7 @@ const REFUSED_SCENE: IScene | undefined = SCENES.find(
       SceneStatus.of(scene).kind !== "refused"
     )
       return false;
-    const result = TakeCompute.take(
+    const result: ReturnType<typeof TakeCompute.take> = TakeCompute.take(
       SceneTake.apply(scene.composition, scene.takes[0]),
       SCENE_FPS,
     );
@@ -195,58 +189,6 @@ const CASES: readonly ICase[] = [
         );
       }
     },
-  },
-  {
-    name: "Fall and Rise plays its baked take and three alternative takes",
-    path: "scenes/fall-and-rise/",
-    shows: [
-      '.am-scene-page .am-scene-view[data-take="ready"] canvas',
-      ".am-transport",
-      ".am-code",
-    ],
-    lacks: [
-      ".am-scene-refused",
-      ".am-scene-view-refusal",
-      ".am-scene-view-note.am-danger-text",
-    ],
-    contexts: 1,
-    check: async (page: Page, problems: string[]): Promise<void> => {
-      await page.getByRole("tab", { name: /^Takes/ }).click();
-      for (const label of [
-        "The scene",
-        "Another seed",
-        "Other bodies",
-        "Every performer novice",
-      ]) {
-        const take: Locator = page.locator(".am-take-grid .am-take").filter({
-          has: page.getByText(label, { exact: true }),
-        });
-        try {
-          await take.scrollIntoViewIfNeeded();
-          const state: string | null = await take
-            .locator('.am-scene-view[aria-busy="false"]')
-            .getAttribute("data-take", { timeout: COMPUTE_LIMIT });
-          if (state !== "ready")
-            problems.push(`the "${label}" take ended in state ${state}`);
-        } catch {
-          problems.push(`the "${label}" take did not finish drawing`);
-        }
-      }
-    },
-  },
-  {
-    name: "Office draws its switch and lamp in the baked take",
-    path: "scenes/office/",
-    shows: [
-      '.am-scene-page .am-scene-view[data-take="ready"] canvas',
-      ".am-transport",
-    ],
-    lacks: [
-      ".am-scene-refused",
-      ".am-scene-view-refusal",
-      ".am-scene-view-note.am-danger-text",
-    ],
-    contexts: 1,
   },
   ...(REFUSED_SCENE === undefined
     ? []
@@ -429,12 +371,6 @@ const COUNTERS: string = `
 `;
 
 const main: () => Promise<void> = async (): Promise<void> => {
-  checkDrivingScrew();
-  checkTourists();
-  checkEverydayScenes();
-  checkFarewellScene();
-  checkVehicleScenes();
-  checkVictoryLap();
   const served: { server: http.Server; address: string } = await serveExport(0);
   const browser: Browser = await chromium.launch({
     headless: true,

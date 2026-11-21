@@ -6,10 +6,11 @@ import {
   ArchetypeBuilder,
   ArchetypeDrawSession,
   ArchetypeFrame,
+  type IArchetypeBand,
 } from "../core";
 
 /** The bounds of authored coarse garment dimensions in metres. */
-const BANDS = {
+const BANDS: Readonly<Record<createStageJacket.Dimension, IArchetypeBand>> = {
   width: ArchetypeBand.metres(
     0.36,
     0.6,
@@ -101,8 +102,8 @@ export function createStageJacket(
     material: "composite",
     draw,
   });
-  const cloth: { color: string } = { color: "#437b89" };
-  const seam: { color: string } = { color: "#30616e" };
+  const cloth: ArchetypeBuilder.IOptions = { color: "#437b89" };
+  const seam: ArchetypeBuilder.IOptions = { color: "#30616e" };
 
   // Separate back and front panels leave space for the body and a front opening.
   const half: number = d.width / 2;
@@ -254,7 +255,13 @@ export namespace createStageJacket {
     | "zip";
 
   /** The overall torso, clear short sleeves and zipper travel as metre values. */
-  export type Dimension = keyof typeof BANDS;
+  export type Dimension =
+    | "width"
+    | "depth"
+    | "length"
+    | "sleeveWidth"
+    | "sleeveLength"
+    | "zipTravel";
 
   /** Input constraints and optional scene identity. */
   export interface IParams extends Partial<Record<Dimension, number>> {

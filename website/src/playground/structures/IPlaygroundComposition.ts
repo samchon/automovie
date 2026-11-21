@@ -78,12 +78,21 @@ export namespace IPlaygroundComposition {
     joints?: Record<string, readonly IJointKey[]>;
 
     /** The performer whose opening aidWalk action moves this floor aid. */
-    aidWalk?: { subject: string };
+    aidWalk?: IAidWalk;
+  }
+
+  /** The walker of a floor aid. */
+  export interface IAidWalk {
+    /** The performer's subject. */
+    subject: string;
   }
 
   /** A film-time value in an articulation's own unit. */
   export interface IJointKey {
+    /** Film seconds. */
     seconds: number;
+
+    /** The articulation's travel, in its own unit. */
     value: number;
   }
 

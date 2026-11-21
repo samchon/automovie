@@ -38,6 +38,12 @@ const STILL: IAutoMovieRigidTransform = {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No anatomy, FK rule or limit is duplicated.
  */
 export namespace wardrobeHands {
+  /** What every wardrobe mode names: the staged wearable prop. */
+  export interface IPropParams {
+    /** The wearable prop's scene id. */
+    prop: string;
+  }
+
   /** The posed grip may miss its authored contact by at most one centimetre. */
   export const MISS: number = 0.01;
 
@@ -210,7 +216,7 @@ export namespace wardrobeHands {
     fraction: number,
   ): IAutoMovieRigidTransform {
     if (fraction <= 0) return STILL;
-    const turn = HumanPropFrame.relative(
+    const turn: IAutoMovieRigidTransform["rotation"] = HumanPropFrame.relative(
       grip(body, posture, side),
       desired,
     ).rotation;
@@ -297,7 +303,7 @@ export namespace wardrobeHands {
 
   /** Drive the slider with a hand after the jacket has transferred onto the chest. */
   export function zipper(
-    context: IAutoMovieMotionHumanActionContext<{ prop: string }>,
+    context: IAutoMovieMotionHumanActionContext<IPropParams>,
     side: AutoMovieHumanSide,
     reverse: boolean,
   ): IAutoMovieMotionHumanActionPlan {
@@ -347,14 +353,15 @@ export namespace wardrobeHands {
     );
     const rotations: IAutoMovieRigidTransform["rotation"][] = [
       hand.rotation,
-      ...[0, 45, -45, 90, -90, 135, -135, 180].map((angle) =>
-        HumanHand.rotation(side, {
-          fingers: Vector3.scale(out, -1),
-          palm: Quaternion.rotateVector(
-            Quaternion.fromAxisAngle(out, angle),
-            axis,
-          ),
-        }),
+      ...[0, 45, -45, 90, -90, 135, -135, 180].map(
+        (angle: number): IAutoMovieRigidTransform["rotation"] =>
+          HumanHand.rotation(side, {
+            fingers: Vector3.scale(out, -1),
+            palm: Quaternion.rotateVector(
+              Quaternion.fromAxisAngle(out, angle),
+              axis,
+            ),
+          }),
       ),
     ];
     const rotation: IAutoMovieRigidTransform["rotation"] = fittedGrip(
@@ -371,7 +378,9 @@ export namespace wardrobeHands {
     const slide: number = duration(start, end);
     const closed: number = take + slide;
     const total: number = closed + duration(end, hand);
-    const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
+    const posture: (seconds: number) => IAutoMovieMotionHumanPosture = (
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => {
       const goal: IAutoMovieRigidTransform =
         seconds <= take
           ? path(hand, start, seconds / take)
@@ -382,7 +391,8 @@ export namespace wardrobeHands {
     };
     verify(context, posture(take), side, start, MISS);
     verify(context, posture(closed), side, end, MISS);
-    const support = AutoMovieMotionHumanBase.under(context, total);
+    const support: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, total);
     return {
       ...support,
       events: [
@@ -419,7 +429,7 @@ export namespace wardrobeHands {
 
   /** Choose a hand roll that reaches both endpoints of a fully defined path. */
   export function fittedGrip(
-    context: IAutoMovieMotionHumanActionContext<{ prop: string }>,
+    context: IAutoMovieMotionHumanActionContext<IPropParams>,
     side: AutoMovieHumanSide,
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -432,7 +442,7 @@ export namespace wardrobeHands {
     let answer: IAutoMovieRigidTransform["rotation"] = rotations[0]!;
     for (const rotation of rotations) {
       const miss: number = Math.max(
-        ...positions.map((position): number => {
+        ...positions.map((position: IAutoMovieVector3): number => {
           const shown: IAutoMovieRigidTransform = grip(
             body,
             arm(body, entry.posture, side, { position, rotation }),

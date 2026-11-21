@@ -1,8 +1,9 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanAidWalk,
   IAutoMovieMotionHumanContactWindow,
@@ -30,9 +31,6 @@ const FLOOR: number = 0.01;
 /** Fixed world vertical for floor, pivot and grip reads. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** The hands and feet use the same side names. */
-type Side = "left" | "right";
-
 /** One prop advance and the floor poses it joins, in film seconds and world metres. */
 interface IAdvance {
   /** Lift begins. */
@@ -45,8 +43,17 @@ interface IAdvance {
   floor: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
 }
 
+/** The aid's course: when the body is ready and each advance after it. */
+interface ICourse {
+  /** Seconds from the action's start of the opening stance that settles the grip, a quarter of the first station's time; the first advance begins then. */
+  ready: number;
+
+  /** Each aid advance in order. */
+  moves: readonly IAdvance[];
+}
+
 /** Name the aid or route setting that prevents motion. */
-function refuse(axis: string, value: string | number, reason: string): never {
+function refuse(axis: string, value: unknown, reason: string): never {
   throw new HumanRefusal({
     kind: "affordance",
     axis,
@@ -58,7 +65,7 @@ function refuse(axis: string, value: string | number, reason: string): never {
 
 /** Keep the named planted foot when its other foot makes the next step. */
 function foot(
-  side: Side,
+  side: AutoMovieHumanSide,
   at: IAutoMovieVector3,
 ): IAutoMovieMotionHumanSupport.IContact {
   return {
@@ -72,10 +79,7 @@ function foot(
 function course(
   start: IAutoMovieRigidTransform,
   props: IAutoMovieMotionHumanAidWalk,
-): {
-  ready: number;
-  moves: readonly IAdvance[];
-} {
+): ICourse {
   if (
     props.kind !== "cane" &&
     props.kind !== "crutch" &&
@@ -100,40 +104,45 @@ function course(
   const walker: boolean = props.kind === "walker";
   let clock: number = ready;
   let old: IAutoMovieRigidTransform = start;
-  const moves: IAdvance[] = props.stations.map((station, index): IAdvance => {
-    const heading: number = station.turn ?? 0;
-    if (
-      ![station.x, station.z, heading, station.seconds].every(
-        Number.isFinite,
-      ) ||
-      station.seconds <= 0
-    )
-      return refuse(
-        "stations",
-        index,
-        "the station coordinates and heading must be finite and its time positive",
-      );
-    const phase: number = station.seconds / (walker ? 3 : 2);
-    const pose: IAutoMovieRigidTransform = {
-      position: Vector3.add(start.position, {
-        x: station.x,
-        y: 0,
-        z: station.z,
-      }),
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle(UP, heading),
-        start.rotation,
-      ),
-    };
-    const move: IAdvance = {
-      from: clock,
-      to: clock + phase * (walker ? 1 : 2 / 3),
-      floor: [old, pose],
-    };
-    old = pose;
-    clock += station.seconds;
-    return move;
-  });
+  const moves: IAdvance[] = props.stations.map(
+    (
+      station: IAutoMovieMotionHumanAidWalk.IStation,
+      index: number,
+    ): IAdvance => {
+      const heading: number = station.turn ?? 0;
+      if (
+        ![station.x, station.z, heading, station.seconds].every(
+          Number.isFinite,
+        ) ||
+        station.seconds <= 0
+      )
+        return refuse(
+          "stations",
+          index,
+          "the station coordinates and heading must be finite and its time positive",
+        );
+      const phase: number = station.seconds / (walker ? 3 : 2);
+      const pose: IAutoMovieRigidTransform = {
+        position: Vector3.add(start.position, {
+          x: station.x,
+          y: 0,
+          z: station.z,
+        }),
+        rotation: Quaternion.multiply(
+          Quaternion.fromAxisAngle(UP, heading),
+          start.rotation,
+        ),
+      };
+      const move: IAdvance = {
+        from: clock,
+        to: clock + phase * (walker ? 1 : 2 / 3),
+        floor: [old, pose],
+      };
+      old = pose;
+      clock += station.seconds;
+      return move;
+    },
+  );
   return { ready, moves };
 }
 
@@ -183,22 +192,17 @@ function frameAt(
  * @evidence contracts/development/design.md#minimal-and-owned-surface The staged prop provides the collision geometry and grip contacts. The existing support and hand fitters own pose computation.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Rejects a conflicting prop track or unreachable handle. The body plan never replaces the prop owner's motion curve.
  */
-export const HumanAidWalk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanAidWalk> & {
-  /** Stage the aid through the normal rigid prop track callback. */
-  track(
-    start: IAutoMovieRigidTransform,
-    props: IAutoMovieMotionHumanAidWalk,
-    startsAt?: number,
-  ): (filmSecond: number) => IAutoMovieRigidTransform;
-} = {
+export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
   name: "aidWalk",
   interrupts: {},
+
+  // Stage the aid through the normal rigid prop track callback.
   track: (
     start: IAutoMovieRigidTransform,
     params: IAutoMovieMotionHumanAidWalk,
     startsAt: number = 0,
   ): ((filmSecond: number) => IAutoMovieRigidTransform) => {
-    const { moves }: ReturnType<typeof course> = course(start, params);
+    const { moves }: ICourse = course(start, params);
     return (filmSecond: number): IAutoMovieRigidTransform =>
       frameAt(moves, start, filmSecond - startsAt);
   },
@@ -224,12 +228,18 @@ export const HumanAidWalk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanA
     if (Math.abs(start.position.y + footOffset.y) > FLOOR)
       return refuse("prop", params.prop, "the aid does not start on its floor");
     const walker: boolean = params.kind === "walker";
-    const side: Side =
+    const side: AutoMovieHumanSide =
       params.kind === "walker" ? "left" : (params.hand ?? "right");
-    const lead: Side = walker ? "left" : side === "left" ? "right" : "left";
-    const trail: Side = lead === "left" ? "right" : "left";
-    const sides: readonly Side[] = walker ? ["left", "right"] : [side];
-    const { ready, moves }: ReturnType<typeof course> = course(start, params);
+    const lead: AutoMovieHumanSide = walker
+      ? "left"
+      : side === "left"
+        ? "right"
+        : "left";
+    const trail: AutoMovieHumanSide = lead === "left" ? "right" : "left";
+    const sides: readonly AutoMovieHumanSide[] = walker
+      ? ["left", "right"]
+      : [side];
+    const { ready, moves }: ICourse = course(start, params);
     const initial: readonly IAutoMovieVector3[] = supportContact.onFloors(
       body,
       entry,
@@ -320,15 +330,14 @@ export const HumanAidWalk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanA
     const samples: Set<number> = new Set([
       ready,
       plan.duration,
-      ...plan.events.map((event) => event.share * plan.duration),
+      ...plan.events.map(
+        (event: IAutoMovieMotionEvent): number => event.share * plan.duration,
+      ),
     ]);
     for (const move of moves)
       for (const share of [0, 0.25, 0.5, 0.75, 1])
         samples.add(move.from + share * (move.to - move.from));
-    const stations: {
-      frame: IAutoMovieRigidTransform;
-      body: IAutoMovieMotionHumanPosture;
-    }[] = [];
+    const stations: humanAidWalkGrip.IStation[] = [];
     for (const seconds of samples) {
       const intended: IAutoMovieRigidTransform = frameAt(moves, start, seconds);
       const actual: IAutoMovieRigidTransform = prop.frame(
@@ -425,11 +434,16 @@ export const HumanAidWalk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanA
       ],
       events: [
         ...plan.events,
-        ...moves.map((move: IAdvance, index: number) => ({
-          name: `aidPlant${index + 1}`,
-          share: move.to / plan.duration,
-        })),
-      ].sort((a, b): number => a.share - b.share),
+        ...moves.map(
+          (move: IAdvance, index: number): IAutoMovieMotionEvent => ({
+            name: `aidPlant${index + 1}`,
+            share: move.to / plan.duration,
+          }),
+        ),
+      ].sort(
+        (a: IAutoMovieMotionEvent, b: IAutoMovieMotionEvent): number =>
+          a.share - b.share,
+      ),
     };
   },
 };

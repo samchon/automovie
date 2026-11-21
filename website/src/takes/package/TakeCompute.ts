@@ -1,5 +1,6 @@
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieModelPart,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
@@ -133,7 +134,11 @@ export namespace TakeCompute {
               ).posed,
           ),
 
-          ...readers.map((read) => read(seconds)),
+          ...readers.map(
+            (
+              read: (seconds: number) => SceneTrack.IPlacement[],
+            ): SceneTrack.IPlacement[] => read(seconds),
+          ),
         ]);
       }
     } catch (error) {
@@ -154,7 +159,7 @@ export namespace TakeCompute {
       ...frames[0]!
         .slice(figures.length)
         .map((group: SceneTrack.IPlacement[]): string[] =>
-          group.map((entry) => entry.bone),
+          group.map((entry: SceneTrack.IPlacement): string => entry.bone),
         ),
     ];
     return {
@@ -192,8 +197,10 @@ export namespace TakeCompute {
         ? SceneArchetype.model(object)
         : null;
       const moving: Set<string> = new Set(
-        model?.affordances.flatMap((affordance) => affordance.parts ?? []) ??
-          [],
+        model?.affordances.flatMap(
+          (affordance: IAutoMovieAffordance): readonly string[] =>
+            affordance.parts ?? [],
+        ) ?? [],
       );
       let previous: string | undefined;
       let parts: SceneTrack.IPlacement[] = [];

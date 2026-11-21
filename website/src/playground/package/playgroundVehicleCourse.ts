@@ -28,13 +28,7 @@ import type { IPlaygroundComposition } from "../structures/IPlaygroundCompositio
 export function playgroundVehicleCourse(
   object: IPlaygroundComposition.IObject,
   model: SceneArchetype.Model,
-):
-  | {
-      placement: (seconds: number) => IAutoMovieRigidTransform;
-      contact: (id: string, seconds: number) => IAutoMovieTransform;
-      tracks: IAutoMovieMotionHumanProp.ITrack[];
-    }
-  | undefined {
+): playgroundVehicleCourse.ICourse | undefined {
   if (object.course === undefined) {
     if (object.joints !== undefined)
       throw new Error(
@@ -77,22 +71,27 @@ export function playgroundVehicleCourse(
         );
     }
   })();
+
+  // Every reader of one film second shares one native ride sample.
   let previous: number | undefined;
   let sample: ArchetypeRide.ISample<string, string>;
-  const at = (seconds: number): ArchetypeRide.ISample<string, string> => {
+  const at: (seconds: number) => ArchetypeRide.ISample<string, string> = (
+    seconds: number,
+  ): ArchetypeRide.ISample<string, string> => {
     if (seconds !== previous) {
       sample = ride.at(seconds);
       previous = seconds;
     }
     return sample;
   };
-  const keyed = Object.entries(object.joints ?? {});
+  const keyed: [string, readonly IPlaygroundComposition.IJointKey[]][] =
+    Object.entries(object.joints ?? {});
   for (const [id, keys] of keyed) {
     model.travel(id);
     if (
       keys[0]?.seconds !== 0 ||
       keys.some(
-        (key, index) =>
+        (key: IPlaygroundComposition.IJointKey, index: number): boolean =>
           !Number.isFinite(key.value) ||
           !Number.isFinite(key.seconds) ||
           (index > 0 && key.seconds <= keys[index - 1]!.seconds),
@@ -105,22 +104,32 @@ export function playgroundVehicleCourse(
   const articulations: string[] = [
     ...new Set([
       ...Object.keys(at(0).archetype.state),
-      ...keyed.map(([id]) => id),
+      ...keyed.map(
+        ([id]: [string, readonly IPlaygroundComposition.IJointKey[]]): string =>
+          id,
+      ),
     ]),
   ];
-  const state = (seconds: number): Record<string, number | undefined> => ({
+  const state: (seconds: number) => Partial<Record<string, number>> = (
+    seconds: number,
+  ): Partial<Record<string, number>> => ({
     ...at(seconds).archetype.state,
     ...Object.fromEntries(
-      keyed.map(([id, keys]) => [id, jointValue(keys, seconds)]),
+      keyed.map(
+        ([id, keys]: [string, readonly IPlaygroundComposition.IJointKey[]]): [
+          string,
+          number,
+        ] => [id, jointValue(keys, seconds)],
+      ),
     ),
   });
   return {
     placement: (seconds: number): IAutoMovieRigidTransform => {
-      const pose = at(seconds).placement;
+      const pose: IAutoMovieTransform = at(seconds).placement;
       return { position: pose.translation, rotation: pose.rotation };
     },
     contact: (id: string, seconds: number): IAutoMovieTransform => {
-      const shown = at(seconds);
+      const shown: ArchetypeRide.ISample<string, string> = at(seconds);
       return ArchetypeFrame.compose(
         shown.placement,
         (keyed.length === 0
@@ -130,7 +139,7 @@ export function playgroundVehicleCourse(
       );
     },
     tracks: articulations.map(
-      (articulation): IAutoMovieMotionHumanProp.ITrack => ({
+      (articulation: string): IAutoMovieMotionHumanProp.ITrack => ({
         articulation,
         start: 0,
         travel: (seconds: number): number => state(seconds)[articulation] ?? 0,
@@ -138,16 +147,31 @@ export function playgroundVehicleCourse(
     ),
   };
 }
+export namespace playgroundVehicleCourse {
+  /** A vehicle course's readers on the film clock. */
+  export interface ICourse {
+    /** The vehicle's world frame at a film second. */
+    placement: (seconds: number) => IAutoMovieRigidTransform;
+
+    /** A named affordance's world frame at a film second, on the articulated model. */
+    contact: (id: string, seconds: number) => IAutoMovieTransform;
+
+    /** Each articulation's travel over the film. */
+    tracks: IAutoMovieMotionHumanProp.ITrack[];
+  }
+}
 
 /** Interpolate adjacent named values and hold the final one after its key. */
 function jointValue(
   keys: readonly IPlaygroundComposition.IJointKey[],
   seconds: number,
 ): number {
-  const later = keys.findIndex((key) => key.seconds > seconds);
+  const later: number = keys.findIndex(
+    (key: IPlaygroundComposition.IJointKey): boolean => key.seconds > seconds,
+  );
   if (later < 1) return (later === -1 ? keys.at(-1) : keys[0])!.value;
-  const a = keys[later - 1]!;
-  const b = keys[later]!;
+  const a: IPlaygroundComposition.IJointKey = keys[later - 1]!;
+  const b: IPlaygroundComposition.IJointKey = keys[later]!;
   return (
     a.value +
     ((seconds - a.seconds) / (b.seconds - a.seconds)) * (b.value - a.value)

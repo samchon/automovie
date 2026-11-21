@@ -47,7 +47,9 @@ export function putDownTravel(
   const opening: IAutoMovieRigidTransform =
     mouth === undefined ? rest : { position: mouth, rotation: rest.rotation };
   if (route !== undefined) {
-    const frame = (offset: IAutoMovieVector3): IAutoMovieRigidTransform => ({
+    const frame: (offset: IAutoMovieVector3) => IAutoMovieRigidTransform = (
+      offset: IAutoMovieVector3,
+    ): IAutoMovieRigidTransform => ({
       position: Vector3.add(rest.position, offset),
       rotation: rest.rotation,
     });
@@ -58,15 +60,22 @@ export function putDownTravel(
       rest,
     ];
     const first: IAutoMovieRigidTransform = openings[0]!;
-    const along = openings.slice(1).map((to, index) => {
-      const from: IAutoMovieRigidTransform = openings[index]!;
-      return transport(
-        from,
-        to,
-        HumanPrehension.carry(distance(from.position, to.position)),
-        0,
+    const along: IAutoMovieMotionHumanPrehension.ITransport[] = openings
+      .slice(1)
+      .map(
+        (
+          to: IAutoMovieRigidTransform,
+          index: number,
+        ): IAutoMovieMotionHumanPrehension.ITransport => {
+          const from: IAutoMovieRigidTransform = openings[index]!;
+          return transport(
+            from,
+            to,
+            HumanPrehension.carry(distance(from.position, to.position)),
+            0,
+          );
+        },
       );
-    });
     const approach: number = HumanPrehension.duration(
       context.skill,
       context.random("place"),
@@ -82,7 +91,13 @@ export function putDownTravel(
       retreat: joinRoute([transport(home, first, withdraw, 0), ...along]),
       aperture: along
         .slice(0, route.approach.length)
-        .reduce((time, span) => time + span.duration, approach),
+        .reduce(
+          (
+            time: number,
+            span: IAutoMovieMotionHumanPrehension.ITransport,
+          ): number => time + span.duration,
+          approach,
+        ),
     };
   }
 
@@ -129,17 +144,25 @@ export function putDownTravel(
   };
 }
 
+/** The route segment active at a path second and the second on its own clock. */
+interface IActiveSpan {
+  /** The active segment. */
+  span: IAutoMovieMotionHumanPrehension.ITransport;
+
+  /** Seconds since that segment began. */
+  local: number;
+}
+
 /** Read the active minimum-jerk span on the local clock of the whole path. */
 function joinRoute(
   spans: readonly IAutoMovieMotionHumanPrehension.ITransport[],
 ): IAutoMovieMotionHumanPrehension.ITransport {
-  const duration: number = spans.reduce((sum, span) => sum + span.duration, 0);
-  const active = (
-    seconds: number,
-  ): {
-    span: IAutoMovieMotionHumanPrehension.ITransport;
-    local: number;
-  } => {
+  const duration: number = spans.reduce(
+    (sum: number, span: IAutoMovieMotionHumanPrehension.ITransport): number =>
+      sum + span.duration,
+    0,
+  );
+  const active = (seconds: number): IActiveSpan => {
     let local: number = seconds;
     for (const span of spans) {
       if (local <= span.duration) return { span, local };
@@ -152,11 +175,11 @@ function joinRoute(
   return {
     duration,
     wrist: (seconds: number): IAutoMovieVector3 => {
-      const { span, local } = active(seconds);
+      const { span, local }: IActiveSpan = active(seconds);
       return span.wrist(local);
     },
     turn: (seconds: number): IAutoMovieRigidTransform["rotation"] => {
-      const { span, local } = active(seconds);
+      const { span, local }: IActiveSpan = active(seconds);
       return span.turn(local);
     },
   };

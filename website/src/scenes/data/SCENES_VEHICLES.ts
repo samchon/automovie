@@ -17,9 +17,33 @@ const TWO_WHEELS: NonNullable<IPlaygroundComposition.IObject["course"]> = {
   ],
 };
 
+/** The car seat an occupant takes, which names its seat, door handle and aperture. */
+type SceneCarRole = "driver" | "passenger";
+
+/** One occupant of the car trip and the side it boards from. */
+interface ICarRider {
+  /** The performer. */
+  subject: string;
+
+  /** The scene body. */
+  body: string;
+
+  /** The seat role. */
+  role: SceneCarRole;
+
+  /** The car's side, 1 on +X. */
+  side: number;
+
+  /** The heading of the approach, degrees. */
+  approach: number;
+
+  /** The heading at the door before getting in, degrees. */
+  enter: number;
+}
+
 /** The car's boarding marks and road course use a shared, authored film clock. */
 function carRide(): IScene {
-  const door = [
+  const door: IPlaygroundComposition.IJointKey[] = [
     { seconds: 0, value: 0 },
     { seconds: 0.6, value: 0 },
     { seconds: 3.15, value: 45 },
@@ -40,7 +64,7 @@ function carRide(): IScene {
       ],
     },
   };
-  const riders = [
+  const riders: readonly ICarRider[] = [
     {
       subject: "drv",
       body: "m1",
@@ -57,7 +81,7 @@ function carRide(): IScene {
       approach: 90,
       enter: 270,
     },
-  ] as const;
+  ];
   return scene(
     {
       id: "car-trip",
@@ -69,48 +93,68 @@ function carRide(): IScene {
       needs: [],
     },
     "car-trip",
-    riders.map(({ subject, body, role, side, approach, enter }) =>
-      person(subject, body, 1.15 * side, -0.2, approach, [
-        act("openDoor", {
-          door: "car",
-          handle: role + "DoorHandle",
-          seconds: 3.15,
-        }),
-        act("walk", { to: to(0.75 * side, -0.2), face: enter }),
-        act("getIn", {
-          seat: seat("car", role + "Seat"),
-          through: { $aperture: "car", id: role + "Aperture" },
-        }),
-        act("ride", {
-          on: "car",
-          seconds: 9,
-          seat: role + "Seat",
-          placeFeet: true,
-          ...(role === "driver"
-            ? {
-                hands: { right: "rightSteeringGrip" },
-                feet: { left: "driverLeftRest", right: "accelerator" },
-              }
-            : {
-                feet: {
-                  left: "passengerLeftRest",
-                  right: "passengerRightRest",
-                },
-              }),
-        }),
-      ]),
+    riders.map(
+      ({
+        subject,
+        body,
+        role,
+        side,
+        approach,
+        enter,
+      }: ICarRider): IPlaygroundComposition.IPerformer =>
+        person(subject, body, 1.15 * side, -0.2, approach, [
+          act("openDoor", {
+            door: "car",
+            handle: role + "DoorHandle",
+            seconds: 3.15,
+          }),
+          act("walk", { to: to(0.75 * side, -0.2), face: enter }),
+          act("getIn", {
+            seat: seat("car", role + "Seat"),
+            through: { $aperture: "car", id: role + "Aperture" },
+          }),
+          act("ride", {
+            on: "car",
+            seconds: 9,
+            seat: role + "Seat",
+            placeFeet: true,
+            ...(role === "driver"
+              ? {
+                  hands: { right: "rightSteeringGrip" },
+                  feet: { left: "driverLeftRest", right: "accelerator" },
+                }
+              : {
+                  feet: {
+                    left: "passengerLeftRest",
+                    right: "passengerRightRest",
+                  },
+                }),
+          }),
+        ]),
     ),
     [car],
   );
 }
 
+/** A two-wheeler the ride scenes stage: a city bicycle or a motorcycle producer's kind. */
+type SceneTwoWheeler = "city" | "scooter" | "motorcycle";
+
+/** The vehicle's named foot supports, one per side. */
+interface ISceneRideFeet {
+  /** The left sole's support point. */
+  left: string;
+
+  /** The right sole's support point. */
+  right: string;
+}
+
 /** Board a two-wheeler, pick up its controls and stay supported through a stop. */
 function twoWheelRide(
-  kind: "city" | "scooter" | "motorcycle",
+  kind: SceneTwoWheeler,
   id: string,
   title: string,
   summary: string,
-  feet: { left: string; right: string },
+  feet: ISceneRideFeet,
 ): IScene {
   const bicycle: boolean = kind === "city";
   const seatName: string = bicycle ? "saddle" : "seat";
@@ -126,14 +170,14 @@ function twoWheelRide(
     // A saddle that lets both casts maintain sole contact at bottom dead center.
     ...(bicycle ? { params: { saddleHeight: 0.62 } } : {}),
   };
-  const enter = bicycle
+  const enter: SceneBuild.Action = bicycle
     ? act("bikeTransfer", {
         on: support.subject,
         mode: "mount",
         line: { x: 0, z: -0.6, heading: 0 },
       })
     : act("sit", { seat: seat(support.subject, seatName), seconds: 0.25 });
-  const leave = act("bikeTransfer", {
+  const leave: SceneBuild.Action = act("bikeTransfer", {
     on: support.subject,
     mode: "dismount",
     line: { x: 0.26, z: 3.25, heading: 15 },

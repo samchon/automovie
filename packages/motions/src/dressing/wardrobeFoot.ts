@@ -5,12 +5,16 @@ import {
   quaternionFromAutoMovieBasis,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
@@ -26,6 +30,9 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { wardrobeHands } from "./wardrobeHands";
+
+/** One bone's clinical flexion, abduction and twist, degrees. */
+type AutoMovieMotionHumanJointAngles = readonly [number, number, number];
 
 /** Positive axial clearance at either end of a visible hand-foot exchange. */
 const AIR: number = 0.025;
@@ -55,7 +62,7 @@ const AIR: number = 0.025;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned plan retains only shared action data, endpoints and phases. Each rolled grip uses current authored FK without retaining a pose history.
  */
 export function wardrobeFoot(
-  context: IAutoMovieMotionHumanActionContext<{ prop: string }>,
+  context: IAutoMovieMotionHumanActionContext<wardrobeHands.IPropParams>,
   side: AutoMovieHumanSide,
   hand: AutoMovieHumanSide,
   remove: boolean,
@@ -173,9 +180,12 @@ export function wardrobeFoot(
   );
   const offset: IAutoMovieRigidTransform =
     picked?.frame ?? HumanPropFrame.relative(caught, worn);
-  const fit = (goal: IAutoMovieRigidTransform): IAutoMovieRigidTransform =>
-    HumanPropFrame.parent(goal, offset);
-  const target = (seconds: number): IAutoMovieRigidTransform => {
+  const fit: (goal: IAutoMovieRigidTransform) => IAutoMovieRigidTransform = (
+    goal: IAutoMovieRigidTransform,
+  ): IAutoMovieRigidTransform => HumanPropFrame.parent(goal, offset);
+  const target: (seconds: number) => IAutoMovieRigidTransform = (
+    seconds: number,
+  ): IAutoMovieRigidTransform => {
     if (seconds <= gripTime)
       return wardrobeHands.path(
         resting,
@@ -200,7 +210,9 @@ export function wardrobeFoot(
       (seconds - finish) / (holdEnd - finish),
     );
   };
-  const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
+  const posture: (seconds: number) => IAutoMovieMotionHumanPosture = (
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture => {
     const support: IAutoMovieMotionHumanPosture = base.posture(seconds);
     return seconds < holdStart || seconds > holdEnd
       ? support
@@ -271,7 +283,9 @@ export function wardrobeFoot(
 /** Find an actual phase boundary in seconds. */
 function event(plan: IAutoMovieMotionHumanActionPlan, name: string): number {
   return (
-    plan.events.find((key): boolean => key.name === name)!.share * plan.duration
+    plan.events.find(
+      (key: IAutoMovieMotionEvent): boolean => key.name === name,
+    )!.share * plan.duration
   );
 }
 
@@ -334,23 +348,26 @@ function gripFrame(
 
 /** Keep the seat and other foot fixed while presenting the working foot. */
 function raisedLeg(
-  context: IAutoMovieMotionHumanActionContext<{ prop: string }>,
+  context: IAutoMovieMotionHumanActionContext<wardrobeHands.IPropParams>,
   side: AutoMovieHumanSide,
 ): IAutoMovieMotionHumanActionPlan {
   const { entry, body }: typeof context = context;
   const start: IAutoMovieMotionHumanPosture = entry.posture;
-  const part: "leftFoot" | "rightFoot" =
+  const part: AutoMovieHumanoidBone =
     side === "left" ? "leftFoot" : "rightFoot";
-  const opposite: "leftFoot" | "rightFoot" =
+  const opposite: AutoMovieHumanoidBone =
     side === "left" ? "rightFoot" : "leftFoot";
   if (
     context.carrier !== undefined ||
     entry.base.kind !== "seated" ||
     entry.base.seat === undefined ||
     entry.base.seat.astride === true ||
-    !entry.supports.some((contact): boolean => contact.kind === "seat") ||
     !entry.supports.some(
-      (contact): boolean =>
+      (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+        contact.kind === "seat",
+    ) ||
+    !entry.supports.some(
+      (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
         contact.part === opposite && contact.kind === "plant",
     )
   )
@@ -360,10 +377,12 @@ function raisedLeg(
       "footwear exchange needs a stationary chair and an opposite foot plant",
     );
 
-  const thigh = side === "left" ? "leftUpperLeg" : "rightUpperLeg";
-  const knee = side === "left" ? "leftLowerLeg" : "rightLowerLeg";
-  const limb = side === "left" ? "leftLeg" : "rightLeg";
-  const joints = { ...start.joints };
+  const thigh: AutoMovieHumanoidBone =
+    side === "left" ? "leftUpperLeg" : "rightUpperLeg";
+  const knee: AutoMovieHumanoidBone =
+    side === "left" ? "leftLowerLeg" : "rightLowerLeg";
+  const limb: AutoMovieHumanLimb = side === "left" ? "leftLeg" : "rightLeg";
+  const joints: IAutoMovieMotionHumanPosture["joints"] = { ...start.joints };
   for (const joint of entry.pose.joints)
     if (joint.bone === thigh || joint.bone === knee || joint.bone === part)
       joints[joint.bone] = [
@@ -371,12 +390,14 @@ function raisedLeg(
         joint.abduction ?? 0,
         joint.twist ?? 0,
       ];
-  const hip = joints[thigh]!;
-  const shin = joints[knee]!;
-  const limbs = { ...start.limbs };
+  const hip: AutoMovieMotionHumanJointAngles = joints[thigh]!;
+  const shin: AutoMovieMotionHumanJointAngles = joints[knee]!;
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...start.limbs };
   delete limbs[limb];
-  const seat = body.surfaces.sockets.seat;
-  const socket = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
+  const seat: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.sockets.seat;
+  const socket: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieVector3 = (
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieVector3 => {
     const bone: IAutoMovieRigidTransform = wardrobeHands.bone(
       body,
       posture,
@@ -391,7 +412,9 @@ function raisedLeg(
   const up: number = 0.62 * (context.tempo ?? 1);
   const wait: number = 2.4 * (context.tempo ?? 1);
   const total: number = 2 * up + wait;
-  const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
+  const posture: (seconds: number) => IAutoMovieMotionHumanPosture = (
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture => {
     const share: number = minimumJerk(
       Math.min(1, Math.max(0, Math.min(seconds, total - seconds) / up)),
     ).s;
@@ -423,17 +446,24 @@ function raisedLeg(
     };
   };
   const contacts: IAutoMovieMotionHumanContactWindow[] = entry.supports
-    .filter((contact): boolean => contact.part !== part)
+    .filter(
+      (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+        contact.part !== part,
+    )
     .map(
-      (contact): IAutoMovieMotionHumanContactWindow => ({
+      (
+        contact: IAutoMovieMotionHumanEntryState.ISupport,
+      ): IAutoMovieMotionHumanContactWindow => ({
         ...contact,
         from: 0,
         to: 1,
       }),
     );
-  const plant = entry.supports.find(
-    (contact): boolean => contact.part === part,
-  );
+  const plant: IAutoMovieMotionHumanEntryState.ISupport | undefined =
+    entry.supports.find(
+      (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+        contact.part === part,
+    );
   if (plant !== undefined)
     contacts.push({ ...plant, from: 0, to: 0 }, { ...plant, from: 1, to: 1 });
   return {

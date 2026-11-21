@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
+import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
+import type { IAutoMovieMotionHumanMutual } from "../law/IAutoMovieMotionHumanMutual";
 
 /**
  * A paired screen transfer between two named scene seats.
@@ -71,5 +73,21 @@ export namespace IAutoMovieMotionHumanAssistedTransfer {
 
     /** Subject of the other actor. */
     partner: string;
+  }
+
+  /**
+   * The per-role transfer law and the mutual action that casts both roles.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the role law and the mutual that joins helper and helped.
+   * @evidence contracts/development/design.md#principled-representation One law plans either role from `IRoleParams`; the mutual maps the shared parameters and cast to each role's act.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The vocabulary registers the law and the chain joins the pair through the mutual, so both live on one value.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both roles read the same parameters; no role-specific copy exists.
+   */
+  export interface ILaw extends IAutoMovieMotionHumanActionLaw<IRoleParams> {
+    /** The mutual action that casts the helper and the helped. */
+    mutual: IAutoMovieMotionHumanMutual<
+      IAutoMovieMotionHumanAssistedTransfer,
+      Role
+    >;
   }
 }

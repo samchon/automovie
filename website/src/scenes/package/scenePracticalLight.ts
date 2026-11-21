@@ -23,16 +23,26 @@ export function scenePracticalLight(
   binding: IScene.IPracticalLight,
 ): (seconds: number) => void {
   const emitter: IAutoMovieAffordance | undefined = model.affordances.find(
-    (candidate): boolean => candidate.id === binding.emitter,
+    (candidate: IAutoMovieAffordance): boolean =>
+      candidate.id === binding.emitter,
   );
   if (emitter === undefined || emitter.rides !== undefined)
     throw new Error(
       `No fixed light emitter "${binding.emitter}" on "${binding.prop}".`,
     );
   const event: IPlaygroundTimeline.IEvent | undefined = timeline.tracks
-    .find((track): boolean => track.subject === binding.on.subject)
-    ?.spans.find((span): boolean => span.id === binding.on.action)
-    ?.events.find((cue): boolean => cue.name === binding.on.event);
+    .find(
+      (track: IPlaygroundTimeline.ITrack): boolean =>
+        track.subject === binding.on.subject,
+    )
+    ?.spans.find(
+      (span: IPlaygroundTimeline.ISpan): boolean =>
+        span.id === binding.on.action,
+    )
+    ?.events.find(
+      (cue: IPlaygroundTimeline.IEvent): boolean =>
+        cue.name === binding.on.event,
+    );
   if (event === undefined)
     throw new Error(
       `No light cue "${binding.on.subject}.${binding.on.action}.${binding.on.event}".`,

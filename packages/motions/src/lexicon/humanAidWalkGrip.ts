@@ -39,6 +39,15 @@ const GRIP_GAP: number = 0.01;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A single sampled grip is chosen per hand for the entire course. The fitting never substitutes the wrist target for the actual material contact.
  */
 export namespace humanAidWalkGrip {
+  /** One sampled instant of the aided walk: the aid's displayed floor frame and the body's planned posture. */
+  export interface IStation {
+    /** The aid's world frame, metres. */
+    frame: IAutoMovieRigidTransform;
+
+    /** The walker's posture at that instant. */
+    body: IAutoMovieMotionHumanPosture;
+  }
+
   /** Named hand contact and its prepared digit closure. */
   export interface IHand {
     /** Holding side. */
@@ -105,11 +114,8 @@ export namespace humanAidWalkGrip {
     start: IAutoMovieRigidTransform,
     kind: IAutoMovieMotionHumanAidWalk["kind"],
     sides: readonly AutoMovieHumanSide[],
-    stations: readonly {
-      frame: IAutoMovieRigidTransform;
-      body: IAutoMovieMotionHumanPosture;
-    }[],
-    refuse: (axis: string, value: string | number, reason: string) => never,
+    stations: readonly IStation[],
+    refuse: (axis: string, value: unknown, reason: string) => never,
   ): readonly IHand[] {
     const walker: boolean = kind === "walker";
     return sides.map((side: AutoMovieHumanSide): IHand => {

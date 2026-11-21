@@ -1,173 +1,282 @@
-import { ArchetypeFrame } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type { IAutoMovieMotionHumanRide } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidSocket,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformer,
+  IAutoMovieMotionHumanRide,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanColliders, HumanFoot, seated } from "@automovie/motions";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
+import type { IPlaygroundComposition } from "../src/playground/structures/IPlaygroundComposition";
 import { SceneTake } from "../src/scenes/SceneTake";
 import { SCENES_VEHICLES } from "../src/scenes/data/SCENES_VEHICLES";
 import { SceneArchetype } from "../src/scenes/package/SceneArchetype";
+import type { IScene } from "../src/scenes/structures/IScene";
+import { sceneAffordanceFrame } from "./sceneAffordanceFrame";
 
-/** Check the published stages against actual carried seats, grips, treads and wheels. */
+/** The ride's sampled shares, through its start, cruise and stop. */
+const RIDE_SHARES: readonly number[] = [0.2, 0.43, 0.67, 0.88];
+
+/** The push's sampled fractions of the left hand's grip window. */
+const PUSH_FRACTIONS: readonly number[] = [0.1, 0.45, 0.8, 0.95];
+
+/** The grip and rod-axis allowance in metres, the touch law's site bound. */
+const GRIP: number = 0.01;
+
+/** How far a vehicle must travel in its take, metres. */
+const TRAVEL: number = 0.3;
+
+/** How long before the end a vehicle must have stopped, seconds. */
+const STOPPED: number = 0.3;
+
+/** The scenes whose alternate bodies are also played. */
+const ALTERNATE: ReadonlySet<string> = new Set(["a-bicycle-ride", "car-trip"]);
+
+/** Which trolley handle each wrist socket holds. */
+const PUSH_HANDLES: readonly (readonly [string, AutoMovieHumanoidSocket])[] = [
+  ["leftHandle", "gripLeft"],
+  ["rightHandle", "gripRight"],
+];
+
+/**
+ * Check the published vehicle stages against the actual carried seats, grips,
+ * treads and wheels on the displayed models.
+ *
+ * Scenarios, for every vehicle scene and, for the bicycle and car, its
+ * alternate bodies:
+ * 1. Through the ride the seat bones sit at the seated height within the
+ *    seat's depth, each authored foot rest bears the ball of its foot and
+ *    each authored grip holds its hand.
+ * 2. Through the trolley push both wrists stay on their handle rods.
+ * 3. The vehicle travels and stands still for its last 0.3 s. The car's
+ *    driver door is open at 3.15 s and shut at the end; the bicycle ride
+ *    begins and ends with a stopped transfer.
+ * 4. A bicycle course that starts during the transfer refuses.
+ */
 export function checkVehicleScenes(): void {
   for (const scene of SCENES_VEHICLES) {
-    const alternate = scene.id === "a-bicycle-ride" || scene.id === "car-trip";
-    for (const take of alternate
+    const takes: IScene.ITake[] = ALTERNATE.has(scene.id)
       ? [scene.takes[0]!, scene.takes[2]!]
-      : [scene.takes[0]!]) {
-      const input = SceneTake.apply(scene.composition!, take);
-      const object = input.objects![0]!;
-      const model = SceneArchetype.model(object);
-      const { performance } = PlaygroundPerformance.build(input);
-      const frame = (id: string, time: number) => {
-        const root = performance.prop(object.subject, time);
-        const shown = model.articulate(performance.state(object.subject, time));
-        const site = shown.affordance(id);
-        return {
-          site,
-          pose: ArchetypeFrame.compose(
-            {
-              translation: root.position,
-              rotation: root.rotation,
-              scale: { x: 1, y: 1, z: 1 },
-            },
-            site.frame,
-          ),
-        };
-      };
-
+      : [scene.takes[0]!];
+    for (const take of takes) {
+      const input: IPlaygroundComposition = SceneTake.apply(
+        scene.composition!,
+        take,
+      );
+      const object: IPlaygroundComposition.IObject = input.objects![0]!;
+      const model: SceneArchetype.Model = SceneArchetype.model(object);
+      const { performance }: PlaygroundPerformance.IBuilt =
+        PlaygroundPerformance.build(input);
       for (const actor of performance.performers) {
-        const motion = performance.segments(actor.subject);
-        const ride = motion.find(({ name }) => name === "ride");
-        const push = motion.find(({ name }) => name === "pushPull");
-        assert(ride !== undefined || push !== undefined);
-        if (ride !== undefined) {
-          const params = ride.params as IAutoMovieMotionHumanRide.IParams;
-          for (const share of [0.2, 0.43, 0.67, 0.88]) {
-            const at = ride.start + share * ride.plan.duration;
-            const bones = performance.bones(actor.subject, at);
-            const support = frame(params.seat!, at);
-            const socket = actor.body.surfaces.sockets.seat;
-            const seatPoint = resolveAutoMovieHumanoidSurfaces.point(
-              socket,
-              bones.get(socket.bone)!,
-            );
-            const onSeat = Quaternion.rotateVector(
-              Quaternion.inverse(support.pose.rotation),
-              Vector3.subtract(seatPoint, support.pose.translation),
-            );
-            const lift = seated.point(actor.body, {
-              at: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              depth: support.site.depth,
-            }).y;
-            assert(
-              Math.abs(onSeat.y - lift) <= HumanFoot.BEARING,
-              scene.id + " seat height",
-            );
-            assert(
-              onSeat.z <= 0 && onSeat.z >= -support.site.depth!,
-              scene.id + " seat depth",
-            );
-            for (const side of ["left", "right"] as const) {
-              const rest = params.feet?.[side];
-              if (rest !== undefined) {
-                const ball = HumanFoot.sockets(actor.body, bones, side).find(
-                  ({ socket }) => socket === "ball",
-                )!.point;
-                assert(
-                  Vector3.distance(ball, frame(rest, at).pose.translation) <=
-                    HumanFoot.BEARING,
-                  scene.id + " " + rest,
-                );
-              }
-              const grip = params.hands?.[side];
-              if (grip !== undefined) {
-                const hand = side === "left" ? "leftHand" : "rightHand";
-                const parts = new Map([[hand, bones.get(hand)!]] as const);
-                const anchor = frame(grip, at);
-                assert(
-                  HumanColliders.distance(
-                    actor.body,
-                    parts,
-                    anchor.pose.translation,
-                  ).distance <=
-                    (anchor.site.aperture ?? 0) / 2 + 0.01,
-                  scene.id + " " + grip,
-                );
-              }
-            }
-          }
-        }
-        if (push !== undefined) {
-          const window = push.plan.contacts.find(
-            ({ part, kind }) => part === "leftHand" && kind === "grip",
-          )!;
-          for (const fraction of [0.1, 0.45, 0.8, 0.95]) {
-            const share = window.from + (window.to - window.from) * fraction;
-            const at = push.start + push.plan.duration * share;
-            const bones = performance.bones(actor.subject, at);
-            for (const [id, key] of [
-              ["leftHandle", "gripLeft"],
-              ["rightHandle", "gripRight"],
-            ] as const) {
-              const hand = actor.body.surfaces.sockets[key];
-              const wrist = resolveAutoMovieHumanoidSurfaces.point(
-                hand,
-                bones.get(hand.bone)!,
-              );
-              const handle = frame(id, at);
-              const local = Quaternion.rotateVector(
-                Quaternion.inverse(handle.pose.rotation),
-                Vector3.subtract(wrist, handle.pose.translation),
-              );
-              assert(Math.hypot(local.y, local.z) <= 0.01, id + " rod axis");
-              assert(
-                Math.abs(local.x) <= handle.site.length! / 2 + 0.01,
-                id + " material band",
-              );
-            }
-          }
-        }
-      }
-
-      const start = performance.prop(object.subject, 0);
-      const stopped = performance.prop(object.subject, performance.duration);
-      assert(
-        Vector3.distance(start.position, stopped.position) > 0.3,
-        scene.id,
-      );
-      assert.deepEqual(
-        performance.prop(object.subject, performance.duration - 0.3),
-        stopped,
-        scene.id,
-      );
-      if (scene.id === "car-trip") {
-        assert.equal(performance.state(object.subject, 3.15).driverDoor, 45);
-        assert.equal(
-          performance.state(object.subject, performance.duration).driverDoor,
-          0,
+        const motion: readonly IAutoMovieMotionHumanSegment[] =
+          performance.segments(actor.subject);
+        const ride: IAutoMovieMotionHumanSegment | undefined = motion.find(
+          ({ name }: IAutoMovieMotionHumanSegment): boolean => name === "ride",
         );
-      } else if (scene.id === "a-bicycle-ride") {
-        assert.equal(performance.segments("rider")[0]?.name, "bikeTransfer");
-        assert.equal(
-          performance.segments("rider").at(-1)?.name,
-          "bikeTransfer",
+        const push: IAutoMovieMotionHumanSegment | undefined = motion.find(
+          ({ name }: IAutoMovieMotionHumanSegment): boolean =>
+            name === "pushPull",
         );
+        assert(ride !== undefined || push !== undefined, scene.id);
+        if (ride !== undefined)
+          checkRide(performance, model, object.subject, actor, ride, scene.id);
+        if (push !== undefined)
+          checkPush(performance, model, object.subject, actor, push);
       }
+      checkTravel(performance, object.subject, scene.id);
     }
   }
 
-  const bicycle = SCENES_VEHICLES.find(({ id }) => id === "a-bicycle-ride")!;
-  const impossible = SceneTake.apply(bicycle.composition!, bicycle.takes[0]!);
+  const bicycle: IScene = SCENES_VEHICLES.find(
+    ({ id }: IScene): boolean => id === "a-bicycle-ride",
+  )!;
+  const impossible: IPlaygroundComposition = SceneTake.apply(
+    bicycle.composition!,
+    bicycle.takes[0]!,
+  );
   impossible.objects![0]!.course!.at = 0.1;
   assert.throws(
     () => PlaygroundPerformance.build(impossible),
     /move during the stopped transfer/,
   );
+}
+
+/** Seat, foot rests and grips of one rider on the displayed vehicle. */
+function checkRide(
+  performance: IAutoMovieMotionHumanPerformance,
+  model: SceneArchetype.Model,
+  subject: string,
+  actor: IAutoMovieMotionHumanPerformer,
+  ride: IAutoMovieMotionHumanSegment,
+  label: string,
+): void {
+  const params: IAutoMovieMotionHumanRide.IParams =
+    ride.params as IAutoMovieMotionHumanRide.IParams;
+  for (const share of RIDE_SHARES) {
+    const at: number = ride.start + share * ride.plan.duration;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      performance.bones(actor.subject, at);
+    const support: sceneAffordanceFrame.IPlaced = sceneAffordanceFrame(
+      performance,
+      model,
+      subject,
+      params.seat!,
+      at,
+    );
+    const socket: IAutoMovieHumanoidSurfaces.IFrame =
+      actor.body.surfaces.sockets.seat;
+    const seatPoint: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+      socket,
+      bones.get(socket.bone)!,
+    );
+    const onSeat: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(support.pose.rotation),
+      Vector3.subtract(seatPoint, support.pose.translation),
+    );
+    const lift: number = seated.point(actor.body, {
+      at: { x: 0, y: 0, z: 0 },
+      yaw: 0,
+      depth: support.site.depth,
+    }).y;
+    assert(
+      Math.abs(onSeat.y - lift) <= HumanFoot.BEARING,
+      label + " seat height",
+    );
+    assert(
+      onSeat.z <= 0 && onSeat.z >= -support.site.depth!,
+      label + " seat depth",
+    );
+    for (const side of ["left", "right"] as const) {
+      const rest: string | undefined = params.feet?.[side];
+      if (rest !== undefined) {
+        const ball: IAutoMovieVector3 = HumanFoot.sockets(
+          actor.body,
+          bones,
+          side,
+        ).find(
+          ({ socket }: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+            socket === "ball",
+        )!.point;
+        const anchor: IAutoMovieVector3 = sceneAffordanceFrame(
+          performance,
+          model,
+          subject,
+          rest,
+          at,
+        ).pose.translation;
+        assert(
+          Vector3.distance(ball, anchor) <= HumanFoot.BEARING,
+          label + " " + rest,
+        );
+      }
+      const grip: string | undefined = params.hands?.[side];
+      if (grip !== undefined) {
+        const hand: AutoMovieHumanoidBone =
+          side === "left" ? "leftHand" : "rightHand";
+        const anchor: sceneAffordanceFrame.IPlaced = sceneAffordanceFrame(
+          performance,
+          model,
+          subject,
+          grip,
+          at,
+        );
+        assert(
+          HumanColliders.distance(
+            actor.body,
+            new Map([[hand, bones.get(hand)!]]),
+            anchor.pose.translation,
+          ).distance <=
+            (anchor.site.aperture ?? 0) / 2 + GRIP,
+          label + " " + grip,
+        );
+      }
+    }
+  }
+}
+
+/** Both wrists stay on the trolley's two handle rods through the push. */
+function checkPush(
+  performance: IAutoMovieMotionHumanPerformance,
+  model: SceneArchetype.Model,
+  subject: string,
+  actor: IAutoMovieMotionHumanPerformer,
+  push: IAutoMovieMotionHumanSegment,
+): void {
+  const window: IAutoMovieMotionHumanContactWindow = push.plan.contacts.find(
+    ({ part, kind }: IAutoMovieMotionHumanContactWindow): boolean =>
+      part === "leftHand" && kind === "grip",
+  )!;
+  for (const fraction of PUSH_FRACTIONS) {
+    const share: number = window.from + (window.to - window.from) * fraction;
+    const at: number = push.start + push.plan.duration * share;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      performance.bones(actor.subject, at);
+    for (const [id, key] of PUSH_HANDLES) {
+      const hand: IAutoMovieHumanoidSurfaces.IFrame =
+        actor.body.surfaces.sockets[key];
+      const wrist: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+        hand,
+        bones.get(hand.bone)!,
+      );
+      const handle: sceneAffordanceFrame.IPlaced = sceneAffordanceFrame(
+        performance,
+        model,
+        subject,
+        id,
+        at,
+      );
+      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(handle.pose.rotation),
+        Vector3.subtract(wrist, handle.pose.translation),
+      );
+      assert(Math.hypot(local.y, local.z) <= GRIP, id + " rod axis");
+      assert(
+        Math.abs(local.x) <= handle.site.length! / 2 + GRIP,
+        id + " material band",
+      );
+    }
+  }
+}
+
+/** The vehicle travels, stops, and the car's door and bicycle's transfers frame the trip. */
+function checkTravel(
+  performance: IAutoMovieMotionHumanPerformance,
+  subject: string,
+  label: string,
+): void {
+  const start: IAutoMovieRigidTransform = performance.prop(subject, 0);
+  const stopped: IAutoMovieRigidTransform = performance.prop(
+    subject,
+    performance.duration,
+  );
+  assert(Vector3.distance(start.position, stopped.position) > TRAVEL, label);
+  assert.deepEqual(
+    performance.prop(subject, performance.duration - STOPPED),
+    stopped,
+    label,
+  );
+  if (label === "car-trip") {
+    assert.equal(performance.state(subject, 3.15).driverDoor, 45);
+    assert.equal(
+      performance.state(subject, performance.duration).driverDoor,
+      0,
+    );
+  } else if (label === "a-bicycle-ride") {
+    assert.equal(performance.segments("rider")[0]?.name, "bikeTransfer");
+    assert.equal(performance.segments("rider").at(-1)?.name, "bikeTransfer");
+  }
 }

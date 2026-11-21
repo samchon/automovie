@@ -1,29 +1,39 @@
+import type { IAutoMovieMotionHumanAidWalk } from "@automovie/interface";
+
+import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
 const { act, mutual, object, person, scene, seat }: typeof SceneBuild =
   SceneBuild;
 
-/** The three recorded floor-aid props and the body that fits each stage mark. */
-const AIDS: readonly {
-  kind: "cane" | "walker" | "crutch";
+/** One floor aid's stage: the aid, the body that fits its mark and where it stands. */
+interface IAidStage {
+  /** The aid. */
+  kind: IAutoMovieMotionHumanAidWalk["kind"];
+
+  /** The scene body that walks with it. */
   body: string;
+
+  /** The aid's floor position, metres. */
   x: number;
+
+  /** The aid's floor position, metres. */
   z: number;
+
+  /** The aid producer's height dimension, metres. */
   height: number;
-}[] = [
+}
+
+/** The three recorded floor-aid props and the body that fits each stage mark. */
+const AIDS: readonly IAidStage[] = [
   { kind: "cane", body: "m1", x: -0.29, z: 0.16, height: 0.9 },
   { kind: "walker", body: "m1", x: 0, z: 0.13, height: 0.9 },
   { kind: "crutch", body: "f1", x: -0.24, z: 0.16, height: 0.9 },
 ];
 
 /** One route starts, changes heading and comes to a grounded stop. */
-const ROUTE: readonly {
-  x: number;
-  z: number;
-  seconds: number;
-  turn?: number;
-}[] = [
+const ROUTE: readonly IAutoMovieMotionHumanAidWalk.IStation[] = [
   { x: 0, z: 0.18, seconds: 0.84 },
   { x: 0.035, z: 0.36, turn: 16, seconds: 0.9 },
   { x: 0.095, z: 0.51, turn: 25, seconds: 1.05 },
@@ -38,9 +48,9 @@ const WALKER_ROUTE: typeof ROUTE = [
 
 /** Aid travel and an interrupted room walk followed by a supported seat transfer. */
 export const SCENES_ASSISTANCE: readonly IScene[] = [
-  ...AIDS.map(({ kind, body, x, z, height }): IScene => {
+  ...AIDS.map(({ kind, body, x, z, height }: IAidStage): IScene => {
     const walker: boolean = kind === "walker";
-    const aid = {
+    const aid: IPlaygroundComposition.IObject = {
       ...object(
         "aid",
         kind === "crutch" ? "createCrutch" : "createMobilityAid",

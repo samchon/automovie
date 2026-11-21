@@ -1,9 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanPutDownAperture,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -85,7 +87,9 @@ function plan(
     context,
     context.entry.pose,
   )!;
-  const through = (point: string): IAutoMovieRigidTransform =>
+  const through: (point: string) => IAutoMovieRigidTransform = (
+    point: string,
+  ): IAutoMovieRigidTransform =>
     putDownTarget.of(
       { ...context, params: { prop, onto: { ...onto, point } } },
       context.entry.pose,
@@ -119,8 +123,13 @@ function plan(
   if (approach.length === 0 && insertion.length === 0)
     return putDown.plan(context, offset);
 
-  const route = [...approach, onto.aperture, ...insertion, onto.point];
-  const reader = context.prop(onto.prop);
+  const route: string[] = [
+    ...approach,
+    onto.aperture,
+    ...insertion,
+    onto.point,
+  ];
+  const reader: IAutoMovieMotionHumanPropReader = context.prop(onto.prop);
   const offsets: IAutoMovieVector3[] = [];
   for (const [index, id] of route.entries()) {
     const posed: IAutoMovieRigidTransform =
@@ -131,8 +140,9 @@ function plan(
     );
     const previous: IAutoMovieVector3 | undefined = offsets[index - 1];
     if (
-      reader.prop.affordances?.find((item) => item.id === id)?.rides !==
-        undefined ||
+      reader.prop.affordances?.find(
+        (item: IAutoMovieAffordance): boolean => item.id === id,
+      )?.rides !== undefined ||
       !(Quaternion.angle(posed.rotation, seat.rotation) <= 1e-6) ||
       (previous !== undefined &&
         !(Vector3.distance(previous, next) > Number.EPSILON))

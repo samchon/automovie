@@ -72,7 +72,8 @@ export namespace SceneStatus {
    * @returns One line per missing piece; empty when it can be built.
    */
   export function lacks(composition: IPlaygroundComposition): string[] {
-    const rows = PlaygroundChain.registeredLaws();
+    const rows: ReturnType<typeof PlaygroundChain.registeredLaws> =
+      PlaygroundChain.registeredLaws();
     const mutuals: Set<string> = new Set(
       Object.keys(PlaygroundChain.mutuals()),
     );

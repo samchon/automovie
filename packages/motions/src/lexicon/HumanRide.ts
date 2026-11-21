@@ -169,7 +169,8 @@ export namespace HumanRide {
         return undefined;
       };
 
-      const { pedals, placed } = placeRideFeet.supports(context, support);
+      const { pedals, placed }: placeRideFeet.ISupports =
+        placeRideFeet.supports(context, support);
       for (const foot of placed)
         contacts.push({
           ...bears(foot.side === "left" ? "leftFoot" : "rightFoot", "plant"),
@@ -415,7 +416,12 @@ export namespace HumanRide {
           written(at, WorkingSeatRidePlan.withFrame),
       };
       if (placed.length !== 0)
-        placeRideFeet.admit(context, placed, (at) => plan.posture(at), TAKE);
+        placeRideFeet.admit(
+          context,
+          placed,
+          (at: number): IAutoMovieMotionHumanPosture => plan.posture(at),
+          TAKE,
+        );
       if (alternatives === undefined) return plan;
 
       // Roots, the seat and both grips share an authored stationary domain only

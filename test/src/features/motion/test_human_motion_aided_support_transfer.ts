@@ -13,10 +13,12 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanAidWalk,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
   IAutoMoviePhysicalShape,
@@ -241,7 +243,7 @@ function verifyAid(
       `${params.kind} cycle ${index + 1} has the prescribed aid and foot order`,
       feet.length === (walker ? 2 : 1) &&
         feet.every((window: IAutoMovieMotionHumanContactWindow): boolean => {
-          const side: "left" | "right" =
+          const side: AutoMovieHumanSide =
             window.part === "leftFoot" ? "left" : "right";
           const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
             "actor",
@@ -305,7 +307,7 @@ function verifyAid(
 
 /** Chair and bed transfer through the public mutual chain with actual model seats. */
 function transfer(
-  size: "m-average" | "f-small",
+  size: motionHumanBody.Name,
   destination: string = "rightSide",
 ): HumanPerformance {
   const helper: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -315,11 +317,11 @@ function transfer(
     kind: "single",
     height: 0.49,
   });
-  const chairAt: { at: IAutoMovieVector3; yaw: number } = {
+  const chairAt: IAutoMovieMotionHumanObject.Placement = {
     at: { x: 0.22, y: 0, z: -0.72 },
     yaw: -90,
   };
-  const bedAt: { at: IAutoMovieVector3; yaw: number } = {
+  const bedAt: IAutoMovieMotionHumanObject.Placement = {
     at: { x: 0.45, y: 0, z: 0.5 },
     yaw: 0,
   };
@@ -368,7 +370,7 @@ function transfer(
 /** Check both posed bodies, the shared clasp and the destination bearing before release. */
 function verifyTransfer(
   checks: motionComplaints.IGatherer,
-  size: "m-average" | "f-small",
+  size: motionHumanBody.Name,
 ): void {
   const film: HumanPerformance = transfer(size);
   const helped: IAutoMovieMotionHumanSegment = film
