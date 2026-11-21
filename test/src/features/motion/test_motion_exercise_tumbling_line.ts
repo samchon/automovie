@@ -18,9 +18,6 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** The two-footed rebound between the round-off's landing and the salto's take-off, seconds: a gymnast's floor contact of about a tenth of a second (provisional). */
-const REBOUND: number = 0.1;
-
 /** The planted-contact bound, metres (the campaign's 5 mm). */
 const PLANT: number = 0.005;
 
@@ -30,9 +27,9 @@ const PLANT: number = 0.005;
  * Scenarios, on two body proportions:
  * 1. The round-off's hands bear between `handsDown` and `feetDown`, and its
  *    feet land facing back where the line came from.
- * 2. After a 0.1 s two-footed rebound the salto pushes off one of those
- *    landed feet: its toes' joint holds within 5 mm from the round-off's
- *    landing to `takeoff`.
+ * 2. Cut straight from the round-off's landing, the salto pushes off one of
+ *    those landed feet: its toes' joint holds within 5 mm from the
+ *    round-off's last instant to `takeoff`.
  * 3. In flight the body turns head below hips at the apex, and the salto
  *    lands further along the line, its feet within 0.1 m of the authored
  *    landing.
@@ -64,10 +61,9 @@ export function test_motion_exercise_tumbling_line(): void {
       composition: HumanChain.subject("a")
         .stand({ seconds: 0.3, sway: 0 })
         .registered("roundOffLeft", {})
-        .stand({ seconds: REBOUND, sway: 0 })
         .registered("backSalto", { to: landing }).node,
     });
-    const [, round, , salto]: readonly IAutoMovieMotionHumanSegment[] =
+    const [, round, salto]: readonly IAutoMovieMotionHumanSegment[] =
       film.segments("a");
 
     // 1. Hands, then feet facing back.
