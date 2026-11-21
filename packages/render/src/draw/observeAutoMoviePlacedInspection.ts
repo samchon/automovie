@@ -59,6 +59,15 @@ export function observeAutoMoviePlacedInspection(
     width,
     height,
     mode,
+    ...(subject.place === undefined
+      ? {}
+      : {
+          place: (at: number): void => {
+            subject.place!(at);
+            scene.updateMatrixWorld();
+            camera.updateWorldMatrix(true, false);
+          },
+        }),
     ...(mode === "viewer" || auditRaster === undefined ? {} : { auditRaster }),
   });
   if (

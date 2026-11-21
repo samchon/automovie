@@ -1,9 +1,11 @@
+import { classifyAutoMoviePlaybackBoundary } from "@automovie/engine";
 import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMoviePreparePhysicalGeometry,
 } from "@automovie/interface";
 import {
   type IAutoMovieDrawScene,
+  observeAutoMovieCollisionMotion,
   observeAutoMoviePlacedCamera,
   observeAutoMoviePlacedScene,
   observeAutoMovieSceneCollision,
@@ -40,6 +42,27 @@ const COLLISION_LIMITS: Record<
 };
 
 /**
+ * Motion work per placed sample. Interactive playback places a few extra
+ * instants and defers a crossing it cannot settle; a capture or delivery
+ * subdivides until every moving pair is resolved, within a depth that
+ * resolves a frame into about a billion steps.
+ */
+const MOTION_LIMITS: Record<
+  IAutoMovieDrawScene.IPlacedSample["mode"],
+  Parameters<typeof observeAutoMovieCollisionMotion>[0]["limits"]
+> = {
+  viewer: {
+    placements: 6,
+    depth: 6,
+    comparisons: 4_000,
+    posedVertices: 16_384,
+    surfaceTriangles: 200_000,
+  },
+  capture: { ...SETTLED, placements: Number.MAX_SAFE_INTEGER, depth: 30 },
+  delivery: { ...SETTLED, placements: Number.MAX_SAFE_INTEGER, depth: 30 },
+};
+
+/**
  * Collect stock review checks from the same world that will be drawn.
  *
  * The scaffold always checks the placed scene and camera and consumes the
@@ -47,7 +70,12 @@ const COLLISION_LIMITS: Record<
  * whole scene is one automatic collision layer: every drawn box, closed prop,
  * skin, formation member and cord segment is checked, and its unresolved
  * coverage is reported without blocking delivery. Authored shot layers mark
- * their own collision obligations required. Review hosts never seek from here.
+ * their own collision obligations required. When the subject places
+ * synchronously, the motion since the preceding output instant is subdivided
+ * at placed instants to find crossings no drawn frame shows, except across a
+ * cut or declared break of the production's playback; the drawn second is
+ * placed again before returning. Random seeks and sequential playback examine
+ * the same span, so they report the same result.
  *
  * @param props Film identity, production inspection sources, prepared geometry queries and the one settled draw sample.
  * @returns One serializable packet carrying the scene, collision and authored camera observations.
@@ -63,15 +91,30 @@ export function inspectFilmProduction(props: {
   name: string;
   production: IFilmProduction;
   geometry: Pick<IAutoMoviePreparePhysicalGeometry.IQueries, "contact">;
+  /** Output frame rate, which locates the preceding output instant; motion between frames is not examined without it. */
+  fps?: number;
   sample: IAutoMovieDrawScene.IPlacedSample;
 }): IAutoMovieInspectionDiagnostics {
   const { name, production, geometry, sample } = props;
+  const layersAt = (
+    seconds: number,
+  ): Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"] =>
+    (
+      production.inspectionLayers?.({
+        ...sample,
+        time: { filmSeconds: seconds },
+      }) ?? [{ id: name, root: sample.scene, localSeconds: seconds }]
+    ).map((layer) =>
+      sample.place === undefined ||
+      props.fps === undefined ||
+      layer.sweeps !== undefined
+        ? layer
+        : { ...layer, sweeps: [] },
+    );
   const authored: IAutoMovieInspectionDiagnostics | undefined =
     production.inspectPlaced?.(sample);
   const layers: Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"] =
-    production.inspectionLayers?.(sample) ?? [
-      { id: name, root: sample.scene, localSeconds: sample.time.filmSeconds },
-    ];
+    layersAt(sample.time.filmSeconds);
   const native: Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> =
     observeAutoMoviePlacedScene({
       scene: sample.scene,
@@ -92,6 +135,8 @@ export function inspectFilmProduction(props: {
     refinement: "region",
     limits: COLLISION_LIMITS[sample.mode],
   });
+  const motion: Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> =
+    observeMotion(props, layersAt);
   const targets: Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"] =
     production.inspectionCamera?.(sample) ?? [];
   const camera: Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> =
@@ -114,14 +159,57 @@ export function inspectFilmProduction(props: {
     findings: [
       ...native.findings,
       ...collision.findings,
+      ...motion.findings,
       ...camera.findings,
       ...(authored?.findings ?? []),
     ],
     coverage: [
       ...native.coverage,
       ...collision.coverage,
+      ...motion.coverage,
       ...camera.coverage,
       ...(authored?.coverage ?? []),
     ],
   };
+}
+
+/**
+ * Subdivide the motion since the preceding output instant when the subject
+ * places synchronously; otherwise disclose that motion between frames stays
+ * unverified. A cut or declared break in the production's playback between
+ * the two instants has no physical path to examine.
+ */
+function observeMotion(
+  props: Parameters<typeof inspectFilmProduction>[0],
+  layersAt: (
+    seconds: number,
+  ) => Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"],
+): Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> {
+  const { production, geometry, sample, fps } = props;
+  if (sample.place === undefined || fps === undefined || !(fps > 0))
+    return { findings: [], coverage: [] };
+  const seconds: number = sample.time.filmSeconds;
+  const from: number = (Math.ceil(seconds * fps) - 1) / fps;
+  const playback: IFilmProduction["playback"] = production.playback;
+  const relation: string =
+    playback === undefined || !(from >= 0)
+      ? "continuous"
+      : classifyAutoMoviePlaybackBoundary({
+          sequence: playback.sequence,
+          timeline: playback.timeline,
+          before: from,
+          after: seconds,
+          ...(playback.discontinuities === undefined
+            ? {}
+            : { discontinuities: playback.discontinuities }),
+        }).boundary;
+  return observeAutoMovieCollisionMotion({
+    time: sample.time,
+    fromSeconds: Math.max(0, from),
+    continuous: relation !== "cut" && relation !== "discontinuity",
+    place: sample.place,
+    layers: layersAt,
+    geometry,
+    limits: MOTION_LIMITS[sample.mode],
+  });
 }

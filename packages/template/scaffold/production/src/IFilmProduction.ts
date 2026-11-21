@@ -9,6 +9,7 @@ import type {
 import type {
   IAutoMovieDrawScene,
   IObserveAutoMoviePlacedScene,
+  ISelectAutoMoviePlacedChecks,
   observeAutoMoviePlacedCamera,
   observeAutoMovieSceneCollision,
 } from "@automovie/render";
@@ -67,6 +68,12 @@ export interface IFilmProduction {
 
   /** Optional source intent for the delivered media, including any soundtrack. */
   delivery?: IAutoMovieDeliveryContentAudit.IIntent;
+
+  /** The film's cut, layout and declared breaks, so motion is never examined across a cut or break. Absent treats the whole film as one continuous shot. */
+  playback?: Pick<
+    ISelectAutoMoviePlacedChecks.IContinuity,
+    "sequence" | "timeline" | "discontinuities"
+  >;
 
   /** Inspection mark kinds that may first appear after second zero; `marks` still supplies their actual geometry at the drawn second. */
   markKinds?: readonly string[];

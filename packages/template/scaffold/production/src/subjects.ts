@@ -66,10 +66,20 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
               inspectPlaced: (
                 sample: IAutoMovieDrawScene.IPlacedSample,
               ): IAutoMovieInspectionDiagnostics =>
-                inspectFilmProduction({ name, production, geometry, sample }),
+                inspectFilmProduction({
+                  name,
+                  production,
+                  geometry,
+                  fps: film.fps,
+                  sample,
+                }),
               marks: (seconds: number): IAutoMovieMark[] =>
                 markFilmProduction(production, seconds),
               seek: async (seconds: number): Promise<void> =>
+                production.seek(
+                  clampProductionSeconds(seconds, film.durationSeconds),
+                ),
+              place: (seconds: number): void =>
                 production.seek(
                   clampProductionSeconds(seconds, film.durationSeconds),
                 ),

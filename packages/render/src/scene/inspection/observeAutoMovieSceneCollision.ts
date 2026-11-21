@@ -10,6 +10,7 @@ import { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts
 import { createAutoMovieCollisionFinding } from "./createAutoMovieCollisionFinding.js";
 import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.js";
 import { observeAutoMovieSweptCollision } from "./observeAutoMovieSweptCollision.js";
+import { resolveAutoMovieCollisionHit } from "./resolveAutoMovieCollisionHit.js";
 
 /** Work one observation may spend, by kind. */
 type ILimits = {
@@ -197,33 +198,19 @@ function observeLayer(
   };
   for (const hit of result.findings) {
     const identity: string = key("frame", hit.first, hit.second);
-    if (hit.status === "permitted") {
+    const outcome: resolveAutoMovieCollisionHit.IResolution =
+      resolveAutoMovieCollisionHit({
+        hit,
+        surfaces: collected.surfaces,
+        solidOf,
+        allowances: layer.allowances ?? [],
+        seconds: layer.localSeconds,
+        budget,
+      });
+    if (outcome.kind === "permitted") {
       report(identity, "excluded", "named-contact-allowance");
       continue;
     }
-    // Exact shapes touching within the native query's precision are clear.
-    if (hit.status === "candidate" && hit.basis === "displayed") {
-      report(identity, "checked", "");
-      continue;
-    }
-    const outcome: findAutoMovieCollisionWitness.IOutcome =
-      hit.status === "confirmed"
-        ? {
-            kind: "witness",
-            point: hit.point!,
-            separation: hit.separation!,
-          }
-        : findAutoMovieCollisionWitness({
-            pair: hit,
-            surfaces: collected.surfaces,
-            solidOf,
-            allowance: allowanceLaw(
-              layer.allowances ?? [],
-              layer.localSeconds,
-              hit,
-            ),
-            budget,
-          });
     if (outcome.kind === "clear") {
       report(identity, "checked", "");
       continue;
@@ -279,49 +266,4 @@ function observeLayer(
     findings,
     ...(shotPath === undefined ? {} : { shotPath }),
   });
-}
-
-/**
- * The allowed depth of a witness on one part's surface: the tightest named
- * window active now for the pair whose scope admits the joint labelling the
- * witness on each side, or zero when none does. An unlabelled side meets only
- * windows that leave it unscoped.
- */
-function allowanceLaw(
-  allowances: readonly Collision.IAllowance[],
-  seconds: number,
-  pair: Pick<Collision.IFinding, "first" | "second">,
-): findAutoMovieCollisionWitness.IProps["allowance"] {
-  const active: Collision.IAllowance[] = allowances.filter(
-    (entry: Collision.IAllowance): boolean =>
-      seconds >= entry.startSeconds &&
-      seconds < entry.endSeconds &&
-      ((entry.first === pair.first && entry.second === pair.second) ||
-        (entry.first === pair.second && entry.second === pair.first)),
-  );
-  const admits = (
-    scope: readonly string[] | undefined,
-    joint: string | undefined,
-  ): boolean =>
-    scope === undefined || (joint !== undefined && scope.includes(joint));
-  return (
-    mover: string,
-    moverJoint: string | undefined,
-    holderJoint: string | undefined,
-  ): number => {
-    let limit: number | null = null;
-    for (const entry of active) {
-      const moverScope: readonly string[] | undefined =
-        entry.first === mover ? entry.firstJoints : entry.secondJoints;
-      const holderScope: readonly string[] | undefined =
-        entry.first === mover ? entry.secondJoints : entry.firstJoints;
-      if (!admits(moverScope, moverJoint) || !admits(holderScope, holderJoint))
-        continue;
-      limit =
-        limit === null
-          ? entry.maxPenetration
-          : Math.min(limit, entry.maxPenetration);
-    }
-    return limit ?? 0;
-  };
 }

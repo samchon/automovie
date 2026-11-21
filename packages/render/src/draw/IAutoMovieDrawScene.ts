@@ -104,6 +104,22 @@ export interface IAutoMovieDrawScene {
   seek(seconds: number): Promise<void>;
 
   /**
+   * Place the scene at a second synchronously, leaving it exactly as an
+   * awaited `seek` to the same second would. Offered only by a subject whose
+   * placement needs nothing asynchronous; inspection uses it to sample motion
+   * between output frames and then places the drawn second again.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the equivalence with `seek` and who uses it.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the subject that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the subject that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the subject that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the subject that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the subject that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the subject that implements it answers.
+   */
+  place?(seconds: number): void;
+
+  /**
    * Release the scene's resources when the page is done with it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is released and when.
@@ -145,6 +161,9 @@ export namespace IAutoMovieDrawScene {
 
     /** Which host placed this scene. The Viewer samples actual painted frames. */
     readonly mode: "viewer" | "capture" | "delivery";
+
+    /** The subject's synchronous placement, when it offers one. A caller that places another second must place this sample's second again before returning. */
+    readonly place?: (seconds: number) => void;
 
     /** Scratch render access for the offscreen capture and delivery audits, absent in the Viewer. Restore renderer and scene state before returning. */
     readonly auditRaster?: {
