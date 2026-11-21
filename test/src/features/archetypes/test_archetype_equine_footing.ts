@@ -281,16 +281,23 @@ function capsuleClearance(
   if (part.geometry.type !== "primitive")
     throw new Error("The fixture expects actual primitive geometry");
   const shape: typeof part.geometry.shape = part.geometry.shape;
+  const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+    placement,
+    part.transform!,
+  );
+  if (shape.type === "box")
+    return boxClearance(
+      { x: shape.width, y: shape.height, z: shape.depth },
+      frame,
+      pole,
+      radius,
+    );
   if (
     shape.type !== "sphere" &&
     shape.type !== "capsule" &&
     shape.type !== "cylinder"
   )
     throw new Error(`Unsupported pole witness part ${part.id}`);
-  const frame: IAutoMovieTransform = ArchetypeFrame.compose(
-    placement,
-    part.transform!,
-  );
   const axis: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
     x: 0,
     y: 1,
@@ -307,4 +314,72 @@ function capsuleClearance(
   return (
     Math.hypot(y - offset * axis.y, z - offset * axis.z) - shape.radius - radius
   );
+}
+
+/** Independent clearance of a box of width, height and depth `size`, such as an ear plate, from the same X-spanning pole: the box's projection on the YZ plane is the convex hull of its corners, and the pole's clearance is its distance to that hull less the pole's radius, negative inside. */
+function boxClearance(
+  size: IAutoMovieVector3,
+  frame: IAutoMovieTransform,
+  pole: IAutoMovieVector3,
+  radius: number,
+): number {
+  const corners: IAutoMovieVector3[] = [];
+  for (const x of [-1, 1])
+    for (const y of [-1, 1])
+      for (const z of [-1, 1])
+        corners.push(
+          Vector3.add(
+            frame.translation,
+            Quaternion.rotateVector(frame.rotation, {
+              x: (x * size.x) / 2,
+              y: (y * size.y) / 2,
+              z: (z * size.z) / 2,
+            }),
+          ),
+        );
+
+  // Gift-wrap the projected corners, then measure the pole's centre against each hull edge.
+  const points: IAutoMovieVector3[] = corners.sort(
+    (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+      a.y - b.y || a.z - b.z,
+  );
+  const cross = (
+    o: IAutoMovieVector3,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): number => (a.y - o.y) * (b.z - o.z) - (a.z - o.z) * (b.y - o.y);
+  const hull: IAutoMovieVector3[] = [];
+  for (const pass of [points, [...points].reverse()]) {
+    const start: number = hull.length;
+    for (const p of pass) {
+      while (
+        hull.length >= start + 2 &&
+        cross(hull[hull.length - 2]!, hull[hull.length - 1]!, p) <= 0
+      )
+        hull.pop();
+      hull.push(p);
+    }
+    hull.pop();
+  }
+  let outside: boolean = false;
+  let nearest: number = Infinity;
+  for (let k: number = 0; k < hull.length; k++) {
+    const a: IAutoMovieVector3 = hull[k]!;
+    const b: IAutoMovieVector3 = hull[(k + 1) % hull.length]!;
+    if (cross(a, b, pole) < 0) outside = true;
+    const ey: number = b.y - a.y;
+    const ez: number = b.z - a.z;
+    const t: number = Math.max(
+      0,
+      Math.min(
+        1,
+        ((pole.y - a.y) * ey + (pole.z - a.z) * ez) / (ey * ey + ez * ez),
+      ),
+    );
+    nearest = Math.min(
+      nearest,
+      Math.hypot(pole.y - a.y - t * ey, pole.z - a.z - t * ez),
+    );
+  }
+  return (outside ? nearest : -nearest) - radius;
 }

@@ -11,6 +11,7 @@ import {
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -128,6 +129,9 @@ export function test_archetype_animal_rest(): void {
       "rein-left": "head",
       "rein-right": "head",
       lead: "head",
+      leftEar: "head",
+      rightEar: "head",
+      jaw: "head",
     },
     contacts: {
       seat: "trunk",
@@ -158,7 +162,12 @@ export function test_archetype_animal_rest(): void {
   });
   const bareParams: QuadrupedRestPlan.IParams = {
     ...horseParams,
-    parts: { withers: "trunk" },
+    parts: {
+      withers: "trunk",
+      leftEar: "head",
+      rightEar: "head",
+      jaw: "head",
+    },
     contacts: {},
   };
   TestValidator.equals(
@@ -222,6 +231,22 @@ export function test_archetype_animal_rest(): void {
               ArchetypeFrame.point(pose.placement, part.transform!.translation)
                 .y - shape.shape.radius
             );
+
+          // A box, such as an ear plate, reaches down by each half-extent times its local axis's vertical share.
+          if (shape.type === "primitive" && shape.shape.type === "box") {
+            const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+              pose.placement,
+              part.transform!,
+            );
+            const down = (axis: IAutoMovieVector3, half: number): number =>
+              Math.abs(Quaternion.rotateVector(frame.rotation, axis).y) * half;
+            return (
+              frame.translation.y -
+              down({ x: 1, y: 0, z: 0 }, shape.shape.width / 2) -
+              down({ x: 0, y: 1, z: 0 }, shape.shape.height / 2) -
+              down({ x: 0, y: 0, z: 1 }, shape.shape.depth / 2)
+            );
+          }
           return animalTerminalSole(part, pose.placement);
         }),
       );
