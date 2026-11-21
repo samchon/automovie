@@ -216,11 +216,14 @@ export function createPrecisionSportStroke<P extends Stroke>(
         );
       };
 
-      // The follow-through sweeps in front of the trunk and within reach:
-      // past the contact the swing goes on only while the hand stays ahead of
-      // the trunk's front, half the chest's depth before the root's frontal
-      // plane, and within the arm's reach of the striking shoulder as it
-      // stood, and holds where it would pass into the trunk or out of reach.
+      // The follow-through sweeps the whole arm in front of the trunk and
+      // within reach: past the contact the swing goes on only while the arm's
+      // line from its shoulder to the hand stays ahead of the trunk's front
+      // (the shoulder lies on the root's frontal plane, so the line's middle
+      // is half the chest's depth ahead when the hand is a whole depth ahead)
+      // and the hand within the arm's reach of the striking shoulder as it
+      // stood, and holds where the arm would pass into the trunk or out of
+      // reach.
       const forward: IAutoMovieVector3 = HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: context.entry.posture.yaw },
         { x: 0, y: 0, z: 1 },
@@ -233,8 +236,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
           Vector3.dot(
             Vector3.subtract(path(progress).point, context.entry.posture.root),
             forward,
-          ) -
-            body.measure.chestDepth / 2,
+          ) - body.measure.chestDepth,
           PrecisionStrokeForms.reach(body) -
             Vector3.length(Vector3.subtract(path(progress).point, shoulder)),
         );

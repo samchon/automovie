@@ -244,6 +244,10 @@ export namespace ballSport {
             rest: rest(side),
             weight: into,
             span,
+            // The dribbling elbow bends forward, as the court releases bend
+            // it (`ballCourt`), so the hand's goal names its bend instead of
+            // searching one at every second the ball's flight is swept.
+            bend: "forward",
             place: (posture: IAutoMovieMotionHumanPosture, s: number) => {
               const u: number = clock.linear("strokeStart", "strokeEnd", s);
               const down: number =

@@ -1,14 +1,19 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { addressPrecisionStroke } from "./addressPrecisionStroke";
 
 /**
  * The precision stroke families: each row's fixed geometry, registered as
@@ -103,6 +108,13 @@ export namespace PrecisionStrokeForms {
    */
   export const ARM: number = 0.95;
 
+  /**
+   * The rounds the address places the stance, reads the stroke's pose at
+   * contact and places the stance again: the hinge follows the grip's place
+   * from the body, which moves little after the first round (provisional).
+   */
+  export const ADDRESSED: number = 4;
+
   /** Each row's form by its name, filled as the rows are made. */
   export const FORMS: Map<string, IForm> = new Map();
 
@@ -176,44 +188,89 @@ export namespace PrecisionStrokeForms {
       contact,
       Vector3.scale(working, props.tool),
     );
+    // The shoulder is read from the stroke's own pose at contact: the quiet
+    // stance at the facing given, hinged at the hips to the grip as the
+    // stroke's address hinges it (`addressPrecisionStroke`) and turned toward
+    // the shot by the row's trunk turn. The hinge depends on where the grip
+    // lies from the body, so the stance is placed, the pose read, and the
+    // stance placed again until the shoulder stands on its place.
     const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const bones: ReturnType<typeof poseBones> = poseBones(
+    const stance: IAutoMovieMotionHumanPosture = stand.posture(
       props.body,
-      resolveHumanPosture(
-        props.body,
-        stand.posture(props.body, origin, props.yaw),
-      ),
+      origin,
+      props.yaw,
     );
-    const left: IAutoMovieVector3 = bones.get("leftUpperArm")!.worldPosition;
-    const right: IAutoMovieVector3 = bones.get("rightUpperArm")!.worldPosition;
-    const offset: IAutoMovieVector3 =
-      form.oneHand === true || form.bare === true
-        ? props.side === "left"
-          ? left
-          : right
-        : Vector3.scale(Vector3.add(left, right), 0.5);
-
-    // The shoulder stands at its own height, so it lies the arm's reach from
-    // the grip with the rest of that reach across the floor, back along the
-    // implement's line; a grip lower than the reach below the shoulder is
-    // reached by the address's hip hinge, and the shoulder then stands over
-    // the line's own horizontal run.
+    const feet: Readonly<
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
+    > = AutoMovieMotionHumanTrunk.footing(props.body, stance);
+    const sign: number = props.side === "right" ? 1 : -1;
+    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      { x: 0, y: 1, z: 0 },
+      sign * form.turn,
+    );
     const span: number = ARM * reach(props.body);
-    const drop: number = offset.y - grip.y;
     const back: IAutoMovieVector3 = Vector3.normalize({
       x: -working.x,
       y: 0,
       z: -working.z,
     });
-    const across: number =
-      Math.abs(drop) < span
-        ? Math.sqrt(span * span - drop * drop)
-        : span * Math.hypot(working.x, working.z);
-    const shoulder: IAutoMovieVector3 = Vector3.add(
-      grip,
-      Vector3.scale(back, across),
-    );
-    return { x: shoulder.x - offset.x, y: 0, z: shoulder.z - offset.z };
+    let at: IAutoMovieVector3 = origin;
+    for (let i: number = 0; i < ADDRESSED; i++) {
+      const local: IAutoMovieVector3 = Vector3.subtract(grip, at);
+      const posture: IAutoMovieMotionHumanPosture =
+        form.point === "tip"
+          ? stance
+          : addressPrecisionStroke(
+              props.body,
+              stance,
+              feet,
+              props.side,
+              local,
+              undefined,
+              0,
+              Infinity,
+            )(stance, 1);
+      const bones: ReturnType<typeof poseBones> = poseBones(
+        props.body,
+        resolveHumanPosture(props.body, posture),
+      );
+      const left: IAutoMovieVector3 = bones.get("leftUpperArm")!.worldPosition;
+      const right: IAutoMovieVector3 =
+        bones.get("rightUpperArm")!.worldPosition;
+      const standing: IAutoMovieVector3 =
+        form.oneHand === true || form.bare === true
+          ? props.side === "left"
+            ? left
+            : right
+          : Vector3.scale(Vector3.add(left, right), 0.5);
+      const offset: IAutoMovieVector3 = Vector3.add(
+        { x: posture.root.x, y: 0, z: posture.root.z },
+        Quaternion.rotateVector(
+          turn,
+          Vector3.subtract(standing, {
+            x: posture.root.x,
+            y: 0,
+            z: posture.root.z,
+          }),
+        ),
+      );
+
+      // The shoulder stands at that height, the arm's reach from the grip
+      // with the rest of that reach across the floor, back along the
+      // implement's line; a grip lower than the reach below it lies on the
+      // line's own horizontal run.
+      const drop: number = offset.y - grip.y;
+      const across: number =
+        Math.abs(drop) < span
+          ? Math.sqrt(span * span - drop * drop)
+          : span * Math.hypot(working.x, working.z);
+      const shoulder: IAutoMovieVector3 = Vector3.add(
+        grip,
+        Vector3.scale(back, across),
+      );
+      at = { x: shoulder.x - offset.x, y: 0, z: shoulder.z - offset.z };
+    }
+    return at;
   }
 
   /**
