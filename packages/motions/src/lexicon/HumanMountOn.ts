@@ -15,6 +15,7 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
+import { unloadedFoot } from "../carrier/unloadedFoot";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
@@ -199,8 +200,10 @@ export namespace HumanMountOn {
           was[2] + a[2] * settle,
         ];
       }
-      const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"]; } =
-        HumanTrunk.incline(joints, lean);
+      const tilt: {
+        pitch: number;
+        joints: IAutoMovieMotionHumanPosture["joints"];
+      } = HumanTrunk.incline(joints, lean);
       const yaw: number = yaw0 + turn * across;
       // A tipped or tilted seat, as a saddle on a grade, tips the pelvis with it as the body crosses onto it.
       const pitch: number = tilt.pitch + (seat.pitch ?? 0) * across;
@@ -431,7 +434,10 @@ export namespace HumanMountOn {
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const frame: Frame = frameAt(t);
-        const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(frame.root, floor);
+        const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(
+          frame.root,
+          floor,
+        );
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
           const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
@@ -448,7 +454,8 @@ export namespace HumanMountOn {
           const share: number = minimumJerk.share(
             (t - leaves) / (arrives - leaves),
           );
-          limbs[limb] = HumanMount.leg(
+          const bearsNow: boolean = places[side].rests && t >= bearing[side];
+          const leg: IAutoMovieHumanLimbGoal = HumanMount.leg(
             body,
             side,
             HumanMount.between(
@@ -465,8 +472,22 @@ export namespace HumanMountOn {
               walk.LIFT * m.hipHeight,
               astride && side === push ? over : undefined,
             ),
-            places[side].rests && t >= bearing[side],
+            bearsNow,
           );
+          // A foot that bears nothing turns its toes down rather than bend
+          // its ankle past what a weightless ankle reaches.
+          limbs[limb] = bearsNow
+            ? leg
+            : unloadedFoot(
+                body,
+                hipsAt(t)[side],
+                leg,
+                Quaternion.rotateVector(HumanFrame.turn(frame.yaw), {
+                  x: 0,
+                  y: 0,
+                  z: 1,
+                }),
+              );
         }
         return seated.arms(
           body,
