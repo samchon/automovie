@@ -22,11 +22,12 @@ Keep subjects simple and motion detailed.
 
 - Use the polygon man from `@automovie/human`.
 - Use `@automovie/archetypes` for objects, or build a coarse form.
-- Compose actions from `@automovie/motions`, commenting each value with the screenplay element it realizes.
+- Compose actions from `@automovie/motions`, reading in its JSDoc what each value and default performs.
 
 Realize the screenplay in code.
 
 - Take every outcome from the screenplay.
+- Comment each value with the screenplay element it realizes and how, under [screenplay realization](.agents/skills/contracts/development/composition.md#screenplay-realization).
 - Compute physics only for the response, parts and moments the scene needs.
 
 Work from evidence and verify the result.
