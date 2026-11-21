@@ -3,17 +3,20 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionPropWear,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -227,10 +230,20 @@ function layer(
     ? "chest"
     : "hips";
   let kept: readonly IKept[] | undefined;
-  const keep = (
+  // Each bound arm's or leg's own solution as it was bound, so its fit
+  // stays on that branch and swivel while the binding holds it.
+  let references: readonly IAutoMovieHumanLimbReference[] | undefined;
+  const keep: (
+    context: IAutoMovieMotionHumanLayer.IContext,
+  ) => readonly IKept[] = (
     context: IAutoMovieMotionHumanLayer.IContext,
   ): readonly IKept[] => {
     if (kept !== undefined) return kept;
+    const pose: IAutoMoviePose = HumanPerformanceRead.pose(self, wearer, from);
+    references = limbs.map(
+      (l: IBound): IAutoMovieHumanLimbReference =>
+        resolveHumanPosture.reference(pose, l.limb),
+    );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanPerformanceRead.bones(
         self,
@@ -248,7 +261,9 @@ function layer(
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hips.worldRotation,
     );
-    const local = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+    const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+      p: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Quaternion.rotateVector(inverse, Vector3.subtract(p, hips.worldPosition));
     const read: IKept[] = limbs.map(
       (l: IBound): IKept => ({
@@ -285,7 +300,7 @@ function layer(
     ) as [IKept, IKept];
     const apart: number = Vector3.distance(a.point, b.point);
     const middle: IAutoMovieVector3 = Vector3.lerp(a.point, b.point, 0.5);
-    const draw = (k: IKept): IKept => {
+    const draw: (k: IKept) => IKept = (k: IKept): IKept => {
       if (!(apart > link.slack)) return k;
       const point: IAutoMovieVector3 = Vector3.add(
         middle,
@@ -314,6 +329,7 @@ function layer(
         goals[limbs[0]!.limb] = {
           point: Vector3.add(at, ends[0]!.point),
           bend: Vector3.add(at, ends[0]!.bend),
+          reference: references![0]!,
         } satisfies IAutoMovieHumanLimbGoal;
       } else
         limbs.forEach((l: IBound, k: number): void => {
@@ -321,6 +337,7 @@ function layer(
             point: ends[k]!.point,
             bend: ends[k]!.bend,
             on: carrier,
+            reference: references![k]!,
           } satisfies IAutoMovieHumanLimbGoal;
         });
       return { ...posture, limbs: goals };
