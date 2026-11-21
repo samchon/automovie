@@ -401,6 +401,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           now.rotation,
           respond,
           HumanMountedPaths.grips(support, figures[index]!, now, film),
+          respond === 0 ? 0 : HumanMountedFrame.surge(carrier, film, stride),
         ),
         HumanMountedFrame.LOCAL,
         now,

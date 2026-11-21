@@ -168,6 +168,49 @@ export namespace HumanMountedFrame {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
 
+  /** Seconds either side a carrier's surge is read over when it declares no stride (provisional). */
+  export const SURGE: number = 0.5;
+
+  /**
+   * The carrier's forward acceleration at a second, metres per second squared: its course's surge, as when a horse bolts or pulls up, without its strides' own fore-and-aft pulses.
+   *
+   * @param carrier The frame reader.
+   * @param film Film seconds.
+   * @param stride The carrier's stride period, seconds; `SURGE` either side when absent.
+   * @returns The acceleration along the carrier's level forward, positive when it speeds up.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and why the window is a stride.
+   * @evidence contracts/development/implementation.md#principled-implementation The central second difference of the frame's position a stride either side, which cancels any motion periodic in the stride exactly, projected on the level forward.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One difference.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The window is the author's stride or a named provisional one.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two more frame readings.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function surge(
+    carrier: Reader,
+    film: number,
+    stride: number | undefined,
+  ): number {
+    const h: number = stride ?? SURGE;
+    const now: IAutoMovieRigidTransform = carrier(film);
+    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(now.rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    const level: number = Math.hypot(ahead.x, ahead.z);
+    if (level < 1e-9) return 0;
+    const second: IAutoMovieVector3 = Vector3.scale(
+      Vector3.add(
+        Vector3.subtract(carrier(film + h).position, now.position),
+        Vector3.subtract(carrier(film - h).position, now.position),
+      ),
+      1 / (h * h),
+    );
+    return (second.x * ahead.x + second.z * ahead.z) / level;
+  }
+
   /**
    * A posture re-expressed from one frame to another: its world points and
    * goals carried rigidly, and its whole attitude, heading, pitch and roll,
