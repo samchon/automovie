@@ -27,7 +27,7 @@ Keep subjects simple and motion detailed.
 Realize the screenplay in code.
 
 - Take every outcome from the screenplay.
-- Comment each value with the screenplay element it realizes and how, under [screenplay realization](.agents/skills/contracts/development/composition.md#screenplay-realization).
+- Comment each value with the screenplay element or subject record it realizes and how.
 - Compute physics only for the response, parts and moments the scene needs.
 
 Work from evidence and verify the result.
