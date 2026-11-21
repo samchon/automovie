@@ -139,6 +139,31 @@ export namespace EquineExpressionCue {
 
     /** The clearance held between the muzzle's surface and the target, metres: zero for every act but `sniff`, positive for `sniff`. */
     gap: number;
+    /** The other body the neck and head course around on the way in and out, if any. */
+    around?: IAround;
+  }
+
+  /**
+   * Another body a reach plans its course around: its displayed pose by film second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the result.
+   * @evidence contracts/development/design.md#principled-representation A pure function of film seconds giving a displayed pose.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A reach's obstacle, such as the mare a foal suckles from.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IAround {
+    /**
+     * The body's displayed pose at a film second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the result.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature; the author's function owns its computation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature; the author's function owns its structure.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature; nothing is implemented here.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature; the layer calls it once per sample of the reach.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; nothing is implemented here.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; the author's function owns its resources.
+     */
+    at(seconds: number): ArchetypeRide.IPose<string, string>;
   }
 
   /**
