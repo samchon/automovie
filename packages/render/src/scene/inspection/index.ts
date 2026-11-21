@@ -6,6 +6,7 @@ export * from "./AUTO_MOVIE_INSPECTION_KEYS.js";
 export * from "./AUTO_MOVIE_INSPECTION_KINDS.js";
 export * from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
 export * from "./AutoMovieCollisionSource.js";
+export * from "./autoMovieInspectionEntityPathOf.js";
 export * from "./autoMovieInspectionPathOf.js";
 export * from "./boundAutoMovieCameraSubject.js";
 export * from "./buildAutoMovieInspectionMarks.js";
