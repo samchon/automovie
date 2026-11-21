@@ -39,9 +39,15 @@ const SUBSTEPS: number = 32;
 /** Four seconds of authored arm and neck motion, sampled once per Human. */
 const CYCLE_STEPS: number = 4 * RATE;
 
-/** Historical reference budget and archive decoder allocation cap. */
-const COMPUTE_MS: number = 3_600_000;
-const RSS_BYTES: number = 2 * 1024 ** 3;
+/**
+ * Measurement ceilings while the current Human's 180 s limit is re-recorded
+ * (#3073): the historical 1 h and 2 GiB budgets predate the 49-segment
+ * Human, whose pilot computes about 60 s per film second.
+ */
+const COMPUTE_MS: number = 8 * 3_600_000;
+const RSS_BYTES: number = 24 * 1024 ** 3;
+
+/** Archive decoder allocation cap. */
 const ARCHIVE_BYTES: number = 1024 ** 3;
 
 /** Current canonical providers in stable scene insertion order. */
@@ -388,7 +394,7 @@ function lateEdit(
   };
 }
 
-/** Use the normal public preparation path with the historical compute budget. */
+/** Use the normal public preparation path under the compute and memory ceilings. */
 async function bake(
   input: IAutoMoviePhysicalSimulationInput.IInput,
   nativeStart: () => void,
@@ -398,7 +404,7 @@ async function bake(
   const deadline: ReturnType<typeof setTimeout> = setTimeout(
     (): void =>
       controller.abort(
-        new Error("Active Human compute exceeded 3,600 seconds"),
+        new Error(`Active Human compute exceeded ${COMPUTE_MS / 1000} s`),
       ),
     COMPUTE_MS,
   );
@@ -416,7 +422,7 @@ async function bake(
         if (process.resourceUsage().maxRSS * 1024 > RSS_BYTES)
           controller.abort(
             new Error(
-              `Active Human compute exceeded 2 GiB at interval ${completed}`,
+              `Active Human compute exceeded ${RSS_BYTES} bytes at interval ${completed}`,
             ),
           );
       },
