@@ -23,6 +23,7 @@ export namespace ArchetypeFriction {
    * - `hoof`: a shod hoof, its horseshoe.
    * - `ice`: ice.
    * - `concrete`, `asphalt`, `stone`, `brick`: grounds; `stone` includes cobbles.
+   * - `felt`: a tennis ball's felt cover.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each material.
    * @evidence contracts/development/design.md#principled-representation A closed union of the materials the measured pairs name.
@@ -41,7 +42,8 @@ export namespace ArchetypeFriction {
     | "concrete"
     | "asphalt"
     | "stone"
-    | "brick";
+    | "brick"
+    | "felt";
 
   /** The ground a model's body friction is taken against when its producer names none: concrete, the paving and floor slab most staged ground is, and the ground most measured pairs here share. */
   export const GROUND: Material = "concrete";

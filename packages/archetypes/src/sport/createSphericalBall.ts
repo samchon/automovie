@@ -5,6 +5,13 @@ import { BallBuild } from "./BallBuild";
 import type { createBall } from "./createBall";
 
 /**
+ * A golf ball's rolling resistance on a green: the USGA Stimpmeter releases
+ * the ball at 1.83 m/s, and a medium green of 10 ft (3.05 m) gives
+ * mu = v^2 / (2 g S), about 0.056.
+ */
+const GREEN: number = 1.83 ** 2 / (2 * 9.80665 * 3.05);
+
+/**
  * A spherical ball with a centre grip and upper surface.
  *
  * The model rests on the floor at the origin with its centre one radius above it. Select a sport for size, mass and finish.
@@ -16,7 +23,7 @@ import type { createBall } from "./createBall";
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Build one sphere with the sport's recorded diameter and centre it one radius above the floor.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the profile and build its parts and contacts at the same dimensions.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The models retain a smooth surface. The basketball's rigid floor rebound uses the recorded FIBA drop reference.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The models retain a smooth surface. The basketball's and tennis ball's rebounds use their rules' drop references, and the tennis ball's felt slides at the ITF medium court pace; other kinds declare no rebound until a source is read.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The profile has a fixed number of parts and contacts.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved recipes call this producer with the original seed namespace and geometry.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call returns an independent model and retains no inputs.
@@ -43,10 +50,21 @@ export function createSphericalBall(
     color: BallBuild.COLORS[kind],
   });
   BallBuild.contacts(builder, diameter, diameter);
-  // FIBA 2.4 drop and rebound midpoints for the retained rigid floor fixture.
+  // Restitution is the square root of a rule's rebound over its drop height,
+  // at the midpoint of its band: FIBA 2.4 drops the basketball 1.8 m and
+  // takes 1.035 to 1.085 m back; ITF Rules of Tennis, Appendix I, drops the
+  // tennis ball 254 cm onto a rigid base and takes 135 to 147 cm back. The
+  // basketball's rubber slides as rubber on dry concrete, an outdoor court;
+  // the tennis ball's felt slides on a hard court's medium pace rating.
   return builder.build(
     d.mass!,
-    kind === "basketball" ? { restitution: Math.sqrt(1.06 / 1.8) } : undefined,
+    kind === "basketball"
+      ? { rests: "rubber", restitution: Math.sqrt(1.06 / 1.8) }
+      : kind === "tennis"
+        ? { rests: "felt", restitution: Math.sqrt(1.41 / 2.54) }
+        : kind === "golf"
+          ? { outcome: { rolling: GREEN } }
+          : undefined,
   );
 }
 
