@@ -36,8 +36,8 @@ const BOUNDS: Readonly<Record<"speed" | "reach" | "rise" | "drop", number>> = {
 /** Seconds the landed seat takes to settle (provisional). */
 const SETTLE: number = 0.3;
 
-/** The share of the flight after which a held hand lets go (provisional). */
-const LET_GO: number = 0.8;
+/** The share of the flight a held hand keeps its hold for: to the landing, so the support passes from the hold to the seat with no gap. */
+const LET_GO: number = 1;
 
 /**
  * Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the seat contact's moving frame the root travels from where it takes off to its seated place on the seat by a minimum-jerk share, so it leaves and lands with the seat's own velocity, rising `height` over the straight way on a parabola of the share; the shape blends from the entry into an upright astride seat with the legs hanging (`hangMountedLeg`), a held hand keeping its hold until `LET_GO` of the flight. Register `HumanBoard` to use it.

@@ -186,6 +186,21 @@ export namespace EquineStanceCue {
   }
 
   /**
+   * A set back against a rope: the horse sits back on its hocks, its hindquarters lowered with all four hooves planted, holds, and stands up again.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The hindquarters' drop as a trunk pitch, degrees.
+   * @evidence contracts/development/design.md#principled-representation Phases and a positive pitch.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The set-back response; it ends standing as it began.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ISetBack extends IPhases {
+    /** Discriminator. */
+    kind: "setBack";
+
+    /** How far the hindquarters drop, a trunk pitch in degrees, more than 0 and less than 45. */
+    pitch: number;
+  }
+  /**
    * A held school air on the hindquarters: the pesade, the forehand raised to 45 degrees, or the levade, to about 30 to 35 (Airs above the ground, Wikipedia; IFCE Equipedia).
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names both airs and their sourced trunk angles.
@@ -268,6 +283,7 @@ export namespace EquineStanceCue {
     | IBuck
     | ISpin
     | ICrowHops
+    | ISetBack
     | School
     | EquineStanceExtras.Row;
 }

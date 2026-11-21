@@ -2,14 +2,14 @@ import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { ArchetypeFrame } from "../core";
-import type { EquineBodyPose } from "./EquineBodyPose";
+import { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceCue } from "./EquineStanceCue";
 import { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 import type { QuadrupedBody } from "./QuadrupedBody";
 
 /**
- * The stance responses that travel or repeat (`EquineStanceRows`): a spin on the haunches and a run of crow hops. A spin turns the whole horse about the middle of its hind hooves in increments, each hoof stepping around in turn after the weight is on the other three, as a step aside steps sideways; a run of crow hops repeats a small buck, each hop leaving the forehand planted and the hindquarters lifted and set down again. Both end where they finish: a spin facing its new heading, crow hops standing as they began.
+ * The stance responses that travel, repeat or brace (`EquineStanceRows`): a spin on the haunches, a run of crow hops and a set back against a rope. A spin turns the whole horse about the middle of its hind hooves in increments, each hoof stepping around in turn after the weight is on the other three, as a step aside steps sideways; a run of crow hops repeats a small buck, each hop leaving the forehand planted and the hindquarters lifted and set down again. Both end where they finish: a spin facing its new heading, crow hops standing as they began.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both responses, how they step or repeat and where they end.
  * @evidence contracts/development/design.md#principled-representation Plans of the rows' own form: start and end states, keys, support events and a pose by share.
@@ -237,6 +237,60 @@ export namespace EquineStanceMoves {
         share >= 1
           ? EquineStanceRows.still(end)
           : hop.goal(Math.sin(Math.PI * share * cue.count) ** 2),
+    };
+  }
+
+  /**
+   * A set back against a rope: the horse sits back on its hocks, the hindquarters lowered by `pitch` about the shoulder joints while all four hooves stay planted, holds, and stands up again as it began.
+   *
+   * @param body The prepared solver.
+   * @param start The state it starts from.
+   * @param cue The set back.
+   * @returns Its plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the pivot, the planted hooves and the return.
+   * @evidence contracts/development/implementation.md#principled-implementation The rows' own gather turn (`EquineBodyPose.turn` about the shoulders' joint midpoint, along the start trunk's heading), carried to `pitch`; every hoof placed on its start anchor so the hind legs fold under.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One turn, one blend.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No hoof leaves its anchor.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One turn per plan.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its two trunks.
+   */
+  export function setBack<Id extends string, D extends string>(
+    body: EquineBodyPose.IPrepared<Id, D>,
+    start: EquineStanceRows.IState,
+    cue: EquineStanceCue.ISetBack,
+  ): EquineStanceRows.IPlan {
+    const shoulders: IAutoMovieVector3 = Vector3.scale(
+      Vector3.add(body.chains.leftFore[0]!, body.chains.rightFore[0]!),
+      0.5,
+    );
+    const sat: ArchetypeFrame.IMotion = ArchetypeFrame.chain(
+      EquineBodyPose.turn(
+        cue.pitch,
+        0,
+        EquineBodyPose.point(start.trunk, shoulders),
+        { x: 0, y: 0, z: 0 },
+        EquineStanceSupport.heading(start.trunk),
+      ),
+      start.trunk,
+    );
+    // It stands up as it began: a state of its own, so the exit returns forward over 1 to 2.
+    const end: EquineStanceRows.IState = { ...start };
+    return {
+      cue,
+      start,
+      end,
+      keys: [0.5, 1, 1.5, 2],
+      events: [],
+      goal: (share: number): EquineBodyPose.IGoal => ({
+        trunk: EquineStanceSupport.blend(
+          start.trunk,
+          sat,
+          share <= 1 ? share : 2 - share,
+        ),
+        limbs: EquineStanceSupport.placed(start.anchors),
+      }),
     };
   }
 }

@@ -262,6 +262,8 @@ export namespace EquineStanceRows {
     if (cue.kind === "spin") return EquineStanceMoves.spin(body, start, cue);
     if (cue.kind === "crowHops")
       return EquineStanceMoves.crowHops(body, start, cue);
+    if (cue.kind === "setBack")
+      return EquineStanceMoves.setBack(body, start, cue);
     if (cue.kind === "capriole") return EquineAirs.capriole(body, start, cue);
     if (cue.kind === "air" || cue.kind === "courbette")
       return EquineAirs.held(body, cue, (rear: EquineStanceCue.IRear) =>

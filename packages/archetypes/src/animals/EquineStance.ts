@@ -141,7 +141,13 @@ export namespace EquineStance {
           cue.degrees,
           "a spin turns a nonzero amount up to a full turn either way",
         );
-      if (
+      if (cue.kind === "setBack" && !(cue.pitch > 0 && cue.pitch < 45))
+        refuse(
+          animal.archetype,
+          "pitch",
+          cue.pitch,
+          "a set back drops the hindquarters between 0 and 45 degrees",
+        );      if (
         cue.kind === "stepAside" &&
         !(Number.isFinite(cue.width) && cue.width > 0)
       )
