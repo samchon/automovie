@@ -57,6 +57,12 @@ import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonic
  * `HUMANOID_JOINT_AXES` direction with limits read through
  * `HUMANOID_REST_FRAME`, so the physical zero is the T-pose. Drive gains are
  * placeholders kinematic motion never reads: 50 N m per downstream kilogram.
+ * Self-contact is excluded between joint neighbours, among the palm and
+ * digits of one hand, between the abdomen and each upper arm and between the
+ * two thighs. The shoulder lies inside the chest's girth, so a hanging arm's
+ * root crosses the ring the chest shares with the abdomen; the hip joints sit
+ * closer together than a thigh's root is wide, so the two roots cross the
+ * midline. Neither overlap leaves as the limb abducts.
  */
 export namespace AutoMovieHumanCanonicalProfile {
   /**
@@ -309,6 +315,27 @@ export namespace AutoMovieHumanCanonicalProfile {
             reason: "adjacent polygon modules overlap at their shared joint",
           }),
         ),
+        // The shoulder lies inside the chest's girth, so a hanging upper
+        // arm's root crosses the ring the chest shares with the abdomen
+        // below it, whatever the abduction short of a raised arm.
+        ...(["left", "right"] as const).map(
+          (
+            side: "left" | "right",
+          ): { a: string; b: string; reason: string } => ({
+            a: "spine",
+            b: `${side}UpperArm`,
+            reason:
+              "the upper arm's root crosses the trunk ring the chest shares with the abdomen at the shoulder",
+          }),
+        ),
+        // The hips sit closer together than a thigh's root is wide, so the
+        // two roots cross the midline at any abduction; the shanks still
+        // meet each other and the other thigh.
+        {
+          a: "leftUpperLeg",
+          b: "rightUpperLeg",
+          reason: "both thigh roots cross the midline between the hip joints",
+        },
         ...hands.flatMap((hand: AutoMovieHumanoidBone[]) =>
           hand.flatMap((a: AutoMovieHumanoidBone, i: number) =>
             hand

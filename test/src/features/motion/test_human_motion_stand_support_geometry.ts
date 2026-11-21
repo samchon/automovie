@@ -6,8 +6,10 @@ import {
   Vector3,
   convexHull2D,
   decomposeJointRotation,
+  isPhysicalProfilePairExcluded,
   jointRomOvershoot,
   measurePhysicalJointLimits,
+  physicalShapePairDistance,
 } from "@automovie/engine";
 import { fitHumanPhysicalStandingPose } from "@automovie/human";
 import type {
@@ -51,13 +53,14 @@ interface IVertex {
  * 2. A different heading and stage elevation use the same actual geometry,
  *    maintaining the rocker pivot and admitted ankle and toe joints.
  * 3. A fixed-pelvis physical transfer of the authored stance retains the
- *    actual ground patches and satisfies every native joint. A falsely raised
- *    floor refuses the transfer and leaves the original pose untouched.
+ *    actual ground patches and satisfies every native joint. The hanging
+ *    arms' roots and the two thighs start in no live self-contact. A falsely
+ *    raised floor refuses the transfer and leaves the original pose untouched.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the public producer, independent observations and differing world frames.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public film's displayed rigid transforms at entry, during settling, at the event and after settling. It observes support, slip and clinical angles before the handoff. The public physical handoff supplies a separate pose for native limits and retained world support.
  * @evidence contracts/development/testing.md#independent-expectations Transforms each source vertex directly and compares it with the declared world plane. The combined mass center uses actual segment masses and placed local centers.
- * @evidence contracts/development/testing.md#distinguishing-cases Detects forefoot-only geometry at the held pose, penetration and slip across the rocker, and a nonzero floor interpreted in a different heading.
+ * @evidence contracts/development/testing.md#distinguishing-cases Detects forefoot-only geometry at the held pose, penetration and slip across the rocker, a nonzero floor interpreted in a different heading, and an undeclared arm-root or thigh-root overlap at the native start.
  * @evidence contracts/development/testing.md#execution-ownership Uses in-memory motion evaluation and the real Human profile. It opens no render or simulated physics world.
  */
 export function test_human_motion_stand_support_geometry(): void {
@@ -213,6 +216,36 @@ function checkTransfer(
     return;
   }
   const native: Record<string, IAutoMovieRigidTransform> = transferred.targets;
+
+  // A live self-contact pair overlapping at the native start ejects the
+  // limbs on the first substep: the hanging arms' roots against the trunk
+  // and the two thighs' roots must be declared or apart.
+  for (const [a, b] of [
+    ["spine", "leftUpperArm"],
+    ["spine", "rightUpperArm"],
+    ["hips", "leftUpperArm"],
+    ["hips", "rightUpperArm"],
+    ["leftUpperLeg", "rightUpperLeg"],
+  ] as const) {
+    if (isPhysicalProfilePairExcluded(profile, a, b)) continue;
+    const shapes = (bone: string): IAutoMoviePhysicalSegment["shapes"] =>
+      profile.segments.find(
+        (segment: IAutoMoviePhysicalSegment): boolean => segment.bone === bone,
+      )!.shapes;
+    const separation: number = Math.min(
+      ...shapes(a).flatMap((x: IAutoMoviePhysicalSegment["shapes"][number]) =>
+        shapes(b).map(
+          (y: IAutoMoviePhysicalSegment["shapes"][number]): number =>
+            physicalShapePairDistance(native[a]!, x, native[b]!, y),
+        ),
+      ),
+    );
+    if (separation < -CONTACT)
+      failures.push(
+        `${profile.id} native ${a}~${b}: live self-contact ${separation} m deep`,
+      );
+  }
+
   for (const joint of profile.joints) {
     const parent: IAutoMovieRigidTransform = native[joint.parent]!;
     const child: IAutoMovieRigidTransform = native[joint.child]!;
