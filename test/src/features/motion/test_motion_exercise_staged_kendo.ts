@@ -1,19 +1,25 @@
-import { createStageBladeProp } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { createKendoArmour, createStageBladeProp } from "@automovie/archetypes";
+import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  HumanBlade,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
+  HumanSignature,
   HumanStagePiste,
   stageBladeFootwork,
 } from "@automovie/motions";
@@ -22,224 +28,344 @@ import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
-/** Travel of each actor to its lateral floor mark, metres. */
-const SHIFT: number = 0.125;
+/** A piece of armour, the region it is worn on and the axis of the piece that faces along that region's normal. */
+interface IWorn {
+  /** The piece. */
+  kind: createKendoArmour.Kind;
 
-/** Shared phase duration in seconds. */
+  /** The body region its wear socket goes onto. */
+  region: AutoMovieHumanoidRegion;
+
+  /** The piece's own axis laid along the region's outward normal. */
+  axis: IAutoMovieVector3;
+}
+
+/** The men on the crown, upright, and the do on the solar plexus, facing out. */
+const ARMOUR: readonly IWorn[] = [
+  { kind: "men", region: "crown", axis: { x: 0, y: 1, z: 0 } },
+  { kind: "do", region: "solarPlexus", axis: { x: 0, y: 0, z: 1 } },
+];
+
+/** The performers' opening separation, metres. */
+const OPENING: number = 1.6;
+
+/** Each performer's glide toward the other, metres. */
+const GLIDE: number = 0.12;
+
+/** Duration of the glides, seconds. */
 const SECONDS: number = 1.5;
 
-/** The independently placed editing cue within the paired shift. */
+/** The independently placed editing cue within the glides. */
 const CUE: number = 0.57;
 
+/** A strike lands within this of its struck point, metres: the blade strokes spec's bound. */
+const TOUCH: number = 0.015;
+
+/** A planted sole holds within this, metres: the stage footwork spec's bound. */
+const HOLD: number = 0.005;
+
+/** A sliding sole stays within this of the floor height it started at, metres. */
+const GLIDE_HEIGHT: number = 0.006;
+
 /**
- * A paired kendo take reads a low slide and fixed support, then settles
- * before a new stand. The editing cue and reserve are independent controls.
+ * Two armoured performers close in kendo's sliding footwork and the first
+ * strikes men: the shinai's edge lands on the struck point of the other's
+ * worn men, and the result is announced at that instant. A clear distance
+ * the strike cannot cross is refused.
  *
  * Scenarios:
- * 1. Two performers on separate stage marks perform lateral glides while the
- *    complementary sole remains planted. A digital prop is carried into the take.
- * 2. A shared editing cue carries the screenplay's neutral result. Ending
- *    one cue span before the cue suppresses the result.
- * 3. The reserve boundary accepts equal available space and rejects the
- *    adjacent smaller input. The admitted feet settle before recovery.
+ * 1. Both wear the men and the do and hold a shinai; both glide toward each
+ *    other, the travelling sole low and the other planted, with the editing
+ *    cue apart from either settle on the same clock as the footfalls.
+ * 2. The first's stepping men strike lands its edge on the other's men and
+ *    the bout announces the first's point there; both stay upright and the
+ *    striker recovers to its stance.
+ * 3. From farther apart the same strike is refused on its target, and a
+ *    strike aimed at the body instead of the armour is refused by the rule.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the paired slide, support, result and stage-space refusal.
- * @evidence contracts/development/testing.md#behavioral-verification Plans the public pair and a following stand, measures the actual posed sole sockets and pelvis, and reads the shared cue from the placed schedule at both full and cut spans.
- * @evidence contracts/development/testing.md#independent-expectations The input floor marks differ by 0.125 m. The existing kendo stage witness supplies the 6 mm glide-height and 5 mm fixed-sole bounds. The script sets an independent cue at 57 percent and requests 0.25 m of reserve beyond the two translations. Pelvis separation is a sampled check of the visible floor blocking.
- * @evidence contracts/development/testing.md#distinguishing-cases Opposite directions distinguish the first travelling foot on each actor. A complete cue and one cut span differ while geometry remains the same. Two nearby explicit opening distances exercise the inclusive reserve boundary.
- * @evidence contracts/development/testing.md#execution-ownership The public in-memory performance uses a canonical floor rig and an inert display prop. There is no renderer or physical sport host.
+ * @evidence contracts/development/common.md#meaningful-documentation States the worn armour, the sliding footwork, the struck point, the announced result and the two refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Places the public bout with worn archetype armour; reads the displayed soles, heads and pelvises, the shinai's displayed edge and the men's displayed struck point, and the schedule's footfall, cue and decisive instants.
+ * @evidence contracts/development/testing.md#independent-expectations The struck regions are the FIK's; the strike lands within the blade strokes spec's 15 mm, the soles hold within the stage footwork spec's 5 mm and glide within its 6 mm of floor height, and an upright head stands over 30 percent of stature above the pelvis, as in the grapple specs.
+ * @evidence contracts/development/testing.md#distinguishing-cases A reachable strike and the same strike from beyond its reach; an armour point and a bare body region; the glide's planted and moving soles. Checks are at sampled instants, not swept.
+ * @evidence contracts/development/testing.md#execution-ownership Public in-memory placement and pose sampling on canonical bodies and archetype props. No viewer or native host is invoked.
  */
 export function test_motion_exercise_staged_kendo(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  const actor: IAutoMovieMotionHumanChain = HumanChain.subject("a");
-  const prop = createStageBladeProp({
-    kind: "shinai",
-    id: "inert-display-prop",
-  });
-  const grip: IAutoMovieVector3 = prop.affordance("grip").frame.translation;
-  const held: IAutoMovieMotionHumanProp = HumanObject.prop(
-    "inert-display-prop",
-    prop,
-    {
-      at: {
-        x: -0.6 - body.measure.shoulderHalfWidth,
-        y: body.measure.waistHeight - grip.y,
-        z: 0.6 * (body.measure.upperArm + body.measure.forearm),
+  try {
+    bout(body, OPENING, complaints);
+  } catch (error) {
+    complaints.list.push(`reachable bout: ${String(error)}`);
+  }
+
+  // From twice as far the strike cannot cross the distance.
+  try {
+    const silent: motionComplaints.IGatherer = motionComplaints();
+    bout(body, 2 * OPENING, silent);
+    complaints.list.push("the strike across a clear distance was admitted");
+  } catch (error) {
+    if (!(error instanceof HumanRefusal) || error.axis !== "target")
+      complaints.list.push(`clear distance: unexpected ${String(error)}`);
+  }
+
+  // A strike at the bare body is not a kendo strike.
+  try {
+    HumanStagePiste.compose({
+      ...take("men"),
+      first: {
+        ...take("men").first,
+        target: { kind: "person", subject: "b", region: "crown" },
       },
-      yaw: 0,
-    },
-  );
-  const take: HumanStagePiste.ITake = {
-    anchor: "glide",
+    });
+    complaints.list.push("a strike at the bare crown was admitted");
+  } catch (error) {
+    if (!(error instanceof HumanRefusal) || error.axis !== "first.target")
+      complaints.list.push(`bare target: unexpected ${String(error)}`);
+  }
+  complaints.assert("Staged kendo bout");
+}
+
+/** The bout: the glides, then the first's men strike, scored for the first. */
+function take(point: string): HumanStagePiste.ITake {
+  return {
+    anchor: "kendo",
     kind: "kendo",
     first: {
-      chain: actor.pickUp({
-        prop: held.subject,
+      chain: HumanChain.subject("a").pickUp({
+        prop: "a.shinai",
         handle: "grip",
         hand: "right",
       }),
-      direction: "left",
+      direction: "forward",
       lead: "right",
-      distance: SHIFT,
+      distance: GLIDE,
+      blade: "a.shinai",
+      target: { kind: "prop", subject: "b.men", point },
     },
     second: {
-      chain: HumanChain.subject("b").stand({ seconds: 0.2, sway: 0 }),
-      direction: "right",
-      lead: "left",
-      distance: SHIFT,
+      chain: HumanChain.subject("b").pickUp({
+        prop: "b.shinai",
+        handle: "grip",
+        hand: "right",
+      }),
+      direction: "forward",
+      lead: "right",
+      distance: GLIDE,
+      blade: "b.shinai",
+      target: { kind: "prop", subject: "a.men", point: "men" },
     },
     duration: SECONDS,
     cue: CUE,
-    result: "none",
-    reserve: [1.2, 0.25],
+    result: "first",
+    reserve: [OPENING, 0.25],
   };
-  const placed: HumanStagePiste.IPlaced = HumanStagePiste.compose(take);
-  const film: HumanPerformance = new HumanPerformance({
-    seed: "two-posed-stage-glides",
-    laws: [stageBladeFootwork],
-    performers: [
+}
+
+/** Play the bout from an opening separation and check what it shows. */
+function bout(
+  body: IAutoMovieMotionHumanBody,
+  opening: number,
+  complaints: motionComplaints.IGatherer,
+): void {
+  const shinai = createStageBladeProp({ kind: "shinai", id: "shinai" });
+  const grip: IAutoMovieVector3 = shinai.affordance("grip").frame.translation;
+  const edge = shinai.affordance("edge");
+  const at: Readonly<Record<string, IAutoMovieVector3>> = {
+    a: { x: 0, y: 0, z: 0 },
+    b: { x: 0, y: 0, z: opening },
+  };
+  const yaw = (subject: string): number => (subject === "a" ? 0 : 180);
+  const props: IAutoMovieMotionHumanProp[] = [];
+  for (const subject of ["a", "b"] as const) {
+    const side: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw(subject)),
       {
-        subject: "a",
-        body,
-        at: { x: -0.6, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
+        x: -body.measure.shoulderHalfWidth,
+        y: body.measure.waistHeight - grip.y,
+        z: 0.6 * (body.measure.upperArm + body.measure.forearm),
       },
-      {
-        subject: "b",
-        body,
-        at: { x: 0.6, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-    ],
-    props: [held],
-    composition: {
-      kind: "sequence",
-      parts: [
-        placed.composition.node,
-        actor.stand({ seconds: 0.4, sway: 0 }, "recover").node,
-      ],
-    },
+    );
+    props.push(
+      HumanObject.prop(`${subject}.shinai`, shinai, {
+        at: Vector3.add(at[subject]!, side),
+        yaw: yaw(subject),
+      }),
+    );
+    for (const piece of ARMOUR) props.push(worn(body, subject, piece));
+  }
+  const placed: HumanStagePiste.IPlaced = HumanStagePiste.compose({
+    ...take("men"),
+    reserve: [opening, 0.25],
   });
-  const entry = (anchor: string): IAutoMovieScheduleEntry =>
-    film.schedule.entries.find((row): boolean => row.intent.anchor === anchor)!;
-  const a: IAutoMovieScheduleEntry = entry("glide.first");
-  const b: IAutoMovieScheduleEntry = entry("glide.second");
-  const recovery: IAutoMovieScheduleEntry = entry("recover");
-  const announced: HumanStagePiste.IAnnouncement | undefined = placed.announced(
-    film.schedule,
-  );
-  const cue: number = a.start + CUE * SECONDS;
-  complaints.check(
-    "both glides supply one independently timed neutral screen cue",
-    announced?.result === "none" &&
-      nclose(announced.seconds, cue) &&
-      nclose(a.start, b.start) &&
-      nclose(a.end, recovery.start) &&
-      nclose(b.end, recovery.start) &&
-      film.hits().length === 0,
-  );
-  complaints.check(
-    "one cue cut before its time leaves the screen result absent",
-    placed.announced({
-      ...film.schedule,
-      entries: film.schedule.entries.map(
-        (row): IAutoMovieScheduleEntry =>
-          row === b ? { ...row, end: cue - 0.001 } : row,
-      ),
-    }) === undefined,
-  );
-  complaints.check(
-    "a film cue ahead of its actor's placed span leaves the result absent",
-    placed.announced({
-      ...film.schedule,
-      entries: film.schedule.entries.map(
-        (row): IAutoMovieScheduleEntry =>
-          row === b ? { ...row, start: cue + 0.001 } : row,
-      ),
-    }) === undefined,
-  );
+  const film: HumanPerformance = new HumanPerformance({
+    seed: "kendo-men",
+    laws: [stageBladeFootwork, ...Object.values(HumanBlade)],
+    performers: ["a", "b"].map((subject: string) => ({
+      subject,
+      body,
+      at: at[subject]!,
+      yaw: yaw(subject),
+      proficiency: { level: "trained" as const },
+    })),
+    props,
+    composition: placed.composition,
+  });
+  const entry = (anchor: string): IAutoMovieScheduleEntry => {
+    const found: IAutoMovieScheduleEntry | undefined =
+      film.schedule.entries.find(
+        (row): boolean => row.intent.anchor === anchor,
+      );
+    if (found === undefined) throw new Error(`missing ${anchor}`);
+    return found;
+  };
+  const strike: IAutoMovieScheduleEntry = entry("kendo.attack");
+  const contact: number = strike.contact ?? Number.NaN;
 
-  const gap: number = Math.min(
-    ...[a.start, a.start + 0.27 * SECONDS, cue, a.end].map(
-      (at: number): number =>
-        Math.abs(
-          film.bones("a", at).get("hips")!.worldPosition.x -
-            film.bones("b", at).get("hips")!.worldPosition.x,
-        ),
-    ),
-  );
-  complaints.check(
-    "the staged floor blocking retains its reserve",
-    gap >= 0.25,
-  );
-  complaints.check(
-    "the inert prop advances with its staged carrier",
-    film.prop(held.subject, a.end).position.x -
-      film.prop(held.subject, a.start).position.x >
-      0.04,
-  );
-
-  for (const [track, moving, planted, travel] of [
-    [a, "left", "right", SHIFT],
-    [b, "right", "left", -SHIFT],
-  ] as const) {
-    const first = track.events?.find((event) => event.name === "firstSettle");
-    const follow = track.events?.find((event) => event.name === "followSettle");
+  // 1. The glides: the travelling sole low, the other planted, the cue apart.
+  for (const subject of ["a", "b"] as const) {
+    const glide: IAutoMovieScheduleEntry = entry(
+      subject === "a" ? "kendo.first" : "kendo.second",
+    );
     const sole = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       seconds: number,
     ): IAutoMovieVector3 => {
       const foot: IAutoMovieResolvedBone = film
-        .bones(track.subject, seconds)
+        .bones(subject, seconds)
         .get(`${side}Foot`)!;
       return HumanFoot.point(body, side, "ball", {
         ankle: foot.worldPosition,
         rotation: foot.worldRotation,
       });
     };
-    const hips = (seconds: number): IAutoMovieVector3 =>
-      film.bones(track.subject, seconds).get("hips")!.worldPosition;
-    const early: number = track.start + 0.27 * SECONDS;
-    const start: IAutoMovieVector3 = sole(moving, track.start);
-    const mid: IAutoMovieVector3 = sole(moving, early);
+    const early: number = glide.start + 0.27 * SECONDS;
+    const event = (name: string): number | undefined =>
+      glide.events?.find((row): boolean => row.name === name)?.seconds;
+    const cue: number | undefined = event("propCue");
     complaints.check(
-      `${track.subject}: travelling sole slides while its partner stays planted`,
-      Math.sign(travel) * (mid.x - start.x) > 0.02 &&
-        Math.abs(mid.y - start.y) <= 0.006 &&
-        Vector3.distance(sole(planted, early), sole(planted, track.start)) <=
-          0.005,
-    );
-    complaints.check(
-      `${track.subject}: visible settles and held posture precede recovery`,
-      first !== undefined &&
-        follow !== undefined &&
-        first.seconds < follow.seconds &&
-        follow.seconds <= recovery.start &&
-        !nclose(cue, first.seconds) &&
-        !nclose(cue, follow.seconds) &&
-        nclose(sole(moving, track.end).x - start.x, travel, 0.008) &&
-        Math.sign(travel) * (hips(track.end).x - hips(track.start).x) > 0.04 &&
-        Vector3.distance(
-          hips(recovery.start - 0.0001),
-          hips(recovery.start + 0.0001),
-        ) <= 0.005,
+      `${subject}: the right sole glides low while the left stays planted, and the cue falls apart from either settle`,
+      Math.abs(sole("right", early).y - sole("right", glide.start).y) <=
+        GLIDE_HEIGHT &&
+        Vector3.distance(sole("right", early), sole("right", glide.start)) >
+          0.02 &&
+        Vector3.distance(sole("left", early), sole("left", glide.start)) <=
+          HOLD &&
+        cue !== undefined &&
+        nclose(cue, glide.start + CUE * SECONDS) &&
+        !nclose(cue, event("firstSettle") ?? Number.NaN) &&
+        !nclose(cue, event("followSettle") ?? Number.NaN) &&
+        glide.end <= strike.start + 1e-9,
     );
   }
 
-  HumanStagePiste.compose({ ...take, reserve: [0.5, 0.25] });
-  try {
-    HumanStagePiste.compose({ ...take, reserve: [0.499999, 0.25] });
-    complaints.list.push(
-      "a stage reserve below the exact boundary was accepted",
+  // 2. The edge lands on the men's struck point, announced for the first.
+  const frame: IAutoMovieRigidTransform = film.prop("a.shinai", contact);
+  const half: number = (edge.length ?? 0) / 2;
+  const along: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  // The striking part is read on the shinai's axis, as the blade strokes
+  // spec reads a blade: the edge's span along it, not its surface offset.
+  const centre: IAutoMovieVector3 = Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(frame.rotation, {
+      x: 0,
+      y: edge.frame.translation.y,
+      z: 0,
+    }),
+  );
+  const men: IAutoMovieRigidTransform = film.prop("b.men", contact);
+  const struck: IAutoMovieVector3 = Vector3.add(
+    men.position,
+    Quaternion.rotateVector(
+      men.rotation,
+      createKendoArmour({ kind: "men" }).affordance("men").frame.translation,
+    ),
+  );
+  let missed: number = Infinity;
+  for (let share: number = -1; share <= 1; share += 0.02)
+    missed = Math.min(
+      missed,
+      Vector3.distance(
+        Vector3.add(centre, Vector3.scale(along, share * half)),
+        struck,
+      ),
     );
-  } catch (error) {
-    if (!(error instanceof HumanRefusal) || error.axis !== "stageClearance")
-      complaints.list.push(
-        `stage reserve: unexpected refusal ${String(error)}`,
-      );
+  const announced: HumanStagePiste.IAnnouncement | undefined = placed.announced(
+    film.schedule,
+  );
+  complaints.check(
+    `the men strike's edge lands ${missed} m from the struck men and scores for the first at that instant`,
+    missed <= TOUCH &&
+      announced?.result === "first" &&
+      nclose(announced.seconds, contact),
+  );
+
+  // Both stay upright, and the striker recovers to its stance.
+  for (const subject of ["a", "b"] as const) {
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+      film,
+      subject,
+      body,
+      yaw(subject),
+    );
+    complaints.check(
+      `${subject} keeps an upright posture through the strike`,
+      [strike.start, contact, strike.end].every(
+        (seconds: number): boolean =>
+          HumanSignature.joint(reader, seconds, "head").y -
+            HumanSignature.joint(reader, seconds, "hips").y >
+          0.3 * body.measure.stature,
+      ),
+    );
   }
-  complaints.assert("Staged kendo glide");
+  const ankle = (
+    side: AutoMovieHumanSide,
+    seconds: number,
+  ): IAutoMovieVector3 =>
+    film.bones("a", seconds).get(`${side}Foot`)!.worldPosition;
+  complaints.check(
+    "the striker recovers to the stance it struck from",
+    (["left", "right"] as const).every(
+      (side: AutoMovieHumanSide): boolean =>
+        Vector3.distance(ankle(side, strike.end), ankle(side, strike.start)) <=
+        TOUCH,
+    ),
+  );
+}
+
+/** A piece of armour worn from the film's start on its region's bone. */
+function worn(
+  body: IAutoMovieMotionHumanBody,
+  subject: string,
+  piece: IWorn,
+): IAutoMovieMotionHumanProp {
+  const armour = createKendoArmour({ kind: piece.kind });
+  const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+    `${subject}.${piece.kind}`,
+    armour,
+    { at: { x: 0, y: 0, z: 0 }, yaw: 0 },
+  );
+  const region = body.surfaces.regions[piece.region];
+  const socket: IAutoMovieVector3 = armour.affordance("wear").frame.translation;
+  const rotation: IAutoMovieQuaternion = rotationBetween(
+    piece.axis,
+    region.normal,
+  );
+  return {
+    ...prop,
+    worn: {
+      subject,
+      bone: region.bone,
+      offset: {
+        position: Vector3.subtract(
+          region.point,
+          Quaternion.rotateVector(rotation, socket),
+        ),
+        rotation,
+      },
+    },
+  };
 }

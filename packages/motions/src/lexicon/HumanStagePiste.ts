@@ -1,98 +1,125 @@
+import { AutoMovieComposition } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidRegion,
   IAutoMovieChain,
+  IAutoMovieComposition,
   IAutoMovieMotionHumanChainCore,
   IAutoMovieMotionHumanMutual,
   IAutoMovieMotionHumanStageBladeFootwork,
+  IAutoMovieMotionHumanSword,
+  IAutoMovieMotionHumanSwordParry,
+  IAutoMovieMotionTarget,
   IAutoMovieSchedule,
-  IAutoMovieScheduleCue,
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 import { HumanChain } from "../HumanChain";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBlade } from "./HumanBlade";
 import { stageBladeFootwork } from "./stageBladeFootwork";
 
 /**
- * Pair two marked shifts and read the screenplay's result from their
- * shared editing cue. Register stageBladeFootwork when playing the take.
+ * A two-performer bout on a piste or a kendo court: both shift to their
+ * marks in the weapon's own footwork, then the first attacks and the
+ * screenplay's result decides the exchange. A touch for the first lands its
+ * attack; one for the second has the attack parried and the second riposte;
+ * the epee's double touch lands both attacks at one instant; no touch has the
+ * attack parried and left there. The result is announced at the decisive
+ * instant of the touch that scores, or of the parry that closes the attack.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the staged cast, cue and result owners and the required playback law.
- * @evidence contracts/development/design.md#principled-representation The call holds separately authored actor marks, a common cue and a script result. A placed result contains only film seconds and the declared result.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses HumanChain and the existing stageBladeFootwork law. Keeps supported playback and result reading in the same public namespace.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The supported choices are closed literals. Existing motion and schedule owners evaluate feet, stage marks and events.
+ * The rules are checked before anything is placed. A touch must aim at the
+ * weapon's valid target (FIE Technical Rules): the foil's trunk, every region
+ * for the epee, and for the sabre every region above the waist. A kendo
+ * strike must aim at a struck region of the opponent's armour (FIK, The
+ * Regulations of Kendo Shiai and Shinpan, Articles 12 and 14): the men, the
+ * kote, either side of the do or the tsuki. Only the epee scores a double
+ * touch. Register stageBladeFootwork and the HumanBlade rows when playing the
+ * take; the blade actions refuse a target out of reach.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the bout's phases, the result's branches and their actions, the announced instant, the rule checks and the required laws.
+ * @evidence contracts/development/design.md#principled-representation The take holds each performer's chain, marks, blade and target, the shared clock of the footwork and the scripted result; the placed record pairs the composition with its result reader.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Uses HumanChain, the stageBladeFootwork law and the HumanBlade rows; keeps the rules and the result reading in the same public namespace.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The weapons and results are closed literals; the outcome is the script's, and the blade actions own reach and contact.
  */
 export namespace HumanStagePiste {
   /**
-   * An equipment and stage cadence choice for the digital take.
+   * The weapon of the bout.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the stage equipment families.
-   * @evidence contracts/development/design.md#principled-representation Four stage profiles use explicit literals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by compose for cadence and the screenplay result vocabulary.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller chooses a stage profile. No props are guessed or created.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the three fencing weapons and kendo.
+   * @evidence contracts/development/design.md#principled-representation Four explicit literals, each with its footwork, attack and target rule.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by compose for the footwork style, the attack, the reply and the target rule.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller chooses the weapon. No props are guessed or created.
    */
   export type Kind = "foil" | "epee" | "sabre" | "kendo";
 
   /**
-   * The result the screenplay gives the two cast roles.
+   * The result the screenplay gives the two performers.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the role or roles represented by the result.
-   * @evidence contracts/development/design.md#principled-representation Two individual roles, both together, and an unawarded beat are distinct literals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Carried from the take to the resolved result at the cue.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The script supplies the outcome before either actor is placed.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the performer or performers the touch is awarded to.
+   * @evidence contracts/development/design.md#principled-representation A touch for either performer, a double touch and no touch are distinct literals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Chooses the exchange's actions and the announced result.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The script supplies the outcome before either performer is placed.
    */
   export type Result = "first" | "second" | "both" | "none";
 
   /**
-   * The preparatory chain and marked shift for one performer.
+   * One performer's preparation, marks, blade and target.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines preparatory action, body-relative orientation and horizontal travel units.
-   * @evidence contracts/development/design.md#principled-representation Receives one existing chain and stage direction with a positive distance in metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The paired layout reuses only the existing step direction, optional lead and mark distance.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Props and preparatory actions stay in the caller's own chain.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the preparatory chain, the body-relative mark shift in metres, the held blade and the target.
+   * @evidence contracts/development/design.md#principled-representation One existing chain, a stage direction with a positive distance, the held blade's prop subject and a motion target.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface compose reads every member: the shift from the first four, the attack or reply from the blade and target.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Props and preparatory actions stay in the caller's own chain; the blade must already be held when the exchange starts.
    */
   export interface IActor {
-    /** Chain that prepares the actor on its opening mark. */
+    /** Chain that prepares the performer on its opening mark, the blade taken in hand. */
     chain: IAutoMovieMotionHumanChainCore;
 
-    /** Direction from the actor's heading on its opening mark. */
+    /** Direction of the mark shift from the performer's heading on its opening mark. */
     direction: IAutoMovieMotionHumanStageBladeFootwork.Direction;
 
-    /** Forward lead, or the lead read by the existing step law when omitted. */
-    lead?: "left" | "right";
+    /** Forward lead, or the lead read by the footwork law when omitted. */
+    lead?: AutoMovieHumanSide;
 
-    /** Positive horizontal distance to the actor's next mark, in metres. */
+    /** Positive horizontal distance to the performer's next mark, in metres. */
     distance: number;
+
+    /** The held blade's prop subject. */
+    blade: string;
+
+    /** Where this performer's attack or reply lands on the other: a body region for fencing, a struck point of the worn armour for kendo. */
+    target: IAutoMovieMotionTarget;
   }
 
   /**
-   * Two actor marks, an editing instant and a screenplay result.
+   * Two performers, the footwork's clock and the screenplay's result.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents role and cue identity, time and length units and the optional spacing check.
-   * @evidence contracts/development/design.md#principled-representation A closed screenplay result is independent of the two actor placements and their shared normalized cue.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface compose uses each input to place the two marked shifts, check the supplied floor spacing and read the result from the placed cues.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reserved space is an authored bound on travel between the floor marks. Physical pose remains the existing motion law's responsibility.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the anchor, time and length units, the optional editing cue and the optional spacing check.
+   * @evidence contracts/development/design.md#principled-representation A closed result independent of the two performers' marks and targets, with the footwork's duration in seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface compose uses each input to place the shift, check the spacing and the rules, and choose the exchange.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reserved space is an authored bound on travel between the floor marks. Physical pose remains the motion laws' responsibility.
    */
   export interface ITake {
-    /** Unique prefix for the two schedule entries. */
+    /** Unique prefix of the bout's schedule anchors. */
     anchor: string;
 
-    /** Equipment label and movement cadence for the staged take. */
+    /** The weapon. */
     kind: Kind;
 
-    /** First performer with any preparatory action. */
+    /** The performer who attacks first. */
     first: IActor;
 
-    /** Second performer with any preparatory action. */
+    /** The performer who answers. */
     second: IActor;
 
-    /** Positive common duration of the two shifts, in seconds. */
+    /** Positive common duration of the two mark shifts, in seconds. */
     duration: number;
 
-    /** Normalized cue share in [0, 1] of the common duration. */
-    cue: number;
+    /** Share in [0, 1] of the shift's duration for its `propCue` editing event; none when absent. */
+    cue?: number;
 
-    /** Scripted result to publish at the shared cue. */
+    /** Scripted result of the exchange. */
     result: Result;
 
     /** Optional opening separation and minimum reserve between the floor marks, both in metres. */
@@ -100,15 +127,15 @@ export namespace HumanStagePiste {
   }
 
   /**
-   * The screenplay result at its actual absolute film time.
+   * The screenplay's result at its actual film time.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the owner of the result and unit and reference of its time.
-   * @evidence contracts/development/design.md#principled-representation Film seconds and a closed scripted result form the placed cue record.
+   * @evidence contracts/development/common.md#meaningful-documentation States the result and the unit and reference of its time.
+   * @evidence contracts/development/design.md#principled-representation Film seconds and the closed scripted result.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Produced by the take's reader for editing and playback.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts There is no other winner or calculated score embedded in the record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No computed score is embedded in the record.
    */
   export interface IAnnouncement {
-    /** Absolute film seconds of the paired cue. */
+    /** Absolute film seconds of the decisive instant that scores or closes the exchange. */
     seconds: number;
 
     /** Result from the screenplay. */
@@ -116,39 +143,121 @@ export namespace HumanStagePiste {
   }
 
   /**
-   * The composition to place and its optional resolved result.
+   * The composition to place and its result reader.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the composition and the result reader's presence condition.
-   * @evidence contracts/development/design.md#principled-representation The reader receives the actual schedule and translates two surviving cues to one result.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A caller places the composition and then reads its cues through this record.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing, cut or differently timed cue yields no result.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the composition and the reader's presence condition.
+   * @evidence contracts/development/design.md#principled-representation The reader receives the placed schedule and reads the deciding action from it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A caller places the composition, then reads the result through this record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing or cut deciding action, or a double touch outside the epee's window, yields no result.
    */
   export interface IPlaced {
-    /** Paired chain, including both preparatory actions. */
-    composition: IAutoMovieChain;
+    /** The shift and then the exchange, both preparatory chains included. */
+    composition: IAutoMovieComposition.ISequence;
 
-    /** Reads the result only when both cues were placed at the same time. */
+    /** Reads the result only when its deciding action was placed whole within its span. */
     announced: (schedule: IAutoMovieSchedule) => IAnnouncement | undefined;
   }
 
-  /** Explicit equipment names admitted at the SDK boundary. */
+  /** A performer's part in the bout. */
+  type Role = "first" | "second";
+
+  /** Explicit weapon names admitted at the SDK boundary. */
   const KINDS: readonly Kind[] = ["foil", "epee", "sabre", "kendo"];
 
-  /** The authoring result choices for single-result takes. */
-  const SINGLE_RESULTS: readonly Result[] = ["first", "second", "none"];
+  /**
+   * The longest gap between two touches the epee scores as a double touch,
+   * seconds: the lower end of the 40 to 50 ms the FIE sets for its apparatus.
+   */
+  export const DOUBLE: number = 0.04;
 
-  /** The shared clock uses the existing marked shift for each role. */
-  const SHIFT: IAutoMovieMotionHumanMutual<ITake, "first" | "second"> = {
+  /** The foil's valid target: the trunk, without the head, the arms or the legs. */
+  const TRUNK: ReadonlySet<AutoMovieHumanoidRegion> = new Set([
+    "sternum",
+    "chestLeft",
+    "chestRight",
+    "solarPlexus",
+    "abdomen",
+    "liver",
+    "spleen",
+    "ribsLeft",
+    "ribsRight",
+    "upperBack",
+    "lowerBack",
+    "kidneyLeft",
+    "kidneyRight",
+    "groin",
+  ]);
+
+  /** The regions below the sabre's valid target, the hips' bend and down. */
+  const BELOW_WAIST: ReadonlySet<AutoMovieHumanoidRegion> = new Set([
+    "groin",
+    "seat",
+    "pocketFrontLeft",
+    "pocketFrontRight",
+    "hipLeft",
+    "hipRight",
+    "thighFrontLeft",
+    "thighFrontRight",
+    "thighOuterLeft",
+    "thighOuterRight",
+    "thighInnerLeft",
+    "thighInnerRight",
+    "kneeLeft",
+    "kneeRight",
+    "shinLeft",
+    "shinRight",
+    "calfLeft",
+    "calfRight",
+    "footTopLeft",
+    "footTopRight",
+    "soleLeft",
+    "soleRight",
+    "heelLeft",
+    "heelRight",
+  ]);
+
+  /** The struck regions of kendo armour, as the worn armour names its points. */
+  const STRUCK: ReadonlySet<string> = new Set([
+    "men",
+    "kote",
+    "migiDo",
+    "hidariDo",
+    "tsuki",
+  ]);
+
+  /** The weapon's attack: a thrust lunged for the point weapons, a cut otherwise. */
+  const ATTACK: Readonly<Record<Kind, string>> = {
+    foil: HumanBlade.lunge.name,
+    epee: HumanBlade.lunge.name,
+    sabre: HumanBlade.cut.name,
+    kendo: HumanBlade.cut.name,
+  };
+
+  /** The weapon's answer out of a parry: a riposte for the point weapons, a cut otherwise. */
+  const REPLY: Readonly<Record<Kind, string>> = {
+    foil: HumanBlade.riposte.name,
+    epee: HumanBlade.riposte.name,
+    sabre: HumanBlade.cut.name,
+    kendo: HumanBlade.cut.name,
+  };
+
+  /** The advance a cut is carried by: the sabre's lunge, kendo's stepping strike. */
+  const CARRY: Readonly<
+    Partial<Record<Kind, IAutoMovieMotionHumanSword.IAttack["advance"]>>
+  > = { sabre: "lunge", kendo: "step" };
+
+  /** The shared clock uses the marked shift for each role. */
+  const SHIFT: IAutoMovieMotionHumanMutual<ITake, Role> = {
     name: "stagePiste",
     roles: ["first", "second"],
     act: (role, take): IAutoMovieMotionHumanMutual.IAct => {
       const { direction, distance, lead }: IActor = take[role];
       const params: IAutoMovieMotionHumanStageBladeFootwork.IParams = {
-        style: take.kind === "kendo" ? "kendo" : "fencing",
+        style: take.kind,
         direction,
         distance,
         duration: take.duration,
-        propCue: take.cue,
+        ...(take.cue === undefined ? {} : { propCue: take.cue }),
         ...(lead === undefined ? {} : { lead }),
       };
       return { name: stageBladeFootwork.name, params };
@@ -156,46 +265,45 @@ export namespace HumanStagePiste {
   };
 
   /**
-   * Join the actors at one stage cue and bind its declared result. The
-   * optional reserve requires enough opening space for both full authored
+   * Check the take against the weapon's rules, then join the performers'
+   * mark shifts on one clock and append the exchange the result calls for.
+   * The optional reserve requires enough opening space for both full
    * translations and the remaining space stated in the screenplay.
    *
-   * @param take The cast, blocking, time, reserved space and result.
-   * @returns The paired composition and its result reader.
-   * @throws {HumanRefusal} When the stage choices, numeric input or reserved space are invalid.
+   * @param take The cast, blocking, time, reserved space, targets and result.
+   * @returns The composition and its result reader.
+   * @throws {HumanRefusal} When the weapon, a number, the reserved space, a target or the result breaks the take's rules.
    * @throws {Error} When the anchor is blank or one performer takes both roles.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the shot, required space, returned composition and refusal cases.
-   * @evidence contracts/development/implementation.md#principled-implementation Each full planned translation is subtracted from opening distance for a conservative floor-mark reserve. HumanChain and the current step law place the two shifts and their shared cue.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the chosen stage, author two role intents and read their paired result.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Cast, timing, marks and outcome come from the script. The reader requires both resolved uncropped cues at the shared film second.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Validation uses fixed input fields, placement builds two intents and result reading traverses the schedule entries for their two cues.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanChain.mutual, HumanBound and the registered stageBladeFootwork for the authored marks.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result reader captures the two anchor names and selected result, with no frame cache or native resource.
+   * @evidence contracts/development/common.md#meaningful-documentation Describes the phases, the result's branches, the required space and the refusal cases.
+   * @evidence contracts/development/implementation.md#principled-implementation The rules are the weapon's valid target and double-touch rule; each full planned translation is subtracted from the opening distance for a conservative reserve. HumanChain places the shift, and the registered blade actions, synchronised on the attack's decisive instant, place the exchange.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the weapon, numbers and rules, place the shift, then the exchange and its reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Cast, timing, marks, targets and outcome come from the script; reach, the parry's meeting and every pose belong to the blade actions.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Validation reads fixed input fields and constant sets, placement builds at most five intents, and the reader scans the schedule's entries for at most two anchors.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanChain.mutual, the HumanBlade rows, HumanBound and the registered stageBladeFootwork.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader captures the anchors and the result, with no frame cache or native resource.
    */
   export function compose(take: ITake): IPlaced {
     if (take.anchor.trim().length === 0)
-      throw new Error("Give the staged piste take a nonblank anchor");
+      throw new Error("Give the staged bout a nonblank anchor");
     if (!KINDS.includes(take.kind))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "stageKind",
         value: take.kind,
-        reason: "the production needs a supported staged piste kind",
+        reason: "the bout needs a fencing weapon or kendo",
         fix: "choose foil, epee, sabre or kendo",
       });
-    const allowed: readonly Result[] =
-      take.kind === "epee" ? [...SINGLE_RESULTS, "both"] : SINGLE_RESULTS;
-    if (!allowed.includes(take.result))
+    if (take.result === "both" && take.kind !== "epee")
       throw new HumanRefusal({
         kind: "rule",
         axis: "result",
         value: take.result,
-        reason: "this screenplay kind allows only one awarded role at the cue",
-        fix: "choose an individual role or an unawarded cue",
+        reason: `the ${take.kind} awards one touch at a time; only the epee scores a double touch`,
+        fix: "award the touch to one performer or to neither",
       });
     HumanBound.above("duration", take.duration, 0, "s");
-    HumanBound.within("cue", take.cue, 0, 1);
+    if (take.cue !== undefined) HumanBound.within("cue", take.cue, 0, 1);
     HumanBound.above("first.distance", take.first.distance, 0, "m");
     HumanBound.above("second.distance", take.second.distance, 0, "m");
     if (take.reserve !== undefined) {
@@ -209,44 +317,162 @@ export namespace HumanStagePiste {
         "m",
       );
     }
+    valid(take.kind, "first.target", take.first.target);
+    valid(take.kind, "second.target", take.second.target);
 
-    const composition: IAutoMovieChain = HumanChain.mutual(
+    const shift: IAutoMovieChain = HumanChain.mutual(
       SHIFT,
       { first: take.first.chain, second: take.second.chain },
       take,
       take.anchor,
     );
-    const result: Result = take.result;
-    const first: string = `${take.anchor}.first`;
-    const second: string = `${take.anchor}.second`;
+    const exchange: IAutoMovieChain = bout(take);
+    const anchors: IAnchors = deciding(take);
     return {
-      composition,
+      composition: AutoMovieComposition.sequence(shift, exchange),
       announced: (schedule: IAutoMovieSchedule): IAnnouncement | undefined => {
-        const a: number | undefined = placedCue(schedule, first);
-        const b: number | undefined = placedCue(schedule, second);
-        return a !== undefined && b !== undefined && Math.abs(a - b) < 1e-9
-          ? { seconds: a, result }
-          : undefined;
+        const at: number | undefined = decisive(schedule, anchors.decides);
+        if (at === undefined) return undefined;
+        if (anchors.with !== undefined) {
+          const other: number | undefined = decisive(schedule, anchors.with);
+          if (other === undefined || Math.abs(other - at) > DOUBLE)
+            return undefined;
+        }
+        return { seconds: at, result: take.result };
       },
     };
   }
 
-  /** Read the resolved editing cue only while it lies within its role's span. */
-  function placedCue(
+  /** The anchors whose decisive instants decide the result. */
+  interface IAnchors {
+    /** The action that scores or closes the exchange. */
+    decides: string;
+
+    /** The second touch of a double touch. */
+    with?: string;
+  }
+
+  /** The anchors of the deciding actions of a take. */
+  function deciding(take: ITake): IAnchors {
+    switch (take.result) {
+      case "first":
+        return { decides: `${take.anchor}.attack` };
+      case "second":
+        return { decides: `${take.anchor}.reply` };
+      case "both":
+        return {
+          decides: `${take.anchor}.attack`,
+          with: `${take.anchor}.counter`,
+        };
+      case "none":
+        return { decides: `${take.anchor}.parry` };
+    }
+  }
+
+  /** The exchange after the shift, as the result calls for it. */
+  function bout(take: ITake): IAutoMovieChain {
+    const { anchor, kind, first, second } = take;
+    const carry: IAutoMovieMotionHumanSword.IAttack["advance"] = CARRY[kind];
+    const strike = (
+      actor: IActor,
+      outcome: IAutoMovieMotionHumanSword.IAttack["outcome"],
+    ): IAutoMovieMotionHumanSword.IAttack => ({
+      blade: actor.blade,
+      target: actor.target,
+      outcome,
+      ...(carry === undefined ? {} : { advance: carry }),
+    });
+    const attacker: IAutoMovieMotionHumanChainCore = HumanChain.subject(
+      first.chain.subject,
+    );
+    const answerer: IAutoMovieMotionHumanChainCore = HumanChain.subject(
+      second.chain.subject,
+    );
+    const attack: string = `${anchor}.attack`;
+    const lands: boolean = take.result === "first" || take.result === "both";
+    const opening: IAutoMovieMotionHumanChainCore = attacker.registered(
+      ATTACK[kind],
+      strike(first, lands ? "lands" : "parried"),
+      attack,
+    );
+    if (take.result === "first") return opening;
+    if (take.result === "both")
+      return opening.with(
+        answerer
+          .registered(
+            ATTACK[kind],
+            strike(second, "lands"),
+            `${anchor}.counter`,
+          )
+          .sync({ of: attack, align: "stroke" }),
+      );
+
+    const parry: IAutoMovieMotionHumanSwordParry.IParry = {
+      blade: second.blade,
+      against: attack,
+    };
+    const closed: IAutoMovieMotionHumanChainCore = answerer
+      .registered(HumanBlade.parry.name, parry, `${anchor}.parry`)
+      .sync({ of: attack, align: "stroke" });
+    if (take.result === "none") return opening.with(closed);
+    const reply: IAutoMovieMotionHumanSword.IAttack = {
+      blade: second.blade,
+      target: second.target,
+      ...(carry === undefined ? {} : { advance: carry }),
+    };
+    return opening.with(
+      closed.registered(REPLY[kind], reply, `${anchor}.reply`),
+    );
+  }
+
+  /** Refuse a target outside the weapon's valid target. */
+  function valid(
+    kind: Kind,
+    axis: string,
+    target: IAutoMovieMotionTarget,
+  ): void {
+    const admitted: boolean =
+      kind === "kendo"
+        ? target.kind === "prop" && STRUCK.has(target.point)
+        : target.kind === "person" &&
+          (kind === "epee" ||
+            (kind === "foil"
+              ? TRUNK.has(target.region)
+              : !BELOW_WAIST.has(target.region)));
+    if (!admitted)
+      throw new HumanRefusal({
+        kind: "rule",
+        axis,
+        value: target,
+        reason:
+          kind === "kendo"
+            ? "a kendo strike scores only on a struck region of the opponent's armour"
+            : `the target lies outside the ${kind}'s valid target`,
+        fix:
+          kind === "kendo"
+            ? "aim at the men, a kote, either side of the do or the tsuki of the worn armour"
+            : kind === "foil"
+              ? "aim at a region of the opponent's trunk"
+              : "aim at a region of the opponent above the waist",
+      });
+  }
+
+  /** Read a placed action's decisive instant while it lies within its span. */
+  function decisive(
     schedule: IAutoMovieSchedule,
     anchor: string,
   ): number | undefined {
     const entry: IAutoMovieScheduleEntry | undefined = schedule.entries.find(
       (row): boolean => row.intent.anchor === anchor,
     );
-    const cue: IAutoMovieScheduleCue | undefined = entry?.events?.find(
-      (row): boolean => row.name === "propCue",
-    );
-    return entry !== undefined &&
-      cue !== undefined &&
-      cue.seconds >= entry.start - 1e-9 &&
-      cue.seconds <= entry.end + 1e-9
-      ? cue.seconds
+    if (entry === undefined) return undefined;
+    const at: number | undefined =
+      entry.contact ??
+      entry.events?.find((row): boolean => row.name === "stroke")?.seconds;
+    return at !== undefined &&
+      at >= entry.start - 1e-9 &&
+      at <= entry.end + 1e-9
+      ? at
       : undefined;
   }
 }

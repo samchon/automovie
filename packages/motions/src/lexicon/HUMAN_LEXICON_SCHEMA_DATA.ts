@@ -14381,13 +14381,22 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "const": "armoured"
           },
           {
+            "const": "epee"
+          },
+          {
             "const": "fencing"
           },
           {
+            "const": "foil"
+          },
+          {
             "const": "kendo"
+          },
+          {
+            "const": "sabre"
           }
         ],
-        "description": "Selects the stage shift's timing, foot clearance and spinal follow.\nFencing uses a lifted step, kendo a low glide, and the armoured style a\ndeliberate lifted shift."
+        "description": "Selects the stage shift's timing, foot clearance and spinal follow.\nFencing uses a lifted step, kendo a low glide, and the armoured style a\ndeliberate lifted shift. The foil, epee and sabre styles give each\nfencing weapon its own cadence: the foil the general fencing step, the\nepee a shorter, more measured step and the sabre a longer, quicker one."
       },
       "IAutoMovieMotionHumanStageBladeFootwork.Direction": {
         "oneOf": [
