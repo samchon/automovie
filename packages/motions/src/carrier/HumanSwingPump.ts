@@ -49,8 +49,8 @@ const TURN: number = 0.3;
 /** Sampling step that locates the seat's turning points, seconds: finer than any swing's half period. */
 const STEP: number = 1 / 120;
 
-/** How far a wrist may leave its chain grip at full lean beyond where the tucked posture holds it, metres: the 20 mm grip tolerance of the ride tests. */
-const SLIP: number = 0.02;
+/** How far a wrist may leave its chain grip at full lean beyond where the tucked posture holds it, metres: the 10 mm skin a held site allows its hand. */
+const SLIP: number = 0.01;
 
 /** Knee flexion of the tucked and of the extended seated posture, degrees (provisional staging). */
 const TUCKED: number = 90;
@@ -146,7 +146,10 @@ export function HumanSwingPump(
   };
   const pumping = (at: number): Posture => {
     const posture: Posture = ride.posture(at);
-    const share: number = pumped(at);
+    // The pumping posture grows from the seated entry while the hands take
+    // the chains, so the ride begins where the sit ended.
+    const share: number =
+      pumped(at) * minimumJerk.share(Math.min(1, at / HumanRide.TAKE));
     const spine: readonly [number, number, number] = posture.joints.spine ?? [
       0, 0, 0,
     ];

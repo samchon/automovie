@@ -8,10 +8,12 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPlayground,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRide } from "../lexicon/HumanRide";
+import { poseBones } from "../posture/poseBones";
 
 type Params = IAutoMovieMotionHumanPlayground.ISeesawRideParams;
 type Plan = IAutoMovieMotionHumanActionPlan;
@@ -25,6 +27,12 @@ const STEP: number = 1 / 120;
 
 /** Seconds a foot takes to reach the ground or leave it (provisional staging). */
 const PLACE: number = 0.25;
+
+/** How high a foot arcs over the ground as it is placed or lifted, metres (provisional staging). */
+const LIFT: number = 0.05;
+
+/** How far ahead of the seat a planted ankle lies, thigh lengths: short of the hanging knee, so the leg keeps slack as the seat rises to the end of its low interval (provisional staging). */
+const SLACK: number = 0.9;
 
 /** One interval with the feet on the ground, ride seconds. */
 interface ILow {
@@ -40,17 +48,19 @@ interface ILow {
 
 /**
  * Ride a seesaw seat: the seated ride with the hands on the handles
- * (`HumanRide`), and the feet planted on the ground while the seat is low
- * enough that a vertical shank reaches it, so the rider can push off. The
- * feet are planted where the knees are ahead of the seat as it comes low,
- * and stay there until it rises out of reach.
+ * (`HumanRide`), and the feet planted on the ground while the seat is so
+ * low that the soles, hanging below it as the seated entry holds them,
+ * would meet the ground, so the rider can push off. Each foot is placed
+ * where its knee is ahead of the seat just before it comes that low,
+ * stays while it is, and is lifted just after it rises again; no ankle
+ * ever goes below its height over the ground.
  *
  * @param context The seated entry, the beam and its points.
  * @returns The ride with the ground contacts of the low end.
  * @throws {HumanRefusal} For a ride the seat refuses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the ride it wraps, the reach rule and the plant.
- * @evidence contracts/development/implementation.md#principled-implementation The scene's seat height against the ankle's reach below the knee decides each low interval; the feet bear on the world while it lasts.
+ * @evidence contracts/development/implementation.md#principled-implementation The scene's seat height against the entry's hanging soles decides each low interval; the feet bear on the world while it lasts and are placed and lifted outside it.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan the seated ride, find the low intervals once, then place the feet per sample.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The beam's angle is never authored here. The placing time is a named provisional staging value.
  * @evidence contracts/development/implementation.md#efficient-algorithms One pass at `STEP` over the duration; each sample scans the few low intervals.
@@ -73,33 +83,53 @@ export function HumanSeesawRide(
   );
   const across: IAutoMovieVector3 = Vector3.cross(UP, forward);
   const ankle: number = body.measure.ankleHeight;
-  const reach: number = body.measure.shank + ankle;
   const hips: number = 2 * body.measure.hipHalfWidth;
+  // A planted foot lies flat on the ground, turned to the rider's heading.
+  const flat: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    UP,
+    context.entry.posture.yaw,
+  );
   const seatAt = (at: number): IAutoMovieVector3 =>
     context.aim({ kind: "prop", subject: on, point: seat }, context.start + at)
       .point;
 
-  // The low intervals: the seat no higher above the ground than the shank
-  // and ankle reach, so a foot below the knee meets the ground.
+  // The hanging soles' drop below the seat point, read from the seated
+  // entry: a foot meets the ground once the seat is that low.
+  const entered: ReturnType<typeof poseBones> = poseBones(
+    body,
+    context.entry.pose,
+  );
+  const drop: number =
+    seatAt(0).y -
+    Math.min(
+      entered.get("leftFoot")!.worldPosition.y,
+      entered.get("rightFoot")!.worldPosition.y,
+    ) +
+    ankle;
+
+  // The low intervals: the hanging feet at or below the ground. Each foot
+  // is placed `PLACE` before the seat gets that low and lifted `PLACE`
+  // after it rises again, so it bears only while the seat is low.
   const lows: ILow[] = [];
   let open: number | undefined;
   for (let at: number = 0; at <= ride.duration + STEP / 2; at += STEP) {
-    const low: boolean = seatAt(at).y - ground <= reach;
+    const low: boolean = seatAt(at).y - drop <= ground;
     if (low && open === undefined) open = at;
     if ((!low || at + STEP > ride.duration) && open !== undefined) {
       const from: IAutoMovieVector3 = seatAt(open);
       const knee: IAutoMovieVector3 = Vector3.add(
         { ...from, y: ground + ankle },
-        Vector3.scale(forward, body.measure.thigh),
+        Vector3.scale(forward, SLACK * body.measure.thigh),
       );
-      lows.push({
-        from: open,
-        to: Math.min(at, ride.duration),
-        ankles: {
-          left: Vector3.add(knee, Vector3.scale(across, hips / 2)),
-          right: Vector3.add(knee, Vector3.scale(across, -hips / 2)),
-        },
-      });
+      if (Math.min(at, ride.duration) > open)
+        lows.push({
+          from: open,
+          to: Math.min(at, ride.duration),
+          ankles: {
+            left: Vector3.add(knee, Vector3.scale(across, hips / 2)),
+            right: Vector3.add(knee, Vector3.scale(across, -hips / 2)),
+          },
+        });
       open = undefined;
     }
   }
@@ -109,22 +139,27 @@ export function HumanSeesawRide(
       contacts.push({
         part: `${side}Foot`,
         kind: "plant",
-        from: Math.min(1, (low.from + PLACE) / ride.duration),
-        to: Math.max(0, (low.to - PLACE) / ride.duration),
+        from: low.from / ride.duration,
+        to: low.to / ride.duration,
         support: { kind: "ground", height: ground },
       });
-  return {
+  const feet: Plan = {
     ...ride,
     contacts,
     posture: (at: number): Posture => {
       const posture: Posture = ride.posture(at);
       const low: ILow | undefined = lows.find(
-        (item: ILow): boolean => at >= item.from && at <= item.to,
+        (item: ILow): boolean =>
+          at >= item.from - PLACE && at <= item.to + PLACE,
       );
-      if (low === undefined) return posture;
+      if (low === undefined) return grounded(posture);
       const share: number =
-        minimumJerk.share((at - low.from) / PLACE) *
-        (1 - minimumJerk.share((at - (low.to - PLACE)) / PLACE));
+        (low.from <= 0
+          ? 1
+          : minimumJerk.share((at - (low.from - PLACE)) / PLACE)) *
+        (low.to >= ride.duration
+          ? 1
+          : 1 - minimumJerk.share((at - low.to) / PLACE));
       const seatNow: IAutoMovieVector3 = seatAt(at);
       const limbs: Posture["limbs"] = { ...posture.limbs };
       for (const side of ["left", "right"] as const) {
@@ -137,15 +172,47 @@ export function HumanSeesawRide(
         };
         limbs[`${side}Leg`] =
           carried === undefined
-            ? { point: goal, bend: knee, planted: share >= 1 }
+            ? {
+                point: goal,
+                bend: knee,
+                rotation: flat,
+                planted: at >= low.from && at <= low.to,
+              }
             : {
                 ...carried,
-                point: Vector3.lerp(carried.point, goal, share),
+                // The foot comes down onto the ground and lifts off it on
+                // an arc, never dragging across it.
+                point: Vector3.add(Vector3.lerp(carried.point, goal, share), {
+                  x: 0,
+                  y: LIFT * Math.sin(Math.PI * share),
+                  z: 0,
+                }),
                 bend: Vector3.lerp(carried.bend, knee, share),
-                planted: share >= 1,
+                rotation:
+                  carried.rotation === undefined
+                    ? flat
+                    : Quaternion.slerp(carried.rotation, flat, share),
+                planted: at >= low.from && at <= low.to,
               };
       }
-      return { ...posture, limbs };
+      return grounded({ ...posture, limbs });
     },
   };
+
+  return feet;
+
+  // No ankle goes below its height over the ground: a foot the seat lowers
+  // further than the shank reaches stands on the ground instead.
+  function grounded(posture: Posture): Posture {
+    const limbs: Posture["limbs"] = { ...posture.limbs };
+    for (const side of ["left", "right"] as const) {
+      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
+      if (goal !== undefined && goal.point.y < ground + ankle)
+        limbs[`${side}Leg`] = {
+          ...goal,
+          point: { ...goal.point, y: ground + ankle },
+        };
+    }
+    return { ...posture, limbs };
+  }
 }

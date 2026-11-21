@@ -28,6 +28,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The two hands and feet. */
@@ -99,7 +100,7 @@ function swingFilm(
   frame: ReturnType<typeof createSwing>,
   halves: number,
   increment: number,
-  lean: number = 30,
+  lean: number = 20,
 ): HumanPerformance {
   const model: ReturnType<typeof createSwing.seat> = createSwing.seat(frame);
   const hang: number = frame.dimensions.pivot - frame.dimensions.clearance;
@@ -166,7 +167,7 @@ function swing(key: BodyKey, failures: string[]): void {
   });
   const hang: number = frame.dimensions.pivot - frame.dimensions.clearance;
   // A small body's arms hold the chains at a shallower lean.
-  const lean: number = key === "f-small" ? 15 : 30;
+  const lean: number = key === "f-small" ? 10 : 20;
   const increment: number = HumanSurface.pumpIncrement(body, hang, lean);
   if (!(increment > 0 && increment < 10))
     failures.push(
@@ -185,6 +186,7 @@ function swing(key: BodyKey, failures: string[]): void {
         `${key}: a lean beyond the arms' reach is not refused: ${String(reach)}`,
       );
   }
+  clean(`${key} swing`, film, failures);
   const [sat, pump, leap]: readonly IAutoMovieMotionHumanSegment[] =
     film.segments("a");
   if (sat === undefined || pump === undefined || leap === undefined) {
@@ -361,6 +363,7 @@ function seesaw(failures: string[]): void {
       ),
     },
   });
+  clean("seesaw", film, failures);
   ends.forEach((end: SeesawEnd, index: number): void => {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(keys[index]!);
     const riding: IAutoMovieMotionHumanSegment = film
@@ -428,7 +431,7 @@ function roundabout(key: BodyKey, failures: string[]): void {
   });
   const disc: ReturnType<typeof createRoundabout.disc> =
     createRoundabout.disc(base);
-  const ring: number = 1.35;
+  const ring: number = 1.15;
   const around = (degrees: number): IAutoMovieVector3 => ({
     x: ring * Math.sin(degrees * Quaternion.DEG2RAD),
     y: 0,
@@ -443,7 +446,8 @@ function roundabout(key: BodyKey, failures: string[]): void {
   };
   const path: IAutoMovieMotionHumanWalkParams = {
     to: around(100),
-    via: [around(30), around(60)],
+    // The path follows the ring, so each step turns by little.
+    via: [5, 15, 25, 35, 45, 55, 65, 75, 85].map(around),
   };
 
   // The disc follows the pusher: its angle is the pusher's angle round the spindle.
@@ -465,9 +469,15 @@ function roundabout(key: BodyKey, failures: string[]): void {
   });
   const discAt = (seconds: number): IAutoMovieRigidTransform =>
     rigid(ride.disc(seconds));
+  // The pusher steps on ahead and inward, onto the disc as it stands when
+  // the step begins.
   const board: IAutoMovieVector3 = Quaternion.rotateVector(
-    discAt(release + 1.2).rotation,
-    { x: 0, y: 0.15, z: 0.55 },
+    discAt(release).rotation,
+    {
+      x: 0.7 * Math.sin(25 * Quaternion.DEG2RAD),
+      y: 0.15,
+      z: 0.7 * Math.cos(25 * Quaternion.DEG2RAD),
+    },
   );
   const film: HumanPerformance = new HumanPerformance({
     seed: "roundabout",
@@ -476,7 +486,7 @@ function roundabout(key: BodyKey, failures: string[]): void {
       HumanObject.prop("base", base, rigid(ORIGIN)),
       HumanObject.prop("disc", disc, discAt(0), discAt),
     ],
-    laws: [HumanSurface.roundaboutPush],
+    laws: [HumanSurface.roundaboutPush, HumanSurface.supportStep],
     composition: HumanChain.subject("a")
       .registered("roundaboutPush", {
         ...path,
@@ -484,9 +494,10 @@ function roundabout(key: BodyKey, failures: string[]): void {
         bar: "bar0",
         hand: "left",
       })
-      .walk({ to: board, on: { prop: "disc" } })
+      .registered("supportStep", { to: board, onto: "disc" })
       .stand({ seconds: 1.5, on: { prop: "disc" } }).node,
   });
+  clean(`${key} roundabout`, film, failures);
   const [push, , riding]: readonly IAutoMovieMotionHumanSegment[] =
     film.segments("a");
   if (push === undefined || riding === undefined) {
@@ -558,4 +569,23 @@ function joint(
   subject: string = "a",
 ): IAutoMovieVector3 {
   return film.bones(subject, at).get(bone)!.worldPosition;
+}
+
+/**
+ * The shipped take verdicts over a take, as a complaint.
+ *
+ * @param label What the take is.
+ * @param take The take.
+ * @param failures Where a fault is recorded.
+ */
+function clean(
+  label: string,
+  take: HumanPerformance,
+  failures: string[],
+): void {
+  try {
+    assertTakeClean(label, take);
+  } catch (error) {
+    failures.push(error instanceof Error ? error.message : String(error));
+  }
 }

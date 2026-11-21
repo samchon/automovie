@@ -9,6 +9,8 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanMountRider } from "../lexicon/HumanMountRider";
 import { readPropGrip } from "./readPropGrip";
 
@@ -23,7 +25,8 @@ const REACH: number = 0.4;
  * Run alongside a roundabout pushing one grab bar: the walk on the ground
  * (`walk`) with the named hand closing on the bar as the walk starts and
  * holding it where the turning disc carries it, read from the scene at
- * each second.
+ * each second; the arm reaches and holds it on one planned course
+ * (`courseArmGoal`).
  *
  * @param context The standing entry, the walk's path, the disc and the bar.
  * @returns The walk with the hand on the moving bar.
@@ -57,7 +60,10 @@ export function HumanRoundaboutPush(
       support: { kind: "prop", subject: on },
     },
   ];
-  return {
+  // The goal is the hand on the bar where the disc has it at each second;
+  // the arm reaches it and holds it on one planned course, so it keeps its
+  // branch as the bar moves.
+  const goals: Plan = {
     ...path,
     contacts,
     posture: (at: number): Posture => {
@@ -68,14 +74,30 @@ export function HumanRoundaboutPush(
           hand,
           posture,
           readPropGrip(context, on, bar, context.start + at, "bar"),
-          minimumJerk.share(at / reach),
+          1,
           {},
         );
+      const closing: number = minimumJerk.share(at / reach);
+      const fingers: Posture["joints"] = {};
+      for (const [bone, angles] of Object.entries(arm.fingers))
+        if (angles !== undefined)
+          fingers[bone as keyof Posture["joints"]] = [
+            angles[0] * closing,
+            angles[1] * closing,
+            angles[2] * closing,
+          ];
       return {
         ...posture,
-        joints: { ...posture.joints, ...arm.fingers },
+        joints: { ...posture.joints, ...fingers },
         limbs: { ...posture.limbs, [`${hand}Arm`]: arm.arm },
       };
     },
   };
+  return courseArmGoal({
+    body: context.body,
+    plan: goals,
+    side: hand,
+    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
+    span: { start: 0, ready: reach, relax: path.duration, end: path.duration },
+  });
 }

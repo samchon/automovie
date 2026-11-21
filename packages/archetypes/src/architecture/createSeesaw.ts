@@ -22,8 +22,11 @@ type HandSide = "Left" | "Right";
 /** Seat height above the beam's axis, metres (provisional construction estimate). */
 const SEAT: number = 0.08;
 
-/** A handle's distance inboard of its seat and its height above the seat, metres (provisional construction estimate). */
+/** A handle's distance inboard of its seat, metres (provisional construction estimate). */
 const HANDLE: number = 0.3;
+
+/** A handle's height above its seat, metres: above a seated rider's thighs, so the forearms reach it clear of them (provisional construction estimate). */
+const RISE: number = 0.45;
 
 /**
  * A playground seesaw: a pivot post with a beam along `z` balanced on it,
@@ -180,8 +183,8 @@ export namespace createSeesaw {
       builder.rod(
         `${name}HandleBar`,
         0.015,
-        Vector3.create(-0.15, SEAT + HANDLE, handleZ),
-        Vector3.create(0.15, SEAT + HANDLE, handleZ),
+        Vector3.create(-0.15, SEAT + RISE, handleZ),
+        Vector3.create(0.15, SEAT + RISE, handleZ),
         { color: "#333333" },
       );
       for (const hand of ["Left", "Right"] as const) {
@@ -193,7 +196,7 @@ export namespace createSeesaw {
           symmetry: "round",
           grip: "power",
           frame: ArchetypeFrame.facing(
-            Vector3.create(x, SEAT + HANDLE, handleZ),
+            Vector3.create(x, SEAT + RISE, handleZ),
             Vector3.create(0, 0, end),
             Vector3.create(1, 0, 0),
           ),
