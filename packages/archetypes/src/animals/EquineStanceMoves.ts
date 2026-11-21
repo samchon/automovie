@@ -191,7 +191,7 @@ export namespace EquineStanceMoves {
    * @returns Its plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the repetition and where it ends.
-   * @evidence contracts/development/implementation.md#principled-implementation The rows' own buck planned once (`EquineStanceRows.plan`) and played up and down once per hop, its share the square of the hop's half-sine so each hop starts and ends at rest.
+   * @evidence contracts/development/implementation.md#principled-implementation The rows' own buck planned once (`EquineStanceRows.plan`) and played up and down once per hop, its share the square of the hop's half-sine so each hop starts and ends at rest; each buck support event is placed where a hop reaches its share, rising or falling.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One buck, one repetition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hop is the buck's own geometry; nothing else is posed.
    * @evidence contracts/development/implementation.md#efficient-algorithms One buck plan; a pose is one buck pose.
@@ -208,15 +208,19 @@ export namespace EquineStanceMoves {
       kind: "buck",
     });
     const events: EquineStanceRows.IEvent[] = [];
+    // A buck event at entry time t falls where the buck's share is minimum-jerk(t); each hop reaches that share on its way up and again on its way down, rising events on the first and falling ones on the second, and the run's own entry clock is minimum-jerk too.
     for (let k: number = 0; k < cue.count; ++k)
-      for (const event of hop.events)
+      for (const event of hop.events) {
+        const rise: number =
+          Math.asin(Math.sqrt(minimumJerk.share(event.time))) / Math.PI;
         events.push({
           label: event.label,
           entry: true,
-          time:
-            (k + (event.entry ? event.time / 2 : 1 - event.time / 2)) /
-            cue.count,
+          time: minimumJerk.time(
+            (k + (event.entry ? rise : 1 - rise)) / cue.count,
+          ),
         });
+      }
 
     // The run ends standing as it began; a state of its own, so the exit settles forward instead of replaying the hops.
     const end: EquineStanceRows.IState = { ...start };

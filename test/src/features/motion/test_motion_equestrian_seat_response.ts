@@ -1,6 +1,8 @@
 import {
+  ArchetypeRefusal,
   EquineStance,
   type EquineStanceCue,
+  QuadrupedBody,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -16,6 +18,7 @@ import type {
 import { HumanFoot, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { archetypeHorseRide } from "../internal/archetypeHorseRide";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
 
@@ -43,6 +46,7 @@ const HOLD: IAutoMovieMotionHumanMounted.ISupports = {
  * 2. Against the saddle's up, the displayed trunk leans forward while the horse rears and back while it bucks, and in the world its inclination turns less from where it was before the event than in the same take ridden with no response: the trunk inclination opposes the horse's pitch.
  * 2b. A ridden levade and pesade (#3939): the horse's pitch exceeds 25 degrees in the levade and more in the pesade, the trunk leans forward against the saddle in both, and at the halt 0.6 s after the pesade it is back within 1 degree of its lean before the events.
  * 3. Through both events, a sideways step aside (a shy), three crow hops (each lifting the left hind) a 90-degree spin on the haunches (turning the saddle within 5 degrees of it), a levade, a pesade and the halt after them, the seat region stays within 10 mm of the saddle, both balls of the feet within 10 mm of their stirrups and both wrists within 0.7 hand lengths of their reins, moving less than 10 mm against them.
+ * 3b. No hoof slides more than 5 mm while planted through the crow hops and the spin, read between each hoof's own landing and lift events; a pose sought again after a later one is the same; crow hops asked of the horse while it walks are refused.
  * 4. A take that lets the left foot go as the buck begins and takes the stirrup again after it: halfway through the loss the left ball is more than 50 mm from its tread, half a second after the regain it is back within 30 mm, and the left stirrup's window closes when the loss begins and opens again when the regain arrives.
  * 5. A response share outside 0 to 1 is refused on `respond`.
  *
@@ -270,6 +274,71 @@ export function test_motion_equestrian_seat_response(): void {
   if (Math.abs(turned - 90) > 5)
     findings.push(
       `the spin turns the saddle ${turned.toFixed(1)} degrees, wanted 90`,
+    );
+
+  // No hoof slides while it is planted through the crow hops and the spin: between its landing and its next lift, read from the horse's own support events.
+  for (const [from, to] of [
+    [hops, hops + 2.4],
+    [spun, spun + 4.1],
+  ] as const)
+    for (const limb of QuadrupedBody.LIMBS) {
+      const edges: { label: string; seconds: number }[] = course.instants
+        .filter(
+          (e): boolean =>
+            (e.label === `${limb}Off` || e.label === `${limb}On`) &&
+            e.seconds > from &&
+            e.seconds < to,
+        )
+        .sort((a, b): number => a.seconds - b.seconds);
+      const planted: [number, number][] = [];
+      let down: number = from;
+      for (const edge of edges)
+        if (edge.label.endsWith("Off")) planted.push([down, edge.seconds]);
+        else down = edge.seconds;
+      if (edges.at(-1)?.label.endsWith("Off") !== true)
+        planted.push([down, to]);
+      for (const [a, b] of planted) {
+        if (b - a < 0.05) continue;
+        const rest: IAutoMovieVector3 = archetypeHorseRide.hoof(
+          course,
+          limb,
+          a + 0.01,
+        );
+        for (let k: number = 1; k <= 8; ++k) {
+          const at: number = a + 0.01 + ((b - a - 0.02) * k) / 8;
+          const slid: number = Vector3.distance(
+            archetypeHorseRide.hoof(course, limb, at),
+            rest,
+          );
+          if (slid > 0.005) {
+            findings.push(
+              `the ${limb} hoof slides ${(slid * 1000).toFixed(1)} mm while planted at ${at.toFixed(2)} s`,
+            );
+            break;
+          }
+        }
+      }
+    }
+
+  // Seeking is repeatable: a pose read again after a later one is the same.
+  const first = responding.film.bones("rider", spinning).get("hips")!;
+  responding.film.bones("rider", reared);
+  const again = responding.film.bones("rider", spinning).get("hips")!;
+  if (Vector3.distance(first.worldPosition, again.worldPosition) > 1e-9)
+    findings.push("seeking back to the spin changes the rider's hips");
+
+  // An event asked of the horse while it walks is refused.
+  let walking: unknown = null;
+  try {
+    EquineStance.after(horse, mountedHorseScene.course(horse, "walk"), [
+      { kind: "crowHops", count: 2, pitch: 8, ...phases(4, 1.2, 0.2, 0.4) },
+    ]);
+  } catch (failure) {
+    walking = failure;
+  }
+  if (!(walking instanceof ArchetypeRefusal))
+    findings.push(
+      `crow hops at a walk must be refused, got ${String(walking)}`,
     );
 
   // 4. The left stirrup is lost as the buck begins and taken again after it.
