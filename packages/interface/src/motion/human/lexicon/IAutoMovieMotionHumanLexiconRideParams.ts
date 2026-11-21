@@ -13,6 +13,7 @@ import type { IAutoMovieMotionHumanClasp } from "./IAutoMovieMotionHumanClasp";
 import type { IAutoMovieMotionHumanDrape } from "./IAutoMovieMotionHumanDrape";
 import type { IAutoMovieMotionHumanTrick } from "./IAutoMovieMotionHumanTrick";
 import type { IAutoMovieMotionHumanRoman } from "./IAutoMovieMotionHumanRoman";
+import type { IAutoMovieMotionHumanLasso } from "./IAutoMovieMotionHumanLasso";
 import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 
 /**
@@ -72,4 +73,7 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
 
   /** Stand with one foot on each of two horses moving side by side. */
   HumanRoman: IAutoMovieMotionHumanRoman;
+
+  /** Swing, throw and dally a lariat from the saddle at a moving animal. */
+  HumanLasso: IAutoMovieMotionHumanLasso;
 }

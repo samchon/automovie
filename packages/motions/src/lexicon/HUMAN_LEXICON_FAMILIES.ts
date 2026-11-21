@@ -77,6 +77,7 @@ import { HumanClasp } from "./HumanClasp";
 import { HumanDrape } from "./HumanDrape";
 import { HumanTrick } from "./HumanTrick";
 import { HumanRoman } from "./HumanRoman";
+import { HumanLasso } from "./HumanLasso";
 import { HumanMusketDrill } from "./HumanMusketDrill";
 import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
@@ -183,6 +184,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
     HumanDrape,
     HumanTrick,
     HumanRoman,
+    HumanLasso,
     },
   ],
   carried: [HumanCarried, { spacecraftGlide }],
