@@ -1,3 +1,4 @@
+import { Vector3, quaternionFromAutoMovieBasis } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -6,6 +7,7 @@ import type {
   IAutoMovieMotionHumanChainCore,
   IAutoMovieMotionHumanProp,
   IAutoMovieRigidTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**
@@ -66,7 +68,7 @@ export namespace HumanPocket {
    * @returns The bone and the prop's offset on it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame and units.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the region frame the body declares and places the prop at its point in the bone's frame.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the region frame the body declares and places the prop at its point in the bone's frame, upright with its front against the region, so the hand that slides it in keeps its wrist as it holds it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No offset is tuned; the body's own region decides it.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -76,9 +78,27 @@ export namespace HumanPocket {
   export function mount(body: IAutoMovieMotionHumanBody, site: Site): IMount {
     const region: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.regions[REGIONS[site]];
+    // The prop stands upright in the pocket, its front against the body:
+    // its +Y up along the body, its +Z into the region, as a phone slides
+    // into a pocket on its edge (a prop stands on its bottom edge with its
+    // front toward +Z, `createPhone`).
+    const inward: IAutoMovieVector3 = Vector3.scale(region.normal, -1);
+    const up: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(
+        { x: 0, y: 1, z: 0 },
+        Vector3.scale(inward, inward.y),
+      ),
+    );
     return {
       bone: region.bone,
-      offset: { position: region.point, rotation: { x: 0, y: 0, z: 0, w: 1 } },
+      offset: {
+        position: region.point,
+        rotation: quaternionFromAutoMovieBasis(
+          Vector3.cross(up, inward),
+          up,
+          inward,
+        ),
+      },
     };
   }
 
