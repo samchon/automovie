@@ -204,7 +204,9 @@ function limbOf(bone: AutoMovieHumanoidBone): IBound | undefined {
 /**
  * The binding layer: each bound limb's end and middle joint as the wearer
  * showed them when the prop went on, read once. Two bound limbs are kept
- * in the hips' frame, so the bound pair travels and turns with the body; a
+ * in the frame of the bone they hang from (the chest for arms, whose
+ * shoulders ride it, the hips for legs), so the bound pair travels and
+ * turns with the body and the trunk's own turn in a walk carries it; a
  * limb bound to a target is kept at its offset from the target, so a tied
  * wrist stays at the chair's rail. Ends further apart than the slack are
  * drawn together to it.
@@ -217,6 +219,13 @@ function layer(
   limbs: readonly IBound[],
   from: number,
 ): IAutoMovieMotionHumanLayer {
+  // The bone the bound limbs hang from: the chest carries both shoulders,
+  // the hips both legs; a binding across the two hangs from the hips.
+  const carrier: AutoMovieHumanoidBone = limbs.every(
+    (l: IBound): boolean => l.limb === "leftArm" || l.limb === "rightArm",
+  )
+    ? "chest"
+    : "hips";
   let kept: readonly IKept[] | undefined;
   const keep = (
     context: IAutoMovieMotionHumanLayer.IContext,
@@ -228,14 +237,14 @@ function layer(
         wearer,
         from,
         new Set<AutoMovieHumanoidBone>([
-          "hips",
+          carrier,
           ...limbs.flatMap((l: IBound): AutoMovieHumanoidBone[] => [
             l.end,
             l.middle,
           ]),
         ]),
       );
-    const hips: IAutoMovieResolvedBone = bones.get("hips")!;
+    const hips: IAutoMovieResolvedBone = bones.get(carrier)!;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hips.worldRotation,
     );
@@ -270,7 +279,7 @@ function layer(
       ];
       return kept;
     }
-    // Two ends in the hips' frame, drawn to the slack about their middle.
+    // Two ends in the carrying bone's frame, drawn to the slack about their middle.
     const [a, b] = read.map(
       (k: IKept): IKept => ({ point: local(k.point), bend: local(k.bend) }),
     ) as [IKept, IKept];
@@ -311,7 +320,7 @@ function layer(
           goals[l.limb] = {
             point: ends[k]!.point,
             bend: ends[k]!.bend,
-            on: "hips",
+            on: carrier,
           } satisfies IAutoMovieHumanLimbGoal;
         });
       return { ...posture, limbs: goals };

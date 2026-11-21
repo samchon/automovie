@@ -40,9 +40,9 @@ const RINGS: number = 0.07;
 const RIGID: number = 0.001;
 
 /**
- * An arrest of a standing subject: hands up, a pat-down from behind, the
- * hands brought behind the back and handcuffs closed on the right wrist and
- * linked to the left, then an escort walk.
+ * An arrest of a standing subject: the hands clasped behind the back and
+ * held still through a pat-down from behind, handcuffs closed on the right
+ * wrist and linked to the left, then an escort walk.
  *
  * Scenarios:
  * 1. The officer's palm reaches each frisked region of the subject at the
@@ -91,8 +91,7 @@ export function test_human_motion_arrest(): void {
         "cuff",
       );
     const subjectChain: IAutoMovieMotionHumanChain = HumanChain.subject("s")
-      .act("handsUp", {})
-      .act("paradeRest", { seconds: 9 })
+      .act("paradeRest", { seconds: 12 })
       .walk({ to: { x: 0, y: 0, z: 1.5 } });
     const film: HumanPerformance = new HumanPerformance({
       seed: "arrest",

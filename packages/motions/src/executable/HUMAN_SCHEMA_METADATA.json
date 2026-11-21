@@ -839,6 +839,8 @@
     "lungeGrab": {},
     "disarm": {},
     "disarmed": {},
+    "hostageHold": {},
+    "heldHostage": {},
     "stopDropRoll": {},
     "wireArrest": {},
     "ropeSkip": {

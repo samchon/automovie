@@ -3,6 +3,7 @@ import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
 import type { IAutoMovieMotionHumanGrapple } from "../grappling/IAutoMovieMotionHumanGrapple";
 import type { IAutoMovieMotionHumanDisarm } from "../grappling/IAutoMovieMotionHumanDisarm";
+import type { IAutoMovieMotionHumanHostageHold } from "../grappling/IAutoMovieMotionHumanHostageHold";
 import type { IAutoMovieMotionHumanLungeGrab } from "../grappling/IAutoMovieMotionHumanLungeGrab";
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
@@ -37,6 +38,12 @@ export interface IAutoMovieMotionHumanLexiconStageFightParams {
 
   /** The armed partner of a disarm: the forearm turns with the lever and the hand opens at the disarm's `taken` instant. */
   disarmed: IAutoMovieMotionHumanDisarm.IYield;
+
+  /** A hostage hold from behind: the free arm across the chest or throat, a held weapon's point at a region, and the pair walking backward. The hostage performs heldHostage. */
+  hostageHold: IAutoMovieMotionHumanHostageHold.IParams;
+
+  /** The hostage of a hold: carried backward with the holder, stepping the same way. */
+  heldHostage: IAutoMovieMotionHumanHostageHold.IHeld;
 
   /** A stage palm strike: the rear palm heel driven at the target and stopped short at 0.85 of its delivery (provisional), with no contact declared. */
   stagePalmStrike: Omit<
