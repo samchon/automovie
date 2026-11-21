@@ -99,19 +99,37 @@ export namespace IAutoMovieDeliveryContentAudit {
       frameCount: number;
       frameRate: Ratio;
       audioRequired: boolean;
-      /** Whether measured content is classified against authored allowances. Defaults to true. */
+      /**
+       * Whether an interval the drawn source also shows still needs an
+       * authored allowance before delivery. Defaults to true; a production
+       * without declared delivery intent passes false.
+       */
       contentRequired?: boolean;
       allowances?: readonly IAllowance[];
     };
     thresholds: IThresholds;
     streams: Readonly<Record<Media, Stream>>;
+    /**
+     * The encoder's own inputs measured by the same detectors and thresholds:
+     * the drawn frame sequence and the padded soundtrack. An interval they also
+     * show was drawn rather than introduced by encoding. A medium without
+     * complete reference evidence leaves its unallowed intervals unclassified.
+     */
+    reference?: Readonly<Partial<Record<Media, Stream>>>;
   }
+
+  /**
+   * How a measured interval relates to authorship: inside an authored
+   * allowance, also present in the drawn source, introduced by encoding, or
+   * without reference evidence to tell.
+   */
+  export type Outcome = "intentional" | "drawn" | "unexpected" | "unclassified";
 
   /** A measured interval reconciled with authorship, or a failure to establish stream coverage. */
   export type Finding =
     | {
         kind: "content";
-        outcome: "intentional" | "unexpected" | "unclassified";
+        outcome: Outcome;
         blocking: boolean;
         media: Media;
         streamIndex: number;
@@ -139,6 +157,7 @@ export namespace IAutoMovieDeliveryContentAudit {
     expected: IProps["expected"];
     thresholds: IThresholds;
     streams: IProps["streams"];
+    reference?: IProps["reference"];
     findings: Finding[];
     passed: boolean;
   }

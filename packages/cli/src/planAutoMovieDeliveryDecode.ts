@@ -7,12 +7,16 @@ import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
  * qualify after the last frame's duration is included. The audit decides the
  * final minimum duration and removes detector intervals containing one frame.
  *
- * @param path The delivery file to decode.
+ * The same plan measures the encoder's own image-sequence input when given
+ * the input options the encoder used, such as its `-framerate`.
+ *
+ * @param path The delivery file, or the encoder's input pattern, to decode.
  * @param frameRate The commissioned rational delivery frame rate.
  * @param thresholds The delivery audit's detector settings.
+ * @param inputOptions Demuxer options placed before the input, empty for a delivery file.
  * @returns Arguments for a shell-free invocation with evidence on stderr.
- * @evidence contracts/development/common.md#meaningful-documentation Defines the indexed stream, native detector behavior and stderr evidence.
- * @evidence contracts/development/implementation.md#principled-implementation Maintains input timestamps with copyts, measures decoded pictures before output sync, and observes decoded duration independently of the commissioned clock.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the indexed stream, native detector behavior, the optional input options and stderr evidence.
+ * @evidence contracts/development/implementation.md#principled-implementation Maintains input timestamps with copyts, measures decoded pictures before output sync, and observes decoded duration independently of the commissioned clock. The delivered file and the encoder's input go through one identical filter chain.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds one filter chain followed by a null output.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Supplies the input file as a separate argument and asks FFmpeg to fail on decoding errors.
  * @evidence contracts/development/implementation.md#efficient-algorithms Uses one decode for both video detectors. Disables extra per-frame checksums and pixel statistics.
@@ -21,6 +25,7 @@ export function planAutoMovieDeliveryDecode(
   path: string,
   frameRate: IAutoMovieDeliveryContentAudit.Ratio,
   thresholds: IAutoMovieDeliveryContentAudit.IThresholds,
+  inputOptions: readonly string[] = [],
 ): string[] {
   const [frames, seconds] = frameRate;
   const { minimumDuration, maximumMeanDifference } = thresholds.frozen;
@@ -35,7 +40,7 @@ export function planAutoMovieDeliveryDecode(
     throw new Error("The delivery freeze detector duration is invalid");
 
   return [
-    ...deliveryInput(path),
+    ...deliveryInput(path, inputOptions),
     "-map",
     "0:v:0",
     "-an",
@@ -92,13 +97,17 @@ export function planAutoMovieDeliveryAudioDecode(path: string): string[] {
 }
 
 /** Common read-only input arguments for both delivery decoders. */
-function deliveryInput(path: string): string[] {
+function deliveryInput(
+  path: string,
+  inputOptions: readonly string[] = [],
+): string[] {
   return [
     "-hide_banner",
     "-nostdin",
     "-nostats",
     "-xerror",
     "-copyts",
+    ...inputOptions,
     "-i",
     path,
   ];

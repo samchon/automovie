@@ -19,7 +19,7 @@ import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
  * for a failed attempt that reaches the output transaction.
  *
  * Scenarios:
- * 1. A generic video-only render publishes with its encoded digest and an unclassified black interval.
+ * 1. A generic video-only render publishes with its encoded digest and a black interval its drawn frames also show, which needs no approval without declared intent.
  * 2. A commissioned render retains both scene and decoded blockers, their frame cursor, the failed candidate's digest, and the previous film.
  * 3. A source-owned soundtrack and native silence allowance pass through the same entry. The final codec frame's samples past the container's end are padding, not duration. Missing required audio and a container that presents too little audio block.
  * 4. Encode refusal publishes its phase and reason, keeps the scene inspection drawn before it, and keeps the approved bytes.
@@ -150,7 +150,7 @@ export async function test_cli_render_video_delivery(): Promise<void> {
         first.delivery.streams.audio.status,
         first.delivery.findings[0].outcome,
       ],
-      ["published", "film.mp4", originalDigest, "missing", "unclassified"],
+      ["published", "film.mp4", originalDigest, "missing", "drawn"],
     );
 
     intent = {};

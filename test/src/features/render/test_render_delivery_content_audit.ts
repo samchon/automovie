@@ -6,19 +6,23 @@ type Audit = IAutoMovieDeliveryContentAudit.IProps;
 type Timestamp = IAutoMovieDeliveryContentAudit.ITimestamp;
 
 /**
- * Classifies measured delivery content by commissioned intent and native time.
+ * Classifies measured delivery content by commissioned intent, the drawn
+ * reference and native time.
  *
  * Scenarios:
- * 1. An open black interval reaches verified video EOF, adjoining allowances cover only its first frame, and a one-frame freeze is below threshold.
+ * 1. Without a reference, an open black interval reaching verified video EOF is intentional where adjoining allowances cover its first frame and unclassified (blocking) after it; a one-frame freeze is below threshold.
  * 2. A freeze exactly at the minimum duration is reported inside its allowance, and a wholly allowed audit passes.
  * 3. Silence keeps its native audio clock and has no output-frame field. An absent stream is permitted for video-only delivery and blocked when sound is required.
  * 4. An exact 30000/1001 video clock accepts sound quantized to the nearest sample boundary and refuses a two-sample shortfall.
  * 5. Incomplete decode, bad stream coverage and an out-of-range measurement retain distinguishable findings, with required coverage deciding whether an incomplete stream blocks delivery.
+ * 6. A complete reference splits black into a drawn part it also shows and an unexpected part it does not. Drawn blocks only when authored approval is required; unexpected always blocks. An allowance outranks the reference.
+ * 7. A piece other than an intentional one that is shorter than the detector minimum, such as a boundary moved one frame by encoding, is not reported.
+ * 8. Reference silence explains delivered silence on the audio clock, and a reference that stops short of the film explains nothing.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the native stream, authored allowances and coverage failures the cases exercise.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the exported pure audit and asserts the resulting exact bounds, output frames, verdicts and failure kinds.
- * @evidence contracts/development/testing.md#independent-expectations The black boundary is independently fixed by 512 ticks of a 1/15360 video clock equaling one 30 fps frame. The audio and fractional clock endpoints are literal fixture values, including one 30000/1001 frame spanning 1601.6 samples at 48 kHz.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers allowed, unexpected, below-minimum, equal-minimum, missing, incomplete, malformed and quantized coverage.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the native stream, authored allowances, reference evidence and coverage failures the cases exercise.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the exported pure audit and asserts the resulting exact bounds, outcomes, blocking flags, output frames, verdicts and failure kinds.
+ * @evidence contracts/development/testing.md#independent-expectations The black boundary is independently fixed by 512 ticks of a 1/15360 video clock equaling one 30 fps frame, and reference frames use the 1/30 clock directly. The audio and fractional clock endpoints are literal fixture values, including one 30000/1001 frame spanning 1601.6 samples at 48 kHz. Outcomes follow the issue's rule that authored fades, holds and silence classify findings while encode-introduced intervals block.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers allowed, drawn, unexpected, unclassified, below-minimum, equal-minimum, strict and waived approval, allowance-over-reference, short reference, missing, incomplete, malformed and quantized coverage. Real FFmpeg evidence for these outcomes is owned by test_cli_delivery_recorded_audit.
  * @evidence contracts/development/testing.md#execution-ownership Uses in-memory inputs and starts no process, browser, renderer or device.
  */
 export function test_render_delivery_content_audit(): void {
@@ -84,7 +88,7 @@ export function test_render_delivery_content_audit(): void {
     },
     {
       kind: "content",
-      outcome: "unexpected",
+      outcome: "unclassified",
       blocking: true,
       media: "video",
       streamIndex: 0,
@@ -94,7 +98,7 @@ export function test_render_delivery_content_audit(): void {
       firstOutputFrame: 2,
     },
   ]);
-  TestValidator.equals("unexpected black blocks", black.passed, false);
+  TestValidator.equals("unclassified black blocks", black.passed, false);
   TestValidator.equals(
     "actual bytes and effective thresholds remain traceable",
     [black.source, black.expected.frameCount, black.thresholds],
@@ -156,7 +160,7 @@ export function test_render_delivery_content_audit(): void {
     [
       {
         kind: "content",
-        outcome: "unexpected",
+        outcome: "unclassified",
         blocking: true,
         media: "audio",
         streamIndex: 1,
@@ -286,5 +290,128 @@ export function test_render_delivery_content_audit(): void {
         reason: "The detector interval does not belong to the decoded stream",
       },
     ],
+  );
+
+  // The drawn frame sequence on its own 1/30 clock, black from frame 2 to EOF.
+  const drawnVideo = {
+    status: "decoded",
+    index: 0,
+    start: frame(0),
+    end: frame(4),
+    continuous: true,
+    observations: [{ detector: "black", start: frame(2), end: null }],
+  } as const;
+  const encodedBlack: Audit = {
+    ...base,
+    streams: {
+      ...base.streams,
+      video: {
+        ...decodedVideo,
+        observations: [{ detector: "black", start: video(512), end: null }],
+      },
+    },
+    reference: { video: drawnVideo },
+  };
+  const split = auditAutoMovieDeliveryContent(encodedBlack);
+  TestValidator.equals(
+    "the reference separates drawn black from encoded black",
+    split.findings.map(({ outcome, blocking, start, end }) => ({
+      outcome,
+      blocking,
+      start,
+      end,
+    })),
+    [
+      {
+        outcome: "unexpected",
+        blocking: true,
+        start: video(512),
+        end: frame(2),
+      },
+      { outcome: "drawn", blocking: true, start: frame(2), end: video(2048) },
+    ],
+  );
+  const waived = auditAutoMovieDeliveryContent({
+    ...encodedBlack,
+    expected: { ...encodedBlack.expected, contentRequired: false },
+  });
+  TestValidator.equals(
+    "waived approval releases drawn black but never encoded black",
+    [waived.findings.map((finding) => finding.blocking), waived.passed],
+    [[true, false], false],
+  );
+  const allowedFirst = auditAutoMovieDeliveryContent({
+    ...encodedBlack,
+    expected: {
+      ...encodedBlack.expected,
+      allowances: [{ detector: "black", start: frame(2), end: frame(3) }],
+    },
+  });
+  TestValidator.equals(
+    "an allowance outranks the reference",
+    allowedFirst.findings.map(({ outcome, start, end }) => [
+      outcome,
+      start,
+      end,
+    ]),
+    [
+      ["unexpected", video(512), frame(2)],
+      ["intentional", frame(2), frame(3)],
+      ["drawn", frame(3), video(2048)],
+    ],
+  );
+
+  const shifted = auditAutoMovieDeliveryContent({
+    ...encodedBlack,
+    expected: { ...encodedBlack.expected, contentRequired: false },
+    thresholds: {
+      ...thresholds,
+      black: { ...thresholds.black, minimumDuration: frame(2) },
+    },
+  });
+  TestValidator.equals(
+    "a one-frame boundary shift below the detector minimum is not a finding",
+    [shifted.findings.map((finding) => finding.outcome), shifted.passed],
+    [["drawn"], true],
+  );
+
+  const drawnAudio = {
+    status: "decoded",
+    index: 0,
+    start: audio(0),
+    end: audio(6400),
+    continuous: true,
+    sampleRate: 48000,
+    observations: [{ detector: "silence", start: audio(0), end: audio(3200) }],
+  } as const;
+  const quiet: Audit = {
+    ...base,
+    expected: { ...base.expected, audioRequired: true, contentRequired: false },
+    streams: {
+      ...base.streams,
+      audio: {
+        ...decodedAudio,
+        observations: [{ detector: "silence", start: audio(0), end: null }],
+      },
+    },
+    reference: { video: drawnVideo, audio: drawnAudio },
+  };
+  TestValidator.equals(
+    "the padded soundtrack explains only its own silence",
+    auditAutoMovieDeliveryContent(quiet).findings.map(
+      ({ outcome, blocking, start, end }) => [outcome, blocking, start, end],
+    ),
+    [
+      ["drawn", false, audio(0), audio(3200)],
+      ["unexpected", true, audio(3200), audio(6400)],
+    ],
+  );
+  TestValidator.equals(
+    "a reference that stops short of the film explains nothing",
+    auditAutoMovieDeliveryContent({
+      ...quiet,
+      reference: { audio: { ...drawnAudio, end: audio(4800) } },
+    }).findings.map(({ outcome, blocking }) => [outcome, blocking]),
+    [["unclassified", true]],
   );
 }

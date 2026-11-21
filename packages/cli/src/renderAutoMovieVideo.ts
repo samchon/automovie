@@ -11,6 +11,7 @@ import * as path from "node:path";
 import type { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { runAutoMovieDeliveryDecode } from "./runAutoMovieDeliveryDecode";
+import { runAutoMovieDeliveryReferenceDecode } from "./runAutoMovieDeliveryReferenceDecode";
 import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
 
 type DeliveryAudit = IAutoMovieDeliveryContentAudit.IResult;
@@ -81,10 +82,10 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
  * put back, so the film and report on disk always come from the same attempt.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents the measured sources, paths and refusal behavior.
- * @evidence contracts/development/implementation.md#principled-implementation Uses Render for drawing and auditing, hashes and decodes exactly one uniquely staged candidate, and settles both verdicts before replacing any delivered bytes.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses Render for drawing and auditing, hashes and decodes exactly one uniquely staged candidate, measures the encoder's own inputs the same way so drawn and encode-introduced intervals are told apart, and settles both verdicts before replacing any delivered bytes.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Reserves the output, renders, audits, stages the report and publishes, then releases owned resources.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Failed attempts carry their own report status and digest when measured. Confirmed findings and unresolved required checks prevent the candidate rename.
- * @evidence contracts/development/implementation.md#efficient-algorithms Uses one encode, one streamed hash, one video decode and an audio decode only when present. PNG scratch is never copied into the delivery folder.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Uses one encode, one streamed hash, one video decode and an audio decode only when present, plus one decode of the drawn frames and one of the soundtrack the encoder read. PNG scratch is never copied into the delivery folder.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the output reservation through both publication operations and releases the session and its unique staging folders on completion.
  */
 export async function renderAutoMovieVideo(
@@ -191,11 +192,21 @@ export async function renderAutoMovieVideo(
         thresholds,
         run,
       );
+      // The drawn frames and the soundtrack as the encoder read them, measured
+      // the same way, before the frame scratch is released.
+      const reference = await runAutoMovieDeliveryReferenceDecode(
+        props.ffmpeg,
+        attempt.args,
+        expected,
+        thresholds,
+        run,
+      );
       attempt.delivery = props.host.render.auditAutoMovieDeliveryContent({
         source: attempt.source,
         expected,
         thresholds,
         streams,
+        reference,
       });
 
       const failures = releaseFindings(attempt.diagnostics, attempt.delivery);
@@ -415,7 +426,9 @@ function releaseFindings(
       timeBase: [numerator, denominator],
     } = finding.start;
     details.push(
-      finding.detector +
+      finding.outcome +
+        " " +
+        finding.detector +
         cursor((ticks * numerator) / denominator, finding.firstOutputFrame),
     );
   }

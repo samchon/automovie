@@ -1,6 +1,11 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { runAutoMovieDeliveryDecode } from "automovie";
+import * as fs from "node:fs/promises";
+import * as os from "node:os";
+import * as nodePath from "node:path";
+
+import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
 
 /**
  * Reads the native video and audio evidence supplied by the delivery CLI.
@@ -16,10 +21,29 @@ import { runAutoMovieDeliveryDecode } from "automovie";
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real delivery entry with a process runner fixture and feeds it split text and PCM exactly as the process owner does.
  * @evidence contracts/development/testing.md#independent-expectations Exact expected ticks follow from five literal 1001-tick frames at 1/30000 and six literal interleaved stereo sample frames at 8 kHz.
  * @evidence contracts/development/testing.md#distinguishing-cases Exercises native EOF, missing or ambiguous timing evidence, split float boundaries, a nonquiet second channel, and incomplete audio coverage.
- * @evidence contracts/development/testing.md#execution-ownership Uses synthetic FFmpeg text and PCM fixtures and starts no process or device.
+ * @evidence contracts/development/testing.md#execution-ownership Uses synthetic FFmpeg text and PCM fixtures and starts no process or device. The audio pass reads a movie header written to its own temporary folder, presenting all six decoded sample frames, and the folder is removed afterwards.
  */
 export async function test_cli_delivery_decode(): Promise<void> {
-  const path = "film attempt.partial.mp4";
+  const folder = await fs.mkdtemp(
+    nodePath.join(os.tmpdir(), "automovie-delivery-decode-"),
+  );
+  try {
+    await decodeDelivery(nodePath.join(folder, "film attempt.partial.mp4"));
+  } finally {
+    await fs.rm(folder, { recursive: true });
+  }
+}
+
+/** Runs every scenario against one delivery path holding a six-sample audio movie header. */
+async function decodeDelivery(path: string): Promise<void> {
+  await fs.writeFile(
+    path,
+    writeDeliveryMp4Header({
+      movieTimescale: 8000,
+      timescale: 8000,
+      samples: [[2, 3]],
+    }),
+  );
   const frameRate = [30000, 1001] as const;
   const thresholds: IAutoMovieDeliveryContentAudit.IThresholds = {
     black: {

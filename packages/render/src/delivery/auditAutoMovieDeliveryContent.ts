@@ -1,9 +1,14 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
 type Audit = IAutoMovieDeliveryContentAudit.IProps;
+type Decoded = Extract<
+  IAutoMovieDeliveryContentAudit.Stream,
+  { status: "decoded" }
+>;
 type Detector = IAutoMovieDeliveryContentAudit.Detector;
 type Finding = IAutoMovieDeliveryContentAudit.Finding;
 type Media = IAutoMovieDeliveryContentAudit.Media;
+type Outcome = IAutoMovieDeliveryContentAudit.Outcome;
 type Ratio = IAutoMovieDeliveryContentAudit.Ratio;
 type Timestamp = IAutoMovieDeliveryContentAudit.ITimestamp;
 type Interval = { start: Timestamp; end: Timestamp };
@@ -12,18 +17,23 @@ const ZERO: Timestamp = { ticks: 0, timeBase: [1, 1] };
 const MEDIA: readonly Media[] = ["video", "audio"];
 
 /**
- * Checks the decoded presentation and reconciles black, frozen and silent
- * intervals against explicitly authored allowances. Findings retain the
- * effective thresholds and the source evidence needed to reproduce the audit.
+ * Checks the decoded presentation and classifies each black, frozen and silent
+ * interval: inside an authored allowance it is intentional; where the encoder's
+ * own input (the drawn frames or the padded soundtrack, measured the same way)
+ * shows the same condition it was drawn; elsewhere encoding introduced it, or,
+ * without complete reference evidence, it stays unclassified. Unexpected and
+ * unclassified intervals always block; drawn ones block unless the production
+ * waives authored approval. Findings retain the effective thresholds and the
+ * source evidence needed to reproduce the audit.
  *
- * @param props The hashed artifact, commissioned clock and complete decoded stream evidence.
+ * @param props The hashed artifact, commissioned clock, decoded stream evidence and the reference measurement of the encoder's input.
  * @returns The coverage and content findings and whether they permit delivering the artifact.
- * @evidence contracts/development/common.md#meaningful-documentation Specifies the decoded evidence consumed, the authored allowance comparison and the delivery decision returned.
- * @evidence contracts/development/implementation.md#principled-implementation Compares signed native timestamps by exact integer cross products. Requires a contiguous video grid at the commissioned duration and permits only floor or ceiling sample quantization for decoded audio. An open detector interval can use an end only after that stream passes timing validation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the commissioned policy, independently audits video and audio, and partitions each measured interval against the applicable merged allowance windows.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses typed stream and finding discriminants and guards safe integer inputs before BigInt conversion. A report retains incomplete or invalid decoder evidence as findings.
- * @evidence contracts/development/implementation.md#efficient-algorithms Sorts authored windows once per detector and merges overlaps. Each observation scans only the windows for its detector until its end. The audit reads no pixels or samples.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each artifact is audited independently. Inside a call the sorted and merged allowances are shared across its observations.
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies the decoded and reference evidence consumed, the four outcomes, which of them block and the delivery decision returned.
+ * @evidence contracts/development/implementation.md#principled-implementation Compares signed native timestamps by exact integer cross products. Requires a contiguous video grid at the commissioned duration and permits only floor or ceiling sample quantization for decoded audio; a reference must pass the same coverage test before it can explain an interval. Pieces other than intentional ones shorter than the detector's own minimum duration are below its resolution and are not reported, so a boundary shifted by encoding does not become a finding.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the commissioned policy, then per medium indexes the reference windows, audits stream coverage and splits each measured interval at allowance and reference boundaries.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses typed stream and finding discriminants and guards safe integer inputs before BigInt conversion. A report retains incomplete or invalid decoder evidence as findings, and missing reference evidence never passes an interval silently.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sorts authored and reference windows once per detector and merges overlaps. Each observation is cut only at the window edges inside it. The audit reads no pixels or samples.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each artifact is audited independently. Inside a call the sorted and merged windows are shared across its observations.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The pure audit acquires no handles and retains no state between calls. The report retains its supplied evidence and findings.
  */
 export function auditAutoMovieDeliveryContent(
@@ -62,9 +72,11 @@ export function auditAutoMovieDeliveryContent(
     timeBase: [seconds, frames],
   };
   const allowances = mergeAllowances(expected.allowances ?? [], filmEnd);
+  const strict = expected.contentRequired !== false;
   const findings: Finding[] = [];
   for (const media of MEDIA) {
     const stream = streams[media];
+    const drawn = referenceWindows(media, props.reference?.[media], filmEnd);
     const required = media === "video" || expected.audioRequired;
     if (stream.status === "missing") {
       if (required)
@@ -85,16 +97,7 @@ export function auditAutoMovieDeliveryContent(
       });
       continue;
     }
-    if (
-      !Number.isSafeInteger(stream.index) ||
-      stream.index < 0 ||
-      !validTimestamp(stream.start) ||
-      !validTimestamp(stream.end) ||
-      stream.start.ticks !== 0 ||
-      stream.end.ticks <= 0 ||
-      !stream.continuous ||
-      !matchesEnd(media, stream, filmEnd)
-    ) {
+    if (!coversFilm(media, stream, filmEnd)) {
       findings.push({
         kind: "timing-mismatch",
         blocking: true,
@@ -127,51 +130,40 @@ export function auditAutoMovieDeliveryContent(
         continue;
       }
       const usableEnd = compare(end, filmEnd) > 0 ? filmEnd : end;
+      const minimum = thresholds[detector].minimumDuration;
       if (
         compare(start, usableEnd) >= 0 ||
-        !durationAtLeast(start, usableEnd, thresholds[detector].minimumDuration)
+        !durationAtLeast(start, usableEnd, minimum)
       )
         continue;
 
-      const emit = (
-        outcome: "intentional" | "unexpected" | "unclassified",
-        from: Timestamp,
-        to: Timestamp,
-      ): void => {
+      for (const piece of classify(
+        { start, end: usableEnd },
+        allowances[detector],
+        drawn?.[detector] ?? null,
+      )) {
+        if (
+          piece.outcome !== "intentional" &&
+          !durationAtLeast(piece.start, piece.end, minimum)
+        )
+          continue;
         findings.push({
           kind: "content",
-          outcome,
-          blocking: outcome === "unexpected",
+          outcome: piece.outcome,
+          blocking:
+            piece.outcome === "drawn"
+              ? strict
+              : piece.outcome !== "intentional",
           media,
           streamIndex: stream.index,
           detector,
-          start: from,
-          end: to,
+          start: piece.start,
+          end: piece.end,
           ...(media === "video"
-            ? { firstOutputFrame: outputFrame(from, expected.frameRate) }
+            ? { firstOutputFrame: outputFrame(piece.start, expected.frameRate) }
             : {}),
         });
-      };
-      if (expected.contentRequired === false) {
-        emit("unclassified", start, usableEnd);
-        continue;
       }
-
-      let cursor = start;
-      for (const allowed of allowances[detector]) {
-        if (compare(allowed.end, cursor) <= 0) continue;
-        if (compare(allowed.start, usableEnd) >= 0) break;
-        if (compare(cursor, allowed.start) < 0) {
-          emit("unexpected", cursor, allowed.start);
-          cursor = allowed.start;
-        }
-        const coveredEnd =
-          compare(allowed.end, usableEnd) < 0 ? allowed.end : usableEnd;
-        emit("intentional", cursor, coveredEnd);
-        cursor = coveredEnd;
-        if (compare(cursor, usableEnd) === 0) break;
-      }
-      if (compare(cursor, usableEnd) < 0) emit("unexpected", cursor, usableEnd);
     }
   }
   return {
@@ -179,9 +171,109 @@ export function auditAutoMovieDeliveryContent(
     expected,
     thresholds,
     streams,
+    ...(props.reference === undefined ? {} : { reference: props.reference }),
     findings,
     passed: findings.every((finding) => !finding.blocking),
   };
+}
+
+/** Checks that decoded evidence starts at zero and continuously covers the commissioned presentation. */
+function coversFilm(
+  media: Media,
+  stream: Decoded,
+  filmEnd: Timestamp,
+): boolean {
+  return (
+    Number.isSafeInteger(stream.index) &&
+    stream.index >= 0 &&
+    validTimestamp(stream.start) &&
+    validTimestamp(stream.end) &&
+    stream.start.ticks === 0 &&
+    stream.end.ticks > 0 &&
+    stream.continuous &&
+    matchesEnd(media, stream, filmEnd)
+  );
+}
+
+/**
+ * Indexes the drawn source's own detector intervals for one medium, clipped to
+ * the film. Returns null when the reference does not completely cover the
+ * film, so no interval can be attributed to it.
+ */
+function referenceWindows(
+  media: Media,
+  reference: IAutoMovieDeliveryContentAudit.Stream | undefined,
+  filmEnd: Timestamp,
+): Record<Detector, Interval[]> | null {
+  if (reference?.status !== "decoded" || !coversFilm(media, reference, filmEnd))
+    return null;
+  const windows: IAutoMovieDeliveryContentAudit.IAllowance[] = [];
+  for (const observation of reference.observations) {
+    const end = observation.end ?? reference.end;
+    if (
+      (observation.detector === "silence") !== (media === "audio") ||
+      !validTimestamp(observation.start) ||
+      !validTimestamp(end) ||
+      observation.start.ticks < 0 ||
+      compare(observation.start, end) >= 0 ||
+      compare(end, reference.end) > 0
+    )
+      return null;
+    const clipped = compare(end, filmEnd) > 0 ? filmEnd : end;
+    if (compare(observation.start, clipped) < 0)
+      windows.push({
+        detector: observation.detector,
+        start: observation.start,
+        end: clipped,
+      });
+  }
+  return mergeAllowances(windows, filmEnd);
+}
+
+/**
+ * Splits one measured interval at every allowance and reference boundary and
+ * labels each piece: allowed pieces are intentional, the rest are drawn when
+ * the reference shows the same condition, unexpected when the reference is
+ * complete but clear, and unclassified without a complete reference. Adjacent
+ * pieces with the same label are joined.
+ */
+function classify(
+  measured: Interval,
+  allowed: readonly Interval[],
+  drawn: readonly Interval[] | null,
+): { outcome: Outcome; start: Timestamp; end: Timestamp }[] {
+  const cuts: Timestamp[] = [measured.start, measured.end];
+  for (const window of [...allowed, ...(drawn ?? [])])
+    for (const edge of [window.start, window.end])
+      if (compare(edge, measured.start) > 0 && compare(edge, measured.end) < 0)
+        cuts.push(edge);
+  cuts.sort(compare);
+
+  const pieces: { outcome: Outcome; start: Timestamp; end: Timestamp }[] = [];
+  for (let index = 0; index + 1 < cuts.length; ++index) {
+    const start = cuts[index]!;
+    const end = cuts[index + 1]!;
+    if (compare(start, end) >= 0) continue;
+    const outcome: Outcome = contains(allowed, start)
+      ? "intentional"
+      : drawn === null
+        ? "unclassified"
+        : contains(drawn, start)
+          ? "drawn"
+          : "unexpected";
+    const last = pieces.at(-1);
+    if (last?.outcome === outcome) last.end = end;
+    else pieces.push({ outcome, start, end });
+  }
+  return pieces;
+}
+
+/** Whether a sorted list of half-open windows contains an instant. */
+function contains(windows: readonly Interval[], instant: Timestamp): boolean {
+  return windows.some(
+    (window) =>
+      compare(window.start, instant) <= 0 && compare(instant, window.end) < 0,
+  );
 }
 
 /** Checks the positive integer components of a native clock. */
@@ -228,7 +320,7 @@ function durationAtLeast(
 /** Checks the native video endpoint or the two nearest audio sample boundaries. */
 function matchesEnd(
   media: Media,
-  stream: Extract<Audit["streams"][Media], { status: "decoded" }>,
+  stream: Decoded,
   filmEnd: Timestamp,
 ): boolean {
   if (media === "video") return compare(stream.end, filmEnd) === 0;

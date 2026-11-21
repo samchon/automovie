@@ -21,6 +21,7 @@ export * from "./readAutoMovieRevision";
 export * from "./readAutoMovieVideoProbe";
 export * from "./resolveAutoMovieFfmpeg";
 export * from "./runAutoMovieDeliveryDecode";
+export * from "./runAutoMovieDeliveryReferenceDecode";
 export * from "./runAutoMovieFfmpeg";
 export * from "./serveAutoMovieDrawPage";
 export * from "./AUTOMOVIE_INSPECT_OPTIONS";
