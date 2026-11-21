@@ -194,6 +194,19 @@ export namespace QuadrupedHoofTrack {
     };
   }
 
+  /** The authored surface under a point, or none where no plane covers it. */
+  function covered(
+    footing: QuadrupedFooting.IPlan,
+    point: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+  ): QuadrupedFooting.ILanding | undefined {
+    try {
+      return footing.landing(point, rotation);
+    } catch (error) {
+      if (error instanceof ArchetypeRefusal) return undefined;
+      throw error;
+    }
+  }
   /**
    * The swing height of a landmark gait: the toe raised to its coordinate along the actual neutral cannon, measured above the neutral hoof endpoint.
    *
@@ -413,7 +426,7 @@ export namespace QuadrupedHoofTrack {
       nextFoot === undefined ? undefined : (nextGround?.point ?? nextFoot);
 
     // A swing the hoof clock holds is carried with the body: the hold's displacement is removed from the arrival and restored by its elapsed share.
-    const world: IAutoMovieVector3 =
+    const chord: IAutoMovieVector3 =
       arrival === undefined
         ? beginning
         : carry === undefined
@@ -426,6 +439,15 @@ export namespace QuadrupedHoofTrack {
               ),
               Vector3.scale(carry.shift, carry.share),
             );
+    // A swinging hoof rises above the ground beneath it, not only above the chord between its footholds, which passes under a crest between them.
+    const beneath: QuadrupedFooting.ILanding | undefined =
+      arrival === undefined || footing === undefined
+        ? undefined
+        : covered(footing, chord, landed);
+    const raised: boolean = beneath !== undefined && beneath.point.y > chord.y;
+    const world: IAutoMovieVector3 = raised
+      ? { ...chord, y: beneath!.point.y }
+      : chord;
     const local: IAutoMovieVector3 = Quaternion.rotateVector(
       inverse,
       Vector3.subtract(world, state.placement.translation),
@@ -458,11 +480,17 @@ export namespace QuadrupedHoofTrack {
               point: local,
               normal: Quaternion.rotateVector(
                 inverse,
-                nextGround === undefined
-                  ? oldGround.normal
-                  : Vector3.normalize(
-                      Vector3.lerp(oldGround.normal, nextGround.normal, amount),
-                    ),
+                raised
+                  ? beneath!.normal
+                  : nextGround === undefined
+                    ? oldGround.normal
+                    : Vector3.normalize(
+                        Vector3.lerp(
+                          oldGround.normal,
+                          nextGround.normal,
+                          amount,
+                        ),
+                      ),
               ),
             },
           }),
