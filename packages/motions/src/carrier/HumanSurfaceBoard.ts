@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
@@ -20,6 +21,8 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountRider } from "../lexicon/HumanMountRider";
@@ -186,22 +189,38 @@ export function HumanSurfaceBoard(
       to: 1,
       support: { kind: "prop", subject: params.on },
     });
+  // The law's goals: each hand on its grip as the ride starts, which the
+  // support's carry moves with the feet; the arm is laid on one planned
+  // course from the entry's arm to it (`courseArmGoal`), so it keeps its
+  // branch as it reaches and as the support moves.
   const holding = (at: number): IAutoMovieMotionHumanPosture => {
     if (grips.length === 0) return posture;
     const share: number = minimumJerk.share(at / reach);
     let held: IAutoMovieMotionHumanPosture = posture;
     for (const { side, grip } of grips) {
       const arm: IAutoMovieMotionHumanMountRider.IHoldResult =
-        HumanMountRider.hold(body, side, held, grip, share, {});
+        HumanMountRider.hold(body, side, held, grip, 1, {});
+      const fingers: IAutoMovieMotionHumanPosture["joints"] = {};
+      for (const [bone, closed] of Object.entries(arm.fingers)) {
+        if (closed === undefined) continue;
+        const open: readonly [number, number, number] = posture.joints[
+          bone as keyof IAutoMovieMotionHumanPosture["joints"]
+        ] ?? [0, 0, 0];
+        fingers[bone as keyof IAutoMovieMotionHumanPosture["joints"]] = [
+          open[0] + (closed[0] - open[0]) * share,
+          open[1] + (closed[1] - open[1]) * share,
+          open[2] + (closed[2] - open[2]) * share,
+        ];
+      }
       held = {
         ...held,
-        joints: { ...held.joints, ...arm.fingers },
+        joints: { ...held.joints, ...fingers },
         limbs: { ...held.limbs, [`${side}Arm`]: arm.arm },
       };
     }
     return held;
   };
-  return HumanSupportCarry.on(
+  const carried: IAutoMovieMotionHumanActionPlan = HumanSupportCarry.on(
     context,
     {
       duration,
@@ -212,6 +231,27 @@ export function HumanSurfaceBoard(
     },
     params.on,
   );
+  const [first, ...others]: IRideGrip[] = grips;
+  if (first === undefined) return carried;
+  const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+    start: 0,
+    ready: reach,
+    relax: duration,
+    end: duration,
+  };
+  return courseArmGoal({
+    body,
+    plan: carried,
+    side: first.side,
+    rest: AutoMovieMotionHumanArm.angles(entry.pose, first.side),
+    span,
+    with: others.map(
+      ({ side }: IRideGrip): courseArmGoal.IArm => ({
+        side,
+        rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
+      }),
+    ),
+  });
 }
 
 /**

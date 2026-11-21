@@ -180,7 +180,9 @@ function escalatorRide(
       .registered("boardRide", {
         on: "step",
         seconds,
-        hands: { right: "rightRail" },
+        // The right hand takes the rail on the rider's right: the ascending
+        // rider's right rail, the descending rider's left one.
+        hands: { right: up ? "rightRail" : "leftRail" },
       })
       .registered("supportStep", {
         to: alighting,
@@ -207,7 +209,10 @@ function escalatorRide(
     left: local(tread(start), ankle(film, "left", start)),
     right: local(tread(start), ankle(film, "right", start)),
   };
-  const rail: IAutoMovieVector3 = local(tread(start), wrist(film, start));
+  // The hand takes the rail over the ride's first moments (its reach), then
+  // holds it: read from half a second in.
+  const held: number = start + 0.5;
+  const rail: IAutoMovieVector3 = local(tread(held), wrist(film, held));
   const within = (at: number): string[] =>
     SIDES.flatMap((side: AutoMovieHumanSide): string[] =>
       edge(body, film, side, tread(at), at, ride.profile.pitch, escalator),
@@ -228,7 +233,7 @@ function escalatorRide(
         );
     }
     const hand: number = Vector3.distance(local(frame, wrist(film, at)), rail);
-    if (hand > SLIP)
+    if (at >= held && hand > SLIP)
       failures.push(
         `${key}: the right wrist leaves the handrail grip by ${hand.toFixed(3)} m at ${at.toFixed(2)} s`,
       );
