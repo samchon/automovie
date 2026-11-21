@@ -211,8 +211,9 @@ export function test_archetype_equine_draft_driver(): void {
   };
   const horsePart = (id: string, seconds: number): IAutoMovieTransform =>
     ride.frame(id as createHorse.Affordance, Math.max(0, seconds - WAIT));
+  // The postilion sits on the saddle as the ride poses it at its start, not on the rest horse's: a stance lowers the trunk.
   const saddle: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
-    horses[0]!,
+    ride.at(0).archetype,
     horsePlacement(0),
   );
   const postilion: HumanPerformance | undefined = perform(
