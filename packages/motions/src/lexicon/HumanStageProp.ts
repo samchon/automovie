@@ -280,16 +280,61 @@ function plan(
       );
       const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
         StrikingHeld.hand(tool, 0, origin, world(pose.axis), world(pose.roll));
-      if (at === undefined) return { point: grip, rotation: frame.rotation };
+      // A two-handed prop turns about the middle of its hands: the authored
+      // grip is that middle, so the support site never sweeps a full grip
+      // spacing around the leading hand, out of the other arm's reach.
+      const centred: IAutoMovieVector3 =
+        support === null
+          ? grip
+          : Vector3.subtract(
+              grip,
+              Vector3.scale(
+                Quaternion.rotateVector(
+                  frame.rotation,
+                  supportPoint(tool, support),
+                ),
+                0.5,
+              ),
+            );
+      if (at === undefined) return { point: centred, rotation: frame.rotation };
       const markGrip: IAutoMovieVector3 = Vector3.add(at, frame.point);
       return {
-        point: Vector3.lerp(grip, markGrip, share * share),
+        point: Vector3.lerp(centred, markGrip, share * share),
         rotation: frame.rotation,
       };
     },
   });
   const { contact: _contact, wields: _wields, ...visual } = staged;
   return visual;
+}
+
+/**
+ * The support site from the leading grip in the hand's frame, expanded from
+ * its offset in the tool's axis-edge basis.
+ *
+ * @param tool The held tool and its axes.
+ * @param support The support handle's offset.
+ * @returns The support site from the grip socket, metres, in the hand bone's axes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the basis and the result's frame.
+ * @evidence contracts/development/implementation.md#principled-implementation The inverse of the offset's projection onto the orthonormal axis, edge and their cross product.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One weighted sum of three axes.
+ * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Pure vector algebra with no fallback.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ */
+function supportPoint(
+  tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+  support: IAutoMovieMotionHumanStrikingBlade.ISupport,
+): IAutoMovieVector3 {
+  return Vector3.add(
+    Vector3.add(
+      Vector3.scale(tool.axis, support.offset.x),
+      Vector3.scale(tool.edge, support.offset.y),
+    ),
+    Vector3.scale(Vector3.cross(tool.axis, tool.edge), support.offset.z),
+  );
 }
 
 /** Keep the registered hold and read articulated model sites at the authored stroke accent. */

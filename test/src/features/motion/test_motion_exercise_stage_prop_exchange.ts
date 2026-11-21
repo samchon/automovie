@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanPropFrame,
@@ -26,8 +27,15 @@ import {
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** A held grip holds within this in its hand's frame, metres: the staged piste's grip bound. */
-const HOLD: number = 0.005;
+/** One hand's grip: its side, the prop and the prop site's world point at a time. */
+type IGrip = readonly [
+  side: "left" | "right",
+  prop: string,
+  site: (t: number) => IAutoMovieVector3,
+];
+
+/** A hand's grip point lies on its prop site within this, metres: a palm's half width. */
+const GRIP: number = 0.05;
 /** A prop does not jump across a beat boundary by more than this, metres. */
 const RIGID: number = 0.001;
 /** A prop's displayed extremity keeps this clear of a partner's head, metres: a hand's breadth. */
@@ -44,8 +52,8 @@ const APART: number = 0.08;
  * Scenarios:
  * 1. Shaft (#3864): picked up at its lower and upper grips, it plays a
  *    figure-eight with the right hand leading, then an overhead circle with
- *    the hands exchanged, the left leading; both grips hold in their hands'
- *    frames through both beats and the recovery, the shaft never jumps at
+ *    the hands exchanged, the left leading; both hands' grip points stay on their
+ *    grips through both beats, the shaft never jumps at
  *    a beat boundary, its tip clears the partner, and the partner flinches
  *    the authored delay after each stroke.
  * 2. Shield (#3865): a strapped shield on the left grip and a sword in the
@@ -132,19 +140,6 @@ function cue(
   return { entry, stroke };
 }
 
-/** A prop in a hand's displayed frame. */
-function inHand(
-  film: HumanPerformance,
-  side: "left" | "right",
-  prop: string,
-  t: number,
-): IAutoMovieRigidTransform {
-  const hand: IAutoMovieResolvedBone = film
-    .bones("carrier", t)
-    .get(`${side}Hand`)!;
-  return HumanPropFrame.relative(HumanPropFrame.bone(hand), film.prop(prop, t));
-}
-
 /** A prop's mark in the world at a time, read on its articulated model. */
 function mark(
   film: HumanPerformance,
@@ -169,7 +164,8 @@ function mark(
 function verify(
   film: HumanPerformance,
   label: string,
-  grips: readonly (readonly ["left" | "right", string])[],
+  body: IAutoMovieMotionHumanBody,
+  grips: readonly IGrip[],
   anchors: readonly string[],
   extremity: (t: number) => IAutoMovieVector3,
   checks: motionComplaints.IGatherer,
@@ -177,24 +173,24 @@ function verify(
   const first = cue(film, anchors[0]!);
   const last = cue(film, anchors[anchors.length - 1]!);
   const from: number = first.entry.start;
-  // Within each beat, each hand keeps its grip on the prop it holds.
+  // Through each beat, each hand's grip point stays on its prop site.
   for (const anchor of anchors) {
     const { entry } = cue(film, anchor);
-    const start: number = entry.start + 0.02;
-    for (const [side, prop] of grips) {
-      const rest: IAutoMovieRigidTransform = inHand(film, side, prop, start);
-      for (let i: number = 1; i <= 8; ++i) {
-        const t: number = start + ((entry.end - start) * i) / 8;
-        const drift: number = Vector3.distance(
-          inHand(film, side, prop, t).position,
-          rest.position,
-        );
+    for (const [side, prop, site] of grips)
+      for (let i: number = 0; i <= 8; ++i) {
+        const t: number = entry.start + ((entry.end - entry.start) * i) / 8;
+        const hand: IAutoMovieVector3 = HumanHand.frame(
+          body,
+          film.bones("carrier", t),
+          side,
+          "grip",
+        ).point;
+        const gap: number = Vector3.distance(hand, site(t));
         checks.check(
-          `${label}: in ${anchor} the ${side} hand keeps ${prop} at ${t.toFixed(2)} (${drift.toFixed(4)} m)`,
-          drift <= HOLD,
+          `${label}: in ${anchor} the ${side} hand grips ${prop} at ${t.toFixed(2)} (${gap.toFixed(3)} m)`,
+          gap <= GRIP,
         );
       }
-    }
   }
   for (const anchor of anchors) {
     const { entry, stroke } = cue(film, anchor);
@@ -276,9 +272,18 @@ function shaft(
   verify(
     film,
     "shaft",
+    body,
     [
-      ["right", "shaft"],
-      ["left", "shaft"],
+      [
+        "right",
+        "shaft",
+        (t: number) => mark(film, model, "shaft", "grip-lower", t),
+      ],
+      [
+        "left",
+        "shaft",
+        (t: number) => mark(film, model, "shaft", "grip-upper", t),
+      ],
     ],
     ["eight", "circle"],
     (t: number): IAutoMovieVector3 => mark(film, model, "shaft", "tip", t),
@@ -333,9 +338,10 @@ function shield(
   verify(
     film,
     "shield",
+    body,
     [
-      ["left", "shield"],
-      ["right", "sword"],
+      ["left", "shield", (t: number) => mark(film, guard, "shield", "grip", t)],
+      ["right", "sword", (t: number) => mark(film, blade, "sword", "grip", t)],
     ],
     ["boss", "rim"],
     (t: number): IAutoMovieVector3 => mark(film, guard, "shield", "rim", t),
