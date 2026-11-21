@@ -11,6 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -135,7 +136,7 @@ export namespace AquaticRescue {
     );
     const hipsAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["hips"]);
-    return {
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       contacts: [],
       events: [
@@ -204,6 +205,17 @@ export namespace AquaticRescue {
         };
       },
     };
+    // The near arm reaches from its last crawl stroke to the victim's
+    // sternum as one admitted course and holds it through the tow
+    // (`courseArmGoal`); the victim never reads the rescuer.
+    const opening: IAutoMovieMotionHumanPosture = plan.posture(arrive);
+    return courseArmGoal({
+      body,
+      plan,
+      side: "right",
+      rest: AquaticPosture.rest(body, opening, "right"),
+      span: { start: arrive, ready: hold, relax: duration, end: duration },
+    });
   }
 
   /** The victim: face up, carried along the tow from the rescuer's hold. */

@@ -20,18 +20,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 
 /** Seconds a support contact blends in before its grip and out after its release. */
 const CONTACT_BLEND: number = 0.22;
+
+/** Seconds a base's support arm takes to reach into its palm offer and back out: provisional, an unhurried sculling arm. */
+const BASE_REACH: number = 0.5;
 
 /**
  * An artistic figure with optional team support. Flat and vertical sculls
@@ -294,7 +295,7 @@ export namespace AquaticTeam {
         // A base writes its whole palm offer over its arm's course, which
         // lays the reach in and out itself.
         if (support !== undefined)
-          return t >= gripStart - CONTACT_BLEND && t <= gripEnd + CONTACT_BLEND
+          return t >= gripStart - BASE_REACH && t <= gripEnd + BASE_REACH
             ? support(shaped, t, 1)
             : shaped;
         if (blendContact === 0) return shaped;
@@ -357,24 +358,13 @@ export namespace AquaticTeam {
     // arm into the offered palm and back out (`courseArmGoal`).
     if (!base) return plan;
     const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
-      start: gripStart - CONTACT_BLEND,
+      start: gripStart - BASE_REACH,
       ready: gripStart,
       relax: gripEnd,
-      end: gripEnd + CONTACT_BLEND,
+      end: gripEnd + BASE_REACH,
     };
     // The arm the figure's own key holds as the reach begins.
     const opening: IAutoMovieMotionHumanPosture = plan.posture(span.start);
-    const before: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(
-      body,
-      {
-        ...opening,
-        limbs: Object.fromEntries(
-          Object.entries(opening.limbs).filter(
-            ([limb]: [string, unknown]): boolean => !limb.endsWith("Arm"),
-          ),
-        ),
-      },
-    );
     return (
       params.side === undefined ? (["left", "right"] as const) : [params.side]
     ).reduce(
@@ -386,7 +376,7 @@ export namespace AquaticTeam {
           body,
           plan: laid,
           side,
-          rest: AutoMovieMotionHumanArm.angles(before, side),
+          rest: AquaticPosture.rest(body, opening, side),
           span,
         }),
       plan,
@@ -457,7 +447,20 @@ function prepareBase(
         y: 0,
         z: body.measure.forearm * 0.75,
       }),
-      rotation: HumanHand.rotation(side, { fingers, palm: UP }),
+      // A supinated hand under a load points its fingers inward and
+      // forward, as a tray is carried, not straight ahead.
+      rotation: HumanHand.rotation(side, {
+        fingers: Vector3.normalize(
+          Vector3.add(
+            fingers,
+            HumanFrame.point(
+              { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
+              { x: side === "left" ? -1 : 1, y: 0, z: 0 },
+            ),
+          ),
+        ),
+        palm: UP,
+      }),
     }),
   );
   return (

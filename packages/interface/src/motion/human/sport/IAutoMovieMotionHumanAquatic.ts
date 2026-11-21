@@ -17,7 +17,8 @@ export namespace IAutoMovieMotionHumanAquatic {
    * `waterExit` stands a swimmer up in the shallows onto the ground,
    * `distress` is the instinctive drowning response, `rescueTow` and `towed`
    * are a rescuer and the victim it tows, `edgeExit` climbs out over a pool
-   * edge, and `finSwim`, `duckDive` and `snorkel` swim with fins under or at
+   * edge, `liftOut` and `liftedOut` are a rescuer on the deck and the victim
+   * it lifts out by the wrists, and `finSwim`, `duckDive` and `snorkel` swim with fins under or at
    * the surface.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the named variants select and distinguishes the authored outcomes.
@@ -41,6 +42,8 @@ export namespace IAutoMovieMotionHumanAquatic {
     | "rescueTow"
     | "towed"
     | "edgeExit"
+    | "liftOut"
+    | "liftedOut"
     | "finSwim"
     | "duckDive"
     | "snorkel";
@@ -92,7 +95,7 @@ export namespace IAutoMovieMotionHumanAquatic {
     /** The world height of the water surface in metres; zero when omitted. */
     water?: number;
 
-    /** Boat subject id for a craft, or the fixed end-wall subject with a finite level edge facing across the swimmer's lane. */
+    /** Boat subject id for a craft, the fixed end-wall subject with a finite level edge facing across the swimmer's lane, or the pool edge an exit or a lift-out is made over. */
     support?: string;
 
     /** Paddle or water polo ball subject id. */
@@ -119,7 +122,7 @@ export namespace IAutoMovieMotionHumanAquatic {
     /** Seconds of a distress before submersion (20 to 60, 30 when absent), or of a fin swim or snorkel (4 when absent). */
     seconds?: number;
 
-    /** The victim a rescuer tows, or the rescuer a towed victim holds on to. */
+    /** The victim a rescuer tows or lifts out, or the rescuer a towed victim holds on to. */
     partner?: string;
 
     /** Metres below the surface a duck dive reaches before it ascends. */

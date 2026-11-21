@@ -1,20 +1,20 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
-  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { AquaticEdge } from "./AquaticEdge";
 import { AquaticPosture } from "./AquaticPosture";
 
 /** Seconds of the whole exit: provisional. */
@@ -24,6 +24,9 @@ const DURATION: number = 3.2;
 const PLACE: number = 0.2;
 const PRESS: number = 0.5;
 const KNEE: number = 0.75;
+
+/** The share by which the hands have left the deck for the rising key's arms. */
+const LET_GO: number = 0.88;
 
 /** The highest deck above the water a swimmer presses out over unaided, metres: provisional, about a forearm. */
 const FREEBOARD: number = 0.5;
@@ -58,45 +61,9 @@ export namespace AquaticEdgeExit {
     context: AquaticPosture.Context,
     water: number,
   ): IAutoMovieMotionHumanActionPlan {
-    const { body, entry, params, start } = context;
-    const id: string | undefined = params.support;
-    if (id === undefined)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "support",
-        value: null,
-        reason: "an exit climbs out over a named edge",
-        fix: "give the pool edge's subject id in support",
-      });
-    const edge: IAutoMovieMotionHumanPropReader = context.prop(id);
-    const frame: IAutoMovieRigidTransform = edge.frame(start);
-    const contact: IAutoMovieAffordance | undefined = (
-      edge.prop.affordances ?? []
-    ).find((a: IAutoMovieAffordance): boolean => a.id === "edge");
-    if (contact === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "support",
-        value: id,
-        reason: "the support declares no edge",
-        fix: "use a pool edge with an `edge` contact",
-      });
-    const world = (local: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, local),
-      );
-    const lip: IAutoMovieVector3 = world(contact.frame.translation);
-    const out: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
-      x: 0,
-      y: 0,
-      z: 1,
-    });
-    const across: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
-      x: 1,
-      y: 0,
-      z: 0,
-    });
+    const { body, entry } = context;
+    const edge: AquaticEdge.IEdge = AquaticEdge.of(context);
+    const { id, lip, out } = edge;
     const freeboard: number = lip.y - water;
     if (freeboard > FREEBOARD)
       throw new HumanRefusal({
@@ -110,10 +77,7 @@ export namespace AquaticEdgeExit {
 
     // Places on the deck, behind the edge.
     const on = (back: number, side: number): IAutoMovieVector3 =>
-      Vector3.add(
-        lip,
-        Vector3.add(Vector3.scale(out, -back), Vector3.scale(across, side)),
-      );
+      AquaticEdge.at(edge, -back, side, 0);
     const palms: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: on(PALM_BACK, PALM_SIDE),
       right: on(PALM_BACK, -PALM_SIDE),
@@ -196,7 +160,15 @@ export namespace AquaticEdgeExit {
         }),
       ),
     ];
-    return {
+    // The palms' goals, written through the hands' whole courses.
+    const arms = (u: number): IAutoMovieMotionHumanPosture["limbs"] => {
+      const reach: number = Math.min(1, u / PLACE);
+      return {
+        leftArm: palm(body, "left", palms.left, out, reach),
+        rightArm: palm(body, "right", palms.right, out, reach),
+      };
+    };
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration: DURATION,
       contacts,
       events: [
@@ -213,7 +185,10 @@ export namespace AquaticEdgeExit {
             : u < KNEE
               ? over((u - PRESS) / (KNEE - PRESS))
               : rise((u - KNEE) / (1 - KNEE));
-        if (u >= KNEE) return shaped;
+        if (u >= KNEE)
+          return u > LET_GO
+            ? shaped
+            : { ...shaped, limbs: { ...shaped.limbs, ...arms(u) } };
         const target: IAutoMovieVector3 =
           u < PRESS
             ? Vector3.lerp(
@@ -227,17 +202,31 @@ export namespace AquaticEdgeExit {
           shaped,
           Vector3.add(shaped.root, Vector3.subtract(target, hips)),
         );
-        const reach: number = Math.min(1, u / PLACE);
-        return {
-          ...posture,
-          limbs: {
-            ...posture.limbs,
-            leftArm: palm(body, "left", palms.left, out, reach),
-            rightArm: palm(body, "right", palms.right, out, reach),
-          },
-        };
+        return { ...posture, limbs: { ...posture.limbs, ...arms(u) } };
       },
     };
+
+    // Each arm reaches from the entered arm onto the deck as one admitted
+    // course, bears there until the knee is down, and returns to the
+    // rising key's arm by `LET_GO` (`courseArmGoal`).
+    return courseArmGoal({
+      body,
+      plan,
+      side: "left",
+      rest: AutoMovieMotionHumanArm.angles(entry.pose, "left"),
+      with: [
+        {
+          side: "right",
+          rest: AutoMovieMotionHumanArm.angles(entry.pose, "right"),
+        },
+      ],
+      span: {
+        start: 0,
+        ready: PLACE * DURATION,
+        relax: KNEE * DURATION,
+        end: LET_GO * DURATION,
+      },
+    });
   }
 
   /**

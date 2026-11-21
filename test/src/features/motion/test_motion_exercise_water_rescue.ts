@@ -49,8 +49,12 @@ const BAND: readonly [number, number] = [0.4, 1];
  * 4. A swimmer at the pool wall loads both palms on the deck before rising,
  *    climbs out without entering the wall and stands on the deck; a deck too
  *    high above the water is refused.
+ * 5. A rescuer on the deck grips a victim's wrists, lifts its hips to the
+ *    deck and lets go; the victim lies on the deck without entering the wall,
+ *    and the rescuer's feet stay planted on it; a deck too high to lift onto
+ *    is refused.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the three acts, both bodies, the bounds and the refusals.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the four acts, both bodies, the bounds and the refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Composes the registered aquatic kinds over a real pool edge and reads displayed head, hand, chest, hip and foot sites.
  * @evidence contracts/development/testing.md#independent-expectations Pia's drowning response bounds the mouth at the surface and the hands under it; the Red Cross tow band bounds the tow speed; the pool edge's own deck and wall face bound the exit.
  * @evidence contracts/development/testing.md#distinguishing-cases A reachable and an unreachable victim, an ordinary and a too-high deck, and two body sizes.
@@ -62,6 +66,7 @@ export function test_motion_exercise_water_rescue(): void {
     distress(body);
     rescue(body);
     exit(body);
+    liftOut(body);
   }
 }
 
@@ -299,6 +304,149 @@ function exit(body: IAutoMovieMotionHumanBody): void {
   );
 }
 
+/** The assisted removal: wrists held before the hips rise, the victim laid on the deck. */
+function liftOut(body: IAutoMovieMotionHumanBody): void {
+  const deck: number = WATER + 0.3;
+  const edge: IAutoMovieMotionHumanProp = HumanObject.prop(
+    "edge",
+    createPoolEdge({ kind: "deckEdge" }, 1),
+    { at: { x: 0, y: deck, z: 0 }, yaw: 0, fixed: true },
+  );
+  const take = (water: number): HumanPerformance =>
+    new HumanPerformance({
+      seed: "lift-out",
+      laws: [aquatic],
+      props: [edge],
+      performers: [
+        swimmer(body, "victim", { x: 0, y: water - 1.35, z: 0.4 }, 180),
+        // On the deck beside the victim's line, turned toward it and the water.
+        swimmer(body, "rescuer", { x: 0.5, y: deck, z: -0.15 }, -45),
+      ],
+      composition: {
+        kind: "parallel",
+        parts: [
+          HumanChain.subject("victim").registered("aquatic", {
+            kind: "liftedOut",
+            water,
+            support: "edge",
+            partner: "rescuer",
+          }).node,
+          HumanChain.subject("rescuer").registered("aquatic", {
+            kind: "liftOut",
+            water,
+            support: "edge",
+            partner: "victim",
+          }).node,
+        ],
+      },
+    });
+  const film: HumanPerformance = take(WATER);
+  assertTakeClean("the lift-out passes the generic audit", film);
+  const rescuer: IAutoMovieMotionHumanSegment = film.segments("rescuer")[0]!;
+  const victim: IAutoMovieMotionHumanSegment = film.segments("victim")[0]!;
+  const grip: number = at(rescuer, "grip");
+  const released: number = at(rescuer, "released");
+
+  // The rescuer's hands are on the victim's wrists from the grip to the
+  // release, before and while the victim's hips rise.
+  let held: number = 0;
+  for (let i: number = 0; i <= 20; ++i) {
+    const seconds: number = grip + ((released - grip) * i) / 20;
+    const own: ReturnType<HumanPerformance["bones"]> = film.bones(
+      "rescuer",
+      seconds,
+    );
+    const other: ReturnType<HumanPerformance["bones"]> = film.bones(
+      "victim",
+      seconds,
+    );
+    for (const side of ["left", "right"] as const)
+      held = Math.max(
+        held,
+        Math.min(
+          ...(["leftHand", "rightHand"] as const).map((wrist): number =>
+            Vector3.distance(
+              HumanHand.frame(body, own, side, "grip").point,
+              other.get(wrist)!.worldPosition,
+            ),
+          ),
+        ),
+      );
+  }
+  const rose: number = film.bones("victim", grip).get("hips")!.worldPosition.y;
+  TestValidator.predicate(
+    `the rescuer holds the wrists from the grip to the release (${held.toFixed(4)} m)`,
+    held < 0.08 && rose < WATER,
+  );
+  TestValidator.predicate(
+    "the victim's hips reach the deck while held",
+    film.bones("victim", at(victim, "lifted")).get("hips")!.worldPosition.y >
+      deck,
+  );
+
+  // No joint below the deck enters the wall, the rescuer's soles stay on
+  // the deck, and the victim ends lying on it.
+  let inside: number = 0;
+  let sole: number = 0;
+  for (let i: number = 0; i <= 40; ++i) {
+    const seconds: number = (film.duration * i) / 40;
+    const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
+      "victim",
+      seconds,
+    );
+    for (const bone of [
+      "hips",
+      "spine",
+      "leftLowerLeg",
+      "rightLowerLeg",
+      "leftFoot",
+      "rightFoot",
+    ] as const) {
+      const p: IAutoMovieVector3 = bones.get(bone)!.worldPosition;
+      if (p.y < deck - 0.02) inside = Math.max(inside, -p.z);
+    }
+    const own: ReturnType<HumanPerformance["bones"]> = film.bones(
+      "rescuer",
+      seconds,
+    );
+    for (const side of ["left", "right"] as const)
+      sole = Math.max(
+        sole,
+        Math.abs(HumanFoot.sockets(body, own, side)[1]!.point.y - deck),
+      );
+  }
+  TestValidator.predicate(
+    `no victim joint below the deck enters the wall (${inside.toFixed(4)} m)`,
+    inside < 0.02,
+  );
+  TestValidator.predicate(
+    `the rescuer's soles stay on the deck (${sole.toFixed(4)} m)`,
+    sole < 0.03,
+  );
+  const last: ReturnType<HumanPerformance["bones"]> = film.bones(
+    "victim",
+    film.duration,
+  );
+  const chest: IAutoMovieVector3 = last.get("upperChest")!.worldPosition;
+  TestValidator.predicate(
+    "the victim lies on the deck behind the edge",
+    chest.z < 0 &&
+      chest.y > deck &&
+      chest.y < deck + 0.3 &&
+      last.get("hips")!.worldPosition.y > deck,
+  );
+
+  let refusal: unknown;
+  try {
+    take(deck - 0.9);
+  } catch (error: unknown) {
+    refusal = error;
+  }
+  TestValidator.predicate(
+    "a deck too high to lift a victim onto is refused",
+    refusal instanceof HumanRefusal && refusal.axis === "support",
+  );
+}
 /** A trained swimmer placed at a point, facing a heading. */
 function swimmer(
   body: IAutoMovieMotionHumanBody,

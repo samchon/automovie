@@ -7,7 +7,6 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropDrive,
-  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieTransform,
@@ -15,7 +14,6 @@ import type {
 } from "@automovie/interface";
 
 import { unloadedFoot } from "../carrier/unloadedFoot";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -455,21 +453,43 @@ export namespace AquaticSail {
                     window.to < 1 ? near((window.to - u) * duration) : 0,
                     window.from > 0 ? near((u - window.from) * duration) : 0,
                   );
+            const ball: IAutoMovieVector3 = HumanFoot.offset(
+              body,
+              side,
+              "ball",
+            );
             const goal: IAutoMovieHumanLimbGoal = {
               ...posture.limbs[leg]!,
-              contact: HumanFoot.offset(body, side, "ball"),
+              contact: ball,
               planted: window !== undefined,
             };
-            posture.limbs[leg] =
-              weight === 0
-                ? goal
-                : unloadedFoot(
-                    body,
-                    legsAt(posture).get(`${side}UpperLeg`)!.worldPosition,
-                    goal,
-                    HumanFrame.forward(posture.yaw),
-                    weight,
-                  );
+            if (weight === 0 || goal.rotation === undefined) {
+              posture.limbs[leg] = goal;
+              continue;
+            }
+            const turned: IAutoMovieHumanLimbGoal = unloadedFoot(
+              body,
+              legsAt(posture).get(`${side}UpperLeg`)!.worldPosition,
+              goal,
+              HumanFrame.forward(posture.yaw),
+              weight,
+            );
+            // The foot turns about its toe tip, which stays where the flat
+            // foot puts it on the deck: the ball and heel rise, the ankle and
+            // the knee's hint move instead, and no part of the foot dips
+            // below the deck.
+            const toe: IAutoMovieVector3 = HumanFoot.offset(body, side, "toe");
+            const shift: IAutoMovieVector3 = Vector3.subtract(
+              Quaternion.rotateVector(goal.rotation, toe),
+              Quaternion.rotateVector(turned.rotation!, toe),
+            );
+            posture.limbs[leg] = {
+              ...turned,
+              point: Vector3.add(turned.point, shift),
+              ...(turned.bend === undefined
+                ? {}
+                : { bend: Vector3.add(turned.bend, shift) }),
+            };
           }
           posture = resolveHumanPosture.lower(body, posture);
         }
@@ -519,14 +539,6 @@ export namespace AquaticSail {
     // branch and swivel continuity through the maneuver.
     // Each arm reaches from the arm the law's own key holds at the start.
     const opening: IAutoMovieMotionHumanPosture = plan.posture(0);
-    const free: IAutoMoviePose = resolveHumanPosture(body, {
-      ...opening,
-      limbs: Object.fromEntries(
-        Object.entries(opening.limbs).filter(
-          ([limb]: [string, unknown]): boolean => !limb.endsWith("Arm"),
-        ),
-      ),
-    });
     return controls.reduce(
       (
         laid: IAutoMovieMotionHumanActionPlan,
@@ -536,7 +548,7 @@ export namespace AquaticSail {
           body,
           plan: laid,
           side: control.side,
-          rest: AutoMovieMotionHumanArm.angles(free, control.side),
+          rest: AquaticPosture.rest(body, opening, control.side),
           span: {
             start: 0,
             ready: HELM_IN * duration,

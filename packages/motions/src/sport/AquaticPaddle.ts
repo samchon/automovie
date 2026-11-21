@@ -20,6 +20,9 @@ import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPaddleCraft } from "./AquaticPaddleCraft";
 import { AquaticPosture } from "./AquaticPosture";
 
+/** The radius about its grip a paddling hand lands within on the hold, metres: provisional, a hand closed on a shaft. */
+const GRIP_DISC: number = 0.005;
+
 /**
  * Loaded drive and airborne recovery for rowing and racing paddle strokes.
  * Double-scull landmarks follow Cuijpers et al. at 26 strokes/min
@@ -232,29 +235,34 @@ export namespace AquaticPaddle {
       },
     };
     // With a native paddle the hands hold its grips through the strokes:
-    // each arm is laid as one admitted course from the entered arm to its
-    // grip by the paddle-ready instant, held with branch and swivel
-    // continuity (`courseArmGoal`). Hands that hold the paddle from the
-    // start (no lead) begin on their grips.
+    // both arms are laid as one course on the one implement, each hand from
+    // the entered arm to its grip by the paddle-ready instant, held with
+    // branch and swivel continuity and within `GRIP_DISC` of its grip
+    // (`courseArmGoal`). The hands on the paddle are its grasp, not a
+    // collision. Hands that hold the paddle from the start (no lead) begin
+    // on their grips.
     if (actual === undefined) return plan;
     const start: IAutoMoviePose =
       lead > 0
         ? context.entry.pose
         : resolveHumanPosture(body, plan.posture(0));
-    return (["left", "right"] as const).reduce(
-      (
-        laid: IAutoMovieMotionHumanActionPlan,
-        side: AquaticCrew.Side,
-      ): IAutoMovieMotionHumanActionPlan =>
-        courseArmGoal({
-          body,
-          plan: laid,
-          side,
-          rest: AutoMovieMotionHumanArm.angles(start, side),
-          span: { start: 0, ready: lead, relax: duration, end: duration },
-        }),
+    return courseArmGoal({
+      body,
       plan,
-    );
+      side: "left",
+      rest: AutoMovieMotionHumanArm.angles(start, "left"),
+      grasp: ["hand"],
+      disc: GRIP_DISC,
+      with: [
+        {
+          side: "right",
+          rest: AutoMovieMotionHumanArm.angles(start, "right"),
+          grasp: ["hand"],
+          disc: GRIP_DISC,
+        },
+      ],
+      span: { start: 0, ready: lead, relax: duration, end: duration },
+    });
   }
 
   /** Keep the entered hip height on the rail and bound its rear travel by both braced legs. */

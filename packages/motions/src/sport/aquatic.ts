@@ -12,6 +12,7 @@ import { AquaticDive } from "./AquaticDive";
 import { AquaticEdgeExit } from "./AquaticEdgeExit";
 import { AquaticExit } from "./AquaticExit";
 import { AquaticFin } from "./AquaticFin";
+import { AquaticLiftOut } from "./AquaticLiftOut";
 import { AquaticPaddle } from "./AquaticPaddle";
 import { AquaticPolo } from "./AquaticPolo";
 import { AquaticPool } from "./AquaticPool";
@@ -74,6 +75,10 @@ export namespace aquatic {
         return AquaticRescue.towed(context, water);
       case "edgeExit":
         return AquaticEdgeExit.plan(context, water);
+      case "liftOut":
+        return AquaticLiftOut.rescuer(context, water);
+      case "liftedOut":
+        return AquaticLiftOut.lifted(context, water);
       case "finSwim":
       case "duckDive":
       case "snorkel":

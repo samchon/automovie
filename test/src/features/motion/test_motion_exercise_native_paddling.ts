@@ -258,12 +258,25 @@ export function test_motion_exercise_native_paddling(): void {
             ? "topGrip"
             : "shaftGrip"
           : `${side}Grip`;
-        const grip = paddle.affordances.find((site) => site.id === id)!.frame
-          .translation;
-        const actual = HumanHand.frame(body, bones, side, "grip").point;
+        // A hand may hold a round handle anywhere along its length: the gap
+        // is the hand's distance off the handle's axis, or past its end.
+        const site = paddle.affordances.find((site) => site.id === id)!;
+        const centre: IAutoMovieVector3 = point(tool, site.frame.translation);
+        const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.multiply(tool.rotation, site.frame.rotation),
+          { x: 1, y: 0, z: 0 },
+        );
+        const offset: IAutoMovieVector3 = Vector3.subtract(
+          HumanHand.frame(body, bones, side, "grip").point,
+          centre,
+        );
+        const along: number = Vector3.dot(offset, axis);
         maxHand = Math.max(
           maxHand,
-          Vector3.distance(actual, point(tool, grip)),
+          Vector3.length(
+            Vector3.subtract(offset, Vector3.scale(axis, along)),
+          ),
+          Math.abs(along) - (site.length ?? 0) / 2,
         );
       }
     }
