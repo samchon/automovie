@@ -212,7 +212,6 @@ interface IStaged {
 function stage(body: IAutoMovieMotionHumanBody, bout: IBout): IStaged {
   const blade = createStageBladeProp({ kind: bout.kind, id: "blade" });
   const grip: IAutoMovieVector3 = blade.affordance("grip").frame.translation;
-  const point: IAutoMovieVector3 = blade.affordance("point").frame.translation;
   const held = (
     subject: string,
     root: IAutoMovieVector3,
