@@ -1,11 +1,14 @@
-﻿import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { ArchetypeFrame } from "../core";
+import { EquineAirs } from "./EquineAirs";
 import { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineExpressionCue } from "./EquineExpressionCue";
 import type { EquineStanceCue } from "./EquineStanceCue";
-import { EquineAirs } from "./EquineAirs";
 import { EquineStanceMoves } from "./EquineStanceMoves";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 import { QuadrupedBody } from "./QuadrupedBody";
@@ -205,7 +208,7 @@ export namespace EquineStanceRows {
         goal: (share: number): EquineBodyPose.IGoal => ({
           trunk: EquineStanceSupport.moved(
             start.trunk,
-            Vector3.scale(shift, share),
+            EquineStanceSupport.along(start.trunk, Vector3.scale(shift, share)),
           ),
           limbs: EquineStanceSupport.placed(start.anchors),
         }),
@@ -282,7 +285,11 @@ export namespace EquineStanceRows {
     cue: EquineStanceCue.IStepAside,
   ): IPlan {
     const sign: number = cue.side === "left" ? 1 : -1;
-    const offset: IAutoMovieVector3 = { x: sign * cue.width, y: 0, z: 0 };
+    const offset: IAutoMovieVector3 = EquineStanceSupport.along(start.trunk, {
+      x: sign * cue.width,
+      y: 0,
+      z: 0,
+    });
     const near: EquineExpressionCue.Side = cue.side;
     const far: EquineExpressionCue.Side =
       cue.side === "left" ? "right" : "left";
@@ -392,6 +399,9 @@ export namespace EquineStanceRows {
     cue: Pitched,
   ): IPlan {
     const rear: boolean = cue.kind === "rear";
+    const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
+      start.trunk,
+    );
     const joint = (end: End): IAutoMovieVector3 =>
       Vector3.scale(
         Vector3.add(
@@ -413,6 +423,7 @@ export namespace EquineStanceRows {
         0,
         EquineBodyPose.point(start.trunk, rear ? shoulders : hips),
         { x: 0, y: 0, z: 0 },
+        heading,
       ),
       start.trunk,
     );
@@ -457,11 +468,8 @@ export namespace EquineStanceRows {
                 (signed * share) / LOAD,
                 0,
                 EquineBodyPose.point(start.trunk, rear ? shoulders : hips),
-                {
-                  x: 0,
-                  y: 0,
-                  z: 0,
-                },
+                { x: 0, y: 0, z: 0 },
+                heading,
               ),
               start.trunk,
             ),
@@ -478,11 +486,13 @@ export namespace EquineStanceRows {
           );
         return {
           trunk: ArchetypeFrame.chain(
-            EquineBodyPose.turn((target - signed) * lift, 0, pivot, {
-              x: 0,
-              y: 0,
-              z: 0,
-            }),
+            EquineBodyPose.turn(
+              (target - signed) * lift,
+              0,
+              pivot,
+              { x: 0, y: 0, z: 0 },
+              heading,
+            ),
             gathered,
           ),
           limbs,

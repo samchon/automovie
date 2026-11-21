@@ -1,5 +1,8 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { ArchetypeFrame } from "../core";
 import { EquineBodyPose } from "./EquineBodyPose";
@@ -106,6 +109,59 @@ export namespace EquineStanceSupport {
       rotation: motion.rotation,
       translation: Vector3.add(motion.translation, shift),
     };
+  }
+
+  /**
+   * The yaw of a trunk motion: the turn about the vertical that carries +Z onto the trunk's forward direction projected on the floor.
+   *
+   * @param motion The trunk's motion.
+   * @returns The heading rotation; the identity for an unturned trunk.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the heading is and its identity case.
+   * @evidence contracts/development/implementation.md#principled-implementation The bearing of the trunk's forward axis on the floor, as one turn about +Y; the trunk's own pitch and roll are left out, so turns and shifts authored in the horse's frame stay level.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bearing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every row that turns or shifts in the horse's frame.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function heading(
+    motion: ArchetypeFrame.IMotion,
+  ): IAutoMovieQuaternion {
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      motion.rotation,
+      {
+        x: 0,
+        y: 0,
+        z: 1,
+      },
+    );
+    return Quaternion.fromAxisAngle(
+      { x: 0, y: 1, z: 0 },
+      (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
+    );
+  }
+
+  /**
+   * A vector authored in the horse's own frame (X to its left, Y up, Z forward) carried into the base model's space by a trunk's heading.
+   *
+   * @param motion The trunk's motion.
+   * @param vector The vector in the horse's frame.
+   * @returns The vector in the base model's space.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both frames.
+   * @evidence contracts/development/implementation.md#principled-implementation The vector turned by `heading`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `heading`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function along(
+    motion: ArchetypeFrame.IMotion,
+    vector: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return Quaternion.rotateVector(heading(motion), vector);
   }
 
   /**

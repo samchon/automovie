@@ -47,6 +47,9 @@ export namespace EquineBodyPose {
 
     /** Relative carpus or hock fold, degrees. */
     fold: number;
+
+    /** The terminal bar's direction in the base model's space, such as a hoof tipped onto its toe; the base direction, a flat hoof, when absent. */
+    direction?: IAutoMovieVector3;
   }
 
   /**
@@ -222,7 +225,7 @@ export namespace EquineBodyPose {
         .oriented(
           Quaternion.rotateVector(
             inverse,
-            Vector3.subtract(source[4]!, source[3]!),
+            state.direction ?? Vector3.subtract(source[4]!, source[3]!),
           ),
           true,
         )
@@ -300,14 +303,15 @@ export namespace EquineBodyPose {
   /**
    * A rigid motion: a pitch and a roll about a pivot, then a shift.
    *
-   * @param pitch Degrees about +X through the pivot: positive raises a forward point.
-   * @param roll Degrees about +Z through the pivot: positive raises the left (+X) side.
+   * @param pitch Degrees about the heading's +X through the pivot: positive raises a forward point.
+   * @param roll Degrees about the heading's +Z through the pivot: positive raises the left (+X) side.
    * @param pivot The point both turns are about, metres.
    * @param shift The translation after the turns, metres.
+   * @param heading The frame whose X and Z the turns are about, such as a stance's yaw after a spin; the base model's own axes when absent.
    * @returns The motion.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each argument's unit, axis and sign.
-   * @evidence contracts/development/implementation.md#principled-implementation A turn about X by minus the pitch raises +Z, a turn about Z by minus the roll raises +X, composed about the pivot and followed by the shift.
+   * @evidence contracts/development/implementation.md#principled-implementation A turn about X by minus the pitch raises +Z, a turn about Z by minus the roll raises +X, conjugated into the heading's frame, composed about the pivot and followed by the shift.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two axis-angle turns and one translation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -319,12 +323,19 @@ export namespace EquineBodyPose {
     roll: number,
     pivot: IAutoMovieVector3,
     shift: IAutoMovieVector3,
+    heading?: IAutoMovieQuaternion,
   ): ArchetypeFrame.IMotion {
+    const local: IAutoMovieQuaternion = Quaternion.multiply(
+      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -roll),
+      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
+    );
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -roll),
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
-      ),
+      heading === undefined
+        ? local
+        : Quaternion.multiply(
+            Quaternion.multiply(heading, local),
+            Quaternion.inverse(heading),
+          ),
     );
     return {
       rotation,

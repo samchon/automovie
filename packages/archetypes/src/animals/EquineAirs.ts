@@ -69,7 +69,7 @@ export namespace EquineAirs {
    * @throws {RangeError} For a leap count that is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the displaced end.
-   * @evidence contracts/development/implementation.md#principled-implementation The entry is the levade's; each leap of the hold translates the levade's trunk forward by the leap's share of `LEAP` and up on the ballistic parabola of its duration, the hind limbs tucked from their chains at the leap's start; the exit is the levade's played back from the displaced place.
+   * @evidence contracts/development/implementation.md#principled-implementation The entry is the levade's; each leap of the hold translates the levade's trunk along the horse's heading by the leap's share of `LEAP` and up on the ballistic parabola of its duration, the hind limbs tucked from their chains at the leap's start; the exit is the levade's played back from the displaced place.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry, leaps, exit, each from the levade.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height is the ballistic apex of the leap time, never fitted.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per pose.
@@ -85,7 +85,11 @@ export namespace EquineAirs {
       throw new RangeError(
         "A courbette takes a positive whole number of leaps",
       );
-    const travel: IAutoMovieVector3 = { x: 0, y: 0, z: LEAP * cue.leaps };
+    const forward: IAutoMovieVector3 = EquineStanceSupport.along(
+      levade.start.trunk,
+      { x: 0, y: 0, z: LEAP },
+    );
+    const travel: IAutoMovieVector3 = Vector3.scale(forward, cue.leaps);
     const held: EquineBodyPose.IGoal = levade.goal(1);
     const period: number = cue.hold / cue.leaps;
     const apex: number = (GRAVITY * period * period) / 8;
@@ -101,11 +105,10 @@ export namespace EquineAirs {
       hold: (seconds: number): EquineBodyPose.IGoal => {
         const k: number = Math.min(cue.leaps - 1, Math.floor(seconds / period));
         const u: number = Math.min(1, seconds / period - k);
-        const base: EquineBodyPose.IGoal = shift(held, {
-          x: 0,
-          y: 0,
-          z: LEAP * k,
-        });
+        const base: EquineBodyPose.IGoal = shift(
+          held,
+          Vector3.scale(forward, k),
+        );
         const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> = {
           ...base.limbs,
         };
@@ -116,11 +119,14 @@ export namespace EquineAirs {
             Math.sin(Math.PI * u),
           );
         return {
-          trunk: EquineStanceSupport.moved(base.trunk, {
-            x: 0,
-            y: 4 * apex * u * (1 - u),
-            z: LEAP * u,
-          }),
+          trunk: EquineStanceSupport.moved(
+            base.trunk,
+            Vector3.addScaled(
+              { x: 0, y: 4 * apex * u * (1 - u), z: 0 },
+              forward,
+              u,
+            ),
+          ),
           limbs,
         };
       },

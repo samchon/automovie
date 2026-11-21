@@ -48,6 +48,7 @@ type Sample = ArchetypeRide.ISample<
  * 3. In the capriole all four hooves are off the floor through the flight, the trunk's height follows the ballistic apex of its flight time, and the horse lands on all four where it took off.
  * 4. Seeking backward and forward gives the same poses; an air asked for while the horse still moves and a capriole without a flight refuse.
  * 5. A Spanish walk swings each fore hoof high above the ordinary walk's swing with its carpus straight.
+ * 6. A levade after a quarter spin pitches about the turned trunk's lateral axis: the spun bearing is kept and the trunk rises by the levade's angle.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names every scenario and what it checks.
  * @evidence contracts/development/testing.md#behavioral-verification Plays the public stance's airs over the public horse ride and reads displayed limb bars and trunk.
@@ -203,6 +204,37 @@ export function test_archetype_equine_reaction_airs(): void {
         Look.bar(before, QuadrupedBody.BONES[limb][3]).to,
       ) <= 1e-6,
     );
+
+  // 6. A levade after a quarter spin pitches about the turned trunk's own lateral axis: the trunk keeps the spun bearing and rises by the levade's angle, with no roll.
+  const turned: Ride = EquineStance.after(horse, ride, [
+    { kind: "spin", degrees: 90, from: t, entry: 3.2, hold: 0.3, exit: 0.6 },
+    {
+      kind: "air",
+      air: "levade",
+      from: t + 5,
+      entry: 1.6,
+      hold: 1.5,
+      exit: 1.6,
+    },
+  ]);
+  const bearing = (sample: Sample): number => {
+    const axis: IAutoMovieVector3 = Look.axis(sample, "trunk");
+    return (Math.atan2(axis.x, axis.z) * 180) / Math.PI;
+  };
+  const spun: Sample = turned.at(t + 4.6);
+  const raised: Sample = turned.at(t + 5 + 1.6 + 0.75);
+  TestValidator.predicate(
+    "the spin turns the trunk a quarter",
+    Math.abs(Math.abs(bearing(spun) - bearing(halt)) - 90) <= 1e-6,
+  );
+  TestValidator.predicate(
+    "the levade after the spin keeps the spun bearing",
+    Math.abs(bearing(raised) - bearing(spun)) <= 1e-6,
+  );
+  TestValidator.predicate(
+    "the levade after the spin pitches 32.5 degrees",
+    Math.abs(elevation(raised) - elevation(spun) - 32.5) <= 1e-6,
+  );
 
   // 5. Spanish walk: each fore hoof swings high on a straight carpus, far above the ordinary walk's swing.
   const walkCourse: rideQuadruped.ICourse = {

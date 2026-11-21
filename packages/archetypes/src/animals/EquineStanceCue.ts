@@ -1,4 +1,4 @@
-﻿import type { EquineExpressionCue } from "./EquineExpressionCue";
+import type { EquineExpressionCue } from "./EquineExpressionCue";
 import type { QuadrupedBody } from "./QuadrupedBody";
 
 /**
@@ -37,7 +37,7 @@ export namespace EquineStanceCue {
   /**
    * Shift the body over the planted hooves.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The shift is in metres in the stance's own frame: X to the left, Y up, Z forward.
+   * @evidence contracts/development/common.md#meaningful-documentation The shift is in metres in the horse's own frame as it stands when the shift starts: X to its left, Y up, Z forward.
    * @evidence contracts/development/design.md#principled-representation Three components.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The weight-shift response.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
