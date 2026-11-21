@@ -17,6 +17,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanRide,
   IAutoMovieMotionHumanSeated,
   IAutoMovieResolvedBone,
@@ -26,6 +27,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanFoot,
   HumanFrame,
   HumanHand,
   HumanObject,
@@ -49,11 +51,12 @@ const TOLERANCE: number = 0.01;
  * 1. The team's reins run from every horse's bit rings to the box driver's two hand stations, the near reins to the left hand and the off reins to the right.
  * 2. At departure, mid-turn and the turn's exit the driver's seat socket lies within 10 mm of the box's seat rectangle and each palm within 10 mm of the skin of its reins.
  * 3. At the same seconds the postilion's seat socket lies within 10 mm of the near wheeler's saddle seat rectangle.
+ * 4. A charioteer stands on a pair's chariot floor, carried by it: at the same course seconds each sole lies within 10 mm of the floor rectangle.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios, the bodies and the tolerance.
  * @evidence contracts/development/testing.md#behavioral-verification Composes a team, a seated driver and a seated postilion through public APIs and reads displayed seat and palm sockets against the posed box, the laid reins and the posed saddle; a driver left behind, a hand off its reins or a rider off the saddle fails.
  * @evidence contracts/development/testing.md#independent-expectations The 10 mm tolerance is the towed driver's; seat rectangles are the vehicles' and the saddle's own affordances; reins are the laid segments widened by their radius; no rider target is read.
- * @evidence contracts/development/testing.md#distinguishing-cases A box driver on a carriage and a postilion on a horse in the same team at three course positions; the team's own spans and states belong to test_archetype_equine_draft_team.
+ * @evidence contracts/development/testing.md#distinguishing-cases A box driver on a carriage, a postilion on a horse in the same team and a standing charioteer on a pair's chariot at three course positions; the team's own spans and states belong to test_archetype_equine_draft_team.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name.
  */
 export function test_archetype_equine_draft_driver(): void {
@@ -239,6 +242,95 @@ export function test_archetype_equine_draft_driver(): void {
         ),
         horses[0]!.affordance("seat"),
       );
+    }
+  // 4. A charioteer standing on a pair's chariot floor.
+  const chariot: ReturnType<typeof createCart> = createCart(
+    { kind: "chariot", withersHeight: 1.6 },
+    1,
+  );
+  const pair: HorseTeamPlan.ITeam<createCart.Affordance, createCart.Dimension> =
+    HorseTeam([horses[1]!, horses[2]!], chariot, {
+      ...params,
+      hitch: "pair",
+    });
+  const floorAt = (seconds: number): IAutoMovieTransform =>
+    pair.vehicle.frame("floor", Math.max(0, seconds - WAIT));
+  const chariotPlacement = (seconds: number): IAutoMovieRigidTransform => {
+    const frame: IAutoMovieTransform = pair.vehicle.at(
+      Math.max(0, seconds - WAIT),
+    ).placement;
+    return { position: frame.translation, rotation: frame.rotation };
+  };
+  const floor: IAutoMovieAffordance = chariot.affordance("floor");
+  let charioteer: HumanPerformance | undefined;
+  try {
+    charioteer = new HumanPerformance({
+      seed: "team-charioteer",
+      laws: [HumanRide.ride],
+      props: [
+        HumanObject.prop(
+          "chariot",
+          chariot,
+          chariotPlacement(0),
+          chariotPlacement,
+          (id: string, seconds: number): IAutoMovieTransform =>
+            pair.vehicle.frame(
+              id as createCart.Affordance,
+              Math.max(0, seconds - WAIT),
+            ),
+        ),
+      ],
+      performers: [
+        {
+          subject: "charioteer",
+          body,
+          at: floorAt(0).translation,
+          yaw:
+            (Math.atan2(
+              ArchetypeFrame.axis(floorAt(0), "z").x,
+              ArchetypeFrame.axis(floorAt(0), "z").z,
+            ) *
+              180) /
+            Math.PI,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("charioteer").stand({
+        seconds: WAIT + pair.duration,
+        on: { prop: "chariot" },
+      }).node,
+    });
+  } catch (error) {
+    issues.push(
+      `charioteer: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  if (charioteer !== undefined)
+    for (const seconds of instants) {
+      const frame: IAutoMovieTransform = floorAt(seconds);
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        charioteer.bones("charioteer", seconds);
+      for (const side of ["left", "right"] as const) {
+        const gap: number = Math.min(
+          ...HumanFoot.sockets(body, bones, side).map(
+            ({ point }: IAutoMovieMotionHumanFoot.ISocket): number => {
+              const p: IAutoMovieVector3 = Quaternion.rotateVector(
+                Quaternion.inverse(frame.rotation),
+                Vector3.subtract(point, frame.translation),
+              );
+              return Math.hypot(
+                Math.max(0, Math.abs(p.x) - floor.width! / 2),
+                p.y,
+                Math.max(0, Math.abs(p.z) - floor.depth! / 2),
+              );
+            },
+          ),
+        );
+        if (!(gap <= TOLERANCE))
+          issues.push(
+            `charioteer ${seconds.toFixed(2)}: ${side} sole ${(gap * 1000).toFixed(1)} mm from the floor`,
+          );
+      }
     }
   TestValidator.equals(
     "the team's driver and postilion keep their seats and reins",
