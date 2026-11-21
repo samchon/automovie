@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanMounted,
   IAutoMovieMotionHumanPosture,
@@ -14,6 +15,7 @@ import type { HumanMountedSeats } from "./HumanMountedSeats";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 import { HumanMountedStride } from "./HumanMountedStride";
 import type { HumanMountedTimeline } from "./HumanMountedTimeline";
+import { heelMountedFoot } from "./heelMountedFoot";
 
 /**
  * The paths a mounted performance (`HumanMounted`) prepares between its key
@@ -23,7 +25,7 @@ import type { HumanMountedTimeline } from "./HumanMountedTimeline";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three prepared paths.
  * @evidence contracts/development/design.md#principled-representation World or carrier-frame points and metres, prepared once per plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The three functions and the swing's rise, read by the mounted law.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The hips, their pivot and swing, the slack and the feet's arcs with their rise, read by the mounted law.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No carrier is named; its frame and colliders are read through the plan's readers.
  */
 export namespace HumanMountedPaths {
@@ -56,6 +58,115 @@ export namespace HumanMountedPaths {
       posture.joints.hips,
     );
     return Vector3.lerp(joints.left, joints.right, 0.5);
+  }
+
+  /**
+   * The point the hips swing about between two keys: the middle of the ankles when both feet stay planted where they are in both keys, as on their stirrups; none otherwise.
+   *
+   * @param from The earlier key.
+   * @param to The later key.
+   * @returns The pivot, or none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when a pivot exists.
+   * @evidence contracts/development/implementation.md#principled-implementation Both legs planted in both keys with their ankles within a millimetre.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One check per leg.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function pivot(
+    from: IAutoMovieMotionHumanPosture,
+    to: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieVector3 | undefined {
+    const ankles: IAutoMovieVector3[] = [];
+    for (const side of ["left", "right"] as const) {
+      const a: IAutoMovieHumanLimbGoal | undefined = from.limbs[`${side}Leg`];
+      const b: IAutoMovieHumanLimbGoal | undefined = to.limbs[`${side}Leg`];
+      if (
+        a?.planted !== true ||
+        b?.planted !== true ||
+        Vector3.distance(a.point, b.point) > 1e-3
+      )
+        return undefined;
+      ankles.push(b.point);
+    }
+    return Vector3.lerp(ankles[0]!, ankles[1]!, 0.5);
+  }
+
+  /**
+   * The hips a share of the way between two keys: straight, or about a pivot, the direction turned and the distance from the pivot blended, so the hips never come nearer to or further from the feet than at both ends.
+   *
+   * @param from The earlier hips.
+   * @param to The later hips.
+   * @param about The pivot, or none for a straight way.
+   * @param share 0 to 1.
+   * @returns The hips.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both ways and what the swing preserves.
+   * @evidence contracts/development/implementation.md#principled-implementation Polar interpolation about the pivot: the unit directions blended and renormalised, the radii blended linearly.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One branch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Opposite directions fall back to the straight way.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function swing(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    about: IAutoMovieVector3 | undefined,
+    share: number,
+  ): IAutoMovieVector3 {
+    if (about === undefined) return Vector3.lerp(from, to, share);
+    const a: IAutoMovieVector3 = Vector3.subtract(from, about);
+    const b: IAutoMovieVector3 = Vector3.subtract(to, about);
+    const ra: number = Vector3.length(a);
+    const rb: number = Vector3.length(b);
+    const turned: IAutoMovieVector3 = Vector3.lerp(
+      Vector3.scale(a, 1 / ra),
+      Vector3.scale(b, 1 / rb),
+      share,
+    );
+    const length: number = Vector3.length(turned);
+    if (length < 1e-6) return Vector3.lerp(from, to, share);
+    return Vector3.add(
+      about,
+      Vector3.scale(turned, (ra + (rb - ra) * share) / length),
+    );
+  }
+
+  /**
+   * A posture whose planted feet bearing on their balls are turned toes-down where the shank would lean past the ankle's range (`heelMountedFoot`).
+   *
+   * @param body The body.
+   * @param posture The posture, in any frame.
+   * @returns The posture, its planted leg goals turned where needed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which legs are turned.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture's own hip joints (`hipJoints`) and each planted leg through `heelMountedFoot`.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One pass over two legs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A leg goal attached to a bone or not planted is left as it is.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read per sample.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function heels(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
+    const joints: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
+      body,
+      posture.root,
+      resolveHumanPosture.heading(posture),
+      posture.joints.hips,
+    );
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    for (const side of ["left", "right"] as const) {
+      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
+      if (goal?.planted === true && goal.on === undefined)
+        limbs[`${side}Leg`] = heelMountedFoot(body, side, goal, joints[side]);
+    }
+    return { ...posture, limbs };
   }
 
   /**

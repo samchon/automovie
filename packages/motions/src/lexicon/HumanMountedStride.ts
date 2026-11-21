@@ -62,6 +62,32 @@ export namespace HumanMountedStride {
   }
 
   /**
+   * A held grip moved along its own axis by a distance: toward what it leads for a positive one, the hand taking a rein shorter.
+   *
+   * @param grip The grip where the carrier has it.
+   * @param metres How far along the axis.
+   * @returns The moved grip.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement and its sign.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation One translation along the grip's own line.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip without an axis, or no distance, is left where it is.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function along(
+    grip: HumanRideHands.IMaterialGrip,
+    metres: number,
+  ): HumanRideHands.IMaterialGrip {
+    if (grip.axis === undefined || metres === 0) return grip;
+    return {
+      ...grip,
+      point: Vector3.add(grip.point, Vector3.scale(grip.axis, metres)),
+    };
+  }
+
+  /**
    * A held grip moved along its own axis, toward what it leads and back, once a stride: a jockey's hand ride along the reins.
    *
    * @param grip The grip where the carrier has it.

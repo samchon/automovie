@@ -28,8 +28,10 @@ import { HumanMountedSeats } from "./HumanMountedSeats";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 import { HumanMountedStride } from "./HumanMountedStride";
 import { HumanMountedTimeline } from "./HumanMountedTimeline";
+import { HumanMountedWhip } from "./HumanMountedWhip";
 import { HumanRideHands } from "./HumanRideHands";
 import { admitHumanMountedFigure } from "./admitHumanMountedFigure";
+import { respondHumanMounted } from "./respondHumanMounted";
 
 /** The mounted law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMounted>;
@@ -117,6 +119,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     right: context.entry.feet.right.planted,
   };
   if (stride !== undefined) HumanBound.above("stride", stride, 0, "s");
+  const respond: number = context.params.respond ?? 0;
+  HumanBound.within("respond", respond, 0, 1);
   figures.forEach((_: IAutoMovieMotionHumanMounted.IFigure, i: number): void =>
     admitHumanMountedFigure(
       on,
@@ -163,23 +167,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       HumanMountedFrame.LOCAL,
     ),
   );
-  // A hand the entry already holds on the first figure's contact, its wrist within a hand's length of it, stays held from the start.
-  const gripped: Set<AutoMovieHumanSide> = new Set();
-  for (const side of ["left", "right"] as const) {
-    const id: string | undefined = figures[0]!.supports?.[`${side}Hand`];
-    const arm: IAutoMovieMotionHumanPosture["limbs"]["leftArm"] =
-      context.entry.posture.limbs[`${side}Arm`];
-    if (
-      id !== undefined &&
-      arm !== undefined &&
-      arm.on === undefined &&
-      Vector3.distance(
-        arm.point,
-        HumanMountedFrame.contact(support, id, context.start),
-      ) <= context.body.measure.hand
-    )
-      gripped.add(side);
-  }
+  const gripped: Set<AutoMovieHumanSide> = HumanMountedFrame.held(
+    context.body,
+    context.entry.posture,
+    support,
+    figures[0]!,
+    context.start,
+  );
 
   // The clock, and how far the carrier strays from its stride-averaged path out of the saddle.
   const clock: HumanMountedTimeline = new HumanMountedTimeline(
@@ -288,9 +282,16 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         return member;
       },
     );
-  const contacts: IAutoMovieMotionHumanContactWindow[] = clock.windows(
-    members,
-    held,
+  const strokes: HumanMountedWhip.IStroke[] = HumanMountedWhip.strokes(
+    context.cue,
+    context.start,
+    figures,
+    clock,
+  );
+  const contacts: IAutoMovieMotionHumanContactWindow[] = HumanMountedWhip.split(
+    clock.windows(members, held),
+    strokes,
+    clock.duration,
   );
 
   // Hands hold their contacts by the ride's own grip reader and closure.
@@ -310,12 +311,19 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         );
   return {
     duration: clock.duration,
-    events: figures.map(
-      (figure: IAutoMovieMotionHumanMounted.IFigure, i: number) => ({
-        name: `${figure.seat}:${i}`,
-        share: clock.arrivals[i]! / clock.duration,
-      }),
-    ),
+    // Each figure's arrival, then each whip stroke's contact.
+    events: [
+      ...figures.map(
+        (figure: IAutoMovieMotionHumanMounted.IFigure, i: number) => ({
+          name: `${figure.seat}:${i}`,
+          share: clock.arrivals[i]! / clock.duration,
+        }),
+      ),
+      ...strokes.map((stroke: HumanMountedWhip.IStroke, k: number) => ({
+        name: `whip:${k}`,
+        share: stroke.at / clock.duration,
+      })),
+    ],
     contacts,
     base: entered,
     posture: (
@@ -335,14 +343,15 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         keys[index]!,
         share,
       );
-      // The hips travel straight between the keys while the pelvis turns about them, so no leg is stretched past both ends.
+      // The hips travel between the keys while the pelvis turns about them, swinging about feet kept on their stirrups so no leg is stretched or folded past both ends.
       if (share > 0 && share < 1)
         local.root = Vector3.add(
           local.root,
           Vector3.subtract(
-            Vector3.lerp(
+            HumanMountedPaths.swing(
               index === 0 ? hipsOf(entry) : middles[index - 1]!,
               middles[index]!,
+              HumanMountedPaths.pivot(from, keys[index]!),
               share,
             ),
             hipsOf(local),
@@ -374,21 +383,30 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             },
           };
         }
+      // The trunk leans against the carrier's own pitch and roll by the author's share.
+      const now: IAutoMovieRigidTransform = carrier(film);
       const moved: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
-        local,
+        respondHumanMounted(
+          context.body,
+          HumanMountedPaths.heels(context.body, local),
+          origin.rotation,
+          now.rotation,
+          respond,
+        ),
         HumanMountedFrame.LOCAL,
-        carrier(film),
+        now,
       );
 
       // Out of the saddle the pelvis rides the stride-averaged path, faded in and out over the transfers.
-      const kept = (i: number): number =>
-        i < 0 || !HumanMountedStirrups.free(figures[i]!.seat)
-          ? 0
-          : HumanMountedStirrups.profile(figures[i]!.seat).decouple;
       const level: number =
         stride === undefined
           ? 0
-          : kept(index - 1) + (kept(index) - kept(index - 1)) * share;
+          : HumanMountedStirrups.blend(
+              figures,
+              index,
+              share,
+              (p: HumanMountedStirrups.IProfile): number => p.decouple,
+            );
       const shown: IAutoMovieMotionHumanPosture =
         level === 0
           ? moved
@@ -425,10 +443,21 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         const taken: number = clock.hand(side, time);
         const reading: HumanRideHands.IMaterialGrip | undefined = read[side];
         if (taken <= 0 || reading === undefined) continue;
+        // Out of the saddle the hands take the reins shorter, forward on the neck.
+        const shortened: HumanRideHands.IMaterialGrip =
+          HumanMountedStride.along(
+            reading,
+            HumanMountedStirrups.blend(
+              figures,
+              index,
+              share,
+              (p: HumanMountedStirrups.IProfile): number => p.reins,
+            ) * context.body.measure.forearm,
+          );
         const grip: HumanRideHands.IMaterialGrip =
           pushed === 0
-            ? reading
-            : HumanMountedStride.push(reading, time, stride!, pushed);
+            ? shortened
+            : HumanMountedStride.push(shortened, time, stride!, pushed);
         const hold: ReturnType<typeof HumanMountRider.hold> =
           HumanMountRider.hold(
             context.body,
@@ -443,6 +472,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         limbs[`${side}Arm`] = hold.arm;
         Object.assign(joints, hold.fingers);
       }
+      // A striking hand leaves its rein for the stroke and returns to it.
+      HumanMountedWhip.strike(context.body, shown, limbs, strokes, time);
       return { ...shown, limbs, joints };
     },
   };

@@ -1,6 +1,9 @@
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanMounted,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
@@ -118,11 +121,52 @@ export namespace HumanMountedFrame {
     return carryHumanPoint(support.frame(film), declared.frame.translation);
   }
 
-  /** The identity frame a posture is planned in before it is carried. */ export const LOCAL: IAutoMovieRigidTransform =
-    {
-      position: { x: 0, y: 0, z: 0 },
-      rotation: { x: 0, y: 0, z: 0, w: 1 },
-    };
+  /**
+   * The hands the entry already holds on the first figure's contacts: each whose arm goal lies in the world within a hand's length of the contact it is to hold, as a ride's held reins do.
+   *
+   * @param body The body.
+   * @param entry The entered posture, in the world.
+   * @param support The carrier.
+   * @param first The first figure.
+   * @param film The performance's start, film seconds.
+   * @returns The hands held from the start.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the test and its bound.
+   * @evidence contracts/development/implementation.md#principled-implementation The arm goal's wrist against the contact's world point; a hand's length covers the wrist's offset from the grip.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One check per hand.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A goal attached to a bone is not read as holding.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new set.
+   */
+  export function held(
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanPosture,
+    support: IAutoMovieMotionHumanPropReader,
+    first: IAutoMovieMotionHumanMounted.IFigure,
+    film: number,
+  ): Set<AutoMovieHumanSide> {
+    const out: Set<AutoMovieHumanSide> = new Set();
+    for (const side of ["left", "right"] as const) {
+      const id: string | undefined = first.supports?.[`${side}Hand`];
+      const arm: IAutoMovieMotionHumanPosture["limbs"]["leftArm"] =
+        entry.limbs[`${side}Arm`];
+      if (
+        id !== undefined &&
+        arm !== undefined &&
+        arm.on === undefined &&
+        Vector3.distance(arm.point, contact(support, id, film)) <=
+          body.measure.hand
+      )
+        out.add(side);
+    }
+    return out;
+  }
+  /** The identity frame a posture is planned in before it is carried. */
+  export const LOCAL: IAutoMovieRigidTransform = {
+    position: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  };
 
   /**
    * A posture re-expressed from one frame to another: its world points and
