@@ -27,12 +27,18 @@ Under [meaningful documentation](common.md#meaningful-documentation), comment ev
 
 ```ts
 const rush = jun.run({
-  // #s02-b03 action, "he rushes Mara": the sprint pace, his fastest.
+  // #s02-b03 action, "he rushes Mara": the sprint pace, the run's fastest.
   pace: "sprint",
+  // #s02-b03 action, "Jun snaps": strides lengthened to lunge at her.
+  stride: 1.2,
+  // #s02-b03 action, "Jun snaps": strong, sudden, direct and unrestrained effort.
+  manner: { effort: { weight: 1, time: 1, space: 1, flow: -1 } },
   // #s02-b03 Space, "Jun by the door, Mara at the sink": the 5 m from his door mark to her front mark.
   to: kitchen.sink.front,
   // via omitted: #s02-b03 Space leaves the floor between them clear, so the default straight path holds.
 });
+// #s02-b03 action, "knife raised": the knife hand stays high through the run.
+overlay(rush, jun.raise(knife, { hand: "right" }));
 // #s02-b03 Intent, "before she can get round the table": he sets off on her first step back.
 sync(rush.start, maraBackStep.start);
 ```
