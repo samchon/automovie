@@ -499,3 +499,4 @@ export * from "./touch/composeHumanCare";
 export * from "./tasks/composeHumanToolWork";
 export * from "./lexicon/HumanCover";
 export * from "./lexicon/HumanWallRun";
+export * from "./daily/composeHumanBathing";
