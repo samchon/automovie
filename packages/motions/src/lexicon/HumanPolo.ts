@@ -95,7 +95,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       reason: `a polo stroke is made from the saddle, and the performer is ${entered.kind}`,
       fix: "ride the horse first",
     });
-  const lean: number = params.lean ?? 30;
+  const lean: number = params.lean ?? MOST;
   HumanBound.above("lean", lean, 0, "deg");
   HumanBound.within("lean", lean, 0, MOST);
   const speed: number = params.speed ?? 20;
@@ -119,31 +119,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     { tip: "head", edge: "face" },
   );
 
-  // The leaned posture in the carrier contact's frame: risen, pitched forward and rolled out over the side.
+  // The ball at the contact, in the carrier contact's frame.
   const sign: number = params.side === "offside" ? -1 : 1;
   const local: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
     entry,
     origin,
     HumanMountedFrame.LOCAL,
   );
-  const leaned: IAutoMovieMotionHumanPosture = {
-    ...local,
-    root: Vector3.add(local.root, { x: 0, y: RISE, z: 0 }),
-    pitch: local.pitch + PITCH,
-    roll: local.roll - sign * lean,
-  };
-  const attitude: IAutoMovieQuaternion = resolveHumanPosture.heading(leaned);
-  const m = context.body.measure;
-  const shoulder: IAutoMovieVector3 = Vector3.add(
-    leaned.root,
-    Quaternion.rotateVector(attitude, {
-      x: -m.shoulderHalfWidth,
-      y: m.shoulderHeight - m.hipHeight,
-      z: 0,
-    }),
-  );
-
-  // The plane: through the shoulder and the ball at the contact, holding the horse's level heading.
   const struck: number = context.start + contact;
   const atContact: IAutoMovieRigidTransform = carrier(struck);
   const ballWorld: IAutoMovieVector3 = context
@@ -153,8 +135,41 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     Quaternion.inverse(atContact.rotation),
     Vector3.subtract(ballWorld, atContact.position),
   );
-  // The swing's plane: upright along the horse's side through the ball, its centre level with the shoulder over the ball's line, so the head sweeps outside the horse.
-  const centre: IAutoMovieVector3 = { x: ball.x, y: shoulder.y, z: shoulder.z };
+
+  // The rider rises, pitches forward and leans out until the right shoulder is over the ball's line, at most the admitted lean: the swing then turns in an upright plane outside the horse.
+  const m = context.body.measure;
+  const posed = (degrees: number): IAutoMovieMotionHumanPosture => ({
+    ...local,
+    root: Vector3.add(local.root, { x: 0, y: RISE, z: 0 }),
+    pitch: local.pitch + PITCH,
+    roll: local.roll - sign * degrees,
+  });
+  const shoulderAt = (degrees: number): IAutoMovieVector3 => {
+    const p: IAutoMovieMotionHumanPosture = posed(degrees);
+    return Vector3.add(
+      p.root,
+      Quaternion.rotateVector(resolveHumanPosture.heading(p), {
+        x: -m.shoulderHalfWidth,
+        y: m.shoulderHeight - m.hipHeight,
+        z: 0,
+      }),
+    );
+  };
+  // The shoulder's reach out over the side grows with the lean: bisect for the lean whose shoulder meets the ball's line.
+  let low: number = 0;
+  let high: number = lean;
+  if (sign * (shoulderAt(high).x - ball.x) < 0)
+    for (let k: number = 0; k < 24; ++k) {
+      const mid: number = (low + high) / 2;
+      if (sign * (shoulderAt(mid).x - ball.x) < 0) low = mid;
+      else high = mid;
+    }
+  const leaning: number = high;
+  const leaned: IAutoMovieMotionHumanPosture = posed(leaning);
+  const shoulder: IAutoMovieVector3 = shoulderAt(leaning);
+
+  // The swing's circle: about the leaned shoulder through the ball, holding the horse's level heading.
+  const centre: IAutoMovieVector3 = shoulder;
   const toBall: IAutoMovieVector3 = Vector3.subtract(ball, centre);
   const radius: number = Vector3.length(toBall);
   const arm: number = m.upperArm + m.forearm + 0.5 * m.hand;

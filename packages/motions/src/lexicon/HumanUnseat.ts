@@ -262,7 +262,39 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     : (Math.atan2(-travel.x, -travel.z) * 180) / Math.PI;
   const land: number = leave + flight.land;
   const duration: number = land + Math.max(lie, flight.stop);
-  const touch: number = Math.max(leave, land - HumanUnseatPose.TOUCH);
+  // The flying body, without the reaching hand, at a local second.
+  const flown = (t: number): IAutoMovieMotionHumanPosture => {
+    const u: number = Math.max(0, t - leave);
+    return HumanUnseatPose.flying(
+      context.body,
+      at,
+      standing ? HumanUnseatPose.STAND : lying,
+      facing,
+      HumanUnseatFlight.at(flight, u),
+      minimumJerk.share(flight.land === 0 ? 1 : Math.min(1, u / flight.land)),
+    );
+  };
+  // The falling hand meets the floor beside the hip at the first instant of the flight that brings it within the arm's reach, at the latest at the landing.
+  const reached: number | undefined = standing
+    ? land
+    : HumanUnseatPose.reachable(
+        context.body,
+        side,
+        leave,
+        land,
+        flown,
+        (t: number) => HumanUnseatPose.beside(flown(t), side, context.body),
+      );
+  if (reached === undefined)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "fall",
+      value: context.start + land,
+      feasible: null,
+      reason: `the falling ${side} hand cannot reach the floor beside the hip before the landing at film second ${(context.start + land).toFixed(3)}`,
+      fix: "fall from lower, or to the other side",
+    });
+  const touch: number = reached;
   const hand: string = `${side}Hand`;
   const before: number = leave / duration;
   const goals: IAutoMovieMotionHumanActionPlan = {
@@ -294,18 +326,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     posture: (time: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.max(0, Math.min(duration, time));
       if (t <= leave) return seatedAt(t);
-      const u: number = t - leave;
-      const share: number = minimumJerk.share(
-        flight.land === 0 ? 1 : Math.min(1, u / flight.land),
-      );
-      const shown: IAutoMovieMotionHumanPosture = HumanUnseatPose.flying(
-        context.body,
-        at,
-        standing ? HumanUnseatPose.STAND : lying,
-        facing,
-        HumanUnseatFlight.at(flight, u),
-        share,
-      );
+      const shown: IAutoMovieMotionHumanPosture = flown(t);
       return standing
         ? shown
         : HumanUnseatPose.reach(

@@ -274,15 +274,44 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
   if (hand === undefined) return goals;
   // The holding arm is laid as a planned course on its hold: the reach at the take-off, the hold to the landing, the return in the settle.
+  // The hand closes on its hold at the first instant of the flight that brings the hold within the arm's reach of the moving shoulder.
+  const grasped: number | undefined = HumanUnseatPose.reachable(
+    context.body,
+    hand.side,
+    0,
+    LET_GO * flight,
+    (t: number) => goals.posture(t),
+    (t: number) => held(context.start + t)!,
+  );
+  if (grasped === undefined)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "hand",
+      value: context.start + LET_GO * flight,
+      feasible: null,
+      reason: `the ${hand.side} hand's hold stays beyond the arm's reach until the landing at film second ${(context.start + LET_GO * flight).toFixed(3)}`,
+      fix: "take off nearer the hold, or board without it",
+    });
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: 0,
-    ready: Math.min(GRASP, LET_GO * flight),
+    ready: Math.max(Math.min(GRASP, LET_GO * flight), grasped),
     relax: LET_GO * flight,
     end: duration,
   };
   return courseArmGoal({
     body: context.body,
-    plan: goals,
+    // The grip holds from the instant the hand reaches its hold.
+    plan: {
+      ...goals,
+      contacts: goals.contacts.map(
+        (
+          c: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanContactWindow =>
+          c.part === `${hand.side}Hand` && c.kind === "grip"
+            ? { ...c, from: grasped / duration }
+            : c,
+      ),
+    },
     side: hand.side,
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand.side),
     span,

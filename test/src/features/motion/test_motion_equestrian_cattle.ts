@@ -133,10 +133,15 @@ export function test_motion_equestrian_cattle(): void {
   // 1. Tie-down: catch, the horse stops and sets back on the rope, the roper steps off, runs down the rope and holds the hind leg.
   const stopping: mountedHorseScene.Ride = rideHorse(horse, {
     start: { x: 0, z: 0, heading: 0 },
-    legs: [{ kind: "straight", length: 30 }],
-    cruise: 0.71,
-    startSpeed: 0.71,
-    endSpeed: 0.71,
+    legs: [
+      { kind: "straight", length: 24 },
+      { kind: "straight", length: 8 },
+      { kind: "straight", length: 3 },
+    ],
+    // From the canter through the walk to a square halt, which a set back starts from.
+    speeds: [5, 1.2, 0],
+    cruise: 5,
+    startSpeed: 5,
     acceleration: 2,
     deceleration: 2.5,
   });

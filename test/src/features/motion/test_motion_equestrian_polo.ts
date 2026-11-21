@@ -40,8 +40,8 @@ const WAIT: number = 6;
 /** Seconds into the polo act the head meets the ball. */
 const AT: number = 1.6;
 
-/** The admitted lean, degrees: the law's default. */
-const LEAN: number = 30;
+/** The most the law lets the trunk lean, degrees: its default. */
+const LEAN: number = 45;
 
 /**
  * Polo strokes from a cantering horse (#3955): offside and nearside forehands and backhands at a ball on the ground.
@@ -49,7 +49,7 @@ const LEAN: number = 30;
  * Scenarios:
  * 1. For each stroke the displayed mallet head, read from the mallet prop's own frame and its `head` contact, is within the ball's radius plus the head's and 20 mm of the ball's centre at the contact.
  * 2. Through each swing the displayed head stays outside the straddle's half width wherever it is below the saddle, clearing the horse.
- * 3. Both balls of the feet stay within 10 mm of their stirrups' treads and the left wrist within 0.7 hand lengths of its rein; the trunk's roll against the saddle stays within the admitted 30 degrees plus 5.
+ * 3. Both balls of the feet stay within 10 mm of their stirrups' treads and the left wrist within 0.7 hand lengths of its rein; the trunk's roll against the saddle stays within the admitted 45 degrees plus 5.
  * 4. The events run take-away, top, contact, finish, and the ball's launch is at the contact, level, along the swing: forward for a forehand, backward for a backhand.
  * 5. A ball three metres out is refused on `ball`.
  *

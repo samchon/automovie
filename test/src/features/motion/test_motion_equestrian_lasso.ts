@@ -80,6 +80,7 @@ export function test_motion_equestrian_lasso(): void {
   const stage = (
     ahead: number,
     grip: IAutoMovieVector3,
+    rope: boolean = true,
   ): {
     scene: mountedHorseScene.IScene;
     head: (at: number) => IAutoMovieVector3;
@@ -127,35 +128,43 @@ export function test_motion_equestrian_lasso(): void {
         }),
       ],
       from: { x: 0.6, y: 0, z: -0.2 },
-      acts: (seated) =>
-        seated
-          .registered("lassoFixtureRide", {
-            on: "horse",
-            seconds: WAIT,
-            seat: "seat",
-            feet: { left: "leftStirrup", right: "rightStirrup" },
-            hands: { left: "leftRein" },
-          })
-          .registered("lasso", {
-            on: "horse",
-            frame: "seat",
-            lariat: "lariat",
-            target: { subject: "calf", contact: "head" },
-            stride: "stride",
-            swings: 3,
-            dally: { horn: "horn", turns: 2 },
-          }),
+      acts: (seated) => {
+        const ridden = seated.registered("lassoFixtureRide", {
+          on: "horse",
+          seconds: WAIT,
+          seat: "seat",
+          feet: { left: "leftStirrup", right: "rightStirrup" },
+          hands: { left: "leftRein" },
+        });
+        return !rope
+          ? ridden
+          : ridden.registered("lasso", {
+              on: "horse",
+              frame: "seat",
+              lariat: "lariat",
+              target: { subject: "calf", contact: "head" },
+              stride: "stride",
+              swings: 3,
+              dally: { horn: "horn", turns: 2 },
+            });
+      },
     });
     return {
       scene,
       head: (at: number): IAutoMovieVector3 => head("head", at).translation,
     };
   };
-  // A dry take finds where the right hand rests as the lasso act begins.
-  const dry = stage(4, { x: 0, y: -10, z: 0 }).scene;
-  const begun: number = dry.segments[dry.segments.length - 1]!.start;
+  // A dry take, without the throw, finds where the right hand rests as the lasso act begins and where the horse is at the release, three strides on; the calf walks so that it is 4 m ahead of the horse then.
+  const dry = stage(0, { x: 0, y: -10, z: 0 }, false).scene;
+  const begun: number = dry.segments[dry.segments.length - 1]!.end;
+  const released: number =
+    begun + 3 * (strides[1]!.seconds - strides[0]!.seconds);
+  const near: number =
+    course.at(Math.max(0, released - WAIT)).placement.translation.z +
+    4 -
+    0.71 * (released - WAIT);
   const staged = stage(
-    4,
+    near,
     HumanHand.frame(body, dry.film.bones("rider", begun), "right", "grip")
       .point,
   );
@@ -259,7 +268,7 @@ export function test_motion_equestrian_lasso(): void {
   let error: unknown = null;
   try {
     const far: mountedHorseScene.IScene = stage(
-      24,
+      near + 20,
       HumanHand.frame(body, dry.film.bones("rider", begun), "right", "grip")
         .point,
     ).scene;

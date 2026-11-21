@@ -28,7 +28,7 @@ export interface IAutoMovieMotionHumanPolo {
   /** Seconds into the act the head meets the ball; at least the lean-in, take-away and downswing. */
   contact: number;
 
-  /** The trunk's lean out over the side, degrees, more than 0 and at most `IAutoMovieMotionHumanPolo` admits; 30 when absent. */
+  /** The most the trunk may lean out over the side, degrees, more than 0 and at most 45; the stroke leans as far as brings the right shoulder over the ball's line. 45 when absent. */
   lean?: number;
 
   /** The ball's speed off the mallet, metres per second; 20 when absent. */

@@ -225,14 +225,14 @@ export namespace HumanUnseatPose {
       ...posture,
       limbs: {
         ...posture.limbs,
-        // The held goal keeps its own elbow and turn; only its point moves, so the arm does not flip.
+        // The new goal keeps only the held goal's elbow point, so the arm does not flip; its contact, turn and limits were the old hold's and do not carry to a new site.
         [`${side}Arm`]: {
-          ...(posture.limbs[`${side}Arm`] ?? {
-            bend: Vector3.add(
+          bend:
+            posture.limbs[`${side}Arm`]?.bend ??
+            Vector3.add(
               hanging,
               Quaternion.rotateVector(turn, { x: sign * 0.3, y: 0, z: -0.3 }),
             ),
-          }),
           point: Vector3.lerp(hanging, point, share),
           planted: share >= 1,
         },
@@ -351,5 +351,74 @@ export namespace HumanUnseatPose {
           fix: "push the fall harder to the side, or fall backward or forward",
         });
     }
+  }
+
+  /**
+   * A posture's shoulder joint on a side, from its root and heading by the body's measures.
+   *
+   * @param body The body.
+   * @param posture The posture.
+   * @param side The side.
+   * @returns World metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the point.
+   * @evidence contracts/development/implementation.md#principled-implementation The shoulder's height over the hips and half width, turned by the posture's heading from its root.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One offset.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new point.
+   */
+  export function shoulder(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieVector3 {
+    const m = body.measure;
+    return Vector3.add(
+      posture.root,
+      Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+        x: (side === "left" ? 1 : -1) * m.shoulderHalfWidth,
+        y: m.shoulderHeight - m.hipHeight,
+        z: 0,
+      }),
+    );
+  }
+
+  /**
+   * The first of a span's samples at which a hand's target comes within the arm's reach of its shoulder.
+   *
+   * @param body The body.
+   * @param side The hand.
+   * @param from The span's start, local seconds.
+   * @param to The span's end, local seconds.
+   * @param posture The posture at a local second.
+   * @param target The hand's target at a local second, world metres.
+   * @returns The first reachable second, or undefined when none is.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the search and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation Sixteen even samples of the span; reachable within the upper arm, forearm and half the hand.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target never in reach yields none; nothing is stretched.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen posture reads.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function reachable(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    from: number,
+    to: number,
+    posture: (t: number) => IAutoMovieMotionHumanPosture,
+    target: (t: number) => IAutoMovieVector3,
+  ): number | undefined {
+    const m = body.measure;
+    const arm: number = m.upperArm + m.forearm + 0.5 * m.hand;
+    for (let k: number = 0; k <= 16; ++k) {
+      const t: number = from + ((to - from) * k) / 16;
+      if (Vector3.distance(shoulder(body, posture(t), side), target(t)) <= arm)
+        return t;
+    }
+    return undefined;
   }
 }
