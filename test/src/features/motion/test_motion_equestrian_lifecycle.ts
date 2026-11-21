@@ -149,6 +149,15 @@ interface Take {
   part: (id: string, at: number) => IAutoMovieTransform;
 }
 
+/** The led walking ride, laid after the handler's walk is rehearsed, and the film second it starts. */
+interface ILed {
+  /** The led ride; absent until the rehearsal has timed it. */
+  ride?: Ride;
+
+  /** Film second the led ride starts; never reached before it is laid. */
+  start: number;
+}
+
 /** Which recorded ride currently carries the horse, and the second on that ride's own clock. */
 interface ICarrierTrack {
   /** The ride sampled. */
@@ -253,13 +262,12 @@ function build(
     ...approach,
     z: approach.z + LEAD_LENGTH,
   };
-  let lead: Ride | undefined;
-  let leadStart: number = Infinity;
+  const led: ILed = { start: Infinity };
 
   /** The shot keeps the actual parked mount until the separate led walking track begins. */
   function carrierAt(at: number): ICarrierTrack {
-    return lead !== undefined && at >= leadStart
-      ? { ride: lead, local: Math.min(lead.duration, at - leadStart) }
+    return led.ride !== undefined && at >= led.start
+      ? { ride: led.ride, local: Math.min(led.ride.duration, at - led.start) }
       : {
           ride: mounted,
           local: Math.max(0, Math.min(mounted.duration, at - MOUNT_WAIT)),
@@ -320,8 +328,8 @@ function build(
     (_: unknown, i: number): number => hips(walking.start + i * step) - begin,
   );
   const matched: IMatchedCourse = matchCourse(progress, step);
-  leadStart = walking.start;
-  lead = rideHorse(
+  led.start = walking.start;
+  led.ride = rideHorse(
     horse,
     {
       start: { x: origin.translation.x, z: origin.translation.z, heading: 0 },

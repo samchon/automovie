@@ -457,6 +457,25 @@
     "baseballHit": {},
     "bicycleEffort": {},
     "bikeTransfer": {},
+    "leadHorse": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "transition": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "mounted": {},
     "boardRide": {},
     "bowlingDelivery": {},
     "cricketBowl": {},
