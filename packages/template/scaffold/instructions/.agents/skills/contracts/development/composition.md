@@ -1,6 +1,6 @@
 # Composition
 
-Each exported function and method under `src/composition/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md). What it cites depends on what it composes:
+Each exported function and method under `src/composition/` answers these items in its doc comment, beside [implementation](implementation.md). It realizes a screenplay rather than serving callers, so it documents that realization here instead of under [common](common.md). What it cites depends on what it composes:
 
 | Declaration | Cites |
 | --- | --- |
@@ -30,6 +30,30 @@ If staging a passage requires inventing an exchange, response or pause, return t
 Play the numbered scenes with their transitions, titles and subtitles. Use the [delivery profile](../../production/project-context.md) for raster, frame rate and running time. Take grade and control channels from the screenplay and profile.
 
 For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
+
+## Realization comments
+
+Can a reader trace each value the declaration passes, and each default it relies on, to what it realizes, and every element of each cited beat to its values?
+
+Comment each such value with its source and how it realizes it, so a reader can check it against that source without deriving it again. A scene's comment gives the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) and, for skilled practice, the study section. Every element of each cited beat reaches at least one commented value. A film cites the screenplay or profile entry a value takes, and a catalog case the fact or observed exchange it exhibits.
+
+```ts
+const rush = jun.run({
+  // #s02-b03 action, "he rushes Mara": at full speed.
+  pace: "sprint",
+  // #s02-b03 action, "Jun snaps": he lunges at her.
+  stride: 1.2,
+  // #s02-b03 action, "Jun snaps": all his weight thrown at once, straight at her, past control.
+  manner: { effort: { weight: 1, time: 1, space: 1, flow: -1 } },
+  // #s02-b03 Space, "Jun by the door, Mara at the sink": 5 m to her.
+  to: kitchen.sink.front,
+  // via omitted: #s02-b03 Space leaves the floor between them clear, so he runs straight.
+});
+// #s02-b03 action, "knife raised": held high through the run.
+overlay(rush, jun.raise(knife, { hand: "right" }));
+// #s02-b03 Intent, "before she can get round the table": he sets off on her first step back.
+sync(rush.start, maraBackStep.start);
+```
 
 ## Composition only
 
