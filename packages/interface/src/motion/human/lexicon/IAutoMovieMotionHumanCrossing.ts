@@ -38,7 +38,7 @@ export namespace IAutoMovieMotionHumanCrossing {
   /**
    * A low obstruction stepped over with planted feet.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the obstacle and the optional lead foot.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the obstacle, the optional lead foot and the optional landing surface.
    * @evidence contracts/development/design.md#principled-representation The obstacle's collision shapes bound the step; the lead side is the anatomical side.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The parameters stepOver takes, under the crossing's discriminant.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The obstacle's height and depth stay with its shapes.
@@ -52,6 +52,9 @@ export namespace IAutoMovieMotionHumanCrossing {
 
     /** The foot that crosses first; stepOver's choice when absent. */
     lead?: AutoMovieHumanSide;
+
+    /** The level surface beyond the obstacle both feet land on, such as a bathtub's floor inside its rim; the entry floor's height when absent. */
+    onto?: ISurface;
   }
 
   /**
