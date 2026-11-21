@@ -23,6 +23,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanObject } from "../perform/HumanObject";
@@ -391,8 +392,8 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         const recovering: number = Math.max(0, (at - release) / recovery);
         const share: number =
           at < approach
-            ? minimumJerk(at / approach).s
-            : 1 - minimumJerk(recovering).s;
+            ? AutoMovieMotionInterval.progress(0, approach, at)
+            : 1 - minimumJerk.share(recovering);
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...seated.limbs,
         };

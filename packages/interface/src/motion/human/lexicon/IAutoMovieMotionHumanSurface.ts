@@ -257,12 +257,15 @@ export namespace IAutoMovieMotionHumanSurface {
   }
 
   /**
-   * A ride on an externally animated board after both feet are on its deck.
+   * A ride on an externally animated board after both feet are on its deck,
+   * such as a skateboard, an escalator tread or a walkway band, optionally
+   * with a hand on a point of that same support, such as the handrail that
+   * moves with an escalator's steps.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two entry contacts and who drives the deck.
-   * @evidence contracts/development/design.md#principled-representation A scene id selects the support whose film-clock transform carries the stance.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The support id and the time the stance is carried.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The ride consumes the real board placement. It has no separate parameters for a scripted shadow of the board.
+   * @evidence contracts/development/common.md#meaningful-documentation States the two entry contacts, the optional hand grips and who drives the support.
+   * @evidence contracts/development/design.md#principled-representation A scene id selects the support whose film-clock transform carries the stance and every grip point.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The support id, the time the stance is carried and the hands' points on the same support.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The ride consumes the real board placement. It has no separate parameters for a scripted shadow of the board, and a grip names a point of the support rather than a world position.
    */
   export interface IBoardRideParams {
     /** Scene subject id of the board on which both feet bear. */
@@ -270,6 +273,9 @@ export namespace IAutoMovieMotionHumanSurface {
 
     /** Duration in seconds, positive. */
     seconds: number;
+
+    /** The point of the same support each named hand grips while riding, by the support's point id. No grip when absent. */
+    hands?: Partial<Record<AutoMovieHumanSide, string>>;
   }
 
   /**

@@ -117,7 +117,8 @@ export namespace EquineFootwork {
    * @param course Caller-owned course before sampling.
    * @param plan Its actual admitted geometry and speed profile.
    * @param gait Optional fixed gait in the public ride request.
-   * @param hooves The actual neutral hoof endpoints in model metres, which fix the shoulder-in and pirouette headings.
+   * @param hooves The actual neutral hoof endpoints in model metres, which fix the pirouette heading.
+   * @param centred The moving stance centres, under each attachment, which fix the shoulder-in heading.
    * @returns Independent registration for the gait selector, event reader, goal sampler, lateral headings and the jump request.
    * @throws {ArchetypeRefusal} For an unsupported animal, travel context, inconsistent authored timing, an inadmissible lateral figure, jump or baulk, or a second jump.
    *
@@ -135,6 +136,7 @@ export namespace EquineFootwork {
     plan: ArchetypeCourse.IPlan,
     gait: QuadrupedGait.Gait | undefined,
     hooves: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
+    centred: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
   ): IPlan {
     const backing: Set<number> = new Set();
     const lateral: EquineLateral.IWindow[] = [];
@@ -165,6 +167,7 @@ export namespace EquineFootwork {
           technique,
           plan,
           hooves,
+          centred,
         );
         lateral.push(window);
         cues.push(

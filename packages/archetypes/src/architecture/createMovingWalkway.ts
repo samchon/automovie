@@ -216,8 +216,8 @@ export namespace createMovingWalkway {
   export function belt(
     walkway: Pick<Archetype<Affordance, Dimension>, "dimensions">,
   ): Archetype<"band", BeltDimension> {
-    const { length, width }: Readonly<Record<Dimension, number>> =
-      walkway.dimensions;
+    const length: number = walkway.dimensions.length!;
+    const width: number = walkway.dimensions.width!;
     const draw: ArchetypeDrawSession<BeltDimension> = new ArchetypeDrawSession(
       "walkwayBelt",
       { width: "m", length: "m", mass: "kg" },
@@ -229,7 +229,11 @@ export namespace createMovingWalkway {
     // 40 kg a metre of band: a provisional construction estimate.
     const mass: number = draw.derive("mass", 40 * length);
     const builder: ArchetypeBuilder<"band", BeltDimension> =
-      new ArchetypeBuilder({ name: "walkway belt", material: "aluminium", draw });
+      new ArchetypeBuilder({
+        name: "walkway belt",
+        material: "aluminium",
+        draw,
+      });
     builder.box(
       "band",
       Vector3.create(width, PLATE, length),

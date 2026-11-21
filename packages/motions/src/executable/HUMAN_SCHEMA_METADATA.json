@@ -458,6 +458,7 @@
     "bicycleEffort": {},
     "bikeGuide": {},
     "bikeTransfer": {},
+    "holdHandles": {},
     "leadHorse": {
       "properties": {
         "seconds": {
@@ -570,6 +571,10 @@
     "stickBall": {},
     "surfboardPhrase": {},
     "tennisForehandReturn": {},
+    "volleyballServe": {},
+    "volleyballSet": {},
+    "volleyballSpike": {},
+    "volleyballDig": {},
     "bowViolin": {
       "properties": {
         "seconds": {
@@ -2503,6 +2508,17 @@
             "type": "number",
             "minimum": 0,
             "default": 0,
+            "x-unit": "m"
+          }
+        }
+      }
+    },
+    "fieldThrow": {
+      "properties": {
+        "distance": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
             "x-unit": "m"
           }
         }

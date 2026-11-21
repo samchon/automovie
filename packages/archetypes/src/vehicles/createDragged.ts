@@ -213,7 +213,7 @@ export namespace createDragged {
     mass: "kg",
   };
 
-  /** Construction estimates per kind, none read from a maker: a walking plough about 2.4 m over its handles with a 0.25 m share and 0.9 m high grips 0.6 m apart; a 1.2 by 1.5 m harrow; a 4 m log 0.4 m through; a 2 m by 0.9 m sledge. */
+  /** Construction estimates per kind, none read from a maker: a walking plough about 2.4 m over its handles with a 0.25 m share and 1.15 m high grips 0.45 m apart, about a walker's waist when the share is in the ground; a 1.2 by 1.5 m harrow; a 4 m log 0.4 m through; a 2 m by 0.9 m sledge. */
   export const SIZES: Readonly<
     Record<Kind, Readonly<Record<Dimension, number>>>
   > = {
@@ -221,8 +221,8 @@ export namespace createDragged {
       length: 2.4,
       width: 0.25,
       height: 0.45,
-      handleHeight: 0.9,
-      handleSpread: 0.6,
+      handleHeight: 1.15,
+      handleSpread: 0.45,
       mass: 60,
     },
     harrow: {

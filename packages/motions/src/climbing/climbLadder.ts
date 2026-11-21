@@ -1,10 +1,9 @@
-import { Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   AutoMovieMotionHumanChannel,
   IAutoMovieMotionClock,
-  IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -22,11 +21,9 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
@@ -37,7 +34,9 @@ import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanLadder } from "./HumanLadder";
+import { climbLadderBeats } from "./climbLadderBeats";
 import { climbLadderHands } from "./climbLadderHands";
+import { climbLadderHolds } from "./climbLadderHolds";
 import { planLadderAccess } from "./planLadderAccess";
 
 /** How far below the shoulder the hands' first rung is sought, upper-arm lengths (provisional: a grip with the elbow part bent rather than a straight overhead reach). */
@@ -150,7 +149,6 @@ export namespace climbLadder {
         ...planLadderAccess(context, ladder, context.params.landing),
         ladder,
       };
-    const spacing: number = ladder.spacing;
     const frame: IAutoMovieMotionHumanFrame = ladder.frame;
     const yaw: number = frame.yaw;
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -174,182 +172,38 @@ export namespace climbLadder {
     ): IAutoMovieMotionHumanFoot.IPlacement => flats[side];
 
     // Admit the stance against the ladder before preparing limb moves.
-    const turned: number = Math.abs(wrapDegrees(standing.yaw - yaw));
-    HumanBound.within("facing", turned, 0, FACING, "degrees");
-    const toe: number = Math.max(
-      ...(["left", "right"] as const).map(
-        (side: "left" | "right"): number =>
-          HumanFrame.local(
-            frame,
-            HumanFoot.point(body, side, "toe", flat(side)),
-          ).z,
-      ),
+    const admitted: climbLadderHolds.IAdmitted = climbLadderHolds.admit(
+      body,
+      ladder,
+      standing.yaw,
+      flats,
+      count,
+      { facing: FACING, near: NEAR, gripDrop: GRIP_DROP },
     );
-    HumanBound.within("toes", -toe, 0, NEAR, "m");
-    const laterals: Record<"left" | "right", number> = {
-      left: HumanFrame.local(frame, flats.left.ankle).x,
-      right: HumanFrame.local(frame, flats.right.ankle).x,
-    };
-    const lateral: (side: "left" | "right") => number = (
-      side: "left" | "right",
-    ): number => laterals[side];
-    HumanBound.within(
-      "beside",
-      Math.abs((lateral("left") + lateral("right")) / 2),
-      0,
-      ladder.width / 2,
-      "m",
-    );
-    const reach: number = Math.round(
-      (m.shoulderHeight - GRIP_DROP * m.upperArm) / spacing,
-    );
-    HumanBound.within("rungs", reach + count, 1, ladder.count, "");
+    const lateral: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
+    ): number => admitted.lateral[side];
+    const reach: number = admitted.reach;
     const atRung: ReturnType<typeof HumanLadder.prepareRung> =
       HumanLadder.prepareRung(ladder);
 
-    // A foot's placement on a rung: the ball on the rung's top.
-    const onRung: Record<
-      "left" | "right",
-      ReturnType<typeof HumanFoot.prepareAt>
-    > = {
-      left: HumanFoot.prepareAt(
-        body,
-        "left",
-        "ball",
-        HumanFoot.heading(quiet.left.rotation),
-        0,
-      ),
-      right: HumanFoot.prepareAt(
-        body,
-        "right",
-        "ball",
-        HumanFoot.heading(quiet.right.rotation),
-        0,
-      ),
-    };
-    const footOn: (
-      side: "left" | "right",
-      index: number,
-    ) => IAutoMovieMotionHumanFoot.IPlacement = (
-      side: "left" | "right",
-      index: number,
-    ): IAutoMovieMotionHumanFoot.IPlacement =>
-      index === 0
-        ? flat(side)
-        : onRung[side](
-            Vector3.add(atRung(index, lateral(side)), {
-              x: 0,
-              y: ladder.radius,
-              z: 0,
-            }),
-          );
-    const footprints: Record<
-      "left" | "right",
-      IAutoMovieMotionHumanFoot.IPlacement[]
-    > = {
-      left: Array.from(
-        { length: count + 1 },
-        (_: unknown, i: number): IAutoMovieMotionHumanFoot.IPlacement =>
-          footOn("left", i),
-      ),
-      right: Array.from(
-        { length: count + 1 },
-        (_: unknown, i: number): IAutoMovieMotionHumanFoot.IPlacement =>
-          footOn("right", i),
-      ),
-    };
-    const footArcs: Record<
-      "left" | "right",
-      ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>[]
-    > = {
-      left: footprints.left
-        .slice(1)
-        .map(
-          (
-            to: IAutoMovieMotionHumanFoot.IPlacement,
-            i: number,
-          ): ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> =>
-            AutoMovieMotionHumanLeg.prepareArc(
-              footprints.left[i]!,
-              to,
-              CLEARANCE,
-            ),
-        ),
-      right: footprints.right
-        .slice(1)
-        .map(
-          (
-            to: IAutoMovieMotionHumanFoot.IPlacement,
-            i: number,
-          ): ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> =>
-            AutoMovieMotionHumanLeg.prepareArc(
-              footprints.right[i]!,
-              to,
-              CLEARANCE,
-            ),
-        ),
-    };
-    const goals: Record<
-      "left" | "right",
-      ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>
-    > = {
-      left: AutoMovieMotionHumanLeg.preparePlacement(
-        body,
-        "left",
-        footprints.left[1]!.rotation,
-      ),
-      right: AutoMovieMotionHumanLeg.preparePlacement(
-        body,
-        "right",
-        footprints.right[1]!.rotation,
-      ),
-    };
-    // Pick a grip in each shoulder's plane, within the rung's width.
-    const halfWidth: number = ladder.width / 2;
-    const handLane: (side: AutoMovieHumanSide) => number = (
-      side: AutoMovieHumanSide,
-    ): number =>
-      Math.max(
-        -halfWidth,
-        Math.min(halfWidth, body.rest.get(`${side}UpperArm`)!.x),
-      );
-    const leftLane: number = handLane("left");
-    const rightLane: number = handLane("right");
-    const handholds: Record<AutoMovieHumanSide, IAutoMovieVector3[]> = {
-      left: Array.from(
-        { length: count + 1 },
-        (_: unknown, i: number): IAutoMovieVector3 =>
-          atRung(reach + i, leftLane),
-      ),
-      right: Array.from(
-        { length: count + 1 },
-        (_: unknown, i: number): IAutoMovieVector3 =>
-          atRung(reach + i, rightLane),
-      ),
-    };
-    const handArcs: Record<
-      "left" | "right",
-      ReturnType<typeof Vector3.prepareLerp>[]
-    > = {
-      left: handholds.left
-        .slice(1)
-        .map(
-          (
-            to: IAutoMovieVector3,
-            i: number,
-          ): ReturnType<typeof Vector3.prepareLerp> =>
-            Vector3.prepareLerp(handholds.left[i]!, to),
-        ),
-      right: handholds.right
-        .slice(1)
-        .map(
-          (
-            to: IAutoMovieVector3,
-            i: number,
-          ): ReturnType<typeof Vector3.prepareLerp> =>
-            Vector3.prepareLerp(handholds.right[i]!, to),
-        ),
-    };
+    // The rungs' holds for the feet and the hands (climbLadderHolds).
+    const holds: climbLadderHolds.IHolds = climbLadderHolds.prepare(
+      body,
+      ladder,
+      atRung,
+      quiet,
+      flat,
+      lateral,
+      count,
+      reach,
+      CLEARANCE,
+    );
+    const footprints: climbLadderHolds.IHolds["footprints"] = holds.footprints;
+    const footArcs: climbLadderHolds.IHolds["footArcs"] = holds.footArcs;
+    const goals: climbLadderHolds.IHolds["goals"] = holds.goals;
+    const handholds: climbLadderHolds.IHolds["handholds"] = holds.handholds;
+    const handArcs: climbLadderHolds.IHolds["handArcs"] = holds.handArcs;
     const direction: IAutoMovieMotionHumanFrame = {
       origin: { x: 0, y: 0, z: 0 },
       yaw,
@@ -386,85 +240,22 @@ export namespace climbLadder {
       right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
     };
 
-    // The schedule: hands on, then four beats a rung.
-    const beat: number = BEAT * modifiers.tempo;
-    const instants: IAutoMovieMotionClockInstant[] = [
-      { name: "handsOn", seconds: beat },
-    ];
-    const moves: Record<
-      IAutoMovieMotionHumanClimbLadder.Limb,
-      { n: number; from: number; to: number }[]
-    > = {
-      leftHand: [],
-      rightHand: [],
-      leftFoot: [],
-      rightFoot: [],
-    };
-    for (let k: number = 1; k <= count; k++)
-      ORDER.forEach(
-        (limb: IAutoMovieMotionHumanClimbLadder.Limb, i: number): void => {
-          const from: number = beat * (1 + (k - 1) * 4 + i);
-          moves[limb].push({ n: k, from, to: from + beat });
-          instants.push(
-            { name: `${limb}Release${k}`, seconds: from },
-            { name: `${limb}Contact${k}`, seconds: from + beat },
-          );
-        },
-      );
-    const duration: number = beat * (2 + count * 4);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      duration,
-      instants,
+    // The schedule: hands on, then four beats a rung (climbLadderBeats).
+    const beats: climbLadderBeats.IBeats = climbLadderBeats.prepare(
+      BEAT * modifiers.tempo,
+      count,
+      reach,
+      ORDER,
     );
-    const reaching: (seconds: number) => number = AutoMovieMotionClock.prepare(
-      clock,
-      "start",
-      "handsOn",
-    ).progress;
-
-    /** Find the first interval whose landing has yet to happen. */
-    function nextMove(
-      limb: IAutoMovieMotionHumanClimbLadder.Limb,
-      seconds: number,
-    ): number {
-      const own: (typeof moves)[IAutoMovieMotionHumanClimbLadder.Limb] =
-        moves[limb];
-      let low: number = 0;
-      let high: number = own.length;
-      while (low < high) {
-        const middle: number = (low + high) >>> 1;
-        if (seconds >= own[middle]!.to) low = middle + 1;
-        else high = middle;
-      }
-      return low;
-    }
-
-    /** Evaluate the known interval without retaining the sampled limb state. */
-    function rung(
-      limb: IAutoMovieMotionHumanClimbLadder.Limb,
-      seconds: number,
-      next: number,
-    ): { index: number; u: number; moving: boolean } {
-      const base: number = limb.endsWith("Hand") ? reach : 0;
-      const own: (typeof moves)[IAutoMovieMotionHumanClimbLadder.Limb] =
-        moves[limb];
-      const move: (typeof own)[number] | undefined = own[next];
-      if (move !== undefined && seconds > move.from)
-        return {
-          index: base + move.n,
-          u: minimumJerk.share((seconds - move.from) / (move.to - move.from)),
-          moving: true,
-        };
-      return { index: base + (own[next - 1]?.n ?? 0), u: 1, moving: false };
-    }
-
-    /** Determine the rung for an ordinary query. */
-    function level(
-      limb: IAutoMovieMotionHumanClimbLadder.Limb,
-      seconds: number,
-    ): ReturnType<typeof rung> {
-      return rung(limb, seconds, nextMove(limb, seconds));
-    }
+    const beat: number = beats.beat;
+    const moves: climbLadderBeats.IBeats["moves"] = beats.moves;
+    const duration: number = beats.duration;
+    const clock: IAutoMovieMotionClock = beats.clock;
+    const instants: climbLadderBeats.IBeats["instants"] = beats.instants;
+    const reaching: (seconds: number) => number = beats.reaching;
+    const nextMove: climbLadderBeats.IBeats["nextMove"] = beats.nextMove;
+    const rung: climbLadderBeats.IBeats["rung"] = beats.rung;
+    const level: climbLadderBeats.IBeats["level"] = beats.level;
 
     // Both feet follow authored ankle paths. Their reach is continuous when
     // the plant flag changes, so a release alone cannot raise the hips.

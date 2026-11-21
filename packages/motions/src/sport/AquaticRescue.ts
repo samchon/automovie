@@ -34,6 +34,9 @@ const SHORT: number = 0.5;
 /** The towed victim's mouth above the surface, metres: provisional. */
 const CLEAR: number = 0.08;
 
+/** Seconds of one front-crawl arm cycle on the approach: provisional. */
+const STROKE: number = 1.2;
+
 /** Seconds of one scissor kick: provisional. */
 const KICK: number = 1;
 
@@ -103,14 +106,21 @@ export namespace AquaticRescue {
     const arrive: number = approach / SWIM;
     const hold: number = arrive + GRIP;
     const duration: number = hold + tow.seconds;
-    const swim: IAutoMovieMotionHumanPosture = AquaticPosture.key(
-      entry.posture,
-      ExerciseKey.from(
-        body,
-        { pitch: 80, neck: -20 },
-        { hip: 5, knee: 10, shoulder: 150, raise: 20, elbow: 20 },
-      ),
-    );
+    // The approach is a front crawl: the arms recover over the water in turn.
+    const swimAt = (t: number): IAutoMovieMotionHumanPosture => {
+      const stroke: number = Math.sin((2 * Math.PI * t) / STROKE);
+      return AquaticPosture.key(
+        entry.posture,
+        ExerciseKey.from(
+          body,
+          { pitch: 80, neck: -20 },
+          { hip: 5, knee: 10, raise: 20, elbow: 20 },
+          { shoulder: 100 + 70 * stroke },
+          { shoulder: 100 - 70 * stroke },
+        ),
+      );
+    };
+    const swim: IAutoMovieMotionHumanPosture = swimAt(approach / SWIM);
     const side: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,
       ExerciseKey.from(
@@ -138,7 +148,7 @@ export namespace AquaticRescue {
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.max(0, Math.min(duration, seconds));
         const shaped: IAutoMovieMotionHumanPosture =
-          t < arrive ? swim : turn((t - arrive) / GRIP);
+          t < arrive ? swimAt(t) : turn((t - arrive) / GRIP);
         const where: IAutoMovieVector3 =
           t < arrive
             ? Vector3.lerp(

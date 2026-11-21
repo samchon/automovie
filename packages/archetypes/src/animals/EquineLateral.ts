@@ -17,7 +17,7 @@ const DEGREE: number = 180 / Math.PI;
  *
  * The figures follow the USEF Dressage Rules DR111 and DR112 (2023, https://www.usdf.org/EduDocs/Training/2023%20Work%20on%20Two%20Tracks,%20Lateral%20Movements.pdf), which follow the FEI's. In shoulder-in the inside hind steps in the track of the outside fore while the inside fore crosses in front of the outside fore. In leg-yielding and half-pass the legs on the side away from the movement cross in front of the others; leg-yielding along the wall is ridden at about 35 degrees to the direction of movement, and the half-pass keeps the body nearly parallel to the long side while it travels the diagonal. In the pirouette the forehand moves round the haunches on a circle whose radius is the horse's length, the inside hind foot forming the pivot and the outside hind moving round it.
  *
- * The trunk is one rigid body, so the bend and the poll flexion that tell leg-yielding from half-pass are not represented; both are the same heading offset with crossing legs. Shoulder-in's 30 degrees in DR111 includes the bend; a rigid trunk puts its inside hind in its outside fore's track at the angle the two neutral hooves set, which is used instead.
+ * The trunk is one rigid body, so the bend and the poll flexion that tell leg-yielding from half-pass are not represented; both are the same heading offset with crossing legs. Shoulder-in's 30 degrees in DR111 includes the bend; a rigid trunk puts its inside hind in its outside fore's track at the angle the two stance centres set, which is used instead.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each figure's rule, its source, the frame of the offset and what the rigid trunk leaves out.
  * @evidence contracts/development/design.md#principled-representation Each figure is a record discriminated by `kind` with only the fields its geometry needs; the plan is a heading offset in degrees as a function of film seconds.
@@ -139,6 +139,7 @@ export namespace EquineLateral {
    * @param technique The figure.
    * @param plan The admitted course plan.
    * @param hooves The actual neutral hoof endpoints in model metres.
+   * @param centred The stance centres of a moving limb: each neutral hoof brought fore and aft under its attachment, in model metres.
    * @returns The admitted window.
    * @throws {ArchetypeRefusal} For a leg of the wrong shape, a reversed or graded leg, an angle outside (0, `MAXIMUM`], a blend that does not fit twice in the leg, or a pirouette radius the pivot cannot hold.
    *
@@ -157,6 +158,7 @@ export namespace EquineLateral {
     technique: Technique,
     plan: ArchetypeCourse.IPlan,
     hooves: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
+    centred: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
   ): IWindow {
     const span: ArchetypeCourse.ILegSpan = plan.legSpans[index]!;
     const from: number = plan.when(span.from);
@@ -192,9 +194,9 @@ export namespace EquineLateral {
       const sign: number = technique.toward === "left" ? -1 : 1;
       if (technique.kind === "shoulder-in") {
         const fore: IAutoMovieVector3 =
-          technique.toward === "left" ? hooves.leftFore : hooves.rightFore;
+          technique.toward === "left" ? centred.leftFore : centred.rightFore;
         const hind: IAutoMovieVector3 =
-          technique.toward === "left" ? hooves.rightHind : hooves.leftHind;
+          technique.toward === "left" ? centred.rightHind : centred.leftHind;
         yaw = -Math.atan2(fore.x - hind.x, fore.z - hind.z) * DEGREE;
       } else {
         if (

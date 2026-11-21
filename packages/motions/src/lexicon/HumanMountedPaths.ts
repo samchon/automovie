@@ -1,19 +1,25 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanMounted,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanMountedFrame } from "./HumanMountedFrame";
+import { HumanMountedFrame } from "./HumanMountedFrame";
 import type { HumanMountedSeats } from "./HumanMountedSeats";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 import { HumanMountedStride } from "./HumanMountedStride";
 import type { HumanMountedTimeline } from "./HumanMountedTimeline";
+import { hangMountedLeg } from "./hangMountedLeg";
+import { heelMountedFoot } from "./heelMountedFoot";
 
 /**
  * The paths a mounted performance (`HumanMounted`) prepares between its key
@@ -23,7 +29,7 @@ import type { HumanMountedTimeline } from "./HumanMountedTimeline";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three prepared paths.
  * @evidence contracts/development/design.md#principled-representation World or carrier-frame points and metres, prepared once per plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The three functions and the swing's rise, read by the mounted law.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The hips, their pivot and swing, the slack and the feet's arcs with their rise, read by the mounted law.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No carrier is named; its frame and colliders are read through the plan's readers.
  */
 export namespace HumanMountedPaths {
@@ -56,6 +62,276 @@ export namespace HumanMountedPaths {
       posture.joints.hips,
     );
     return Vector3.lerp(joints.left, joints.right, 0.5);
+  }
+
+  /**
+   * The point the hips swing about between two keys: the middle of the ankles when both feet stay planted where they are in both keys, as on their stirrups; none otherwise.
+   *
+   * @param from The earlier key.
+   * @param to The later key.
+   * @returns The pivot, or none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when a pivot exists.
+   * @evidence contracts/development/implementation.md#principled-implementation Both legs planted in both keys with their ankles within a millimetre.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One check per leg.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function pivot(
+    from: IAutoMovieMotionHumanPosture,
+    to: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieVector3 | undefined {
+    const ankles: IAutoMovieVector3[] = [];
+    for (const side of ["left", "right"] as const) {
+      const a: IAutoMovieHumanLimbGoal | undefined = from.limbs[`${side}Leg`];
+      const b: IAutoMovieHumanLimbGoal | undefined = to.limbs[`${side}Leg`];
+      if (
+        a?.planted !== true ||
+        b?.planted !== true ||
+        Vector3.distance(a.point, b.point) > 1e-3
+      )
+        return undefined;
+      ankles.push(b.point);
+    }
+    return Vector3.lerp(ankles[0]!, ankles[1]!, 0.5);
+  }
+
+  /**
+   * The hips a share of the way between two keys: straight, or about a pivot, the direction turned and the distance from the pivot blended, so the hips never come nearer to or further from the feet than at both ends.
+   *
+   * @param from The earlier hips.
+   * @param to The later hips.
+   * @param about The pivot, or none for a straight way.
+   * @param share 0 to 1.
+   * @returns The hips.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both ways and what the swing preserves.
+   * @evidence contracts/development/implementation.md#principled-implementation Polar interpolation about the pivot: the unit directions blended and renormalised, the radii blended linearly.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One branch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Opposite directions fall back to the straight way.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function swing(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    about: IAutoMovieVector3 | undefined,
+    share: number,
+  ): IAutoMovieVector3 {
+    if (about === undefined) return Vector3.lerp(from, to, share);
+    const a: IAutoMovieVector3 = Vector3.subtract(from, about);
+    const b: IAutoMovieVector3 = Vector3.subtract(to, about);
+    const ra: number = Vector3.length(a);
+    const rb: number = Vector3.length(b);
+    const turned: IAutoMovieVector3 = Vector3.lerp(
+      Vector3.scale(a, 1 / ra),
+      Vector3.scale(b, 1 / rb),
+      share,
+    );
+    const length: number = Vector3.length(turned);
+    if (length < 1e-6) return Vector3.lerp(from, to, share);
+    return Vector3.add(
+      about,
+      Vector3.scale(turned, (ra + (rb - ra) * share) / length),
+    );
+  }
+
+  /**
+   * A posture whose planted feet bearing on their balls are turned toes-down where the shank would lean past the ankle's range (`heelMountedFoot`).
+   *
+   * @param body The body.
+   * @param posture The posture, in any frame.
+   * @returns The posture, its planted leg goals turned where needed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which legs are turned.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture's own hip joints (`hipJoints`) and each planted leg through `heelMountedFoot`.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One pass over two legs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A leg goal attached to a bone or not planted is left as it is.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read per sample.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function heels(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
+    const joints: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
+      body,
+      posture.root,
+      resolveHumanPosture.heading(posture),
+      posture.joints.hips,
+    );
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    for (const side of ["left", "right"] as const) {
+      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
+      if (goal?.planted === true && goal.on === undefined)
+        limbs[`${side}Leg`] = heelMountedFoot(body, side, goal, joints[side]);
+    }
+    return { ...posture, limbs };
+  }
+
+  /**
+   * A posture without arm goals: the arms posed by their joints, so a hand's hold blends from where those joints put it.
+   *
+   * @param posture The posture.
+   * @returns The posture without its arm goals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is dropped and why.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation Two deletions.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One copy.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function unarmed(
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs.leftArm;
+    delete limbs.rightArm;
+    return { ...posture, limbs };
+  }
+
+  /**
+   * Where a figure's held contacts are at a film second, in the carrier frame then: the points the hands must keep in reach.
+   *
+   * @param support The carrier.
+   * @param figure The figure.
+   * @param now The carrier frame at the second.
+   * @param film Film seconds.
+   * @returns Each holding hand's contact point, in the carrier frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the points and their frame.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation One inverse transform per hand.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop over two hands.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function grips(
+    support: IAutoMovieMotionHumanPropReader,
+    figure: IAutoMovieMotionHumanMounted.IFigure,
+    now: IAutoMovieRigidTransform,
+    film: number,
+  ): Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> {
+    const out: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
+    for (const side of ["left", "right"] as const) {
+      const id: string | undefined = figure.supports?.[`${side}Hand`];
+      if (id !== undefined)
+        out[side] = Quaternion.rotateVector(
+          Quaternion.inverse(now.rotation),
+          Vector3.subtract(
+            HumanMountedFrame.contact(support, id, film),
+            now.position,
+          ),
+        );
+    }
+    return out;
+  }
+
+  /**
+   * Whether a figure names either foot's support.
+   *
+   * @param figure The figure.
+   * @returns True when it names `leftFoot` or `rightFoot`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the test.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation Two reads.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function names(figure: IAutoMovieMotionHumanMounted.IFigure): boolean {
+    return (
+      figure.supports?.leftFoot !== undefined ||
+      figure.supports?.rightFoot !== undefined
+    );
+  }
+
+  /**
+   * The entered seat for a figure: the entry as it was, or, where the figure names the stirrups it keeps, the entry with each planted foot it does not name hanging free (`hangMountedLeg`), a stirrup lost.
+   *
+   * @param body The body.
+   * @param entry The entered posture, in the carrier frame.
+   * @param figure The entered figure.
+   * @param planted Whether each entry foot stands on something.
+   * @returns The figure's key posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when a foot hangs.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation One choice per leg.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop over two legs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A figure that names no stirrup keeps the entry's feet as they were.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function entered(
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanPosture,
+    figure: IAutoMovieMotionHumanMounted.IFigure,
+    planted: Readonly<Record<AutoMovieHumanSide, boolean>>,
+  ): IAutoMovieMotionHumanPosture {
+    if (!names(figure)) return entry;
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...entry.limbs };
+    for (const side of ["left", "right"] as const)
+      if (planted[side] && figure.supports?.[`${side}Foot`] === undefined)
+        limbs[`${side}Leg`] = hangMountedLeg(body, entry, side);
+    return { ...entry, limbs };
+  }
+
+  /**
+   * The contact window a figure's supporting part holds on the carrier: a grip for a hand, a plant for a sole, a knee bearing on its region, the right thigh bearing over its bar.
+   *
+   * @param part The supporting part.
+   * @param on The carrier's subject id.
+   * @returns The window over the whole performance, which the clock then cuts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each part's window.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A table read.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One choice per part.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new window.
+   */
+  export function window(
+    part: HumanMountedSeats.Part,
+    on: string,
+  ): IAutoMovieMotionHumanContactWindow {
+    const support: IAutoMovieMotionHumanContactWindow["support"] = {
+      kind: "prop",
+      subject: on,
+    };
+    if (part === "leftHand" || part === "rightHand")
+      return { part, kind: "grip", from: 0, to: 1, support };
+    if (part === "leftFoot" || part === "rightFoot")
+      return { part, kind: "plant", from: 0, to: 1, support };
+    if (part === "leftKnee")
+      return {
+        part: "leftLowerLeg",
+        kind: "bear",
+        from: 0,
+        to: 1,
+        support,
+        region: "kneeLeft",
+      };
+    if (part === "rightKnee")
+      return {
+        part: "rightLowerLeg",
+        kind: "bear",
+        from: 0,
+        to: 1,
+        support,
+        region: "kneeRight",
+      };
+    return { part: "rightUpperLeg", kind: "bear", from: 0, to: 1, support };
   }
 
   /**

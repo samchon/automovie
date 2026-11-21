@@ -22,14 +22,17 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
+import { HumanMountedAids } from "./HumanMountedAids";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanMountedPaths } from "./HumanMountedPaths";
 import { HumanMountedSeats } from "./HumanMountedSeats";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 import { HumanMountedStride } from "./HumanMountedStride";
 import { HumanMountedTimeline } from "./HumanMountedTimeline";
+import { HumanMountedWhip } from "./HumanMountedWhip";
 import { HumanRideHands } from "./HumanRideHands";
 import { admitHumanMountedFigure } from "./admitHumanMountedFigure";
+import { respondHumanMounted } from "./respondHumanMounted";
 
 /** The mounted law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMounted>;
@@ -117,6 +120,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     right: context.entry.feet.right.planted,
   };
   if (stride !== undefined) HumanBound.above("stride", stride, 0, "s");
+  const respond: number = context.params.respond ?? 0;
+  HumanBound.within("respond", respond, 0, 1);
   figures.forEach((_: IAutoMovieMotionHumanMounted.IFigure, i: number): void =>
     admitHumanMountedFigure(
       on,
@@ -148,38 +153,20 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       origin.position,
       Quaternion.rotateVector(origin.rotation, point),
     );
-  const unarmed = (
-    posture: IAutoMovieMotionHumanPosture,
-  ): IAutoMovieMotionHumanPosture => {
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    delete limbs.leftArm;
-    delete limbs.rightArm;
-    return { ...posture, limbs };
-  };
-  const entry: IAutoMovieMotionHumanPosture = unarmed(
+  const entry: IAutoMovieMotionHumanPosture = HumanMountedPaths.unarmed(
     HumanMountedFrame.move(
       context.entry.posture,
       origin,
       HumanMountedFrame.LOCAL,
     ),
   );
-  // A hand the entry already holds on the first figure's contact, its wrist within a hand's length of it, stays held from the start.
-  const gripped: Set<AutoMovieHumanSide> = new Set();
-  for (const side of ["left", "right"] as const) {
-    const id: string | undefined = figures[0]!.supports?.[`${side}Hand`];
-    const arm: IAutoMovieMotionHumanPosture["limbs"]["leftArm"] =
-      context.entry.posture.limbs[`${side}Arm`];
-    if (
-      id !== undefined &&
-      arm !== undefined &&
-      arm.on === undefined &&
-      Vector3.distance(
-        arm.point,
-        HumanMountedFrame.contact(support, id, context.start),
-      ) <= context.body.measure.hand
-    )
-      gripped.add(side);
-  }
+  const gripped: Set<AutoMovieHumanSide> = HumanMountedFrame.held(
+    context.body,
+    context.entry.posture,
+    support,
+    figures[0]!,
+    context.start,
+  );
 
   // The clock, and how far the carrier strays from its stride-averaged path out of the saddle.
   const clock: HumanMountedTimeline = new HumanMountedTimeline(
@@ -218,7 +205,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     (
       figure: IAutoMovieMotionHumanMounted.IFigure,
     ): IAutoMovieMotionHumanPosture => {
-      const key: IAutoMovieMotionHumanPosture = unarmed(
+      const key: IAutoMovieMotionHumanPosture = HumanMountedPaths.unarmed(
         HumanMountedStirrups.free(figure.seat)
           ? HumanMountedStirrups.solve(seats, figure.supports!, figure.seat)
           : figure.seat === "aside"
@@ -227,7 +214,12 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
               ? HumanMountedSeats.bench(seats, figure.supports!)
               : figure.seat === "basic"
                 ? HumanMountedSeats.basic(seats)
-                : entry,
+                : HumanMountedPaths.entered(
+                    context.body,
+                    entry,
+                    figure,
+                    planted,
+                  ),
       );
       const points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
       for (const side of ["left", "right"] as const) {
@@ -248,18 +240,6 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     HumanMountedPaths.arcs(seats, entry, keys, figures, planted);
 
   // The windows each support holds.
-  const bears = (
-    part: IAutoMovieMotionHumanContactWindow["part"],
-    kind: IAutoMovieMotionHumanContactWindow["kind"],
-    region?: IAutoMovieMotionHumanContactWindow["region"],
-  ): IAutoMovieMotionHumanContactWindow => ({
-    part,
-    kind,
-    from: 0,
-    to: 1,
-    support: { kind: "prop", subject: on },
-    ...(region === undefined ? {} : { region }),
-  });
   // The entry's planted feet are held on the stirrups the first figure names, or on whatever they rest on.
   const held: Set<string> = new Set(["seat"]);
   for (const side of gripped)
@@ -269,7 +249,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     if (context.entry.feet[side].planted) {
       const key: string = `${side}Foot:${figures[0]!.supports?.[`${side}Foot`] ?? "entry"}`;
       held.add(key);
-      kept.set(key, bears(`${side}Foot`, "plant"));
+      kept.set(key, HumanMountedPaths.window(`${side}Foot`, on));
     }
   const members: Map<string, IAutoMovieMotionHumanContactWindow>[] =
     figures.map(
@@ -277,20 +257,42 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         figure: IAutoMovieMotionHumanMounted.IFigure,
       ): Map<string, IAutoMovieMotionHumanContactWindow> => {
         const member: Map<string, IAutoMovieMotionHumanContactWindow> =
-          figure.seat === "entered" ? new Map(kept) : new Map();
+          figure.seat === "entered" && !HumanMountedPaths.names(figure)
+            ? new Map(kept)
+            : new Map();
         if (HumanMountedSeats.sits(figure.seat))
-          member.set("seat", bears("seat", "seat"));
+          member.set("seat", {
+            part: "seat",
+            kind: "seat",
+            from: 0,
+            to: 1,
+            support: { kind: "prop", subject: on },
+          });
         for (const part of PARTS) {
           const id: string | undefined = figure.supports?.[part];
           if (id !== undefined)
-            member.set(`${part}:${id}`, window(part, bears));
+            member.set(`${part}:${id}`, HumanMountedPaths.window(part, on));
         }
         return member;
       },
     );
-  const contacts: IAutoMovieMotionHumanContactWindow[] = clock.windows(
-    members,
-    held,
+  const aids: HumanMountedAids.IGiven[] = HumanMountedAids.given(
+    context.cue,
+    context.start,
+    clock.duration,
+    context.params.aids ?? [],
+    context.params.aided,
+  );
+  const strokes: HumanMountedWhip.IStroke[] = HumanMountedWhip.strokes(
+    context.cue,
+    context.start,
+    figures,
+    clock,
+  );
+  const contacts: IAutoMovieMotionHumanContactWindow[] = HumanMountedWhip.split(
+    clock.windows(members, held),
+    strokes,
+    clock.duration,
   );
 
   // Hands hold their contacts by the ride's own grip reader and closure.
@@ -310,12 +312,23 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         );
   return {
     duration: clock.duration,
-    events: figures.map(
-      (figure: IAutoMovieMotionHumanMounted.IFigure, i: number) => ({
-        name: `${figure.seat}:${i}`,
-        share: clock.arrivals[i]! / clock.duration,
-      }),
-    ),
+    // Each figure's arrival, then each whip stroke's contact.
+    events: [
+      ...figures.map(
+        (figure: IAutoMovieMotionHumanMounted.IFigure, i: number) => ({
+          name: `${figure.seat}:${i}`,
+          share: clock.arrivals[i]! / clock.duration,
+        }),
+      ),
+      ...strokes.map((stroke: HumanMountedWhip.IStroke, k: number) => ({
+        name: `whip:${k}`,
+        share: stroke.at / clock.duration,
+      })),
+      ...aids.map((aid: HumanMountedAids.IGiven, k: number) => ({
+        name: `aid:${aid.kind}:${k}`,
+        share: aid.onset / clock.duration,
+      })),
+    ],
     contacts,
     base: entered,
     posture: (
@@ -335,14 +348,15 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         keys[index]!,
         share,
       );
-      // The hips travel straight between the keys while the pelvis turns about them, so no leg is stretched past both ends.
+      // The hips travel between the keys while the pelvis turns about them, swinging about feet kept on their stirrups so no leg is stretched or folded past both ends.
       if (share > 0 && share < 1)
         local.root = Vector3.add(
           local.root,
           Vector3.subtract(
-            Vector3.lerp(
+            HumanMountedPaths.swing(
               index === 0 ? hipsOf(entry) : middles[index - 1]!,
               middles[index]!,
+              HumanMountedPaths.pivot(from, keys[index]!),
               share,
             ),
             hipsOf(local),
@@ -374,21 +388,34 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             },
           };
         }
+      // The trunk leans against the carrier's own pitch and roll by the author's share.
+      const now: IAutoMovieRigidTransform = carrier(film);
       const moved: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
-        local,
+        respondHumanMounted(
+          context.body,
+          HumanMountedPaths.heels(
+            context.body,
+            HumanMountedAids.body(aids, time, local),
+          ),
+          origin.rotation,
+          now.rotation,
+          respond,
+          HumanMountedPaths.grips(support, figures[index]!, now, film),
+        ),
         HumanMountedFrame.LOCAL,
-        carrier(film),
+        now,
       );
 
       // Out of the saddle the pelvis rides the stride-averaged path, faded in and out over the transfers.
-      const kept = (i: number): number =>
-        i < 0 || !HumanMountedStirrups.free(figures[i]!.seat)
-          ? 0
-          : HumanMountedStirrups.profile(figures[i]!.seat).decouple;
       const level: number =
         stride === undefined
           ? 0
-          : kept(index - 1) + (kept(index) - kept(index - 1)) * share;
+          : HumanMountedStirrups.blend(
+              figures,
+              index,
+              share,
+              (p: HumanMountedStirrups.IProfile): number => p.decouple,
+            );
       const shown: IAutoMovieMotionHumanPosture =
         level === 0
           ? moved
@@ -425,10 +452,27 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         const taken: number = clock.hand(side, time);
         const reading: HumanRideHands.IMaterialGrip | undefined = read[side];
         if (taken <= 0 || reading === undefined) continue;
+        // Out of the saddle the hands take the reins shorter, forward on the neck.
+        const shortened: HumanRideHands.IMaterialGrip =
+          HumanMountedStride.along(
+            HumanMountedAids.rein(
+              aids,
+              side,
+              time,
+              reading,
+              context.body.measure.forearm,
+            ),
+            HumanMountedStirrups.blend(
+              figures,
+              index,
+              share,
+              (p: HumanMountedStirrups.IProfile): number => p.reins,
+            ) * context.body.measure.forearm,
+          );
         const grip: HumanRideHands.IMaterialGrip =
           pushed === 0
-            ? reading
-            : HumanMountedStride.push(reading, time, stride!, pushed);
+            ? shortened
+            : HumanMountedStride.push(shortened, time, stride!, pushed);
         const hold: ReturnType<typeof HumanMountRider.hold> =
           HumanMountRider.hold(
             context.body,
@@ -443,23 +487,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         limbs[`${side}Arm`] = hold.arm;
         Object.assign(joints, hold.fingers);
       }
+      // A striking hand leaves its rein for the stroke and returns to it.
+      HumanMountedWhip.strike(context.body, shown, limbs, strokes, time);
       return { ...shown, limbs, joints };
     },
   };
-}
-
-/** The contact window a supporting part holds. */
-function window(
-  part: Part,
-  bears: (
-    part: IAutoMovieMotionHumanContactWindow["part"],
-    kind: IAutoMovieMotionHumanContactWindow["kind"],
-    region?: IAutoMovieMotionHumanContactWindow["region"],
-  ) => IAutoMovieMotionHumanContactWindow,
-): IAutoMovieMotionHumanContactWindow {
-  if (part === "leftHand" || part === "rightHand") return bears(part, "grip");
-  if (part === "leftFoot" || part === "rightFoot") return bears(part, "plant");
-  if (part === "leftKnee") return bears("leftLowerLeg", "bear", "kneeLeft");
-  if (part === "rightKnee") return bears("rightLowerLeg", "bear", "kneeRight");
-  return bears("rightUpperLeg", "bear");
 }

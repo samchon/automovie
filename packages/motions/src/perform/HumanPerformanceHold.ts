@@ -365,6 +365,12 @@ export namespace HumanPerformanceHold {
       throw HumanPerformanceRead.missing("prop", mount.prop, [
         ...self.props.keys(),
       ]);
+
+    // A receiver that publishes its contacts' displayed frames carries the socket where it displays it, as a put-down onto it aimed.
+    const placed: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+      onto.point?.(mount.point, seconds);
+    if (placed?.rotation !== undefined)
+      return { position: placed.point, rotation: placed.rotation };
     const frame: IAutoMovieRigidTransform = read(
       self,
       mount.prop,

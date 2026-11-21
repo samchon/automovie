@@ -69,7 +69,7 @@ export namespace HandrimMaterialTransfer {
     span: number,
   ): Grip {
     const share: number = Math.min(1, Math.abs(seconds) / span);
-    const lead: number = seconds * (1 - minimumJerk(share).s);
+    const lead: number = seconds * (1 - minimumJerk.share(share));
     if (lead === 0 || rate === 0) return grip;
 
     const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

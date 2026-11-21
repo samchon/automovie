@@ -220,7 +220,7 @@ export namespace HumanSheath {
    * @returns The chain with the grip and the draw appended; the grip's `gripClosed` marks closure and the draw's `unseated` and `drawn` the start and end of the withdrawal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the entry state, the appended action and its events.
-   * @evidence contracts/development/implementation.md#principled-implementation The carrier pickup grips the handle and closes the fingers without lifting, then the draw moves the blade's frame from the seat to the entry on the carrier's line, the hand keeping its grip.
+   * @evidence contracts/development/implementation.md#principled-implementation The carrier pickup grips the handle and is cut at grip closure, so the body does not straighten away from the carrier first; then the draw moves the blade's frame from the seat to the entry on the carrier's line, the hand keeping its grip.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two registered actions; the pickup owns reach and grip refusals and the draw owns the line and reach refusals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The line is the staged seat and entry, not a tuned height.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Appends two intents.
@@ -252,6 +252,7 @@ export namespace HumanSheath {
     };
     return chain
       .registered(HumanCarrierCustody.name, grip)
+      .until({ event: "gripClosed" })
       .registered(drawFromCarrier.name, out, anchor);
   }
 
@@ -320,13 +321,21 @@ export namespace HumanSheath {
       {
         id: SEAT,
         kind: "socket",
-        frame: { translation: mouth.frame.translation, rotation },
+        frame: {
+          translation: mouth.frame.translation,
+          rotation,
+          scale: mouth.frame.scale,
+        },
         extent: null,
       },
       {
         id: ENTRY,
         kind: "socket",
-        frame: { translation: at(withdrawal), rotation },
+        frame: {
+          translation: at(withdrawal),
+          rotation,
+          scale: mouth.frame.scale,
+        },
         extent: null,
       },
       {
@@ -340,6 +349,7 @@ export namespace HumanSheath {
               Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
             ),
           ),
+          scale: mouth.frame.scale,
         },
         extent: null,
         travel: withdrawal,
@@ -347,7 +357,11 @@ export namespace HumanSheath {
       {
         id: SLIDE,
         kind: "socket",
-        frame: { translation: at(travel), rotation },
+        frame: {
+          translation: at(travel),
+          rotation,
+          scale: mouth.frame.scale,
+        },
         extent: null,
       },
     ];

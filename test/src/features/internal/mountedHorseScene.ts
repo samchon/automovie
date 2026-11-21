@@ -84,6 +84,12 @@ export namespace mountedHorseScene {
     /** Where the rider stands before sitting, in the seat's frame, metres. */
     from: IAutoMovieVector3;
 
+    /** The horse's own ride, which begins `wait` seconds into the film; a steady straight course at the gait when absent. */
+    course?: Ride;
+
+    /** The performance's cue tracks; none when absent. */
+    cues?: ConstructorParameters<typeof HumanPerformance>[0]["cues"];
+
     /** The acts after sitting. */
     acts: (seated: Seated) => Seated;
   }
@@ -96,7 +102,7 @@ export namespace mountedHorseScene {
    */
   export function build(props: IProps): IScene {
     const { horse, body, gait, wait } = props;
-    const ride: Ride = course(horse, gait);
+    const ride: Ride = props.course ?? course(horse, gait);
     const local = (at: number): number =>
       Math.max(0, Math.min(ride.duration, at - wait));
     const place = (at: number): IAutoMovieRigidTransform => {
@@ -113,6 +119,7 @@ export namespace mountedHorseScene {
       seed: "equine-mounted-supports",
       props: [HumanObject.prop("horse", horse, place(0), place, part)],
       laws: [HumanRide.ride, HumanMounted],
+      ...(props.cues === undefined ? {} : { cues: props.cues }),
       performers: [
         {
           subject: "rider",

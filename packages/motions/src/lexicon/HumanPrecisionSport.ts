@@ -6,8 +6,8 @@ import type {
 import { createPrecisionSportStroke } from "./createPrecisionSportStroke";
 
 /**
- * Bound sporting strokes for baseball, cricket, tennis, golf and pool. A row uses the implement's
- * named contact with the ball participating in the shared prop timeline. Studies inform the
+ * Bound sporting strokes for baseball, cricket, tennis, golf, pool and volleyball. A row uses the implement's
+ * named contact, or the bare palm for volleyball, with the ball participating in the shared prop timeline. Studies inform the
  * distinction between full swings and short smooth strokes: Welch et al. 1995 (PMID 8580946),
  * Stuelcken et al. 2005 (PMID 15807374), Walsh et al. 2024 (ISBS 42.265), Robbins et al. 2025
  * (doi:10.3390/bioengineering12010069) and Haar et al. 2020 (doi:10.1038/s41598-020-76805-9).
@@ -96,6 +96,66 @@ export namespace HumanPrecisionSport {
     turn: 2,
     loft: 0,
     impact: 0.48,
+  });
+
+  /** A one-handed overhead serve struck from the palm, the arm high and the ball sent rising over the net. */
+  export const volleyballServe: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconPrecisionSportParams["volleyballServe"]
+  > = createPrecisionSportStroke("volleyballServe", {
+    point: "palm",
+    down: -70,
+    sweep: 70,
+    draw: 0,
+    turn: 15,
+    loft: 20,
+    impact: 0.5,
+    oneHand: true,
+    bare: true,
+  });
+
+  /** An overhead set pushed steeply up from the palm. */
+  export const volleyballSet: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconPrecisionSportParams["volleyballSet"]
+  > = createPrecisionSportStroke("volleyballSet", {
+    point: "palm",
+    down: -80,
+    sweep: 25,
+    draw: 0,
+    turn: 0,
+    loft: 65,
+    impact: 0.4,
+    oneHand: true,
+    bare: true,
+  });
+
+  /** An overhead attack driven down from the palm. */
+  export const volleyballSpike: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconPrecisionSportParams["volleyballSpike"]
+  > = createPrecisionSportStroke("volleyballSpike", {
+    point: "palm",
+    down: -55,
+    sweep: 90,
+    draw: 0,
+    turn: 20,
+    loft: -12,
+    impact: 0.5,
+    oneHand: true,
+    bare: true,
+  });
+
+  /** A low dig that lifts the ball from the hand below the waist. */
+  export const volleyballDig: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconPrecisionSportParams["volleyballDig"]
+  > = createPrecisionSportStroke("volleyballDig", {
+    point: "palm",
+    down: 35,
+    sweep: 25,
+    draw: 0,
+    turn: 0,
+    loft: 60,
+    impact: 0.4,
+    oneHand: true,
+    bare: true,
   });
 
   /** A one-handed cue stroke with the other hand set on the table. */

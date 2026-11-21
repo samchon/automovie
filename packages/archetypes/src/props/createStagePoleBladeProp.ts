@@ -76,7 +76,7 @@ const SIDE_BLADE: readonly Section[] = [
 /**
  * Padded pole-blade silhouette.
  *
- * Independent stage profiles share a shaft, two actor grip marks and visible outline-edge marks. The form stands along +Y from its origin.
+ * Independent stage profiles share a shaft, two actor grip marks and visible outline marks: the `tip`, the main `edge`, the `rear` back of that edge cell, and the side blade's `side-edge`. The form stands along +Y from its origin.
  *
  * @param params The scene identity and optional total display height in metres, with a choice of profile.
  * @param seed Uses the original named draw session to resolve omitted settings.
@@ -126,6 +126,12 @@ export function createStagePoleBladeProp(
       addEdge(
         builder,
         "edge",
+        blade.sections[blade.edge]!,
+        blade.sections[blade.edge + 1]!,
+        height,
+      );
+      addRear(
+        builder,
         blade.sections[blade.edge]!,
         blade.sections[blade.edge + 1]!,
         height,
@@ -183,7 +189,7 @@ export namespace createStagePoleBladeProp {
   export type Dimension = "height";
 
   /**
-   * The createStageWeaponProp contact set its shared construction types. This producer builds edge, grip, grip-lower, grip-upper, shaft, side-edge, tip.
+   * The createStageWeaponProp contact set its shared construction types. This producer builds edge, grip, grip-lower, grip-upper, rear, shaft, side-edge, tip.
    */
   export type Affordance = createStageWeaponProp.Affordance;
 
@@ -230,6 +236,38 @@ function addOutline(
           points.push(Vector3.create(x * height, y * height, z));
     builder.convex(`${id}-${index}`, points, undefined, { color: "#968ccc" });
   }
+}
+
+/**
+ * Record the midpoint and outward normal of the left boundary of the marked
+ * edge cell: the blade's back, facing away from its edge, so a scene can
+ * tell the cutting side from the spine.
+ */
+function addRear(
+  builder: ArchetypeBuilder<
+    createStageWeaponProp.Affordance,
+    createStageWeaponProp.Dimension
+  >,
+  lower: Section,
+  upper: Section,
+  height: number,
+): void {
+  const v: typeof Vector3.create = Vector3.create;
+  builder.affordance({
+    id: "rear",
+    kind: "surface",
+    direction: "normal",
+    frame: ArchetypeFrame.facing(
+      v(
+        ((lower[1] + upper[1]) / 2) * height,
+        ((lower[0] + upper[0]) / 2) * height,
+        0,
+      ),
+      v(lower[0] - upper[0], upper[1] - lower[1], 0),
+      v(upper[1] - lower[1], upper[0] - lower[0], 0),
+    ),
+    extent: null,
+  });
 }
 
 /** Record the midpoint and outward normal of the right edge of a silhouette cell. */

@@ -2,7 +2,7 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 
 /**
- * Open parameters for the installed precision sport actions. All strokes bind an already held implement and a separate ball. The action planner admits the strike and publishes its launch only after measuring the fitted contact.
+ * Open parameters for the installed precision sport actions. Implement strokes bind an already held implement and a separate ball; bare-hand strokes strike the ball with the hand. The action planner admits the strike and publishes its launch only after measuring the fitted contact.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes prop custody and the planner that admits the requested stroke.
  * @evidence contracts/development/design.md#principled-representation Closed row map over a shared timed strike. The optional cue bridge is a distinct target on the playing surface.
@@ -30,22 +30,32 @@ export interface IAutoMovieMotionHumanLexiconPrecisionSportParams {
 
   /** A forward cue stroke, with its bridge hand set on the table. */
   cueStroke: IAutoMovieMotionHumanLexiconPrecisionSportParams.ICue;
+
+  /** A one-handed overhead volleyball serve struck from the palm. */
+  volleyballServe: IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand;
+
+  /** An overhead volleyball set pushed high from the palm. */
+  volleyballSet: IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand;
+
+  /** An overhead volleyball attack driven down from the palm. */
+  volleyballSpike: IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand;
+
+  /** A low volleyball dig lifting the ball from the hand. */
+  volleyballDig: IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand;
 }
 
 /** Parameter types shared across the precision sport rows. */
 export namespace IAutoMovieMotionHumanLexiconPrecisionSportParams {
   /**
-   * A timed contact with a real scene ball and a separately authored outgoing shot.
+   * A timed bare-hand contact with a real scene ball and a separately
+   * authored outgoing shot: the hand itself is the striking surface.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names tool and ball custody, local strike seconds, and world speed units.
-   * @evidence contracts/development/design.md#principled-representation The row fixes the sport and the contact affordance. The same impact event fixes both posture and ball launch.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the bound equipment, side, aim, impact time and outgoing speed. Physical checks stay with the law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A ball's radius and center come from the prop's own sized grip. No duplicated world point is required for the strike.
+   * @evidence contracts/development/common.md#meaningful-documentation Names ball custody, local strike seconds, world speed units and the striking hand.
+   * @evidence contracts/development/design.md#principled-representation The row fixes the sport and the contact surface. The same impact event fixes both posture and ball launch.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the ball, aim, impact time, outgoing speed and side; physical checks stay with the law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A ball's radius and center come from the prop's own sized grip. No implement is named because none is held.
    */
-  export interface IStroke {
-    /** Subject id of the implement the striking hand already holds. */
-    tool: string;
-
+  export interface IHand {
     /** Subject id of the stationary or moving ball. */
     ball: string;
 
@@ -58,8 +68,20 @@ export namespace IAutoMovieMotionHumanLexiconPrecisionSportParams {
     /** Positive outgoing ball speed in metres per second. The row fixes the departure inclination. */
     speed: number;
 
-    /** The hand that drives the implement. Defaults to right. */
+    /** The striking hand. Defaults to right. */
     hand?: AutoMovieHumanSide;
+  }
+  /**
+   * A timed contact with a real scene ball and a separately authored outgoing shot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names tool and ball custody, local strike seconds, and world speed units.
+   * @evidence contracts/development/design.md#principled-representation The row fixes the sport and the contact affordance. The same impact event fixes both posture and ball launch.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the bound equipment, side, aim, impact time and outgoing speed. Physical checks stay with the law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A ball's radius and center come from the prop's own sized grip. No duplicated world point is required for the strike.
+   */
+  export interface IStroke extends IHand {
+    /** Subject id of the implement the striking hand already holds. */
+    tool: string;
   }
 
   /**

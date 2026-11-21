@@ -1,7 +1,6 @@
 import { AutoMovieComposition } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidRegion,
   IAutoMovieChain,
   IAutoMovieComposition,
   IAutoMovieMotionHumanChainCore,
@@ -18,14 +17,16 @@ import { HumanChain } from "../HumanChain";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBlade } from "./HumanBlade";
+import { HumanPisteTarget } from "./HumanPisteTarget";
 import { stageBladeFootwork } from "./stageBladeFootwork";
 
 /**
- * A two-performer bout on a piste or a kendo court: both shift to their
- * marks in the weapon's own footwork, then the first attacks and the
- * screenplay's result decides the exchange. A touch for the first lands its
+ * A two-performer bout on a piste or a kendo court: from their opening
+ * marks both close the distance in advances of the weapon's own footwork,
+ * then the first attacks and the screenplay's result decides the exchange. A touch for the first lands its
  * attack; one for the second has the attack parried and the second riposte;
- * the epee's double touch lands both attacks at one instant; no touch has the
+ * the epee's double touch lands both attacks at one instant, each blade
+ * following the other performer as it lunges; no touch has the
  * attack parried and left there. The result is announced at the decisive
  * instant of the touch that scores, or of the parry that closes the attack.
  *
@@ -40,7 +41,7 @@ import { stageBladeFootwork } from "./stageBladeFootwork";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the bout's phases, the result's branches and their actions, the announced instant, the rule checks and the required laws.
  * @evidence contracts/development/design.md#principled-representation The take holds each performer's chain, marks, blade and target, the shared clock of the footwork and the scripted result; the placed record pairs the composition with its result reader.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses HumanChain, the stageBladeFootwork law and the HumanBlade rows; keeps the rules and the result reading in the same public namespace.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Uses HumanChain, the stageBladeFootwork law and the HumanBlade rows; keeps the result reading in the same public namespace and the target rule in HumanPisteTarget.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The weapons and results are closed literals; the outcome is the script's, and the blade actions own reach and contact.
  */
 export namespace HumanStagePiste {
@@ -82,7 +83,7 @@ export namespace HumanStagePiste {
     /** Forward lead, or the lead read by the footwork law when omitted. */
     lead?: AutoMovieHumanSide;
 
-    /** Positive horizontal distance to the performer's next mark, in metres. */
+    /** Positive horizontal distance the performer's approach covers to its lunging mark, in metres, in advances of at most `ADVANCE`. */
     distance: number;
 
     /** The held blade's prop subject. */
@@ -113,7 +114,7 @@ export namespace HumanStagePiste {
     /** The performer who answers. */
     second: IActor;
 
-    /** Positive common duration of the two mark shifts, in seconds. */
+    /** Positive common duration of each advance of the approach, in seconds. */
     duration: number;
 
     /** Share in [0, 1] of the shift's duration for its `propCue` editing event; none when absent. */
@@ -170,61 +171,6 @@ export namespace HumanStagePiste {
    */
   export const DOUBLE: number = 0.04;
 
-  /** The foil's valid target: the trunk, without the head, the arms or the legs. */
-  const TRUNK: ReadonlySet<AutoMovieHumanoidRegion> = new Set([
-    "sternum",
-    "chestLeft",
-    "chestRight",
-    "solarPlexus",
-    "abdomen",
-    "liver",
-    "spleen",
-    "ribsLeft",
-    "ribsRight",
-    "upperBack",
-    "lowerBack",
-    "kidneyLeft",
-    "kidneyRight",
-    "groin",
-  ]);
-
-  /** The regions below the sabre's valid target, the hips' bend and down. */
-  const BELOW_WAIST: ReadonlySet<AutoMovieHumanoidRegion> = new Set([
-    "groin",
-    "seat",
-    "pocketFrontLeft",
-    "pocketFrontRight",
-    "hipLeft",
-    "hipRight",
-    "thighFrontLeft",
-    "thighFrontRight",
-    "thighOuterLeft",
-    "thighOuterRight",
-    "thighInnerLeft",
-    "thighInnerRight",
-    "kneeLeft",
-    "kneeRight",
-    "shinLeft",
-    "shinRight",
-    "calfLeft",
-    "calfRight",
-    "footTopLeft",
-    "footTopRight",
-    "soleLeft",
-    "soleRight",
-    "heelLeft",
-    "heelRight",
-  ]);
-
-  /** The struck regions of kendo armour, as the worn armour names its points. */
-  const STRUCK: ReadonlySet<string> = new Set([
-    "men",
-    "kote",
-    "migiDo",
-    "hidariDo",
-    "tsuki",
-  ]);
-
   /** The weapon's attack: a thrust lunged for the point weapons, a cut otherwise. */
   const ATTACK: Readonly<Record<Kind, string>> = {
     foil: HumanBlade.lunge.name,
@@ -246,18 +192,38 @@ export namespace HumanStagePiste {
     Partial<Record<Kind, IAutoMovieMotionHumanSword.IAttack["advance"]>>
   > = { sabre: "lunge", kendo: "step" };
 
-  /** The shared clock uses the marked shift for each role. */
-  const SHIFT: IAutoMovieMotionHumanMutual<ITake, Role> = {
+  /**
+   * The longest single advance of the approach, metres: about one foot's
+   * length, the fencing advance's step (provisional), inside the footwork
+   * law's longest mark shift for every canonical body.
+   */
+  export const ADVANCE: number = 0.3;
+
+  /** One advance of the approach: the take, its index and the advances' count. */
+  interface IAdvance {
+    /** The bout. */
+    take: ITake;
+
+    /** This advance's index from 0. */
+    index: number;
+
+    /** How many advances cover each performer's approach. */
+    count: number;
+  }
+
+  /** Each advance shifts both performers on one clock, each its share of its approach. */
+  const SHIFT: IAutoMovieMotionHumanMutual<IAdvance, Role> = {
     name: "stagePiste",
     roles: ["first", "second"],
-    act: (role, take): IAutoMovieMotionHumanMutual.IAct => {
+    act: (role, advance): IAutoMovieMotionHumanMutual.IAct => {
+      const { take, index, count }: IAdvance = advance;
       const { direction, distance, lead }: IActor = take[role];
       const params: IAutoMovieMotionHumanStageBladeFootwork.IParams = {
         style: take.kind,
         direction,
-        distance,
+        distance: distance / count,
         duration: take.duration,
-        ...(take.cue === undefined ? {} : { propCue: take.cue }),
+        ...(take.cue === undefined || index > 0 ? {} : { propCue: take.cue }),
         ...(lead === undefined ? {} : { lead }),
       };
       return { name: stageBladeFootwork.name, params };
@@ -265,8 +231,9 @@ export namespace HumanStagePiste {
   };
 
   /**
-   * Check the take against the weapon's rules, then join the performers'
-   * mark shifts on one clock and append the exchange the result calls for.
+   * Check the take against the weapon's rules, then close each performer's
+   * approach in equal advances of at most `ADVANCE`, both stepping on each
+   * advance's one clock, and append the exchange the result calls for.
    * The optional reserve requires enough opening space for both full
    * translations and the remaining space stated in the screenplay.
    *
@@ -276,10 +243,10 @@ export namespace HumanStagePiste {
    * @throws {Error} When the anchor is blank or one performer takes both roles.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes the phases, the result's branches, the required space and the refusal cases.
-   * @evidence contracts/development/implementation.md#principled-implementation The rules are the weapon's valid target and double-touch rule; each full planned translation is subtracted from the opening distance for a conservative reserve. HumanChain places the shift, and the registered blade actions, synchronised on the attack's decisive instant, place the exchange.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the weapon, numbers and rules, place the shift, then the exchange and its reader.
+   * @evidence contracts/development/implementation.md#principled-implementation The rules are the weapon's valid target and double-touch rule; each full planned translation is subtracted from the opening distance for a conservative reserve. HumanChain places the advances, and the registered blade actions, synchronised on the attack's decisive instant, place the exchange.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the weapon, numbers and rules, place the approach's advances, then the exchange and its reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Cast, timing, marks, targets and outcome come from the script; reach, the parry's meeting and every pose belong to the blade actions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Validation reads fixed input fields and constant sets, placement builds at most five intents, and the reader scans the schedule's entries for at most two anchors.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Validation reads fixed input fields and constant sets, placement builds two intents per advance and at most three for the exchange, and the reader scans the schedule's entries for at most two anchors.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanChain.mutual, the HumanBlade rows, HumanBound and the registered stageBladeFootwork.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader captures the anchors and the result, with no frame cache or native resource.
    */
@@ -317,19 +284,34 @@ export namespace HumanStagePiste {
         "m",
       );
     }
-    valid(take.kind, "first.target", take.first.target);
-    valid(take.kind, "second.target", take.second.target);
+    HumanPisteTarget(take.kind, "first.target", take.first.target);
+    HumanPisteTarget(take.kind, "second.target", take.second.target);
 
-    const shift: IAutoMovieChain = HumanChain.mutual(
-      SHIFT,
-      { first: take.first.chain, second: take.second.chain },
-      take,
-      take.anchor,
+    // The approach closes each performer's distance in equal advances of at
+    // most ADVANCE, both performers stepping on each advance's one clock.
+    const count: number = Math.max(
+      1,
+      Math.ceil(Math.max(take.first.distance, take.second.distance) / ADVANCE),
     );
+    const approach: IAutoMovieChain[] = [];
+    for (let index: number = 0; index < count; ++index)
+      approach.push(
+        HumanChain.mutual(
+          SHIFT,
+          index === 0
+            ? { first: take.first.chain, second: take.second.chain }
+            : {
+                first: HumanChain.subject(take.first.chain.subject),
+                second: HumanChain.subject(take.second.chain.subject),
+              },
+          { take, index, count },
+          index === 0 ? take.anchor : `${take.anchor}.${index}`,
+        ),
+      );
     const exchange: IAutoMovieChain = bout(take);
     const anchors: IAnchors = deciding(take);
     return {
-      composition: AutoMovieComposition.sequence(shift, exchange),
+      composition: AutoMovieComposition.sequence(...approach, exchange),
       announced: (schedule: IAutoMovieSchedule): IAnnouncement | undefined => {
         const at: number | undefined = decisive(schedule, anchors.decides);
         if (at === undefined) return undefined;
@@ -406,7 +388,6 @@ export namespace HumanStagePiste {
           )
           .sync({ of: attack, align: "stroke" }),
       );
-
     const parry: IAutoMovieMotionHumanSwordParry.IParry = {
       blade: second.blade,
       against: attack,
@@ -423,38 +404,6 @@ export namespace HumanStagePiste {
     return opening.with(
       closed.registered(REPLY[kind], reply, `${anchor}.reply`),
     );
-  }
-
-  /** Refuse a target outside the weapon's valid target. */
-  function valid(
-    kind: Kind,
-    axis: string,
-    target: IAutoMovieMotionTarget,
-  ): void {
-    const admitted: boolean =
-      kind === "kendo"
-        ? target.kind === "prop" && STRUCK.has(target.point)
-        : target.kind === "person" &&
-          (kind === "epee" ||
-            (kind === "foil"
-              ? TRUNK.has(target.region)
-              : !BELOW_WAIST.has(target.region)));
-    if (!admitted)
-      throw new HumanRefusal({
-        kind: "rule",
-        axis,
-        value: target,
-        reason:
-          kind === "kendo"
-            ? "a kendo strike scores only on a struck region of the opponent's armour"
-            : `the target lies outside the ${kind}'s valid target`,
-        fix:
-          kind === "kendo"
-            ? "aim at the men, a kote, either side of the do or the tsuki of the worn armour"
-            : kind === "foil"
-              ? "aim at a region of the opponent's trunk"
-              : "aim at a region of the opponent above the waist",
-      });
   }
 
   /** Read a placed action's decisive instant while it lies within its span. */

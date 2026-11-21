@@ -253,4 +253,76 @@ export namespace QuadrupedStridePlan {
       },
     };
   }
+  /**
+   * The ride's stride events: every hoof landing, `<limb>On`, and each change of gait or lead, `gait:<from>-<to>` and `lead:<from>-<to>`, at the stride start where it takes effect.
+   *
+   * @param plan The built stride plan.
+   * @param standing Whether the ride departs from standing, so the hooves' phase-zero landings are the neutral stance and not events.
+   * @param slide Film second hind landings stop being events because an arena slide holds the hinds down; Infinity without one.
+   * @returns The events in limb then stride order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each label, the standing and slide exceptions and the order.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads each hoof's landing phases up to the plan's total and each stride boundary's gait and lead, mapped to film seconds; a lead change is named only between leaded gaits.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two passes; kept with the plan that owns the phases.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(4L + S) for L landings per hoof and S strides.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `landing`, `strideOf` and `secondsAt`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list.
+   */
+  export function events(
+    plan: IPlan,
+    standing: boolean,
+    slide: number,
+  ): IEvent[] {
+    const result: IEvent[] = [];
+    for (const limb of LIMBS)
+      for (let m: number = 0; plan.landing(limb, m) <= plan.total; m++) {
+        const phase: number = plan.landing(limb, m);
+        if (phase === 0 && standing) continue;
+        const seconds: number = plan.secondsAt(phase);
+        if (!limb.endsWith("Hind") || seconds < slide)
+          result.push({ seconds, label: `${limb}On` });
+      }
+    for (let n: number = 1; n <= plan.total; n++) {
+      const was: IStride = plan.strideOf(n);
+      const will: IStride = plan.strideOf(n + 1);
+      if (was.gait !== will.gait)
+        result.push({
+          seconds: plan.secondsAt(n),
+          label: `gait:${was.gait}-${will.gait}`,
+        });
+      else if (
+        was.lead !== will.lead &&
+        QuadrupedGait.LEADED.includes(will.gait)
+      )
+        result.push({
+          seconds: plan.secondsAt(n),
+          label: `lead:${was.lead}-${will.lead}`,
+        });
+    }
+    return result;
+  }
+
+  /**
+   * One named film-second event of the stride plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the units.
+   * @evidence contracts/development/design.md#principled-representation The shape of a ride's instants.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `events`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IEvent {
+    /** Film second. */
+    seconds: number;
+    /** The event's name. */
+    label: string;
+  }
+
+  /** The four hooves in the body's order. */
+  const LIMBS: readonly QuadrupedBody.Limb[] = [
+    "leftFore",
+    "rightFore",
+    "leftHind",
+    "rightHind",
+  ];
 }

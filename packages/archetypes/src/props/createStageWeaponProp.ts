@@ -118,7 +118,8 @@ export namespace createStageWeaponProp {
 
   /**
    * The common hand grip, shaft bar and two discrete support sites on the
-   * blade profiles, and outline-dependent tip, edge, face, hinge and end.
+   * blade profiles, and outline-dependent tip, edge, rear, face, hinge and end:
+   * a pole blade's `rear` is the back of its marked edge cell, facing away from the edge.
    */
   export type Affordance =
     | "grip"
@@ -128,6 +129,7 @@ export namespace createStageWeaponProp {
     | "tip"
     | "edge"
     | "side-edge"
+    | "rear"
     | "face"
     | "link"
     | "end";

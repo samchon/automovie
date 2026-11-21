@@ -20,6 +20,8 @@ export type { IAutoMovieMotionHumanBikeTransfer } from "./IAutoMovieMotionHumanB
 export type { IAutoMovieMotionHumanSittingVolley } from "./IAutoMovieMotionHumanSittingVolley";
 export type { IAutoMovieMotionHumanStageBladeFootwork } from "./IAutoMovieMotionHumanStageBladeFootwork";
 export type { IAutoMovieMotionHumanStageProp } from "./IAutoMovieMotionHumanStageProp";
+export type { IAutoMovieMotionHumanMedium } from "./IAutoMovieMotionHumanMedium";
+export type { IAutoMovieMotionHumanPlayground } from "./IAutoMovieMotionHumanPlayground";
 export type { IAutoMovieMotionHumanSurface } from "./IAutoMovieMotionHumanSurface";
 export type { IAutoMovieMotionHumanLexiconSurfaceParams } from "./IAutoMovieMotionHumanLexiconSurfaceParams";
 export type { IAutoMovieMotionHumanLexiconPrecisionSportParams } from "./IAutoMovieMotionHumanLexiconPrecisionSportParams";
@@ -72,6 +74,7 @@ export type { IAutoMovieMotionHumanLexiconWeaponMeleeParams } from "./IAutoMovie
 export type { IAutoMovieMotionHumanMountRider } from "./IAutoMovieMotionHumanMountRider";
 export type { IAutoMovieMotionHumanPursuit } from "./IAutoMovieMotionHumanPursuit";
 export type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
+export type { IAutoMovieMotionHumanHoldHandles } from "./IAutoMovieMotionHumanHoldHandles";
 export type { IAutoMovieMotionHumanTendHorse } from "./IAutoMovieMotionHumanTendHorse";
 export type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 export type { IAutoMovieMotionHumanMounted } from "./IAutoMovieMotionHumanMounted";

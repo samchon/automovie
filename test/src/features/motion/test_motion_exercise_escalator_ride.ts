@@ -20,7 +20,7 @@ import {
   HumanFoot,
   HumanObject,
   HumanPerformance,
-  HumanRide,
+  HumanSurface,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,6 +36,7 @@ const SLIP: number = 0.01;
 const ORIGIN: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
+  scale: { x: 1, y: 1, z: 1 },
 };
 
 /**
@@ -132,16 +133,17 @@ function escalatorRide(
         tread,
       ),
     ],
-    laws: [HumanRide.ride],
+    laws: [HumanSurface.boardRide],
     composition: HumanChain.subject("a")
       .walk({ to: { x: 0, y: 0, z: station }, on: { prop: "step" } })
-      .registered("ride", {
+      .registered("boardRide", {
         on: "step",
         seconds,
         hands: { right: "rightRail" },
       }).node,
   });
-  const [walk, riding]: IAutoMovieMotionHumanSegment[] = film.segments("a");
+  const [walk, riding]: readonly IAutoMovieMotionHumanSegment[] =
+    film.segments("a");
   const end: number =
     riding === undefined ? 0 : riding.start + riding.plan.duration;
   if (walk === undefined || riding === undefined) {

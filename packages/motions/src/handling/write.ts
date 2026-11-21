@@ -1,9 +1,4 @@
-import {
-  AffordanceArticulation,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -29,6 +24,7 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
@@ -335,6 +331,6 @@ function strokePoint(
   return Vector3.lerp(
     a.point,
     b.point,
-    minimumJerk((distance - a.length) / (b.length - a.length)).s,
+    AutoMovieMotionInterval.progress(a.length, b.length, distance),
   );
 }

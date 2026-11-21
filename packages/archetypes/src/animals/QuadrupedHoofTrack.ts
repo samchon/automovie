@@ -180,10 +180,11 @@ export namespace QuadrupedHoofTrack {
    *
    * @param rest Actual neutral hoof endpoint in model metres.
    * @param support The stance.
+   * @param under The model fore-aft position of the limb's proximal attachment, where its reach is greatest; the neutral hoof's when absent.
    * @returns The world footprint before any authored surface is applied.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame and that terrain is applied afterwards.
-   * @evidence contracts/development/implementation.md#principled-implementation Centre the hoof on its stance: half the signed travel ahead of its neutral point at landing, or, when the body heading departs from the travel heading, midway between its neutral points at landing and at release, so the hoof sits under the same body point at both ends. A crossing leg of a two-track figure centres on its neutral point shifted sideways by the stance's `across`.
+   * @evidence contracts/development/implementation.md#principled-implementation Centre the hoof on its stance: half the signed travel ahead of its neutral point at landing, or, when the body heading departs from the travel heading, midway between its neutral points at landing and at release, so the hoof sits under the same body point at both ends. That body point is the neutral hoof moved toward the limb's attachment by at most half the stance's travel: a long stance is centred under the attachment, where the rigid limb's reach is greatest, and every stance still passes through the neutral footprint, so a standing hoof stays at its neutral place. A crossing leg of a two-track figure centres on its neutral point shifted sideways by the stance's `across`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rigid point or the mean of two.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; both forms read the stance's own placements.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -193,7 +194,11 @@ export namespace QuadrupedHoofTrack {
   export function footprint(
     rest: IAutoMovieVector3,
     support: IStance,
+    under: number = rest.z,
   ): IAutoMovieVector3 {
+    const reach: number = Math.abs(support.travel) / 2;
+    const z: number =
+      rest.z + Math.max(-reach, Math.min(reach, under - rest.z));
     // A crossing leg's neutral point moves toward the figure's side; its partner, on that side, keeps its own.
     const x: number =
       support.across !== undefined &&
@@ -204,9 +209,9 @@ export namespace QuadrupedHoofTrack {
       return ArchetypeFrame.point(support.landed.placement, {
         x,
         y: 0,
-        z: rest.z + support.travel / 2,
+        z: z + support.travel / 2,
       });
-    const neutral: IAutoMovieVector3 = { x, y: 0, z: rest.z };
+    const neutral: IAutoMovieVector3 = { x, y: 0, z };
     const point: IAutoMovieVector3 = Vector3.lerp(
       ArchetypeFrame.point(support.landed.placement, neutral),
       ArchetypeFrame.point(support.lifted, neutral),
@@ -302,6 +307,7 @@ export namespace QuadrupedHoofTrack {
    * @param worldAnchors Whether turns or a standing start require world anchoring.
    * @param footing Optional independently placed world surfaces and authored obstacles.
    * @param carry The body displacement carrying a swing through a hoof-clock hold, when the swing spans one.
+   * @param under The model fore-aft position of the limb's proximal attachment, toward which stances are centred.
    * @returns Model-space coordinates in metres. The world-anchor path also returns the relative terminal axis rotation.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines frames, units and the optional next stance.
@@ -321,16 +327,29 @@ export namespace QuadrupedHoofTrack {
     worldAnchors: boolean,
     footing?: QuadrupedFooting.IPlan,
     carry?: ICarry,
+    under?: number,
   ): Pick<QuadrupedRidePose.IGoal, "x" | "z" | "orientation" | "surface"> {
-    if (!worldAnchors && footing === undefined)
+    if (!worldAnchors && footing === undefined) {
+      // Each stance's centre moves toward the attachment by at most half its travel, as ootprint places it.
+      const centre = (support: IStance): number =>
+        rest.z +
+        Math.max(
+          -Math.abs(support.travel) / 2,
+          Math.min(Math.abs(support.travel) / 2, (under ?? rest.z) - rest.z),
+        );
       return {
         z:
-          rest.z +
-          (to === undefined
-            ? from.travel / 2 - (state.progress - from.landed.progress)
-            : -from.travel / 2 + ((from.travel + to.travel) / 2) * amount),
+          to === undefined
+            ? centre(from) +
+              from.travel / 2 -
+              (state.progress - from.landed.progress)
+            : centre(from) -
+              from.travel / 2 +
+              (centre(to) + to.travel / 2 - centre(from) + from.travel / 2) *
+                amount,
       };
-    const foot: IAutoMovieVector3 = footprint(rest, from);
+    }
+    const foot: IAutoMovieVector3 = footprint(rest, from, under);
     const landed: IAutoMovieQuaternion = from.landed.placement.rotation;
     const oldGround: QuadrupedFooting.ILanding | undefined = footing?.landing(
       foot,
@@ -340,7 +359,7 @@ export namespace QuadrupedHoofTrack {
       state.placement.rotation,
     );
     const nextFoot: IAutoMovieVector3 | undefined =
-      to === undefined ? undefined : footprint(rest, to);
+      to === undefined ? undefined : footprint(rest, to, under);
     const nextGround: QuadrupedFooting.ILanding | undefined =
       nextFoot === undefined
         ? undefined

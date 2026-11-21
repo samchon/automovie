@@ -1,4 +1,4 @@
-﻿import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -113,6 +113,35 @@ export namespace EquineStance {
           `a ${cue.kind} pitches the trunk between 0 and 90 degrees`,
         );
       if (
+        cue.kind === "crowHops" &&
+        !(
+          Number.isInteger(cue.count) &&
+          cue.count >= 1 &&
+          cue.pitch > 0 &&
+          cue.pitch < 90
+        )
+      )
+        refuse(
+          animal.archetype,
+          "count",
+          cue.count,
+          "crow hops are a whole number of hops from one, each pitching between 0 and 90 degrees",
+        );
+      if (
+        cue.kind === "spin" &&
+        !(
+          Number.isFinite(cue.degrees) &&
+          cue.degrees !== 0 &&
+          Math.abs(cue.degrees) <= 360
+        )
+      )
+        refuse(
+          animal.archetype,
+          "degrees",
+          cue.degrees,
+          "a spin turns a nonzero amount up to a full turn either way",
+        );
+      if (
         cue.kind === "stepAside" &&
         !(Number.isFinite(cue.width) && cue.width > 0)
       )
@@ -121,6 +150,13 @@ export namespace EquineStance {
           "width",
           cue.width,
           "a step aside steps a positive width",
+        );
+      if ((cue.kind === "capriole" || cue.kind === "courbette") && !(cue.hold > 0))
+        refuse(
+          animal.archetype,
+          "hold",
+          cue.hold,
+          `a ${cue.kind} flies through a positive hold`,
         );
       if (cue.from < ride.duration && ride.plan.at(cue.from).speed > 0)
         refuse(
@@ -145,6 +181,19 @@ export namespace EquineStance {
             `the ${cue.kind}'s pose at share ${share} is out of the rig's reach: ${error instanceof Error ? error.message : String(error)}`,
           );
         }
+
+      // A hold that moves is admitted at its quarters too.
+      for (const quarter of plan.hold === undefined ? [] : [0.25, 0.5, 0.75])
+        try {
+          body.solve(plan.hold!(quarter * cue.hold), halt.placement);
+        } catch (error) {
+          refuse(
+            animal.archetype,
+            cue.kind,
+            quarter,
+            `the ${cue.kind}'s held motion at ${quarter} of its hold is out of the rig's reach: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
       plans.push(plan);
       state = plan.end;
       last = cue.from + cue.entry + cue.hold + cue.exit;
@@ -162,6 +211,8 @@ export namespace EquineStance {
           current = plan.end;
           continue;
         }
+        if (plan.hold !== undefined && seconds >= held && seconds < settle)
+          return pose(plan.hold(seconds - held), seconds);
         const share: number =
           seconds < held
             ? minimumJerk.share((seconds - cue.from) / cue.entry)

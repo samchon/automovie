@@ -1,10 +1,12 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+﻿import { Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { ArchetypeFrame } from "../core";
 import { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineExpressionCue } from "./EquineExpressionCue";
 import type { EquineStanceCue } from "./EquineStanceCue";
+import { EquineAirs } from "./EquineAirs";
+import { EquineStanceMoves } from "./EquineStanceMoves";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 import { QuadrupedBody } from "./QuadrupedBody";
 
@@ -123,6 +125,19 @@ export namespace EquineStanceRows {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     goal(share: number): EquineBodyPose.IGoal;
+
+    /**
+     * The pose at a second into the hold, for a response that moves while held, such as an air's leaps; absent, the hold keeps the pose at share 1.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Seconds from the hold's start.
+     * @evidence contracts/development/implementation.md#principled-implementation The row's own motion through its hold.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose per second.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the row's planned chains.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+     */
+    hold?(seconds: number): EquineBodyPose.IGoal;
   }
 
   /**
@@ -240,6 +255,23 @@ export namespace EquineStanceRows {
       };
     }
     if (cue.kind === "stepAside") return step(body, start, cue);
+    if (cue.kind === "spin") return EquineStanceMoves.spin(body, start, cue);
+    if (cue.kind === "crowHops")
+      return EquineStanceMoves.crowHops(body, start, cue);
+    if (cue.kind === "capriole") return EquineAirs.capriole(body, start, cue);
+    if (cue.kind === "air" || cue.kind === "courbette") {
+      const levade: IPlan = pitch(body, start, {
+        kind: "rear",
+        pitch: EquineAirs.pitch(cue.kind === "air" ? cue.air : "levade"),
+        from: cue.from,
+        entry: cue.entry,
+        hold: cue.hold,
+        exit: cue.exit,
+      });
+      return cue.kind === "air"
+        ? { ...levade, cue }
+        : EquineAirs.courbette(body, cue, levade);
+    }
     return pitch(body, start, cue);
   }
 

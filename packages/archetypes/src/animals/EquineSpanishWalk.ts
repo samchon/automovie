@@ -1,0 +1,230 @@
+import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieModelPart,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { ArchetypeFrame, type ArchetypeRide } from "../core";
+import { QuadrupedBody } from "./QuadrupedBody";
+
+/** The forelimb's peak forward swing about the shoulder at mid-swing, degrees: authored. */
+const RAISE: number = 60;
+
+/** The fore limbs. */
+const FORES: readonly Fore[] = ["leftFore", "rightFore"];
+
+/** A sole this far above the floor, metres, is in its swing; below it the hoof bears on the floor. */
+const OFF: number = 1e-6;
+
+/** A fore limb. */
+type Fore = Extract<QuadrupedBody.Limb, `${string}Fore`>;
+
+/** A named instant of a ride. */
+type Instant = ArchetypeRide.IRide<string, string>["instants"][number];
+
+/**
+ * The Spanish walk, a layer over an equid's walk: each forelimb, while it swings, is carried straight up and forward from the shoulder and set down on the footprint the walk gives it.
+ *
+ * The walk's own stride, footfalls and stance limbs are kept exactly. A fore limb whose displayed sole is off the floor is in its swing; its progress through the swing is the hoof's displayed forward travel between its previous and next footprints, read from the walk at the landings the ride names (`leftForeOn`, `rightForeOn`). On the same half-sine share the cannon and pastern turn about the carpus into the forearm's line, and the whole limb turns forward about the shoulder joint by up to `RAISE`, so it rises extended and comes back to the walk's own path at lift-off and landing. The peak swing is authored.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what is kept, how a swing and its progress are read and how the limb is turned.
+ * @evidence contracts/development/design.md#principled-representation A ride in and a ride out on the same clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One layer read by a scene staging the Spanish walk.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The swing is read from the displayed walk, never from a separate clock.
+ */
+export namespace EquineSpanishWalk {
+  /**
+   * Layer the Spanish walk over a walk.
+   *
+   * @param ride The equid's walking ride.
+   * @returns The layered ride.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input and output.
+   * @evidence contracts/development/implementation.md#principled-implementation Per sample, each swinging fore limb's progress is its endpoint's forward travel between the footprints sampled at its neighbouring landings; its bars turn rigidly about the shoulder by a half-sine of that progress.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Base sample, swing detection, rigid turn, repose.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stance limbs and every other part keep the walk's frames exactly.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A sample reads the base once and, for a swinging fore limb, the base at its two neighbouring landings.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the walk's own landings and footprints.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the base ride and its landing lists.
+   */
+  export function layer<Id extends string, D extends string>(
+    ride: ArchetypeRide.IRide<Id, D>,
+  ): ArchetypeRide.IRide<Id, D> {
+    const landings = (limb: QuadrupedBody.Limb): readonly number[] =>
+      ride.instants
+        .filter((instant: Instant): boolean => instant.label === `${limb}On`)
+        .map((instant: Instant): number => instant.seconds);
+    const fore: Readonly<Record<Fore, readonly number[]>> = {
+      leftFore: landings("leftFore"),
+      rightFore: landings("rightFore"),
+    };
+    const at = (seconds: number): ArchetypeRide.ISample<Id, D> => {
+      const base: ArchetypeRide.ISample<Id, D> = ride.at(seconds);
+      let parts: IAutoMovieModelPart[] | undefined;
+      for (const limb of FORES) {
+        const bones: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
+        const terminal: IAutoMovieModelPart = part(base, bones[3]!);
+        if (!(sole(terminal, base.placement) > OFF)) continue;
+        const next: number | undefined = fore[limb].find(
+          (time: number): boolean => time > seconds,
+        );
+        const previous: number | undefined = [...fore[limb]]
+          .reverse()
+          .find((time: number): boolean => time <= seconds);
+        if (next === undefined || previous === undefined) continue;
+        const from: number = end(part(ride.at(previous), bones[3]!)).z;
+        const to: number = end(part(ride.at(next), bones[3]!)).z;
+        const now: number = end(terminal).z;
+        const progress: number =
+          to === from
+            ? 0
+            : Math.max(0, Math.min(1, (now - from) / (to - from)));
+        const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+          { x: 1, y: 0, z: 0 },
+          -RAISE * Math.sin(Math.PI * progress),
+        );
+        const shoulder: IAutoMovieVector3 = start(part(base, bones[0]!));
+        parts ??= base.archetype.parts.map(
+          (each: IAutoMovieModelPart): IAutoMovieModelPart => ({ ...each }),
+        );
+
+        // The carpus straightens on the same share: the cannon and pastern turn about the carpus toward the forearm's line.
+        const forearm: IAutoMovieModelPart = part(base, bones[1]!);
+        const cannon: IAutoMovieModelPart = part(base, bones[2]!);
+        const carpus: IAutoMovieVector3 = start(cannon);
+        const straighten: IAutoMovieQuaternion = Quaternion.slerp(
+          { x: 0, y: 0, z: 0, w: 1 },
+          rotationBetween(
+            Vector3.subtract(end(cannon), carpus),
+            Vector3.subtract(end(forearm), start(forearm)),
+          ),
+          Math.sin(Math.PI * progress),
+        );
+        for (const bone of bones.slice(2)) {
+          const index: number = parts.findIndex(
+            (each: IAutoMovieModelPart): boolean => each.id === bone,
+          );
+          parts[index] = {
+            ...parts[index]!,
+            transform: ArchetypeFrame.move(
+              {
+                rotation: straighten,
+                translation: Vector3.subtract(
+                  carpus,
+                  Quaternion.rotateVector(straighten, carpus),
+                ),
+              },
+              parts[index]!.transform!,
+            ),
+          };
+        }
+        for (const bone of bones) {
+          const index: number = parts.findIndex(
+            (each: IAutoMovieModelPart): boolean => each.id === bone,
+          );
+          const frame: IAutoMovieTransform = parts[index]!.transform!;
+          parts[index] = {
+            ...parts[index]!,
+            transform: ArchetypeFrame.move(
+              {
+                rotation: turn,
+                translation: Vector3.subtract(
+                  shoulder,
+                  Quaternion.rotateVector(turn, shoulder),
+                ),
+              },
+              frame,
+            ),
+          };
+        }
+      }
+      if (parts === undefined) return base;
+      return {
+        ...base,
+        archetype: base.archetype.reposed(
+          parts,
+          new Map(
+            base.archetype.affordances.map(
+              (
+                contact: IAutoMovieAffordance,
+              ): [string, IAutoMovieTransform] => [contact.id, contact.frame],
+            ),
+          ),
+        ),
+      };
+    };
+    return {
+      plan: ride.plan,
+      duration: ride.duration,
+      instants: ride.instants,
+      at,
+      frame: (id: Id, seconds: number): IAutoMovieTransform => {
+        const sample: ArchetypeRide.ISample<Id, D> = at(seconds);
+        return ArchetypeFrame.compose(
+          sample.placement,
+          sample.archetype.affordance(id).frame,
+        );
+      },
+    };
+  }
+
+  /** A part of a sample by id. */
+  function part(
+    sample: ArchetypeRide.IPose<string, string>,
+    id: string,
+  ): IAutoMovieModelPart {
+    return sample.archetype.parts.find(
+      (each: IAutoMovieModelPart): boolean => each.id === id,
+    )!;
+  }
+
+  /** A bar's half length along its local +Y. */
+  function half(part: IAutoMovieModelPart): IAutoMovieVector3 {
+    const height: number =
+      part.geometry.type === "primitive" &&
+      (part.geometry.shape.type === "cylinder" ||
+        part.geometry.shape.type === "capsule")
+        ? part.geometry.shape.height
+        : 0;
+    return Quaternion.rotateVector(part.transform!.rotation, {
+      x: 0,
+      y: height / 2,
+      z: 0,
+    });
+  }
+
+  /** A bar's start, model space. */
+  function start(part: IAutoMovieModelPart): IAutoMovieVector3 {
+    return Vector3.subtract(part.transform!.translation, half(part));
+  }
+
+  /** A bar's end, model space. */
+  function end(part: IAutoMovieModelPart): IAutoMovieVector3 {
+    return Vector3.add(part.transform!.translation, half(part));
+  }
+
+  /** A terminal cylinder's lowest point above the floor under a placement, metres. */
+  function sole(
+    part: IAutoMovieModelPart,
+    placement: IAutoMovieTransform,
+  ): number {
+    const top: IAutoMovieVector3 = ArchetypeFrame.point(placement, start(part));
+    const bottom: IAutoMovieVector3 = ArchetypeFrame.point(
+      placement,
+      end(part),
+    );
+    const axis: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(bottom, top),
+    );
+    const radius: number =
+      part.geometry.type === "primitive" &&
+      (part.geometry.shape.type === "cylinder" ||
+        part.geometry.shape.type === "capsule")
+        ? part.geometry.shape.radius
+        : 0;
+    return Math.min(top.y, bottom.y) - radius * Math.hypot(axis.x, axis.z);
+  }
+}

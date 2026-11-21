@@ -240,11 +240,19 @@ export namespace jump {
     const upright: IAutoMovieMotionHumanStandUpright.IAlignment =
       standUpright.of(body);
     const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
-    // Take-off and touchdown roots.
+    // Take-off and touchdown roots. The take-off foot rises about its toes'
+    // joint, which carries its ankle toward the toes, so the root leads the
+    // ball only by the share of `TAKEOFF_AHEAD` the jump's heading has along
+    // the foot's own: a jump backward or sideways takes off with the root
+    // over the ball, within the planted leg's reach.
+    const along: number = Math.max(
+      0,
+      Math.cos(((heading - supportHeading) * Math.PI) / 180),
+    );
     const rootT: IAutoMovieVector3 = HumanFrame.point(frame(ball), {
       x: 0,
       y: root0.y + TAKEOFF_RISE * l,
-      z: TAKEOFF_AHEAD * l,
+      z: TAKEOFF_AHEAD * l * along,
     });
     const landingHeading: number = jumpLandingHeading(context.params, heading);
     const headingChange: number = landingHeading - heading;

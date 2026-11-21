@@ -1,10 +1,14 @@
 import type {
   AutoMovieHumanSide,
   IAutoMovieTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { type Archetype, ArchetypeFrame, ArchetypeRefusal } from "../core";
 import { createMovingWalkway } from "./createMovingWalkway";
+
+/** A unit scale: the rides move rigid frames. */
+const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
 /** The identity rotation of the level band. */
 const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
@@ -53,11 +57,12 @@ export function rideMovingWalkway(
   const velocity: number =
     (ride.direction === "backward" ? -1 : 1) * ride.speed;
   const rail: number =
-    walkway.dimensions.width / 2 + createMovingWalkway.RAIL_OFFSET;
+    walkway.dimensions.width! / 2 + createMovingWalkway.RAIL_OFFSET;
   return {
     velocity,
     belt: (seconds: number): IAutoMovieTransform =>
       ArchetypeFrame.compose(placement, {
+        scale: ONE,
         translation: { x: 0, y: 0, z: velocity * seconds },
         rotation: LEVEL,
       }),
@@ -67,9 +72,10 @@ export function rideMovingWalkway(
       seconds: number,
     ): IAutoMovieTransform =>
       ArchetypeFrame.compose(placement, {
+        scale: ONE,
         translation: {
           x: (side === "left" ? 1 : -1) * rail,
-          y: walkway.dimensions.handrail,
+          y: walkway.dimensions.handrail!,
           z: at + velocity * seconds,
         },
         rotation: LEVEL,
