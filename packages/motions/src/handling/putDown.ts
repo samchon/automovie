@@ -53,7 +53,8 @@ import { putDownTravel } from "./putDownTravel";
  * from `placed` as the other prop's articulations pose it
  * (`IHumanActionPlan.mounts`): an arrow nocked on a bow's string, drawn
  * back with it. A free placement uses the prop's declared rest rotation
- * turned to the requested heading. The arm keeps its entry configuration
+ * turned to the requested heading, or the whole `rotation` the author
+ * declares, such as a card laid face up. The arm keeps its entry configuration
  * as its reference while the rest of the body keeps its entry posture.
  *
  * Phases: a transport of the hand to the placing frame, timed by the
@@ -212,40 +213,56 @@ export namespace putDown {
           "a put down names where the prop goes: a place, a bone or another prop's socket",
         fix: "give `at`, a world point, `on`, a bone of the performer and the prop's frame on it, or `onto`, another prop's socket",
       });
+    // A declared resting attitude is laid exactly, through the same grip.
+    const attitude: IAutoMovieQuaternion | undefined =
+      wearing === undefined ? context.params.rotation : undefined;
     const chosen: IAutoMovieMotionHumanHand.IWrist =
-      wearing !== undefined
+      attitude !== undefined
         ? ((): IAutoMovieMotionHumanHand.IWrist => {
             const r: IAutoMovieQuaternion = Quaternion.normalize(
-              Quaternion.multiply(
-                wearing.rotation,
-                Quaternion.inverse(offset.rotation),
-              ),
+              Quaternion.multiply(Quaternion.normalize(attitude), unhold),
             );
             return {
               point: Vector3.subtract(
-                wearing.position,
+                context.params.at!,
                 Quaternion.rotateVector(r, offset.position),
               ),
               rotation: r,
             };
           })()
-        : context.params.yaw === undefined
-          ? HumanGrasp.reachable(
-              body,
-              held,
-              side,
-              bend,
-              (turn: number): IAutoMovieMotionHumanHand.IWrist =>
-                holding(heading(prop.rotation) + turn),
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              // A turn that puts the wrist beyond the arm, which the reach
-              // below refuses, is tried only when every turn does.
-              pickUp.reaches(context, side),
-            ).wrist
-          : holding(context.params.yaw);
+        : wearing !== undefined
+          ? ((): IAutoMovieMotionHumanHand.IWrist => {
+              const r: IAutoMovieQuaternion = Quaternion.normalize(
+                Quaternion.multiply(
+                  wearing.rotation,
+                  Quaternion.inverse(offset.rotation),
+                ),
+              );
+              return {
+                point: Vector3.subtract(
+                  wearing.position,
+                  Quaternion.rotateVector(r, offset.position),
+                ),
+                rotation: r,
+              };
+            })()
+          : context.params.yaw === undefined
+            ? HumanGrasp.reachable(
+                body,
+                held,
+                side,
+                bend,
+                (turn: number): IAutoMovieMotionHumanHand.IWrist =>
+                  holding(heading(prop.rotation) + turn),
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                // A turn that puts the wrist beyond the arm, which the reach
+                // below refuses, is tried only when every turn does.
+                pickUp.reaches(context, side),
+              ).wrist
+            : holding(context.params.yaw);
 
     // The arm keeps the configuration it carried the prop in.
     const reference: IAutoMovieHumanLimbReference =
