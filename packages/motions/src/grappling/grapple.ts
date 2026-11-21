@@ -206,7 +206,6 @@ export namespace grapple {
           : { contact: landing.share * floor.duration }),
       };
 
-    const stagedShoulders: boolean = p.kind === "grecoRoman";
     const regions: ReturnType<typeof grappleStances.regions> =
       grappleStances.regions(p.kind, p.side ?? "right");
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -230,6 +229,7 @@ export namespace grapple {
     for (const side of ["left", "right"] as const) {
       const region: AutoMovieHumanoidRegion | undefined = regions[side];
       if (region === undefined) continue;
+      const onShoulder: boolean = region.startsWith("shoulder");
       needed.add(partner.body.surfaces.regions[region].bone);
       const armBone: AutoMovieHumanoidBone = `${side}UpperArm`;
       const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([
@@ -283,11 +283,12 @@ export namespace grapple {
             contact,
             {
               surface: "palm",
-              shape: stagedShoulders ? "flat" : "relaxed",
+              shape: onShoulder ? "flat" : "relaxed",
               bend: "forward",
-              // The shoulder marks use a visible open palm. Relaxed finger
-              // curl folds the tips around the placed palm into the chest.
-              ...(stagedShoulders ? { forward: { x: 0, y: 1, z: 0 } } : {}),
+              // A palm on a shoulder stays open, its fingers up. Relaxed
+              // finger curl folds the tips around the placed palm into the
+              // chest below it.
+              ...(onShoulder ? { forward: { x: 0, y: 1, z: 0 } } : {}),
             },
           );
         },
