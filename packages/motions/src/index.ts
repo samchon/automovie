@@ -315,6 +315,7 @@ export * from "./lexicon/HumanLabour";
 export * from "./lexicon/HumanStance";
 export * from "./lexicon/HumanSupportRows";
 export * from "./lexicon/HumanLeadHorse";
+export * from "./lexicon/HumanHoldHandles";
 export * from "./lexicon/HumanTendHorse";
 export * from "./lexicon/HumanRide";
 export * from "./lexicon/HumanMounted";
