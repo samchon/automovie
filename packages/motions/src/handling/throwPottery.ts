@@ -49,6 +49,9 @@ const PAIRS: readonly IPair[] = [
 /** The trunk's forward leans tried over the wheel, degrees, least first: provisional steps up to a potter's deep lean. */
 const LEANS: readonly number[] = [0, 10, 20, 30, 40, 50, 60];
 
+/** The deepest of LEANS, which the reach is refused from when none brings the palms within it. */
+const DEEPEST: number = 60;
+
 /** The trunk's bones a lean flexes. */
 type TrunkBone = "spine" | "chest";
 
@@ -221,7 +224,7 @@ function plan(
         }),
       );
     });
-  const forward: number = LEANS.find(reach) ?? LEANS[LEANS.length - 1]!;
+  const forward: number = LEANS.find(reach) ?? DEEPEST;
   for (const pair of PAIRS)
     for (const lift of [0, rise])
       pickUp.reachable(
