@@ -27,8 +27,9 @@ import { nclose } from "../internal/nclose";
  * 3. Failed asynchronous placement leaves the previous scene state restored
  *    and no inspection overlay attached; no stale handle remains active.
  * 4. The declared contact kind is admitted on each replacement graph. Its
- *    solver receipt draws at the completed step, expires, then reappears at
- *    the same second when the capture seeks backwards.
+ *    solver receipt draws one arrow per collider at the completed step,
+ *    expires, then reappears at the same second when the capture seeks
+ *    backwards.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States replacement identities, current bounds, failure cleanup and the contact lifetime across draws.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public draw-inspection lifecycle with actual Three meshes and an authored solver receipt. It observes current masks, selection, bounds, restoration and contact legend counts.
@@ -167,11 +168,12 @@ export async function test_inspection_draw_replaced_scene(): Promise<void> {
       scene,
       markKinds: ["contact"],
     };
+    // One contact draws the force on each of its two colliders.
     for (const [seconds, count] of [
       [0.75, 0],
-      [1, 1],
+      [1, 2],
       [1.25, 0],
-      [1, 1],
+      [1, 2],
     ] as const) {
       active = await replaceAutoMovieDrawInspection({
         ...subject,

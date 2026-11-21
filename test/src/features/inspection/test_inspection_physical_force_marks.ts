@@ -31,13 +31,13 @@ import { nclose } from "../internal/nclose";
  * Force marks carry the solver's own contact witnesses and the allocator's own support records from a replayed performance into the draw inspection.
  *
  * Scenarios:
- * 1. A rigid ball dropped from 1 m onto the floor is simulated, archived and decoded. While it falls no contact mark exists; at its first acting solver step one unflagged arrow starts at that step's floor witness and points up for the step's mean force.
- * 2. A compliant ball in an exaggerated mode whose shell response rounds every solved impulse to zero at transfer sinks to its rigid core: its shell steps are drawn and flagged, and the core steps that actually stop it are drawn unflagged.
+ * 1. A rigid ball dropped from 1 m onto the floor is simulated, archived and decoded. While it falls no contact mark exists; at its first acting solver step two unflagged arrows start at that step's floor witness: the ball's points up for the step's mean force and the floor's is its exact opposite.
+ * 2. A compliant ball in an exaggerated mode whose shell response rounds every solved impulse to zero at transfer sinks to its rigid core: each side of its shell steps is drawn and flagged, and the core steps that actually stop it are drawn unflagged.
  * 3. The real allocator carries 100 N straight up over four floor witnesses within its admitted error, so no shortfall is drawn; it cannot carry a 100 N sideways pull with 50 N up under friction 0.5, so a flagged shortfall continues from the allocated tip, the two arrows add up to the request, and the allocation stays inside the friction cone; with no witnesses the whole request is shortfall.
- * 4. The draw inspection, with the contact and support kinds declared, admits `marks=contact,support/*` at a falling frame that has none; at the contact step and the support record it counts one contact and one support shortfall under its flag entry; seeking back to the falling frame clears both, and returning to the contact frame draws them again.
+ * 4. The draw inspection, with the contact and support kinds declared, admits `marks=contact,support/*` at a falling frame that has none; at the contact step and the support record it counts the contact's two arrows and one support shortfall under its flag entry; seeking back to the falling frame clears both, and returning to the contact frame draws them again.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation`, `AutoMoviePhysicalPlayback`, `distributePhysicalSupportWrench`, both mark producers and `replaceAutoMovieDrawInspection` on real solver output, a real archive round trip and real allocations, and reads marks and legend counts.
- * @evidence contracts/development/testing.md#independent-expectations The falling ball touches nothing before 0.3 s, since it needs sqrt(2 × 0.9 / 9.81) ≈ 0.43 s to reach the floor; its floor witness lies within 1 cm of y = 0 and its normal is vertical. Any sum of witness forces with friction 0.5 lies in the convex cone |fx| <= 0.5 fy, whose distance from the request (100, 50) N is 75 / sqrt(1.25) ≈ 67.1 N, so the shortfall is at least that; 100 N straight up above the witnesses' centre is inside the cone with zero moment.
+ * @evidence contracts/development/testing.md#independent-expectations The falling ball touches nothing before 0.3 s, since it needs sqrt(2 × 0.9 / 9.81) ≈ 0.43 s to reach the floor; its floor witness lies within 1 cm of y = 0, the floor can only push it up, and by reaction the ball pushes the floor equally down. Any sum of witness forces with friction 0.5 lies in the convex cone |fx| <= 0.5 fy, whose distance from the request (100, 50) N is 75 / sqrt(1.25) ≈ 67.1 N, so the shortfall is at least that; 100 N straight up above the witnesses' centre is inside the cone with zero moment.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts falling and touching frames, a forward and a reverse seek, native and zero-transfer exaggerated contacts, a feasible, an infeasible and an unsupported request, and an empty against a populated inspection frame.
  * @evidence contracts/development/testing.md#execution-ownership One portable async unit owns its two simulations, archive, allocations, scene and inspection handle, restores the handle and releases its mesh in finally, and starts no browser, process or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins.
@@ -56,20 +56,31 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
       metresPerNewton,
     });
   const touching: IAutoMovieMark[] = contacts(step.seconds);
-  const arrow: IAutoMovieMark.IArrows = touching[0]!
-    .shape as IAutoMovieMark.IArrows;
-  const length: number = Math.hypot(...arrow.vectors);
+  const [lifted, pressed] = ["ball/", "floor/"].map(
+    (prefix: string): IAutoMovieMark.IArrows =>
+      touching.find((mark: IAutoMovieMark): boolean =>
+        mark.path.startsWith(prefix),
+      )!.shape as IAutoMovieMark.IArrows,
+  );
+  const length: number = Math.hypot(...lifted!.vectors);
   TestValidator.equals(
-    "no contact while falling, one unflagged contact at the first acting step",
-    [contacts(0.3).length, touching.length, touching[0]!.flagged],
-    [0, 1, false],
+    "no contact while falling, one unflagged arrow per collider at the first acting step",
+    [
+      contacts(0.3).length,
+      touching.length,
+      touching.some((mark: IAutoMovieMark): boolean => mark.flagged),
+    ],
+    [0, 2, false],
   );
   TestValidator.predicate(
-    `the arrow starts at the floor witness and is vertical: ${arrow.origins.join(",")} / ${arrow.vectors.join(",")}`,
+    `the floor pushes the ball up from the floor witness, and the ball pushes the floor down: ${lifted!.origins.join(",")} / ${lifted!.vectors.join(",")}`,
     step.seconds > 0.3 &&
-      Math.abs(arrow.origins[1]!) < 0.01 &&
+      Math.abs(lifted!.origins[1]!) < 0.01 &&
       nclose(length, (step.impulse / step.duration) * metresPerNewton, 1e-12) &&
-      Math.abs(arrow.vectors[1]!) > 0.999 * length,
+      lifted!.vectors[1]! > 0.999 * length &&
+      [0, 1, 2].every((axis: number): boolean =>
+        nclose(pressed!.vectors[axis]!, -lifted!.vectors[axis]!, 1e-15),
+      ),
   );
 
   // 2. Solved force that no body received.
@@ -83,7 +94,7 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
         "A positive Float64 soft impulse rounds to zero at its actual native transfer",
     }),
   );
-  // Each acting step is drawn at its own second; its flag must follow its stated transfer.
+  // Each acting step is drawn at its own second; each side's flag must follow what that side received.
   const verdicts: { unfelt: boolean; flagged: boolean }[] =
     exaggerated.contacts.flatMap(
       (
@@ -94,15 +105,21 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
             (sample: Step): boolean =>
               sample.impulse > 0 && sample.separation <= 0,
           )
-          .map((sample: Step): { unfelt: boolean; flagged: boolean } => ({
-            unfelt:
-              sample.appliedImpulse?.a === 0 && sample.appliedImpulse.b === 0,
-            flagged: markAutoMovieContacts({
+          .flatMap((sample: Step): { unfelt: boolean; flagged: boolean }[] =>
+            markAutoMovieContacts({
               receipts: [receipt],
               seconds: sample.seconds,
               metresPerNewton,
-            })[0]!.flagged,
-          })),
+            }).map(
+              (
+                mark: IAutoMovieMark,
+                side: number,
+              ): { unfelt: boolean; flagged: boolean } => ({
+                unfelt: sample.appliedImpulse?.[side === 0 ? "a" : "b"] === 0,
+                flagged: mark.flagged,
+              }),
+            ),
+          ),
     );
   const unfelt: number = verdicts.filter(
     (verdict: { unfelt: boolean }): boolean => verdict.unfelt,
@@ -231,9 +248,9 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
       counts,
       [
         [0, 0],
-        [1, 1],
+        [2, 1],
         [0, 0],
-        [1, 1],
+        [2, 1],
       ],
     );
   } finally {

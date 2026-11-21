@@ -8,19 +8,19 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * Solved contacts acting at one second become arrows at their contact points along their normals, as long as the mean force times the stated scale; other contacts draw nothing.
+ * Solved contacts acting at one second become one arrow per collider at their contact points, along the force each collider receives, as long as the mean force times the stated scale; other contacts draw nothing.
  *
  * Scenarios:
  *
- * 1. A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s, a mean force of 50 N, at (1, 0, 0) along +Y, drawn at 1.005 s with 0.002 m per newton, gives one arrow from (1, 0, 0) of length 0.1 m along +Y, kind `contact`, at the first collider's path.
+ * 1. A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s, a mean force of 50 N, at (1, 0, 0) with its normal +Y from the hand toward the wall, drawn at 1.005 s with 0.002 m per newton, gives two `contact` arrows from (1, 0, 0) of length 0.1 m: the hand's, at the hand's path, along -Y, and the wall's, at the wall's path, along +Y.
  * 2. The same receipt drawn at 0.99 s, before its step, at 1.02 s, after the step's duration, and a geometric receipt draw nothing; a step with a positive separation draws nothing.
  * 3. Of two steps, the later one at or before the drawn second is read.
  * 4. A scale that is zero or not finite, and an acting step with no duration, are refused.
- * 5. A step stating that neither side received its impulse is flagged; one stating a transfer to either side, or stating none, is not.
+ * 5. A side whose stated received impulse is zero is flagged and a side that received some is not; a step stating no transfer flags neither.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the engine producer on receipts the test writes and reads the returned arrows' origins, vectors, paths and kinds.
- * @evidence contracts/development/testing.md#independent-expectations The expected length is the impulse over the duration times the scale, 0.5 / 0.01 x 0.002 = 0.1 m, computed by hand from the documented rule.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts an acting step against one not yet completed, one expired, a geometric receipt and a separated step, an earlier step against a later one, valid against refused scales and durations, and a zero stated transfer against a transfer to either side and an unstated one. Drawing the arrows belongs to the inspection tests.
+ * @evidence contracts/development/testing.md#independent-expectations The expected length is the impulse over the duration times the scale, 0.5 / 0.01 x 0.002 = 0.1 m, computed by hand from the documented rule; the opposite directions follow from action and reaction along the written normal.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts an acting step against one not yet completed, one expired, a geometric receipt and a separated step, an earlier step against a later one, valid against refused scales and durations, and the two sides of a stated zero, one-sided and unstated transfer. Drawing the arrows belongs to the inspection tests.
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit writes its own receipts and starts no solver, browser, server or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s).
  */
@@ -67,18 +67,30 @@ export function test_mark_contacts(): void {
     [receipt("solver", [step(1, 0.5, 0.01)])],
     1.005,
   );
-  const arrow: IAutoMovieMark.IArrows = acting[0]!
-    .shape as IAutoMovieMark.IArrows;
   TestValidator.equals(
-    "one contact mark",
-    [acting.length, acting[0]!.kind, acting[0]!.path, arrow.origins],
-    [1, "contact", "hero/leftHand/contact/c1", [1, 0, 0]],
+    "one contact mark per collider",
+    acting.map((m: IAutoMovieMark) => [
+      m.kind,
+      m.path,
+      (m.shape as IAutoMovieMark.IArrows).origins,
+    ]),
+    [
+      ["contact", "hero/leftHand/contact/c1", [1, 0, 0]],
+      ["contact", "wall/root/contact/c1", [1, 0, 0]],
+    ],
+  );
+  const [hand, wall] = acting.map(
+    (m: IAutoMovieMark): readonly number[] =>
+      (m.shape as IAutoMovieMark.IArrows).vectors,
   );
   TestValidator.predicate(
-    `the arrow is 0.1 m along +Y: ${arrow.vectors.join(",")}`,
-    nclose(arrow.vectors[0]!, 0, 1e-12) &&
-      nclose(arrow.vectors[1]!, 0.1, 1e-12) &&
-      nclose(arrow.vectors[2]!, 0, 1e-12),
+    `the hand is pushed 0.1 m along -Y and the wall along +Y: ${hand!.join(",")} / ${wall!.join(",")}`,
+    [hand!, wall!].every(
+      (vector: readonly number[], index: number): boolean =>
+        nclose(vector[0]!, 0, 1e-12) &&
+        nclose(vector[1]!, index === 0 ? -0.1 : 0.1, 1e-12) &&
+        nclose(vector[2]!, 0, 1e-12),
+    ),
   );
 
   // 2. Nothing acting.
@@ -100,7 +112,7 @@ export function test_mark_contacts(): void {
   );
   TestValidator.predicate(
     "the later step is read",
-    nclose((later[0]!.shape as IAutoMovieMark.IArrows).vectors[1]!, 0.2, 1e-12),
+    nclose((later[1]!.shape as IAutoMovieMark.IArrows).vectors[1]!, 0.2, 1e-12),
   );
 
   // 4. Refusals.
@@ -119,10 +131,10 @@ export function test_mark_contacts(): void {
     },
   );
 
-  // 5. A solved impulse that reached neither side.
+  // 5. A solved impulse that a side did not receive.
   const transferred = (
     appliedImpulse: { a: number; b: number } | undefined,
-  ): boolean =>
+  ): boolean[] =>
     mark(
       [
         receipt("solver", [
@@ -133,7 +145,7 @@ export function test_mark_contacts(): void {
         ]),
       ],
       1.005,
-    )[0]!.flagged;
+    ).map((m: IAutoMovieMark): boolean => m.flagged);
   TestValidator.equals(
     "zero, one-sided, other-sided and unstated transfers",
     [
@@ -142,6 +154,11 @@ export function test_mark_contacts(): void {
       transferred({ a: 0, b: 0.5 }),
       transferred(undefined),
     ],
-    [true, false, false, false],
+    [
+      [true, true],
+      [false, true],
+      [true, false],
+      [false, false],
+    ],
   );
 }
