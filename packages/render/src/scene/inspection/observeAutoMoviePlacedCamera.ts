@@ -25,7 +25,11 @@ interface ICameraRequirement {
   readonly targetBounds?: IAutoMovieSubjectBox;
 }
 
-/** At most the native sample count of two 2×-supersampled 1080p passes per frame. */
+/**
+ * Native samples all subjects of one frame may render, across both passes:
+ * two 2×-supersampled 1080p frames. Each subject pays only for its own
+ * projected region, so a 4K frame fits whenever its subjects do.
+ */
 const FRAME_PIXEL_BUDGET: number = 2 * 2 * 2 * 1920 * 1080;
 
 /** Per-frame admission cap on geometry entries, in triangles, across exact passes. */
@@ -68,7 +72,9 @@ const FRAMING_FAILURES: Readonly<
  * @evidence contracts/development/implementation.md#efficient-algorithms
  * Viewer/capture run no extra raster passes. Delivery audit is only attempted
  * for a resolved in-frame candidate with a valid authored threshold. All
- * targets share a native-sample budget and the per-frame triangle limits.
+ * targets share a native-sample budget, paying for the samples they actually
+ * rendered, and the per-frame triangle limits. A target the remaining budget
+ * cannot admit keeps its own deferred reason with the samples it needed.
  * @evidence contracts/development/common.md#meaningful-documentation Names
  * the original camera source, obligation scope, and confidence boundaries.
  */
@@ -177,7 +183,6 @@ export function observeAutoMoviePlacedCamera(props: {
       target !== undefined &&
       maxOcclusionRatio !== undefined
     ) {
-      const samples: number = sample.width * sample.height * raster.factor ** 2;
       const attempt: ReturnType<typeof measureAutoMovieCameraOcclusionPixels> =
         measureAutoMovieCameraOcclusionPixels({
           ...raster,
@@ -189,8 +194,8 @@ export function observeAutoMoviePlacedCamera(props: {
           maxSamples: pixelBudget,
           maxTriangles: maskTriangles,
         });
+      pixelBudget -= attempt.samples;
       if (attempt.status === "measured") {
-        pixelBudget -= samples * attempt.passes;
         const result: IAutoMovieCameraInspection.Occlusion =
           classifyAutoMovieCameraInspection({
             framing: grade,
@@ -249,8 +254,6 @@ export function observeAutoMoviePlacedCamera(props: {
         }
         continue;
       }
-      if (Number.isSafeInteger(samples) && samples > 0)
-        pixelBudget = Math.max(0, pixelBudget - samples * 2);
       reason = attempt.reason;
     }
 

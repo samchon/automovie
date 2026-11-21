@@ -23,12 +23,18 @@ interface IPcmEvidence {
 /**
  * Accumulates exact decoded coverage from FFmpeg's audio frame log.
  *
+ * The decoder returns whole codec frames, so the last one can extend past the
+ * presentation the container records. Samples beyond that end, all within the
+ * final decoded frame, are codec padding: they leave the stream's coverage and
+ * content and are reported as trailing padding. A longer overrun is kept, so
+ * the audit still sees the real duration.
+ *
  * @returns A line consumer, the first decoded frame format and a completion
- * operation that reconciles timing with the actual PCM byte stream.
- * @evidence contracts/development/common.md#meaningful-documentation Describes audio frame-log coverage and reconciliation with PCM.
- * @evidence contracts/development/implementation.md#principled-implementation FFmpeg's audio input filter uses one tick per sample frame. Checks that logged frame indices, format and PTS stay continuous and that observed sample bytes cover the same count.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads only ashowinfo rows and retains the first format and last timing boundary.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Marks unsupported evidence and byte count mismatches uncovered instead of inferring sample counts.
+ * operation that reconciles timing with the PCM byte stream and the container.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes audio frame-log coverage, reconciliation with PCM and the container end.
+ * @evidence contracts/development/implementation.md#principled-implementation FFmpeg's audio input filter uses one tick per sample frame. Checks that logged frame indices, format and PTS stay continuous and that observed sample bytes cover the same count. Trims only what the container's own presentation excludes from the final codec frame.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads only ashowinfo rows and retains the first format, the last frame size and the last timing boundary.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Marks unsupported evidence, byte count mismatches and differing container and decoder clocks uncovered instead of inferring sample counts. Never trims to the commissioned length.
  * @evidence contracts/development/implementation.md#efficient-algorithms Retains constant timing state, with one visit per logged audio frame.
  */
 export function createAutoMovieDeliveryAudioLog() {
@@ -37,6 +43,7 @@ export function createAutoMovieDeliveryAudioLog() {
   let nextPts = 0;
   let frames = 0;
   let sampleFrames = 0;
+  let lastSamples = 0;
   let malformed = false;
   let continuous = true;
 
@@ -85,10 +92,15 @@ export function createAutoMovieDeliveryAudioLog() {
       continuous &&= index === frames && pts === nextPts;
       frames++;
       sampleFrames += samples;
+      lastSamples = samples;
       nextPts = pts + samples;
     },
     format: (): IAudioFormat | undefined => format,
-    finish(index: number, pcm: IPcmEvidence): Stream {
+    finish(
+      index: number,
+      pcm: IPcmEvidence,
+      presented: { timescale: number; duration: number } | undefined,
+    ): Stream {
       if (malformed || format === undefined)
         return {
           status: "uncovered",
@@ -100,6 +112,14 @@ export function createAutoMovieDeliveryAudioLog() {
           reason: "Decoded audio samples and frame evidence do not agree",
         };
       const sampleRate = format.sampleRate;
+      if (presented !== undefined && presented.timescale !== sampleRate)
+        return {
+          status: "uncovered",
+          reason: "The container and decoded audio clocks differ",
+        };
+      const overrun =
+        presented === undefined ? 0 : sampleFrames - presented.duration;
+      const padding = overrun > 0 && overrun < lastSamples ? overrun : 0;
       const timestamp = (ticks: number): Timestamp => ({
         ticks,
         timeBase: [1, sampleRate],
@@ -108,19 +128,21 @@ export function createAutoMovieDeliveryAudioLog() {
         status: "decoded",
         index,
         start: timestamp(firstPts),
-        end: timestamp(nextPts),
+        end: timestamp(nextPts - padding),
         sampleRate,
         continuous,
-        observations: continuous
-          ? pcm.silent.map(
-              (range): Observation => ({
-                detector: "silence",
-                start: timestamp(firstPts + range.start),
-                end:
-                  range.end === null ? null : timestamp(firstPts + range.end),
-              }),
-            )
-          : [],
+        ...(padding === 0 ? {} : { trailingPadding: padding }),
+        observations:
+          continuous && overrun < lastSamples
+            ? pcm.silent.map(
+                (range): Observation => ({
+                  detector: "silence",
+                  start: timestamp(firstPts + range.start),
+                  end:
+                    range.end === null ? null : timestamp(firstPts + range.end),
+                }),
+              )
+            : [],
       };
     },
   };
@@ -129,20 +151,24 @@ export function createAutoMovieDeliveryAudioLog() {
 /**
  * Measures silence at exact sample frame boundaries in f32le PCM. Every channel
  * must be within the amplitude limit. Separate pipe chunks can split a float
- * or an interleaved sample frame.
+ * or an interleaved sample frame. Sample frames from the presented count on
+ * are counted for coverage but not measured, and an interval still open there
+ * ends with the stream.
  *
  * @param format Decoded sample rate and interleaved channel count.
  * @param settings Maximum normalized amplitude and minimum qualifying duration.
+ * @param presented Sample frames the container presents, after which decoded samples are padding.
  * @returns A byte stream consumer and its complete sample and interval evidence.
- * @evidence contracts/development/common.md#meaningful-documentation Gives the sample format, per-channel rule and exact interval boundary behavior.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the sample format, per-channel rule, presented range and exact interval boundary behavior.
  * @evidence contracts/development/implementation.md#principled-implementation Counts one sample frame per complete group of channels and checks any silence duration against the rational threshold rounded upward to the next sample.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses one small carry buffer for split floats and a single open silence interval across chunks.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite samples and partial floats or channel frames make evidence invalid.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite samples and partial floats or channel frames make evidence invalid, including in padding.
  * @evidence contracts/development/implementation.md#efficient-algorithms Visits each float once, retaining a single partial float and only threshold-qualifying intervals.
  */
 export function createAutoMovieDeliveryAudioScan(
   format: IAudioFormat,
   settings: IAutoMovieDeliveryContentAudit.IThresholds["silence"],
+  presented: number,
 ) {
   const floatBytes = 4;
   const carry = Buffer.alloc(floatBytes);
@@ -157,7 +183,7 @@ export function createAutoMovieDeliveryAudioScan(
   const { maximumAmplitude, minimumDuration } = settings;
   const [seconds, timeTicks] = minimumDuration.timeBase;
   if (
-    ![format.channels, format.sampleRate, seconds, timeTicks].every(
+    ![format.channels, format.sampleRate, seconds, timeTicks, presented].every(
       (value) => Number.isSafeInteger(value) && value > 0,
     ) ||
     !Number.isSafeInteger(minimumDuration.ticks) ||
@@ -176,7 +202,10 @@ export function createAutoMovieDeliveryAudioScan(
   );
 
   const flush = (end: number | null): void => {
-    if (quietStart !== undefined && sampleFrames - quietStart >= minimumSamples)
+    if (
+      quietStart !== undefined &&
+      Math.min(sampleFrames, presented) - quietStart >= minimumSamples
+    )
       silent.push({ start: quietStart, end });
     quietStart = undefined;
   };
@@ -184,8 +213,10 @@ export function createAutoMovieDeliveryAudioScan(
     if (!Number.isFinite(sample)) valid = false;
     quiet &&= Math.abs(sample) <= maximumAmplitude;
     if (++channel !== format.channels) return;
-    if (quiet) quietStart ??= sampleFrames;
-    else flush(sampleFrames);
+    if (sampleFrames < presented) {
+      if (quiet) quietStart ??= sampleFrames;
+      else flush(sampleFrames);
+    }
     sampleFrames++;
     channel = 0;
     quiet = true;

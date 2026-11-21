@@ -12,6 +12,8 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 
+import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
+
 /**
  * Publishes only complete and approved video while always preserving the report
  * for a failed attempt that reaches the output transaction.
@@ -19,14 +21,15 @@ import * as path from "node:path";
  * Scenarios:
  * 1. A generic video-only render publishes with its encoded digest and an unclassified black interval.
  * 2. A commissioned render retains both scene and decoded blockers, their frame cursor, the failed candidate's digest, and the previous film.
- * 3. A source-owned soundtrack and native silence allowance pass through the same entry. Missing required audio blocks.
- * 4. Encode refusal publishes its phase and reason and keeps the approved bytes.
+ * 3. A source-owned soundtrack and native silence allowance pass through the same entry. The final codec frame's samples past the container's end are padding, not duration. Missing required audio and a container that presents too little audio block.
+ * 4. Encode refusal publishes its phase and reason, keeps the scene inspection drawn before it, and keeps the approved bytes.
  * 5. An interrupted empty output reservation can be reclaimed. A live reservation prevents a second writer from touching either published file.
+ * 6. A report that cannot be installed restores the previous film, so the film and report never come from different attempts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the receipt, timing and release behavior verified by each case.
- * @evidence contracts/development/testing.md#behavioral-verification Uses normal CLI operations with Render's real composer and validators, with a fake draw session and FFmpeg process boundary.
- * @evidence contracts/development/testing.md#independent-expectations Four 250-tick frames put the first black frame at 0.25 seconds. Literal SHA-256 values for abc and hello identify independent fixed byte sequences.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises absence, explicit content intent, mixed scene and delivery blockers, allowed silence, missing audio and an encoder failure.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses normal CLI operations with Render's real composer and validators, with a fake draw session and FFmpeg process boundary, and a real MP4 movie box for the audio timing.
+ * @evidence contracts/development/testing.md#independent-expectations Four 250-tick frames put the first black frame at 0.25 seconds. Literal SHA-256 values for abc and hello identify independent fixed byte sequences. A 4 Hz track skipping two priming samples and editing to 1000 ms presents four of six decoded samples, leaving two of padding; a 750 ms edit presents three, a quarter second short.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises absence, explicit content intent, mixed scene and delivery blockers, allowed silence, codec padding against a short container, missing audio, an encoder failure and a report installation failure.
  * @evidence contracts/development/testing.md#execution-ownership Owns its isolated temporary directory and calls no FFmpeg, browser or device.
  */
 export async function test_cli_render_video_delivery(): Promise<void> {
@@ -76,7 +79,18 @@ export async function test_cli_render_video_delivery(): Promise<void> {
   let intent: IAutoMovieDeliveryContentAudit.IIntent | undefined;
   let sceneError = false;
   let sessionsClosed = 0;
-  let encodedBytes = "abc";
+  let encodedBytes: string | Buffer = "abc";
+  // Two samples of priming, then four; the edit's milliseconds end the track.
+  const soundtrack = (segment: number): Buffer =>
+    writeDeliveryMp4Header({
+      movieTimescale: 1000,
+      timescale: 4,
+      samples: [
+        [1, 2],
+        [1, 4],
+      ],
+      edit: { segment, mediaTime: 2 },
+    });
   let includeAudio = false;
   let refuseEncode = false;
   let encoderSoundtrack: string | undefined;
@@ -102,10 +116,11 @@ export async function test_cli_render_video_delivery(): Promise<void> {
       return "";
     }
     if (args.includes("0:v:0")) return videoLog(includeAudio);
-    const pcm = Buffer.alloc(16);
+    // One six-sample codec frame, of which the container presents four.
+    const pcm = Buffer.alloc(24);
     pcm.writeFloatLE(0.5);
     output?.stderr?.(
-      "[Parsed_ashowinfo_1 @ abc] n:0 pts:0 pts_time:0 fmt:flt channels:1 chlayout:mono rate:4 nb_samples:4 checksum:00\n",
+      "[Parsed_ashowinfo_1 @ abc] n:0 pts:0 pts_time:0 fmt:flt channels:1 chlayout:mono rate:4 nb_samples:6 checksum:00\n",
     );
     output?.stdout?.(pcm);
     return "";
@@ -185,6 +200,20 @@ export async function test_cli_render_video_delivery(): Promise<void> {
       ],
     };
     includeAudio = true;
+    encodedBytes = soundtrack(750);
+    TestValidator.equals(
+      "codec padding cannot hide a short presented duration",
+      [
+        (await rejected()).includes(
+          "audio: The decoded stream does not cover the commissioned presentation",
+        ),
+        (await readReport()).delivery.streams.audio.end.ticks,
+        await fs.readFile(video, "utf8"),
+      ],
+      [true, 3, "abc"],
+    );
+
+    encodedBytes = soundtrack(1000);
     await renderAutoMovieVideo(fixture, run);
     const approved = await readReport();
     TestValidator.equals(
@@ -202,6 +231,14 @@ export async function test_cli_render_video_delivery(): Promise<void> {
         undefined,
       ],
     );
+    TestValidator.equals(
+      "the final frame's samples past the container end are padding",
+      [
+        approved.delivery.streams.audio.end.ticks,
+        approved.delivery.streams.audio.trailingPadding,
+      ],
+      [4, 2],
+    );
 
     intent.audio = { path: null, required: true };
     includeAudio = false;
@@ -211,12 +248,13 @@ export async function test_cli_render_video_delivery(): Promise<void> {
       "a required missing stream is diagnosed without replacing the film",
       [
         missing.includes("commissioned stream is absent"),
-        await fs.readFile(video, "utf8"),
+        (await fs.readFile(video)).equals(soundtrack(1000)),
       ],
-      [true, "hello"],
+      [true, true],
     );
 
     refuseEncode = true;
+    sceneError = true;
     const refusal = await rejected();
     const failed = await readReport();
     TestValidator.equals(
@@ -230,6 +268,16 @@ export async function test_cli_render_video_delivery(): Promise<void> {
       ],
       [true, "failed", null, "encode", null],
     );
+    TestValidator.equals(
+      "encoder failure keeps the scene inspection already drawn",
+      [
+        failed.frames.length,
+        failed.diagnostics.hasBlockingFinding,
+        failed.diagnostics.episodes[0].first.time.outputFrame,
+      ],
+      [4, true, 1],
+    );
+    sceneError = false;
     await fs.mkdir(reservation);
     const activeTicket = path.join(
       reservation,
@@ -241,18 +289,36 @@ export async function test_cli_render_video_delivery(): Promise<void> {
       "a live reservation leaves the published paths alone",
       [
         conflict.includes("Another render has reserved"),
-        await fs.readFile(video, "utf8"),
+        (await fs.readFile(video)).equals(soundtrack(1000)),
         (await readReport()).failure.phase,
       ],
-      [true, "hello", "encode"],
+      [true, true, "encode"],
     );
     await fs.unlink(activeTicket);
     await fs.rmdir(reservation);
-    TestValidator.equals("every opened session closes", sessionsClosed, 6);
+    TestValidator.equals("every opened session closes", sessionsClosed, 7);
     TestValidator.equals(
       "no temporary output survives the attempts",
       (await fs.readdir(path.dirname(report))).sort(),
       ["film.mp4", "render-report.json"],
+    );
+
+    // A directory in the report's place refuses the report's rename.
+    refuseEncode = false;
+    intent = undefined;
+    includeAudio = false;
+    encodedBytes = "never published";
+    await fs.rm(report);
+    await fs.mkdir(path.join(report, "occupied"), { recursive: true });
+    const unreported = await rejected();
+    TestValidator.equals(
+      "a report that cannot be installed restores the previous film",
+      [
+        unreported.includes("could not publish"),
+        (await fs.readFile(video)).equals(soundtrack(1000)),
+        (await fs.readdir(path.dirname(report))).sort(),
+      ],
+      [true, true, ["film.mp4", "render-report.json"]],
     );
   } finally {
     await fs.rm(root, { recursive: true });

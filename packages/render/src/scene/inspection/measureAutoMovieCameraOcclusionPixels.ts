@@ -42,14 +42,27 @@ interface IProps {
   maxTriangles: number;
 }
 
-/** An exact matched count, or the specific reason to leave coverage open. */
+/**
+ * An exact matched count, or the specific reason to leave coverage open. Both
+ * report the native samples actually rendered, which the caller's per-frame
+ * budget pays for.
+ */
 type IResult =
   | {
       status: "measured";
       pixels: IAutoMovieCameraInspection.IPixels;
-      passes: 1 | 2;
+      passes: 0 | 1 | 2;
+      samples: number;
     }
-  | { status: "deferred"; reason: string };
+  | { status: "deferred"; reason: string; samples: number };
+
+/** Native sample rectangle of the delivery raster, origin at the bottom left. */
+interface IRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 /** Conservative clip-space interval of a drawable's world envelope. */
 interface IRange {
@@ -81,16 +94,25 @@ interface IDrawable {
 /**
  * Measure target-only and composited pixel occupancy for an admitted Draw frame.
  *
+ * Only the delivered pixels the subject's projected bounds can reach are
+ * rendered. The scratch framebuffer covers that rectangle, and the viewport
+ * keeps the full delivery raster at a negative offset, so each scratch sample
+ * is rasterized at the same position, by the same camera, as in the delivered
+ * frame. Pixels outside the rectangle cannot hold the subject.
+ *
  * @evidence contracts/development/implementation.md#principled-implementation
  * Source-owned semantic roots determine which actual drawable triangles belong
  * to the subject. The audit preserves front-face opaque depth behavior and matches
  * canvas depth precision in a private framebuffer. Overlapping projected bounds
- * with ambiguous depth cannot certify parity after material replacement.
+ * with ambiguous depth cannot certify parity after material replacement. The
+ * conservative projected box of every subject drawable, widened by two native
+ * samples and aligned to whole delivered pixels, bounds the subject's coverage.
  * @evidence contracts/development/implementation.md#efficient-algorithms
- * Geometry admission precedes raster allocation. Either the disjoint/behind
- * bounds certificate removes the composite pass or the full native sample
- * budget admits both; the same RGBA buffer is reused and the coverage baseline
- * needs one bit per output pixel.
+ * Geometry admission precedes raster allocation, and the raster is the
+ * subject's rectangle, not the frame. Either the disjoint/behind bounds
+ * certificate removes the composite pass or the sample budget admits both;
+ * the same RGBA buffer is reused and the coverage baseline needs one bit per
+ * output pixel in the rectangle.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources
  * Borrowed mesh materials/layers, background and framebuffer/raster are
  * restored independently on success or error. Owned mask materials and
@@ -98,7 +120,8 @@ interface IDrawable {
  * are never used as scratch storage.
  * @evidence contracts/development/common.md#meaningful-documentation The
  * metric is delivered pixel membership, with source identity, eligibility,
- * pass budgets, coverage refusals and resource ownership explicit.
+ * the rendered rectangle, pass budgets, coverage refusals and resource
+ * ownership explicit.
  */
 export function measureAutoMovieCameraOcclusionPixels(props: IProps): IResult {
   const {
@@ -114,15 +137,20 @@ export function measureAutoMovieCameraOcclusionPixels(props: IProps): IResult {
   } = props;
   const sampleWidth: number = width * factor;
   const sampleHeight: number = height * factor;
-  const samples: number = sampleWidth * sampleHeight;
+  const deferred = (reason: string): IResult => ({
+    status: "deferred",
+    reason,
+    samples: 0,
+  });
   if (
     (factor !== 1 && factor !== 2) ||
-    ![width, height, maxSamples, maxTriangles, samples * 4].every(
+    ![width, height, maxTriangles, sampleWidth * sampleHeight * 4].every(
       (value: number): boolean => Number.isSafeInteger(value) && value > 0,
     ) ||
-    samples > maxSamples
+    !Number.isSafeInteger(maxSamples) ||
+    maxSamples < 0
   )
-    return { status: "deferred", reason: "delivery pixel audit budget" };
+    return deferred("invalid delivery pixel audit request");
 
   const context: WebGLRenderingContext | WebGL2RenderingContext =
     renderer.getContext();
@@ -150,7 +178,7 @@ export function measureAutoMovieCameraOcclusionPixels(props: IProps): IResult {
     scene.overrideMaterial !== null ||
     !nativeRenderCallbacks(scene)
   )
-    return { status: "deferred", reason: "unsupported delivery render state" };
+    return deferred("unsupported delivery render state");
 
   const depthBits: number = context.getParameter(context.DEPTH_BITS) as number;
   const maxRenderbuffer: number = context.getParameter(
@@ -160,23 +188,23 @@ export function measureAutoMovieCameraOcclusionPixels(props: IProps): IResult {
     maxRenderbuffer,
     renderer.capabilities.maxTextureSize,
   );
+  const viewport: ArrayLike<number> = context.getParameter(
+    context.MAX_VIEWPORT_DIMS,
+  ) as Int32Array;
   if (
     !Number.isSafeInteger(depthBits) ||
     depthBits < 16 ||
     depthBits > 32 ||
     !Number.isSafeInteger(maximum) ||
-    sampleWidth > maximum ||
-    sampleHeight > maximum
+    !(sampleWidth <= (viewport[0] ?? 0)) ||
+    !(sampleHeight <= (viewport[1] ?? 0))
   )
-    return { status: "deferred", reason: "unsupported delivery framebuffer" };
+    return deferred("unsupported delivery framebuffer");
 
   const binding: IAutoMovieSemanticMaskBinding | null =
     autoMovieSemanticMaskOf(scene);
   if (binding === null || scene.children.length < binding.design.nodes.length)
-    return {
-      status: "deferred",
-      reason: "no admitted source semantic binding",
-    };
+    return deferred("no admitted source semantic binding");
   const roots: Map<THREE.Object3D, IAutoMovieSemanticMaskEntry> = maskRoots({
     scene,
     design: binding.design,
@@ -191,10 +219,7 @@ export function measureAutoMovieCameraOcclusionPixels(props: IProps): IResult {
       ([node, entry]): boolean => node !== target && entry.id === required.id,
     )
   )
-    return {
-      status: "deferred",
-      reason: "ambiguous required subject mask root",
-    };
+    return deferred("ambiguous required subject mask root");
 
   camera.updateWorldMatrix(true, false);
   scene.updateMatrixWorld();
@@ -262,9 +287,25 @@ export function measureAutoMovieCameraOcclusionPixels(props: IProps): IResult {
       range,
     });
   });
-  if (reason !== undefined) return { status: "deferred", reason };
+  if (reason !== undefined) return deferred(reason);
   if (subjects.min.x === Infinity)
-    return { status: "deferred", reason: "no admitted required drawable" };
+    return deferred("no admitted required drawable");
+
+  const region: IRegion | undefined = subjectRegion(
+    subjects,
+    sampleWidth,
+    sampleHeight,
+    factor,
+  );
+  if (region === undefined)
+    return {
+      status: "measured",
+      passes: 0,
+      samples: 0,
+      pixels: { isolated: 0, visible: 0 },
+    };
+  if (region.width > maximum || region.height > maximum)
+    return deferred("unsupported delivery framebuffer");
 
   const depthMargin: number = 16 / (2 ** depthBits - 1);
   let passes: 1 | 2 = 1;
@@ -280,14 +321,16 @@ export function measureAutoMovieCameraOcclusionPixels(props: IProps): IResult {
     )
       continue;
     if (max.z + depthMargin >= subjects.min.z)
-      return {
-        status: "deferred",
-        reason: "ambiguous target and blocker depth order",
-      };
+      return deferred("ambiguous target and blocker depth order");
     passes = 2;
   }
-  if (samples * passes > maxSamples || triangles * passes > maxTriangles)
-    return { status: "deferred", reason: "delivery composite audit budget" };
+  const needed: number = region.width * region.height * passes;
+  if (needed > maxSamples)
+    return deferred(
+      `delivery pixel audit budget: ${needed} native samples needed, ${maxSamples} remain in this frame`,
+    );
+  if (triangles * passes > maxTriangles)
+    return deferred("delivery composite audit budget");
 
   return renderMasks({
     renderer,
@@ -295,11 +338,45 @@ export function measureAutoMovieCameraOcclusionPixels(props: IProps): IResult {
     camera,
     sampleWidth,
     sampleHeight,
+    region,
     factor,
     depthBits,
     drawables,
     passes,
   });
+}
+
+/**
+ * Bounds the native samples the subject's projected box can reach, widened by
+ * the same two-sample guard as the blocker overlap test and aligned outward to
+ * whole delivered pixels. Undefined when the box misses the raster.
+ */
+function subjectRegion(
+  subjects: IRange,
+  sampleWidth: number,
+  sampleHeight: number,
+  factor: 1 | 2,
+): IRegion | undefined {
+  const span = (
+    min: number,
+    max: number,
+    size: number,
+  ): [number, number] | undefined => {
+    const from: number = Math.max(
+      0,
+      Math.floor((Math.floor(((min + 1) / 2) * size) - 2) / factor) * factor,
+    );
+    const to: number = Math.min(
+      size,
+      Math.ceil((Math.ceil(((max + 1) / 2) * size) + 2) / factor) * factor,
+    );
+    return to > from ? [from, to] : undefined;
+  };
+  const x = span(subjects.min.x, subjects.max.x, sampleWidth);
+  const y = span(subjects.min.y, subjects.max.y, sampleHeight);
+  return x === undefined || y === undefined
+    ? undefined
+    : { x: x[0], y: y[0], width: x[1] - x[0], height: y[1] - y[0] };
 }
 
 /** Checks the native callbacks that could otherwise change either mask draw. */
@@ -374,13 +451,17 @@ function projectRange(
   return { min, max };
 }
 
-/** Paints the admitted binary variant in a depth-matched scratch framebuffer. */
+/**
+ * Paints the admitted binary variant in a depth-matched scratch framebuffer the
+ * size of the subject's region, viewing it through the full delivery viewport.
+ */
 function renderMasks(input: {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   sampleWidth: number;
   sampleHeight: number;
+  region: IRegion;
   factor: 1 | 2;
   depthBits: number;
   drawables: readonly IDrawable[];
@@ -392,6 +473,7 @@ function renderMasks(input: {
     camera,
     sampleWidth,
     sampleHeight,
+    region,
     factor,
     depthBits,
     drawables,
@@ -403,10 +485,13 @@ function renderMasks(input: {
     captureAutoMovieFramebufferRestore(renderer);
   const background: THREE.Scene["background"] = scene.background;
   const renderTarget: THREE.WebGLRenderTarget = new THREE.WebGLRenderTarget(
-    sampleWidth,
-    sampleHeight,
+    region.width,
+    region.height,
     { samples: 0, depthBuffer: true, stencilBuffer: false },
   );
+  // The delivered raster's viewport, shifted so the region's corner is the origin.
+  renderTarget.viewport.set(-region.x, -region.y, sampleWidth, sampleHeight);
+  let rendered: number = 0;
   const white: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
     color: 0xffffff,
     toneMapped: false,
@@ -452,25 +537,27 @@ function renderMasks(input: {
       return {
         status: "deferred",
         reason: "delivery scratch depth precision mismatch",
+        samples: rendered,
       };
-    const bytes: Uint8Array = new Uint8Array(sampleWidth * sampleHeight * 4);
+    const bytes: Uint8Array = new Uint8Array(region.width * region.height * 4);
     const read = (
       isolated?: Uint8Array,
     ): ReturnType<typeof countAutoMovieCameraOcclusionPixels> => {
       bytes.fill(127);
       renderer.render(scene, camera);
+      rendered += region.width * region.height;
       renderer.readRenderTargetPixels(
         renderTarget,
         0,
         0,
-        sampleWidth,
-        sampleHeight,
+        region.width,
+        region.height,
         bytes,
       );
       return countAutoMovieCameraOcclusionPixels({
         bytes,
-        sampleWidth,
-        sampleHeight,
+        sampleWidth: region.width,
+        sampleHeight: region.height,
         factor,
         isolated,
       });
@@ -483,11 +570,16 @@ function renderMasks(input: {
     const isolated: ReturnType<typeof countAutoMovieCameraOcclusionPixels> =
       read();
     if (isolated === undefined)
-      return { status: "deferred", reason: "invalid isolated delivery pixels" };
+      return {
+        status: "deferred",
+        reason: "invalid isolated delivery pixels",
+        samples: rendered,
+      };
     if (passes === 1 || isolated.count === 0)
       return {
         status: "measured",
         passes: 1,
+        samples: rendered,
         pixels: { isolated: isolated.count, visible: isolated.count },
       };
     for (const drawable of drawables)
@@ -498,10 +590,12 @@ function renderMasks(input: {
       return {
         status: "deferred",
         reason: "composite pixels fall outside the isolated subject",
+        samples: rendered,
       };
     return {
       status: "measured",
       passes,
+      samples: rendered,
       pixels: { isolated: isolated.count, visible: composite.count },
     };
   }

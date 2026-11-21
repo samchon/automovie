@@ -67,6 +67,14 @@ export namespace IAutoMovieDeliveryContentAudit {
         continuous: boolean;
         /** Decoded audio sample rate in Hz. Required for audio. */
         sampleRate?: number;
+        /
+**
+         * Decoded audio samples after the end the container presents, all
+         * within the final codec frame. They are excluded from `end` and from
+         * the observations.
+         *
+/
+        trailingPadding?: number;
         observations: readonly IObservation[];
       };
 

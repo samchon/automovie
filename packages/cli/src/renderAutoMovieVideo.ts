@@ -76,6 +76,9 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
  * Renders one subject and publishes an approved film beside its shared report.
  * Every measurable audit runs on the drawn frames or the exact staged encoded
  * bytes. A blocked attempt replaces the report and preserves the former film.
+ * A failed encode still reports the frames and scene inspection already drawn.
+ * If the approved film or its report cannot be installed, the former film is
+ * put back, so the film and report on disk always come from the same attempt.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents the measured sources, paths and refusal behavior.
  * @evidence contracts/development/implementation.md#principled-implementation Uses Render for drawing and auditing, hashes and decodes exactly one uniquely staged candidate, and settles both verdicts before replacing any delivered bytes.
@@ -151,19 +154,18 @@ export async function renderAutoMovieVideo(
             ? null
             : path.resolve(props.root, intent.audio.path),
         write: (file, data) => fs.writeFile(file, data),
-        encode: async (args) => {
+        encode: async (args, drawn) => {
           attempt.args = args;
+          attempt.frames = drawn.frames.map(({ index, seconds, hash }) => ({
+            index,
+            seconds,
+            hash,
+          }));
+          attempt.diagnostics = drawn.diagnostics ?? null;
           phase = "encode";
           await run(props.ffmpeg, args);
         },
       });
-      attempt.args = result.args;
-      attempt.frames = result.frames.map(({ index, seconds, hash }) => ({
-        index,
-        seconds,
-        hash,
-      }));
-      attempt.diagnostics = result.diagnostics ?? null;
 
       phase = "audit";
       const hash = createHash("sha256");
@@ -206,12 +208,16 @@ export async function renderAutoMovieVideo(
       attempt.status = "published";
       attempt.video = "film.mp4";
       await writeReport();
-      attempt.video = null;
-      await fs.rename(candidate, video);
-      attempt.video = "film.mp4";
-      await fs.rename(pendingReport, report);
+      await publish({
+        candidate,
+        video,
+        pendingReport,
+        report,
+        previous: path.join(staging, "previous.mp4"),
+      });
       return { video, report, frames: result.frames.length };
     } catch (cause) {
+      attempt.video = null;
       if (attempt.status !== "blocked") attempt.status = "failed";
       const message = cause instanceof Error ? cause.message : String(cause);
       attempt.failure = { phase, message };
@@ -238,6 +244,43 @@ export async function renderAutoMovieVideo(
         ? []
         : [releaseOutput(reservation, reservationTicket)]),
     ]);
+  }
+}
+
+/**
+ * Installs the approved film and then its report. The former film waits in
+ * staging until both are in place; when either step fails it returns, so the
+ * published film and report always belong to the same attempt.
+ */
+async function publish(paths: {
+  candidate: string;
+  video: string;
+  pendingReport: string;
+  report: string;
+  previous: string;
+}): Promise<void> {
+  const kept = await fs.rename(paths.video, paths.previous).then(
+    () => true,
+    (error: NodeJS.ErrnoException): false => {
+      if (error.code !== "ENOENT") throw error;
+      return false;
+    },
+  );
+  try {
+    await fs.rename(paths.candidate, paths.video);
+    await fs.rename(paths.pendingReport, paths.report);
+  } catch (cause) {
+    try {
+      if (kept) await fs.rename(paths.previous, paths.video);
+      else await fs.rm(paths.video, { force: true });
+    } catch (restoreFailure) {
+      throw new AggregateError(
+        [cause, restoreFailure],
+        "Publishing failed and the previous film could not be restored to " +
+          paths.video,
+      );
+    }
+    throw cause;
   }
 }
 
