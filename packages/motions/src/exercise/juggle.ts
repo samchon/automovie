@@ -1,9 +1,4 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { AutoMovieGravity, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -30,6 +25,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanHand } from "../posture/HumanHand";
 
 /**
  * Toss juggling standing still (#3997).
@@ -347,13 +343,11 @@ export namespace juggle {
         surface: "palm",
         shape: "relaxed",
         point: at,
-        rotation: Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-          Quaternion.fromAxisAngle(
-            { x: 0, y: 0, z: 1 },
-            side === "left" ? 90 : -90,
-          ),
-        ),
+        // The palm cupped up under the ball, the fingers ahead.
+        rotation: HumanHand.rotation(side, {
+          fingers: HumanFrame.forward(yaw),
+          palm: { x: 0, y: 1, z: 0 },
+        }),
         bend: Vector3.add(
           at,
           Vector3.scale(
