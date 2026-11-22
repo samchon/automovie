@@ -521,12 +521,21 @@ function solve(
   for (let round: number = 0; round < 2; ++round)
     best = necked(sideways(lowered(best), 4, 2 * TILT), 5, 2 * TILT);
   best = necked(sideways(best, 1, 4), 1, 4);
-  if (best.miss > NEAR)
+  if (best.miss > NEAR) {
+    // Where the shoulder lies from the chin, in the performer's frame.
+    const off: IAutoMovieVector3 = Vector3.subtract(
+      rest,
+      chin(posed(best), resolution),
+    );
+    const r: number = (entry.yaw * Math.PI) / 180;
+    const left: number = off.x * Math.cos(r) - off.z * Math.sin(r);
+    const ahead: number = off.x * Math.sin(r) + off.z * Math.cos(r);
     throw refusal(
       partner,
-      `the chin stays ${(best.miss * 1000).toFixed(0)} mm from the partner's shoulder with the chest on the back, leaning ${best.roll.toFixed(0)} degrees aside, the head turned ${best.twist.toFixed(0)}, flexed ${best.flexion.toFixed(0)} and bent ${best.tilt.toFixed(0)}`,
-      "embrace a partner whose shoulder is near the chin's height, or rest the chin elsewhere",
+      `the chin stays ${(best.miss * 1000).toFixed(0)} mm from the partner's shoulder with the chest on the back (the shoulder ${(left * 1000).toFixed(0)} mm to the left, ${(off.y * 1000).toFixed(0)} mm up and ${(ahead * 1000).toFixed(0)} mm ahead of it), leaning ${best.roll.toFixed(0)} degrees aside, sinking ${(best.sink * 1000).toFixed(0)} mm, the head turned ${best.twist.toFixed(0)}, flexed ${best.flexion.toFixed(0)} and bent ${best.tilt.toFixed(0)}`,
+      "stand behind the shoulder the chin rests on, or embrace a partner whose shoulder is near the chin's height",
     );
+  }
   return best;
 }
 /** A reach refusal of the embrace. */

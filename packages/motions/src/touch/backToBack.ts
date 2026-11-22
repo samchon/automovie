@@ -41,10 +41,11 @@ const TOGETHER: number = 1 / 24;
 
 /**
  * Lean back against a seated partner's back (#4012). Each of the two reads
- * the other's upper back where it is at the start and leans its trunk back
+ * its own and the other's upper back on the displayed bodies at the start
+ * and leans its trunk back
  * from the hips over the seat (the kiss's lean, `kissBody`, seated) by the
- * least pitch that brings its own upper back to the point halfway between
- * the two, so the two leans meet there and neither presses into the other.
+ * least pitch that moves its own upper back (by the lean model's change from
+ * upright) to the point halfway between the two, so the two leans meet there and neither presses into the other.
  * The trunk's weight leans onto the partner: the window's load is the
  * trunk's share of the body's mass times the tangent of the lean
  * (moments about the hips with the contact taken at the trunk's mass
@@ -116,14 +117,27 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
         bones,
         "upperBack",
       ).point;
-      const mine: IAutoMovieVector3 = own(entry, resolution);
+      // Both backs on the displayed bodies at the start, the same reading for
+      // both; the lean's own model gives only how far the back moves.
+      const upright: IAutoMovieVector3 = own(entry, resolution);
+      const mine: IAutoMovieVector3 = StrikingBody.region(
+        body,
+        context.performer(context.subject).bones(context.start),
+        "upperBack",
+      ).point;
       const meet: IAutoMovieVector3 = Vector3.lerp(mine, theirs, 0.5);
       const toward: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(theirs, mine),
       );
       const gap = (pitch: number): number =>
         Vector3.dot(
-          Vector3.subtract(meet, own(leaned(pitch), resolution)),
+          Vector3.subtract(
+            meet,
+            Vector3.add(
+              mine,
+              Vector3.subtract(own(leaned(pitch), resolution), upright),
+            ),
+          ),
           toward,
         );
 

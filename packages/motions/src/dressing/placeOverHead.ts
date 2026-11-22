@@ -322,12 +322,12 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
         side,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span,
-        grasp: ["hand"],
+        grasp: ["hand", "lowerArm"],
         with: [
           {
             side: other,
             rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
-            grasp: ["hand"],
+            grasp: ["hand", "lowerArm"],
           },
         ],
       });
