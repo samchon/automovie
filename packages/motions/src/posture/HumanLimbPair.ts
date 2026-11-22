@@ -48,8 +48,10 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * posture that is its own mirror image is its own representative.
  *
  * Each arm's own fit may continue a nearby one (`IAutoMovieSwivelNear`),
- * and reports the seed it was chosen at. Either representative solves an
- * arm the same way, as the right arm in its own side's frame
+ * and reports the seed it was chosen at; arms solved together report the
+ * swivel and branch their coupled configuration sits at, so a placement
+ * prescribed there reproduces it in closed form. Either representative
+ * solves an arm the same way, as the right arm in its own side's frame
  * (`HumanLimbFit.fit`), so an arm's seed and its `near` are that arm's
  * whichever representative is taken.
  *
@@ -402,7 +404,20 @@ function solved(
       G.arm(context.setups[a]!, result.x[a]![1]!),
     );
   });
-  return { pose: out, seeds, values: { left: undefined, right: undefined } };
+
+  // Each arm's seed is the swivel and branch the coupled solve left it at,
+  // the one free parameter of an arm on its goal (Tolani, Goswami and Badler
+  // 2000, §3.2.4), so a placement prescribed at it, or between two such
+  // solves, reproduces the pair's clear configuration in closed form and
+  // needs this solve again only where it does not stay clear.
+  return {
+    pose: out,
+    seeds: {
+      left: HumanLimbFit.seed(body, out, "leftArm") ?? seeds.left,
+      right: HumanLimbFit.seed(body, out, "rightArm") ?? seeds.right,
+    },
+    values: { left: undefined, right: undefined },
+  };
 }
 
 /** Only the two actual arm chains feed the independent-fit mutual-clearance check. */
