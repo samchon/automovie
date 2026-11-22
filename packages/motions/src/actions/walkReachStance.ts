@@ -136,11 +136,13 @@ export namespace walkReachStance {
       // point where the lowered toes leave the shank at that limit.
       if (bears)
         if (about === "heel") {
+          let first: number | undefined;
           for (let k: number = 0; k < TOES_DOWN; k++) {
             const top: number =
               -lean!(h, placement.ankle) +
               dorsal -
               walkLeg.ANKLE;
+            first ??= top;
             if (pitch <= top + SETTLED) break;
             pitch = Math.max(0, top);
             placement = at(pitch);
@@ -153,12 +155,19 @@ export namespace walkReachStance {
           // ball once it is heel-up, and both pivots give the flat foot
           // where the sum is none.
           // A flat foot the straight leg cannot yet reach asks nothing: its
-          // heel rise would be the reach's, not the ankle's.
+          // heel rise would be the reach's, not the ankle's. A strike whose
+          // flat foot is already past the dorsal limit cannot stand on its
+          // heel: the ball rocker comes in by that deficit over the rocker's
+          // own rounding width, whole once the deficit is the width.
+          const weight: number = Math.max(
+            handing,
+            rocker > 0 ? Math.min(1, Math.max(0, -(first ?? 0) / rocker)) : 0,
+          );
           ball ??= handover(body, side, at(0), heading, rocker, dorsal);
-          if (handing > 0 && Vector3.distance(ball.flat, h) <= ball.span) {
+          if (weight > 0 && Vector3.distance(ball.flat, h) <= ball.span) {
             const risen: number = ball.rise(h, 0);
             if (risen < 0) {
-              pitch += handing * risen;
+              pitch += weight * risen;
               if (pitch >= 0) placement = at(pitch);
               else {
                 placement = ball.at(pitch);
