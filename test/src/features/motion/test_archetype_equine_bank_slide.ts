@@ -70,6 +70,7 @@ const slide = (friction: number): EquineBank.ISlide => ({
  * 2. Sat, each hind limb flexes at least 5 degrees more at the stifle and at the hock than when standing at the start, and the trunk pitches at least 10 degrees nose-up against the face, read from the emitted bars.
  * 3. The ride's placement stays continuous onto the level foot, with no jump between reads 20 ms apart across the slide's end.
  * 4. A face steeper than the technique's bound, a face its friction holds, a slide without a run-out at its foot and one without authored footing are refused on the leg's `equineFootwork`.
+ * 6. No hoof standing on its surface stands within its pastern's length of the face's concave foot, where the face meets the level ground below.
  * 5. A mounted rider in the descent seat keeps the seat socket within 10 mm of the saddle and the trunk within 10 degrees of upright in space through the slide, and the take passes the shipped take verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
@@ -121,6 +122,22 @@ export function test_archetype_equine_bank_slide(): void {
           SURFACE
       )
         issues.push(`${limb} ${at.toFixed(2)}: a hind slides before the face`);
+
+  // 6. No standing hoof within its pastern's length of the face's concave foot.
+  const foot: number = equineBankStage.APPROACH + FACE.run;
+  for (let at: number = 0.5; at <= ride.duration; at += step)
+    for (const limb of QuadrupedBody.LIMBS) {
+      if (!(Math.abs(read.sole(at, limb)) <= SURFACE)) continue;
+      const [top, bottom] = equineFordScene.ends(
+        read.part(at, QuadrupedBody.BONES[limb][3]),
+      );
+      const reach: number = Vector3.distance(top, bottom);
+      const z: number = read.hoof(at, limb).z;
+      if (Math.abs(z - foot) < reach - SURFACE)
+        issues.push(
+          `${limb} ${at.toFixed(2)}: stands ${Math.abs(z - foot)} m from the concave foot, within its ${reach} m pastern`,
+        );
+    }
 
   // 2. Flexion and pitch while sat.
   const bend = (at: number, upper: string, lower: string): number => {
