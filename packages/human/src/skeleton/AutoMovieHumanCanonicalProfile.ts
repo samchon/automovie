@@ -24,6 +24,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonicalSolids";
+import { AutoMovieHumanJointStrength } from "./AutoMovieHumanJointStrength";
 
 /**
  * The contact and mass profile of a polygon man, built from the same joints
@@ -55,8 +56,13 @@ import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonic
  * child joint with identity frames; every clinical axis of
  * `DEFAULT_HUMANOID_ROM` becomes a physical axis along its
  * `HUMANOID_JOINT_AXES` direction with limits read through
- * `HUMANOID_REST_FRAME`, so the physical zero is the T-pose. Drive gains are
- * placeholders kinematic motion never reads: 50 N m per downstream kilogram.
+ * `HUMANOID_REST_FRAME`, so the physical zero is the T-pose. A drive's
+ * strength is the person's peak joint torque where Harbo, Brincks and
+ * Andersen (2012) measured the motion, each direction its own
+ * (`AutoMovieHumanJointStrength`): hip and knee flexion and extension,
+ * ankle dorsi- and plantar flexion, shoulder abduction and adduction, elbow
+ * and wrist flexion and extension. The axes they did not measure keep an
+ * unsourced placeholder, 50 N m per downstream kilogram, still open.
  * Self-contact is excluded between joint neighbours, among the palm and
  * digits of one hand, between the abdomen and each upper arm and between the
  * two thighs. The last two are body pairs that overlap in the reference pose:
@@ -80,12 +86,14 @@ export namespace AutoMovieHumanCanonicalProfile {
    * @param joints Every drawn Human joint by id, parent before child.
    * @param mass Body mass, kilograms.
    * @param id Profile id.
+   * @param person The person whose joint strength the drives take.
    * @returns The profile on the rig's bones.
    */
   export function build(
     joints: ReadonlyMap<string, IAutoMovieHumanCanonicalSolids.IJoint>,
     mass: number,
     id: string,
+    person: AutoMovieHumanJointStrength.IPerson,
   ): P {
     const j = (name: string): IAutoMovieHumanCanonicalSolids.IJoint => {
       const found: IAutoMovieHumanCanonicalSolids.IJoint | undefined =
@@ -288,7 +296,7 @@ export namespace AutoMovieHumanCanonicalProfile {
           rotation: identity,
         },
         childFrame: { position: { x: 0, y: 0, z: 0 }, rotation: identity },
-        axes: axesOf(child, 50 * downstream(child)),
+        axes: axesOf(child, 50 * downstream(child), person),
       };
     });
     const total: number = segments.reduce(
@@ -413,6 +421,7 @@ const DIGITS: readonly (readonly string[])[] = [
 function axesOf(
   bone: AutoMovieHumanoidBone,
   torque: number,
+  person: AutoMovieHumanJointStrength.IPerson,
 ): IAutoMoviePhysicalJointAxis[] {
   const rom = DEFAULT_HUMANOID_ROM[bone];
   const axes: IAutoMovieJointAxes =
@@ -439,15 +448,33 @@ function axesOf(
     const ends: number[] = [physical(range.min), physical(range.max)].sort(
       (a: number, b: number): number => a - b,
     );
+    const coordinateSign: 1 | -1 = (sign * (frame?.sign ?? 1)) as 1 | -1;
+    // A measured motion's peak torque drives toward that end of the axis;
+    // the drive's stiffness is their mean, its damping a tenth of that
+    // (SIMBICON: torque limited to kp, kd = 0.1 kp; Yin, Loken and van de
+    // Panne 2007, Section 7).
+    const measured = AutoMovieHumanJointStrength.of(person, bone, clinical);
+    const up: number = measured
+      ? coordinateSign > 0
+        ? measured.toMaximum
+        : measured.toMinimum
+      : torque;
+    const down: number = measured
+      ? coordinateSign > 0
+        ? measured.toMinimum
+        : measured.toMaximum
+      : torque;
+    const stiffness: number = (up + down) / 2;
     out.push({
       axis: letter,
       minimum: Math.max(-Math.PI, ends[0]!),
       maximum: Math.min(Math.PI, ends[1]!),
-      stiffness: torque,
-      damping: torque / 10,
-      maximumTorque: torque,
+      stiffness,
+      damping: stiffness / 10,
+      maximumTorque: up,
+      ...(down !== up ? { reverseTorque: down } : {}),
       channel: `${bone}.${clinical}`,
-      coordinateSign: (sign * (frame?.sign ?? 1)) as 1 | -1,
+      coordinateSign,
     });
   }
   return out;

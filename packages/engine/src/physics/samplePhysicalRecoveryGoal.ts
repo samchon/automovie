@@ -34,10 +34,15 @@ export function samplePhysicalRecoveryGoal(
     progress > 0 && progress < 1
       ? (30 * progress ** 2 * (1 - progress) ** 2) / duration
       : 0;
+  // Past the swing's end the foot keeps descending at the clearance profile's
+  // final speed until it strikes the floor (Yin, Loken and van de Panne 2007,
+  // Section 3.1).
+  const descent: number = (input.height * Math.PI) / duration;
+  const late: number = Math.max(0, input.seconds - input.swing.end);
   return {
     point: {
       x: placement.point[0],
-      y: input.point.y + placement.clearance,
+      y: input.point.y + placement.clearance - descent * late,
       z: placement.point[1],
     },
     velocity: {
@@ -46,7 +51,9 @@ export function samplePhysicalRecoveryGoal(
         input.velocity.y +
         (progress > 0 && progress < 1
           ? (input.height * Math.PI * Math.cos(Math.PI * progress)) / duration
-          : 0),
+          : late > 0
+            ? -descent
+            : 0),
       z: (input.swing.to.point[1] - input.swing.from.point[1]) * rate,
     },
   };

@@ -211,7 +211,54 @@ export function admitPhysicalPlaybackMetadata(
       (state.revision !== undefined &&
         (!Number.isSafeInteger(state.revision) || state.revision < 0)) ||
       (state.failedLanding !== undefined &&
-        typeof state.failedLanding !== "boolean")
+        typeof state.failedLanding !== "boolean") ||
+      (state.seating !== undefined &&
+        (typeof state.seating !== "object" ||
+          Array.isArray(state.seating) ||
+          Object.values(state.seating).some(
+            (seat: {
+              seated: boolean;
+              since: number;
+              bearing?: number;
+              flat?: number;
+              load?: number;
+              touching?: boolean;
+              relief?: number;
+              anchor?: {
+                point: { x: number; y: number; z: number };
+                rotation: { x: number; y: number; z: number; w: number };
+              };
+            }): boolean =>
+              typeof seat?.seated !== "boolean" ||
+              !Number.isFinite(seat.since) ||
+              (seat.load !== undefined && !Number.isFinite(seat.load)) ||
+              (seat.relief !== undefined && !Number.isFinite(seat.relief)) ||
+              (seat.anchor !== undefined &&
+                ![
+                  seat.anchor.point?.x,
+                  seat.anchor.point?.y,
+                  seat.anchor.point?.z,
+                  seat.anchor.rotation?.x,
+                  seat.anchor.rotation?.y,
+                  seat.anchor.rotation?.z,
+                  seat.anchor.rotation?.w,
+                ].every(Number.isFinite)) ||
+              (seat.touching !== undefined &&
+                typeof seat.touching !== "boolean") ||
+              [seat.bearing, seat.flat].some(
+                (share: number | undefined): boolean =>
+                  share !== undefined && !(share >= 0 && share <= 1),
+              ),
+          ))) ||
+      (state.pressure !== undefined &&
+        ![
+          state.pressure.bias?.x,
+          state.pressure.bias?.z,
+          state.pressure.acceleration?.x,
+          state.pressure.acceleration?.z,
+          state.pressure.velocity?.x ?? 0,
+          state.pressure.velocity?.z ?? 0,
+        ].every(Number.isFinite))
     )
       throw new Error("Malformed physical playback recovery state");
     for (let index: number = 1; index < state.steps.length; index++)

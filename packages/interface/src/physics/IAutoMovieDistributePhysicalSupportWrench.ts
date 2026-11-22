@@ -27,6 +27,26 @@ export namespace IAutoMovieDistributePhysicalSupportWrench {
   export type IInput = IAutoMovieWorldWrench & {
     /** Finite world application point of the requested root wrench, metres. */ origin: IAutoMovieVector3;
     /** Finite nonnegative cap on total upward normal force, newtons; zero returns no allocations. */ maximumForce: number;
+    /** Nonnegative weights on the force x, y, z and moment x, y, z errors when the wrench is infeasible; zero leaves that component free; absent weighs them equally. */ priority?: readonly [
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+    ];
+    /** The most normal force each limb's points may bear together, newtons, by limb bone; absent bounds only the total. */ loads?: Readonly<
+      Record<string, number>
+    >;
+    /** The force and moment that one unit of each error stands for, newtons and newton metres; absent scales by the request itself. */ normalization?: {
+      force: number;
+      moment: number;
+    };
+    /** The effort weight on each point's normal and tangential force in normalized units; absent keeps a negligible tie-breaking weight. */ effort?: {
+      normal: number;
+      tangential: number;
+    };
+    /** Whether the total normal force must equal the request exactly whenever the bounds allow it. */ exactNormal?: boolean;
     /** Actual contact points; at most 1024, with nonnegative combined friction. */ points: readonly {
       /** Carrier bone identity, copied into the corresponding allocation row. */
       bone: string;

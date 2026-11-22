@@ -1,3 +1,4 @@
+import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMoviePhysicalBalance } from "./IAutoMoviePhysicalBalance";
 import type { IAutoMovieStepPlanner } from "./IAutoMovieStepPlanner";
@@ -49,4 +50,23 @@ export interface IAutoMoviePhysicalRecoveryState {
   /** Start of continuously unrecoverable support loss. */ lostSince?: number;
   /** Start of continuously out-of-support capture point, including initial contact settling. */ outsideSince?: number;
   /** Monotone support-plan revision, used only to invalidate transient motor goals. */ revision?: number;
+  /** Each stance foot's seating under edge-lift hysteresis: whether its sole is flat on its plant, the second its present seating, or the pending change to it, began, its bearing share in [0, 1], following its measured load, its flatness share in [0, 1], ramping toward whether the foot is grounded and seated, its low-passed measured floor load in newtons, whether that load holds it bearing under hysteresis, the sole's own height spread latched when its stance began, metres, and the foot's actual support point and rotation latched then, world frame. */ seating?: Record<
+    string,
+    {
+      seated: boolean;
+      since: number;
+      bearing?: number;
+      flat?: number;
+      load?: number;
+      touching?: boolean;
+      relief?: number;
+      anchor?: { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
+    }
+  >;
+  /** The centre-of-pressure integral: its bias, world metres, the low-passed horizontal centre-of-mass acceleration and the last velocity it was read from, and the limb swinging when last advanced. */ pressure?: {
+    bias: { x: number; z: number };
+    acceleration: { x: number; z: number };
+    velocity?: { x: number; z: number };
+    swing?: string;
+  };
 }

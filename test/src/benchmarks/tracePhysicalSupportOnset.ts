@@ -80,7 +80,7 @@ export namespace tracePhysicalSupportOnset {
         substeps: prefix.substeps,
         iterations: prefix.iterations,
         internalIterations: prefix.internalIterations,
-        reactionSeconds: body.balance!.reactionSeconds ?? 0.1,
+        reactionSeconds: body.balance!.reactionSeconds ?? 0,
         recomputedSteps: result.recomputedSteps,
         integrationMs,
         firstSupportObservation:

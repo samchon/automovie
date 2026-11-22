@@ -46,6 +46,9 @@ export function distributePhysicalSupportWrench(
     input.points.some(
       (point: (typeof input.points)[number]): boolean =>
         !Number.isFinite(point.friction) || point.friction < 0,
+    ) ||
+    Object.values(input.loads ?? {}).some(
+      (load: number): boolean => !Number.isFinite(load) || load < 0,
     )
   )
     throw new Error("Invalid support wrench allocation");
@@ -61,15 +64,19 @@ export function distributePhysicalSupportWrench(
     (point: (typeof input.points)[number]): IAutoMovieVector3 =>
       Vector3.subtract(point.point, input.origin),
   );
-  const length: number = Math.max(
-    Number.EPSILON,
-    ...levers.map(Vector3.length),
-  );
-  const scale: number = Math.max(
-    1,
-    Vector3.length(input.force),
-    Vector3.length(input.torque) / length,
-  );
+  // Errors are measured in the units the caller states, so that a unit of
+  // force error and a unit of moment error move the centre of pressure
+  // alike (Stephens 2011, Eq. 3.16), or else relative to the request.
+  const length: number = input.normalization
+    ? input.normalization.moment / input.normalization.force
+    : Math.max(Number.EPSILON, ...levers.map(Vector3.length));
+  const scale: number = input.normalization
+    ? input.normalization.force
+    : Math.max(
+        1,
+        Vector3.length(input.force),
+        Vector3.length(input.torque) / length,
+      );
   const size: number = input.points.length * 3;
   const rows: IAutoMovieQuadraticRow[] = [];
   const axes: ("x" | "y" | "z")[] = ["x", "y", "z"];
@@ -103,6 +110,19 @@ export function distributePhysicalSupportWrench(
           upper: 0,
         });
   }
+  for (const [bone, load] of Object.entries(input.loads ?? {})) {
+    const indices: number[] = input.points.flatMap(
+      (point: (typeof input.points)[number], index: number): number[] =>
+        point.bone === bone ? [3 * index + 1] : [],
+    );
+    if (indices.length > 0)
+      rows.push({
+        indices,
+        weights: indices.map((): number => 1),
+        lower: 0,
+        upper: Math.max(0, load) / scale,
+      });
+  }
   rows.push({
     indices: input.points.map(
       (_: unknown, index: number): number => 3 * index + 1,
@@ -131,20 +151,47 @@ export function distributePhysicalSupportWrench(
       upper: desired[index]!,
     });
 
-  // Dimensionless wrench error is primary; sqrt(machine epsilon) provides a
-  // small explicit effort penalty to select among redundant contact forces.
-  // Its resulting wrench bias remains measured in the returned SI residual.
+  // The total normal force is held to the request while the bounds allow it.
+  if (input.exactNormal) {
+    const capacity: number = Math.min(
+      input.maximumForce,
+      [...new Set(input.points.map((point) => point.bone))].reduce(
+        (sum: number, bone: string): number =>
+          sum + (input.loads?.[bone] ?? input.maximumForce),
+        0,
+      ),
+    );
+    if (input.force.y >= 0 && input.force.y <= capacity)
+      rows.push({ indices: [size + 1], weights: [1], lower: 0, upper: 0 });
+  }
+  // Dimensionless wrench error is primary. An effort weight on each force
+  // selects among redundant contact forces and keeps them spread rather
+  // than at one vertex or in opposing pairs (Stephens 2011, Eqs. 5.3-5.5);
+  // absent, sqrt(machine epsilon) only breaks ties. Its resulting wrench
+  // bias remains measured in the returned SI residual.
+  const effort = (index: number): number =>
+    input.effort
+      ? index % 3 === 1
+        ? input.effort.normal
+        : input.effort.tangential
+      : Math.sqrt(Number.EPSILON);
   const result: IAutoMovieSolveQuadraticProgram.IResult =
     solveAutoMovieQuadraticProgram({
       diagonal: [
-        ...new Array<number>(size).fill(Math.sqrt(Number.EPSILON)),
-        ...new Array<number>(6).fill(1),
+        ...Array.from({ length: size }, (_: unknown, index: number) =>
+          effort(index),
+        ),
+        ...(input.priority ?? new Array<number>(6).fill(1)),
       ],
       linear: new Array<number>(size + 6).fill(0),
       rows,
     });
+  // An interior-point run that reaches its iteration limit (status 7) or
+  // stalls (status 10) with every row met to the same tolerance still yields
+  // a feasible allocation; its remaining optimality gap shows in the measured
+  // SI residual below.
   if (
-    result.status !== 1 ||
+    (result.status !== 1 && result.status !== 7 && result.status !== 10) ||
     result.maximumViolation > 1e-6 ||
     !result.primal.every(Number.isFinite)
   )

@@ -5,6 +5,7 @@ import type {
   IAutoMovieContactReceipt,
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalGravityTorques,
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalRecoveryPolicy,
   IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSegment,
@@ -355,6 +356,10 @@ export function trackPhysicalWorld(
       floor: input.floor,
       tolerance: input.contactTolerance!,
     });
+    const ankleCaps: Map<
+      string,
+      Partial<Record<"x" | "y" | "z", { up: number; down: number }>>
+    > = new Map();
     const base: RigidBody = bound.bodies.get(`${body.id}/${root.bone}`)!;
     trackPhysicalRoot({
       settings: input,
@@ -365,9 +370,43 @@ export function trackPhysicalWorld(
       rootIntent,
       target: effort,
       rootShift: assessment?.rootShift,
+      planted: plantedPoses(body, authoredGoals, assessment?.state),
+      seating: assessment?.state.seating,
+      ankleCaps,
+      ...(assessment
+        ? {
+            integral: (assessment.state.pressure ??= {
+              bias: { x: 0, z: 0 },
+              acceleration: { x: 0, z: 0 },
+            }),
+          }
+        : {}),
+      pushed: input.impulses.some(
+        (impulse: (typeof input.impulses)[number]): boolean =>
+          impulse.body === body.id && impulse.step === step,
+      ),
+      center: Vector3.add(
+        body.profile.segments.reduce(
+          (
+            sum: IAutoMovieVector3,
+            segment: (typeof body.profile.segments)[number],
+          ): IAutoMovieVector3 =>
+            Vector3.add(
+              sum,
+              Vector3.scale(
+                physicalSupportPoint(
+                  authoredGoals[segment.bone]!.pose,
+                  segment.centerOfMass,
+                ),
+                segment.mass / body.profile.mass,
+              ),
+            ),
+          { x: 0, y: 0, z: 0 },
+        ),
+        assessment?.state.rootOffset ?? { x: 0, y: 0, z: 0 },
+      ),
       gravity: gravity.root,
       actuation,
-      supports,
       recoveryBone: recovery[body.id]?.swing?.bone,
       step,
       seconds,
@@ -415,14 +454,44 @@ export function trackPhysicalWorld(
         Quaternion.multiply(parent.rotation(), joint.parentFrame.rotation);
       const childFrame: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(child.rotation(), joint.childFrame.rotation);
-      const desiredParent: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.multiply(
-          goals[joint.parent]!.pose.rotation,
-          joint.parentFrame.rotation,
-        );
+      // A planted support keeps its planted world orientation under internal
+      // actuation, as SIMBICON holds its torso and swing hip in the world
+      // frame (Yin, Loken and van de Panne 2007, Section 3.2): its joint is
+      // driven against the actual parent toward the authored, planted
+      // orientation rather than a goal refit to the moving body, so a leaning
+      // shank does not tip the foot onto an edge, and its load comes from the
+      // support allocation.
+      const planted: boolean =
+        !!actuation &&
+        (body.balance?.pattern.limbs.some(
+          (
+            limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
+          ): boolean =>
+            recovery[body.id]?.swing?.bone !== limb.bone &&
+            (limb.bone === joint.child ||
+              (limb.contacts?.includes(joint.child) ?? false)),
+        ) ??
+          false);
+      const stanceChain: boolean =
+        !!actuation &&
+        (body.balance?.pattern.limbs.some(
+          (
+            limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
+          ): boolean =>
+            recovery[body.id]?.swing?.bone !== limb.bone &&
+            (limb.chain.includes(joint.child) ||
+              (limb.contacts?.includes(joint.child) ?? false)),
+        ) ??
+          false);
+      const desiredParent: IAutoMovieRigidTransform["rotation"] = planted
+        ? parentFrame
+        : Quaternion.multiply(
+            goals[joint.parent]!.pose.rotation,
+            joint.parentFrame.rotation,
+          );
       const desiredChild: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(
-          goals[joint.child]!.pose.rotation,
+          (planted ? authoredGoals : goals)[joint.child]!.pose.rotation,
           joint.childFrame.rotation,
         );
       const inv: IAutoMovieRigidTransform["rotation"] =
@@ -454,11 +523,53 @@ export function trackPhysicalWorld(
           goals[joint.parent]!.angularVelocity,
         ),
       );
+      // A stance chain is driven by its allocated wrench, not servoed to a
+      // pose: every axis but a vertical one keeps its damping and no
+      // stiffness, the torque-mode stance (Stephens 2011, Eq. 5.24), so no pose
+      // servo adds floor force outside the allocation. A vertical (yaw) axis
+      // keeps its declared PD: heading comes from the stance hips' twist
+      // (Coros, Beaudoin and van de Panne 2010, Section 3.5; Yin, Loken and
+      // van de Panne 2007, Section 3.2), not from the allocation, which leaves
+      // yaw free. An ankle in contact is further bounded each way by what its
+      // load can hold flat (`trackPhysicalRoot`), within its own strength.
+      const capped:
+        | Partial<Record<"x" | "y" | "z", { up: number; down: number }>>
+        | undefined = ankleCaps.get(joint.id);
+      const driven: IAutoMoviePhysicalJoint =
+        capped || stanceChain
+          ? {
+              ...joint,
+              axes: joint.axes.map((axis) => {
+                const bound = capped?.[axis.axis];
+                const vertical: boolean =
+                  Math.abs(
+                    Quaternion.rotateVector(parentFrame, {
+                      x: axis.axis === "x" ? 1 : 0,
+                      y: axis.axis === "y" ? 1 : 0,
+                      z: axis.axis === "z" ? 1 : 0,
+                    }).y,
+                  ) > Math.SQRT1_2;
+                return {
+                  ...axis,
+                  stiffness: vertical ? axis.stiffness : 0,
+                  ...(bound
+                    ? {
+                        maximumTorque: Math.min(axis.maximumTorque, bound.up),
+                        reverseTorque: Math.min(
+                          axis.reverseTorque ?? axis.maximumTorque,
+                          bound.down,
+                        ),
+                      }
+                    : {}),
+                };
+              }),
+            }
+          : joint;
       const result: IAutoMovieConfigurePhysicalJointMotor.IResult =
         configurePhysicalJointMotor({
           world,
           native: bound.joints.get(`${body.id}/${joint.id}`)!,
-          joint,
+          joint: driven,
           current: Quaternion.multiply(inv, childFrame),
           target: Quaternion.multiply(
             Quaternion.inverse(desiredParent),
@@ -470,6 +581,9 @@ export function trackPhysicalWorld(
           ),
           targetVelocity: desiredVelocity,
           strength,
+          // Every joint, a stance chain's too, carries its own links' gravity,
+          // the full N(q, q') of the inverse dynamics (Stephens 2011, Eq.
+          // 5.18); the allocated contact wrench carries the body's weight.
           feedForward: Vector3.add(
             gravity.joints.get(joint.id) ?? { x: 0, y: 0, z: 0 },
             actuation?.get(joint.id) ?? { x: 0, y: 0, z: 0 },
@@ -488,6 +602,30 @@ export function trackPhysicalWorld(
         });
     }
   }
+}
+
+/**
+ * The planted poses of a body's segments: authored, each support limb's
+ * carriers moved by the offset a landed recovery step left it.
+ */
+function plantedPoses(
+  body: IAutoMoviePhysicalSimulationInput.IBody,
+  authored: Readonly<Record<string, IAutoMovieSamplePhysicalTarget.IResult>>,
+  state: IAutoMoviePhysicalRecoveryState | undefined,
+): Record<string, IAutoMovieRigidTransform> {
+  const out: Record<string, IAutoMovieRigidTransform> = {};
+  for (const [bone, goal] of Object.entries(authored)) out[bone] = goal.pose;
+  for (const limb of body.balance?.pattern.limbs ?? []) {
+    const offset: IAutoMovieVector3 | undefined = state?.offsets[limb.bone];
+    if (!offset) continue;
+    for (const carrier of limb.contacts ?? [limb.bone])
+      if (out[carrier])
+        out[carrier] = {
+          position: Vector3.add(out[carrier]!.position, offset),
+          rotation: out[carrier]!.rotation,
+        };
+  }
+  return out;
 }
 
 /** No balance posture is excluded when that controller is inactive. */

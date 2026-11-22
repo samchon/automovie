@@ -31,6 +31,8 @@ export function configurePhysicalJointMotor(input: {
   targetVelocity: IAutoMovieVector3;
   strength: number;
   feedForward?: IAutoMovieVector3;
+  stiffnessScale?: number;
+  dampingScale?: number;
 }): IAutoMovieConfigurePhysicalJointMotor.IResult {
   const command: IAutoMoviePhysicalJointMotorCommand.IOutput =
     physicalJointMotorCommand({

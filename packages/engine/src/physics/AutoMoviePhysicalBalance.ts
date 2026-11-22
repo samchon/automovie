@@ -21,7 +21,12 @@ import { convexHull2D } from "../math/convexHull2D";
  */
 export namespace AutoMoviePhysicalBalance {
   /**
-   * Order reachable recovery supports by travel distance, then declared footfall phase.
+   * Choose the recovery step: among the supports that can reach their
+   * landing, the one furthest along the capture point's direction, then the
+   * shortest travel, then the declared footfall phase. Young adults recover
+   * a lateral push mostly by a single side step of the limb the push loaded
+   * (Mille et al. 2005, Clinical Biomechanics), which the
+   * controller unloads before lifting (`advancePhysicalBalance`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Order reachable recovery supports by travel distance, then declared footfall phase.
    * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Order reachable recovery supports by travel distance, then declared footfall phase) directly over its typed inputs (`input`) as nested iteration of depth 2 (every over [ input.center.x, input.; flatMap over input.supports; for loop bounded by i < polygon.length) plus a sort, delegating to `Number.isFinite`, `Math.sqrt`, `convexHull2D`, `Math.max`, `Math.min`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Beyond structural 0, 1 and 2 the body uses the literal 3, whose basis this answer does not independently establish and a reviewer must confirm.
@@ -124,6 +129,7 @@ export namespace AutoMoviePhysicalBalance {
       support: IAutoMoviePhysicalSupportPatch;
       phase: number;
       distance: number;
+      lead: number;
       target: IAutoMovieVector3;
     }[] = input.supports
       .flatMap(
@@ -133,6 +139,7 @@ export namespace AutoMoviePhysicalBalance {
           support: IAutoMoviePhysicalSupportPatch;
           phase: number;
           distance: number;
+          lead: number;
           target: IAutoMovieVector3;
         }[] => {
           const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined =
@@ -147,8 +154,28 @@ export namespace AutoMoviePhysicalBalance {
           };
           const along: number =
             denominator > 0 ? Vector3.dot(offset, direction) / denominator : 0;
-          const target: IAutoMovieVector3 = Vector3.add(
+          // The remaining supports hold the centre of pressure at their
+          // point nearest the capture point while this limb swings; the
+          // capture point diverges from it by e^(omega t) (Hof et al. 2005,
+          // Eq. 3), so the step lands where it will be then.
+          const landing: IAutoMovieVector3 = AutoMoviePhysicalBalance.diverge(
             capturePoint,
+            convexHull2D(
+              input.supports
+                .filter(
+                  (other: (typeof input.supports)[number]): boolean =>
+                    other !== support,
+                )
+                .flatMap(
+                  (
+                    other: (typeof input.supports)[number],
+                  ): IAutoMovieVector3[] => other.points,
+                ),
+            ),
+            omega * (input.swingSeconds ?? 0),
+          );
+          const target: IAutoMovieVector3 = Vector3.add(
+            landing,
             Vector3.subtract(offset, Vector3.scale(direction, along)),
           );
           const distance: number = Math.hypot(
@@ -158,7 +185,7 @@ export namespace AutoMoviePhysicalBalance {
           return limb &&
             !input.unavailable.includes(support.bone) &&
             distance <= input.maximumStep
-            ? [{ support, phase: limb.phase, distance, target }]
+            ? [{ support, phase: limb.phase, distance, lead: along, target }]
             : [];
         },
       )
@@ -168,15 +195,18 @@ export namespace AutoMoviePhysicalBalance {
             support: IAutoMoviePhysicalSupportPatch;
             phase: number;
             distance: number;
+            lead: number;
             target: IAutoMovieVector3;
           },
           b: {
             support: IAutoMoviePhysicalSupportPatch;
             phase: number;
             distance: number;
+            lead: number;
             target: IAutoMovieVector3;
           },
-        ): number => a.distance - b.distance || a.phase - b.phase,
+        ): number =>
+          b.lead - a.lead || a.distance - b.distance || a.phase - b.phase,
       );
     const chosen: (typeof candidates)[number] | undefined = candidates[0];
     if (!chosen || input.supports.length - 1 < input.pattern.minimumSupports)
@@ -186,5 +216,77 @@ export namespace AutoMoviePhysicalBalance {
       state: "recovery",
       step: { bone: chosen.support.bone, target: chosen.target },
     };
+  }
+
+  /**
+   * The capture point a time ahead while the supports hold their centre of
+   * pressure at their point nearest it. With the centre of pressure u fixed,
+   * the inverted pendulum's capture point moves as u + (xi - u) e^(omega t)
+   * (Hof, Gazendam and Sinke 2005, Eq. 3 written for x + v / omega); Pratt et
+   * al. (2006) capture at xi only by an instantaneous step.
+   *
+   * @param capture The present capture point, world metres.
+   * @param polygon The supports' convex hull; empty leaves the capture point where it is.
+   * @param elapsed The time ahead times the pendulum frequency, dimensionless.
+   * @returns The capture point then, world metres, at the capture point's height.
+   */
+  export function diverge(
+    capture: IAutoMovieVector3,
+    polygon: readonly IAutoMovieVector3[],
+    elapsed: number,
+  ): IAutoMovieVector3 {
+    if (polygon.length === 0 || !(elapsed > 0)) return { ...capture };
+    const pressure: IAutoMovieVector3 = nearest(polygon, capture);
+    const growth: number = Math.exp(elapsed);
+    return {
+      x: pressure.x + (capture.x - pressure.x) * growth,
+      y: capture.y,
+      z: pressure.z + (capture.z - pressure.z) * growth,
+    };
+  }
+
+  /**
+   * The point of a horizontal convex polygon nearest a point: the point
+   * itself inside, else its projection on the nearest edge.
+   *
+   * @param polygon The counter-clockwise hull, world metres.
+   * @param point The point, world metres.
+   * @returns The nearest polygon point at the given point's height.
+   */
+  export function nearest(
+    polygon: readonly IAutoMovieVector3[],
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    if (polygon.length === 1)
+      return { x: polygon[0]!.x, y: point.y, z: polygon[0]!.z };
+    let inside: boolean = polygon.length >= 3;
+    let best: IAutoMovieVector3 = { ...point };
+    let distance: number = Infinity;
+    for (let i: number = 0; i < polygon.length; i++) {
+      const a: IAutoMovieVector3 = polygon[i]!;
+      const b: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
+      const dx: number = b.x - a.x;
+      const dz: number = b.z - a.z;
+      const denominator: number = dx * dx + dz * dz;
+      const t: number =
+        denominator === 0
+          ? 0
+          : Math.max(
+              0,
+              Math.min(
+                1,
+                ((point.x - a.x) * dx + (point.z - a.z) * dz) / denominator,
+              ),
+            );
+      const x: number = a.x + dx * t;
+      const z: number = a.z + dz * t;
+      const gap: number = Math.hypot(point.x - x, point.z - z);
+      if (gap < distance) {
+        distance = gap;
+        best = { x, y: point.y, z };
+      }
+      if (dx * (point.z - a.z) - dz * (point.x - a.x) < 0) inside = false;
+    }
+    return inside ? { ...point } : best;
   }
 }

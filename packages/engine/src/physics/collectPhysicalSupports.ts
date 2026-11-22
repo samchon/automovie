@@ -49,6 +49,7 @@ export function collectPhysicalSupports(input: {
       const samples: IAutoMovieCollectPhysicalSupports.IPoint[] = [];
       const seen: Set<string> = new Set();
       let loaded: boolean = false;
+      let impulse: number = 0;
       for (const [handle, identity] of input.colliders)
         if (identity.body === input.body && patches.includes(identity.bone)) {
           visitPhysicalNative(
@@ -78,8 +79,10 @@ export function collectPhysicalSupports(input: {
                     flipped ? handle : other,
                   );
                   for (let i: number = 0; i < manifold.numContacts(); i++)
-                    if (manifold.contactDist(i) <= 0 && applied[i]! > 0)
+                    if (manifold.contactDist(i) <= 0 && applied[i]! > 0) {
                       loaded = true;
+                      impulse += applied[i]!;
+                    }
                   for (
                     let i: number = 0;
                     i < manifold.numSolverContacts();
@@ -146,6 +149,9 @@ export function collectPhysicalSupports(input: {
         )
           continue;
         loaded = true;
+        impulse +=
+          (sample.appliedImpulse![first ? "a" : "b"]! * input.dt) /
+          Math.max(input.dt, sample.duration);
         append(
           sample.point,
           (material.friction + 0.7) / 2,
@@ -168,6 +174,7 @@ export function collectPhysicalSupports(input: {
               ),
               samples,
               loaded,
+              impulse,
             },
           ]
         : [];

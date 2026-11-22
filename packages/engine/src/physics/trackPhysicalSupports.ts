@@ -82,9 +82,14 @@ export function trackPhysicalSupports(input: {
       goal.velocity,
       Vector3.cross(goal.angularVelocity, offset),
     );
+    // A stationary support planted on the floor belongs to the balance under
+    // internal actuation, touching this step or lifted a moment by a tipping
+    // body: an endpoint spring on it would push it into the floor and pull it
+    // back to its old world place, holding the body by its feet. The leg's
+    // joints return a lifted one; only a moving or off-floor goal is tracked.
     if (
       input.actuation &&
-      input.constrained?.has(limb.bone) &&
+      (input.constrained?.has(limb.bone) || !!input.body.balance) &&
       !input.target.unavailableSupports?.includes(limb.bone) &&
       Vector3.length(velocity) <=
         64 * Number.EPSILON * Math.max(1, Vector3.length(desired) / input.dt) &&

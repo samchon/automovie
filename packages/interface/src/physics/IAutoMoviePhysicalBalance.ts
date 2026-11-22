@@ -34,7 +34,7 @@ export namespace IAutoMoviePhysicalBalance {
 
     /** Recovery request goes back to the step planner; absent otherwise. */
     step?: {
-      /** Supported endpoint selected by shortest reachable travel, then footfall phase. */
+      /** Supported endpoint selected by lead along the capture direction, then shortest reachable travel, then footfall phase. */
       bone: string;
 
       /** Proposed support-point position in world metres on the floor plane. */
@@ -43,7 +43,7 @@ export namespace IAutoMoviePhysicalBalance {
   }
 
   /**
-   * Order reachable recovery supports by travel distance, then declared footfall phase.
+   * Choose the reachable recovery support leading along the capture direction, then by travel distance, then declared footfall phase.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes actual COM/support measurements, unavailable endpoints and finite recovery-policy bounds.
    * @evidence contracts/development/design.md#principled-representation World-metre positions and m/s velocity define the capture point with positive m/s² gravity; pattern phases break equal-distance ties.
@@ -77,5 +77,13 @@ export namespace IAutoMoviePhysicalBalance {
 
     /** Bone ids unavailable for a recovery request; their patches still contribute support. */
     unavailable: readonly string[];
+
+    /**
+     * Seconds a recovery step takes to land. The capture point keeps
+     * diverging from the remaining supports' centre of pressure while the
+     * limb swings, so the step targets where it will be on landing; absent or
+     * zero targets the instantaneous capture point.
+     */
+    swingSeconds?: number;
   };
 }

@@ -1,4 +1,4 @@
-import { derivePhysicalProfile } from "@automovie/engine";
+import { Quaternion, Vector3, derivePhysicalProfile } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMoviePhysicalJoint,
@@ -49,6 +49,15 @@ export namespace PhysicalModelFixtures {
     });
     return { model, profile };
   }
+  /**
+   * The four-support primitive's stance knee flexion, radians: 45 degrees
+   * keeps each two-link leg's Jacobian well conditioned (condition number
+   * about 6 for equal links, against 9.4 at 30 degrees and a singular
+   * straight leg, which cannot shift vertical load between its feet by joint
+   * torque), as balancing legs stand with bent knees.
+   */
+  const KNEE: number = Math.PI / 4;
+
   /** Four two-link legs and feet permit a genuine recovery step; primitive masses total eight kilograms. */
   export function quadrupod(): P {
     const component: (
@@ -56,11 +65,18 @@ export namespace PhysicalModelFixtures {
       dimensions: [number, number, number],
       position: IAutoMovieRigidTransform["position"],
       density: number,
+      rotation?: IAutoMovieRigidTransform["rotation"],
     ) => IAutoMoviePhysicalSegment = (
       bone: string,
       dimensions: [number, number, number],
       position: IAutoMovieVector3,
       density: number,
+      rotation: IAutoMovieRigidTransform["rotation"] = {
+        x: 0,
+        y: 0,
+        z: 0,
+        w: 1,
+      },
     ): IAutoMoviePhysicalSegment => {
       const model: IAutoMovieModel = makeProp([
         primitivePart(bone, {
@@ -89,32 +105,66 @@ export namespace PhysicalModelFixtures {
       return {
         ...profile.segments[0]!,
         bone,
-        neutral: { position, rotation: { x: 0, y: 0, z: 0, w: 1 } },
+        neutral: { position, rotation },
       };
     };
+    // Each leg bends its knee outward along z by KNEE, thigh and shank each
+    // leaning half of it, so its ankle stays under its hip and the body
+    // stands lower by the legs' shortening.
+    const LINK: number = 0.45;
+    const lean: number = KNEE / 2;
+    const drop: number = 2 * LINK * (1 - Math.cos(lean));
+    const turn = (angle: number): IAutoMovieRigidTransform["rotation"] => ({
+      x: Math.sin(angle / 2),
+      y: 0,
+      z: 0,
+      w: Math.cos(angle / 2),
+    });
     const root: IAutoMoviePhysicalSegment = component(
       "body",
       [0.7, 0.2, 0.6],
-      { x: 0, y: 1.05, z: 0 },
+      { x: 0, y: 1.05 - drop, z: 0 },
       4 / (0.7 * 0.2 * 0.6),
     );
+    const anchors: Map<string, IAutoMovieVector3> = new Map();
     const supports: IAutoMoviePhysicalSegment[] = Array.from(
       { length: 4 },
       (_: unknown, index: number): IAutoMoviePhysicalSegment[] => {
         const x: number = index < 2 ? 0.35 : -0.35;
         const z: number = index % 2 === 0 ? 0.3 : -0.3;
+        const side: number = Math.sign(z);
+        const hip: IAutoMovieVector3 = { x, y: 1 - drop, z };
+        const knee: IAutoMovieVector3 = {
+          x,
+          y: hip.y - LINK * Math.cos(lean),
+          z: z + side * LINK * Math.sin(lean),
+        };
+        const ankle: IAutoMovieVector3 = { x, y: 0.1, z };
+        anchors.set(`upper-${index}`, hip);
+        anchors.set(`lower-${index}`, knee);
+        anchors.set(`support-${index}`, ankle);
         return [
           component(
             `upper-${index}`,
-            [0.1, 0.45, 0.1],
-            { x, y: 0.775, z },
-            0.4 / (0.1 * 0.45 * 0.1),
+            [0.1, LINK, 0.1],
+            {
+              x,
+              y: (hip.y + knee.y) / 2,
+              z: (hip.z + knee.z) / 2,
+            },
+            0.4 / (0.1 * LINK * 0.1),
+            turn(-side * lean),
           ),
           component(
             `lower-${index}`,
-            [0.1, 0.45, 0.1],
-            { x, y: 0.325, z },
-            0.4 / (0.1 * 0.45 * 0.1),
+            [0.1, LINK, 0.1],
+            {
+              x,
+              y: (knee.y + ankle.y) / 2,
+              z: (knee.z + ankle.z) / 2,
+            },
+            0.4 / (0.1 * LINK * 0.1),
+            turn(side * lean),
           ),
           component(
             `support-${index}`,
@@ -126,6 +176,23 @@ export namespace PhysicalModelFixtures {
       },
     ).flat();
     const segments: IAutoMoviePhysicalSegment[] = [root, ...supports];
+    // Each joint's frames meet at its anchor and agree with the world at the
+    // neutral stance, so the bent stance is every joint's zero.
+    const frame = (
+      segment: IAutoMoviePhysicalSegment,
+      anchor: IAutoMovieVector3,
+    ): IAutoMovieRigidTransform => {
+      const inverse: IAutoMovieRigidTransform["rotation"] = Quaternion.inverse(
+        segment.neutral.rotation,
+      );
+      return {
+        position: Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(anchor, segment.neutral.position),
+        ),
+        rotation: inverse,
+      };
+    };
     const joints: IAutoMoviePhysicalJoint[] = supports.map(
       (segment: (typeof supports)[number]): IAutoMoviePhysicalJoint => {
         const index: string = segment.bone.split("-")[1]!;
@@ -138,27 +205,13 @@ export namespace PhysicalModelFixtures {
                 ? `upper-${index}`
                 : `lower-${index}`),
         )!;
-        const height: number = segment.bone.startsWith("upper")
-          ? 1
-          : segment.bone.startsWith("lower")
-            ? 0.55
-            : 0.1;
+        const anchor: IAutoMovieVector3 = anchors.get(segment.bone)!;
         return {
           id: segment.bone,
           parent: parent.bone,
           child: segment.bone,
-          parentFrame: {
-            position: {
-              x: segment.neutral.position.x - parent.neutral.position.x,
-              y: height - parent.neutral.position.y,
-              z: segment.neutral.position.z - parent.neutral.position.z,
-            },
-            rotation: { x: 0, y: 0, z: 0, w: 1 },
-          },
-          childFrame: {
-            position: { x: 0, y: height - segment.neutral.position.y, z: 0 },
-            rotation: { x: 0, y: 0, z: 0, w: 1 },
-          },
+          parentFrame: frame(parent, anchor),
+          childFrame: frame(segment, anchor),
           axes: (["x", "z"] as const).map(
             (axis: "x" | "z"): IAutoMoviePhysicalJointAxis => ({
               axis,
@@ -176,7 +229,16 @@ export namespace PhysicalModelFixtures {
     return {
       id: "four-support-rig",
       mass: 8,
-      centerOfMass: { x: 0, y: 0.75, z: 0 },
+      centerOfMass: {
+        x: 0,
+        y:
+          segments.reduce(
+            (sum: number, segment: IAutoMoviePhysicalSegment): number =>
+              sum + segment.mass * segment.neutral.position.y,
+            0,
+          ) / 8,
+        z: 0,
+      },
       segments,
       joints,
       materials: [

@@ -38,6 +38,8 @@ export namespace IAutoMovieCollectPhysicalSupports {
   export interface ISupport extends IAutoMoviePhysicalSupportPatch {
     /** A touching upward constraint carried a positive actual native or compliant-solver impulse. Zero-load constraints remain available for wrench allocation. */
     loaded: boolean;
+    /** The upward normal impulse the floor applied to the limb's patches over this native step, newton seconds: the actual native contact impulses, or a compliant receipt's applied impulse over its share of the step. */
+    impulse: number;
     /** Actual floor constraints, not a complete nominal sole. */
     samples: IAutoMovieCollectPhysicalSupports.IPoint[];
   }

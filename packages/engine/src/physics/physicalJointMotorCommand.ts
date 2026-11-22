@@ -53,9 +53,11 @@ export function physicalJointMotorCommand(
   // Implicit PD target speed per declared axis.
   const requested: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const axis of input.joint.axes) {
-    const k: number = axis.stiffness * input.strength;
+    const k: number =
+      axis.stiffness * input.strength * (input.stiffnessScale ?? 1);
     const activeDamping: number =
-      axis.damping * input.strength + k * input.timestep;
+      axis.damping * input.strength * (input.dampingScale ?? 1) +
+      k * input.timestep;
     const damping: number = activeDamping + (axis.passiveDamping ?? 0);
     requested[axis.axis] =
       damping > 0
@@ -80,20 +82,24 @@ export function physicalJointMotorCommand(
     saturated: [],
   };
   for (const axis of input.joint.axes) {
-    const k: number = axis.stiffness * input.strength;
+    const k: number =
+      axis.stiffness * input.strength * (input.stiffnessScale ?? 1);
     const damping: number =
-      axis.damping * input.strength +
+      axis.damping * input.strength * (input.dampingScale ?? 1) +
       (axis.passiveDamping ?? 0) +
       k * input.timestep;
     const speed: number = velocity[axis.axis];
-    const maximumTorque: number = k + damping > 0 ? axis.maximumTorque : 0;
+    // The torque this step drives toward one end of the axis; a joint whose
+    // two directions differ in strength is bounded by that direction's.
+    const demand: number = damping * (speed - input.velocity[axis.axis]);
+    const bound: number =
+      demand < 0
+        ? (axis.reverseTorque ?? axis.maximumTorque)
+        : axis.maximumTorque;
+    const maximumTorque: number = k + damping > 0 ? bound : 0;
     output.axes.push({ axis: axis.axis, speed, damping, maximumTorque });
     output.error += error[axis.axis] ** 2;
-    if (
-      Math.abs(damping * (speed - input.velocity[axis.axis])) >
-      axis.maximumTorque
-    )
-      output.saturated.push(axis.axis);
+    if (Math.abs(demand) > bound) output.saturated.push(axis.axis);
   }
   output.error = Math.sqrt(output.error);
   return output;
