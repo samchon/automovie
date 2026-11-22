@@ -350,8 +350,19 @@ export namespace putDown {
     const down: number = travel.carry.duration;
     const back: number = travel.retreat.duration;
     const duration: number = down + OPEN + back;
+    // Over a carrier, a receiver this performer carries (a holster on the
+    // hips of a rider rounding a marker) is still in the bone it rides, and
+    // the hand's goal rides that bone (`HumanCarriedHand.over`), so its
+    // world track is not the placement's: only a receiver in the world must
+    // keep a constant-velocity track.
+    const ridden: boolean =
+      context.carrier !== undefined &&
+      onto !== undefined &&
+      HumanCarriedHand.riding(context, onto.prop) !== undefined;
     const displacement: ((seconds: number) => IAutoMovieVector3) | undefined =
-      putDownTarget.translation(context, duration, aperture);
+      ridden
+        ? undefined
+        : putDownTarget.translation(context, duration, aperture);
     if (tool !== undefined && displacement === undefined)
       StrikingRoll.reachable(
         context,
