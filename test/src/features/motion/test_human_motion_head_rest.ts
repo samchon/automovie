@@ -153,9 +153,20 @@ function bench(
       { subject: "a", body: a, at: { x: -apart(a, b) / 2, y: 0, z: -DEEPER }, yaw: 0, proficiency: { level: "trained" } },
       { subject: "b", body: b, at: { x: apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
     ],
-    // The partner is placed first, so the resting head reads where the partner sits.
+    // The partner is placed first, so the resting head reads where the partner
+    // sits. Once seated, the partner's right arm wraps around behind the
+    // resting one, the palm on her upper back, and holds there through the
+    // rest, so his upper arm lies behind her back, not beside her shoulder
+    // where her lean would press into it. Her far shoulder lies 83 mm beyond
+    // his arm at his seated lean's limit.
     composition: HumanChain.subject("b")
-      .sit({ seat: seat(apart(a, b) / 2, b, 0), seconds: REST + 4 })
+      .sit({ seat: seat(apart(a, b) / 2, b, 0), seconds: 1.5 })
+      .touch({
+        target: { kind: "person", subject: "a", region: "upperBack" },
+        side: "right",
+        kind: "hold",
+        hold: REST + 2,
+      })
       .with(
         HumanChain.subject("a")
           .sit({ seat: seat(-apart(a, b) / 2, a, DEEPER), seconds: 1.5 })
