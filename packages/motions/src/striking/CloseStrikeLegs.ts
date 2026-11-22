@@ -1,15 +1,17 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingFootPoint } from "./StrikingFootPoint";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { punchFootwork } from "./punchFootwork";
@@ -95,6 +97,30 @@ export function CloseStrikeLegs(
         ankle: turnAbout(foot.ankle),
         rotation: Quaternion.multiply(about.rotation, foot.rotation),
       });
+      // In a spin the rear foot rises before it travels round the pivot and
+      // lands before the turn ends, so it never skates: it goes round on the
+      // middle `ROUND` share of the turn.
+      const rounded = (
+        foot: IAutoMovieMotionHumanFoot.IPlacement,
+        angle: number,
+      ): IAutoMovieMotionHumanFoot.IPlacement => {
+        const u: number = Math.min(1, Math.abs(angle) / 360);
+        const going: number = minimumJerk.share(
+          (u - CloseStrikeLegs.ROUND[0]) /
+            (CloseStrikeLegs.ROUND[1] - CloseStrikeLegs.ROUND[0]),
+        );
+        const by: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+          { x: 0, y: 1, z: 0 },
+          Math.sign(angle) * 360 * going,
+        );
+        return {
+          ankle: Vector3.add(
+            ball,
+            Quaternion.rotateVector(by, Vector3.subtract(foot.ankle, ball)),
+          ),
+          rotation: Quaternion.multiply(by, foot.rotation),
+        };
+      };
 
       // The rear foot rises on its way round and settles back.
       // A planted turn pivots the rear foot on its ball by half the turn,
@@ -108,12 +134,23 @@ export function CloseStrikeLegs(
               0.5 * motion.turn * share,
               punchFootwork.HEEL_RAISE * share,
             )
-          : turnFoot(feet[rear]);
-      const arc: number = spun === 0 ? 0 : Math.sin((Math.PI * spun) / 360);
-      const risen: IAutoMovieMotionHumanFoot.IPlacement = {
-        ...swing,
-        ankle: { ...swing.ankle, y: swing.ankle.y + lift * Math.abs(arc) },
-      };
+          : spun === 0
+            ? turnFoot(feet[rear])
+            : rounded(feet[rear], spun);
+      const turned: number = Math.min(1, Math.abs(spun) / 360);
+      const bump: number = spun === 0 ? 0 : Math.sin(Math.PI * turned) ** 2;
+      const risen: IAutoMovieMotionHumanFoot.IPlacement =
+        spun === 0
+          ? swing
+          : StrikingFootPoint(
+              body,
+              rear,
+              {
+                ...swing,
+                ankle: { ...swing.ankle, y: swing.ankle.y + lift * bump },
+              },
+              bump,
+            );
       const pivoted: IAutoMovieMotionHumanFoot.IPlacement = turnFoot(
         feet[lead],
       );
@@ -197,7 +234,10 @@ export function CloseStrikeLegs(
  */
 export namespace CloseStrikeLegs {
   /** The rear foot's arc height on a spin, a share of the stance length (provisional). */
-  export const LIFT: number = 0.1;
+  export const LIFT: number = 0.25;
+
+  /** The shares of a spin's turn between which the rear foot travels round the pivot, after it rises and before it lands (provisional). */
+  export const ROUND: readonly [number, number] = [0.2, 0.8];
 
   /** The lower body's carriage over a close strike. */
   export interface IMotion {

@@ -94,6 +94,9 @@ export namespace closeStrike {
   /** The share of a headbutt's delivery by which both hands hold the neck, before the head drives (provisional). */
   export const TAKE: number = 0.5;
 
+  /** The least horizontal distance from the root to a struck point over the partner's trunk, two pelvises' depth, a share of stature (provisional). */
+  export const HIPS: number = 0.17;
+
   /** The share of a headbutt's recoil its hands hold the neck before they let go (provisional). */
   export const RELEASE: number = 0.4;
 
@@ -226,6 +229,14 @@ export namespace closeStrike {
       const feet: ReturnType<typeof StrikingTarget.feet> = StrikingTarget.feet(
         context.entry,
       );
+      // The room the person struck leaves the hips: the horizontal distance
+      // to the struck point, which stands over their trunk, less two
+      // pelvises' depth (`HIPS`).
+      const room = (): number =>
+        p.at.kind !== "person"
+          ? Number.POSITIVE_INFINITY
+          : Math.hypot(target.x - entry.root.x, target.z - entry.root.z) -
+            HIPS * body.measure.stature;
       const landing: CloseStrikeReach.ILanding = CloseStrikeReach(
         body,
         p.technique,
@@ -242,6 +253,7 @@ export namespace closeStrike {
             share: (): number => 1,
             spin: (): number => spin,
           }).write(entry, shown),
+        room(),
       );
       const primitives: IAutoMovieMotionHumanPrimitive[] = [
         CloseStrikeLegs(

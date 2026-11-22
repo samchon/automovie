@@ -17,13 +17,12 @@ import type {
   IAutoMovieMotionHumanGuard,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingStance,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../posture/HumanFoot";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingFootPoint } from "./StrikingFootPoint";
 import { StrikingGuardYield } from "./StrikingGuardYield";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -81,9 +80,6 @@ export namespace guard {
 
   /** The shares of a step between which the foot travels, after it clears the floor and before it lands (provisional). */
   export const STEP_TRAVEL: readonly [number, number] = [0.25, 0.75];
-
-  /** A stepping foot's toes-down pitch at mid-step, degrees (provisional). */
-  export const STEP_POINT: number = 15;
 
   /** Bounce rate, per second (provisional). */
   export const BOUNCE_RATE: number = 2;
@@ -303,25 +299,15 @@ export namespace guard {
       const rotation: ReturnType<typeof Quaternion.prepareSlerp> = (rotations[
         side
       ] ??= Quaternion.prepareSlerp(from[side].rotation, to[side].rotation));
-      const turned: IAutoMovieQuaternion = rotation(s);
-      const pointed: IAutoMovieQuaternion = HumanFoot.rotation(
-        HumanFoot.heading(turned),
-        HumanFoot.pitch(turned) - STEP_POINT * bump,
-      );
-      // The ankle rises by what pointing the toes lowers them, so the
-      // clearance is the toes'.
-      const toe = (attitude: IAutoMovieQuaternion): number =>
-        HumanFoot.point(body, side, "toe", {
-          ankle: { x: 0, y: 0, z: 0 },
-          rotation: attitude,
-        }).y;
-      return {
-        ankle: {
-          ...ankle,
-          y: ankle.y + lift * bump + Math.max(0, toe(turned) - toe(pointed)),
+      return StrikingFootPoint(
+        body,
+        side,
+        {
+          ankle: { ...ankle, y: ankle.y + lift * bump },
+          rotation: rotation(s),
         },
-        rotation: pointed,
-      };
+        bump,
+      );
     };
     const contacts: IAutoMovieMotionHumanContactWindow[] = (
       ["left", "right"] as const

@@ -48,6 +48,7 @@ import { StrikingStance } from "./StrikingStance";
  * @param line The horizontal unit line to the target.
  * @param travel The unit direction the effector travels at contact.
  * @param at The lower-body posture at contact for a pelvis shift and a lean.
+ * @param room How far the hips may shift toward the person struck before they meet theirs, metres; unbounded when absent.
  * @returns The landing.
  * @throws {HumanRefusal} When no shift within its band brings the elbow or the head onto the target, naming that band.
  *
@@ -67,9 +68,15 @@ export function CloseStrikeReach(
   line: IAutoMovieVector3,
   travel: IAutoMovieVector3,
   at: (lean: number, shift: IAutoMovieVector3) => IAutoMovieMotionHumanPosture,
+  room: number = Number.POSITIVE_INFINITY,
 ): CloseStrikeReach.ILanding {
   const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-  const limit: number = CloseStrikeReach.SHIFT * StrikingStance.length(body);
+  // The hips shift no farther than the stance allows, nor into the person
+  // struck (`room`).
+  const limit: number = Math.min(
+    CloseStrikeReach.SHIFT * StrikingStance.length(body),
+    Math.max(0, room),
+  );
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const read = (
     posture: IAutoMovieMotionHumanPosture,

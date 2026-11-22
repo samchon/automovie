@@ -25,6 +25,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingFootPoint } from "../striking/StrikingFootPoint";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 
@@ -242,28 +243,20 @@ export function MartialArtStancePhrase(
     yaw: start.yaw,
   };
   const oldLead: IAutoMovieVector3 = HumanFrame.local(axis, feet[lead].ankle);
-  // A backward form (the ginga) steps the foot behind the other; a lateral
-  // one (the shiko) widens the stance to the side.
+  // The ginga steps back to its triangle's third corner; the shiko widens.
   const reach: number = form.stride * m.stature * manner.extent;
-  const stride: number =
-    form.stride < 0
-      ? reach
-      : form.lateral === true
-        ? oldLead.z
-        : Math.max(oldLead.z, reach);
-  const outward: number = lead === "left" ? 1 : -1;
   const finish: IAutoMovieMotionHumanFoot.IPlacement = {
     ankle: HumanFrame.point(axis, {
       ...oldLead,
-      // The ginga's back foot lands behind the middle of the stance, the
-      // triangle's third corner.
-      x:
-        form.lateral === true
-          ? oldLead.x + outward * reach
-          : form.stride < 0
-            ? oldLead.x / 2
-            : oldLead.x,
-      z: stride,
+      x: form.lateral
+        ? oldLead.x + (lead === "left" ? reach : -reach)
+        : oldLead.x / (form.stride < 0 ? 2 : 1),
+      z:
+        form.stride < 0
+          ? reach
+          : form.lateral
+            ? oldLead.z
+            : Math.max(oldLead.z, reach),
     }),
     rotation: HumanFoot.rotation(
       start.yaw,
@@ -327,13 +320,19 @@ export function MartialArtStancePhrase(
       const recover: number = back.progress(seconds);
       const transfer: number =
         form.weight[0] + form.weight[1] * advance - form.weight[2] * recover;
+      // The moving foot points its toes in the air (`StrikingFootPoint`).
       const ankles: ReturnType<typeof StrikingTarget.feet> = {
         ...feet,
-        [lead]: AutoMovieMotionHumanLeg.arc(
-          feet[lead],
-          finish,
-          (form.lift ?? 0.025) * m.stature,
-          shown,
+        [lead]: StrikingFootPoint(
+          body,
+          lead,
+          AutoMovieMotionHumanLeg.arc(
+            feet[lead],
+            finish,
+            (form.lift ?? 0.025) * m.stature,
+            shown,
+          ),
+          Math.sin(Math.PI * shown),
         ),
       };
       const centre: IAutoMovieVector3 = Vector3.lerp(
