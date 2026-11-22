@@ -4,7 +4,6 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
@@ -14,9 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { courseArmGoal } from "../compose/courseArmGoal";
 import { seated } from "../everyday/seated";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -24,14 +21,13 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
-import { HumanMountClear } from "./HumanMountClear";
 import { HumanMountFlight } from "./HumanMountFlight";
+import { HumanMountOnCourses } from "./HumanMountOnCourses";
 import { HumanMountOnFrame } from "./HumanMountOnFrame";
 import { HumanMountPlace } from "./HumanMountPlace";
 import { HumanMountPush } from "./HumanMountPush";
-import { HumanMountStand } from "./HumanMountStand";
 import { HumanMountTrack } from "./HumanMountTrack";
-import { HumanSwungLeg } from "./HumanSwungLeg";
+import type { HumanSwungLeg } from "./HumanSwungLeg";
 
 /** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
 type Frame = HumanMountOnFrame.Frame;
@@ -50,7 +46,7 @@ type Frame = HumanMountOnFrame.Frame;
  * its course leaves the leg's range (`HumanSwungLeg`), so a course over a
  * saddle past the hip's range never flips its knee. The hands go from
  * hanging to the thighs over the climb as planned courses
- * (`courseArmGoal`), clear of the trunk as it rises, swings and turns onto
+ * (`HumanMountOnCourses`), clear of the trunk as it rises, swings and turns onto
  * the seat.
  *
  * The socket travels up from 10 % of the climb, passes `HumanMount.HOP`
@@ -62,10 +58,12 @@ type Frame = HumanMountOnFrame.Frame;
  * floor, its heel rolling up over the ball, until the extended leg's toes
  * leave, at the latest at the contact, or astride at 35 %, then follows over
  * 30 % of the climb; astride it crosses as the pelvis crosses, arriving at
- * the contact over `HumanMount.OVER`, each course clear of the seat's carrier
- * (`HumanMountClear`). A foot bears on its rest once the seat takes the body
- * and the foot has arrived; astride onto a stirrup the near foot bears from
- * its arrival and the rider stands in it (`HumanMountStand`).
+ * the contact, its ankle passing above and behind the seat
+ * (`HumanMount.OVER`). A foot bears on its rest once the seat has taken the
+ * body and the foot has arrived: a leg cannot hold a fixed rest under a pelvis
+ * that still travels. So between the push-off and the contact the body is off
+ * the floor, as in a hop onto a stool or a vault onto a saddle; a climb that
+ * stands in a stirrup is not modelled.
  *
  * It continues from the entry: a foot the entry holds off the floor, on a
  * rest, hanging or in flight, goes on from where it is, and a body already
@@ -162,19 +160,17 @@ export namespace HumanMountOn {
       climb,
       astride,
     );
-    const frameWith = (rise: number): ((t: number) => Frame) =>
-      HumanMountOnFrame.of({
-        body,
-        seat,
-        start,
-        goal,
-        climb,
-        hop: rise,
-        yaw: yaw0,
-        turn,
-        final,
-      });
-    let frameAt: (t: number) => Frame = frameWith(hop);
+    const frameAt: (t: number) => Frame = HumanMountOnFrame.of({
+      body,
+      seat,
+      start,
+      goal,
+      climb,
+      hop,
+      yaw: yaw0,
+      turn,
+      final,
+    });
     const hipsAt = (t: number): Record<"left" | "right", IAutoMovieVector3> => {
       const frame: Frame = frameAt(t);
       return hipJoints(
@@ -260,22 +256,6 @@ export namespace HumanMountOn {
       left: stay("left"),
       right: stay("right"),
     };
-    // Astride from the floor onto a stirrup, the rider stands in the near stirrup (`HumanMountStand`).
-    const standing: boolean =
-      astride && !settled && onFloor[lead] && places[lead].rests;
-    const apex: number = 0.55 * climb;
-    if (standing)
-      frameAt = HumanMountStand({
-        body,
-        side: lead,
-        ankle: places[lead].foot.ankle,
-        frame: frameWith,
-        hop,
-        apex,
-        bears: 0.45 * climb,
-        until: climb,
-      });
-
     // The pushing leg extends as it pushes: as the pelvis rises its knee straightens and its heel rolls up over the ball, by as much as the shank, in the knee's own plane, would bend the flat foot's ankle past what an unloaded ankle holds. The foot leaves when the extended leg's toes leave: when even the rolled foot's ankle is past the leg's reach, or the toes are extended as far as they go.
     const longest: number = m.thigh + m.shank;
     const rolledAt = (t: number): HumanMountPush.IRoll =>
@@ -306,13 +286,11 @@ export namespace HumanMountOn {
       astride ? crossing[1] : Math.min(climb, off + 0.3 * climb),
     ];
 
-    // A foot bears on its rest once the seat has taken the body and the foot has arrived, or, standing in the near stirrup, once it arrives there.
+    // A foot bears on its rest once the seat has taken the body and the foot has arrived: before that the pelvis is still on its way, and a leg cannot hold a fixed rest under a pelvis that travels.
     const bears = (side: "left" | "right"): number =>
       stays[side]
         ? 0
-        : standing && side === lead
-          ? flight[side][1]
-          : Math.max(contact, flight[side][1]);
+        : Math.max(contact, flight[side][1]);
     const bearing: Record<"left" | "right", number> = {
       left: bears("left"),
       right: bears("right"),
@@ -362,11 +340,7 @@ export namespace HumanMountOn {
           socket: "ball",
         });
     }
-    // A swinging leg's goal at an instant, before its toes turn down; its course clears the seat's carrier (`HumanMountClear`).
-    const rise: ReturnType<typeof HumanMountClear> = HumanMountClear(
-      context,
-      seat,
-    );
+    // A swinging leg's goal at an instant, before its toes turn down.
     const flown = HumanMountFlight.of({
       body,
       flight,
@@ -383,7 +357,6 @@ export namespace HumanMountOn {
       yaw: yaw0,
       astride,
       over,
-      ...(rise === undefined ? {} : { rise }),
     });
     // Each swinging foot's turn out of the knee's plane as it leaves and as it arrives, read once.
     const twists: Partial<Record<"left" | "right", readonly [number, number]>> =
@@ -444,7 +417,7 @@ export namespace HumanMountOn {
           );
           if (side === push && onFloor[side])
             toes[`${side}Toes`] = [left().roll * (1 - share), 0, 0];
-          // A foot that bears nothing turns its toes down about its ball, so the ball, not the ankle, comes onto the rest; once on it the heel lowers about that ball as the foot takes the body, from its bearing to seated, or to the apex for the near foot stood in.
+          // A foot that bears nothing turns its toes down about its ball, so the ball, not the ankle, comes onto the rest; once on it the heel lowers about that ball as the seat takes the body, from its bearing to seated.
           limbs[limb] = HumanMountPush.tip(
             body,
             side,
@@ -463,17 +436,11 @@ export namespace HumanMountOn {
                 : goal,
             ),
             places[side].rests && t >= bearing[side]
-              ? 1 -
-                  minimumJerk.share(
-                    (t - bearing[side]) /
-                      Math.max(1e-6, (standing && side === lead ? apex : climb) - bearing[side]),
-                  )
+              ? 1 - minimumJerk.share((t - bearing[side]) / Math.max(1e-6, climb - bearing[side]))
               : 1,
           );
         }
-        // The hands' goals are their places on the thighs at every second;
-        // when they leave the hanging rest and how they get there is the
-        // arms' course below, which reads these goals.
+        // The hands' goals are their places on the thighs at every second; the arms' course (HumanMountOnCourses) lays the way there.
         return seated.arms(
           body,
           { ...frame, joints: { ...frame.joints, ...toes }, limbs },
@@ -484,11 +451,14 @@ export namespace HumanMountOn {
       },
     };
 
-    // A swinging leg is keyed in joint space where its world course leaves the leg's range (`HumanSwungLeg`): a course over a saddle asks the ankle past what the hip reaches, and a fit pinned there flips its knee.
-    const swung: IAutoMovieMotionHumanActionPlan = HumanSwungLeg.plan(
+    // The swung legs and the hands are laid as courses over the climb (`HumanMountOnCourses`).
+    return HumanMountOnCourses({
       body,
-      mounted,
-      (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null => {
+      plan: mounted,
+      pose: context.entry.pose,
+      climb,
+      duration,
+      swing: (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null => {
         if (stays[side]) return null;
         const [leaves, arrives]: readonly [number, number] = flight[side];
         const lands: number = places[side].rests
@@ -496,42 +466,6 @@ export namespace HumanMountOn {
           : arrives;
         return lands > leaves ? [leaves, lands] : null;
       },
-    );
-    // The hands go from hanging to the thighs over the climb as planned
-    // courses (courseArmGoal), the way a low sit lays them: the plan's thigh
-    // goals are where they come to rest, and the planner lays the way there
-    // clear of the trunk as it rises, leans, swings and turns onto the seat,
-    // and of the swung leg. The course starts with the climb: an arm held at
-    // its entry angles while the pelvis rises toward the stirrup has no
-    // planned clearance and passes into the hips before any course begins.
-    // Fitted frame by frame on a goal ramp, the forearm crossed the spine.
-    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
-      start: 0,
-      ready: climb,
-      relax: duration,
-      end: duration,
-    };
-    // A palm resting on a thigh rests anywhere on its front: the region the
-    // palm may land in spans the thigh's middle half about the front's mid
-    // station (`thighFront`, at half the thigh), so a rider's hand slides
-    // along the splayed thigh where the forearm would otherwise graze the
-    // trunk at the one point.
-    const disc: number = 0.25 * m.thigh;
-    return courseArmGoal({
-      body,
-      plan: swung,
-      side: "left",
-      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
-      span,
-      disc,
-      with: [
-        {
-          side: "right",
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-          span,
-          disc,
-        },
-      ],
     });
   }
 }
