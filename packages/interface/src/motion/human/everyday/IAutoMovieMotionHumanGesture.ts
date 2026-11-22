@@ -86,7 +86,7 @@ export namespace IAutoMovieMotionHumanGesture {
      */
     count?: number;
 
-    /** Post-stroke hold, seconds; 0 when absent.
+    /** Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is {@link AutoMovieMotionHumanTiming.PAUSES}. The timing of the other phases is on the `gesture` namespace.
      * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     hold?: number;
@@ -94,7 +94,7 @@ export namespace IAutoMovieMotionHumanGesture {
     /** A bow's depth, degrees in (0, gesture.DEEPEST_BOW], about 82 (two deviations past the measured mean, Kawabata et al. 2009), refused outside that range only for a bow, so it carries no schema bound; 30 when absent. */
     depth?: number;
 
-    /** Movement quality. */
+    /** Laban Effort ({@link IAutoMovieMotionHumanEffort.IEffort}): `time` multiplies every phase by `1 - 0.3 time` (0.7 sudden, 1.3 sustained), `weight` and `flow` the gesture's size, `flow` the elbow width; neutral when absent. The coefficients are provisional. */
     effort?: IAutoMovieMotionHumanEffort.IEffort;
 
     /** Degrees the moving hands are turned in the plane of their own palms from the gesture's attitude, the thumb's side rising for a positive turn (provisional sign, held by `test_human_motion_emblem_thumbs`): a quarter turn stands a held-out fist's thumb up, the opposite one points it down. No turn when absent. */

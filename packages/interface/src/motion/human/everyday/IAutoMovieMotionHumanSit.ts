@@ -29,7 +29,8 @@ import type { IAutoMovieMotionHumanSeated } from "./IAutoMovieMotionHumanSeated"
  * `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal height
  * (provisional coefficients; a lower seat needs more trunk flexion and more
  * time, Janssen, Bussmann and Stam 2002, and sit-to-stand takes about 1.5 to
- * 2.5 s in healthy adults). Contact comes at 75 % of the descent. The seated
+ * 2.5 s in healthy adults): 2 s for a seat at the popliteal height (`r` = 1),
+ * 2.5 s for a low seat at 0.7 of it. Contact comes at 75 % of the descent. The seated
  * back is `upright` (pitch 0), `lean` (12 degrees back onto a backrest, which
  * the seat must have) or `slump` (pelvis 10 degrees back, chest 12 and spine
  * 8 flexed), all provisional.

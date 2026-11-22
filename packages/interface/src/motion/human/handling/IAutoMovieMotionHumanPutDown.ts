@@ -26,7 +26,7 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
  * it was entered in.
  *
  * Phases: a transport of the hand to the placing frame, timed by the
- * reach-to-grasp movement time over the travel (`HumanPrehension`), its last
+ * reach-to-grasp movement time over the travel ({@link IAutoMovieMotionHumanPickUp} gives the model: about 0.5 s for a 0.4 m travel), its last
  * 0.05 m straight down so the prop lands rather than slides (provisional
  * setback); the release, the fingers opening flat over 0.2 s (provisional) as
  * the grip ends, which leaves the prop where it was placed; and the hand's

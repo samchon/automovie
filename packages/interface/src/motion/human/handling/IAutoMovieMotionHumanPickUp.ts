@@ -36,7 +36,12 @@ import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGrasp
  *    and the grasped width, with the performer's timing variability; the
  *    hand comes in the last stretch along the approach axis from a setback
  *    equal to the peak aperture, so the open hand clears the object, and the
- *    aperture peaks inside Jeannerod's 60 to 70 % band.
+ *    aperture peaks inside Jeannerod's 60 to 70 % band. The time is
+ *    `-0.31 + 0.30 log10(reach in mm) + 0.00065 (width in mm)` seconds
+ *    ({@link HumanPrehension.nominal}; never under its value at 170 mm,
+ *    0.40 s for a 6 cm width): about 0.5 s for a 0.4 m reach to a 6 cm grip and 0.56 s
+ *    for 0.6 m. This is the family's model for `pickUp`, `putDown` and
+ *    every other reach to a place.
  * 2. Load: the hand holds still for 0.15 s with the fingers closed, the
  *    preload and load phases that precede lift-off in a precision lift
  *    (Johansson and Westling 1984, Exp. Brain Res. 56:550); the duration is
