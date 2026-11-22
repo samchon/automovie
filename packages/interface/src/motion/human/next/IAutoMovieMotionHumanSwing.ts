@@ -1,0 +1,63 @@
+import type { IAutoMovieMotionHumanBaseball } from "../sport/IAutoMovieMotionHumanBaseball";
+import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHumanRacket";
+
+/**
+ * Mechanism: Swinging an implement at a ball: the bat and the racket share one cut timing model (edge peak 6 to 10 m/s by skill).
+ *
+ * @template Chain The chain every method returns; the chain implements this interface.
+ * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
+ * @evidence contracts/development/design.md#principled-representation One method per law of the Swing family, each taking the law's own parameter type.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The Swing laws and nothing the other families own.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
+ */
+export interface IAutoMovieMotionHumanSwing<Chain> {
+  /**
+   * Baseball and softball positions without the bat's swing or the pitch (#3248): the catcher's crouch, fielding a ground ball, and the batting stance with its load.
+   *
+   * @param params The action's parameters.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSwing.baseball: Baseball and softball positions without the bat's swing or the pitch (#3248): the catcher's crouch, fielding a ground ball, and the batting stance with its load.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSwing.baseball is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSwing.baseball is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSwing.baseball is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSwing.baseball is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSwing.baseball is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSwing.baseball is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   */
+  baseball(params: IAutoMovieMotionHumanSwing.IBaseball, anchor?: string): Chain;
+
+  /**
+   * Racket-sport strokes (#3725 and #3726) and the solo ready position, split step and golf address (#3249).
+   *
+   * @param params The action's parameters.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSwing.racket: Racket-sport strokes (#3725 and #3726) and the solo ready position, split step and golf address (#3249).
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSwing.racket is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSwing.racket is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSwing.racket is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSwing.racket is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSwing.racket is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSwing.racket is provided by the chain that implements IAutoMovieMotionHumanSwing.
+   */
+  racket(params: IAutoMovieMotionHumanSwing.IRacket, anchor?: string): Chain;
+}
+
+/**
+ * The parameter types of the Swing methods.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of each Swing method.
+ * @evidence contracts/development/design.md#principled-representation Each parameter type is the law's existing type, named once here.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One parameter type per method.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is redefined: every name aliases the type its law already reads.
+ */
+export namespace IAutoMovieMotionHumanSwing {
+  /** The parameters of `baseball`. */
+  export type IBaseball = IAutoMovieMotionHumanBaseball.IParams;
+
+  /** The parameters of `racket`. */
+  export type IRacket = IAutoMovieMotionHumanRacket.IParams;
+}
