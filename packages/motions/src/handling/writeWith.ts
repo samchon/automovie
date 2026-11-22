@@ -271,7 +271,10 @@ export namespace writeWith {
               1,
               Math.max(0, (seconds - from) / Math.max(to - from, 1e-9)),
             );
-            return start + (d.to - start) * u * u * (3 - 2 * u);
+            // A blend of the two ends lands on each exactly, so a drive
+            // back to a stop never overshoots it by a rounding.
+            const s: number = u * u * (3 - 2 * u);
+            return start * (1 - s) + d.to * s;
           },
         };
       },
