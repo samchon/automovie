@@ -153,7 +153,7 @@ const throwing = (
       S.chain().act(
         "throwObject",
         {
-          at: S.point(
+          target: S.point(
             0,
             b.measure.chestHeight,
             distance -

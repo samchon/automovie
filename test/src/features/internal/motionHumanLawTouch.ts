@@ -20,8 +20,6 @@ import type {
 import {
   AutoMovieMotionHumanAuditMotion,
   AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchEffector,
-  AutoMovieMotionHumanTouchForm,
   HumanChain,
   HumanColliders,
 } from "@automovie/motions";
@@ -30,6 +28,9 @@ import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanJointText } from "./motionHumanJointText";
 import { motionHumanLaw } from "./motionHumanLaw";
 import { motionHumanLawTouchMirror } from "./motionHumanLawTouchMirror";
+
+const { AutoMovieMotionHumanTouchEffector, AutoMovieMotionHumanTouchForm } =
+  AutoMovieMotionHumanTouch;
 
 /**
  * Everything one touch owes on screen, read off the displayed bones, as

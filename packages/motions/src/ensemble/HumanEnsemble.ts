@@ -162,7 +162,7 @@ export namespace HumanEnsemble {
           );
           return HumanChain.subject(m.subject).registered(instance.name, {
             of: template.subject,
-            seconds,
+            duration: seconds,
             shift,
           }).node;
         },

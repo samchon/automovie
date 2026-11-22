@@ -347,7 +347,7 @@ function rideFilm(
     ],
     composition: entry.registered("ride", {
       on: "sedan",
-      seconds: 7,
+      duration: 7,
       seat: "driverSeat",
     }).node,
   });

@@ -115,7 +115,7 @@ export namespace filmStageScreenCue {
     const operator = HumanChain.subject("performer").registered(
       rehearsal.name,
       {
-        seconds: 1,
+        hold: 1,
         sway: 0,
       },
     );

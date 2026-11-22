@@ -50,7 +50,7 @@ export namespace wireArrest {
     for (const [axis, value, ok] of [
       ["drop", params.drop, params.drop > 0],
       ["stop", params.stop, params.stop >= 0],
-      ["seconds", lower, lower > 0],
+      ["duration", lower, lower > 0],
       ["deceleration", bound, bound > 0],
     ] as const)
       if (!(ok && Number.isFinite(value)))

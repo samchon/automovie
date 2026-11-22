@@ -9,8 +9,6 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
  * @evidence contracts/development/design.md#principled-representation One method per law of the Support family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Support laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanSupport<Chain> {
   /**
@@ -112,8 +110,6 @@ export namespace IAutoMovieMotionHumanSupport {
  * when it has placed its new contacts, `stance<i>` (or the stance's own
  * event) when stance `i` is held alone.
  *
- * @evidence contracts/development/common.md#meaningful-documentation on: The surface a row's `on` contacts touch: a box's top to vault, a ledge to scramble onto, a table's edge to slide off; refused where a contact names `on` and this is absent. seconds: Seconds the move into this stance takes; the planner's own when absent. turn: The heading the stance faces, degrees about the vertical from the heading the body enters with: half a turn after a roll from the back to the front; the entry's when absent.
- * @evidence contracts/development/design.md#principled-representation on: The surface a row's `on` contacts touch: a box's top to vault, a ledge to scramble onto, a table's edge to slide off; refused where a contact names `on` and this is absent. seconds: Seconds the move into this stance takes; the planner's own when absent. turn: The heading the stance faces, degrees about the vertical from the heading the body enters with: half a turn after a roll from the back to the front; the entry's when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/support.ts (support.plan, context); actions/supportWindows.ts (supportWindows.of, context); chain/HumanChainPosture.ts (HumanChainPosture.support, params); actions/support.ts (support.plan.preference, stance); actions/support.ts (support.plan.seed, stance); actions/support.ts (support.plan, stance).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanLieDown.IPose identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */

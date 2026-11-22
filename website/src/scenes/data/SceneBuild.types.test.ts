@@ -34,9 +34,9 @@ export function checkSceneActionInputs(): void {
   // @ts-expect-error The kick names the ball prop.
   SceneBuild.act("kickRight", { ball: SceneBuild.to(0, 2) });
   // @ts-expect-error The built-in catch requires the ball.
-  SceneBuild.act("catchObject", { from: "pitcher", hands: "two" });
+  SceneBuild.act("catchObject", { partner: "pitcher", hands: "two" });
   // @ts-expect-error The registered catch still requires the ball.
-  SceneBuild.act("twoHandCatch", { from: "pitcher" });
+  SceneBuild.act("twoHandCatch", { partner: "pitcher" });
   // @ts-expect-error A required-parameter law cannot drop its whole input object.
   SceneBuild.act("gloveCatch");
   // @ts-expect-error The export alias is registered as armPhrase.

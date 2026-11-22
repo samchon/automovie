@@ -197,6 +197,9 @@ function plan(
             base.posture(seconds),
             forward *
               clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+            // Both base arms hang or hold from the shoulders; the beating
+            // arm's target is its primitive's.
+            HumanHand.SIDES,
           );
           return { ...posture, joints: { ...posture.joints, ...kept.fingers } };
         },

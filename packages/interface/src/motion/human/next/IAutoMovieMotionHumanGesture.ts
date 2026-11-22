@@ -10,6 +10,8 @@ import type { IAutoMovieMotionHumanHandShape } from "../posture/IAutoMovieMotion
 /**
  * Gestures of the hands and arms: emblems, beats and pointing, as arm phrases.
  *
+ * The family carries its fixed-parameter gestures as presets, data on `AutoMovieMotionHumanGesture`: the beats and body gestures `WAVE`, `RAISE_HAND`, `CHEER`, `STOP_PALM`, `POINT`, `PALMS_UP`, `BECKON`, `CLAP`, `RUB_HANDS`, `PALMS_TOGETHER`, `THUMBS_DOWN`, `TOUCH_FACE`, `PUSH_GLASSES`, `SCRATCH_HEAD`, `SHRUG`, `NOD`, `SHAKE_HEAD`, `BOW`, `CHIN_LIFT`, `SQUARE_SHOULDERS` and `SLUMP`, read by the rows of `HumanGestureRows`; the emblems `EMBLEM_PALMS_TOGETHER`, `EMBLEM_HANDS_UP`, `EMBLEM_HALT`, `EMBLEM_COME_HERE`, `EMBLEM_DONT_KNOW`, `EMBLEM_THUMBS_UP`, `EMBLEM_THUMBS_DOWN`, `EMBLEM_OK_SIGN`, `EMBLEM_VICTORY_SIGN`, `EMBLEM_CROSSED_FINGERS`, `EMBLEM_COUNT_ONE` to `EMBLEM_COUNT_FIVE`, `EMBLEM_SHAKE_FIST`, `EMBLEM_FINGER_SNAP` and `EMBLEM_AIR_QUOTES`, read by the rows of `HumanEmblem`; and the arm phrases `PHRASE_*` (`PHRASE_WAVE_HAND`, `PHRASE_POINT_AT`, `PHRASE_TAP_ON`, `PHRASE_FOLD_ARMS`, `PHRASE_HAND_ON_HIP`, `PHRASE_PHONE_TO_EAR` and the rest of that group), read by the rows of `HumanUpperRows`. A preset adds no method and is spread into the parameters of `gesture` or `armPhrase`; each row and its preset share one value.
+ *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/design.md#principled-representation One method per law of the Gesture family, each taking the law's own parameter type.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The Gesture laws and nothing the other families own.

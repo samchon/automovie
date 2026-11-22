@@ -15,7 +15,6 @@ import type {
 import {
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchDrink,
   HumanChain,
   HumanObject,
   HumanPerformance,
@@ -25,6 +24,8 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
 import { motionPropHeldDrift } from "./motionPropHeldDrift";
+
+const { AutoMovieMotionHumanTouchDrink } = AutoMovieMotionHumanTouch;
 
 /** How far a glass may lean away from the face and still count as upright: the sine of 1 degree. */
 const AWAY: number = Math.sin(Math.PI / 180);

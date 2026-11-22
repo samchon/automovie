@@ -79,7 +79,7 @@ export function exerciseCases(
           ],
           composition: HumanChain.subject("a").act("exercise", {
             kind,
-            reps: 3,
+            count: 3,
           }).node,
         });
       } catch (error) {

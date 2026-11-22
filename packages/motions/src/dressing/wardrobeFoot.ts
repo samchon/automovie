@@ -22,7 +22,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -57,7 +59,7 @@ const AIR: number = 0.025;
  * @evidence contracts/development/implementation.md#principled-implementation Reads the posed heel and toe to construct a foot-relative model frame and directs the held shell along its real top opening.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit the raised leg, admit the model opening, fit hand targets, then attach transfer contacts and events.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The admitted seat and contralateral support stay fixed while the existing articulated leg lifts.
- * @evidence contracts/development/implementation.md#efficient-algorithms The raised ankle is fixed during insertion. Each moving hand sample is one existing limb target.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The raised ankle is fixed during insertion. The moving hand is one arm course over its limb target, laid once for the action (`courseArmGoal`).
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the actual entry joint angles, trunk inclination and native rigid object custody records.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned plan retains only shared action data, endpoints and phases. Each rolled grip uses current authored FK without retaining a pose history.
  */
@@ -235,49 +237,79 @@ export function wardrobeFoot(
       from / base.duration,
       to / base.duration,
     ),
-    // The small round pull can roll in the fingers as the shell aligns to the foot.
-    // Keep its physical centre at the admitted hand target through the passage.
+    // The small round pull can roll and slide in the fingers as the shell
+    // aligns to the foot. Once aligned the shell lies on its own admitted
+    // frame, its attitude and its place, not on where the fitted hand lands
+    // within its 10 mm, so the passage keeps the opening square to the foot
+    // and the worn offset taken at `finish` is the seated frame itself.
     inHand: (share: number): IAutoMovieRigidTransform => {
       const time: number = from + share * (to - from);
       const at: number = Math.min(time, finish);
       const rollStart: number = remove ? gripTime : holdStart;
       const rollEnd: number = remove ? passTime : gripTime;
-      return wardrobeHands.roll(
-        body,
-        posture(at),
-        hand,
+      const fraction: number = (at - rollStart) / (rollEnd - rollStart);
+      if (!(fraction > 0))
+        return wardrobeHands.roll(
+          body,
+          posture(at),
+          hand,
+          target(at),
+          fraction,
+        );
+      const full: IAutoMovieRigidTransform = HumanPropFrame.relative(
+        wardrobeHands.grip(body, posture(at), hand),
         target(at),
-        (at - rollStart) / (rollEnd - rollStart),
       );
+      const u: number = minimumJerk.share(fraction);
+      return {
+        position: Vector3.scale(full.position, u),
+        rotation: Quaternion.slerp(
+          { x: 0, y: 0, z: 0, w: 1 },
+          full.rotation,
+          u,
+        ),
+      };
     },
   };
-  return {
-    ...base,
-    events: [
-      ...base.events,
-      { name: "footwearReady", share: gripTime / base.duration },
-      { name: "footwearOpening", share: passTime / base.duration },
-      {
-        name: remove ? "footwearClear" : "footwearWorn",
-        share: finish / base.duration,
-      },
-      { name: "relax", share: 1 },
-    ],
-    contacts: [...base.contacts, contact],
-    hands: [hand],
-    ...(remove
-      ? {
-          holds: [
-            { prop: params.prop, side: hand, from: gripTime / base.duration },
-          ],
-        }
-      : {
-          wears: [
-            { prop: params.prop, bone: foot, from: finish / base.duration },
-          ],
-        }),
-    posture,
-  };
+  // The hand is laid as one course over its target (`courseArmGoal`): the
+  // planner's reach to the footwear, the passage read at every second with
+  // branch and swivel continuity, and the planner's return, in place of a
+  // fresh fit at each second, whose seeded display could take another
+  // forearm twist than the fit the shell's custody reads. The checks above
+  // read the goal.
+  return courseArmGoal({
+    body,
+    side: hand,
+    rest: AutoMovieMotionHumanArm.angles(entry.pose, hand),
+    span: { start: holdStart, ready: gripTime, relax: finish, end: holdEnd },
+    plan: {
+      ...base,
+      events: [
+        ...base.events,
+        { name: "footwearReady", share: gripTime / base.duration },
+        { name: "footwearOpening", share: passTime / base.duration },
+        {
+          name: remove ? "footwearClear" : "footwearWorn",
+          share: finish / base.duration,
+        },
+        { name: "relax", share: 1 },
+      ],
+      contacts: [...base.contacts, contact],
+      hands: [hand],
+      ...(remove
+        ? {
+            holds: [
+              { prop: params.prop, side: hand, from: gripTime / base.duration },
+            ],
+          }
+        : {
+            wears: [
+              { prop: params.prop, bone: foot, from: finish / base.duration },
+            ],
+          }),
+      posture,
+    },
+  });
 }
 
 /** Find an actual phase boundary in seconds. */

@@ -10,12 +10,14 @@ import type {
 import {
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTrunk,
-  HumanBalance,
   HumanRefusal,
-  HumanTrunk,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import {
+  HumanBalance,
+  HumanTrunk,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionComposeTrunk } from "./motionComposeTrunk";

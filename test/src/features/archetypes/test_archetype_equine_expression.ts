@@ -15,6 +15,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { equineExpressionObservation as Look } from "../internal/equineExpressionObservation";
+
 /** The horse producer's model. */
 type Horse = ReturnType<typeof createHorse>;
 

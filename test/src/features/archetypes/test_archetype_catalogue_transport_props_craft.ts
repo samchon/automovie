@@ -30,10 +30,10 @@ import type {
 import {
   AutoMovieMotionHumanSwim,
   HumanChain,
-  HumanFrame,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";

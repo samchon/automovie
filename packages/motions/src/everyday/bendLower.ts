@@ -413,7 +413,7 @@ export namespace bendLower {
       };
       throw new HumanRefusal({
         kind: "reach",
-        axis: "toward",
+        axis: "target",
         value: target.y,
         ...(lowest === Infinity ? {} : { feasible }),
         reason:

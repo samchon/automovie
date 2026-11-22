@@ -399,11 +399,6 @@ export namespace IAutoMovieMotionHumanGait {
  * - `sneak` goes slower than the slow walk on shorter steps, with the
  *   pelvis lowered and the arms held close (provisional values; no study of
  *   stealthy gait has been read).
- *
- * @evidence contracts/development/common.md#meaningful-documentation regulation: The drill regulation (`HUMAN_DRILL_CADENCES`); TC 3-21.5's quick time (`MARCH`) when absent. time: The regulation's time by its own name (`ordinary`, `quick`...); its first time when absent. side: The leg spared; the right when absent.
- * @evidence contracts/development/design.md#principled-representation regulation: The drill regulation (`HUMAN_DRILL_CADENCES`); TC 3-21.5's quick time (`MARCH`) when absent. time: The regulation's time by its own name (`ordinary`, `quick`...); its first time when absent. side: The leg spared; the right when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanGait.ts (HumanGait.march, context); lexicon/HumanGait.ts (regulated, params); lexicon/HumanGait.ts (HumanGait.doubleTime, context); lexicon/HumanGait.ts (HumanGait.sad, context); lexicon/HumanGait.ts (HumanGait.proud, context); lexicon/HumanGait.ts (HumanGait.drunk, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanWalkParams, IAutoMovieMotionHumanDrillRegulation.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGait {
   /**

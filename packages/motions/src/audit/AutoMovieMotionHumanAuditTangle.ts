@@ -37,8 +37,10 @@ import type { IAutoMovieMotionHumanAuditExemption as IExemption } from "./IAutoM
  *   none (the upper arm and the chest meet at the shoulder girdle, whose
  *   clavicle bone has no collider of its own); their colliders overlap at
  *   the joint by construction and fold into each other as it bends, within
- *   its range of motion. Also the hand with its own fingers, and the foot
- *   with its toes;
+ *   its range of motion. Also the hand with its own fingers, the foot
+ *   with its toes, and the forearm with the digits hung directly on the
+ *   hand, which ride the carpus the wrist joins to it (the thumb's
+ *   metacarpal base meets the forearm's distal end on a flexed wrist);
  * - what two segments already share in the body's two reference postures,
  *   the rest T-pose it was modelled in and the quiet stance every performer
  *   starts from (`stand.posture`): the thighs meet at the crotch as the body

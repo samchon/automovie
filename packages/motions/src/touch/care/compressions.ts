@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanChainCore,
 } from "@automovie/interface";
 
-import { COMPRESSIONS } from "./COMPRESSION_CYCLE";
+import { COMPRESSION_CYCLE } from "./COMPRESSION_CYCLE";
 
 /**
  * One cycle of chest compressions: both palms press the partner's sternum.
@@ -13,7 +13,7 @@ import { COMPRESSIONS } from "./COMPRESSION_CYCLE";
  * @returns The chain with the compressions appended.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the target and the count.
- * @evidence contracts/development/implementation.md#principled-implementation The shipped two-hand press on the partner's sternum, repeated `COMPRESSIONS` times.
+ * @evidence contracts/development/implementation.md#principled-implementation The shipped two-hand press on the partner's sternum, repeated `COMPRESSION_CYCLE` times.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One append.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The touch law fits and refuses the contact; the rate is the law's own press timing.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One append.
@@ -30,7 +30,7 @@ export function compressions<Chain extends IAutoMovieMotionHumanChainCore>(
     kind: "press",
     effector: "palm",
     arms: "straight",
-    count: COMPRESSIONS,
+    count: COMPRESSION_CYCLE,
     hold: 0,
   });
 }

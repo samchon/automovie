@@ -15,10 +15,10 @@ import type {
 import {
   AutoMovieMotionHumanMount,
   HumanChain,
-  HumanFrame,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -118,7 +118,7 @@ export function test_world_cavalry_charge_seat(): void {
       .sit({ seat: saddle, hold: 0.5 })
       .registered("ride", {
         on: "charger",
-        seconds: MOUNT + ride.duration,
+        duration: MOUNT + ride.duration,
         seat: "seat",
         feet: { left: "leftStirrup", right: "rightStirrup" },
       }).node,

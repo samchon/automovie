@@ -4,7 +4,7 @@ import type { IAutoMovieMotionHumanSword } from "../lexicon/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanSwordGuard } from "../lexicon/IAutoMovieMotionHumanSwordGuard";
 import type { IAutoMovieMotionHumanSwordParry } from "../lexicon/IAutoMovieMotionHumanSwordParry";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
-import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
+import type { IAutoMovieMotionHumanTouch } from "./IAutoMovieMotionHumanTouch";
 
 /**
  * Fighting with a blade: the sword guard, the cut, thrust, parry and taken laws, the sabre and the couched lance.

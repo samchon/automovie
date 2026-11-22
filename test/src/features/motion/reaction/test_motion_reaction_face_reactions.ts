@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanTouchEffector,
+  AutoMovieMotionHumanTouch,
   HUMAN_EVERYDAY_LAWS,
   HumanChain,
   HumanPerformance,
@@ -17,6 +17,8 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { motionHumanLaw } from "../../internal/motionHumanLaw";
+
+const { AutoMovieMotionHumanTouchEffector } = AutoMovieMotionHumanTouch;
 
 /**
  * Registered face reactions on an average man and a small woman.

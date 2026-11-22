@@ -21,7 +21,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -165,15 +164,30 @@ export function operateLongInsert(
     depth: mechanism.depth!,
     withdraw: true,
   });
-  // Each step's walk, from the stance it leaves.
+  // Each step's walk, from the entry for the first, then from the legs the
+  // walk before it ended on, read once per walk (`operateLongInsertStep`).
+  const ended: Map<
+    IAutoMovieMotionHumanActionPlan,
+    IAutoMovieMotionHumanPosture
+  > = new Map();
+  let last: IAutoMovieMotionHumanPosture | undefined;
   const stepped: (
     from: number,
     to: number,
   ) => IAutoMovieMotionHumanActionPlan = (
     from: number,
     to: number,
-  ): IAutoMovieMotionHumanActionPlan =>
-    operateLongInsertStep(context, toward, from, to);
+  ): IAutoMovieMotionHumanActionPlan => {
+    const walk: IAutoMovieMotionHumanActionPlan = operateLongInsertStep(
+      context,
+      toward,
+      from,
+      to,
+      last,
+    );
+    ended.set(walk, (last = walk.posture(walk.duration)));
+    return walk;
+  };
 
   // The phases' lengths: a stroke at the pace, a slide in its aimed time, a
   // step for its walk; the first stance, when it is not the entry's, is
@@ -255,21 +269,29 @@ export function operateLongInsert(
   const windows: operateLongInsert.IWindow[] = [
     ...(opening === undefined
       ? []
-      : [{ from: 0, plan: opening, x: 0, to: course.presented.x }]),
+      : [{ from: 0, plan: opening, to: course.presented.x }]),
     ...course.segments.flatMap(
       (
         s: operateLongInsertCourse.ISegment,
         k: number,
       ): operateLongInsert.IWindow[] =>
         s.kind === "step"
-          ? [{ from: starts[k]!, plan: walks[k]!, x: s.from.x, to: s.to.x }]
+          ? [{ from: starts[k]!, plan: walks[k]!, to: s.to.x }]
           : [],
     ),
   ];
-  const settled: (seconds: number) => number = (seconds: number): number => {
-    let x: number = 0;
-    for (const w of windows) if (seconds >= w.from + w.plan.duration) x = w.to;
-    return x;
+  // Standing between the steps: where the last finished walk ended.
+  const stood: (seconds: number) => IAutoMovieMotionHumanPosture = (
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture => {
+    let done: operateLongInsert.IWindow | undefined;
+    for (const w of windows) if (seconds >= w.from + w.plan.duration) done = w;
+    return operateLongInsertStep.standing(
+      context.entry.posture,
+      toward,
+      done?.to ?? 0,
+      done === undefined ? undefined : ended.get(done.plan),
+    );
   };
   // The feet stand on the entry's supports between the steps, and on each
   // walk's own windows through it.
@@ -294,17 +316,9 @@ export function operateLongInsert(
     open = w.from + w.plan.duration;
   }
   standing(open, duration);
-  // The fingers the hands hold the staff with as they entered: a step's walk
-  // shapes its hands relaxed, and the hands keep their grips through it.
-  const gripping: IAutoMovieMotionHumanPosture["joints"] = {};
-  for (const hand of HumanHand.SIDES)
-    for (const bone of Object.keys(
-      HumanHand.shape(hand, "relaxed"),
-    ) as AutoMovieHumanoidBone[]) {
-      const held: readonly [number, number, number] | undefined =
-        context.entry.posture.joints[bone];
-      if (held !== undefined) gripping[bone] = held;
-    }
+  // The hands keep the grips they entered with through each step's walk.
+  const gripping: IAutoMovieMotionHumanPosture["joints"] =
+    operateLongInsertStep.grips(context.entry.posture);
   const base: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [],
@@ -325,10 +339,7 @@ export function operateLongInsert(
           );
           return { ...walked, joints: { ...walked.joints, ...gripping } };
         }
-      return HumanSupportCarry.posture(
-        operateLongInsertStep.stance(toward, settled(seconds)),
-        context.entry.posture,
-      );
+      return stood(seconds);
     },
   };
 
@@ -481,9 +492,6 @@ export namespace operateLongInsert {
 
     /** Its walk. */
     plan: IAutoMovieMotionHumanActionPlan;
-
-    /** The stance it leaves, metres along the step line. */
-    x: number;
 
     /** The stance it reaches. */
     to: number;

@@ -6,4 +6,4 @@
  * @evidence contracts/development/design.md#minimal-and-owned-surface Only the value the care helper reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The value is the cited guideline's, not a tuned number.
  */
-export const COMPRESSIONS: number = 30;
+export const COMPRESSION_CYCLE: number = 30;

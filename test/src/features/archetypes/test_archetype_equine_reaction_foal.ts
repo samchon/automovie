@@ -18,6 +18,9 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { equineExpressionObservation as Look } from "../internal/equineExpressionObservation";
+import { equineFloorObservation as Floor } from "../internal/equineFloorObservation";
+
 /** A horse ride. */
 type Ride = AutoMovieArchetypeRide.IRide<
   AutoMovieArchetypeEquine.Affordance,

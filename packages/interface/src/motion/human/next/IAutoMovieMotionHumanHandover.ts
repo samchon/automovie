@@ -188,11 +188,6 @@ export namespace IAutoMovieMotionHumanHandover {
  * the receiver's hand where it is and the giver withdraws after the transfer
  * time. A drop needs the physics layer to carry the falling object
  * (#3083) and is not offered.
- *
- * @evidence contracts/development/common.md#meaningful-documentation mass: The prop's mass, kilograms; 0.09 when absent. outcome: The outcome; `transfer` when absent. meet: Where the receiving grip is handed over, world metres, as the partners' meeting places it (`HumanHandoverMeeting`); the standing pair's mutual goal when absent.
- * @evidence contracts/development/design.md#principled-representation mass: The prop's mass, kilograms; 0.09 when absent. outcome: The outcome; `transfer` when absent. meet: Where the receiving grip is handed over, world metres, as the partners' meeting places it (`HumanHandoverMeeting`); the standing pair's mutual goal when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanHandover.ts (HumanHandover.plan, return); handling/HumanHandover.ts (HumanHandover.plan, input); handling/HumanHandoverMeeting.ts (HumanHandoverMeeting.goal, input); handling/HumanHandover.ts (HumanHandover.plan.hand, bones); handling/HumanHandoverMeeting.ts (HumanHandoverMeeting.goal.sternum, person); handling/HumanHandoverMeeting.ts (HumanHandoverMeeting.kind.person, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieResolvedBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanHandover {
   /**

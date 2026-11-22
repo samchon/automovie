@@ -505,7 +505,7 @@ function pair(
           sample(16, split, 23),
           sample(18, split, 27),
           sample(20, split, 30),
-          ...HumanFormation.path(reform, slot, 23, 27, 2),
+          ...AutoMovieMotionHumanEnsemble.HumanFormation.path(reform, slot, 23, 27, 2),
         ];
   const samples: AutoMovieArchetypeCourse.ISample[] = [
     ...entrance,

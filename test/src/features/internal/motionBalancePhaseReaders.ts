@@ -11,12 +11,12 @@ import {
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanSupport,
   AutoMovieMotionHumanTrunk,
-  HumanBalance,
   HumanChain,
   HumanPerformance,
   HumanPhysics,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanBalance } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionComposeTrunk } from "./motionComposeTrunk";

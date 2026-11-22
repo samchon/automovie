@@ -45,7 +45,6 @@ export type { IAutoMovieLocalHermiteStream64FaceRange } from "./IAutoMovieLocalH
 export type { IAutoMovieMeasureContourFace64 } from "./IAutoMovieMeasureContourFace64";
 export type { IAutoMovieMeasureCurveLength64 } from "./IAutoMovieMeasureCurveLength64";
 export type { IAutoMovieObservation } from "./IAutoMovieObservation";
-export type { IAutoMoviePchip64 } from "./IAutoMoviePchip64";
 export type { IAutoMoviePchipField64 } from "./IAutoMoviePchipField64";
 export type { IAutoMoviePlanContourSlabs64Group } from "./IAutoMoviePlanContourSlabs64Group";
 export type { IAutoMoviePlanContourSlabs64Props } from "./IAutoMoviePlanContourSlabs64Props";

@@ -9,8 +9,6 @@ import type { IAutoMovieMotionHumanArmWrestle } from "../touch/IAutoMovieMotionH
  * Holds, throws, clinches and arm wrestling between two bodies. The grappling law reads no skill: its scene lengths are authored.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Grapple family, each taking the law's own parameter type.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The Grapple laws and nothing the other families own.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
@@ -212,8 +210,6 @@ export namespace IAutoMovieMotionHumanGrapple {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States that both roles share one authored scene.
  * @evidence contracts/development/design.md#principled-representation A closed scene kind and explicit staged outcome separate choreography from partner identity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the shared scene settings and the settings of each action role.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither the venue nor the rulebook's award is inferred from a pose.
  */
 export namespace IAutoMovieMotionHumanGrapple {
   /**

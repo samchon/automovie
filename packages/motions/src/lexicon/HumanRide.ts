@@ -240,7 +240,7 @@ export namespace HumanRide {
           : support.prop.point?.(saddle, context.start)?.point;
       const equestrian: ReturnType<typeof prepareHumanEquestrianRide> =
         prepareHumanEquestrianRide(context, origin, sat);
-      // An arm the ride neither grips with nor gives a goal rests where its entry's joints put it; an articulation bends the trunk over the pelvis, so there it rides the pelvis (`RideRestingHands`).
+      // An arm that takes no grip of the ride keeps where its entry displays it, resting or holding a prop; an articulation bends and tips the trunk over the pelvis, so there it rides the pelvis (`RideRestingHands`).
       const rests: RideRestingHands.Rests =
         equestrian === undefined
           ? {}
@@ -250,8 +250,7 @@ export namespace HumanRide {
               context.entry.pose,
               (["left", "right"] as const).filter(
                 (side: AutoMovieHumanSide): boolean =>
-                  context.params.hands?.[side] === undefined &&
-                  seated.limbs[`${side}Arm`] === undefined,
+                  context.params.hands?.[side] === undefined,
               ),
             );
       if (equestrian?.offSeat !== undefined) {
@@ -378,12 +377,7 @@ export namespace HumanRide {
           AutoMovieHumanSide,
           RideRestingHands.IRest,
         ][])
-          limbs[`${side}Arm`] = RideRestingHands.place(
-            context.body,
-            rest,
-            out,
-            side,
-          );
+          limbs[`${side}Arm`] = RideRestingHands.place(rest, out);
 
         // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, turned to it and closed on it (`HumanMountRider.hold`).
         const grasp: IAutoMovieMotionHumanPosture["joints"] = {};

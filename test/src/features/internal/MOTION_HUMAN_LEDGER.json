@@ -126,9 +126,9 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTargetGrid.DISTANCE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTargetGrid.LATERAL_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTiming.PAUSE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchEffector.AXES", "tests": ["test_human_motion_core_closed_unions"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchForm.KINDS", "tests": ["test_human_motion_core_closed_unions"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchForm.TANGENTS", "tests": ["test_human_motion_core_closed_unions"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchEffector.AXES", "tests": ["test_human_motion_core_closed_unions"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchForm.KINDS", "tests": ["test_human_motion_core_closed_unions"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchForm.TANGENTS", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionManner.PRESET_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "posture", "symbol": "HumanFoot.SOCKETS", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "posture", "symbol": "HumanHand.AXES", "tests": ["test_human_motion_core_closed_unions"] },
@@ -1288,63 +1288,63 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchLaid.bend",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchLaid.bend",
       "tests": [
         "test_human_motion_compose_touch_laid"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchLaid.laid",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchLaid.laid",
       "tests": [
         "test_human_motion_compose_touch_laid"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchLaid.MARGIN",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchLaid.MARGIN",
       "tests": [
         "test_human_motion_hand_verdicts_shave"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchLaid.reference",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchLaid.reference",
       "tests": [
         "test_human_motion_hand_verdicts_shave"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchLaid.rest",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchLaid.rest",
       "tests": [
         "test_human_motion_compose_touch_laid"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchLaid.settled",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchLaid.settled",
       "tests": [
         "test_human_motion_signature_salute"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchEffector.axis",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchEffector.axis",
       "tests": [
         "test_human_motion_compose_touch_effector"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchEffector.local",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchEffector.local",
       "tests": [
         "test_human_motion_compose_touch_effector"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchEffector.point",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchEffector.point",
       "tests": [
         "test_human_motion_compose_touch_effector",
         "test_human_motion_compose_touch_laid"
@@ -1352,7 +1352,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchEffector.pad",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchEffector.pad",
       "tests": [
         "test_human_motion_compose_touch_effector",
         "test_human_motion_compose_touch_laid"
@@ -1360,14 +1360,14 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchEffector.goal",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchEffector.goal",
       "tests": [
         "test_human_motion_compose_touch_effector"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchEffector.ADMITS",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchEffector.ADMITS",
       "tests": [
         "test_human_motion_compose_touch_effector",
         "test_human_motion_compose_touch_laid"
@@ -1375,7 +1375,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchEffector.admit",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchEffector.admit",
       "tests": [
         "test_human_motion_compose_touch_effector",
         "test_human_motion_compose_touch_laid"
@@ -1383,28 +1383,28 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchForm.FORMS",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchForm.FORMS",
       "tests": [
         "test_motion_compose_touch_form"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchForm.period",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchForm.period",
       "tests": [
         "test_motion_compose_touch_form"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchForm.tangent",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchForm.tangent",
       "tests": [
         "test_motion_compose_touch_form"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchForm.curled",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchForm.curled",
       "tests": [
         "test_human_motion_law_touch_self_pat_belly",
         "test_human_motion_law_touch_self_rub_nape",
@@ -1424,29 +1424,29 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchPath.lay",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchPath.lay",
       "tests": [
         "test_human_motion_compose_touch_path"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchPath.reach",
+      "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchPath.reach",
       "tests": [
         "test_human_motion_signature_salute"
       ]
     },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.SPAN", "tests": ["test_human_motion_compose_touch_laid"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.STEP", "tests": ["test_human_motion_compose_touch_laid"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tilt", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.solve", "tests": ["test_human_motion_compose_touch_laid", "test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tip", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.facings", "tests": ["test_human_motion_compose_touch_laid"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchUpright.SPAN", "tests": ["test_human_motion_compose_touch_laid"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchUpright.STEP", "tests": ["test_human_motion_compose_touch_laid"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchUpright.tilt", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchUpright.solve", "tests": ["test_human_motion_compose_touch_laid", "test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchUpright.tip", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchUpright.facings", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.TIP", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.LEAN_STEP", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average", "test_human_motion_signature_hand_to_face_drink_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.drinking", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.admitted", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.held", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchDrink.LEAN_STEP", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average", "test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchDrink.drinking", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchDrink.admitted", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchDrink.held", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.FLEXION", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.ABDUCTION", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.measured", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
@@ -1458,11 +1458,11 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanSwivelBound.arm", "tests": ["test_motion_compose_drinking_swivel"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanSwivelBound.bounded", "tests": ["test_motion_compose_drinking_swivel"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.carried", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchLaid.lie", "tests": ["test_human_motion_compose_touch_laid"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.RAISE", "tests": ["test_human_motion_hand_reach_up"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.GIRDLE", "tests": ["test_human_motion_hand_reach_up"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.solve", "tests": ["test_human_motion_hand_reach_up"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchEffector.direction", "tests": ["test_human_motion_emblem_signatures", "test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average", "test_human_motion_prop_held_use_m_average", "test_human_motion_hand_effectors"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchLaid.lie", "tests": ["test_human_motion_compose_touch_laid"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchStance.RAISE", "tests": ["test_human_motion_hand_reach_up"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchStance.GIRDLE", "tests": ["test_human_motion_hand_reach_up"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchStance.solve", "tests": ["test_human_motion_hand_reach_up"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchEffector.direction", "tests": ["test_human_motion_emblem_signatures", "test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average", "test_human_motion_prop_held_use_m_average", "test_human_motion_hand_effectors"] },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanTrunk.CHEST",

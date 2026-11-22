@@ -257,7 +257,7 @@ function fixTake(
   const performance: HumanPerformance = new HumanPerformance({
     seed: "stage-bayonet-fix",
     props,
-    laws: [putDownAperture, HumanCarrierCustody],
+    laws: [putDownAperture, AutoMovieMotionHumanDress.HumanCarrierCustody],
     performers: [
       {
         subject: "drill",

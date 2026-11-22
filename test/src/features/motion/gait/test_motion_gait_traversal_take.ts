@@ -74,7 +74,7 @@ const SKIN: number = 0.01;
  * @evidence contracts/development/common.md#meaningful-documentation States the composed take, both bodies and the six expectations.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed colliders against the props' native shapes and the wall's opening, the published support windows, the continuity audit of displayed joints and two independent films.
  * @evidence contracts/development/testing.md#independent-expectations The clearance bound is the motion audits' built skin give and the doorway box comes from the authored wall; continuity uses the audit's 5 mm resolution; repeatability uses the 1e-9 determinism bound.
- * @evidence contracts/development/testing.md#distinguishing-cases Two statures through grounded, supported and lowered crossings in one film; each path's refusal and single-crossing cases stay with test_motion_crossing_named_crossing and test_human_motion_reduced_opening.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two statures through grounded, supported and lowered crossings in one film; each path's refusal and single-crossing cases stay with test_motion_crossing_named_crossing and test_motion_mechanism_reduced_opening.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory HumanPerformance through the public HumanChain with installed laws.
  */
 export function test_motion_gait_traversal_take(): void {

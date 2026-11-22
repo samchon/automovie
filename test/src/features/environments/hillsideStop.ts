@@ -230,7 +230,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       composition: HumanChain.subject(opener.node).registered("openDoor", {
         door: doorId,
         handle: "pull",
-        seconds: swing.to + 0.2,
+        duration: swing.to + 0.2,
       }).node,
     }),
     opener,

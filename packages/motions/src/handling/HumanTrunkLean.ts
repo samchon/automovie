@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -47,12 +48,13 @@ export namespace HumanTrunkLean {
    * @param body The body.
    * @param posture The posture; its legs keep their goals.
    * @param degrees The forward pitch about the hip axis, degrees.
+   * @param riding The arms whose goals ride the trunk: arms that hang or hold from the shoulder rather than reach a world target; none when absent, so a goal the hinge is leaning toward stays where it is.
    * @returns The hinged posture.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the pivot, the unit and what is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation `AutoMovieMotionHumanLean.about` turns the whole body about a world point along its left axis; the point is the midpoint of the two hip joints, which lie on that axis, so both joints stay put and the world leg goals keep the knees and feet where they are.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis read, one turn.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+   * @evidence contracts/development/common.md#meaningful-documentation States the pivot, the unit, what stays and which arms ride the trunk.
+   * @evidence contracts/development/implementation.md#principled-implementation `AutoMovieMotionHumanLean.about` turns the whole body about a world point along its left axis; the point is the midpoint of the two hip joints, which lie on that axis, so both joints stay put and the world leg goals keep the knees and feet where they are. A riding arm hangs from its shoulder, which rides the trunk, so its goal (its point, its bend point and its hand's rotation) is turned by the same rotation about the same axis, and a hanging hand stays clear of the thighs; a world-target goal stays put.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis read, one turn of the body and one rigid turn of the riding arms' goals.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Which arms ride is the caller's, who knows which goals are world targets; none ride by default.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanLean.about`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -61,11 +63,43 @@ export namespace HumanTrunkLean {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     degrees: number,
+    riding: readonly AutoMovieHumanSide[] = [],
   ): IAutoMovieMotionHumanPosture {
-    return AutoMovieMotionHumanLean.about(posture, axis(body, posture).point, {
-      pitch: degrees,
-      roll: 0,
-    });
+    const hip: IAxis = axis(body, posture);
+    const hinged: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.about(
+      posture,
+      hip.point,
+      { pitch: degrees, roll: 0 },
+    );
+
+    // A riding arm hangs from a shoulder the hinge carries: its goal turns
+    // with the trunk about the same axis by the same angle.
+    if (riding.length === 0) return hinged;
+    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      hip.axis,
+      degrees,
+    );
+    const carried: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+      p: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
+      Vector3.add(
+        hip.point,
+        Quaternion.rotateVector(turn, Vector3.subtract(p, hip.point)),
+      );
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...hinged.limbs };
+    for (const side of riding) {
+      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Arm`];
+      if (goal === undefined) continue;
+      limbs[`${side}Arm`] = {
+        ...goal,
+        point: carried(goal.point),
+        bend: carried(goal.bend),
+        ...(goal.rotation === undefined
+          ? {}
+          : { rotation: Quaternion.multiply(turn, goal.rotation) }),
+      };
+    }
+    return { ...hinged, limbs };
   }
 
   /**

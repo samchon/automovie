@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPartner,
   HumanPerformance,
@@ -15,6 +14,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { AutoMovieMotionHumanTouchEffector } = AutoMovieMotionHumanTouch;
 
 /**
  * A walking partner dance, lead and follow (`HumanPartner`'s dance rows):

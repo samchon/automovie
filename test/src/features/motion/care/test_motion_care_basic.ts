@@ -14,16 +14,18 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanCare,
-  AutoMovieMotionHumanTouchEffector,
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  touchEffectors,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { AutoMovieMotionHumanTouchEffector, touchEffectors } =
+  AutoMovieMotionHumanTouch;
 
 /** The touch contract's contact bound, metres. */
 const TOUCH: number = 0.01;
@@ -99,7 +101,7 @@ export function test_motion_care_basic(): void {
     const press: IAutoMovieMotionHumanSegment = named(cpr, "touch");
     const from: number = event(press, "strokeStart");
     const to: number = event(press, "strokeEnd");
-    const rate: number = (AutoMovieMotionHumanCare.COMPRESSIONS / (to - from)) * 60;
+    const rate: number = (AutoMovieMotionHumanCare.COMPRESSION_CYCLE / (to - from)) * 60;
     TestValidator.predicate(
       `${label}: 30 compressions at ${rate.toFixed(1)} a minute`,
       rate >= RATE[0] && rate <= RATE[1],

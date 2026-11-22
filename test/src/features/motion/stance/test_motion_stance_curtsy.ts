@@ -62,7 +62,7 @@ export function test_motion_stance_curtsy(): void {
             proficiency: { level: "trained" },
           },
         ],
-        laws: [curtsy],
+        laws: [AutoMovieMotionHumanStance.curtsy],
         composition: (cut === undefined
           ? chain
           : chain.until({ event: cut }).stand()

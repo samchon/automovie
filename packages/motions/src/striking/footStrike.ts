@@ -22,6 +22,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { CloseStrikeLegs } from "./CloseStrikeLegs";
 import { FootStrikeForms } from "./FootStrikeForms";
 import { FootStrikeLeg } from "./FootStrikeLeg";
@@ -337,9 +338,19 @@ export namespace footStrike {
       }
 
       // The chamber: the knee folded before the hip, above it for an axe, on
-      // the far side of the travel for a sweep across the target.
+      // the far side of the travel for a sweep across the target. The front
+      // chamber's ankle lies `fold` from the hip; a sweep's is folded as far
+      // toward its far side, so its knee is bent as much and the extension is
+      // the knee's opening, not a straight leg swung from out of reach.
       const across: boolean =
         p.technique === "hook" || p.technique === "crescent";
+      const fold: number =
+        Vector3.length(
+          Vector3.add(
+            Vector3.scale(FootStrikeForms.DOWN, 0.45),
+            Vector3.scale(line, 0.25),
+          ),
+        ) * reach;
       const folded: IAutoMovieVector3 =
         p.technique === "axe"
           ? Vector3.add(
@@ -350,7 +361,18 @@ export namespace footStrike {
               ),
             )
           : across
-            ? Vector3.subtract(ankle, Vector3.scale(travel, 0.5 * reach))
+            ? Vector3.add(
+                hip,
+                Vector3.scale(
+                  Vector3.normalize(
+                    Vector3.subtract(
+                      Vector3.subtract(ankle, Vector3.scale(travel, 0.5 * reach)),
+                      hip,
+                    ),
+                  ),
+                  fold,
+                ),
+              )
             : Vector3.add(
                 hip,
                 Vector3.add(
@@ -365,9 +387,18 @@ export namespace footStrike {
           1 / minimumJerk.share(MEET),
         ),
       );
-      const knee: IAutoMovieVector3 = Vector3.add(
-        Vector3.lerp(hip, ankle, 0.5),
-        Vector3.scale(FootStrikeForms.UP, 0.25 * m.thigh),
+      // The knee bends toward the line between the hip and the ankle, raised,
+      // its turn about the leg kept inside the hip's twist range
+      // (`FootStrikeTilt.knee`).
+      const knee: IAutoMovieVector3 = FootStrikeTilt.knee(
+        side,
+        resolveHumanPosture.heading(lower.write(entry, shown)),
+        hip,
+        ankle,
+        Vector3.add(
+          Vector3.lerp(hip, ankle, 0.5),
+          Vector3.scale(FootStrikeForms.UP, 0.25 * m.thigh),
+        ),
       );
       const release: number = RELEASE * chamber;
       const leg: IAutoMovieMotionHumanPrimitive = FootStrikeLeg({

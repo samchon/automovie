@@ -6,8 +6,6 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
  * @evidence contracts/development/design.md#principled-representation One method per law of the Climb family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Climb laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanCover<Chain> {
   /**
@@ -55,8 +53,6 @@ export namespace IAutoMovieMotionHumanCover {
  * handle give the leaf to drive and where to strike it. Refusals name the
  * dimension that does not fit.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the four variants, the composition for a stack, the affordances read and the refusals.
- * @evidence contracts/development/design.md#principled-representation A discriminated union on kind; each variant names the prop and the few controls its move takes, in metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One registered vocabulary entry; planCover in motions is the only consumer.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No wall plane, opening or hinge is restated; they come from the props.
  */

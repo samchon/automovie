@@ -98,7 +98,7 @@ export namespace collapse {
     const lie: number = context.params.hold ?? 1;
     for (const [axis, value] of [
       ["sag", sag],
-      ["seconds", lie],
+      ["hold", lie],
     ] as const)
       if (!(value >= 0) || !Number.isFinite(value))
         throw new HumanRefusal({

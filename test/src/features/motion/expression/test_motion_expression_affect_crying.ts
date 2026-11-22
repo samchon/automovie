@@ -19,7 +19,6 @@ import type {
 import {
   AutoMovieMotionHumanExpression,
   AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchEffector,
   HUMAN_EVERYDAY_LAWS,
   HumanChain,
   HumanHand,
@@ -35,6 +34,7 @@ import { throwsError } from "../../internal/throwsError";
 const { hug } = AutoMovieMotionHumanTouch;
 
 const { HumanAffect } = AutoMovieMotionHumanExpression;
+const { AutoMovieMotionHumanTouchEffector } = AutoMovieMotionHumanTouch;
 
 /** The nominal interval between sob inspirations at intensity 1, seconds, and its documented ±30 % seeded variation. */
 const SOB: readonly [number, number, number] = [0.5, 0.7, 1.3];

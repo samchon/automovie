@@ -33,7 +33,7 @@ const PALM: number = 0.03;
 
 /**
  * Seated crafts (#3996): knitting and throwing pottery; the standing ones
- * are `test_human_motion_crafts`'s.
+ * are `test_motion_mechanism_crafts`'s.
  *
  * Scenarios, on m-average and f-small:
  * 1. Knitting: seated, the right needle's tip enters the left needle's

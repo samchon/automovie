@@ -181,12 +181,12 @@ export namespace bend {
           } catch (error) {
             if (
               !(error instanceof HumanRefusal) ||
-              (error.axis !== "toward" && error.axis !== "region")
+              (error.axis !== "target" && error.axis !== "region")
             )
               throw error;
             if (
               failure === undefined ||
-              (error.axis === "region" && failure.axis === "toward")
+              (error.axis === "region" && failure.axis === "target")
             )
               failure = error;
           }

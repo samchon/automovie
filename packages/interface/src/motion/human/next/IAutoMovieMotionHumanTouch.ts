@@ -31,6 +31,8 @@ import type { IAutoMovieMotionHumanTouchSite } from "../touch/IAutoMovieMotionHu
 /**
  * Touching a partner: a touch, a high five, a kiss and a leg touch.
  *
+ * The family carries its fixed-parameter touches as presets, data on `AutoMovieMotionHumanTouch`: the touch kinds `TAP`, `PAT`, `STROKE`, `RUB`, `PRESS`, `SQUEEZE`, `HOLD` and `SCRATCH`, read by the rows of `HumanTouchRows`; the emblems `EMBLEM_SALUTE`, `EMBLEM_HAND_ON_HEART`, `EMBLEM_BLOWN_KISS_SEND`, `EMBLEM_COVER_MOUTH` and `EMBLEM_COVER_EARS`, read by the rows of `HumanEmblem`; the social touches `SOCIAL_SHOULDER_PAT`, `SOCIAL_COMFORT` and `SOCIAL_FIRM_PRESS`, read by the rows of `HumanSocial`; and `PARTNER_DANCE_HOLD`, read by the row of `HumanPartner`. A preset adds no method and is spread into the parameters of `touch`; each row and its preset share one value.
+ *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
  * @evidence contracts/development/design.md#principled-representation One method per law of the Touch family, each taking the law's own parameter type.

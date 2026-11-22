@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface";
-import { HumanSequentialConvex as SCO } from "@automovie/motions";
+import { HumanSequentialConvex as SCO } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

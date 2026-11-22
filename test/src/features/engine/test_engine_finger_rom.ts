@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { HumanHandShape } from "@automovie/motions";
+import { HumanHandShape } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

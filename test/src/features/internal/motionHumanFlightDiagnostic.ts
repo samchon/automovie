@@ -17,10 +17,8 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions";
+import { poseBones } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 
 import { motionHumanFrame } from "./motionHumanFrame";
 import { qunit } from "./qunit";

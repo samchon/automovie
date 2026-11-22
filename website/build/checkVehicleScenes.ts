@@ -17,7 +17,11 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanColliders, HumanFoot, seated } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanSeat,
+  HumanColliders,
+  HumanFoot,
+} from "@automovie/motions";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
@@ -147,7 +151,7 @@ function checkRide(
       Quaternion.inverse(support.pose.rotation),
       Vector3.subtract(seatPoint, support.pose.translation),
     );
-    const lift: number = seated.point(actor.body, {
+    const lift: number = AutoMovieMotionHumanSeat.seated.point(actor.body, {
       at: { x: 0, y: 0, z: 0 },
       yaw: 0,
       depth: support.site.depth,

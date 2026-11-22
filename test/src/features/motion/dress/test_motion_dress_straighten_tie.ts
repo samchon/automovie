@@ -8,13 +8,14 @@ import type {
 import {
   AutoMovieMotionHumanDress,
   AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { AutoMovieMotionHumanTouchEffector } = AutoMovieMotionHumanTouch;
 
 /**
  * Stage a short smoothing movement along the front blade of a tie.

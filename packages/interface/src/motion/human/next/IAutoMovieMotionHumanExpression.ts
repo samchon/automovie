@@ -7,7 +7,6 @@ import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLay
  *
  * Both methods are layer builders, not chain actions: each returns an `IAutoMovieMotionHumanLayer` that a performance lays over the actions it spans, so the family has no `Chain` parameter and the runtime namespace holds plain functions. The layer writes joint angles, so every planted or gripping limb goal stays where it is.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model: additive layers of the body's own signals, and what each method returns.
  * @evidence contracts/development/design.md#principled-representation One method per layer builder of the Expression family, each taking the builder's own parameter type and returning the layer.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The affect and breath layers and nothing the other families own.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing display or option type of its builder; nothing is redefined.
@@ -55,9 +54,6 @@ export interface IAutoMovieMotionHumanExpression {
  * The parameter types of the Expression methods.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names each method's parameters with their units.
- * @evidence contracts/development/design.md#principled-representation Each type holds the arguments of one method.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The parameter types of the Expression methods only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The display and option types stay with Affect and Breath, which own them.
  */
 export namespace IAutoMovieMotionHumanExpression {
   /**

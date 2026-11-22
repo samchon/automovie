@@ -493,7 +493,7 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("armCircles", { count: 1 }),
         act("stand", { hold: 1 }),
         act("gestureClap", {}, { anchor: "hj-clap" }),
-        act("run", { pace: "run", to: to(-1.5, 0) }),
+        act("strides", { to: to(-1.5, 0) }),
         act(
           "fosburyFlop",
           {

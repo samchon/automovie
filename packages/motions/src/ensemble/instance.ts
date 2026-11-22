@@ -84,7 +84,7 @@ export namespace instance {
     if (!(p.duration > 0) || !(Number.isInteger(shift) && shift >= 0))
       throw new HumanRefusal({
         kind: "parameter",
-        axis: p.duration > 0 ? "shift" : "seconds",
+        axis: p.duration > 0 ? "shift" : "duration",
         value: p.duration > 0 ? shift : p.duration,
         reason:
           "an instance lasts a positive time and lags by a whole number of frames",

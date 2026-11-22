@@ -247,13 +247,34 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
       while (up !== null && !collided.has(up)) up = parent.get(up) ?? null;
       return up;
     };
+    // A digit hung directly on the hand (the thumb's metacarpal at the
+    // carpometacarpal joint, the fingers' proximal phalanges) rides the
+    // carpus the wrist joins to the forearm: a flat hand on a flexed wrist
+    // brings the thumb's metacarpal base into the forearm's distal end, so
+    // such a digit shares the wrist with the forearm as the hand does.
+    const wrist: (digit: IPart, forearm: IPart) => boolean = (
+      digit: IPart,
+      forearm: IPart,
+    ): boolean => {
+      const hand: IPart | undefined = parts.find(
+        (p: IPart): boolean => p.bone === group(digit.bone),
+      );
+      return (
+        hand !== undefined &&
+        hand.bone !== digit.bone &&
+        above(digit.bone) === hand.bone &&
+        above(hand.bone) === forearm.bone
+      );
+    };
     const related: boolean[][] = parts.map((a: IPart): boolean[] =>
       parts.map(
         (b: IPart): boolean =>
           a.bone === b.bone ||
           above(a.bone) === b.bone ||
           above(b.bone) === a.bone ||
-          group(a.bone) === group(b.bone),
+          group(a.bone) === group(b.bone) ||
+          wrist(a, b) ||
+          wrist(b, a),
       ),
     );
     const stance: IAutoMovieMotionHumanColliders.IPlaced[] =

@@ -187,28 +187,31 @@ function bench(
         proficiency: { level: "trained" },
       },
     ],
-    // The partner is placed first, so the resting head reads where the partner
-    // sits. Once seated, the partner's right arm wraps around behind the
-    // resting one, the palm on her upper back, and holds there through the
-    // rest, so his upper arm lies behind her back, not beside her shoulder
-    // where her lean would press into it. Her far shoulder lies 83 mm beyond
-    // his arm at his seated lean's limit.
-    composition: HumanChain.subject("b")
-      .sit({ seat: seat(apart(a, b) / 2, b, 0), hold: 1.5 })
-      .touch({
-        target: { kind: "person", subject: "a", region: "upperBack" },
-        hand: "right",
-        kind: "hold",
-        hold: REST + 2,
+    // The partner's right arm wraps around behind the resting one, the palm
+    // on her upper back, and holds there through the rest, so his upper arm
+    // lies behind her back, not beside her shoulder where her lean would
+    // press into it. Her far shoulder lies 83 mm beyond his arm at his seated
+    // lean's limit. The wrap starts once she is seated (her sit's `seated`),
+    // so it reaches for her back where it rests, not where it passes while
+    // she sits down; and her chain is composed first, so her rest reads the
+    // partner placed up to its own start, his wrap reading her seated back.
+    composition: HumanChain.subject("a")
+      .sit({ seat: seat(-apart(a, b) / 2, a, DEEPER), hold: 1.5 }, "aSat")
+      .registered(headRest.name, {
+        partner: "b",
+        region: "shoulderRight",
+        hold: REST,
       })
       .with(
-        HumanChain.subject("a")
-          .sit({ seat: seat(-apart(a, b) / 2, a, DEEPER), hold: 1.5 })
-          .registered(headRest.name, {
-            partner: "b",
-            region: "shoulderRight",
-            hold: REST,
-          }),
+        HumanChain.subject("b")
+          .sit({ seat: seat(apart(a, b) / 2, b, 0), hold: 1.5 })
+          .touch({
+            target: { kind: "person", subject: "a", region: "upperBack" },
+            hand: "right",
+            kind: "hold",
+            hold: REST + 2,
+          })
+          .sync({ of: "aSat", event: "seated" }),
       ).node,
   });
 }

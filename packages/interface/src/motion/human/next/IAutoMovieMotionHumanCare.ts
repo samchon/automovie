@@ -6,7 +6,7 @@ import type { IAutoMovieMotionHumanHoldInfant } from "../tasks/IAutoMovieMotionH
 /**
  * Caring for another person: first aid on a lying or seated partner (#3983) and holding an infant. The first-aid methods append shipped kneel and touch actions to the carer's chain, so they are fitted, refused and checked as those actions are.
  *
- * Compressions follow the American Heart Association 2020 adult guideline: 100 to 120 a minute, 30 compressions to 2 breaths, both palms on the partner's lower sternum, one hand over the other, the arms straight. A pulse is felt for 10 s, the check of AHA 2020 basic life support. The owning constants are `AutoMovieMotionHumanCare.COMPRESSIONS` and `PULSE_HOLD`.
+ * Compressions follow the American Heart Association 2020 adult guideline: 100 to 120 a minute, 30 compressions to 2 breaths, both palms on the partner's lower sternum, one hand over the other, the arms straight. A pulse is felt for 10 s, the check of AHA 2020 basic life support. The owning constants are `AutoMovieMotionHumanCare.COMPRESSION_CYCLE` and `PULSE_HOLD`.
  *
  * The first-aid methods are helpers over a chain: each takes the chain first and returns it with the actions appended, as the runtime namespace takes it. `holdInfant` is an action law planned by the chain, so it takes the law's parameters and an anchor.
  *

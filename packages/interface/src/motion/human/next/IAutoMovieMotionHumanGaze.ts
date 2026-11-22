@@ -9,8 +9,6 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Gaze family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Gaze laws and nothing the other families own.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanGaze<Chain> {
@@ -85,10 +83,8 @@ export namespace IAutoMovieMotionHumanGaze {
  * while the head catches up, as the vestibulo-ocular reflex does, and a moving
  * target is pursued.
  *
- * @evidence contracts/development/common.md#meaningful-documentation from: Seconds since the action's start from which the head is written. to: Seconds since the action's start until which the head is written. to: Film second the gaze returns to the body's own direction; never when absent.
  * @evidence contracts/development/design.md#principled-representation from: Seconds since the action's start from which the head is written. to: Seconds since the action's start until which the head is written. to: Film second the gaze returns to the body's own direction; never when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/glance.ts (glance, recruit); compose/lookPrimitive.ts (lookPrimitive, props); compose/glance.ts (glance, target); everyday/HumanConversation.ts (HumanConversation.gaze, return); everyday/HumanConversation.ts (HumanConversation.share, requests); everyday/HumanConversation.ts (HumanConversation.share, r).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieVector3, IAutoMovieMotionHumanBody, IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGaze {
   /**

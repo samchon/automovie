@@ -63,7 +63,7 @@ export function locationTrackedRidePassenger(
     ],
     composition: HumanChain.subject(actor.node)
       .sit({ seat })
-      .registered("ride", { on: carrier, seconds: 12 }).node,
+      .registered("ride", { on: carrier, duration: 12 }).node,
   });
   return { film, actor, body };
 }

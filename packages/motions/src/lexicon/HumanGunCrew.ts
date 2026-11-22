@@ -121,7 +121,7 @@ export namespace HumanGunCrew {
         .registered(
           HumanGunDrill.spongeBore.name,
           {
-            mechanism: {
+            kind: {
               kind: "insert",
               prop: scene.rammer,
               tip: "sponge",
@@ -146,7 +146,7 @@ export namespace HumanGunCrew {
       HumanChain.subject(roles.n2)
         .registered(
           "receive",
-          { prop: scene.charge, from: roles.n5, handle: "body" },
+          { prop: scene.charge, partner: roles.n5, handle: "body" },
           "receiveCharge",
         )
         .sync({ of: "passCharge", event: "start" })
@@ -159,7 +159,7 @@ export namespace HumanGunCrew {
         .registered(
           HumanGunDrill.ramCharge.name,
           {
-            mechanism: {
+            kind: {
               kind: "insert",
               prop: scene.rammer,
               tip: "rammer",
@@ -175,7 +175,7 @@ export namespace HumanGunCrew {
         .registered(
           HumanGunDrill.prickVent.name,
           {
-            mechanism: {
+            kind: {
               kind: "insert",
               prop: scene.wire,
               into: vent,
@@ -190,7 +190,7 @@ export namespace HumanGunCrew {
         .registered(
           HumanGunDrill.layGun.name,
           {
-            mechanism: {
+            kind: {
               kind: "knob",
               at: { kind: "prop", subject: scene.gun, point: "screw" },
               turn: scene.lay,
@@ -216,7 +216,7 @@ export namespace HumanGunCrew {
       ),
       HumanChain.subject(roles.n4)
         .registered(HumanGunDrill.pullLanyard.name, {
-          mechanism: {
+          kind: {
             kind: "slider",
             at: { kind: "prop", subject: scene.lanyard, point: "handle" },
             travel: scene.pull,

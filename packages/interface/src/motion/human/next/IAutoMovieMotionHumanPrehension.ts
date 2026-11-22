@@ -239,11 +239,6 @@ export namespace IAutoMovieMotionHumanPrehension {
  * so the wrist stops exactly on the grasp with zero velocity and acceleration.
  * The hand turns to its grasp rotation on a minimum-jerk slerp finished by
  * the second unit's start, so it is oriented before the final approach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation duration: Seconds the transport lasts. wrist: The wrist at a second of the transport (clamped to its span), metres.
- * @evidence contracts/development/design.md#principled-representation duration: Seconds the transport lasts. wrist: The wrist at a second of the transport (clamped to its span), metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanPrehension.ts (HumanPrehension.transport, return); handling/HumanPrehension.ts (HumanPrehension.transport, rotation); handling/handOver.ts (handOver.plan); handling/handshake.ts (handshake.plan); handling/pickUp.ts (pickUp.plan); handling/putDown.ts (putDown.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanPrehension {
   /**

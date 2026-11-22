@@ -8,7 +8,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanRefusal,
 } from "@automovie/motions";
@@ -20,6 +19,8 @@ import { motionHumanLaw } from "../../internal/motionHumanLaw";
 import type { motionHumanLawSweep } from "../../internal/motionHumanLawSweep";
 import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
+
+const { AutoMovieMotionHumanTouchEffector } = AutoMovieMotionHumanTouch;
 
 /**
  * A planted touch uses a step only when a single bounded step makes the

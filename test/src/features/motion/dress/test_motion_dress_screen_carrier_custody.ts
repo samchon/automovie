@@ -150,7 +150,7 @@ export function test_motion_dress_screen_carrier_custody(): void {
       new HumanPerformance({
         seed: "screen-carrier-custody",
         props: objects,
-        laws: [putDownAperture, HumanCarrierCustody],
+        laws: [putDownAperture, AutoMovieMotionHumanDress.HumanCarrierCustody],
         performers: [
           {
             subject: "curator",

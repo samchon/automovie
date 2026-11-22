@@ -377,11 +377,13 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
             grip.axis === undefined
               ? undefined
               : Vector3.cross(grip.axis, grip.normal);
+          // The fingers keep the side the hold was taken on (`sideRideGrips`, chosen once where it begins): a side re-taken against the floating torso's heading at every second would turn the hand over on the part.
           const turn: NonNullable<HumanRideHands.IMaterialGrip["across"]> =
-            across !== undefined &&
+            grip.across ??
+            (across !== undefined &&
             Vector3.dot(across, HumanFrame.forward(torso.yaw)) < 0
               ? -1
-              : 1;
+              : 1);
           const seated: HumanRideHands.IMaterialGrip =
             across === undefined || Vector3.length(across) < 1e-6
               ? { ...grip, palmDepth: depth }

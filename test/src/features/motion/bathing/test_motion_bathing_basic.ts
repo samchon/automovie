@@ -19,18 +19,20 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBathing,
-  AutoMovieMotionHumanTouchEffector,
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  touchEffectors,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { AutoMovieMotionHumanTouchEffector, touchEffectors } =
+  AutoMovieMotionHumanTouch;
 
 /** The touch contract's contact bound, metres. */
 const TOUCH: number = 0.01;

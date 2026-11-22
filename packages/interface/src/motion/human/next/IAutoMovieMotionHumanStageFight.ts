@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanChainCore } from "../chain/IAutoMovieMotionHumanChainCore";
-import type { IAutoMovieChain } from "../composition/IAutoMovieChain";
+import type { IAutoMovieChain } from "../../composition/IAutoMovieChain";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";

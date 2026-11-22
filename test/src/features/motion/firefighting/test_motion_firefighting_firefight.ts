@@ -3,7 +3,7 @@ import {
   createHoseLine,
   createPalette,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
@@ -38,6 +38,8 @@ const ON: number = 0.05;
 const VICTIM_YAW: number = 90;
 /** Seconds the victim holds lying: past the helper's last beat, so the victim lies whenever the helper reads them. */
 const LIE: number = 20;
+/** The contact skin, metres: the 10 mm the take verdicts read a body part as touching another within. */
+const SKIN: number = 0.01;
 /** The fire's base on the floor ahead, world metres. */
 const FIRE: IAutoMovieVector3 = { x: 0, y: 0, z: 2.2 };
 
@@ -356,12 +358,12 @@ function flames(
 ): void {
   const cloth = createPalette({ id: "sack", kind: "cloth" });
   // The helper kneels on both knees where it stands, the first knee over the
-  // middle of its own foot; the victim lies across before it, placed so the
-  // sternum lies abreast of that knee, the flank a knee's breadth (two shank
-  // radii) off it and the sternum half a chest's breadth beyond. Where the
-  // sternum lies is read off the victim lying alone, placed at the origin
-  // with the heading it has in the take, so the performance's own placement
-  // turns it; the victim is then moved by that offset.
+  // middle of its own foot; the victim lies across before it, its sternum
+  // abreast of that knee and the near face of its lying body (every collider
+  // of the body as it lies, read off the victim lying alone at the origin
+  // with its take heading) a shin's radius plus the verdicts' 10 mm contact
+  // skin beyond the knee's centre, so no kneeling shin enters it. The victim
+  // is then moved by that offset.
   const knee: IAutoMovieVector3 = {
     x: -body.measure.hipHalfWidth,
     y: 0,
@@ -396,14 +398,27 @@ function flames(
     torso.worldPosition,
     Quaternion.rotateVector(torso.worldRotation, region.point),
   );
+  const lying: ReadonlyMap<string, IAutoMovieResolvedBone> = alone.bones(
+    "victim",
+    down.end,
+  );
+  let near: number = Infinity;
+  for (const segment of body.profile.segments) {
+    const bone: IAutoMovieResolvedBone | undefined = lying.get(segment.bone);
+    if (bone === undefined) continue;
+    for (const shape of segment.shapes)
+      near = Math.min(
+        near,
+        physicalShapeBounds(
+          { position: bone.worldPosition, rotation: bone.worldRotation },
+          shape,
+        ).min.z,
+      );
+  }
   const victim: IAutoMovieVector3 = {
     x: knee.x - own.x,
     y: 0,
-    z:
-      knee.z +
-      2 * body.measure.shankRadius +
-      body.measure.chestBreadth / 2 -
-      own.z,
+    z: knee.z + body.measure.shankRadius + SKIN - near,
   };
   const props: IAutoMovieMotionHumanProp[] = [
     everydayTake.prop("sack", cloth, { x: -0.3, y: 0.9, z: 0.25 }),

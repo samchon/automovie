@@ -267,9 +267,9 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         act("stepTouch", { count: 7, side: "left" }),
       ]),
       person("xen", "m2", 2.4, -3, 0, [
-        act("run", { pace: "run", to: to(2.4, 4) }),
+        act("strides", { to: to(2.4, 4) }),
         act("buttKicks", { count: 4 }),
-        act("run", { pace: "run", to: to(2.4, -3) }),
+        act("strides", { to: to(2.4, -3) }),
         act("aSkip", { count: 6, tempo: [0.35, 0, 0.35] }),
       ]),
     ],
