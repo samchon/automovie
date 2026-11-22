@@ -44,6 +44,8 @@ export const putDownAperture: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
   {
     name: "putDownAperture",
     family: putDown.name,
+    // Over a carrier, a seated rider sheathing: the hand's work alone.
+    overlay: true,
     interrupts: putDown.interrupts,
     demands: putDown.demands,
     plan,

@@ -35,6 +35,7 @@ import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { pickUp } from "./pickUp";
+import { HumanCarriedHand } from "./HumanCarriedHand";
 import { putDownTarget } from "./putDownTarget";
 import { putDownTravel } from "./putDownTravel";
 
@@ -80,6 +81,9 @@ import { putDownTravel } from "./putDownTravel";
 export namespace putDown {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "putDown";
+
+  /** May be performed over a carrier, as a seated rider holsters a revolver: it then claims only the working arm and its hand (`HumanCarriedHand`). */
+  export const overlay: boolean = true;
 
   /** Cancel table. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
@@ -517,6 +521,18 @@ export namespace putDown {
         side,
         offset,
         down,
+      );
+    // Over a carrier the carrier keeps the body: the hand's work alone, its
+    // goal riding the bone the target rides (a holster on the hips).
+    if (context.carrier !== undefined)
+      return HumanCarriedHand.over(
+        plan,
+        context,
+        side,
+        context.params.on?.bone ??
+          (onto === undefined
+            ? undefined
+            : HumanCarriedHand.riding(context, onto.prop)),
       );
     return plan;
   }
