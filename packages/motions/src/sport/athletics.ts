@@ -19,6 +19,7 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
@@ -340,12 +341,21 @@ export namespace athletics {
           side,
           from: 0,
           to: clock.duration,
+          // The rear foot recovering off its block bears nothing, so it
+          // keeps within the passive dorsal range.
           placement: (
-            _: IAutoMovieMotionHumanPosture,
+            posture: IAutoMovieMotionHumanPosture,
             seconds: number,
           ): IAutoMovieMotionHumanFoot.IPlacement =>
             recovery !== undefined && seconds > rearOff
-              ? recovery((seconds - rearOff) / (end - rearOff))
+              ? AutoMovieMotionHumanFootRelax.of(
+                  body,
+                  posture,
+                  side,
+                  recovery((seconds - rearOff) / (end - rearOff)),
+                  0,
+                  false,
+                )
               : trajectory(share(seconds)),
           planted: (seconds: number): boolean => {
             if (recovery !== undefined && seconds > rearOff) return false;

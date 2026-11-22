@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanElbowPole } from "../compose/AutoMovieMotionHumanElbowPole";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -48,7 +49,8 @@ interface IFist {
  * support's middle, which leaves each fist off its own grip by however far
  * the arms' spread differs from the grips'. Here each fist is laid on its
  * own grip while the plan declares that hand's grip window, turned as the
- * keyed arm holds it and with the keyed elbow's side, so a hang and a dip
+ * keyed arm holds it and with the keyed elbow's side (its pole out along
+ * the olecranon, `AutoMovieMotionHumanElbowPole`), so a hang and a dip
  * keep their own grips; over `REACH` seconds before the window and after it
  * the fist moves from where the keyed arm holds it to the grip and back. A
  * support of one grip leaves the writer as it is.
@@ -157,13 +159,14 @@ export function hangRings(
       if (w <= 0) continue;
       // The key decides the fist's attitude and the elbow's side; the grip
       // decides where the fist is.
+      const free: IAutoMovieMotionHumanPosture = {
+        ...keyed,
+        limbs: { ...keyed.limbs, [fist.limb]: undefined },
+      };
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(
           context.body,
-          resolveHumanPosture(context.body, {
-            ...keyed,
-            limbs: { ...keyed.limbs, [fist.limb]: undefined },
-          }),
+          resolveHumanPosture(context.body, free),
           undefined,
           new Set<AutoMovieHumanoidBone>([fist.hand, fist.lower]),
         );
@@ -176,7 +179,14 @@ export function hangRings(
           shape: "fist",
           point: fist.grip,
           rotation: from.worldRotation,
-          bend: bones.get(fist.lower)!.worldPosition,
+          bend: AutoMovieMotionHumanElbowPole.of(
+            context.body,
+            free,
+            fist.lower,
+            fist.hand,
+            from.worldPosition,
+            bones.get(fist.lower)!.worldPosition,
+          ),
         },
       );
       limbs = {

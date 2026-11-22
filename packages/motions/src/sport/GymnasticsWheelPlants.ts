@@ -12,6 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanElbowPole } from "../compose/AutoMovieMotionHumanElbowPole";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
@@ -29,7 +30,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * the laid one and back, so a contact taken or left mid-turn does not jump;
  * a hand the carried shape would take below the floor is held on it. A laid
  * arm's elbow keeps the carried one's side, a straight arm's pushed out
- * along its olecranon (`POLE`), so the solve has a side to bend to.
+ * along its olecranon (`AutoMovieMotionHumanElbowPole`), so the solve has a
+ * side to bend to.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States why the limbs are laid, where and how the ends blend.
  * @evidence contracts/development/design.md#principled-representation Limb goals over a rigid wheel posture, one per bearing window.
@@ -232,7 +234,14 @@ export namespace GymnasticsWheelPlants {
         const elbow: IAutoMovieVector3 =
           carriedBones.get(middle)!.worldPosition;
         const bend: IAutoMovieVector3 = l.hand
-          ? pole(body, free, middle, l.bone, carriedEnd.worldPosition, elbow)
+          ? AutoMovieMotionHumanElbowPole.of(
+              body,
+              free,
+              middle,
+              l.bone,
+              carriedEnd.worldPosition,
+              elbow,
+            )
           : elbow;
         const goal: IAutoMovieHumanLimbGoal = { ...l.goal(posture), bend };
         if (w >= 1) {
@@ -266,46 +275,5 @@ export namespace GymnasticsWheelPlants {
       }
       return { ...posture, limbs };
     };
-  }
-
-  /** How far the straight arm's pole stands out along the olecranon, a share of the forearm (provisional). */
-  export const POLE: number = 0.5;
-
-  /** The elbow flexion read for the olecranon's direction, degrees. */
-  const FLEX: number = 10;
-
-  /** A straight arm's bend pole: the elbow pushed out along the olecranon, opposite to where an elbow flexion carries the hand. */
-  function pole(
-    body: IAutoMovieMotionHumanBody,
-    free: IAutoMovieMotionHumanPosture,
-    lower: AutoMovieHumanoidBone,
-    hand: AutoMovieHumanoidBone,
-    at: IAutoMovieVector3,
-    elbow: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    const joint: readonly [number, number, number] = free.joints[lower] ?? [
-      0, 0, 0,
-    ];
-    const flexed: IAutoMovieVector3 = poseBones(
-      body,
-      resolveHumanPosture(body, {
-        ...free,
-        joints: {
-          ...free.joints,
-          [lower]: [joint[0] + FLEX, joint[1], joint[2]],
-        },
-      }),
-      undefined,
-      new Set<AutoMovieHumanoidBone>([hand]),
-    ).get(hand)!.worldPosition;
-    const swing: IAutoMovieVector3 = Vector3.subtract(flexed, at);
-    if (!(Vector3.length(swing) > 1e-9)) return elbow;
-    return Vector3.add(
-      elbow,
-      Vector3.scale(
-        Vector3.normalize(swing),
-        -POLE * Vector3.distance(at, elbow),
-      ),
-    );
   }
 }
