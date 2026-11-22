@@ -21,8 +21,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { catalogueWheelchair } from "../internal/catalogueWheelchair";
 import { collectTakeClean } from "../internal/collectTakeClean";
-import { fittedWheelchair } from "../internal/fittedWheelchair";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -74,7 +74,7 @@ function take(key: BodyKey, failures: string[]): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   // The chair fitted to the rider: the narrowest read seat that holds its
   // hips, so the rims lie within its arms.
-  const chair: ReturnType<typeof createWheelchair> = fittedWheelchair(
+  const chair: ReturnType<typeof createWheelchair> = catalogueWheelchair(
     body,
     "selfPropelled",
     2,
