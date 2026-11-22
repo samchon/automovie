@@ -1,6 +1,5 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanArmAngles,
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -12,6 +11,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPutDown,
@@ -26,6 +26,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -33,11 +34,11 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
+import { HumanCarriedHand } from "./HumanCarriedHand";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { pickUp } from "./pickUp";
-import { HumanCarriedHand } from "./HumanCarriedHand";
 import { putDownTarget } from "./putDownTarget";
 import { putDownTravel } from "./putDownTravel";
 
@@ -123,11 +124,11 @@ export namespace putDown {
    * @throws {HumanRefusal} When no destination is named, the placing wrist lies beyond the arm's reach, or a socket placement's grasp cannot lay its socket on the receiver.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand-to-prop offset is read from the displayed frames at the start and inverted at the resting frame; a free heading is chosen by the grasp search over turns of the prop's own rest rotation, and a socket placement holds the source socket as the arm's contact.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand-to-prop offset is read from the displayed frames at the start and inverted at the resting frame; a free heading is chosen by the grasp search over turns of the prop's own rest rotation, and a socket placement holds the source socket as the arm's contact. A placement that stays put is one admitted arm course (courseArmGoal): joint-space carry and return between arms the body takes, the hold on the placing frame, so no world-attitude path switches the forearm's twist between its range's ends.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The offset, the resting frame, the wrist, the reach check, the timing, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist beyond the arm is refused, never clamped; the tilt the carry gives the prop is discarded for its rest rotation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two demanded hand readings, at most one heading search and one posture solve for the hanging hand at plan time; constant work per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGrasp.reachable`, `putDownTarget`, the held-tool goal, `HumanPrehension` and the pick up's reach.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two demanded hand readings, at most one heading search and one posture solve for the hanging hand at plan time; a placement that stays put adds one arm course solved when composed, then constant work per frame.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGrasp.reachable`, `putDownTarget`, the held-tool goal, `HumanPrehension` and the pick up's reach and the planner's course (courseArmGoal).
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the transports, the shapes, the reference and the wrist.
    */
   export function plan(
@@ -412,20 +413,6 @@ export namespace putDown {
     const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const part: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
-    const free: boolean =
-      displacement === undefined &&
-      mouth === undefined &&
-      route === undefined &&
-      tool === undefined;
-    let ends: IDistal | undefined;
-    const distal = (): IDistal =>
-      (ends ??= {
-        from: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-        to: AutoMovieMotionHumanArm.angles(
-          resolveHumanPosture(body, plan.posture(down)),
-          side,
-        ),
-      });
     const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
@@ -436,20 +423,24 @@ export namespace putDown {
         { name: "release", share: (down + OPEN) / duration },
       ],
       contacts: [
-        {
-          part: "leftFoot",
-          kind: "plant",
-          from: 0,
-          to: 1,
-          support: { kind: "ground" },
-        },
-        {
-          part: "rightFoot",
-          kind: "plant",
-          from: 0,
-          to: 1,
-          support: { kind: "ground" },
-        },
+        // Each foot keeps the contact the entry has it in, on the frame it
+        // bears on: a seated body's hanging foot is planted on no floor.
+        ...context.entry.supports
+          .filter(
+            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+              s.part === "leftFoot" || s.part === "rightFoot",
+          )
+          .map(
+            (
+              s: IAutoMovieMotionHumanEntryState.ISupport,
+            ): IAutoMovieMotionHumanContactWindow => ({
+              part: s.part,
+              kind: "plant",
+              from: 0,
+              to: 1,
+              support: s.support,
+            }),
+          ),
         {
           part,
           kind: "grip",
@@ -501,39 +492,6 @@ export namespace putDown {
           turned = travel.retreat.turn(back - r);
           digits = returnShape(r / back);
         }
-        // A prop laid where it stays is carried with the forearm's twist and
-        // the wrist's two angles going in joint space from the hand's entry
-        // to the placing hand's: a slerped attitude takes the shorter arc in
-        // the world, which can leave the forearm's twist range midway and
-        // turn the forearm half a turn between two seconds, while the
-        // joints' own path stays inside their ranges (Soechting and
-        // Lacquaniti 1981, joint-space transport). The hand reaches the
-        // placing attitude exactly at the placement.
-        if (free && t < down) {
-          const share: number = minimumJerk.share(t / down);
-          const { from, to }: IDistal = distal();
-          return {
-            ...held,
-            joints: {
-              ...held.joints,
-              ...digits,
-              [`${side}LowerArm`]: [
-                to.lower[0],
-                to.lower[1],
-                from.lower[2] + (to.lower[2] - from.lower[2]) * share,
-              ],
-              [`${side}Hand`]: [
-                from.hand[0] + (to.hand[0] - from.hand[0]) * share,
-                from.hand[1] + (to.hand[1] - from.hand[1]) * share,
-                from.hand[2] + (to.hand[2] - from.hand[2]) * share,
-              ],
-            },
-            limbs: {
-              ...held.limbs,
-              [limb]: { point: wrist, bend, reference, planted: true },
-            },
-          };
-        }
         // Ease the receiver's displacement in and out while matching its velocity through opening.
         if (displacement !== undefined) {
           const follow: number =
@@ -582,6 +540,32 @@ export namespace putDown {
         offset,
         down,
       );
+    // A placement that stays where it is laid is planned as one admitted
+    // course of the arm (`courseArmGoal`), as the pick up's reach is: the
+    // carry from the arm the entry shows to the placing arm, the hold on the
+    // placing frame while the fingers open, and the return to the hanging
+    // arm. The carry and the return are the planner's joint-space
+    // transports, so the forearm's twist and the wrist go continuously
+    // between two arms the body can take, never through a world attitude
+    // the forearm's twist range cannot follow (a slerped attitude switched
+    // the twist between its range's ends), and never through a goal with no
+    // attitude, which the limb fit reads as an untwisted forearm. A receiver
+    // that moves and an aperture's insertion keep their tracked goals.
+    if (
+      context.carrier === undefined &&
+      displacement === undefined &&
+      mouth === undefined
+    )
+      return courseArmGoal({
+        body,
+        plan,
+        side,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+        span: { start: 0, ready: down, relax: down + OPEN, end: duration },
+        // Read past its end, the arm keeps the angles its return ended
+        // with, never a fresh fit of the hanging goal on another branch.
+        after: "angles",
+      });
     // Over a carrier the carrier keeps the body: the hand's work alone, its
     // goal riding the bone the target rides (a holster on the hips).
     if (context.carrier !== undefined)
@@ -649,13 +633,4 @@ export namespace putDown {
       },
     ];
   }
-}
-
-/** The carry's distal joints at its two ends: the hand's entry arm and the placing arm. */
-interface IDistal {
-  /** The arm the hand enters with. */
-  from: IAutoMovieMotionHumanArmAngles.IAngles;
-
-  /** The arm at the placement. */
-  to: IAutoMovieMotionHumanArmAngles.IAngles;
 }

@@ -176,8 +176,9 @@ export function courseArmGoal(
               )
             : arm.rest,
         // A return ends on the plan's own arm at the span's end, which the
-        // plan shows from there on, so the seam after the span meets it.
-        ...(span.relax < span.end - 1e-9 && props.after !== "angles"
+        // plan shows from there on, or whose angles the arm keeps after it
+        // (`after: "angles"`), so the seam after the span meets it.
+        ...(span.relax < span.end - 1e-9
           ? {
               back: AutoMovieMotionHumanArm.angles(
                 resolveHumanPosture(props.body, read(span.end)),
