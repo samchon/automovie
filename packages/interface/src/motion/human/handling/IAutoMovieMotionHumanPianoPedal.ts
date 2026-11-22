@@ -15,7 +15,7 @@ export interface IAutoMovieMotionHumanPianoPedal {
   /** Nonempty, ordered strokes with disjoint press windows. */
   presses: readonly IAutoMovieMotionHumanPianoPedal.IPress[];
 
-  /** Action duration in seconds, greater than the last stroke's to time. */
+  /** Action duration in seconds, greater than the last stroke's to time. Required: the score sets it, so no natural value is defined. */
   duration: number;
 }
 

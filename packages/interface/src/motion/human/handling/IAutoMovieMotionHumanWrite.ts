@@ -36,7 +36,7 @@ export interface IAutoMovieMotionHumanWrite {
     ...(readonly [number, number])[],
   ];
 
-  /** Seconds of the stroke before any performance tempo scaling. Approach and return have their own durations. */
+  /** Seconds of the stroke before any performance tempo scaling. Approach and return have their own durations. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
   seconds: number;
 
   /** Holding hand. If omitted, use the hand holding the tool at entry. */

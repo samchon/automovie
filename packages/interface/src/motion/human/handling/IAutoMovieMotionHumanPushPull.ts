@@ -22,8 +22,10 @@ import type { IAutoMovieMotionHumanPushPullLean } from "./IAutoMovieMotionHumanP
  *
  * The lean is the measured one for the declared load at the handles' height
  * (`pushPullLean`, Lett and McGill 2006), so a heavier load leans the trunk
- * further. The walk is the push's slow one, its steps shorter than a free
- * walk's. A load that does not move (`moves: false`) is pressed for
+ * further. The walk is the walk's `slow` pace, about 1.05 m/s at the
+ * reference hip ({@link IAutoMovieMotionHumanWalkParams.pace}), whatever the
+ * load, its steps shorter than a free walk's; the load's friction does not
+ * slow it (not yet modelled). A load that does not move (`moves: false`) is pressed for
  * `seconds` standing in place, the hands bearing on its handles without
  * gripping, so it stays where it stands.
  *
@@ -64,13 +66,13 @@ export namespace IAutoMovieMotionHumanPushPull {
     /** The handle the right hand takes, an affordance id; `right` when absent. */
     right?: string;
 
-    /** The load's declared level (`IAutoMovieMotionHumanPushPullLean.Load`); `moderate` when absent. */
+    /** The load's declared level (`IAutoMovieMotionHumanPushPullLean.Load`); `moderate` when absent. It sets the trunk's lean only, not the speed. For a push (the pull's are in `pushPullLean.ANGLES`, a drag's read as a push's): `light` 45.5 N leans about 7 degrees at the handles' height, `moderate` 222.5 N about 14 to 17 degrees and `heavy` 400.5 N about 19 to 25 degrees (Lett and McGill 2006, `pushPullLean.ANGLES`). */
     load?: IAutoMovieMotionHumanPushPullLean.Load;
 
     /** Whether the load moves; `false` presses it standing in place for `seconds`; `true` when absent. */
     moves?: boolean;
 
-    /** Seconds the hands press a load that does not move; required then, and read only then. */
+    /** Seconds the hands press a load that does not move; required then, and read only then. The author sets it: no natural duration is defined (provisional: no study of a held push). */
     seconds?: number;
   }
 

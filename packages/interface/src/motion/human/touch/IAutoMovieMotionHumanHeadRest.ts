@@ -21,7 +21,7 @@ export interface IAutoMovieMotionHumanHeadRest {
   /** The resting head's own region laid on it; the temple on the side the partner's region lies when absent. */
   own?: AutoMovieHumanoidRegion;
 
-  /** How long the head rests, seconds. */
+  /** How long the head rests, seconds. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
   seconds: number;
 
   /** How the head goes down and comes up. */

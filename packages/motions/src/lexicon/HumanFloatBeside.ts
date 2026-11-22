@@ -80,6 +80,8 @@ const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * @evidence contracts/development/design.md#principled-representation One base action owning the whole body over the horse's moving frame; the near hand's grip is declared over the whole action.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses the aquatic posture keys, the water's trim, the rider's grip resolver and arm hold; no horse course is planned here.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The float follows the horse's actual held part each second; a blocked side, an unreachable part and a missed grip are refused.
+ *
+ * The author gives the total `seconds` and the `transition` into the float; a flutter kick cycle is provisional (missing a measured swimmer's kick rate).
  */
 export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFloatBeside> =
   {

@@ -81,59 +81,59 @@ export namespace HumanLabour {
     tool: "screwdriver",
   });
 
-  /** Scrub a surface: six passes of the cloth. */
+  /** Scrub a surface: six passes of the cloth. Circles at the tool-stroke hand speed (`useTool.STROKE_SPEED`); cleaning a table, a window, a floor. */
   export const scrub: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["scrub"]
   > = HumanActionRow.of("scrub", wipe, { cycles: 6 });
 
-  /** Toss something lightly to a place or a person. */
+  /** Toss something lightly to a place or a person. The release speed follows from the distance by the range equation (`throwObject`, Dupuy et al. 2000); handing something across a short gap, a light throw. */
   export const toss: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["toss"]
   > = HumanActionRow.of("toss", throwObject, { style: "toss" });
 
-  /** Hurl something overarm. */
+  /** Hurl something overarm. The release speed follows from the distance by the range equation (`throwObject`); a long or angry throw. */
   export const hurl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["hurl"]
   > = HumanActionRow.of("hurl", throwObject, {
     style: "overarm",
   });
 
-  /** Chop or split overhead with an axe onto a block or a log. */
+  /** Chop or split overhead with an axe onto a block or a log. 3 strokes when `cycles` is absent; the time of a stroke is not stated in the law (`longTool`, provisional, missing a timing study). */
   export const chop: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["chop"]
   > = HumanActionRow.of("chop", longTool, { stroke: "chop" });
 
-  /** Chop level into a standing trunk. */
+  /** Chop level into a standing trunk. 3 strokes when `cycles` is absent; the time of a stroke is not stated in the law (`longTool`, provisional, missing a timing study). */
   export const sideChop: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["sideChop"]
   > = HumanActionRow.of("sideChop", longTool, { stroke: "side" });
 
-  /** Swing a sledgehammer or a pickaxe down at the ground. */
+  /** Swing a sledgehammer or a pickaxe down at the ground. 3 strokes when `cycles` is absent; the time of a stroke is not stated in the law (`longTool`, provisional, missing a timing study). */
   export const sledge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["sledge"]
   > = HumanActionRow.of("sledge", longTool, { stroke: "swing" });
 
-  /** Dig with a shovel and throw each load aside. */
+  /** Dig with a shovel and throw each load aside. 3 strokes when `cycles` is absent; the time of a stroke is not stated in the law (`longTool`, provisional, missing a timing study). */
   export const dig: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["dig"]
   > = HumanActionRow.of("dig", longTool, { stroke: "dig" });
 
-  /** Rake or hoe the ground toward oneself. */
+  /** Rake or hoe the ground toward oneself. 3 strokes when `cycles` is absent; the time of a stroke is not stated in the law (`longTool`, provisional, missing a timing study). */
   export const rake: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["rake"]
   > = HumanActionRow.of("rake", longTool, { stroke: "rake" });
 
-  /** Cradle an infant across the front, its head in the holding arm's crook. */
+  /** Cradle an infant across the front, its head in the holding arm's crook. Held 4 s when `seconds` is absent (`IAutoMovieMotionHumanHoldInfant`, provisional). */
   export const cradleInfant: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["cradleInfant"]
   > = HumanActionRow.of("cradleInfant", holdInfant, { hold: "cradle" });
 
-  /** Hold an infant against the shoulder and pat its back. */
+  /** Hold an infant against the shoulder and pat its back. Held 4 s when `seconds` is absent (`IAutoMovieMotionHumanHoldInfant`, provisional). */
   export const burpInfant: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["burpInfant"]
   > = HumanActionRow.of("burpInfant", holdInfant, { hold: "shoulder" });
 
-  /** Feed a cradled infant from a bottle in the other hand. */
+  /** Feed a cradled infant from a bottle in the other hand. Held 4 s when `seconds` is absent (`IAutoMovieMotionHumanHoldInfant`, provisional). */
   export const feedInfant: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["feedInfant"]
   > = HumanActionRow.of("feedInfant", holdInfant, { hold: "feed" });

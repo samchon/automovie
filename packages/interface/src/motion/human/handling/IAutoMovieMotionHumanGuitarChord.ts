@@ -28,6 +28,6 @@ export interface IAutoMovieMotionHumanGuitarChord {
   /** Action-local seconds until the fretting fingers lift, after sweepEndAt. */
   releaseAt: number;
 
-  /** Total action-local seconds, finite and greater than releaseAt. */
+  /** Total action-local seconds, finite and greater than releaseAt. Required: the score sets it, so no natural value is defined. */
   duration: number;
 }

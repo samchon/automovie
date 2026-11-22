@@ -42,7 +42,7 @@ export namespace IAutoMovieMotionHumanHeldWork {
     /** The other hand's grip kept on a contact riding a driven articulation, moving it: the free hand pushing an umbrella's runner up the shaft. Not with `at`: the holding hand stays still while the other works. */
     push?: string;
 
-    /** Seconds of the work before tempo scaling; positive. */
+    /** Seconds of the work before tempo scaling; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
     seconds: number;
   }
 

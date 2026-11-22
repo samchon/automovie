@@ -30,7 +30,7 @@ export namespace IAutoMovieMotionHumanThrowPottery {
     /** The head's speed, revolutions per minute; 120 when absent. */
     rpm?: number;
 
-    /** Seconds of the pull before tempo scaling; positive. */
+    /** Seconds of the pull before tempo scaling; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
     seconds: number;
   }
 }

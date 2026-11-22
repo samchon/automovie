@@ -29,7 +29,7 @@ export interface IAutoMovieMotionHumanZip {
   /** Nonzero signed displacement of the tab relative to its current position, metres. */
   travel: number;
 
-  /** Positive stroke duration at unit tempo, seconds. */
+  /** Positive stroke duration at unit tempo, seconds. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
   seconds: number;
 
   /** Hand pulling the tab. Defaults to the right. */

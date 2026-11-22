@@ -232,6 +232,8 @@ function centreOf(
  * @evidence contracts/development/design.md#principled-representation Support stances whose contacts are the bearing feet and hands, and one track per crutch derived from the same stations.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One law and its crutch track.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hands bear at the crutches' own grips; no hand or foot place is authored apart from the stations.
+ *
+ * Each station's `seconds` is the author's, so the speed is its distance over them; no natural value is defined (provisional, missing a study of crutch gait). A crutch advances through the first third of each station and the body swings through the rest; the opening stance takes a quarter of the first station's time.
  */
 export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
   name: "crutchWalk",

@@ -35,8 +35,11 @@ import type { IAutoMovieMotionHumanOperateInsert } from "./IAutoMovieMotionHuman
  * The action is one arm phrase (`AutoMovieMotionHumanArm.stroke`): the hand
  * reaches the part by `ready` in the aimed movement time to its width
  * (McIntosh et al. 2018), waits a brief moment for the grip, moves the part
- * from `strokeStart` to `strokeEnd` at the mechanism's pace (`PACE`,
- * provisional), holds it until `relax`, and returns to where it hung.
+ * from `strokeStart` to `strokeEnd` at the mechanism's pace (`operate.PACE`,
+ * provisional): a button's press in 0.25 s, a knob at 180 degrees a second, a
+ * slider at 0.4 m/s and a door's handle at 0.6 m/s along its arc, so a door
+ * opened through 90 degrees by a handle 0.8 m from the hinge takes about
+ * 2.1 s; holds it until `relax`, and returns to where it hung.
  * Events: the phrase's `ready` (contact or grip closed), `strokeStart`,
  * `stroke`, `strokeEnd` (bottom out, travel end, swing end) and `relax`
  * (release).

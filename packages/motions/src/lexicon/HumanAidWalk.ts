@@ -191,6 +191,8 @@ function frameAt(
  * @evidence contracts/development/design.md#principled-representation The native prop track and performer use the same seconds and floor stations.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The staged prop provides the collision geometry and grip contacts. The existing support and hand fitters own pose computation.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Rejects a conflicting prop track or unreachable handle. The body plan never replaces the prop owner's motion curve.
+ *
+ * Each station's `seconds` is the author's, so the speed is its distance over them; no natural value is defined (provisional, missing a study of aided walking speed): choose 0.6 m/s or slower for a frail walker (Studenski et al. 2011, the speed below which an older adult is frail). The opening stance takes a quarter of the first station's time.
  */
 export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
   name: "aidWalk",

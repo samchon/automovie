@@ -58,13 +58,13 @@ export namespace IAutoMovieMotionHumanCoupled {
     /** The carry; `piggyback` when absent. */
     carry?: IAutoMovieMotionHumanCarried.Carry;
 
-    /** Seconds carried; the laws' own when absent. */
+    /** Seconds carried; 2 s when absent (`HumanCarriedBorne`, provisional: no study of a carry's length). It is the whole span of the pair's coupled meeting, lift and set-down included. */
     seconds?: number;
 
-    /** Seconds of the lift into the carry; none when absent. */
+    /** Seconds of the lift into the carry, inside `seconds`; none when absent: the carried body starts in the carry. Provisional: no lifting time was read. */
     lift?: number;
 
-    /** Seconds of the set-down; none when absent. */
+    /** Seconds of the set-down, inside `seconds`; none when absent: the carry ends in place. Provisional: no setting-down time was read. */
     setDown?: number;
 
     /** Kilograms the borne person carries besides their body; none when absent. */

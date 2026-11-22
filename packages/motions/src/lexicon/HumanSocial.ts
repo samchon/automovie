@@ -32,21 +32,21 @@ export namespace HumanSocial {
     hold: 2,
   });
 
-  /** A kiss on the cheek. */
+  /** A kiss on the cheek. The lips stay 0.6 s (`kiss.HOLD`, provisional); greeting, affection. */
   export const cheekKiss: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["cheekKiss"]
   > = HumanActionRow.of("cheekKiss", kiss, {
     region: "cheekLeft",
   });
 
-  /** A kiss on the forehead. */
+  /** A kiss on the forehead. The lips stay 0.6 s (`kiss.HOLD`, provisional); tenderness, farewell. */
   export const foreheadKiss: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["foreheadKiss"]
   > = HumanActionRow.of("foreheadKiss", kiss, {
     region: "forehead",
   });
 
-  /** A pat on the partner's shoulder; the composition gives the shoulder as the target. */
+  /** A pat on the partner's shoulder; the composition gives the shoulder as the target. Two pats of 0.4 s, then 0.4 s, 1.2 s after the reach (`AutoMovieMotionHumanTouchForm.FORMS`, provisional); encouragement, praise. */
   export const shoulderPat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["shoulderPat"]
   > = HumanActionRow.of("shoulderPat", touch, {
@@ -55,7 +55,7 @@ export namespace HumanSocial {
     count: 2,
   });
 
-  /** A comforting hand held on the partner. */
+  /** A comforting hand held on the partner. Held 2 s after the reach (provisional); condolence, reassurance. */
   export const comfort: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["comfort"]
   > = HumanActionRow.of("comfort", touch, {
@@ -64,21 +64,21 @@ export namespace HumanSocial {
     hold: 2,
   });
 
-  /** A fist bump, one role of it. */
+  /** A fist bump, one role of it. The fists stay together 0.1 s, then return in the reach's time (`highFive.REBOUND`, provisional); a friendly greeting between peers. */
   export const fistBump: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["fistBump"]
   > = HumanActionRow.of("fistBump", highFive, {
     kind: "fist",
   });
 
-  /** A low five, one role of it. */
+  /** A low five, one role of it. The hands stay together 0.1 s, then return in the reach's time (`highFive.REBOUND`, provisional); a low-key greeting, a child's game. */
   export const lowFive: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["lowFive"]
   > = HumanActionRow.of("lowFive", highFive, {
     kind: "low",
   });
 
-  /** A sip taken after a toast. */
+  /** A sip taken after a toast. Takes the sip as the `sip` drink row does: held 0.5 s at the mouth (`handToFaceRows.ROWS`, provisional). */
   export const toastSip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["toastSip"]
   > = HumanActionRow.of("toastSip", handToFace, {
@@ -135,7 +135,7 @@ export namespace HumanSocial {
     }),
   };
 
-  /** A pinky promise, one role of it: the hands meet at chest height as fists do (first pass; the hooked little fingers are not shaped). */
+  /** A pinky promise, one role of it: the hands meet at chest height as fists do (first pass; the hooked little fingers are not shaped). The fists meet as a fist bump does (`highFive.REBOUND`, 0.1 s); the hooked fingers are not shaped; a promise between friends. */
   export const pinkyPromise: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["pinkyPromise"]
   > = HumanActionRow.of("pinkyPromise", highFive, {
@@ -155,7 +155,7 @@ export namespace HumanSocial {
     }),
   };
 
-  /** A firm, slow pat or press of the palm on the partner (Laban's press: strong, sustained, direct); the composition gives the region. */
+  /** A firm, slow pat or press of the palm on the partner (Laban's press: strong, sustained, direct); the composition gives the region. The press takes 0.4 s and holds 1.2 s (`touch`'s defaults, provisional); steadying, emphasis. */
   export const firmPress: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["firmPress"]
   > = HumanActionRow.of("firmPress", touch, {
@@ -164,7 +164,7 @@ export namespace HumanSocial {
     manner: AutoMovieMotionManner.PRESETS.press,
   });
 
-  /** A light, quick flick of the fingertips on the partner, as brushing lint off a shoulder (Laban's flick: light, sudden, indirect); the composition gives the region. */
+  /** A light, quick flick of the fingertips on the partner, as brushing lint off a shoulder (Laban's flick: light, sudden, indirect); the composition gives the region. A stroke at the caress's 5 cm/s peak, about 5 s for a 0.2 m hand (`AutoMovieMotionHumanTouchForm.FORMS`): far slower than a flick (wrong value, #4020); brushing lint off, dismissing. */
   export const flickOff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["flickOff"]
   > = HumanActionRow.of("flickOff", touch, {

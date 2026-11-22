@@ -76,7 +76,7 @@ const HALF_KNEEL: IAutoMovieMotionHumanSupport.IStance["prefer"] = getUp.halfKne
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion or a place of its own; the postures are the floor laws' keys and a cited standard's, and the places the composition's surface with insets in the body's own lengths.
  */
 export namespace HumanSupportRows {
-  /** Scramble up onto a ledge: the palms on its top, a knee up onto its edge, the other foot up, standing on it. */
+  /** Scramble up onto a ledge: the palms on its top, a knee up onto its edge, the other foot up, standing on it. Each of its 4 stances takes `support.SECONDS`, 1 s, so about 4 s (provisional: no timing study); getting onto a ledge, a wall, a table. */
   export const scramble: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["support"]["scramble"]
   > = HumanActionRow.of("scramble", support, {
@@ -107,7 +107,7 @@ export namespace HumanSupportRows {
     ],
   });
 
-  /** Slide off a table's edge: seated upright on it with the hands beside the seat, the feet down to the floor, standing. */
+  /** Slide off a table's edge: seated upright on it with the hands beside the seat, the feet down to the floor, standing. Each of its 3 stances takes `support.SECONDS`, 1 s, so about 3 s (provisional: no timing study); getting down from a table or a counter. */
   export const slideOff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["support"]["slideOff"]
   > = HumanActionRow.of("slideOff", support, {

@@ -26,6 +26,6 @@ export interface IAutoMovieMotionHumanGuitarNote {
   /** Seconds from entry until the left index starts to lift, after `pluckAt`. */
   releaseAt: number;
 
-  /** Seconds from entry until both fingertips have cleared the string, after `releaseAt`. */
+  /** Seconds from entry until both fingertips have cleared the string, after `releaseAt`. Required: the score sets it, so no natural value is defined. */
   duration: number;
 }

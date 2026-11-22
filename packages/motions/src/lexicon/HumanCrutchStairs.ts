@@ -207,6 +207,8 @@ function refuse(axis: string, value: unknown, reason: string): never {
  * @evidence contracts/development/design.md#principled-representation Support stances on the treads with the hands on the crutches, and one track per crutch from the same flight.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One law and its crutch track.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hands bear at the crutches' own grips; every foot and tip place follows from the flight.
+ *
+ * Each step takes `seconds`, 2 s when absent (provisional, missing a study), after an opening of a quarter of a step in which the hands take the grips.
  */
 export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
   name: "crutchStairs",

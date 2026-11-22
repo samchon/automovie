@@ -35,6 +35,8 @@ const HANGING: IAutoMovieMotionHumanPosture["joints"] = {
  * @evidence contracts/development/design.md#principled-representation One law; the lie as one posture in the carrier contact's frame.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The seat is the carrier's own moving contact.
+ *
+ * The author gives `seconds` of the drape after the laying movement; no natural value is defined (provisional).
  */
 export const HumanDrape: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDrape> =
   {

@@ -70,7 +70,7 @@ function straddled(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The carrier's motion is read from the performance, never restated in the carried person's parameters.
  */
 export namespace HumanCarried {
-  /** Be carried by another person. */
+  /** Be carried by another person. It lasts `seconds`, with no lift or set-down (a rigid ride on one bone); a child on a back, a passenger carried through a scene. */
   export const carried: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IParams> =
     {
       name: "carried",
@@ -277,6 +277,8 @@ export namespace HumanCarried {
    * @evidence contracts/development/implementation.md#efficient-algorithms One key resolution, one read of the carrier's bones and one frame composition per posture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
+ *
+   * It lasts 2 s when `seconds` is absent, the lift and set-down inside it (`HumanCarriedBorne`, provisional).
    */
   export const borne: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBorne> =
     {
@@ -300,6 +302,8 @@ export namespace HumanCarried {
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution per holding arm per posture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
+ *
+   * It lasts 2 s when `seconds` is absent; the carrier's hands take their hold in 0.4 s (`HumanCarried.TAKE`, provisional).
    */
   export const bearing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBearing> =
     {

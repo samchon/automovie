@@ -19,7 +19,7 @@ export interface IAutoMovieMotionHumanEmbraceFromBehind {
   /** The partner's shoulder the chin rests on; the left when absent. */
   shoulder?: AutoMovieHumanSide;
 
-  /** How long the embrace is held, seconds; positive. */
+  /** How long the embrace is held, seconds; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
   seconds: number;
 
   /** How the embrace is taken and let go. */

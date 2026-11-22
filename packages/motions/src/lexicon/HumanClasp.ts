@@ -31,6 +31,8 @@ const REACH: number = 0.3;
  * @evidence contracts/development/design.md#principled-representation One law over named holds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each held point is its owner's own at the second.
+ *
+ * The author gives `seconds`; the hand's reach to its hold is provisional (`HumanClasp`); a handshake, a held hand.
  */
 export const HumanClasp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanClasp> =
   {

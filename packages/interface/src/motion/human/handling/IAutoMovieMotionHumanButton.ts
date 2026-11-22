@@ -38,7 +38,7 @@ export interface IAutoMovieMotionHumanButton {
   /** Full panel thickness across the aperture plane, metres. */
   thickness: number;
 
-  /** Duration of the push, seconds, at unit tempo. */
+  /** Duration of the push, seconds, at unit tempo. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
   seconds: number;
 
   /** Hand pushing the button. Defaults to the right. */

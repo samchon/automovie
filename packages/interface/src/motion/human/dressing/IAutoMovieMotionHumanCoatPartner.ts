@@ -21,6 +21,6 @@ export interface IAutoMovieMotionHumanCoatPartner {
   /** The hand that holds the jacket; whichever hand holds it when absent. */
   hand?: AutoMovieHumanSide;
 
-  /** How long the jacket is held open at the collar while the partner threads both sleeves, seconds. */
+  /** How long the jacket is held open at the collar while the partner threads both sleeves, seconds. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
   hold: number;
 }
