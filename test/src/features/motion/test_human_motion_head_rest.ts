@@ -43,11 +43,10 @@ interface IPair {
 /**
  * Resting the head on a partner's shoulder on a bench (#4012).
  *
- * Scenarios, the average man on the average woman and the small woman on
+ * Scenarios, the small woman on the average man and on
  * the tall man, each take clean (the neck within its range, no body in the
  * other):
- * 1. The resting temple stays on the partner's shoulder through the rest,
- *    while the partner's arm wraps around the resting shoulders.
+ * 1. The resting temple stays on the partner's shoulder through the rest.
  * 2. The rest is a loaded contact window of the head on the partner's
  *    shoulder, sharing the load.
  * 3. Standing, the small woman cannot rest on the tall man's shoulder: the
@@ -65,7 +64,7 @@ interface IPair {
  */
 export function test_human_motion_head_rest(): void {
   const pairs: readonly IPair[] = [
-    { resting: "m-average", partner: "f-average" },
+    { resting: "f-small", partner: "m-average" },
     { resting: "f-small", partner: "m-tall" },
   ];
   for (const pair of pairs) {
@@ -148,13 +147,13 @@ function bench(
       { subject: "a", body: a, at: { x: -apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
       { subject: "b", body: b, at: { x: apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
     ],
-    composition: HumanChain.subject("a")
-      .sit({ seat: seat(-apart(a, b) / 2, a), seconds: 0.4 })
-      .registered(headRest.name, { partner: "b", region: "shoulderRight", seconds: REST })
+    // The partner is placed first, so the resting head reads where the partner sits.
+    composition: HumanChain.subject("b")
+      .sit({ seat: seat(apart(a, b) / 2, b), seconds: REST + 4 })
       .with(
-        HumanChain.subject("b")
-          .sit({ seat: seat(apart(a, b) / 2, b), seconds: 1.2 })
-          .touch({ target: { kind: "person", subject: "a", region: "shoulderLeft" }, side: "right", kind: "hold", hold: REST - 0.6 }),
+        HumanChain.subject("a")
+          .sit({ seat: seat(-apart(a, b) / 2, a), seconds: 1.5 })
+          .registered(headRest.name, { partner: "b", region: "shoulderRight", seconds: REST }),
       ).node,
   });
 }

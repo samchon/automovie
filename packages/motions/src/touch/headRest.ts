@@ -109,15 +109,21 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
       );
       const aim: headRestAim.IAim = headRestAim.prepare(body, entry, stance, seated, own);
       const solved: headRestAim.ISolved = aim.solve(at);
-      if (solved.miss > NEAR)
+      if (solved.miss > NEAR) {
+        // Where the region lies from the head's region at entry, in the performer's frame: left, up, ahead.
+        const away: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -entry.yaw),
+          Vector3.subtract(at, HumanTrunk.region(body, entry, own).point),
+        );
         throw new HumanRefusal({
           kind: "reach",
           axis: "region",
           value: p.region,
           feasible: { kind: "range", minimum: null, maximum: NEAR, unit: "m" },
-          reason: `the ${own} stays ${(solved.miss * 1000).toFixed(0)} mm from the partner's ${p.region} at a lean of ${solved.pitch.toFixed(0)} degrees forward and ${solved.roll.toFixed(0)} to the side, the neck flexed ${solved.flexion.toFixed(0)} and bent ${solved.tilt.toFixed(0)} to the side`,
+          reason: `the ${own} stays ${(solved.miss * 1000).toFixed(0)} mm from the partner's ${p.region} at a lean of ${solved.pitch.toFixed(0)} degrees forward and ${solved.roll.toFixed(0)} to the side, the neck flexed ${solved.flexion.toFixed(0)} and bent ${solved.tilt.toFixed(0)} to the side; the region lies ${(away.x * 1000).toFixed(0)} mm to the left, ${(away.y * 1000).toFixed(0)} mm up and ${(away.z * 1000).toFixed(0)} mm ahead of the ${own} at entry`,
           fix: "sit or stand nearer, or rest on a region within the lean's reach",
         });
+      }
       const modifiers: IAutoMovieMotionManner.IModifiers =
         AutoMovieMotionManner.of(context, p.manner);
       const approach: number = AutoMovieMotionHumanTiming.transport(

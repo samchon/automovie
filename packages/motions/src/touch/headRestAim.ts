@@ -26,8 +26,9 @@ type Triple = readonly [number, number, number];
  * hips and neck flexion (`kissPose`) with a side bend shared over the neck
  * and the head, scored by the distance of the head's own region to the
  * point. `solve` finds the angles once by a coordinate search (the forward
- * lean and the neck on a grid, then the side lean and the side bend on
- * lines, the round repeated twice); `follow`
+ * and the side lean on a coarse grid, then the forward lean and the neck
+ * on a grid and the side lean and the side bend on lines, the round
+ * repeated); `follow`
  * then keeps the region on a moving point at each second with one damped
  * least-squares step on the region's Jacobian at the solution (Wampler
  * 1986; Buss 2004, "Introduction to inverse kinematics with Jacobian
@@ -127,10 +128,11 @@ export namespace headRestAim {
 
   /** The coordinate search: the sagittal grid, the side lean, the side bend, then the grid and the bend again. */
   function search(region: (s: ISolved) => IAutoMovieVector3, at: IAutoMovieVector3, side: number): ISolved {
-    const scored: (s: ISolved) => ISolved = (s: ISolved): ISolved => ({
-      ...s,
-      miss: Vector3.distance(region(s), at),
-    });
+    // Every candidate is held within the ranges before it is scored.
+    const scored: (s: ISolved) => ISolved = (s: ISolved): ISolved => {
+      const held: ISolved = clamp(s, side);
+      return { ...held, miss: Vector3.distance(region(held), at) };
+    };
     const least: (candidates: readonly ISolved[]) => ISolved = (candidates: readonly ISolved[]): ISolved =>
       candidates.map(scored).reduce((a: ISolved, b: ISolved): ISolved => (b.miss < a.miss ? b : a));
     const span: (from: number, to: number, step: number) => number[] = (
@@ -160,10 +162,17 @@ export namespace headRestAim {
     };
     const lateral: (s: ISolved) => ISolved = (s: ISolved): ISolved =>
       least([s, ...span(-TILT, TILT, 2).map((tilt: number): ISolved => ({ ...s, tilt }))]);
-    let best: ISolved = sagittal(scored({ pitch: 0, roll: 0, flexion: 0, raise: 0, tilt: 0, miss: Infinity }));
     const leaning: (s: ISolved) => ISolved = (s: ISolved): ISolved =>
       least([s, ...span(-side, side, 1).map((roll: number): ISolved => ({ ...s, roll }))]);
-    best = lateral(leaning(best));
+    // The forward and the side lean together on a coarse grid first, so the
+    // search does not settle on a forward lean that a side lean would beat.
+    const neutral: ISolved = { pitch: 0, roll: 0, flexion: 0, raise: 0, tilt: 0, miss: Infinity };
+    let best: ISolved = least(
+      span(-10, 45, 5).flatMap((pitch: number): ISolved[] =>
+        span(-side, side, 5).map((roll: number): ISolved => ({ ...neutral, pitch, roll })),
+      ),
+    );
+    best = lateral(leaning(sagittal(lateral(best))));
     best = lateral(leaning(sagittal(best)));
     return lateral(leaning(sagittal(best)));
   }
