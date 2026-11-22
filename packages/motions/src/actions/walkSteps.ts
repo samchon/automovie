@@ -363,15 +363,14 @@ export namespace walkSteps {
           : half + (rest(side) - half) * aside);
       const toward: number = towardAt(j);
       // A walk facing off its way closes a foot up rather than cross it, the closing pair's first footprint
-      // too (the other foot's last still stands); the last already stands apart from it at the arrival.
-      const laid: IAutoMovieVector3 = HumanFrame.point(
-        { origin: path.at(distance), yaw: toward },
-        { x: lateral, y: m.ankleHeight, z: 0 },
-      );
+      // too (the other foot's last still stands); an arrival's extra step turns and closing pair step round the standing foot.
+      const other: walkHeading.ISeparated | undefined = lastOf[side === "left" ? "right" : "left"];
+      const flat: IAutoMovieVector3 = HumanFrame.point({ origin: path.at(distance), yaw: toward }, { x: lateral, y: m.ankleHeight, z: 0 });
+      const laid: IAutoMovieVector3 = extra > 0 && j > n - extra && other !== undefined ? walkHeading.around(other, toward, side, lateral, flat.y) : flat;
       const point: IAutoMovieVector3 =
         facing === undefined || j > n
           ? laid
-          : walkHeading.separated(laid, lastOf[side === "left" ? "right" : "left"], toward, side, lateral);
+          : walkHeading.separated(laid, other, toward, side, lateral);
       lastOf[side] = { point, lateral };
       // A footprint the pelvis leaves behind leans its leg no further than
       // the ankle holds when the foot lifts, at the toe-off two footfalls on,

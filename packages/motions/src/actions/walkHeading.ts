@@ -297,6 +297,44 @@ export namespace walkHeading {
   }
 
   /**
+   * A step turn's footprint (Hase and Stein 1999): the turning foot steps
+   * round the standing foot's last footprint to its own side of it at the
+   * new facing, the two feet their offsets apart across that facing, so a
+   * turn about at an arrival pivots on the standing foot instead of
+   * orbiting the arrival point.
+   *
+   * @param other The standing foot's last footprint and its own offset across the facing.
+   * @param toward The footprint's facing, degrees.
+   * @param side The stepping foot.
+   * @param lateral The footprint's own offset across the facing, metres.
+   * @param height The footprint's ankle height, world metres.
+   * @returns The footprint's ankle, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the step turn, its source and each input.
+   * @evidence contracts/development/implementation.md#principled-implementation The two feet's offsets laid along the new facing's own +X from the standing footprint, as `separated` reads them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis and one offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The separation is the feet's own offsets, the same `separated` keeps.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function around(
+    other: ISeparated,
+    toward: number,
+    side: "left" | "right",
+    lateral: number,
+    height: number,
+  ): IAutoMovieVector3 {
+    const a: number = (toward * Math.PI) / 180;
+    // The facing's +X, the body's left.
+    const lx: number = Math.cos(a);
+    const lz: number = -Math.sin(a);
+    const sign: number = side === "left" ? 1 : -1;
+    const gap: number = Math.abs(lateral) + Math.abs(other.lateral);
+    return { x: other.point.x + sign * gap * lx, y: height, z: other.point.z + sign * gap * lz };
+  }
+
+  /**
    * A foot's last footprint for `separated`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each member.
