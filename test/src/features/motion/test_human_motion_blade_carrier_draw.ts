@@ -538,7 +538,7 @@ const LATERAL: number = 0.1;
 /** The longsword's mouth ahead of the hips, metres: authored. */
 const AHEAD: number = 0.24;
 /** How far the trunk turns away from the drawing side in the long draw, degrees: authored. */
-const OPEN: number = 55;
+const OPEN: number = 45;
 
 /** A longsword drawn from the left hip with the scabbard pulled back. */
 function longsword(): void {

@@ -90,7 +90,7 @@ export function test_motion_exercise_archery_take(): void {
         HumanObject.prop(
           "bow",
           bow,
-          onCounter(bow, "grip", { x: 0.18, y: TOP + 0.03, z: 0.42 }),
+          onCounter(bow, "grip", { x: 0.04, y: TOP + 0.03, z: 0.42 }),
         ),
         HumanObject.prop(
           "arrow",
