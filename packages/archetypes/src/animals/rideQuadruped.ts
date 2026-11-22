@@ -26,10 +26,12 @@ import { QuadrupedJoints } from "./QuadrupedJoints";
 import { QuadrupedLameness } from "./QuadrupedLameness";
 import { QuadrupedLocomotion } from "./QuadrupedLocomotion";
 import { QuadrupedMotion } from "./QuadrupedMotion";
+import { QuadrupedPoleSwing } from "./QuadrupedPoleSwing";
 import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { QuadrupedStridePlan } from "./QuadrupedStridePlan";
+import { QuadrupedSwingGoal } from "./QuadrupedSwingGoal";
 import type { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import { createQuadruped } from "./createQuadruped";
@@ -43,7 +45,7 @@ const NATIVE_PLAN: typeof ArchetypeCourse.plan = ArchetypeCourse.plan;
 /**
  * A quadruped going along a course: its root on the path, its trunk rising and falling and its head nodding with the stride, its four limbs stepping in the gait's order, and its gait and lead changing with the speed or as the course's legs name them. Every kind is ridden by this one function, from its species' data (`createQuadruped.species`).
  *
- * The stride's timing is the selected declared table's (`QuadrupedGait.timing`) at the course's speed and the animal's withers height, shifted by its normalized `tempo`. The source owner distinguishes observed, derived and authored clocks; absolute clocks stay unscaled, otherwise the table's dynamic-similarity assumption is provisional as `QuadrupedGait.scale` states. Each foot lands at its phase of the stride, stays planted for the duty factor's share of it while the body passes over, then swings forward, lifted clear of the ground, with its carpus or hock folded; a gait that states its swing height by landmark (`QuadrupedGait.IElevation`) lifts the toe to that point of the actual cannon. A planted foot stays at its recorded world footprint on level straight and curved legs, including signed backing and gait changes. A route pause holds the hoof clock and emits no new touchdown inside its stationary interval. The ride adds an instant for every landing, `leftForeOn`, `rightHindOn` and so on, which a rider's rising trot or a walker's step beside the animal locks to. The tack rides the trunk, so `frame("seat", seconds)` is the moving support a rider sits on and `frame("hitch", seconds)` the one a cart is drawn from; the species' nodding parts turn with the head.
+ * The stride's timing is the selected declared table's (`QuadrupedGait.timing`) at the course's speed and the animal's withers height, shifted by its normalized `tempo`. The source owner distinguishes observed, derived and authored clocks; absolute clocks stay unscaled, otherwise the table's dynamic-similarity assumption is provisional as `QuadrupedGait.scale` states. Each foot lands at its phase of the stride, stays planted for the duty factor's share of it while the body passes over, then swings forward, lifted clear of the ground and of any authored pole its hoof crosses, with its carpus or hock folded; a gait that states its swing height by landmark (`QuadrupedGait.IElevation`) lifts the toe to that point of the actual cannon. A planted foot stays at its recorded world footprint on level straight and curved legs, including signed backing and gait changes. A route pause holds the hoof clock and emits no new touchdown inside its stationary interval. The ride adds an instant for every landing, `leftForeOn`, `rightHindOn` and so on, which a rider's rising trot or a walker's step beside the animal locks to. The tack rides the trunk, so `frame("seat", seconds)` is the moving support a rider sits on and `frame("hitch", seconds)` the one a cart is drawn from; the species' nodding parts turn with the head.
  *
  * The gait of each stride is the one a course leg names, else the one `gait` names, else the one the speed calls for at the species' change points (`QuadrupedChange`), going up above a change point by the species' hysteresis and coming down below it by as much, so a speed hovering at the boundary does not flip the gait every stride. A change is decided at the left fore's landing, the stride's start, and takes the next stride: each foot's landing moves from the old gait's phase to the new one's, so a planted foot stays planted, and the ride names `gait:<from>-<to>` there. A leg may name a `lead` for a leaded gait, whose right lead mirrors the left; a change of lead is a flying change, taken the same way and named `lead:<from>-<to>`.
  *
@@ -288,6 +290,11 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       return { ...state, placement: place(state, seconds) };
     };
 
+    // A swing lifts over the poles its hoof crosses, read once per swing where the footing has poles (`QuadrupedPoleSwing`).
+    const crossings: QuadrupedPoleSwing.Crossings | undefined = trial
+      ? undefined
+      : QuadrupedPoleSwing.crossings(ground, animal.parts, shown);
+
     /** Read the course and derive the four current footprint demands before any geometry sharing. */
     const posed: Posed = (
       state: ArchetypeCourse.IState,
@@ -316,7 +323,6 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       const goals: Map<QuadrupedBody.Limb, QuadrupedRidePose.IGoal> = new Map();
       for (const limb of QuadrupedBody.LIMBS) {
         const fore: boolean = limb.endsWith("Fore");
-        const end: "fore" | "hind" = fore ? "fore" : "hind";
         const rest: readonly IAutoMovieVector3[] = rig.limbs[limb];
 
         // The stance this foot is in or has just left, and the next one it swings to.
@@ -345,32 +351,26 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           EquineFlightClock.carries(flight, landed + step.from.duty, coming);
         const off: number = strides.secondsAt(landed + step.from.duty);
         const on: number = strides.secondsAt(coming);
-        const height: number =
-          which.elevation === undefined
-            ? which.lift[end] * withers
-            : QuadrupedHoofTrack.elevation(rest, which.elevation, fore);
-        const aim = (
-          moment: ArchetypeCourse.IState,
-          amount: number,
-        ): EquineFlightClock.IAim =>
-          QuadrupedHoofTrack.target(
-            moment,
-            rest[4]!,
-            step.from,
-            following,
-            amount,
-            worldAnchors,
-            trial ? undefined : ground,
-            rest[0]!.z + rest[4]!.z - rest[3]!.z,
-            terrain.clear[limb],
-          );
-        const goal: QuadrupedRidePose.IGoal = {
-          ...(carried
-            ? EquineFlightClock.swing(aim, shown, current, off, on, step.along)
-            : aim(current, step.along)),
-          lift: (going * height + (ground?.swingLift ?? 0)) * step.rise,
-          fold: going * which.fold[end] * step.rise,
-        };
+        const goal: QuadrupedRidePose.IGoal = QuadrupedSwingGoal.of({
+          limb,
+          index: m,
+          gait: which,
+          withers,
+          rest,
+          step,
+          following,
+          worldAnchors,
+          ground,
+          trial,
+          clear: terrain.clear[limb],
+          carried,
+          shown,
+          current,
+          off,
+          on,
+          going,
+          crossings,
+        });
         goals.set(
           limb,
           carried

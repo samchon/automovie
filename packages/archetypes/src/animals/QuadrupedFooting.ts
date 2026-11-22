@@ -13,6 +13,7 @@ import type {
 
 import { type Archetype, ArchetypeFrame, ArchetypeRefusal } from "../core";
 import { QuadrupedFootingClip } from "./QuadrupedFootingClip";
+import { QuadrupedObstacleShape } from "./QuadrupedObstacleShape";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -154,6 +155,8 @@ export namespace QuadrupedFooting {
   export interface IPlan {
     /** Authored extra swing height in metres, plus the deepest yielding surface's sinkage, so a swinging hoof clears the displaced footing. */
     swingLift: number;
+    /** The admitted poles, world metres, which a swing lifts over where its hoof crosses them (`QuadrupedPoleSwing`). */
+    poles: readonly IPole[];
     /**
      * Read the authored surface at the horizontal footprint.
      *
@@ -289,7 +292,7 @@ export namespace QuadrupedFooting {
       0,
       ...surfaces.map(({ plane }): number => plane.yield?.depth ?? 0),
     );
-    return { swingLift: swingLift + deepest, landing, verify };
+    return { swingLift: swingLift + deepest, poles, landing, verify };
 
     /** Give each terrain component one stable public diagnostic identity. */
     function name(id: string): void {
@@ -386,7 +389,7 @@ export namespace QuadrupedFooting {
               plane.id,
             );
         if (poles.length === 0) continue;
-        const bounds: IAutoMoviePhysicalShape = obstacleShape(part);
+        const bounds: IAutoMoviePhysicalShape = QuadrupedObstacleShape(part);
         for (const pole of poles)
           if (
             physicalShapeSegmentDistance(
@@ -460,40 +463,4 @@ function lowest(part: IAutoMovieModelPart, frame: IAutoMovieTransform): number {
     ...part,
     transform: ArchetypeFrame.compose(frame, part.transform!),
   });
-}
-
-/** Keep the original pole query conservative for cylindrical and conical model parts. */
-function obstacleShape(part: IAutoMovieModelPart): IAutoMoviePhysicalShape {
-  if (
-    part.geometry.type !== "primitive" ||
-    part.geometry.shape.type === "plane"
-  )
-    throw new RangeError("A pole query requires a physical part");
-  const shape = part.geometry.shape;
-  const base = {
-    id: part.id,
-    material: "footing",
-    transform: {
-      position: part.transform!.translation,
-      rotation: part.transform!.rotation,
-    },
-  };
-  if (shape.type === "box")
-    return {
-      ...base,
-      kind: "box",
-      halfExtents: {
-        x: shape.width / 2,
-        y: shape.height / 2,
-        z: shape.depth / 2,
-      },
-    };
-  if (shape.type === "sphere")
-    return { ...base, kind: "sphere", radius: shape.radius };
-  return {
-    ...base,
-    kind: "capsule",
-    radius: shape.radius,
-    halfLength: shape.height / 2,
-  };
 }
