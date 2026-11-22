@@ -75,7 +75,7 @@ export namespace IAutoMovieMotionHumanHighJump {
     /** The high jump's prop subject. Its `bar` affordance supplies the crossbar's world axis and span. */
     bar: string;
 
-    /** The centre-of-mass apex above the crossbar's axis, in metres. Defaults to zero. The high-jump law requires a finite non-negative value and bounds the combined apex by the takeoff's vertical speed. */
+    /** The centre-of-mass apex above the crossbar's axis, in metres. Defaults to zero. The vertical take-off speed is bounded by 5.05 m/s (`highJump.RISE`), so the apex above take-off is at most 1.30 m (`v^2 / 2g`, g 9.80665 m/s2); the flight time is the ballistic fall from that apex to the landing surface. The high-jump law requires a finite non-negative value and bounds the combined apex by the takeoff's vertical speed. */
     apexReserve?: number;
 
     /** The planted foot that pushes off. Omitted uses the foot a cut run-up has planted, otherwise the incoming stance's leading support. */

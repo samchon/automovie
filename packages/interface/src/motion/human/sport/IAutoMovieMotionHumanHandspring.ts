@@ -22,6 +22,13 @@ import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotion
  *    `LAND`, found by bisection, since the flight time itself grows with the
  *    rate the wheel throws the centre at.
  *
+ * No duration is authored. The wheel turns from rest to `RELEASE` (145 degrees)
+ * at constant angular acceleration, the flight lasts until the centre has
+ * fallen to the height of the arched stand at `LAND` (330 degrees), under
+ * gravity 9.80665 m/s2 (`handspring.RELEASE`, `handspring.LAND`, provisional);
+ * the landing takes the jump's absorption and rise (`jump.ABSORB` 0.3 s and
+ * `jump.RISE` 0.45 s).
+ *
  * Landing, the feet are planted where they came down, the body absorbs and
  * rises to stand over the jump's `ABSORB` and `RISE` seconds while its tip
  * comes up from `LAND`, the arched landing of the skill, with the root

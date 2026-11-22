@@ -38,7 +38,7 @@ export namespace IAutoMovieMotionHumanSalto {
     /** The floor point to land on, world metres. */
     to: IAutoMovieVector3;
 
-    /** Apex height of the flight above take-off, metres; `APEX` of the stature when absent. */
+    /** Apex height of the flight above take-off, metres; 0.3 of the stature when absent (`salto.APEX`, provisional), about 0.53 m at a 1.75 m stature. Gravity decides the flight time as for a jump: `sqrt(8 apex / g)` at a level landing, g 9.80665 m/s2, 0.66 m there; the somersault must fit it, or the take-off cannot meet it and the request is refused. */
     apex?: number;
 
     /** Which way the body turns; `forward` when absent. */

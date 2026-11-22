@@ -89,7 +89,7 @@ export namespace IAutoMovieMotionHumanJump {
     /** The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. */
     on?: string;
 
-    /** Apex height of the flight above take-off, metres; positive.
+    /** Apex height of the flight above take-off, metres; positive; 0.06 hip heights plus a tenth of the jump's length when absent (`jump`, provisional). Gravity decides the flight time: the take-off speed is `sqrt(2 g apex)` and a level landing follows `sqrt(8 apex / g)` later, g 9.80665 m/s2: 0.36 s for a 1 m jump at the reference hip (apex 0.15 m). The push-off (0.3 s, `jump.PUSH`), the absorption (0.3 s, `jump.ABSORB`) and the rise to standing (0.45 s, `jump.RISE`) are provisional and scaled by `manner.pace`; the flight is not.
      * Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     apex?: number;

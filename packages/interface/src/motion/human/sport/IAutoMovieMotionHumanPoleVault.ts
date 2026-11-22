@@ -4,6 +4,11 @@
  * planted end with the pole, lets go as the pole stands upright, and flies
  * on to come down lying on the landing surface.
  *
+ * No duration is authored: the swing follows the energy of a pendulum from
+ * the run's speed (at least 1 m/s, `poleVault.RUN`; the take-off rises at 20
+ * degrees, `poleVault.ANGLE`, Linthorne and Weetman 2012) and the flight is
+ * the ballistic fall under gravity 9.80665 m/s2 to the landing surface.
+ *
  * The pole is a held prop (`AutoMovieMotionHumanHeld`): taken up before,
  * typically by a pick up with a use, and rigid in the hand. Its planted end
  * is the prop's `tip` affordance, or the one named.

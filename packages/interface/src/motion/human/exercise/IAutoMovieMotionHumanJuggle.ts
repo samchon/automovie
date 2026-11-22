@@ -34,7 +34,7 @@ export namespace IAutoMovieMotionHumanJuggle {
     /** The balls' scene ids, resting at the hands' start points (`juggle.start`): the first in the right hand, the second in the left, any third on top of the first. */
     balls: string[];
 
-    /** How high the throws rise above the hands, metres; 0.6 when absent.
+    /** How high the throws rise above the hands, metres; 0.6 when absent. Gravity decides the flight, `sqrt(8 h / g)` between hands level with each other (g 9.80665 m/s2): 0.70 s at 0.6 m. The hold times follow from the flight by Shannon's theorem at a dwell ratio of 0.75 (`juggle.DWELL`, Beek and Lewbel 1995), so a higher throw is slower in every beat; a vacancy under `juggle.VACANCY` (0.12 s) is refused.
      * Exclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     height?: number;

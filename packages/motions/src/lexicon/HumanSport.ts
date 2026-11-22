@@ -42,7 +42,7 @@ export namespace HumanSport {
     kind: "lunge",
   });
 
-  /** High knees, running in place. Default 3 repetitions of 3.3 s at the default tempo ({@link IAutoMovieMotionHumanExercise.IParams.tempo}); `tempo` sets it. */
+  /** High knees, running in place. Default 3 repetitions, one knee each, alternating, of 3.3 s at the default tempo; the repetition clock reads `tempo` ({@link IAutoMovieMotionHumanExercise.IParams.tempo}) as every exercise does, so running knees need a short `tempo` (the 0.3 s at the top stays). */
   export const highKnees: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["highKnees"]
   > = HumanActionRow.of("highKnees", exercise, {
