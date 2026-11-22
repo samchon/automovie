@@ -15,11 +15,13 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanStand,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanHeld,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanPrecisionSport,
@@ -29,6 +31,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
+import { motionGraspedHandle } from "../internal/motionGraspedHandle";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The precision rows this spec plays. */
@@ -167,8 +170,45 @@ export function test_motion_exercise_court_strokes(): void {
         z: 0,
       };
       const toward: IAutoMovieVector3 = { x: 0, y: 0, z: 10 };
-      const grip: IAutoMovieVector3 =
-        stroke.tool.affordance("grip").frame.translation;
+      // The implement is held by its grip as a hand grasps a handle, the
+      // shaft across the palm (`motionGraspedHandle`); the address reads it
+      // in the hand as the hold will keep it.
+      const inHand: IAutoMovieRigidTransform = motionGraspedHandle(
+        body,
+        "right",
+        stroke.tool.affordance("grip").frame,
+        stroke.tool.affordance(stroke.point).frame.translation,
+      );
+      const held = (
+        bones: ReturnType<HumanPerformance["bones"]>,
+      ): IAutoMovieRigidTransform => {
+        const wrist: IAutoMovieResolvedBone = bones.get("rightHand")!;
+        return {
+          position: Vector3.add(
+            wrist.worldPosition,
+            Quaternion.rotateVector(wrist.worldRotation, inHand.position),
+          ),
+          rotation: Quaternion.multiply(wrist.worldRotation, inHand.rotation),
+        };
+      };
+      const quiet: ReturnType<HumanPerformance["bones"]> = new HumanPerformance(
+        {
+          seed: `${stroke.row}-quiet`,
+          performers: [
+            {
+              subject: "striker",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("striker").stand({
+            seconds: 0.2,
+            sway: 0,
+          }).node,
+        },
+      ).bones("striker", 0);
       const at: IAutoMovieVector3 = PrecisionStrokeForms.address({
         body,
         row: stroke.row,
@@ -177,11 +217,16 @@ export function test_motion_exercise_court_strokes(): void {
         ball,
         radius,
         toward,
-        tool: Vector3.length(
-          Vector3.subtract(
-            stroke.tool.affordance(stroke.point).frame.translation,
-            grip,
-          ),
+        held: AutoMovieMotionHumanHeld.grasped(
+          body,
+          "right",
+          "tool",
+          held(quiet),
+          stroke.tool.affordances ?? [],
+          {
+            point: quiet.get("rightHand")!.worldPosition,
+            rotation: quiet.get("rightHand")!.worldRotation,
+          },
         ),
       });
       const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] =
@@ -202,12 +247,6 @@ export function test_motion_exercise_court_strokes(): void {
           sway: 0,
         }).node,
       });
-      const hand: IAutoMovieVector3 = HumanHand.frame(
-        body,
-        ready.bones("striker", 0),
-        "right",
-        "grip",
-      ).point;
       const hold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
         {
           ...stand,
@@ -224,10 +263,11 @@ export function test_motion_exercise_court_strokes(): void {
         laws: [hold, HumanPrecisionSport[stroke.row]],
         performers,
         props: [
-          HumanObject.prop("tool", stroke.tool, {
-            position: Vector3.subtract(hand, grip),
-            rotation: Quaternion.identity(),
-          }),
+          HumanObject.prop(
+            "tool",
+            stroke.tool,
+            held(ready.bones("striker", 0)),
+          ),
           HumanObject.prop("ball", stroke.ball, {
             position: Vector3.subtract(ball, centre),
             rotation: Quaternion.identity(),

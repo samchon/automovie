@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanHeld,
   HumanChain,
   HumanHand,
   HumanObject,
@@ -75,7 +76,30 @@ export async function test_motion_exercise_golf_putt(): Promise<void> {
   const resting: IAutoMovieVector3 = { x: 0, y: radius, z: 0.24 };
   const cup: IAutoMovieVector3 = { x: resting.x, y: 0, z: resting.z + 1.5 };
 
-  // The golfer stands at the putt's own address for the ball (`PrecisionStrokeForms.address`).
+  // The putter hangs from the ready pose's right grip, its shaft 79 degrees
+  // down as the putt row holds it, as the precision-contact fixture places it.
+  const grip: IAutoMovieVector3 = putter.affordance("grip").frame.translation;
+  const shaft: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 0, z: 1 },
+    90 - 79,
+  );
+  const quiet: ReturnType<HumanPerformance["bones"]> = new HumanPerformance({
+    seed: "golf-quiet",
+    performers: [
+      {
+        subject: "golfer",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("golfer").stand({ seconds: 0.2, sway: 0 })
+      .node,
+  }).bones("golfer", 0);
+
+  // The golfer stands at the putt's own address for the ball, the putter
+  // read in the hand as the hold keeps it (`PrecisionStrokeForms.address`).
   const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] = [
     {
       subject: "golfer",
@@ -88,20 +112,28 @@ export async function test_motion_exercise_golf_putt(): Promise<void> {
         ball: resting,
         radius,
         toward: cup,
-        tool: Vector3.length(
-          Vector3.subtract(
-            putter.affordance("face").frame.translation,
-            putter.affordance("grip").frame.translation,
-          ),
+        held: AutoMovieMotionHumanHeld.grasped(
+          body,
+          "right",
+          "putter",
+          {
+            position: Vector3.subtract(
+              HumanHand.frame(body, quiet, "right", "grip").point,
+              Quaternion.rotateVector(shaft, grip),
+            ),
+            rotation: shaft,
+          },
+          putter.affordances ?? [],
+          {
+            point: quiet.get("rightHand")!.worldPosition,
+            rotation: quiet.get("rightHand")!.worldRotation,
+          },
         ),
       }),
       yaw: 0,
       proficiency: { level: "trained" },
     },
   ];
-
-  // The putter hangs from the ready pose's right grip, its shaft 79 degrees
-  // down as the putt row holds it, as the precision-contact fixture places it.
   const ready: HumanPerformance = new HumanPerformance({
     seed: "golf-ready",
     performers,
@@ -114,11 +146,6 @@ export async function test_motion_exercise_golf_putt(): Promise<void> {
     "right",
     "grip",
   ).point;
-  const grip: IAutoMovieVector3 = putter.affordance("grip").frame.translation;
-  const shaft: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    { x: 0, y: 0, z: 1 },
-    90 - 79,
-  );
 
   const hold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {

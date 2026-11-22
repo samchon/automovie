@@ -1,12 +1,10 @@
 /**
  * A precision stroke's key poses beyond its contact: how far a two-handed
- * swing's trunk coils back at the top and turns on at the finish, and the
- * window about the contact over which a stroke's arm course holds its goal,
- * the tool's attitude the one hard constraint there.
+ * swing's trunk coils back at the top and turns on at the finish.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each key, its unit and its source or its provisional standing.
- * @evidence contracts/development/design.md#principled-representation Two angles of the trunk over the pelvis and one window in seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createPrecisionSportStroke` and `coursePrecisionStroke`.
+ * @evidence contracts/development/design.md#principled-representation Two angles of the trunk over the pelvis.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createPrecisionSportStroke`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The coil is the measured X-factor's lower bound; the finish is marked provisional where no measured value is common to the sources.
  */
 export namespace PrecisionStrokeKeys {
@@ -29,7 +27,4 @@ export namespace PrecisionStrokeKeys {
    * batting sources).
    */
   export const FINISH: number = 90;
-
-  /** Half the window about the contact over which the arm's course holds the stroke's goal, seconds: one 24 Hz film frame. */
-  export const CONTACT: number = 1 / 24;
 }

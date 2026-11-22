@@ -11,21 +11,14 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { PrecisionStrokeKeys } from "./PrecisionStrokeKeys";
 import { precisionStrokePeak } from "./precisionStrokePeak";
-
-/** The segments of each hand that close on a two-handed implement, the grasp's contact between the two arms. */
-const GRASP: NonNullable<IAutoMovieMotionHumanArmCarry.ICarry["grasp"]> = [
-  "hand",
-  "lowerArm",
-];
 
 /**
  * A precision stroke's arms laid as one course on the stroke's own goals
  * (`courseArmGoal`), instead of a fit per instant: the striking arm reaches
- * through its backswing to halfway down the downswing, holds the stroke's goal
- * through the contact and follow-through to `relax` and returns by `end`, admitted against the
- * stroke's own speed, the hand goal's peak along its whole path
+ * through its backswing to the contact, holds the stroke's goal on the
+ * contact instant and returns by `end`, admitted against the stroke's own
+ * speed, the hand goal's peak along its whole path
  * (`precisionStrokePeak`). A second hand on the same implement (a putter, a
  * club, a stick, a bat) is laid in the same course, the two hands' closing
  * segments the grasp's contact.
@@ -59,18 +52,12 @@ export function coursePrecisionStroke(
 ): IAutoMovieMotionHumanActionPlan {
   let fastest: number | undefined;
   // The tool's attitude is the one hard constraint, at the contact: the
-  // course holds the stroke's goal only over the film frame either side of
-  // it (`PrecisionStrokeKeys.CONTACT`); the swing before is the arm's reach,
-  // and after it the arm returns freely to its rest, each finding its own
-  // clear attitude.
-  const ready: number = Math.max(
-    0,
-    clock.at("stroke") - PrecisionStrokeKeys.CONTACT,
-  );
-  const relax: number = Math.min(
-    clock.duration,
-    clock.at("stroke") + PrecisionStrokeKeys.CONTACT,
-  );
+  // course holds the stroke's goal on the contact instant alone, the pose the
+  // address found clear (`PrecisionStrokeForms.address`); the swing before
+  // is the arm's reach, and after it the arm returns freely to its rest, each
+  // finding its own clear attitude.
+  const ready: number = clock.at("stroke");
+  const relax: number = ready;
   return courseArmGoal({
     body,
     side,
@@ -112,14 +99,22 @@ export function coursePrecisionStroke(
     ...(second === undefined
       ? {}
       : {
-          grasp: GRASP,
+          grasp: coursePrecisionStroke.GRASP,
           with: [
             {
               side: second,
               rest: AutoMovieMotionHumanArm.angles(entry, second),
-              grasp: GRASP,
+              grasp: coursePrecisionStroke.GRASP,
             },
           ],
         }),
   });
+}
+
+/** Companion constants of `coursePrecisionStroke`. */
+export namespace coursePrecisionStroke {
+  /** The segments of each hand that close on a two-handed implement, the grasp's contact between the two arms; the address judges its contact pose with the same grasp (`PrecisionStrokeForms.address`). */
+  export const GRASP: NonNullable<
+    IAutoMovieMotionHumanArmCarry.ICarry["grasp"]
+  > = ["hand", "lowerArm"];
 }

@@ -1,19 +1,30 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieMotionClock,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
+import { fitClearArmPose } from "../compose/fitClearArmPose";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingBlade } from "../striking/StrikingBlade";
+import { StrikingHeld } from "../striking/StrikingHeld";
+import { StrikingSupport } from "../striking/StrikingSupport";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
+import { coursePrecisionStroke } from "./coursePrecisionStroke";
+import { precisionStrokeTool } from "./precisionStrokeTool";
 
 /**
  * The precision stroke families: each row's fixed geometry, registered as
@@ -21,13 +32,15 @@ import { addressPrecisionStroke } from "./addressPrecisionStroke";
  * is played from.
  *
  * The address is where the striker stands for a stroke to meet its ball:
- * the grip lies one implement length back from the contact along the
- * implement's working direction at impact (the bare hand's palm on the
- * contact itself), and the striking shoulder (both shoulders' middle for a
- * two-handed grip) lies within the arm's reach of the grip, on the line the
- * implement continues, so the arm and the implement meet the ball as one
- * lever, the arm-and-club model of the swing (Cochran and Stobbs 1968, The
- * Search for the Perfect Swing). The
+ * the grip lies where the implement, as the hand holds it, puts its working
+ * point on the contact with its face toward the shot (the bare hand's palm
+ * on the contact itself), and the striking shoulder (both shoulders' middle
+ * for a two-handed grip) lies within the arm's reach of the grip, on the
+ * line the implement continues, so the arm and the implement meet the ball
+ * as one lever, the arm-and-club model of the swing (Cochran and Stobbs
+ * 1968, The Search for the Perfect Swing). From there the stance moves to
+ * the nearest place where the arm planner finds the stroke's contact pose
+ * clear of the body (`fitClearArmPose`). The
  * family's stance is the facing the caller stands the striker at. A take or
  * a staging places its striker there; a scene that needs an approach walks
  * to it first. The stroke itself never steps.
@@ -94,8 +107,8 @@ export namespace PrecisionStrokeForms {
     /** Where the shot goes, world metres. */
     toward: IAutoMovieVector3;
 
-    /** The implement's length from the grip to its working point, metres; 0 for a bare hand. */
-    tool: number;
+    /** The implement in the striking hand's grip frame, as the hand will hold it (`AutoMovieMotionHumanHeld.grasped`); none for a bare hand. */
+    held?: IAutoMovieMotionHumanHeld.IHeld;
   }
 
   /**
@@ -114,6 +127,20 @@ export namespace PrecisionStrokeForms {
    * from the body, which moves little after the first round (provisional).
    */
   export const ADDRESSED: number = 4;
+
+  /**
+   * The stance steps the address tries on either side of the arm-and-club
+   * place, nearest first and further back before nearer, before it bisects:
+   * four steps of a quarter of the arm's reach (`SCAN_STEP`) cover a whole
+   * reach each way (provisional).
+   */
+  export const SCAN: number = 4;
+
+  /** The scan's step, a share of the arm's reach (`reach`); provisional. */
+  export const SCAN_STEP: number = 1 / 4;
+
+  /** The bisections between a refused and a clear stance: three cut the step to an eighth, under 25 mm for an adult's reach (provisional). */
+  export const BISECT: number = 3;
 
   /** Each row's form by its name, filled as the rows are made. */
   export const FORMS: Map<string, IForm> = new Map();
@@ -150,18 +177,21 @@ export namespace PrecisionStrokeForms {
    * Where a striker stands to play a row at a ball: the floor point under
    * the root that puts the striking shoulder (the shoulders' middle for a
    * two-handed grip) on the implement's line, the arm's reach back from the
-   * grip, the grip one implement length back from the contact.
+   * grip, the grip where the held implement puts its working point on the
+   * contact; then the nearest stance along that line, further back first,
+   * whose contact pose the arm planner finds clear (`contact`), closed on by
+   * bisection.
    *
-   * @param props The body, the row, the hand, the facing, the ball, the shot and the implement's length.
+   * @param props The body, the row, the hand, the facing, the ball, the shot and the implement as the hand holds it.
    * @returns The floor point, world metres.
-   * @throws {HumanRefusal} For a row no stroke has registered.
+   * @throws {HumanRefusal} For a row no stroke has registered, or when no stance within the scan gives a clear contact pose, with the planner's reason at the line's place.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the chain from the contact to the floor point and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact, the grip and the shoulder lie on one line along the implement's working direction; the shoulder's offset from the floor point is the body's own at quiet stance and the facing given.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Contact, grip, shoulder, then the stance's offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown row is refused, never given a default form.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One quiet-stance forward kinematics per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The working direction is the stroke's own (`axis`), the stance is `stand`'s.
+   * @evidence contracts/development/common.md#meaningful-documentation States the chain from the contact to the floor point, the clear-pose search and the refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The contact, the grip and the shoulder lie on one line along the implement's working direction; the shoulder's offset from the floor point is the body's own at quiet stance and the facing given; the stance is accepted only where the arm planner, which lays the stroke's own course, finds its contact pose clear, the nearest such stance kept.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Contact, grip, shoulder, the stance's offset, then the scan and the bisection on the planner's verdict.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown row is refused, never given a default form; no clear stance is refused with the planner's own reason, never returned anyway.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One verdict when the line's place is clear; otherwise at most `2 SCAN + BISECT` more, each one stance and one one-instant course.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The working direction is the stroke's own (`axis`), the tool its own (`precisionStrokeTool`), the stance `stand`'s and the verdict the planner's (`fitClearArmPose`).
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function address(props: IAddress): IAutoMovieVector3 {
@@ -184,10 +214,6 @@ export namespace PrecisionStrokeForms {
       props.ball,
       Vector3.scale(direction, props.radius),
     );
-    const grip: IAutoMovieVector3 = Vector3.subtract(
-      contact,
-      Vector3.scale(working, props.tool),
-    );
     // The shoulder is read from the stroke's own pose at contact: the quiet
     // stance at the facing given, hinged at the hips to the grip as the
     // stroke's address hinges it (`addressPrecisionStroke`) and turned toward
@@ -203,6 +229,25 @@ export namespace PrecisionStrokeForms {
     const feet: Readonly<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
     > = AutoMovieMotionHumanTrunk.footing(props.body, stance);
+    // The stroke's own tool and its hand frame at the contact, as the stroke
+    // reads them (`precisionStrokeTool`): the grip lies where the tool's
+    // working point meets the ball with its face toward the shot.
+    const stroke: precisionStrokeTool.IStrokeTool = precisionStrokeTool(
+      props.body,
+      props.side,
+      form,
+      props.held,
+      resolveHumanPosture(props.body, stance),
+    );
+    const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+      StrikingHeld.hand(
+        stroke.tool,
+        0,
+        contact,
+        working,
+        form.point === "tip" ? { x: 0, y: 1, z: 0 } : direction,
+      );
+    const grip: IAutoMovieVector3 = frame.point;
     const sign: number = props.side === "right" ? 1 : -1;
     const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
@@ -279,7 +324,150 @@ export namespace PrecisionStrokeForms {
       );
       at = { x: shoulder.x - offset.x, y: 0, z: shoulder.z - offset.z };
     }
-    return at;
+    // A cue's bridged stroke keeps its fitted arms (`createPrecisionSportStroke`).
+    if (form.point === "tip") return at;
+
+    // The arm-and-club place is where the lever lines up; the stance is
+    // where the arms meet the ball clear of the body. The stroke's contact
+    // pose at a stance moved `s` metres back along the line is judged by the
+    // arm planner (`fitClearArmPose`); the nearest clear stance is the
+    // address, the scan stepping further back first and then nearer, and the
+    // bisection closing on the boundary from the refused side.
+    const judge = (s: number): fitClearArmPose.Verdict =>
+      PrecisionStrokeForms.contact(
+        props,
+        form,
+        stroke,
+        frame,
+        Vector3.add(at, Vector3.scale(back, s)),
+      );
+    const first: fitClearArmPose.Verdict = judge(0);
+    if (first.clear) return at;
+    const step: number = SCAN_STEP * reach(props.body);
+    for (let k: number = 1; k <= SCAN; k++)
+      for (const way of [1, -1]) {
+        if (!judge(way * k * step).clear) continue;
+        let refused: number = way * (k - 1) * step;
+        let clear: number = way * k * step;
+        for (let i: number = 0; i < BISECT; i++) {
+          const middle: number = (refused + clear) / 2;
+          if (judge(middle).clear) clear = middle;
+          else refused = middle;
+        }
+        return Vector3.add(at, Vector3.scale(back, clear));
+      }
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "ball",
+      value: props.ball,
+      feasible: null,
+      reason: `no stance within ${(SCAN * step).toFixed(2)} m of the ${props.row} address meets the ball with the arms clear: ${first.refusal.reason}`,
+      fix: "move the ball, or choose a row whose implement reaches it with the arms clear of the body",
+    });
+  }
+
+  /**
+   * The planner's verdict on a stroke's contact pose from one stance: the
+   * quiet stance there, turned toward the shot by the row's turn and hinged
+   * to the grip as the stroke turns and hinges it at the contact, with the
+   * striking hand holding the tool on its contact frame and a second hand on
+   * the handle where one grips it.
+   *
+   * @param props The address asked.
+   * @param form The row's form.
+   * @param stroke The stroke's tool.
+   * @param frame The striking hand's frame at the contact.
+   * @param at The stance's floor point, world metres.
+   * @returns The planner's verdict (`fitClearArmPose`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the pose judged and by whom.
+   * @evidence contracts/development/implementation.md#principled-implementation The pose is the stroke's own at its contact: the stance, the row's turn, the address hinge and the stroke's two hand goals (`StrikingHeld.goal`, `StrikingSupport.goal`), judged with the stroke's own grasp, the hold seeded from the pose's own limb fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stance, turn, hinge, goals, verdict.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals are never loosened; the planner's verdict stands.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One stance, one hinge search and one one-instant course per stance.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every term is the stroke's own reader.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function contact(
+    props: IAddress,
+    form: IForm,
+    stroke: precisionStrokeTool.IStrokeTool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    at: IAutoMovieVector3,
+  ): fitClearArmPose.Verdict {
+    const stance: IAutoMovieMotionHumanPosture = stand.posture(
+      props.body,
+      at,
+      props.yaw,
+    );
+    const sign: number = props.side === "right" ? 1 : -1;
+    const posture: IAutoMovieMotionHumanPosture = addressPrecisionStroke(
+      props.body,
+      stance,
+      AutoMovieMotionHumanTrunk.footing(props.body, stance),
+      props.side,
+      frame.point,
+      undefined,
+      0,
+      Infinity,
+    )(StrikingBlade.turned(stance, sign * form.turn), 1);
+    const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
+    return fitClearArmPose({
+      body: props.body,
+      posture: {
+        ...posture,
+        limbs: {
+          ...posture.limbs,
+          [`${props.side}Arm`]: StrikingHeld.goal(
+            props,
+            stroke.tool,
+            frame,
+            0,
+            AutoMovieMotionHumanBend.hang(props.body, posture, props.side),
+          ),
+          ...(stroke.support === null
+            ? {}
+            : {
+                [`${other}Arm`]: StrikingSupport.goal(
+                  props.body,
+                  posture,
+                  stroke.tool,
+                  frame,
+                  stroke.support,
+                ),
+              }),
+        },
+      },
+      side: props.side,
+      ...(stroke.support === null
+        ? {}
+        : { second: other, grasp: coursePrecisionStroke.GRASP }),
+    });
+  }
+
+  /**
+   * A precision stroke's phrase on its clock: the preparation, the attack to
+   * the contact, the follow-through and the return, shares of the time from
+   * the stroke's start to its contact (provisional).
+   *
+   * @param impact Seconds from the stroke's start to its contact; positive.
+   * @returns The clock, whose `stroke` is the contact.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the four phases, their unit and their provisional standing.
+   * @evidence contracts/development/implementation.md#principled-implementation One phrase for every precision stroke, read by the stroke and named once.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One phrase call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shares are named here once, provisional.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `createPrecisionSportStroke`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function clock(impact: number): IAutoMovieMotionClock {
+    return AutoMovieMotionClock.phrase({
+      prepare: 0.64 * impact,
+      attack: 0.36 * impact,
+      follow: 0.36 * impact,
+      retract: 0.5 * impact,
+    });
   }
 
   /**

@@ -17,7 +17,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBall } from "../ballStrike/HumanBall";
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
@@ -28,12 +27,12 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
-import { StrikingQuality } from "../striking/StrikingQuality";
 import { PrecisionStrokeForms } from "./PrecisionStrokeForms";
 import { PrecisionStrokeKeys } from "./PrecisionStrokeKeys";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
 import { holdPrecisionSwing } from "./holdPrecisionSwing";
+import { precisionStrokeTool } from "./precisionStrokeTool";
 
 /** The shared authorship contract. Cue strokes also name a supporting surface. */
 type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
@@ -95,12 +94,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
       const impact: number = positive("impact", params.impact ?? form.impact);
       const speed: number = positive("speed", params.speed);
       const seconds: number = context.start + impact;
-      const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
-        prepare: 0.64 * impact,
-        attack: 0.36 * impact,
-        follow: 0.36 * impact,
-        retract: 0.5 * impact,
-      });
+      const clock: IAutoMovieMotionClock = PrecisionStrokeForms.clock(impact);
       const prop = context.prop(params.ball);
       const incoming: IAutoMovieRigidTransform = prop.frame(seconds);
       const ball: HumanBall.IBall = HumanBall.placed(
@@ -123,42 +117,20 @@ export function createPrecisionSportStroke<P extends Stroke>(
         });
       const direction: IAutoMovieVector3 = Vector3.normalize(horizontal);
 
-      // A held implement strikes with its named working point and face; a
-      // bare hand strikes with its grip socket and the palm's normal, read
-      // in the hand bone's frame at the entry pose.
+      // The implement as the hand holds it, or the bare palm, read as the
+      // address reads it (`precisionStrokeTool`).
       const held: IAutoMovieMotionHumanHeld.IHeld | undefined =
         form.bare === true
           ? undefined
           : AutoMovieMotionHumanHeld.of(context, side, implement(params));
-      const read: IAutoMovieMotionHumanStrikingHeld.ITool =
-        held === undefined
-          ? StrikingHeld.bare(body, side)
-          : StrikingHeld.read(held, { tip: form.point });
       const entryBones: ReturnType<typeof poseBones> = poseBones(
         body,
         context.entry.pose,
         undefined,
         new Set<AutoMovieHumanoidBone>([`${side}Hand`, `${side}UpperArm`]),
       );
-      const face: IAutoMovieVector3 =
-        held === undefined
-          ? Quaternion.rotateVector(
-              Quaternion.inverse(entryBones.get(`${side}Hand`)!.worldRotation),
-              HumanHand.frame(body, entryBones, side, "palm").normal,
-            )
-          : AutoMovieMotionHumanHeld.point(held, form.point).direction;
-      const tool: IAutoMovieMotionHumanStrikingHeld.ITool = cue
-        ? read
-        : {
-            ...read,
-            axis: Vector3.normalize(
-              Vector3.subtract(
-                read.axis,
-                Vector3.scale(face, Vector3.dot(read.axis, face)),
-              ),
-            ),
-            edge: face,
-          };
+      const { tool, face, support }: precisionStrokeTool.IStrokeTool =
+        precisionStrokeTool(body, side, form, held, context.entry.pose);
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
       const sign: number = side === "right" ? 1 : -1;
       const axis: IAutoMovieVector3 = PrecisionStrokeForms.axis(
@@ -259,17 +231,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
           stay: false,
           stop: 1,
           turn: sign * form.turn,
-          support:
-            cue || form.oneHand === true || held === undefined
-              ? null
-              : {
-                  handle: "axis",
-                  offset: {
-                    x: -2 * StrikingQuality.fist(body.measure.hand),
-                    y: 0,
-                    z: 0,
-                  },
-                },
+          support,
         },
       );
 
@@ -309,6 +271,10 @@ export function createPrecisionSportStroke<P extends Stroke>(
           bridge === undefined ? 0 : BRIDGE_INCLINE,
           bridge === undefined ? Infinity : 0,
         );
+      const open: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+        side,
+        "flat",
+      );
       const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
         t,
         channels,
@@ -320,12 +286,20 @@ export function createPrecisionSportStroke<P extends Stroke>(
           ["relax", "end"],
           t,
         );
-        const planned: IAutoMovieMotionHumanPosture = plan.posture(
+        // A bare hand meets the ball open and firm, with the heel and palm of
+        // a float serve or the fingers of a set, never the fist a bare strike
+        // closes, whose curled fingers stand off the palm into the thigh the
+        // swing passes (provisional: no measured digit angles).
+        const raw: IAutoMovieMotionHumanPosture = plan.posture(
           t,
           channels,
           source,
           projection,
         );
+        const planned: IAutoMovieMotionHumanPosture =
+          held === undefined
+            ? { ...raw, joints: { ...raw.joints, ...open } }
+            : raw;
         if (influence <= 0) return planned;
         // The swing's key poses (address, top, contact, finish): two hands
         // on one implement coil the trunk away from the shot to the top of

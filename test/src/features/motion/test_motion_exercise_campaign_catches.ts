@@ -5,6 +5,7 @@ import {
 } from "@automovie/archetypes";
 import { AutoMovieComposition, Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -27,6 +28,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { ballPossessions } from "../internal/ballPossessions";
+import { motionGraspedHandle } from "../internal/motionGraspedHandle";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A law that stands holding the named props in the named hands from the start. */
@@ -166,6 +168,29 @@ export function test_motion_exercise_campaign_catches(): void {
   const receiverAt: IAutoMovieVector3 = { x: 0, y: 0, z: 8 };
   const crosse: ReturnType<typeof createLacrosseCrosse> =
     createLacrosseCrosse();
+  // A catching top hand closes high on the shaft, at the grip's end nearest
+  // the head, so the pocket stands a short lever from the palm.
+  const span: IAutoMovieAffordance = crosse.affordance("grip");
+  const pocket: IAutoMovieVector3 =
+    crosse.affordance("pocket").frame.translation;
+  const along: IAutoMovieVector3 = Quaternion.rotateVector(
+    span.frame.rotation,
+    { x: 1, y: 0, z: 0 },
+  );
+  const top: IAutoMovieAffordance["frame"] = {
+    ...span.frame,
+    translation: Vector3.add(
+      span.frame.translation,
+      Vector3.scale(
+        along,
+        (Math.sign(
+          Vector3.dot(along, Vector3.subtract(pocket, span.frame.translation)),
+        ) *
+          (span.length ?? 0)) /
+          2,
+      ),
+    ),
+  };
   take(
     "#3896 lacrosse pocket catch",
     "lacrosse",
@@ -185,17 +210,10 @@ export function test_motion_exercise_campaign_catches(): void {
         worn: {
           subject: "receiver",
           bone: "rightHand",
-          // The crosse's grip frame on the hand's own frame: the shaft held
-          // along the hand's grip axis.
-          offset: {
-            position: Quaternion.rotateVector(
-              Quaternion.inverse(crosse.affordance("grip").frame.rotation),
-              Vector3.scale(crosse.affordance("grip").frame.translation, -1),
-            ),
-            rotation: Quaternion.inverse(
-              crosse.affordance("grip").frame.rotation,
-            ),
-          },
+          // The crosse held at its top as a grasp holds a handle, the shaft
+          // across the palm and the head out past the index finger
+          // (`motionGraspedHandle`).
+          offset: motionGraspedHandle(body, "right", top, pocket),
         },
       },
     ],

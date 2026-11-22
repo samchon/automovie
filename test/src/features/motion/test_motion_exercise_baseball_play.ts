@@ -12,10 +12,12 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanStand,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanHeld,
   HumanBallPlay,
   HumanChain,
   HumanFoot,
@@ -24,6 +26,7 @@ import {
   HumanPerformance,
   HumanPrecisionSport,
   HumanSportThrow,
+  PrecisionStrokeForms,
   stageCatch,
   stand,
 } from "@automovie/motions";
@@ -31,6 +34,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { ballPossessions } from "../internal/ballPossessions";
+import { motionGraspedHandle } from "../internal/motionGraspedHandle";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
@@ -108,8 +112,8 @@ export function test_motion_exercise_baseball_play(): void {
   const centre: IAutoMovieVector3 = ball.affordance("grip").frame.translation;
   const radius: number = ball.affordance("grip").aperture! / 2;
 
-  // The bat and its contact point come from the established batter fixture:
-  // the bat in the right grip of the ready pose, the barrel 4 degrees down.
+  // The contact point comes from the established batter fixture: a bat in
+  // the right grip of the ready pose, the barrel 4 degrees down.
   const ready: HumanPerformance = new HumanPerformance({
     seed: "baseball-ready",
     performers: [
@@ -135,9 +139,24 @@ export function test_motion_exercise_baseball_play(): void {
     { x: 0, y: 0, z: 1 },
     -94,
   );
+  // The bat is held by its grip as a hand grasps a handle, the barrel out
+  // past the index finger (`motionGraspedHandle`), in the ready pose's right
+  // hand.
+  const inHand: IAutoMovieRigidTransform = motionGraspedHandle(
+    body,
+    "right",
+    bat.affordance("grip").frame,
+    bat.affordance("strike").frame.translation,
+  );
+  const wrist: IAutoMovieResolvedBone = ready
+    .bones("batter", 0)
+    .get("rightHand")!;
   const batAt: IAutoMovieRigidTransform = {
-    position: Vector3.subtract(hand, Quaternion.rotateVector(barrel, grip)),
-    rotation: barrel,
+    position: Vector3.add(
+      wrist.worldPosition,
+      Quaternion.rotateVector(wrist.worldRotation, inHand.position),
+    ),
+    rotation: Quaternion.multiply(wrist.worldRotation, inHand.rotation),
   };
   const working: IAutoMovieVector3 = Quaternion.rotateVector(
     barrel,
@@ -232,7 +251,7 @@ export function test_motion_exercise_baseball_play(): void {
           position: Vector3.subtract(palm, centre),
           rotation: identity,
         }),
-        HumanObject.prop("bat", bat, batAt),
+        HumanObject.prop("bat", bat, batHeld),
       ],
       composition: AutoMovieComposition.parallel(
         HumanChain.subject("pitcher")
@@ -252,7 +271,37 @@ export function test_motion_exercise_baseball_play(): void {
       ),
     });
   };
-  const batterAt: IRole["at"] = { x: 0, y: 0, z: 0 };
+  // Straight up the middle: the stroke meets the ball square to its shot,
+  // and at 40 m/s the 8 degree loft carries it over the pitcher's head.
+  const field: IAutoMovieVector3 = { x: contact.x, y: 0, z: 40 };
+  // The batter stands at the swing's own address for the contact, the bat
+  // read in the hand as the hold keeps it (`PrecisionStrokeForms.address`),
+  // and the bat is carried there with the batter.
+  const quiet: ReturnType<HumanPerformance["bones"]> = ready.bones("batter", 0);
+  const batterAt: IRole["at"] = PrecisionStrokeForms.address({
+    body,
+    row: "baseballHit",
+    side: "right",
+    yaw: 0,
+    ball: contact,
+    radius,
+    toward: field,
+    held: AutoMovieMotionHumanHeld.grasped(
+      body,
+      "right",
+      "bat",
+      batAt,
+      bat.affordances ?? [],
+      {
+        point: quiet.get("rightHand")!.worldPosition,
+        rotation: quiet.get("rightHand")!.worldRotation,
+      },
+    ),
+  });
+  const batHeld: IAutoMovieRigidTransform = {
+    position: Vector3.add(batAt.position, batterAt),
+    rotation: batAt.rotation,
+  };
   const batterStands: IRole = {
     subject: "batter",
     at: batterAt,
@@ -319,9 +368,6 @@ export function test_motion_exercise_baseball_play(): void {
   });
   // The fielder takes the batted ball 1.05 s after the hit.
   const hang: number = 1.05;
-  // Straight up the middle: the stroke meets the ball square to its shot,
-  // and at 40 m/s the 8 degree loft carries it over the pitcher's head.
-  const field: IAutoMovieVector3 = { x: contact.x, y: 0, z: 40 };
   const hitOnly: HumanPerformance = film({
     delivery: "pitch",
     distance: 18.44,
@@ -422,7 +468,7 @@ export function test_motion_exercise_baseball_play(): void {
         proficiency: { level: "trained" },
       },
     ],
-    props: [HumanObject.prop("bat", bat, batAt)],
+    props: [HumanObject.prop("bat", bat, batHeld)],
     composition: HumanChain.subject("batter")
       .registered(holdBat.name, { seconds: 0.4, sway: 0 })
       .registered("dash", { to: firstBase }).node,

@@ -10,12 +10,14 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanChainCore,
   IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanStand,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanHeld,
   HumanBallPlay,
   HumanChain,
   HumanHand,
@@ -117,12 +119,45 @@ export function test_motion_exercise_tennis_point(): void {
     z: 0.55 * scale,
   };
   // A hitter stands at the forehand's own address for the ball, facing the
-  // shot (`PrecisionStrokeForms.address`).
-  const length: number = Vector3.length(
-    Vector3.subtract(
-      racket.affordance("face").frame.translation,
-      racket.affordance("grip").frame.translation,
-    ),
+  // shot, the racket read in the hand as the hold keeps it: hung from the
+  // quiet stance's right grip with its face turned up, as the takes hang it
+  // (`PrecisionStrokeForms.address`).
+  const quiet: ReturnType<HumanPerformance["bones"]> = new HumanPerformance({
+    seed: "tennis-quiet",
+    performers: [
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a").stand({ seconds: 0.2, sway: 0 }).node,
+  }).bones("a", 0);
+  const hung: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 1, y: 0, z: 0 },
+    90,
+  );
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.grasped(
+    body,
+    "right",
+    "racket",
+    {
+      position: Vector3.subtract(
+        HumanHand.frame(body, quiet, "right", "grip").point,
+        Quaternion.rotateVector(
+          hung,
+          racket.affordance("grip").frame.translation,
+        ),
+      ),
+      rotation: hung,
+    },
+    racket.affordances ?? [],
+    {
+      point: quiet.get("rightHand")!.worldPosition,
+      rotation: quiet.get("rightHand")!.worldRotation,
+    },
   );
   const place = (point: IAutoMovieVector3, yaw: number): IAutoMovieVector3 =>
     PrecisionStrokeForms.address({
@@ -139,7 +174,7 @@ export function test_motion_exercise_tennis_point(): void {
           { x: 0, y: 0, z: 10 },
         ),
       ),
-      tool: length,
+      held,
     });
   const face = (from: IAutoMovieVector3, to: IAutoMovieVector3): number =>
     (Math.atan2(to.x - from.x, to.z - from.z) * 180) / Math.PI;
