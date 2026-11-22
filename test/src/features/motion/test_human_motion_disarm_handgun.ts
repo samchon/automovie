@@ -145,8 +145,10 @@ function perform(
       : createHandgun({ frame: "compact" });
   const grip: IAutoMovieVector3 = model.affordance("grip").frame.translation;
   const weapon: IAutoMovieMotionHumanProp = HumanObject.prop("weapon", model, {
+    // Beside the armed partner's right hip: the partner faces -Z (yaw 180),
+    // so its right lies toward +X.
     position: {
-      x: -0.2 * armed.measure.stature,
+      x: 0.2 * armed.measure.stature,
       y: 0.55 * armed.measure.stature,
       z: APART - 0.3 - grip.y,
     },
