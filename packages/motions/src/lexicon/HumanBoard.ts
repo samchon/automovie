@@ -203,11 +203,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     if (hand === undefined) return undefined;
     if (hand.contact !== undefined)
       return HumanMountedFrame.contact(support, hand.contact, film);
+    // A partner's bone is held on the body's surface, not at its joint inside the body.
     if (hand.partner !== undefined && hand.bone !== undefined)
-      return context
-        .performer(hand.partner)
-        .bones(film, new Set([hand.bone]))
-        .get(hand.bone)?.worldPosition;
+      return HumanMountedFrame.partnerHold(
+        context.performer(hand.partner),
+        hand.bone,
+        film,
+      );
     return undefined;
   };
   const holdWindow: IAutoMovieMotionHumanContactWindow[] =

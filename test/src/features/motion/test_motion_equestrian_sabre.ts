@@ -225,7 +225,7 @@ export function test_motion_equestrian_sabre(): void {
   const rest: number = Vector3.distance(nearest, joint);
   if (rest > body.measure.hand / 2)
     findings.push(
-      `slope: the sloping passes ${rest.toFixed(3)} m from the right shoulder joint`,
+      `slope: the blade passes ${rest.toFixed(3)} m from the right shoulder joint`,
     );
   if (
     Vector3.dot(

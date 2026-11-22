@@ -1,11 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanMounted,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMoviePose,
@@ -332,5 +334,47 @@ export namespace HumanMountedFrame {
           carrier(start + seconds),
         ),
     };
+  }
+
+  /** How far out from a held limb's surface the palm lies, metres: a hand's thickness (provisional). */
+  export const SKIN: number = 0.03;
+
+  /**
+   * Where a hand holds a partner's bone: on the partner's body surface, out from the partner's hips through the bone, level, by the thigh's radius and the palm's thickness; the bone's joint itself where it stands over the hips.
+   *
+   * @param partner The partner as the performance reads it.
+   * @param bone The bone held.
+   * @param film Film seconds.
+   * @returns World metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the place and its one degenerate case.
+   * @evidence contracts/development/implementation.md#principled-implementation The partner's displayed joint pushed out level from the hips by the limb's radius and the palm's thickness, so the site lies on the surface a palm closes on, not inside the body.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One read and one offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bone straight over the hips keeps its joint, having no level way out.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One read of two bones.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read per instant.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function partnerHold(
+    partner: IAutoMovieMotionHumanPerformerReader,
+    bone: AutoMovieHumanoidBone,
+    film: number,
+  ): IAutoMovieVector3 {
+    const bones: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =
+      partner.bones(film, new Set<AutoMovieHumanoidBone>([bone, "hips"]));
+    const at: IAutoMovieVector3 = bones.get(bone)!.worldPosition;
+    const out: IAutoMovieVector3 = {
+      ...Vector3.subtract(at, bones.get("hips")!.worldPosition),
+      y: 0,
+    };
+    return Vector3.length(out) < 1e-6
+      ? at
+      : Vector3.add(
+          at,
+          Vector3.scale(
+            Vector3.normalize(out),
+            partner.body.measure.thighRadius + SKIN,
+          ),
+        );
   }
 }

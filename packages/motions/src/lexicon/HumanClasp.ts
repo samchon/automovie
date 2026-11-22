@@ -1,4 +1,3 @@
-import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -21,9 +20,6 @@ import { HumanUnseatPose } from "./HumanUnseatPose";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClasp>;
-
-/** How far out from a held limb's surface the palm lies, metres: a hand's thickness, provisional. */
-const SKIN: number = 0.03;
 
 /** Seconds a hand takes to reach its hold (provisional). */
 const REACH: number = 0.3;
@@ -107,23 +103,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         hold.contact,
         film,
       );
-    // A partner's bone is held on the body's surface: out from the partner's hips through the bone, by the limb's radius.
-    const partner = context.performer(hold.subject);
-    const bones = partner.bones(film, new Set([hold.bone!, "hips"]));
-    const at: IAutoMovieVector3 = bones.get(hold.bone!)!.worldPosition;
-    const out: IAutoMovieVector3 = {
-      ...Vector3.subtract(at, bones.get("hips")!.worldPosition),
-      y: 0,
-    };
-    return Vector3.length(out) < 1e-6
-      ? at
-      : Vector3.add(
-          at,
-          Vector3.scale(
-            Vector3.normalize(out),
-            partner.body.measure.thighRadius + SKIN,
-          ),
-        );
+    // A partner's bone is held on the body's surface (`HumanMountedFrame.partnerHold`).
+    return HumanMountedFrame.partnerHold(
+      context.performer(hold.subject),
+      hold.bone!,
+      film,
+    );
+
   };
   const duration: number = params.seconds;
   const windows: IAutoMovieMotionHumanContactWindow[] = sides.map(
