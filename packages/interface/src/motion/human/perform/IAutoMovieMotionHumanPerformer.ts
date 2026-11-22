@@ -30,7 +30,7 @@ export interface IAutoMovieMotionHumanPerformer {
   /** Starting heading about +Y, degrees. */
   yaw: number;
 
-  /** Skill. */
+  /** Skill, for every action the performer takes: what a level changes is on {@link IAutoMovieProficiency}. A champion is `elite`. */
   proficiency: IAutoMovieProficiency;
 
   /**

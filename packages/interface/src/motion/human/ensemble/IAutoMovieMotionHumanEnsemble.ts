@@ -49,7 +49,7 @@ export interface IAutoMovieMotionHumanEnsemble {
     >
   >;
 
-  /** The distribution of the members' proficiency `p`, overriding the preset's. */
+  /** The distribution of the members' proficiency `p`, overriding the preset's; the preset's when absent ({@link HUMAN_ENSEMBLE_PRESETS}: mean 0.9 for `elite` to 0.25 for `rabble`). `p` is the skill of every member's actions ({@link IAutoMovieProficiency}). */
   proficiency?: IAutoMovieMotionHumanAttribute.IDistribution;
 
   /** Named roles and how many members take each, in the order they are filled. */

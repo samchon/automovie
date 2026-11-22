@@ -32,7 +32,7 @@ export namespace IAutoMovieMotionHumanPerformanceAim {
     /** The heights of a `none` target's lines, world metres. */
     heights: Record<"low" | "middle" | "high", number>;
 
-    /** A `none` target's distance when it names none, metres. */
+    /** A `none` target's distance when it names none, metres: the performer's own arm length, upper arm plus forearm plus hand. */
     range: number;
 
     /** Their body. */

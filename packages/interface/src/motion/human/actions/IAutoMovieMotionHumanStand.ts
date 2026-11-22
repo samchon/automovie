@@ -41,7 +41,7 @@ export namespace IAutoMovieMotionHumanStand {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in stand.plan.
    */
   export interface IParams {
-    /** How long to stand, seconds; 1.5 when absent.
+    /** How long to stand, seconds; 1.5 when absent (provisional, {@link stand.SECONDS}): a beat between actions, not a held pose.
      * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     seconds?: number;

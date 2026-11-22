@@ -14,6 +14,21 @@
  * absent from `axes` takes the overall value. Proficiency changes timing,
  * path and outcome; it never raises a joint's range of motion.
  *
+ * What a level changes. A quantity that a skill governs runs from its novice
+ * value to its elite value along its axis by a smoothstep, so the levels sit
+ * at 0, 0.26, 0.74 and 1 of the way (`HumanSkill.quantity`). Each action
+ * family owns its endpoints and states them on its own type: the strikes'
+ * delivery, recovery, peak speed, range share, guard drop and reaction
+ * ({@link IAutoMovieMotionHumanPunch}, {@link StrikingSkill}). Three effects
+ * hold across every timed action ({@link HumanSkill}): the timing variability
+ * of an interval, 7 % of it plus 25 ms at novice to 2.5 % plus 10 ms at
+ * elite (`timing`); the endpoint scatter of a reach, its standard deviation
+ * the distance over the time times 0.012 s at novice to 0.004 s at elite
+ * (`path`, provisional); and the postural sway, 1.6 times at novice to 1.0
+ * at elite (`balance`, provisional). The performer's `proficiency` is its
+ * skill for every action; an action's `manner.proficiency` only narrows the
+ * offsets its `variation` draws ({@link IAutoMovieMotionManner.proficiency}).
+ * *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the named levels' values, every axis with what it measures, the default for an absent axis and what proficiency never changes. The ten independent motor-skill dimensions used for proficiency overrides and HumanSkill axis lookup.
  * @evidence contracts/development/design.md#principled-representation A named level or a continuous value, with per-axis overrides along the dimensions motor-learning studies measure separately. Closed choices "timing", "path", "balance", "guard", "power", "speed", "recovery", "reaction", "anticipation", "sequencing" distinguish the admitted cases.
  * @evidence contracts/development/design.md#minimal-and-owned-surface States skill only; how each axis changes a motion belongs to the laws that read it. Public boundary formerly declared in skill/IAutoMovieProficiency.ts; canonical declarations reference this identity directly.
