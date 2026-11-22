@@ -333,20 +333,22 @@ export function createPrecisionSportStroke<P extends Stroke>(
         );
         if (influence <= 0) return planned;
         // Two hands on one implement coil the trunk away from the shot as
-        // the swing goes back and uncoil it into the contact, so the lead
-        // arm lies across the front of the chest at the top of the backswing
-        // instead of through it: the trunk turns back by `COIL` of the swing's
-        // arc at the backswing's top, none from the contact on.
+        // the swing goes back, uncoil it into the contact and turn it on
+        // toward the shot through the follow-through, so the arms stay across
+        // the front of the chest instead of through it: the trunk turns back
+        // by `COIL` of the swing's arc at the backswing's top, square at the
+        // contact and as far on at the follow-through's end.
         const current: IAutoMovieMotionHumanPosture =
           form.oneHand === true || held === undefined || form.sweep === 0
             ? address(planned, influence)
             : StrikingBlade.turned(
                 address(planned, influence),
-                -sign *
+                sign *
                   COIL *
                   form.sweep *
-                  clock.progress("start", "ready", t) *
-                  (1 - clock.progress("strokeStart", "stroke", t)),
+                  (clock.progress("stroke", "strokeEnd", t) -
+                    clock.progress("start", "ready", t) *
+                      (1 - clock.progress("strokeStart", "stroke", t))),
               );
         if (
           bridge === undefined ||

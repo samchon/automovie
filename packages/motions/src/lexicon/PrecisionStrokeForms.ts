@@ -266,7 +266,13 @@ export namespace PrecisionStrokeForms {
       const across: number =
         (form.oneHand === true || form.bare === true) && Math.abs(drop) < span
           ? Math.sqrt(span * span - drop * drop)
-          : span * Math.hypot(working.x, working.z);
+          : Math.max(
+              span * Math.hypot(working.x, working.z),
+              // Hanging arms lie in front of the chest, never inside it.
+              props.body.measure.chestDepth / 2 +
+                props.body.measure.upperArmRadius +
+                props.body.measure.forearmRadius,
+            );
       const shoulder: IAutoMovieVector3 = Vector3.add(
         grip,
         Vector3.scale(back, across),
