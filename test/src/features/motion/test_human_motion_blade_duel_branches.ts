@@ -22,7 +22,10 @@ import {
   HumanObject,
   HumanPerformance,
   HumanPropFrame,
+  HumanProxemics,
+  StrikingStance,
   composeHumanBladeExchange,
+  step,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -62,16 +65,34 @@ const BRANCHES: readonly IBranch[] = [
 ];
 
 /**
- * The performers' separation, metres: a cutting distance for two sabres.
- * The opener's cut lands on the partner's far (right) shoulder with a full
- * lunge, so its wrist must lie within the arm there. At 1.7 m the full lunge
- * left the m-average wrist 0.588 m from its shoulder against a 0.569 m arm,
- * and the wrist comes nearer by about 0.9 of each step the partner stands
- * nearer (the target lies almost along the blade's line). At 1.6 m it sits
- * near the 0.9 of the arm the sword law aims a stand-in target at
- * (`HumanSword.REACH`).
+ * The performers' separation, root to root, metres. They square off at the
+ * fighting distance (`HumanProxemics.GAPS.fighting`, Maloney, Renshaw and
+ * Farrow 2021), a gap from the front of one chest to the other's sternum.
+ * Each chest's front stands half a chest depth ahead of its body's centre
+ * line (the convention `HumanProxemics.reach` measures by), so the roots
+ * stand the gap plus one chest depth apart. From there no cut lands, even
+ * with a lunge: a bout closes the distance with footwork before it attacks,
+ * so the opener advances first (`closing`).
+ *
+ * @param body The performers' body.
+ * @returns Metres.
  */
-const APART: number = 1.6;
+function apart(body: IAutoMovieMotionHumanBody): number {
+  return HumanProxemics.GAPS.fighting + body.measure.chestDepth;
+}
+
+/**
+ * How far the opener's one fencing advance carries it, metres: the stance
+ * step's own length, half a stance (`step.STEP_SHARE` of
+ * `StrikingStance.length`), as the advance row takes it.
+ *
+ * @param body The opener's body.
+ * @returns Metres.
+ */
+function closing(body: IAutoMovieMotionHumanBody): number {
+  return step.STEP_SHARE * StrikingStance.length(body);
+}
+
 /** A held grip holds within this, metres: the staged piste's grip bound. */
 const HOLD: number = 0.005;
 /** The blades meet in a bind within this of each other's axis, metres: two blade widths. */
@@ -286,15 +307,15 @@ function stage(
     openingProp: "a.blade",
     respondingProp: "b.blade",
     blockLeadSeconds: LEAD,
-    // Marks are fixed points: the partner's right shoulder and the
-    // opener's crown where they stand on their marks.
+    // Marks are fixed points: the partner's right shoulder where it stands,
+    // and the opener's crown where its advance leaves it.
     openingMark: {
       kind: "point",
       frame: "world",
       at: {
         x: -body.rest.get("rightUpperArm")!.x,
         y: body.rest.get("rightUpperArm")!.y,
-        z: APART - body.rest.get("rightUpperArm")!.z,
+        z: apart(body) - body.rest.get("rightUpperArm")!.z,
       },
     },
     ...(branch.reply
@@ -302,17 +323,20 @@ function stage(
           replyMark: {
             kind: "point",
             frame: "world",
-            at: { x: 0, y: body.measure.stature, z: 0 },
+            at: { x: 0, y: body.measure.stature, z: closing(body) },
           },
         }
       : {}),
   };
-  const opener = HumanChain.subject("a").pickUp({
-    prop: "a.blade",
-    handle: "grip",
-    hand: "right",
-    use,
-  });
+  // The opener closes from the fighting distance with one advance, then cuts.
+  const opener = HumanChain.subject("a")
+    .pickUp({
+      prop: "a.blade",
+      handle: "grip",
+      hand: "right",
+      use,
+    })
+    .registered(HumanBlade.advance.name, {});
   const composition: IAutoMovieChain = composeHumanBladeExchange(
     opener,
     HumanChain.subject("b").pickUp({
@@ -355,14 +379,14 @@ function stage(
       {
         subject: "b",
         body,
-        at: { x: 0, y: 0, z: APART },
+        at: { x: 0, y: 0, z: apart(body) },
         yaw: 180,
         proficiency: { level: "trained" },
       },
     ],
     props: [
       held("a", { x: 0, y: 0, z: 0 }, 0),
-      held("b", { x: 0, y: 0, z: APART }, 180),
+      held("b", { x: 0, y: 0, z: apart(body) }, 180),
       ...(cuirass === undefined ? [] : [wear(cuirass)]),
     ],
     composition: node,
