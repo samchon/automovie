@@ -169,7 +169,7 @@ export namespace IAutoMovieMotionHumanArmGeometry {
       /** Zero-based probe index within that collider part. */
       corner: number;
       /** Bone carrying the obstacle collider probe. */
-      bone: AutoMovieHumanoidBone;
+      bone: Segment;
     }[];
   }
 
@@ -182,8 +182,8 @@ export namespace IAutoMovieMotionHumanArmGeometry {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieMotionHumanColliders.IPlaced, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IShape {
-    /** The bone the shape's segment rides on. */
-    bone: AutoMovieHumanoidBone;
+    /** The bone the shape's segment rides on, or the subject and part of a segment no human body carries. */
+    bone: Segment;
     /** Own-body audit index, followed by external segments in base order. */
     part: number;
     /** The segment's world pose. */
@@ -220,4 +220,7 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     /** The hand's world rotation. */
     hand: IAutoMovieQuaternion;
   }
+
+  /** What carries an obstacle shape: a rig bone, or a subject and part (`subject:part`) of a segment no human body carries (`IAutoMovieMotionHumanColliders.IExternal`). */
+  export type Segment = AutoMovieHumanoidBone | `${string}:${string}`;
 }

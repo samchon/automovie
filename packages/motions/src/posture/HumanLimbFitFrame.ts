@@ -60,6 +60,7 @@ export namespace HumanLimbFitFrame {
       pose.root === null ||
       goal.on !== undefined ||
       goal.clear !== undefined ||
+      goal.clearExternal !== undefined ||
       goal.rests !== undefined
     )
       return null;

@@ -331,7 +331,11 @@ export namespace HumanLimbFit {
             body,
             trunk,
             side,
-            goal.clear ?? [],
+            // Another body's colliders and those of what no human body carries
+            // (a prop, an animal) alike.
+            goal.clearExternal === undefined
+              ? (goal.clear ?? [])
+              : [...(goal.clear ?? []), ...goal.clearExternal],
             true,
             rival,
             goal.bend,

@@ -94,6 +94,14 @@ export interface IAutoMovieHumanLimbGoal {
   clear?: readonly IAutoMovieMotionHumanColliders.IPlaced[];
 
   /**
+   * Colliders of subjects that are no human body (a prop, an animal: the
+   * horse a rider's sabre must clear), placed in the world, which the arm
+   * keeps clear of as it does `clear`, each named in a refusal by its
+   * subject and part. Ignored on a leg.
+   */
+  clearExternal?: readonly IAutoMovieMotionHumanColliders.IExternal[];
+
+  /**
    * Another body's colliders, placed in the world, the goal lays the hand
    * on (the partner's segment a palm rests on): the forearm keeps clear of
    * them as of `clear`, except that near the wrist it asks no more room

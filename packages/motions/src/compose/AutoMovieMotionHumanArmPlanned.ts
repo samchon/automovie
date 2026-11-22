@@ -260,6 +260,10 @@ export namespace AutoMovieMotionHumanArmPlanned {
         );
         // On the hold the hand lies on what its goal lays it on: those
         // segments are its contact there, and obstacles on the way.
+        // What no human body carries (a prop, an animal) is kept clear of too.
+        const externals: IAutoMovieMotionHumanColliders.IExternal[] = goals.flatMap(
+          (goal: IAutoMovieHumanLimbGoal): IAutoMovieMotionHumanColliders.IExternal[] => [...(goal.clearExternal ?? [])],
+        );
         const rests: IAutoMovieMotionHumanColliders.IPlaced[] = holding(t)
           ? goals.flatMap((goal: IAutoMovieHumanLimbGoal): IAutoMovieMotionHumanColliders.IPlaced[] => [...(goal.rests ?? [])])
           : [];
@@ -270,6 +274,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
             ...(goal.rests ?? []),
           ]),
           ...(rests.length === 0 ? {} : { rests }),
+          ...(externals.length === 0 ? {} : { externals }),
         };
         bases.set(t, found);
       }

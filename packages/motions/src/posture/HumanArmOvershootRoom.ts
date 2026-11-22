@@ -87,14 +87,14 @@ export namespace HumanArmOvershootRoom {
    */
   export function of(
     shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-    others: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+    others: readonly IAutoMovieMotionHumanColliders.IFramed[],
     rests: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     side: "left" | "right",
   ): IRoom {
     const key: (
-      list: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+      list: readonly IAutoMovieMotionHumanColliders.IFramed[],
     ) => object = (
-      list: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+      list: readonly IAutoMovieMotionHumanColliders.IFramed[],
     ): object => (list.length === 0 ? EMPTY : list);
     let byOthers:
       | WeakMap<
@@ -157,9 +157,9 @@ export namespace HumanArmOvershootRoom {
         ),
         ...others.map(
           (
-            s: IAutoMovieMotionHumanColliders.IPlaced,
+            s: IAutoMovieMotionHumanColliders.IFramed,
           ): readonly [
-            IAutoMovieMotionHumanColliders.IPlaced,
+            IAutoMovieMotionHumanColliders.IFramed,
             boolean,
             boolean,
           ] => [s, true, false],
@@ -175,7 +175,7 @@ export namespace HumanArmOvershootRoom {
         ),
       ].flatMap(
         ([segment, free, rest]: readonly [
-          IAutoMovieMotionHumanColliders.IPlaced,
+          IAutoMovieMotionHumanColliders.IFramed,
           boolean,
           boolean,
         ]): IShape[] =>
@@ -200,7 +200,13 @@ export namespace HumanArmOvershootRoom {
 /** The rooms read, by the trunk's list, the others' list and the rests' list, then by side; an empty list is keyed by `EMPTY`. */
 const ROOMS: WeakMap<
   object,
-  WeakMap<object, WeakMap<object, Partial<Record<"left" | "right", HumanArmOvershootRoom.IRoom>>>>
+  WeakMap<
+    object,
+    WeakMap<
+      object,
+      Partial<Record<"left" | "right", HumanArmOvershootRoom.IRoom>>
+    >
+  >
 > = new WeakMap();
 
 /** The key of an empty collider list: a reading given none makes a fresh empty list each time. */

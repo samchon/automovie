@@ -96,6 +96,9 @@ export namespace HumanLimbMirror {
       ...(goal.clear === undefined
         ? {}
         : { clear: goal.clear.map(HumanArmMirror.reflected) }),
+      ...(goal.clearExternal === undefined
+        ? {}
+        : { clearExternal: goal.clearExternal.map(HumanArmMirror.framed) }),
       ...(goal.rests === undefined
         ? {}
         : { rests: goal.rests.map(HumanArmMirror.reflected) }),
