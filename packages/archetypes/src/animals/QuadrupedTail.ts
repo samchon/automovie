@@ -118,16 +118,25 @@ export namespace QuadrupedTail {
     const reach: number = Math.hypot(a, b);
     const limit: number = (ROM * Math.PI) / 180;
     const phase: number = Math.atan2(b, a);
+    // The tail trails: it turns the way that carries its end toward the body's rear, never forward under the body.
+    const rear: number =
+      Vector3.dot(
+        across,
+        Quaternion.rotateVector(placement.rotation, { x: 0, y: 0, z: -1 }),
+      ) >= 0
+        ? 1
+        : -1;
     const turn: number =
       c >= reach
-        ? Math.sign(b || 1) * limit
-        : [phase - Math.acos(c / reach), phase + Math.acos(c / reach)]
-            .map((angle: number): number =>
-              Math.atan2(Math.sin(angle), Math.cos(angle)),
-            )
-            .reduce((best: number, angle: number): number =>
-              Math.abs(angle) < Math.abs(best) ? angle : best,
-            );
+        ? rear * limit
+        : Math.min(
+            ...[phase - Math.acos(c / reach), phase + Math.acos(c / reach)].map(
+              (angle: number): number => {
+                const wrapped: number = rear * angle;
+                return wrapped - 2 * Math.PI * Math.floor(wrapped / (2 * Math.PI));
+              },
+            ),
+          ) * rear;
     const bounded: number = Math.max(-limit, Math.min(limit, turn));
 
     // Applied as the tail bone's parent-local rotation, so the rig turns it about its own joint.
