@@ -34,9 +34,6 @@ const SPACING: number = 0.08;
 /** A daily reach's peak hand speed, metres a second (J NeuroEng Rehabil 2006 3:18). */
 const PEAK: number = 0.55;
 
-/** The least waypoints a second of a reach, a return or a hold: a site moving as fast as a daily reach's peak travels at most `SPACING` between two of them. */
-const LEAST: number = Math.ceil(PEAK / SPACING);
-
 /**
  * An arm's whole action planned as one trajectory (`HumanArmTrajectory`):
  * its reach from rest, its hold on the goal's site and its return, read off
@@ -49,8 +46,8 @@ const LEAST: number = Math.ceil(PEAK / SPACING);
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The trajectory's problem is the planner's own (`HumanArmTrajectory`); this file only reads it off the action.
  */
 export namespace AutoMovieMotionHumanArmPlanned {
-  /** The least waypoints a second of an arm's planned action (`LEAST`): a site moving at a daily reach's peak speed travels at most the plan's waypoint spacing between two of them, so a display read continued from anchor seconds this far apart continues no farther than the plan's own waypoints lie apart. */
-  export const WAYPOINTS: number = LEAST;
+  /** The least waypoints a second of a reach, a return or a hold: a site moving as fast as a daily reach's peak travels at most `SPACING` between two of them. */
+  export const LEAST: number = Math.ceil(PEAK / SPACING);
 
   /**
    * An earlier plan's solution of a group's arms, handed to the next plan
