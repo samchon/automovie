@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -13,6 +14,7 @@ import type {
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { gestureJoints } from "./gestureJoints";
 import { gestureSignal } from "./gestureSignal";
 import { gestureStrokeTables } from "./gestureStrokeTables";
@@ -129,9 +131,16 @@ export namespace gestureStroke {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Full hand goals and geometry-free finger playback share this same pure formula for identical kind/share/cycle/extent inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains nothing.
    */
-  export function curl(kind: IAutoMovieMotionHumanGestureStroke.Kind, u: number, cycles: number, extent: number): number {
+  export function curl(
+    kind: IAutoMovieMotionHumanGestureStroke.Kind,
+    u: number,
+    cycles: number,
+    extent: number,
+  ): number {
     return kind === "beckon"
-      ? gestureJoints.ANGLES.beckon * extent * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u))
+      ? gestureJoints.ANGLES.beckon *
+          extent *
+          (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u))
       : 0;
   }
   /**
@@ -160,6 +169,55 @@ export namespace gestureStroke {
     cycles: number,
     input: gestureStroke.IInput,
   ): IAutoMovieMotionHumanGestureStroke.IHand {
+    const goal: IAutoMovieMotionHumanGestureStroke.IHand = upright(
+      kind,
+      side,
+      u,
+      cycles,
+      input,
+    );
+    // A place of the air is named in the body's heading frame; a body not
+    // upright (a prone swimmer, a leaning rider) carries it with its trunk:
+    // the goal turns about the root by the posture's pitch and roll beyond
+    // its heading. Pointing and self-touch already read the posed trunk.
+    if (TRUNK_POSED.has(kind)) return goal;
+    const tilt: IAutoMovieQuaternion = Quaternion.multiply(
+      resolveHumanPosture.heading(input.base),
+      Quaternion.inverse(HumanFrame.turn(input.base.yaw)),
+    );
+    if (Quaternion.angle(tilt, Quaternion.identity()) < 1e-9) return goal;
+    return {
+      ...goal,
+      point: Vector3.add(
+        input.base.root,
+        Quaternion.rotateVector(
+          tilt,
+          Vector3.subtract(goal.point, input.base.root),
+        ),
+      ),
+      ...(goal.rotation === undefined
+        ? {}
+        : { rotation: Quaternion.multiply(tilt, goal.rotation) }),
+    };
+  }
+
+  /** The gesture kinds whose hand goals read the posed trunk already. */
+  const TRUNK_POSED: ReadonlySet<IAutoMovieMotionHumanGestureStroke.Kind> =
+    new Set<IAutoMovieMotionHumanGestureStroke.Kind>([
+      "point",
+      "touchFace",
+      "pushGlasses",
+      "scratchHead",
+    ]);
+
+  /** A hand's goal for an upright body, in its heading frame. */
+  function upright(
+    kind: IAutoMovieMotionHumanGestureStroke.Kind,
+    side: AutoMovieHumanSide,
+    u: number,
+    cycles: number,
+    input: gestureStroke.IInput,
+  ): IAutoMovieMotionHumanGestureStroke.IHand {
     const body: IAutoMovieMotionHumanBody = input.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const sign: number = side === "left" ? 1 : -1;
@@ -169,14 +227,24 @@ export namespace gestureStroke {
       yaw: input.base.yaw,
     };
     let transform: HumanFrame.IPrepared | undefined;
-    const at: (x: number, y: number, z: number) => IAutoMovieVector3 =
-      (x: number, y: number, z: number): IAutoMovieVector3 =>
-        (transform ??= HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw }))
-          .point({ x, y, z }, frame.origin);
-    const dir: (x: number, y: number, z: number) => IAutoMovieVector3 =
-      (x: number, y: number, z: number): IAutoMovieVector3 =>
-        (transform ??= HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw }))
-          .direction({ x, y, z });
+    const at: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+      x: number,
+      y: number,
+      z: number,
+    ): IAutoMovieVector3 =>
+      (transform ??= HumanFrame.prepare({
+        origin: { x: 0, y: 0, z: 0 },
+        yaw: frame.yaw,
+      })).point({ x, y, z }, frame.origin);
+    const dir: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+      x: number,
+      y: number,
+      z: number,
+    ): IAutoMovieVector3 =>
+      (transform ??= HumanFrame.prepare({
+        origin: { x: 0, y: 0, z: 0 },
+        yaw: frame.yaw,
+      })).direction({ x, y, z });
     // A place of the air by its names, in the performer's own frame: the
     // shares times the stature, the half shoulder width and the arm, ahead
     // of the root, which a lowered posture carries down with it. `reach`
@@ -200,7 +268,9 @@ export namespace gestureStroke {
           : AutoMovieMotionHumanTargetGrid.place(body, side, named);
       const varied: IAutoMovieMotionHumanTarget.IDefault | undefined =
         base === undefined ? undefined : input.vary!(base);
-      const offset: (key: "lateral" | "height" | "range") => number = (key: "lateral" | "height" | "range"): number =>
+      const offset: (key: "lateral" | "height" | "range") => number = (
+        key: "lateral" | "height" | "range",
+      ): number =>
         base === undefined || varied === undefined
           ? 0
           : (varied[key] ?? 0) - (base[key] ?? 0);
