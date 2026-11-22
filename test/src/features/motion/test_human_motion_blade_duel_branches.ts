@@ -61,8 +61,17 @@ const BRANCHES: readonly IBranch[] = [
   { name: "landed", reply: false, armour: false },
 ];
 
-/** The performers' separation, metres: a cutting distance for two sabres. */
-const APART: number = 1.7;
+/**
+ * The performers' separation, metres: a cutting distance for two sabres.
+ * The opener's cut lands on the partner's far (right) shoulder with a full
+ * lunge, so its wrist must lie within the arm there. At 1.7 m the full lunge
+ * left the m-average wrist 0.588 m from its shoulder against a 0.569 m arm,
+ * and the wrist comes nearer by about 0.9 of each step the partner stands
+ * nearer (the target lies almost along the blade's line). At 1.6 m it sits
+ * near the 0.9 of the arm the sword law aims a stand-in target at
+ * (`HumanSword.REACH`).
+ */
+const APART: number = 1.6;
 /** A held grip holds within this, metres: the staged piste's grip bound. */
 const HOLD: number = 0.005;
 /** The blades meet in a bind within this of each other's axis, metres: two blade widths. */

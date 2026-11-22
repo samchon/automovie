@@ -118,6 +118,13 @@ function footwear(
         hand,
       })
       .rise({})
+      // The table top lies below the standing arm of the smaller cast (her
+      // shoulder stands higher above it than her arm is long): bend to it.
+      .bend({
+        toward: { kind: "point", at: touch.position, frame: "world" },
+        side: hand,
+      })
+      .until({ event: "deepest" })
       .putDown({ prop: "footwear", at: touch.position, hand }).node,
   );
   const segments: readonly IAutoMovieMotionHumanSegment[] =
