@@ -1,4 +1,8 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import {
+  ANKLE_DORSIFLEXION,
+  AutoMovieGravity,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -16,6 +20,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { walkLeg } from "../actions/walkLeg";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -45,7 +50,8 @@ import { tapDanceSteps } from "./tapDanceSteps";
  *
  * A foot travels to a strike over at most `TRAVEL` of a beat, lifted
  * `LIFT` of the stature. The hips ride over the feet's midpoint, `CROUCH`
- * of the stature low on soft knees; while no foot bears (the hop) they fly
+ * of the stature low on soft knees, no lower than a flat step's shank
+ * allows its unloaded ankle as it lands; while no foot bears (the hop) they fly
  * the ballistic arc whose flight time that span is. Repeats alternate the
  * leading foot, each starting where the last left the feet.
  *
@@ -140,6 +146,7 @@ export namespace tapDance {
       right: keys.right[0]!.place,
     };
     const instants: IAutoMovieMotionClockInstant[] = [];
+    const flats: IFlat[] = [];
     let sounded: number = 0;
     for (let r: number = 0; r < repeats; r++) {
       const lead: AutoMovieHumanSide =
@@ -169,6 +176,8 @@ export namespace tapDance {
           rotation: home[side].rotation,
         };
         if (strike.bears) ground[side] = target;
+        if (strike.bears && strike.mode === "flat")
+          flats.push({ at, ankle: target.ankle });
         list.push({
           at,
           leave: strike.bears ? Infinity : at,
@@ -211,6 +220,29 @@ export namespace tapDance {
     const flights: readonly IFlight[] = unsupported(keys, end);
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     const ankle: number = body.rest.get("leftFoot")!.y;
+    // The hips ride `CROUCH` low, no lower than lets each flat step's foot
+    // keep its shank within the unloaded ankle's range (`flat`), with the
+    // hips over the feet's midpoint as far ahead of it as they are when it
+    // lands: a flat step sounds heel and ball as it lands, before it bears.
+    const crouch: number = Math.min(
+      CROUCH * body.measure.stature,
+      ...flats.map((f: IFlat): number =>
+        flat(
+          body,
+          Vector3.dot(
+            Vector3.subtract(
+              Vector3.lerp(
+                left.placed(f.at).ankle,
+                right.placed(f.at).ankle,
+                0.5,
+              ),
+              f.ankle,
+            ),
+            forward,
+          ),
+        ),
+      ),
+    );
     const floor: number =
       (context.entry.feet.left.ankle.y + context.entry.feet.right.ankle.y) / 2 -
       ankle;
@@ -237,7 +269,7 @@ export namespace tapDance {
           );
           return {
             x: mid.x,
-            y: floor + rest.y - CROUCH * body.measure.stature + hop(flights, t),
+            y: floor + rest.y - crouch + hop(flights, t),
             z: mid.z,
           };
         },
@@ -248,6 +280,15 @@ export namespace tapDance {
       support,
     );
   }
+  /** A flat step that takes the weight: when it lands and where its ankle is set. */
+  interface IFlat {
+    /** Action seconds it lands. */
+    at: number;
+
+    /** Its ankle, world metres. */
+    ankle: IAutoMovieVector3;
+  }
+
   /** A span with no foot bearing, action seconds. */
   interface IFlight {
     /** When the last bearing foot leaves. */
@@ -255,6 +296,28 @@ export namespace tapDance {
 
     /** When the next lands. */
     to: number;
+  }
+
+  /**
+   * The deepest crouch below straight legs at which a foot set down flat
+   * keeps its shank within the unloaded ankle's dorsal range, less the
+   * walk's margin (`ANKLE_DORSIFLEXION.unloaded − walkLeg.ANKLE`), with the
+   * hip `ahead` of the ankle along the heading: the knee `s` from the ankle
+   * at that lean φ, the hip `t` from the knee, so the hip stands
+   * `H = s·cos φ + √(t² − (ahead − s·sin φ)²)` above the ankle at least
+   * (law of cosines on the leg's two segments).
+   */
+  function flat(body: IAutoMovieMotionHumanBody, ahead: number): number {
+    const t: number = body.measure.thigh;
+    const s: number = body.measure.shank;
+    const lean: number =
+      ((ANKLE_DORSIFLEXION.unloaded - walkLeg.ANKLE) * Math.PI) / 180;
+    const across: number = ahead - s * Math.sin(lean);
+    const least: number =
+      s * Math.cos(lean) + Math.sqrt(Math.max(0, t * t - across * across));
+    const straight: number =
+      body.rest.get("leftUpperLeg")!.y - body.rest.get("leftFoot")!.y;
+    return Math.max(0, straight - least);
   }
 
   /** The entry stance's key. */
