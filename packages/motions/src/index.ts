@@ -143,6 +143,7 @@ export * from "./tasks/sideDrumStrike";
 export * from "./tasks/useTool";
 export * from "./tasks/longTool";
 export * from "./tasks/LongToolStroke";
+export * from "./tasks/holdInfant";
 export * from "./tasks/wipe";
 export * from "./dressing/composeHumanAdjustCuff";
 export * from "./dressing/composeHumanStraightenTie";

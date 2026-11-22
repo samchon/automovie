@@ -69,6 +69,8 @@ export * from "./createSnorkel";
 export * from "./createSledgehammer";
 export * from "./createRake";
 export * from "./createChoppingBlock";
+export * from "./createInfant";
+export * from "./createFeedingBottle";
 export * from "./createSwimFin";
 export * from "./createHat";
 export * from "./createLadle";

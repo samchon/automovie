@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionHumanCarry } from "../carrying/IAutoMovieMotionHumanCarry";
+import type { IAutoMovieMotionHumanHoldInfant } from "../tasks/IAutoMovieMotionHumanHoldInfant";
 import type { IAutoMovieMotionHumanLongTool } from "../tasks/IAutoMovieMotionHumanLongTool";
 import type { IAutoMovieMotionHumanUseTool } from "../tasks/IAutoMovieMotionHumanUseTool";
 import type { IAutoMovieMotionHumanWipe } from "../tasks/IAutoMovieMotionHumanWipe";
@@ -65,4 +66,13 @@ export interface IAutoMovieMotionHumanLexiconLabourParams {
 
   /** Rake or hoe the ground toward oneself. */
   rake: Omit<IAutoMovieMotionHumanLongTool.IParams, "stroke">;
+
+  /** Cradle an infant across the front, its head in the holding arm's crook. */
+  cradleInfant: Omit<IAutoMovieMotionHumanHoldInfant.IParams, "hold">;
+
+  /** Hold an infant against the shoulder and pat its back. */
+  burpInfant: Omit<IAutoMovieMotionHumanHoldInfant.IParams, "hold">;
+
+  /** Feed a cradled infant from a bottle in the other hand. */
+  feedInfant: Omit<IAutoMovieMotionHumanHoldInfant.IParams, "hold">;
 }

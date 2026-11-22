@@ -3348,8 +3348,11 @@
         }
       }
     },
+    "burpInfant": {},
     "chop": {},
+    "cradleInfant": {},
     "dig": {},
+    "feedInfant": {},
     "hammer": {},
     "rake": {},
     "sideChop": {},

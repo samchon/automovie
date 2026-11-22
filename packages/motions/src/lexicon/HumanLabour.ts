@@ -5,6 +5,7 @@ import type {
 
 import { carry } from "../carrying/carry";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { holdInfant } from "../tasks/holdInfant";
 import { longTool } from "../tasks/longTool";
 import { useTool } from "../tasks/useTool";
 import { wipe } from "../tasks/wipe";
@@ -121,4 +122,19 @@ export namespace HumanLabour {
   export const rake: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["rake"]
   > = HumanActionRow.of("rake", longTool, { stroke: "rake" });
+
+  /** Cradle an infant across the front, its head in the holding arm's crook. */
+  export const cradleInfant: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["cradleInfant"]
+  > = HumanActionRow.of("cradleInfant", holdInfant, { hold: "cradle" });
+
+  /** Hold an infant against the shoulder and pat its back. */
+  export const burpInfant: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["burpInfant"]
+  > = HumanActionRow.of("burpInfant", holdInfant, { hold: "shoulder" });
+
+  /** Feed a cradled infant from a bottle in the other hand. */
+  export const feedInfant: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["feedInfant"]
+  > = HumanActionRow.of("feedInfant", holdInfant, { hold: "feed" });
 }
