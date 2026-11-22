@@ -84,30 +84,42 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
  */
 export namespace IAutoMovieMotionHumanFirefighting {
   /**
-   * The parameters of `extinguish`.
+   * The parameters of `extinguish`: the law's own `IAutoMovieMotionHumanFirefight.IExtinguish`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `extinguish`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFirefight` owns the type; the alias serves this family's `extinguish` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `extinguish` takes the type its law reads.
    */
   export type IExtinguish = IAutoMovieMotionHumanFirefight.IExtinguish;
 
   /**
-   * The parameters of `hoseLine`.
+   * The parameters of `hoseLine`: the law's own `IAutoMovieMotionHumanFirefight.IHoseLine`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `hoseLine`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFirefight` owns the type; the alias serves this family's `hoseLine` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `hoseLine` takes the type its law reads.
    */
   export type IHoseLine = IAutoMovieMotionHumanFirefight.IHoseLine;
 
   /**
-   * The parameters of `beatFlames`.
+   * The parameters of `beatFlames`: the law's own `IAutoMovieMotionHumanFirefight.IBeatFlames`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `beatFlames`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFirefight` owns the type; the alias serves this family's `beatFlames` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `beatFlames` takes the type its law reads.
    */
   export type IBeatFlames = IAutoMovieMotionHumanFirefight.IBeatFlames;
 
   /**
-   * The parameters of `stopDropRoll`.
+   * The parameters of `stopDropRoll`: the law's own `IAutoMovieMotionHumanFirefight.IStopDropRoll`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stopDropRoll`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFirefight` owns the type; the alias serves this family's `stopDropRoll` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stopDropRoll` takes the type its law reads.
    */
   export type IStopDropRoll = IAutoMovieMotionHumanFirefight.IStopDropRoll;
 }

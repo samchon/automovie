@@ -87,30 +87,42 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
  */
 export namespace IAutoMovieMotionHumanClimb {
   /**
-   * The parameters of `climbLadder`.
+   * The parameters of `climbLadder`: the law's own `IAutoMovieMotionHumanClimbLadder.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `climbLadder`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanClimbLadder` owns the type; the alias serves this family's `climbLadder` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `climbLadder` takes the type its law reads.
    */
   export type IClimbLadder = IAutoMovieMotionHumanClimbLadder.IParams;
 
   /**
-   * The parameters of `climbStairs`.
+   * The parameters of `climbStairs`: the law's own `IAutoMovieMotionHumanClimbStairs.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `climbStairs`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanClimbStairs` owns the type; the alias serves this family's `climbStairs` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `climbStairs` takes the type its law reads.
    */
   export type IClimbStairs = IAutoMovieMotionHumanClimbStairs.IParams;
 
   /**
-   * The parameters of `rope`.
+   * The parameters of `rope`: the law's own `IAutoMovieMotionHumanRope.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `rope`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRope` owns the type; the alias serves this family's `rope` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `rope` takes the type its law reads.
    */
   export type IRope = IAutoMovieMotionHumanRope.IParams;
 
   /**
-   * The parameters of `treeClimb`.
+   * The parameters of `treeClimb`: the law's own `IAutoMovieMotionHumanTreeClimb.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `treeClimb`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTreeClimb` owns the type; the alias serves this family's `treeClimb` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `treeClimb` takes the type its law reads.
    */
   export type ITreeClimb = IAutoMovieMotionHumanTreeClimb.IParams;
 }

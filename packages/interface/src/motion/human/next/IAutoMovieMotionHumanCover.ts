@@ -33,9 +33,12 @@ export interface IAutoMovieMotionHumanCover<Chain> {
  */
 export namespace IAutoMovieMotionHumanCover {
   /**
-   * The parameters of `cover`.
+   * The parameters of `cover`: the lexicon law's own `IAutoMovieMotionHumanCover.IParams` (imported as `ILegacyCover`), unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `cover`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged, with its import name.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanCover` owns the type; the alias serves this family's `cover` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `cover` takes the type its law reads.
    */
   export type ICover = ILegacyCover.IParams;
 }

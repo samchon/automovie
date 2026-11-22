@@ -51,16 +51,22 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
  */
 export namespace IAutoMovieMotionHumanHandToBody {
   /**
-   * The parameters of `handToFace`.
+   * The parameters of `handToFace`: the law's own `IAutoMovieMotionHumanHandToFace.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `handToFace`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHandToFace` owns the type; the alias serves this family's `handToFace` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `handToFace` takes the type its law reads.
    */
   export type IHandToFace = IAutoMovieMotionHumanHandToFace.IParams;
 
   /**
-   * The parameters of `selfAction`.
+   * The parameters of `selfAction`: the law's own `IAutoMovieMotionHumanSelfAction.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `selfAction`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSelfAction` owns the type; the alias serves this family's `selfAction` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `selfAction` takes the type its law reads.
    */
   export type ISelfAction = IAutoMovieMotionHumanSelfAction.IParams;
 }

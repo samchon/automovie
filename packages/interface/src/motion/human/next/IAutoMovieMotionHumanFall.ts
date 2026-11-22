@@ -141,51 +141,72 @@ export interface IAutoMovieMotionHumanFall<Chain> {
  */
 export namespace IAutoMovieMotionHumanFall {
   /**
-   * The parameters of `collapse`.
+   * The parameters of `collapse`: the law's own `IAutoMovieMotionHumanCollapse.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `collapse`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCollapse` owns the type; the alias serves this family's `collapse` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `collapse` takes the type its law reads.
    */
   export type ICollapse = IAutoMovieMotionHumanCollapse.IParams;
 
   /**
-   * The parameters of `stagger`.
+   * The parameters of `stagger`: the law's own `IAutoMovieMotionHumanStagger.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stagger`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStagger` owns the type; the alias serves this family's `stagger` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stagger` takes the type its law reads.
    */
   export type IStagger = IAutoMovieMotionHumanStagger.IParams;
 
   /**
-   * The parameters of `knockdown`.
+   * The parameters of `knockdown`: the law's own `IAutoMovieMotionHumanKnockdown.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `knockdown`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKnockdown` owns the type; the alias serves this family's `knockdown` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `knockdown` takes the type its law reads.
    */
   export type IKnockdown = IAutoMovieMotionHumanKnockdown.IParams;
 
   /**
-   * The parameters of `thrown`.
+   * The parameters of `thrown`: the law's own `IAutoMovieMotionHumanThrown.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `thrown`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanThrown` owns the type; the alias serves this family's `thrown` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `thrown` takes the type its law reads.
    */
   export type IThrown = IAutoMovieMotionHumanThrown.IParams;
 
   /**
-   * The parameters of `perturb`.
+   * The parameters of `perturb`: the law's own `IAutoMovieMotionHumanPerturb.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `perturb`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPerturb` owns the type; the alias serves this family's `perturb` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `perturb` takes the type its law reads.
    */
   export type IPerturb = IAutoMovieMotionHumanPerturb.IParams;
 
   /**
-   * The parameters of `wireFlight`.
+   * The parameters of `wireFlight`: the law's own `IAutoMovieMotionHumanWireFlight.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `wireFlight`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWireFlight` owns the type; the alias serves this family's `wireFlight` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `wireFlight` takes the type its law reads.
    */
   export type IWireFlight = IAutoMovieMotionHumanWireFlight.IParams;
 
   /**
-   * The parameters of `vehicleHit`.
+   * The parameters of `vehicleHit`: the law's own `IAutoMovieMotionHumanVehicleHit.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `vehicleHit`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanVehicleHit` owns the type; the alias serves this family's `vehicleHit` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `vehicleHit` takes the type its law reads.
    */
   export type IVehicleHit = IAutoMovieMotionHumanVehicleHit.IParams;
 }

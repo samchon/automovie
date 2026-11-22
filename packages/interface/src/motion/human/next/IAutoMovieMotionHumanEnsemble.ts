@@ -33,9 +33,12 @@ export interface IAutoMovieMotionHumanEnsemble<Chain> {
  */
 export namespace IAutoMovieMotionHumanEnsemble {
   /**
-   * The parameters of `instance`.
+   * The parameters of `instance`: the law's own `IAutoMovieMotionHumanInstance.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `instance`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanInstance` owns the type; the alias serves this family's `instance` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `instance` takes the type its law reads.
    */
   export type IInstance = IAutoMovieMotionHumanInstance.IParams;
 }

@@ -123,44 +123,62 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
  */
 export namespace IAutoMovieMotionHumanFloor {
   /**
-   * The parameters of `lieDown`.
+   * The parameters of `lieDown`: the law's own `IAutoMovieMotionHumanLieDown.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `lieDown`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLieDown` owns the type; the alias serves this family's `lieDown` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `lieDown` takes the type its law reads.
    */
   export type ILieDown = IAutoMovieMotionHumanLieDown.IParams;
 
   /**
-   * The parameters of `getUp`.
+   * The parameters of `getUp`: the law's own `IAutoMovieMotionHumanGetUp.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `getUp`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGetUp` owns the type; the alias serves this family's `getUp` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `getUp` takes the type its law reads.
    */
   export type IGetUp = IAutoMovieMotionHumanGetUp.IParams;
 
   /**
-   * The parameters of `roll`.
+   * The parameters of `roll`: the law's own `IAutoMovieMotionHumanRoll.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `roll`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRoll` owns the type; the alias serves this family's `roll` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `roll` takes the type its law reads.
    */
   export type IRoll = IAutoMovieMotionHumanRoll.IParams;
 
   /**
-   * The parameters of `crawl`.
+   * The parameters of `crawl`: the law's own `IAutoMovieMotionHumanCrawl.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `crawl`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCrawl` owns the type; the alias serves this family's `crawl` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `crawl` takes the type its law reads.
    */
   export type ICrawl = IAutoMovieMotionHumanCrawl.IParams;
 
   /**
-   * The parameters of `crabWalk`.
+   * The parameters of `crabWalk`: the law's own `IAutoMovieMotionHumanCrabWalk.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `crabWalk`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCrabWalk` owns the type; the alias serves this family's `crabWalk` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `crabWalk` takes the type its law reads.
    */
   export type ICrabWalk = IAutoMovieMotionHumanCrabWalk.IParams;
 
   /**
-   * The parameters of `dive`.
+   * The parameters of `dive`: the law's own `IAutoMovieMotionHumanDive.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `dive`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanDive` owns the type; the alias serves this family's `dive` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `dive` takes the type its law reads.
    */
   export type IDive = IAutoMovieMotionHumanDive.IParams;
 }

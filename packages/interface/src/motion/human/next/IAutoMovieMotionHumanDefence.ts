@@ -51,16 +51,22 @@ export interface IAutoMovieMotionHumanDefence<Chain> {
  */
 export namespace IAutoMovieMotionHumanDefence {
   /**
-   * The parameters of `defend`.
+   * The parameters of `defend`: the law's own `IAutoMovieMotionHumanDefend.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `defend`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanDefend` owns the type; the alias serves this family's `defend` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `defend` takes the type its law reads.
    */
   export type IDefend = IAutoMovieMotionHumanDefend.IParams;
 
   /**
-   * The parameters of `guard`.
+   * The parameters of `guard`: the law's own `IAutoMovieMotionHumanGuard.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `guard`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGuard` owns the type; the alias serves this family's `guard` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `guard` takes the type its law reads.
    */
   export type IGuard = IAutoMovieMotionHumanGuard.IParams;
 }

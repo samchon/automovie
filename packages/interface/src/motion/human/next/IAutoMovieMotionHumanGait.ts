@@ -147,72 +147,102 @@ export interface IAutoMovieMotionHumanGait<Chain> extends IAutoMovieMotionHumanG
  */
 export namespace IAutoMovieMotionHumanGait {
   /**
-   * The parameters of `walk`.
+   * The parameters of `walk`: the walk law's own `IAutoMovieMotionHumanWalkParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `walk`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWalkParams` owns the type; the alias serves this family's `walk` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `walk` takes the type its law reads.
    */
   export type IWalk = IAutoMovieMotionHumanWalkParams;
 
   /**
-   * The parameters of `run`.
+   * The parameters of `run`: the run law's own `IAutoMovieMotionHumanRun.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `run`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRun` owns the type; the alias serves this family's `run` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `run` takes the type its law reads.
    */
   export type IRun = IAutoMovieMotionHumanRun.IParams;
 
   /**
-   * The parameters of `approach`.
+   * The parameters of `approach`: the law's own `IAutoMovieMotionHumanApproach.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `approach`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanApproach` owns the type; the alias serves this family's `approach` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `approach` takes the type its law reads.
    */
   export type IApproach = IAutoMovieMotionHumanApproach.IParams;
 
   /**
-   * The parameters of `carryLoad`.
+   * The parameters of `carryLoad`: the carry law's own `IAutoMovieMotionHumanCarry.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `carryLoad`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCarry` owns the type; the alias serves this family's `carryLoad` signature, the carry law exported under that name.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `carryLoad` takes the type its law reads.
    */
   export type ICarryLoad = IAutoMovieMotionHumanCarry.IParams;
 
   /**
-   * The parameters of `intercept`.
+   * The parameters of `intercept`: the pursuit law's own `IAutoMovieMotionHumanPursuit.IIntercept`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `intercept`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPursuit` owns the type; the alias serves this family's `intercept` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `intercept` takes the type its law reads.
    */
   export type IIntercept = IAutoMovieMotionHumanPursuit.IIntercept;
 
   /**
-   * The parameters of `flee`.
+   * The parameters of `flee`: the pursuit law's own `IAutoMovieMotionHumanPursuit.IFlee`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `flee`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPursuit` owns the type; the alias serves this family's `flee` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `flee` takes the type its law reads.
    */
   export type IFlee = IAutoMovieMotionHumanPursuit.IFlee;
 
   /**
-   * The parameters of `travelDoor`.
+   * The parameters of `travelDoor`: the law's own `IAutoMovieMotionHumanTravelDoor.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `travelDoor`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTravelDoor` owns the type; the alias serves this family's `travelDoor` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `travelDoor` takes the type its law reads.
    */
   export type ITravelDoor = IAutoMovieMotionHumanTravelDoor.IParams;
 
   /**
-   * The closed paces of the walk: `slow`, `normal` and `fast`.
+   * The closed paces of the walk, `slow`, `normal` and `fast`: the walk's own `pace` member without its absence.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The closed paces of the walk: `slow`, `normal` and `fast`.
+   * @evidence contracts/development/common.md#meaningful-documentation States the three values and that they are the walk's `pace` member with absence removed.
+   * @evidence contracts/development/design.md#principled-representation A closed string union derived from `IAutoMovieMotionHumanWalkParams.pace`, so it admits exactly the walk's paces; each pace's Froude number and speed are the walk law's (`walk.FROUDE`).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWalkParams` owns the values; the family doc names the type for an author choosing a pace, and no code in the repository reads it yet.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type is derived, not restated, so it cannot drift from the walk's own values.
    */
   export type WalkPace = NonNullable<IAutoMovieMotionHumanWalkParams["pace"]>;
 
   /**
-   * The closed paces of the run: `jog`, `run` and `sprint`.
+   * The closed paces of the run, `jog`, `run` and `sprint`: the run's own `pace` member without its absence.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The closed paces of the run: `jog`, `run` and `sprint`.
+   * @evidence contracts/development/common.md#meaningful-documentation States the three values and that they are the run's `pace` member with absence removed.
+   * @evidence contracts/development/design.md#principled-representation A closed string union derived from `IAutoMovieMotionHumanRun.IParams.pace`, so it admits exactly the run's paces; each pace's duty factor and Froude number are the run law's (`run.GAITS`).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRun` owns the values; the family doc names the type for an author choosing a pace, and no code in the repository reads it yet.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type is derived, not restated, so it cannot drift from the run's own values.
    */
   export type RunPace = NonNullable<IAutoMovieMotionHumanRun.IParams["pace"]>;
 
   /**
-   * How a gait is performed: its `pace` multiplies the speed.
+   * How a gait is performed: `IAutoMovieMotionManner`, unchanged, whose `pace` multiplies the speed.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation How a gait is performed: its `pace` multiplies the speed.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the aliased manner type and the effect of its `pace` on a gait's speed.
+   * @evidence contracts/development/design.md#principled-representation An alias: the manner's members, scales and defaults are those `IAutoMovieMotionManner` states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The compose folder's `IAutoMovieMotionManner` owns the type; the family names it beside the speed model, and no code in the repository reads this name yet.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IManner = IAutoMovieMotionManner;
 }

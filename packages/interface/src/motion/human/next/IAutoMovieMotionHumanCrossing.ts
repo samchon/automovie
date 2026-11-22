@@ -69,23 +69,32 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
  */
 export namespace IAutoMovieMotionHumanCrossing {
   /**
-   * The parameters of `stepOver`.
+   * The parameters of `stepOver`: the law's own `IAutoMovieMotionHumanStepOver.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stepOver`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStepOver` owns the type; the alias serves this family's `stepOver` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stepOver` takes the type its law reads.
    */
   export type IStepOver = IAutoMovieMotionHumanStepOver.IParams;
 
   /**
-   * The parameters of `vault`.
+   * The parameters of `vault`: the law's own `IAutoMovieMotionHumanVault.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `vault`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanVault` owns the type; the alias serves this family's `vault` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `vault` takes the type its law reads.
    */
   export type IVault = IAutoMovieMotionHumanVault.IParams;
 
   /**
-   * The parameters of `squatVault`.
+   * The parameters of `squatVault`: the law's own `IAutoMovieMotionHumanSquatVault.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `squatVault`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSquatVault` owns the type; the alias serves this family's `squatVault` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `squatVault` takes the type its law reads.
    */
   export type ISquatVault = IAutoMovieMotionHumanSquatVault.IParams;
 }

@@ -51,16 +51,22 @@ export interface IAutoMovieMotionHumanDress<Chain> {
  */
 export namespace IAutoMovieMotionHumanDress {
   /**
-   * The parameters of `dress`.
+   * The parameters of `dress`: the dressing law's own `IAutoMovieMotionHumanDress.IParams` (imported as `ILegacyDress`), unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `dress`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged, with its import name.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The dressing folder's `IAutoMovieMotionHumanDress` owns the type; the alias serves this family's `dress` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `dress` takes the type its law reads.
    */
   export type IDress = ILegacyDress.IParams;
 
   /**
-   * The parameters of `sheath`.
+   * The parameters of `sheath`: `IAutoMovieMotionHumanSheath.IParams`, the carrier's mouth, the blade's tip and handle and the draw's clearance, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `sheath`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the type it aliases unchanged and the four things that type names.
+   * @evidence contracts/development/design.md#principled-representation An alias: the sockets, affordance ids and the clearance in metres are those `IAutoMovieMotionHumanSheath.IParams` states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSheath` owns the type; the alias serves this family's `sheath` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Gap: the aliased type is the staging input `HumanSheath.of` reads, not an action law's parameters; the draw and the return are separate laws (`drawFromCarrier`, `putDownAperture`) on `IAutoMovieMotionHumanSheath.IStaged`, so no single law plans a `sheath` action from this type.
    */
   export type ISheath = IAutoMovieMotionHumanSheath.IParams;
 }

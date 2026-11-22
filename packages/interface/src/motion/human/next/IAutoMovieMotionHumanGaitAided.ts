@@ -87,30 +87,42 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
  */
 export namespace IAutoMovieMotionHumanGaitAided {
   /**
-   * The parameters of `aidWalk`.
+   * The parameters of `aidWalk`: the law's own `IAutoMovieMotionHumanAidWalk`, a cane or crutch held or a walker, with the floor stations, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `aidWalk`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the law type it aliases unchanged and that type's two alternatives.
+   * @evidence contracts/development/design.md#principled-representation An alias of the law's union discriminated by `kind`; the stations' metres, degrees and seconds are those the law type states, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanAidWalk` owns the type; the alias serves this family's `aidWalk` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `aidWalk` takes the type its law reads.
    */
   export type IAidWalk = IAutoMovieMotionHumanAidWalk;
 
   /**
-   * The parameters of `frailWalk`.
+   * The parameters of `frailWalk`: the law's own `IAutoMovieMotionHumanFrailWalk`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `frailWalk`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFrailWalk` owns the type; the alias serves this family's `frailWalk` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `frailWalk` takes the type its law reads.
    */
   export type IFrailWalk = IAutoMovieMotionHumanFrailWalk;
 
   /**
-   * The parameters of `crutchWalk`.
+   * The parameters of `crutchWalk`: the law's own `IAutoMovieMotionHumanCrutchWalk`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `crutchWalk`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCrutchWalk` owns the type; the alias serves this family's `crutchWalk` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `crutchWalk` takes the type its law reads.
    */
   export type ICrutchWalk = IAutoMovieMotionHumanCrutchWalk;
 
   /**
-   * The parameters of `caneSweep`.
+   * The parameters of `caneSweep`: the law's own `IAutoMovieMotionHumanCaneSweep`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `caneSweep`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCaneSweep` owns the type; the alias serves this family's `caneSweep` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `caneSweep` takes the type its law reads.
    */
   export type ICaneSweep = IAutoMovieMotionHumanCaneSweep;
 }

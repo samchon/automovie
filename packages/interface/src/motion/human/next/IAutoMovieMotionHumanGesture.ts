@@ -51,16 +51,22 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
  */
 export namespace IAutoMovieMotionHumanGesture {
   /**
-   * The parameters of `gesture`.
+   * The parameters of `gesture`: the everyday law's own `IAutoMovieMotionHumanGesture.IParams` (imported as `ILegacyGesture`), unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `gesture`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged, with its import name.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The everyday folder's `IAutoMovieMotionHumanGesture` owns the type; the alias serves this family's `gesture` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `gesture` takes the type its law reads.
    */
   export type IGesture = ILegacyGesture.IParams;
 
   /**
-   * The parameters of `armPhrase`.
+   * The parameters of `armPhrase`: the law's own `IAutoMovieMotionHumanArmPhrase.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `armPhrase`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanArmPhrase` owns the type; the alias serves this family's `armPhrase` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `armPhrase` takes the type its law reads.
    */
   export type IArmPhrase = IAutoMovieMotionHumanArmPhrase.IParams;
 }

@@ -169,65 +169,92 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
  */
 export namespace IAutoMovieMotionHumanGaitStyled {
   /**
-   * The parameters of `march`.
+   * The parameters of `march`: the lexicon's `IAutoMovieMotionHumanGait.IMarch` (imported as `ILegacyGait`), the styled gait's walk parameters with the drill `regulation` and its `time`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `march`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the law type it aliases unchanged with its import name, and the two members the march adds.
+   * @evidence contracts/development/design.md#principled-representation An alias: the regulation names, defaults and the walk's units are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `march` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `march` takes the type its law reads.
    */
   export type IMarch = ILegacyGait.IMarch;
 
   /**
-   * The parameters of `doubleTime`.
+   * The parameters of `doubleTime`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `ILegacyGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `doubleTime`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
+   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `doubleTime` signature, one name per method so each can diverge with its law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `doubleTime` takes the type its law reads.
    */
   export type IDoubleTime = ILegacyGait.IParams;
 
   /**
-   * The parameters of `sneak`.
+   * The parameters of `sneak`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `ILegacyGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `sneak`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
+   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `sneak` signature, one name per method so each can diverge with its law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `sneak` takes the type its law reads.
    */
   export type ISneak = ILegacyGait.IParams;
 
   /**
-   * The parameters of `prowl`.
+   * The parameters of `prowl`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `ILegacyGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `prowl`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
+   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `prowl` signature, one name per method so each can diverge with its law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `prowl` takes the type its law reads.
    */
   export type IProwl = ILegacyGait.IParams;
 
   /**
-   * The parameters of `tiptoe`.
+   * The parameters of `tiptoe`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `ILegacyGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `tiptoe`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
+   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `tiptoe` signature, one name per method so each can diverge with its law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `tiptoe` takes the type its law reads.
    */
   export type ITiptoe = ILegacyGait.IParams;
 
   /**
-   * The parameters of `sad`.
+   * The parameters of `sad`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `ILegacyGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `sad`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
+   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `sad` signature, one name per method so each can diverge with its law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `sad` takes the type its law reads.
    */
   export type ISad = ILegacyGait.IParams;
 
   /**
-   * The parameters of `proud`.
+   * The parameters of `proud`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `ILegacyGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `proud`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
+   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `proud` signature, one name per method so each can diverge with its law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `proud` takes the type its law reads.
    */
   export type IProud = ILegacyGait.IParams;
 
   /**
-   * The parameters of `limp`.
+   * The parameters of `limp`: the lexicon's `IAutoMovieMotionHumanGait.ILimp` (imported as `ILegacyGait`), the styled gait's walk parameters with the spared `side`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `limp`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the law type it aliases unchanged with its import name, and the member the limp adds.
+   * @evidence contracts/development/design.md#principled-representation An alias: the spared side, its default and the walk's units are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `limp` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `limp` takes the type its law reads.
    */
   export type ILimp = ILegacyGait.ILimp;
 
   /**
-   * The parameters of `stiffLimp`.
+   * The parameters of `stiffLimp`: the lexicon's `IAutoMovieMotionHumanGait.ILimp` (imported as `ILegacyGait`), the styled gait's walk parameters with the spared `side`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stiffLimp`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the law type it aliases unchanged with its import name, and the member the limp adds.
+   * @evidence contracts/development/design.md#principled-representation An alias: the spared side, its default and the walk's units are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `stiffLimp` signature, which shares the limp's parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stiffLimp` takes the type its law reads.
    */
   export type IStiffLimp = ILegacyGait.ILimp;
 }

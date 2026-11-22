@@ -87,30 +87,42 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
  */
 export namespace IAutoMovieMotionHumanCarryPerson {
   /**
-   * The parameters of `carryPerson`.
+   * The parameters of `carryPerson`: the carried law's own `IAutoMovieMotionHumanCarried.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `carryPerson`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCarried` owns the type; the alias serves this family's `carryPerson` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `carryPerson` takes the type its law reads.
    */
   export type ICarryPerson = IAutoMovieMotionHumanCarried.IParams;
 
   /**
-   * The parameters of `carriedLift`.
+   * The parameters of `carriedLift`: the law's own `IAutoMovieMotionHumanCarriedLift.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `carriedLift`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCarriedLift` owns the type; the alias serves this family's `carriedLift` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `carriedLift` takes the type its law reads.
    */
   export type ICarriedLift = IAutoMovieMotionHumanCarriedLift.IParams;
 
   /**
-   * The parameters of `holdInfant`.
+   * The parameters of `holdInfant`: the law's own `IAutoMovieMotionHumanHoldInfant.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `holdInfant`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHoldInfant` owns the type; the alias serves this family's `holdInfant` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `holdInfant` takes the type its law reads.
    */
   export type IHoldInfant = IAutoMovieMotionHumanHoldInfant.IParams;
 
   /**
-   * The parameters of `edgeRescue`.
+   * The parameters of `edgeRescue`: the law's own `IAutoMovieMotionHumanEdgeRescue.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `edgeRescue`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanEdgeRescue` owns the type; the alias serves this family's `edgeRescue` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `edgeRescue` takes the type its law reads.
    */
   export type IEdgeRescue = IAutoMovieMotionHumanEdgeRescue.IParams;
 }

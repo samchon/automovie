@@ -87,30 +87,42 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
  */
 export namespace IAutoMovieMotionHumanHandover {
   /**
-   * The parameters of `handOver`.
+   * The parameters of `handOver`: the giver's `IAutoMovieMotionHumanHandoverAction.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `handOver`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHandoverAction` owns the type; the alias serves this family's `handOver` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `handOver` takes the type its law reads.
    */
   export type IHandOver = IAutoMovieMotionHumanHandoverAction.IParams;
 
   /**
-   * The parameters of `receive`.
+   * The parameters of `receive`: the receiver's `IAutoMovieMotionHumanReceive.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `receive`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanReceive` owns the type; the alias serves this family's `receive` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `receive` takes the type its law reads.
    */
   export type IReceive = IAutoMovieMotionHumanReceive.IParams;
 
   /**
-   * The parameters of `relayPass`.
+   * The parameters of `relayPass`: the law's own `IAutoMovieMotionHumanRelayPass.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `relayPass`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRelayPass` owns the type; the alias serves this family's `relayPass` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `relayPass` takes the type its law reads.
    */
   export type IRelayPass = IAutoMovieMotionHumanRelayPass.IParams;
 
   /**
-   * The parameters of `handshake`.
+   * The parameters of `handshake`: the law's own `IAutoMovieMotionHumanHandshake.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `handshake`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHandshake` owns the type; the alias serves this family's `handshake` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `handshake` takes the type its law reads.
    */
   export type IHandshake = IAutoMovieMotionHumanHandshake.IParams;
 }

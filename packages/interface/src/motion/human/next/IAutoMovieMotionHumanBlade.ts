@@ -51,16 +51,22 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
  */
 export namespace IAutoMovieMotionHumanBlade {
   /**
-   * The parameters of `swordGuard`.
+   * The parameters of `swordGuard`: the law's own `IAutoMovieMotionHumanSwordGuard.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `swordGuard`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSwordGuard` owns the type; the alias serves this family's `swordGuard` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `swordGuard` takes the type its law reads.
    */
   export type ISwordGuard = IAutoMovieMotionHumanSwordGuard.IParams;
 
   /**
-   * The parameters of `stageBladeFootwork`.
+   * The parameters of `stageBladeFootwork`: the law's own `IAutoMovieMotionHumanStageBladeFootwork.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `stageBladeFootwork`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStageBladeFootwork` owns the type; the alias serves this family's `stageBladeFootwork` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stageBladeFootwork` takes the type its law reads.
    */
   export type IStageBladeFootwork = IAutoMovieMotionHumanStageBladeFootwork.IParams;
 }

@@ -33,9 +33,12 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
  */
 export namespace IAutoMovieMotionHumanFirearm {
   /**
-   * The parameters of `weaponTrack`.
+   * The parameters of `weaponTrack`: the law's own `IAutoMovieMotionHumanWeaponTrack.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `weaponTrack`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWeaponTrack` owns the type; the alias serves this family's `weaponTrack` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `weaponTrack` takes the type its law reads.
    */
   export type IWeaponTrack = IAutoMovieMotionHumanWeaponTrack.IParams;
 }

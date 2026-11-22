@@ -141,51 +141,72 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
  */
 export namespace IAutoMovieMotionHumanGrapple {
   /**
-   * The parameters of `clinch`.
+   * The parameters of `clinch`: the law's own `IAutoMovieMotionHumanClinch.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `clinch`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanClinch` owns the type; the alias serves this family's `clinch` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `clinch` takes the type its law reads.
    */
   export type IClinch = IAutoMovieMotionHumanClinch.IParams;
 
   /**
-   * The parameters of `grapple`.
+   * The parameters of `grapple`: the grappling law's own `IAutoMovieMotionHumanGrapple.IParams` (imported as `ILegacyGrapple`), unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `grapple`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged, with its import name.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The grappling folder's `IAutoMovieMotionHumanGrapple` owns the type; the alias serves this family's `grapple` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `grapple` takes the type its law reads.
    */
   export type IGrapple = ILegacyGrapple.IParams;
 
   /**
-   * The parameters of `kuzushi`.
+   * The parameters of `kuzushi`: the law's own `IAutoMovieMotionHumanKuzushi.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `kuzushi`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKuzushi` owns the type; the alias serves this family's `kuzushi` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `kuzushi` takes the type its law reads.
    */
   export type IKuzushi = IAutoMovieMotionHumanKuzushi.IParams;
 
   /**
-   * The parameters of `lungeGrab`.
+   * The parameters of `lungeGrab`: the law's own `IAutoMovieMotionHumanLungeGrab.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `lungeGrab`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLungeGrab` owns the type; the alias serves this family's `lungeGrab` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `lungeGrab` takes the type its law reads.
    */
   export type ILungeGrab = IAutoMovieMotionHumanLungeGrab.IParams;
 
   /**
-   * The parameters of `forceResponse`.
+   * The parameters of `forceResponse`: the law's own `IAutoMovieMotionHumanForceResponse.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `forceResponse`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanForceResponse` owns the type; the alias serves this family's `forceResponse` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `forceResponse` takes the type its law reads.
    */
   export type IForceResponse = IAutoMovieMotionHumanForceResponse.IParams;
 
   /**
-   * The parameters of `disarm`.
+   * The parameters of `disarm`: the defender's `IAutoMovieMotionHumanDisarm.IParams`, unchanged; the armed partner's `disarmed` takes `IAutoMovieMotionHumanDisarm.IYield` instead.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `disarm`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the law type it aliases unchanged and that the partner's half takes another type.
+   * @evidence contracts/development/design.md#principled-representation An alias: subject ids, the closed weapon kind, the hand and the lever in seconds are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanDisarm` owns the type; the alias serves this family's `disarm` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `disarm` takes the type its law reads.
    */
   export type IDisarm = IAutoMovieMotionHumanDisarm.IParams;
 
   /**
-   * The parameters of `hostageHold`.
+   * The parameters of `hostageHold`: the holder's `IAutoMovieMotionHumanHostageHold.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `hostageHold`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHostageHold` owns the type; the alias serves this family's `hostageHold` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `hostageHold` takes the type its law reads.
    */
   export type IHostageHold = IAutoMovieMotionHumanHostageHold.IParams;
 }

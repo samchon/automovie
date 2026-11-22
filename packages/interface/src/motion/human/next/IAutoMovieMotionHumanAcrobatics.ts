@@ -141,51 +141,72 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
  */
 export namespace IAutoMovieMotionHumanAcrobatics {
   /**
-   * The parameters of `gymnastics`.
+   * The parameters of `gymnastics`: the handstand law's own `IAutoMovieMotionHumanGymnastics.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `gymnastics`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanGymnastics.IParams` states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGymnastics` owns the type; the alias serves this family's `gymnastics` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `gymnastics` takes exactly the type its law reads.
    */
   export type IGymnastics = IAutoMovieMotionHumanGymnastics.IParams;
 
   /**
-   * The parameters of `salto`.
+   * The parameters of `salto`: the salto law's own `IAutoMovieMotionHumanSalto.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `salto`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanSalto.IParams` states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSalto` owns the type; the alias serves this family's `salto` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `salto` takes exactly the type its law reads.
    */
   export type ISalto = IAutoMovieMotionHumanSalto.IParams;
 
   /**
-   * The parameters of `cartwheel`.
+   * The parameters of `cartwheel`: the cartwheel law's own `IAutoMovieMotionHumanCartwheel.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `cartwheel`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanCartwheel.IParams` states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCartwheel` owns the type; the alias serves this family's `cartwheel` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `cartwheel` takes exactly the type its law reads.
    */
   export type ICartwheel = IAutoMovieMotionHumanCartwheel.IParams;
 
   /**
-   * The parameters of `roundOff`.
+   * The parameters of `roundOff`: the round-off law's own `IAutoMovieMotionHumanRoundOff.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `roundOff`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanRoundOff.IParams` states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRoundOff` owns the type; the alias serves this family's `roundOff` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `roundOff` takes exactly the type its law reads.
    */
   export type IRoundOff = IAutoMovieMotionHumanRoundOff.IParams;
 
   /**
-   * The parameters of `handspring`.
+   * The parameters of `handspring`: the handspring law's own `IAutoMovieMotionHumanHandspring.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `handspring`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanHandspring.IParams` states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHandspring` owns the type; the alias serves this family's `handspring` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `handspring` takes exactly the type its law reads.
    */
   export type IHandspring = IAutoMovieMotionHumanHandspring.IParams;
 
   /**
-   * The parameters of `trampoline`.
+   * The parameters of `trampoline`: the trampoline law's own `IAutoMovieMotionHumanTrampoline.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `trampoline`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanTrampoline.IParams` states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTrampoline` owns the type; the alias serves this family's `trampoline` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `trampoline` takes exactly the type its law reads.
    */
   export type ITrampoline = IAutoMovieMotionHumanTrampoline.IParams;
 
   /**
-   * The parameters of `skydive`.
+   * The parameters of `skydive`: the skydive law's own `IAutoMovieMotionHumanSkydive.IParams`, unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `skydive`: the existing type of its law.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanSkydive.IParams` states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSkydive` owns the type; the alias serves this family's `skydive` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `skydive` takes exactly the type its law reads.
    */
   export type ISkydive = IAutoMovieMotionHumanSkydive.IParams;
 }
