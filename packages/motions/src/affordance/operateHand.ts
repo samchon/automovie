@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieAffordance,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanArmTarget,
@@ -87,6 +88,17 @@ export function operateHand(
     props.part === undefined
       ? operateState.prepare(mechanism, props.place, props.hinge)
       : undefined;
+  // A knob on a crank's arm spins free on its pin as the arm carries it
+  // round the axle, so the hand keeps its attitude and only orbits; a knob
+  // turned in place rolls the hand with it.
+  const part: IAutoMovieMotionHumanOperateDrive.IPart | undefined = props.part;
+  const crank: boolean =
+    part !== undefined &&
+    (context.prop(part.prop).prop.affordances ?? []).some(
+      (a: IAutoMovieAffordance): boolean =>
+        a.id === part.articulation && a.kind === "crank",
+    );
+  const rolls: boolean = mechanism.kind === "knob" && !crank;
   const strokeStart: number = props.clock.at("strokeStart");
   const strokeEnd: number = props.clock.at("strokeEnd");
 
@@ -127,7 +139,10 @@ export function operateHand(
               progress,
               context.start + (seconds ?? reached(progress)),
             ),
-            roll: mechanism.kind === "knob" ? mechanism.turn * progress : 0,
+            roll:
+              rolls && mechanism.kind === "knob"
+                ? mechanism.turn * progress
+                : 0,
           };
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const ahead: IAutoMovieVector3 = HumanFrame.point(
@@ -145,8 +160,7 @@ export function operateHand(
         mechanism.kind !== "knob"
           ? 0
           : (upright ? (side === "left" ? 90 : -90) : 0) +
-              mechanism.turn / 2 -
-              now.roll,
+              (rolls ? mechanism.turn / 2 - now.roll : 0),
       );
     return {
       place: upright
