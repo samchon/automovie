@@ -120,6 +120,9 @@ export namespace mountedHorseScene {
     /** Acts the rider does on the ground before sitting on, as picking up a sabre; none when absent. */
     before?: Before;
 
+    /** Whether the rider sits on the seat before the acts; false leaves the rider standing where `from` places it, for a performer who boards the seat itself. True when absent. */
+    seated?: boolean;
+
     /** Further performers beside the rider. */
     partners?: IPartner[];
 
@@ -165,6 +168,15 @@ export namespace mountedHorseScene {
       place(0),
       "seat",
     );
+    // The rider's chain to the acts: the acts before, then the sit unless the rider boards the seat itself.
+    const mounted = (): Chain => {
+      const ground: Chain = (props.before ?? ((c: Chain): Chain => c))(
+        HumanChain.subject("rider"),
+      );
+      return props.seated === false
+        ? ground
+        : ground.sit({ seat, seconds: 0.5 });
+    };
     const film: HumanPerformance = new HumanPerformance({
       seed: "equine-mounted-supports",
       props: [
@@ -197,20 +209,11 @@ export namespace mountedHorseScene {
       ],
       composition:
         props.partners === undefined || props.partners.length === 0
-          ? props.acts(
-              (props.before ?? ((c) => c))(HumanChain.subject("rider")).sit({
-                seat,
-                seconds: 0.5,
-              }),
-            ).node
+          ? props.acts(mounted()).node
           : {
               kind: "parallel",
               parts: [
-                props.acts(
-                  (props.before ?? ((c) => c))(HumanChain.subject("rider")).sit(
-                    { seat, seconds: 0.5 },
-                  ),
-                ).node,
+                props.acts(mounted()).node,
                 ...props.partners.map(
                   (partner: IPartner) =>
                     partner.acts(HumanChain.subject(partner.subject)).node,

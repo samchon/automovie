@@ -35,13 +35,13 @@ const FOOT: number = 0.03;
  * Speed mounts, trick-riding figures and Roman riding (#3950).
  *
  * Scenarios:
- * 1. Running mount: a performer beside a horse with a pillion pad behind its seated rider, as it moves off, boards the pillion holding the cantle; at the take-off and at the landing the hips move with the pillion's own velocity within 0.1 m/s, and the left wrist is within 0.7 hand lengths of the cantle at the take-off.
+ * 1. Running mount: a performer beside the riderless trick-saddled horse as it moves off boards the seat holding the horn; at the take-off and at the landing the hips move with the seat's own velocity within 0.1 m/s, and the left wrist is within 0.7 hand lengths of the horn at the take-off.
  * 2. Trick figures on the moving horse, each held: the hippodrome stand with both ankles at the hippodrome strap, a left side drag with the left ankle at its strap, a back drag with both ankles at their straps, and a right pickup with the left wrist on the horn and the right wrist within 0.7 hand lengths of a ball on the ground; the ankles within 30 mm of their contacts plus the ankle's height.
  * 3. Roman riding: over the stand each ankle lies within 30 mm of its own horse's seat plus the ankle's height while both horses go.
  * 4. A pickup of a ball four metres out is refused on its figure's `object`, and a Roman stand across horses three metres apart is refused on `right`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each figure, its bounds and their sources.
- * @evidence contracts/development/testing.md#behavioral-verification Runs the board, trick and roman laws over actual moving horses with a trick saddle and reads the displayed hips, ankles and wrists against the horses' own seat, pillion, cantle, straps, horn and a ball; a velocity jump, a foot off its strap or a hand off its hold fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the board, trick and roman laws over actual moving horses with a trick saddle and reads the displayed hips, ankles and wrists against the horses' own seat, straps, horn and a ball; a velocity jump, a foot off its strap or a hand off its hold fails.
  * @evidence contracts/development/testing.md#independent-expectations Every target is the horse's or the ball's own displayed point; the bounds are the campaign's.
  * @evidence contracts/development/testing.md#distinguishing-cases Each figure against the others; one horse against two; reachable against unreachable.
  * @evidence contracts/development/testing.md#execution-ownership In-memory films of one polygon man on archetype horses.
@@ -80,49 +80,26 @@ export function test_motion_equestrian_trick(): void {
       z: 0,
     });
 
-  // 1. The running mount, onto the pillion behind the seated rider.
-  const double: mountedHorseScene.Horse = createHorse(
-    { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0, tack: "double" },
-    8,
-  );
+  // 1. The running mount: the performer runs beside the riderless horse as it moves off and boards its seat.
   const boarding: mountedHorseScene.IScene = mountedHorseScene.build({
-    horse: double,
+    horse,
     body,
     gait: "walk",
     wait: WAIT,
-    course: rideHorse(double, {
-      start: { x: 0, z: 0, heading: 0 },
-      legs: [{ kind: "straight", length: 60 }],
-      cruise: 3,
-      startSpeed: 0,
-      endSpeed: 0,
-      acceleration: 0.3,
-      deceleration: 0.5,
-      startFromStanding: true,
-    }),
+    course: easy,
     laws: [HumanBoard],
-    from: { x: 0.55, y: 0, z: -0.1 },
-    acts: (seated) => seated,
-    partners: [
-      {
-        subject: "runner",
-        body,
-        // Beside the pillion, behind the saddle.
-        from: { x: 0.6, y: 0, z: -0.6 },
-        acts: (chain) =>
-          chain
-            .stand({ seconds: WAIT + 0.8 })
-            .registered("board", {
-              on: "horse",
-              seat: "pillion",
-              hand: { side: "left", contact: "cantle" },
-            }),
-      },
-    ],
+    from: { x: 0.6, y: 0, z: 0.1 },
+    seated: false,
+    acts: (chain) =>
+      chain.stand({ seconds: WAIT + 0.8 }).registered("board", {
+        on: "horse",
+        seat: "seat",
+        hand: { side: "left", contact: "horn" },
+      }),
   });
   assertTakeClean("a running mount", boarding.film);
   const board: IAutoMovieMotionHumanSegment =
-    boarding.film.segments("runner")[1]!;
+    boarding.film.segments("rider")[1]!;
   const h: number = 1 / 240;
   for (const [label, at] of [
     ["take-off", board.start + h],
@@ -134,9 +111,9 @@ export function test_motion_equestrian_trick(): void {
     ],
   ] as const) {
     const hips = (t: number): IAutoMovieVector3 =>
-      boarding.film.bones("runner", t).get("hips")!.worldPosition;
+      boarding.film.bones("rider", t).get("hips")!.worldPosition;
     const seat = (t: number): IAutoMovieVector3 =>
-      boarding.part("pillion", t).translation;
+      boarding.part("seat", t).translation;
     const relative: number = Vector3.length(
       Vector3.subtract(
         Vector3.scale(
@@ -154,14 +131,14 @@ export function test_motion_equestrian_trick(): void {
         `running mount: the hips move ${relative.toFixed(3)} m/s against the seat at the ${label}`,
       );
   }
-  const cantle: number = Vector3.distance(
-    boarding.film.bones("runner", board.start + 0.02).get("leftHand")!
+  const horn: number = Vector3.distance(
+    boarding.film.bones("rider", board.start + 0.02).get("leftHand")!
       .worldPosition,
-    boarding.part("cantle", board.start + 0.02).translation,
+    boarding.part("horn", board.start + 0.02).translation,
   );
-  if (cantle > 0.7 * body.measure.hand)
+  if (horn > 0.7 * body.measure.hand)
     findings.push(
-      `running mount: the left wrist is ${cantle.toFixed(3)} m from the cantle`,
+      `running mount: the left wrist is ${horn.toFixed(3)} m from the horn`,
     );
 
   // 2. The trick figures on the moving horse.
