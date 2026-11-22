@@ -24,6 +24,7 @@ import {
   stageBladeFootwork,
 } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
@@ -216,6 +217,7 @@ function bout(
     props,
     composition: placed.composition,
   });
+  assertTakeClean(`kendo ${body.measure.stature}`, film);
   const entry = (anchor: string): IAutoMovieScheduleEntry => {
     const found: IAutoMovieScheduleEntry | undefined =
       film.schedule.entries.find(

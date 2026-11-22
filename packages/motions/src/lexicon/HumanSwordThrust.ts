@@ -39,6 +39,9 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No blade kind is named.
  */
 export namespace HumanSwordThrust {
+  /** The chamber's upper arm held out from the trunk, degrees of abduction from hanging, so its girth clears the trunk's (provisional). */
+  export const CHAMBER: number = 25;
+
   /** The least share of the arm's length the hand stands before the shoulder as the point lands for a pose the arm cannot hold to be blamed on the hold (provisional): nearer, the refusal names its cause, a target inside the tool's own length. */
   export const NEAR: number = 0.3;
 
@@ -116,15 +119,20 @@ export namespace HumanSwordThrust {
             });
           }
 
-        // The chamber: the hilt drawn back by the side, the upper arm hanging
-        // and the forearm square to it toward the target, the point already
-        // on the line to the target.
+        // The chamber: the hilt drawn back by the side, the upper arm held
+        // out from the trunk by `CHAMBER` so it never lies inside it, and the
+        // forearm square to it toward the target, the point already on the
+        // line to the target.
         const hilt: IAutoMovieVector3 = Vector3.add(
           s.shoulder,
           s.world(
             {
-              out: 0,
-              up: -context.body.measure.upperArm,
+              out:
+                Math.sin((CHAMBER * Math.PI) / 180) *
+                context.body.measure.upperArm,
+              up:
+                -Math.cos((CHAMBER * Math.PI) / 180) *
+                context.body.measure.upperArm,
               forward: context.body.measure.forearm,
             },
             a.yaw,

@@ -15,6 +15,7 @@ import {
   grapple,
 } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
@@ -109,6 +110,7 @@ function handback(
       ],
     },
   });
+  assertTakeClean(`staged_mat_handback ${film.duration}`, film);
   const entry = (name: string): IAutoMovieScheduleEntry =>
     film.schedule.entries.find((span): boolean => span.intent.anchor === name)!;
   const lead: IAutoMovieScheduleEntry = entry("mat.initiator");

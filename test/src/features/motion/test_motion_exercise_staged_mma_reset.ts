@@ -20,6 +20,7 @@ import {
   grapple,
 } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
@@ -136,6 +137,7 @@ function scene(
       ],
     },
   });
+  assertTakeClean(`staged_mma_reset ${film.duration}`, film);
   const entry = (anchor: string): IAutoMovieScheduleEntry =>
     film.schedule.entries.find((row): boolean => row.intent.anchor === anchor)!;
   const lead: IAutoMovieScheduleEntry = entry("clinch.initiator");

@@ -18,6 +18,7 @@ import {
   grapple,
 } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
@@ -147,6 +148,7 @@ export function test_motion_exercise_staged_mat_comparison(): void {
     const scale: number = body.measure.stature / reference.measure.stature;
     try {
       const film: HumanPerformance = staged(body, scale, range, scene);
+      assertTakeClean(`mat ${scene.kind} ${range} ${scale}`, film);
       const a: IAutoMovieMotionHumanSegment = film.segments("a").at(-1)!;
       const b: IAutoMovieMotionHumanSegment = film.segments("b").at(-1)!;
       const receiver: IAutoMovieMotionHumanSignature.IReader =

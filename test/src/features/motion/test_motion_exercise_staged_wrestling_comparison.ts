@@ -18,6 +18,7 @@ import {
   grapple,
 } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
@@ -129,6 +130,7 @@ function observe(
       { kind, outcome: "denied" },
     ).node,
   });
+  assertTakeClean(`staged_wrestling_comparison ${film.duration}`, film);
   const a: IAutoMovieMotionHumanSegment = film.segments("a").at(-1)!;
   const b: IAutoMovieMotionHumanSegment = film.segments("b").at(-1)!;
   const actor: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(

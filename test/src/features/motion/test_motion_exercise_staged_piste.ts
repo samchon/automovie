@@ -25,6 +25,7 @@ import {
   stageBladeFootwork,
 } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
@@ -248,6 +249,10 @@ function stage(body: IAutoMovieMotionHumanBody, bout: IBout): IStaged {
     props: [held("a", at.a!, 0), held("b", at.b!, 180)],
     composition: placed.composition,
   });
+  assertTakeClean(
+    `piste ${bout.kind} ${bout.result} ${body.measure.stature}`,
+    film,
+  );
   return { placed, film };
 }
 
