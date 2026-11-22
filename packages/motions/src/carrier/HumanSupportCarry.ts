@@ -218,10 +218,10 @@ export namespace HumanSupportCarry {
    * the plan an act made in the world at its start, kept on the support.
    *
    * With an aim, the line planned at the start is re-taken on its world
-   * target at every second (`HumanSupportAim`), and a trunk twist out of
-   * range at a frame of the act is refused here. The plan's launches (a
-   * shot) are carried to their seconds with it, so a shot leaves the muzzle
-   * where the displayed weapon is.
+   * target at every second (`HumanSupportAim`), and an aim the trunk and
+   * the arms cannot keep at a frame of the act is refused here. The plan's
+   * launches (a shot) are carried to their seconds with it, so a shot
+   * leaves the muzzle where the displayed weapon is.
    *
    * @param context The action's context.
    * @param plan The plan made at the start.
@@ -229,7 +229,7 @@ export namespace HumanSupportCarry {
    * @param aim The line kept on a world target; none when absent.
    * @returns The carried plan. The ground branch keeps the input's
    * stationarity bounds; another support can move its world goals.
-   * @throws {HumanRefusal} When keeping the aim twists the trunk out of its range (`HumanSupportAim.check`).
+   * @throws {HumanRefusal} When keeping the aim asks the arms to present past their bound (`HumanSupportAim.check`).
    */
   export function plan(
     context: Pick<
@@ -250,35 +250,45 @@ export namespace HumanSupportCarry {
       );
       return { position: at.position, rotation: at.rotation };
     };
-    const carried = (
+    const carryAt = (
+      seconds: number,
+    ): IAutoMovieMotionHumanSupportCarry.ICarry =>
+      of(frame, context.start, context.start + seconds);
+    // The root and the heading are the carrier's, which its own plan has
+    // already carried; only the goals this plan made at its start ride on.
+    const made = (
       seconds: number,
       requested?: readonly AutoMovieMotionHumanChannel[],
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
     ): IAutoMovieMotionHumanPosture => {
-      const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(
-        frame,
-        context.start,
-        context.start + seconds,
-      );
-      // The root and the heading are the carrier's, which its own plan has
-      // already carried; only the goals this plan made at its start ride on.
       const own: IAutoMovieMotionHumanPosture = plan.posture(
         seconds,
         aim === undefined ? requested : undefined,
         resolution,
         projection,
       );
-      const made: IAutoMovieMotionHumanPosture = {
-        ...posture(carry, own),
+      return {
+        ...posture(carryAt(seconds), own),
         root: own.root,
         yaw: own.yaw,
       };
-      return aim === undefined
-        ? made
-        : HumanSupportAim.posture(carry, made, aim);
     };
-    if (aim !== undefined) HumanSupportAim.check(carried, plan.duration);
+    const carried = (
+      seconds: number,
+      requested?: readonly AutoMovieMotionHumanChannel[],
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture =>
+      aim === undefined
+        ? made(seconds, requested, resolution, projection)
+        : HumanSupportAim.posture(
+            carryAt(seconds),
+            made(seconds, requested, resolution, projection),
+            aim,
+          );
+    if (aim !== undefined)
+      HumanSupportAim.check(made, carryAt, aim, plan.duration);
     const { still: _still, legsStill: _legsStill, ...moving } = plan;
     return {
       ...moving,

@@ -247,7 +247,7 @@ export namespace HumanWeaponPresent {
             stop: 1,
           }),
           // An aimed weapon keeps its line on the target from a moving support.
-          carriage === "aim" ? { target, pivot: eye } : undefined,
+          carriage === "aim" ? { target, pivot: eye, arms: TURN } : undefined,
         );
         if (support === null) return presented;
         // Two hands on one weapon are laid in one course, the hands on it
