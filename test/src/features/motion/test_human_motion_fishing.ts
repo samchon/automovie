@@ -1,4 +1,4 @@
-import { createLure, createSpinningRod } from "@automovie/archetypes";
+import { ArchetypeCourse, createLure, createRowboat, createSpinningRod } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
@@ -64,7 +64,9 @@ type Rod = ReturnType<typeof createSpinningRod>;
  *    stays in the rod hand.
  * 4. The hook set lifts the tip by the authored 40 degrees in the
  *    authored 0.25 s.
- * 5. A target far beyond any cast is refused.
+ * 5. From a rowboat drifting at 0.8 m/s, the angler standing on its
+ *    floorboards casts the lure to within 0.5 m of the same target.
+ * 6. A target far beyond any cast is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the cases and the bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed lure, tip and line, the reel's travel and the rod in the rod hand; a lure leaving from the hand, a short or wide cast, a line off its ends, a retrieve that does not shorten the line by the turns, a rod slipping in the hand, a slow or small set or an admitted unreachable target fails.
@@ -85,6 +87,12 @@ export function test_human_motion_fishing(): void {
       `${name}: the lure leaves the rod's tip at the release (${(off * 1000).toFixed(1)} mm)`,
       off <= TIP,
     );
+    const kept: number = Math.max(
+      ...[0.25, 0.5, 0.75, 1].map((share: number): number =>
+        Vector3.distance(inHand(film, release + share * (cast.end - release)), inHand(film, release)),
+      ),
+    );
+    TestValidator.predicate(`${name}: the rod stays in the rod hand after the release (${(kept * 1000).toFixed(2)} mm)`, kept <= STILL);
     const reel: IAutoMovieMotionHumanSegment = segment(film, "operate");
     const landed: IAutoMovieVector3 = film.prop("lure", reel.start).position;
     const miss: number = Math.hypot(landed.x - TARGET.x, landed.z - TARGET.z);
@@ -124,6 +132,15 @@ export function test_human_motion_fishing(): void {
       Math.abs(rise - SET.angle) <= RISE && Math.abs(done - set.start - SET.seconds) <= 1e-6,
     );
   }
+  // From a rowboat drifting along +X, the angler standing on its floorboards.
+  const boat: HumanPerformance = aboard(motionHumanBody("m-average"), createSpinningRod({ id: "rod", retrieve: RETRIEVE }));
+  assertTakeClean("casting from a moving boat", boat);
+  const afloat: IAutoMovieMotionHumanSegment = segment(boat, "throwObject");
+  const splash: IAutoMovieVector3 = boat.prop("lure", afloat.end + 2).position;
+  TestValidator.predicate(
+    `from a moving boat the lure lands ${Math.hypot(splash.x - TARGET.x, splash.z - TARGET.z).toFixed(2)} m from the target`,
+    Math.hypot(splash.x - TARGET.x, splash.z - TARGET.z) <= LANDING,
+  );
   TestValidator.predicate(
     "a target far beyond any cast is refused",
     (() => {
@@ -177,6 +194,56 @@ function fish(body: IAutoMovieMotionHumanBody, rod: Rod, target: IAutoMovieVecto
       .stand({ seconds: 1 })
       .operate({ mechanism: { kind: "knob", at: { kind: "prop", subject: "rod", point: "handle" }, turn: 360 * TURNS }, hand: "left" })
       .registered(hookSet.name, SET).node,
+  });
+}
+
+/** `a` stands on a rowboat's floorboards as it drifts along +X, takes up the rod lying in the boat and casts at the target. */
+function aboard(body: IAutoMovieMotionHumanBody, rod: Rod): HumanPerformance {
+  const hull: ReturnType<typeof createRowboat> = createRowboat({ id: "boat" });
+  const course: ArchetypeCourse.IPlan = ArchetypeCourse.plan("boat", {
+    start: { x: -2, z: 0, heading: 90 },
+    legs: [{ kind: "straight", length: 12 }],
+    cruise: 0.8,
+    acceleration: 0.4,
+    deceleration: 0.4,
+  });
+  const motion: (seconds: number) => IAutoMovieRigidTransform = (seconds: number): IAutoMovieRigidTransform => ({
+    position: course.at(seconds).placement.translation,
+    rotation: course.at(seconds).placement.rotation,
+  });
+  const origin: IAutoMovieRigidTransform = motion(0);
+  const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+    Vector3.add(origin.position, Quaternion.rotateVector(origin.rotation, p));
+  const floor: IAutoMovieVector3 = local(hull.affordance("floor").frame.translation);
+  const rack: IAutoMovieRigidTransform = { position: { x: 0.3, y: 0.85, z: 0.3 }, rotation: { x: 0, y: 0, z: 0, w: 1 } };
+  const tip: IAutoMovieRigidTransform = {
+    position: rod.affordance("tip").frame.translation,
+    rotation: rod.affordance("tip").frame.rotation,
+  };
+  return new HumanPerformance({
+    seed: "fishing-boat",
+    props: [
+      HumanObject.prop("boat", hull, origin, motion),
+      {
+        ...HumanObject.prop("rod", rod, { position: Vector3.add(floor, rack.position), rotation: rack.rotation }),
+        mounted: { prop: "boat", point: "floor", offset: rack },
+      },
+      {
+        ...HumanObject.prop("lure", createLure({ id: "lure" }), tip),
+        mounted: { prop: "rod", point: "tip", offset: { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } } },
+      },
+    ],
+    performers: [{ subject: "a", body, at: floor, yaw: 0, proficiency: { level: "trained" } }],
+    composition: HumanChain.subject("a")
+      .stand({ seconds: 0.5, on: { prop: "boat" } })
+      .pickUp({ prop: "rod", handle: "grip", hand: "right", lift: 0.1 })
+      .throwObject({
+        at: { kind: "point", at: TARGET, frame: "world" },
+        hand: "right",
+        prop: "lure",
+        implement: { prop: "rod", point: "tip" },
+      })
+      .stand({ seconds: 3 }).node,
   });
 }
 
