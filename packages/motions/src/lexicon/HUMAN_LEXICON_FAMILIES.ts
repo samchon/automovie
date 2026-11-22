@@ -71,6 +71,7 @@ import { HumanEnvironmentRecovery } from "./HumanEnvironmentRecovery";
 import { HumanFirearm } from "./HumanFirearm";
 import { HumanFloorFall } from "./HumanFloorFall";
 import { HumanFloorRoll } from "./HumanFloorRoll";
+import { HumanFrailWalk } from "./HumanFrailWalk";
 import { HumanGait } from "./HumanGait";
 import { HumanGestureRows } from "./HumanGestureRows";
 import { HumanGunDrill } from "./HumanGunDrill";
@@ -175,7 +176,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
     HumanTravelLeaf,
     HumanTravelCarExit,
     HumanHorrorGait,
-    { crabWalk },
+    { crabWalk, frailWalk: HumanFrailWalk.frailWalk },
     HumanRaceGait,
   ],
   pursuit: [HumanPursuit],

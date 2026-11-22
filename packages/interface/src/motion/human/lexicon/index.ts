@@ -112,4 +112,5 @@ export type { IAutoMovieMotionHumanWeaponPresent } from "./IAutoMovieMotionHuman
 export type { IAutoMovieMotionHumanWeaponTrack } from "./IAutoMovieMotionHumanWeaponTrack";
 export type { AutoMovieMotionHumanTuckHairParams } from "./AutoMovieMotionHumanTuckHairParams";
 export type { IAutoMovieMotionHumanAidWalk } from "./IAutoMovieMotionHumanAidWalk";
+export type { IAutoMovieMotionHumanFrailWalk } from "./IAutoMovieMotionHumanFrailWalk";
 export type { IAutoMovieMotionHumanAssistedTransfer } from "./IAutoMovieMotionHumanAssistedTransfer";

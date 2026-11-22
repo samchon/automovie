@@ -540,6 +540,7 @@ export * from "./handling/pianoPedal";
 export * from "./handling/pianoPerformance";
 export * from "./tasks/cymbalStrike";
 export * from "./lexicon/HumanAidWalk";
+export * from "./lexicon/HumanFrailWalk";
 export * from "./lexicon/HumanAssistedTransfer";
 export * from "./dressing/wardrobe";
 export * from "./lexicon/HumanCarrierCustody";

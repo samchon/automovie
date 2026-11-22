@@ -462,6 +462,18 @@
     }
   },
   "rows": {
+    "frailWalk": {
+      "properties": {
+        "severity": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "x-unit": "1"
+          }
+        }
+      }
+    },
     "aidWalk": {},
     "assistedTransfer": {},
     "wardrobe": {},

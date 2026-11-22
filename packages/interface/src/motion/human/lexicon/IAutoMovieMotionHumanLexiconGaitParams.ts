@@ -2,6 +2,7 @@ import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanR
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
 import type { IAutoMovieMotionHumanCrossing } from "./IAutoMovieMotionHumanCrossing";
 import type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
+import type { IAutoMovieMotionHumanFrailWalk } from "./IAutoMovieMotionHumanFrailWalk";
 import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
 import type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
 import type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";
@@ -131,4 +132,7 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
 
   /** A race walk: a walk at a run's pace, one foot always down, the arms pumping. */
   raceWalk: IAutoMovieMotionHumanGait.IParams;
+
+  /** A frail older person's walk, graded from the ordinary walk to a shuffle. */
+  frailWalk: IAutoMovieMotionHumanFrailWalk;
 }
