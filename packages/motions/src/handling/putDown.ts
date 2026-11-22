@@ -24,6 +24,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmReach } from "../compose/AutoMovieMotionHumanArmReach";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
@@ -227,16 +228,36 @@ export namespace putDown {
     const chosen: IAutoMovieMotionHumanHand.IWrist =
       attitude !== undefined
         ? ((): IAutoMovieMotionHumanHand.IWrist => {
-            const r: IAutoMovieQuaternion = Quaternion.normalize(
+            const asked: IAutoMovieQuaternion = Quaternion.normalize(
               Quaternion.multiply(Quaternion.normalize(attitude), unhold),
             );
-            return {
-              point: Vector3.subtract(
+            const at: (r: IAutoMovieQuaternion) => IAutoMovieVector3 = (
+              r: IAutoMovieQuaternion,
+            ): IAutoMovieVector3 =>
+              Vector3.subtract(
                 context.params.at!,
                 Quaternion.rotateVector(r, offset.position),
-              ),
-              rotation: r,
-            };
+              );
+            // An authored resting attitude with no authored heading rests
+            // alike at any heading about the vertical (a card face up): the
+            // hand takes the heading nearest the asked one at which the arm
+            // meets the attitude, or the placement is refused
+            // (`AutoMovieMotionHumanArmReach`). An authored heading is laid
+            // exactly.
+            const r: IAutoMovieQuaternion =
+              context.params.yaw !== undefined
+                ? asked
+                : AutoMovieMotionHumanArmReach.attitude({
+                    body,
+                    posture: held,
+                    side,
+                    bend: AutoMovieMotionHumanBend.hang(body, held, side),
+                    requested: asked,
+                    axis: { x: 0, y: 1, z: 0 },
+                    wrist: at,
+                    name: "rotation",
+                  }).rotation;
+            return { point: at(r), rotation: r };
           })()
         : wearing !== undefined
           ? ((): IAutoMovieMotionHumanHand.IWrist => {
