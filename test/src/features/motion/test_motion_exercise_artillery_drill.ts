@@ -10,6 +10,7 @@ import {
   Vector3,
 } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieComposition,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGunCrew,
@@ -60,6 +61,15 @@ const STATIONS: Readonly<
   // No. 5 has brought the charge up beside No. 2, within the handover's reach.
   n5: { x: -1.6, y: 0, z: 0.7 },
 };
+
+/** Where No. 2 loads from, metres from the muzzle's face: to its left (`-x`) and a little behind it, facing it, so the charge goes in from his right hand within its reach. */
+const LOADER: IAutoMovieVector3 = { x: -0.4, y: 0, z: -0.15 };
+
+/** No. 2's heading at the muzzle, degrees: facing the gun's left side (`+x`). */
+const LOADER_YAW: number = 90;
+
+/** No. 5 beside No. 2, metres in No. 2's frame at the muzzle: the offset the original stations had (0.7 m to his right, 0.5 m behind), turned with him. */
+const BRINGER: IAutoMovieVector3 = { x: -0.5, y: 0, z: 0.7 };
 
 /** The drill's duties in their order, by anchor. */
 const ORDER: readonly string[] = [
@@ -119,6 +129,25 @@ export function test_motion_exercise_artillery_drill(): void {
     const vent: IAutoMovieVector3 = gun.affordance("vent").frame.translation;
     const muzzle: IAutoMovieVector3 =
       gun.affordance("muzzle").frame.translation;
+    // No. 2 loads beside the muzzle, facing it; No. 5 brings the charge up
+    // beside him. The gun stands at the origin unturned, so its marks are
+    // world points.
+    const loader: IAutoMovieVector3 = {
+      x: muzzle.x + LOADER.x,
+      y: 0,
+      z: muzzle.z + LOADER.z,
+    };
+    const stations: Record<
+      keyof IAutoMovieMotionHumanGunCrew.IRoles,
+      IAutoMovieVector3
+    > = {
+      ...STATIONS,
+      n2: loader,
+      n5: Vector3.add(loader, BRINGER),
+    };
+    const yaws: Partial<
+      Record<keyof IAutoMovieMotionHumanGunCrew.IRoles, number>
+    > = { n2: LOADER_YAW, n5: LOADER_YAW };
     const props: IAutoMovieMotionHumanProp[] = [
       HumanObject.prop("gun", gun, {
         at: { x: 0, y: 0, z: 0 },
@@ -127,7 +156,8 @@ export function test_motion_exercise_artillery_drill(): void {
       }),
       rammer(Vector3.add(STATIONS.n1, { x: -0.2, y: 0.95, z: 0.35 })),
       HumanObject.prop("charge", createProjectile({ kind: "roundShot" }), {
-        at: Vector3.add(STATIONS.n5, { x: -0.22, y: 0.85, z: 0.35 }),
+        // At No. 5's right front, as he faces with No. 2.
+        at: Vector3.add(stations.n5, { x: 0.35, y: 0.85, z: 0.22 }),
         yaw: 0,
       }),
       small("wire", Vector3.add(STATIONS.n3, { x: -0.22, y: 0.9, z: 0.3 })),
@@ -170,8 +200,8 @@ export function test_motion_exercise_artillery_drill(): void {
         ): IAutoMovieMotionHumanPerformer => ({
           subject: ROLES[role],
           body: motionHumanBody(k % 2 === 0 ? "m-average" : "f-small"),
-          at: STATIONS[role],
-          yaw: 0,
+          at: stations[role],
+          yaw: yaws[role] ?? 0,
           proficiency: { level: "trained" },
         }),
       ),
@@ -191,19 +221,34 @@ export function test_motion_exercise_artillery_drill(): void {
         `${ORDER[k]} starts after ${ORDER[k - 1]} ends`,
         entry(ORDER[k]!).start >= entry(ORDER[k - 1]!).end - 1e-6,
       );
+    // A gun mark where the gun shows it at a second: posed by its
+    // articulations (the elevation the laying gave), on its frame.
+    const mark: (point: string, seconds: number) => IAutoMovieVector3 = (
+      point: string,
+      seconds: number,
+    ): IAutoMovieVector3 => {
+      const frame: IAutoMovieRigidTransform = film.prop("gun", seconds);
+      const posed: IAutoMovieAffordance = props[0]!.articulate!(
+        film.state("gun", seconds),
+      ).affordances.find((a: IAutoMovieAffordance): boolean => a.id === point)!;
+      return Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, posed.frame.translation),
+      );
+    };
     const loaded: number = entry("loadCharge").end;
     const charge: IAutoMovieVector3 = film.prop("charge", loaded).position;
+    const mouth: IAutoMovieVector3 = mark("muzzle", loaded);
     checks.check(
-      `the charge is set at the muzzle (${Vector3.distance(charge, muzzle).toFixed(3)} m)`,
-      Vector3.distance(charge, muzzle) <= PLACED + 0.1,
+      `the charge is set at the muzzle (${Vector3.distance(charge, mouth).toFixed(3)} m)`,
+      Vector3.distance(charge, mouth) <= PLACED + 0.1,
     );
-    const primed: IAutoMovieVector3 = film.prop(
-      "primer",
-      entry("hookPrimer").end,
-    ).position;
+    const hooked: number = entry("hookPrimer").end;
+    const primed: IAutoMovieVector3 = film.prop("primer", hooked).position;
+    const orifice: IAutoMovieVector3 = mark("vent", hooked);
     checks.check(
-      `the primer is hooked at the vent (${Vector3.distance(primed, vent).toFixed(3)} m)`,
-      Vector3.distance(primed, vent) <= PLACED,
+      `the primer is hooked at the vent (${Vector3.distance(primed, orifice).toFixed(3)} m)`,
+      Vector3.distance(primed, orifice) <= PLACED,
     );
     const pulled: IAutoMovieMotionHumanSegment | undefined = film
       .segments("n4")
