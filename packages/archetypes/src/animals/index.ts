@@ -40,6 +40,7 @@ export * from "./EquineJointLimits";
 export * from "./EquineBank";
 export * from "./EquineEdge";
 export * from "./EquineFord";
+export * from "./EquineRideTerrain";
 export * from "./EquineFordPlan";
 export * from "./EquineSwimPose";
 export * from "./EquineScramble";

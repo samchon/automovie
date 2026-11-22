@@ -12,16 +12,15 @@ import {
 import { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
 import { EquineArc } from "./EquineArc";
 import { EquineFlightClock } from "./EquineFlightClock";
-import { EquineBank } from "./EquineBank";
 import { EquineFootwork } from "./EquineFootwork";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
 import { EquineObstacle } from "./EquineObstacle";
 import { EquinePitch } from "./EquinePitch";
+import { EquineRideTerrain } from "./EquineRideTerrain";
 import { EquineTuck } from "./EquineTuck";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedChange } from "./QuadrupedChange";
-import { QuadrupedCorner } from "./QuadrupedCorner";
 import { QuadrupedFooting } from "./QuadrupedFooting";
 import { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
@@ -33,7 +32,6 @@ import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { QuadrupedStridePlan } from "./QuadrupedStridePlan";
-import { QuadrupedTail } from "./QuadrupedTail";
 import type { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import { createQuadruped } from "./createQuadruped";
@@ -134,32 +132,10 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     rig,
     dimensions,
   );
-  const footwork: EquineFootwork.IPlan = EquineFootwork.prepare(
-    species.archetype,
-    course,
-    plan,
-    gait,
-    {
-      leftFore: rig.limbs.leftFore[4]!,
-      rightFore: rig.limbs.rightFore[4]!,
-      leftHind: rig.limbs.leftHind[4]!,
-      rightHind: rig.limbs.rightHind[4]!,
-    },
-    {
-      leftFore: { ...rig.limbs.leftFore[4]!, z: rig.limbs.leftFore[0]!.z },
-      rightFore: { ...rig.limbs.rightFore[4]!, z: rig.limbs.rightFore[0]!.z },
-      leftHind: { ...rig.limbs.leftHind[4]!, z: rig.limbs.leftHind[0]!.z },
-      rightHind: { ...rig.limbs.rightHind[4]!, z: rig.limbs.rightHind[0]!.z },
-    },
-    rig.limbs.leftFore[0]!.y - rig.limbs.leftFore[4]!.y,
-    EquineBank.tail(animal.parts),
-  );
-  const ground: QuadrupedFooting.IPlan | undefined = QuadrupedFooting.prepare(
-    species.archetype,
-    course.footing,
-    footwork.slide !== undefined,
-  );
-  const corner: QuadrupedCorner.Clear = QuadrupedCorner.of(course.footing);
+  const terrain: EquineRideTerrain.ITerrain<Affordance, Dimension> =
+    EquineRideTerrain.prepare(animal, species, course, plan, gait, rig);
+  const footwork: EquineFootwork.IPlan = terrain.footwork;
+  const ground: QuadrupedFooting.IPlan | undefined = terrain.ground;
 
   /** Choose the next stride from the current route state or explicit footwork. */
   function decide(
@@ -371,14 +347,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
               : ground,
             carry,
             rest[0]!.z + rest[4]!.z - rest[3]!.z,
-            (point: IAutoMovieVector3): IAutoMovieVector3 =>
-              corner(
-                point,
-                Math.hypot(
-                  rest[4]!.x - rest[3]!.x,
-                  rest[4]!.y - rest[3]!.y,
-                  rest[4]!.z - rest[3]!.z,
-                ),
+            terrain.clear[limb],
               ),
           ),
           lift: (going * height + (ground?.swingLift ?? 0)) * step.rise,
@@ -398,16 +367,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
                   fore,
                 ),
               )
-            : EquineFootwork.limbGoal(
-                footwork,
-                seconds,
-                fore,
-                rest[4]!,
-                rest[0]!,
-                goal,
-                placement,
-                ground,
-              ),
+            : terrain.goal(limb, seconds, goal, placement),
         );
       }
 
@@ -437,9 +397,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       } catch (error) {
         throw refuseQuadrupedReach(species.archetype, seconds, error);
       }
-      // A bank technique's steep face can meet the hanging tail, which then trails over it (`QuadrupedTail`).
-      if (ground !== undefined && footwork.bank.length + footwork.scramble.length > 0)
-        archetype = QuadrupedTail.carry(animal, species, archetype, placement, ground);
+      archetype = terrain.tail(archetype, placement);
       if (!trial) ground?.verify(archetype, placement);
       return { archetype, placement: ArchetypeFrame.copy(placement) };
     };
