@@ -63,7 +63,7 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * (`courseArmGoal` with `with`), the hands excused from each other.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States who holds what, the ring's path, the custody change, the timing and the course.
- * @evidence contracts/development/design.md#principled-representation The ring's frame along the partner's finger axis is the plan; both hands follow from it and from the partner's palm.
+ * @evidence contracts/development/design.md#principled-representation The ring's frame along the partner's finger axis is the plan; the ring hand follows from it and the steadying hand from the partner's forearm.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Adds the finger's axis, the seat and the custody change; transport, phrase, course and reach refusals are their owners'.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The ring is never posed here; the performance carries it in the hand and then on the partner's bone.
  */
@@ -132,11 +132,6 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
       // From the fingertip toward the hand: the way the ring travels.
       const axis: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(seat, tip),
-      );
-      const palm: ReturnType<typeof StrikingBody.region> = StrikingBody.region(
-        partner.body,
-        bones,
-        palmRegion,
       );
 
       // The ring's frame on the axis: its `wear` socket's `+Y` along the axis.
