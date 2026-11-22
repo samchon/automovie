@@ -78,6 +78,9 @@ export namespace pickUp {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "pickUp";
 
+  /** May be performed over a carrier, as a seated rider takes a revolver from its holster: it then claims only the reaching arm and its hand (`pickUpOver`). */
+  export const overlay: boolean = true;
+
   /** Cancel table. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [

@@ -58,5 +58,7 @@ export const HumanCarrierCustody: IAutoMovieMotionHumanActionLaw<IAutoMovieMotio
         },
       ],
     },
+    // Over a carrier the pick-up claims only the reaching arm (`pickUpOver`).
+    overlay: true,
     plan: pickUp.plan,
   };

@@ -33,6 +33,7 @@ import { pickUp } from "./pickUp";
 import { pickUpAdjust } from "./pickUpAdjust";
 import type { pickUpIntercept } from "./pickUpIntercept";
 import { pickUpLift } from "./pickUpLift";
+import { pickUpOver } from "./pickUpOver";
 import { pickUpPosture } from "./pickUpPosture";
 import type { pickUpSearch } from "./pickUpSearch";
 import { pickUpStance } from "./pickUpStance";
@@ -55,6 +56,9 @@ export function planPickUpGrasp(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
   interception?: ReturnType<typeof pickUpIntercept>,
 ): IAutoMovieMotionHumanActionPlan {
+  // Over a carrier the carrier keeps the body: the reaching arm alone.
+  if (context.carrier !== undefined && interception === undefined)
+    return pickUpOver.plan(context);
   const side: AutoMovieHumanSide = context.params.hand ?? "right";
   const steadied: boolean =
     context.entry.holds[side === "left" ? "right" : "left"] ===
