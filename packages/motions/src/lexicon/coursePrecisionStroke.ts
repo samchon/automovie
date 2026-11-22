@@ -11,6 +11,7 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
+import { PrecisionStrokeKeys } from "./PrecisionStrokeKeys";
 import { precisionStrokePeak } from "./precisionStrokePeak";
 
 /** The segments of each hand that close on a two-handed implement, the grasp's contact between the two arms. */
@@ -57,14 +58,19 @@ export function coursePrecisionStroke(
   second?: AutoMovieHumanSide,
 ): IAutoMovieMotionHumanActionPlan {
   let fastest: number | undefined;
-  // The tool's attitude must hold only into the contact: the hold starts
-  // halfway through the downswing, and the backswing before it is the arm's
-  // reach, free to find an attitude it reaches clear of the body.
-  const ready: number = (clock.at("strokeStart") + clock.at("stroke")) / 2;
-  // ... and only out of it: the hold ends halfway through the
-  // follow-through, whose end the arm reaches freely back to its rest, so the
-  // swing's last attitude is not asked of an arm wrapped past its reach.
-  const relax: number = (clock.at("stroke") + clock.at("strokeEnd")) / 2;
+  // The tool's attitude is the one hard constraint, at the contact: the
+  // course holds the stroke's goal only over the film frame either side of
+  // it (`PrecisionStrokeKeys.CONTACT`); the swing before is the arm's reach,
+  // and after it the arm returns freely to its rest, each finding its own
+  // clear attitude.
+  const ready: number = Math.max(
+    0,
+    clock.at("stroke") - PrecisionStrokeKeys.CONTACT,
+  );
+  const relax: number = Math.min(
+    clock.duration,
+    clock.at("stroke") + PrecisionStrokeKeys.CONTACT,
+  );
   return courseArmGoal({
     body,
     side,

@@ -293,10 +293,12 @@ function plan(
           ),
         ),
       );
-      const leaned: IAutoMovieMotionHumanFoot.IPlacement = turn(1);
+      // The toe is placed where the flat foot's toe lands, so the foot turns
+      // about it and stands flat on its step at the end.
+      const flat: IAutoMovieMotionHumanFoot.IPlacement = turn(0);
       const flattened: IAutoMovieMotionHumanFoot.IPlacement = turn(1 - landing);
       const toe: IAutoMovieVector3 = Vector3.subtract(
-        HumanFoot.point(body, trail, "toe", leaned),
+        HumanFoot.point(body, trail, "toe", flat),
         HumanFoot.point(body, trail, "toe", flattened),
       );
       const pitched: IAutoMovieMotionHumanFoot.IPlacement = {

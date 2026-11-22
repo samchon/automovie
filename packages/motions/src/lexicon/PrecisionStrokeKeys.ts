@@ -1,18 +1,12 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanPosture,
-} from "@automovie/interface";
-
 /**
  * A precision stroke's key poses beyond its contact: how far a two-handed
  * swing's trunk coils back at the top and turns on at the finish, and the
- * window about the contact in which the tool's attitude is the one hard
- * constraint, the hands' goals carrying only their places elsewhere.
+ * window about the contact over which a stroke's arm course holds its goal,
+ * the tool's attitude the one hard constraint there.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each key, its unit and its source or its provisional standing.
- * @evidence contracts/development/design.md#principled-representation Two angles of the trunk over the pelvis, one window in seconds and one reader of goals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read only by `createPrecisionSportStroke`.
+ * @evidence contracts/development/design.md#principled-representation Two angles of the trunk over the pelvis and one window in seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createPrecisionSportStroke` and `coursePrecisionStroke`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The coil is the measured X-factor's lower bound; the finish is marked provisional where no measured value is common to the sources.
  */
 export namespace PrecisionStrokeKeys {
@@ -36,40 +30,6 @@ export namespace PrecisionStrokeKeys {
    */
   export const FINISH: number = 90;
 
-  /** Half the window about the contact in which the tool's attitude is held, seconds: one 24 Hz film frame. */
+  /** Half the window about the contact over which the arm's course holds the stroke's goal, seconds: one 24 Hz film frame. */
   export const CONTACT: number = 1 / 24;
-
-  /**
-   * Arm goals with their places only: away from the contact the hand's
-   * rotation is left to the arm's course, which turns the implement as it
-   * finds clear of the body.
-   *
-   * @param limbs A posture's limb goals.
-   * @returns The same goals, the arms' without their rotation.
-   */
-  export function places(
-    limbs: IAutoMovieMotionHumanPosture["limbs"],
-  ): IAutoMovieMotionHumanPosture["limbs"] {
-    const out: IAutoMovieMotionHumanPosture["limbs"] = { ...limbs };
-    for (const limb of ["leftArm", "rightArm"] as const) {
-      const goal: IAutoMovieHumanLimbGoal | undefined = out[limb];
-      if (goal === undefined) continue;
-      // A goal that places a held tool's contact turns with the hand, so
-      // its place is the hand's own: the contact carried back through the
-      // goal's rotation.
-      const place: IAutoMovieHumanLimbGoal = { ...goal };
-      if (goal.contact !== undefined && goal.rotation !== undefined)
-        place.point = Vector3.subtract(
-          goal.point,
-          Quaternion.rotateVector(goal.rotation, goal.contact),
-        );
-      // The tool's task points turn with the asked attitude, so they are
-      // released with it.
-      delete place.contact;
-      delete place.limits;
-      delete place.rotation;
-      out[limb] = place;
-    }
-    return out;
-  }
 }

@@ -344,14 +344,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
                       clock.progress("start", "ready", t) *
                       (1 - clock.progress("strokeStart", "stroke", t))),
               );
-        // The tool's attitude is the one hard constraint, at the contact:
-        // away from it the hands' goals carry their places only, and the arm
-        // turns the implement as its course finds clear.
-        const current: IAutoMovieMotionHumanPosture =
-          held === undefined ||
-          Math.abs(t - clock.at("stroke")) <= PrecisionStrokeKeys.CONTACT
-            ? keyed
-            : { ...keyed, limbs: PrecisionStrokeKeys.places(keyed.limbs) };
+        const current: IAutoMovieMotionHumanPosture = keyed;
         if (
           bridge === undefined ||
           bridgeEntry === undefined ||
