@@ -5,7 +5,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * The canonical Human, standing in its public Stand under internal actuation
- * only, meets a 0.1 s forward push in the middle of the one-step window: a recovery step lands, the body is supported again, not tipped, on flat soles at its height with the floor load at the weight, and only support limbs touched the floor. The push is stated from the body's own inverted
+ * only, meets a 0.1 s forward push in the middle of the one-step window: in place or after one recovery step, the body is captured again, its settled root not tipped, on flat soles at its height with the floor load at the weight, and only support limbs touched the floor. The push is stated from the body's own inverted
  * pendulum (`PhysicalDisturbance`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the push and every condition the outcome must meet.

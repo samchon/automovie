@@ -6,8 +6,8 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 /**
  * The independent four-support primitive, under the same internal actuation
  * as the Human, keeps its stance against a 0.1 s push half its in-place
- * bound, forward and sideways, recovers by a step from a forward one in the
- * middle of its one-step window, and falls for real from one one and a half
+ * bound, forward and sideways, recovers in place or by one step from a
+ * forward one in the middle of its one-step window, and falls for real from one one and a half
  * times its any-step bound, every push stated from its own inverted pendulum
  * (`PhysicalDisturbance`).
  *
@@ -15,8 +15,8 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
  * 1. Sustained, forward and sideways: no step, still supported and not
  *    tipped, every support flat throughout, the height kept and the floor
  *    load back at the weight.
- * 2. Recover: a recovery step lands and the body stands again, not tipped,
- *    on flat supports alone at its height.
+ * 2. Recover: in place or after one recovery step the body is captured
+ *    again, its settled root not tipped, on flat supports alone at its height.
  * 3. Fall: the stance is declared unrecoverable, the body loses its height,
  *    a part other than a support meets the floor and no support wrench
  *    exceeded the force bound.
