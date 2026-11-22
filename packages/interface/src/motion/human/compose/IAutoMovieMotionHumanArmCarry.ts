@@ -59,6 +59,9 @@ export namespace IAutoMovieMotionHumanArmCarry {
     /** The angles the arm holds at weight 0. */
     rest: IAutoMovieMotionHumanArmAngles.IAngles;
 
+    /** The angles a planned arm's return ends at, where the arm returns to another arm than it left (the plan's own arm at the span's end); `rest` when absent. */
+    back?: IAutoMovieMotionHumanArmAngles.IAngles;
+
     /**
      * The goal the arm solves to at weight 1.
      *

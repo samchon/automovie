@@ -11,6 +11,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
@@ -165,7 +166,25 @@ export function courseArmGoal(
         from: span.start,
         to: span.end,
         span,
-        rest: arm.rest,
+        // A course that starts after its action does leaves the plan's own arm
+        // there, the arm shown before it, so the seam before the span meets it.
+        rest:
+          span.start > 1e-9
+            ? AutoMovieMotionHumanArm.angles(
+                resolveHumanPosture(props.body, read(span.start)),
+                arm.side,
+              )
+            : arm.rest,
+        // A return ends on the plan's own arm at the span's end, which the
+        // plan shows from there on, so the seam after the span meets it.
+        ...(span.relax < span.end - 1e-9 && props.after !== "angles"
+          ? {
+              back: AutoMovieMotionHumanArm.angles(
+                resolveHumanPosture(props.body, read(span.end)),
+                arm.side,
+              ),
+            }
+          : {}),
         weight: (seconds: number): number =>
           seconds <= span.relax
             ? AutoMovieMotionInterval.progress(span.start, span.ready, seconds)
