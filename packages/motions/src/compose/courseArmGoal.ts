@@ -167,9 +167,11 @@ export function courseArmGoal(
         to: span.end,
         span,
         // A course that starts after its action does leaves the plan's own arm
-        // there, the arm shown before it, so the seam before the span meets it.
+        // there, the arm shown before it, so the seam before the span meets it;
+        // a caller whose plan already writes the goal at that instant gives
+        // the arm shown just before it (`shown`).
         rest:
-          span.start > 1e-9
+          span.start > 1e-9 && props.shown !== true
             ? AutoMovieMotionHumanArm.angles(
                 resolveHumanPosture(props.body, read(span.start)),
                 arm.side,
@@ -330,6 +332,15 @@ export namespace courseArmGoal {
      * holds what it lifted while the body straightens under it.
      */
     after?: After;
+
+    /**
+     * Whether each arm's `rest` is the arm the plan shows just before a span
+     * that starts after the action, for a plan that already writes the goal
+     * at the span's start (a rescuer's crawl arm at the arrival, where the
+     * plan writes the hold). Absent, such a course leaves the plan's own arm
+     * read at the span's start.
+     */
+    shown?: boolean;
   }
   /**
    * The last posture of the plan read, and what it was read with.

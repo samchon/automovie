@@ -16,13 +16,14 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * (`IAutoMovieScheduleContext.demand`), repeatedly until the second is
  * covered or no waiting part holds the person, a topological order over the
  * reads, so a production need not declare the read person's chain before
- * the reader's. A person of the reader's own group (`meeting`) is read no
- * later than the reader's own start, as placed there where their placed
- * actions reach it, and otherwise at their last placed pose held there, the
- * frozen meeting, without placing their part: within one exchange each actor
- * commits to where the other was when its own action began, and the other's
- * part may itself wait on this action (a defence anchored on the strike that
- * reads the defender, or two roles of a mutual action that start together).
+ * the reader's. A person of the reader's own group whose part still waits
+ * (`meeting`) is read no later than the end of their placed actions, the
+ * reader having recorded it when it was placed, at their last placed pose
+ * held past it, without placing their part: within one exchange each actor
+ * commits to what the other had done when its own action was placed, and the
+ * other's part may itself wait on this action (a defence anchored on the
+ * strike that reads the defender, or two roles of a mutual action that start
+ * together); a partner placed whole before it is read live.
  * Across groups two parts that read each other are a cycle and are refused;
  * a person no waiting part holds is left to the caller's own refusal.
  *
@@ -31,12 +32,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @param subject The person's subject.
  * @param seconds The film second read.
  * @param axis The refusal's axis, or a reader of it.
- * @param meeting Whether the person belongs to the reader's own parallel group.
+ * @param meeting Whether the person belongs to the reader's own parallel group with their part still waiting.
  * @returns Whether the read holds the person's last placed pose at the second.
  * @throws {HumanRefusal} When parts of different groups holding the two people read each other.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is known without placement, when placement is demanded, the frozen meeting within a group, the cycle across groups and what is left to the caller.
- * @evidence contracts/development/implementation.md#principled-implementation A person's next action cannot begin before its part does, so up to that start the person holds their placed pose; past it the read person's waiting part is placed before the read answers, a depth-first topological order over the reads; within a group, two actions that start together commit to where the other was at that start.
+ * @evidence contracts/development/implementation.md#principled-implementation A person's next action cannot begin before its part does, so up to that start the person holds their placed pose; past it the read person's waiting part is placed before the read answers, a depth-first topological order over the reads; within a group, an action commits to what a partner whose part still waits had placed when it was placed, so a lazy read afterwards answers the same.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One horizon check and one loop over the demand's answers.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is read past what is placed except a held pose; a part is placed whole, once, never resumed, and a cycle across groups is refused, never broken by a default order.
  * @evidence contracts/development/implementation.md#efficient-algorithms One horizon scan, then at most one demand per waiting part holding the person, each placing that part once.
@@ -55,10 +56,10 @@ export function placeDemandedHumanPerformer(
     self.resolving &&
     (self.intended.get(subject)?.length ?? 0) - person.segments.length > 0 &&
     seconds > (person.segments.at(-1)?.end ?? 0) + 1e-9;
-  // A partner of the reader's own group whose placed actions do not reach the
-  // reader's start holds their last placed pose there: their part may wait
-  // on this very action (a defence on the strike that reads it), so placing
-  // it now could need this action placed first.
+  // A partner of the reader's own group whose part still waits holds their
+  // last placed pose past it: their part may wait on this very action (a
+  // defence on the strike that reads it), so placing it now could need this
+  // action placed first.
   if (meeting) return unplaced();
   while (unplaced() && self.demand !== undefined) {
     const horizon: number | undefined = self.horizon?.(subject);
@@ -72,7 +73,7 @@ export function placeDemandedHumanPerformer(
         value: subject,
         feasible: null,
         reason: `reading ${subject} at ${seconds.toFixed(2)} s needs ${subject}'s next actions placed, and those read this action in turn: the two read each other`,
-        fix: "put the two performers' actions in one parallel group, where each reads the other no later than its own start, or let one read the other a reaction time earlier",
+        fix: "put the two performers' actions in one parallel group, where each reads the other as far as the other's actions are placed, or let one read the other a reaction time earlier",
       });
     return false;
   }

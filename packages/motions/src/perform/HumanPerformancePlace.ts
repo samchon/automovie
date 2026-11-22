@@ -233,15 +233,21 @@ export namespace HumanPerformancePlace {
       | Map<string, IAutoMovieMotionHumanPerformerReader>
       | undefined;
     // Each partner of this action's own parallel group
-    // (`IAutoMovieScheduleContext.meeting`) is read no later than this
-    // action's start, recorded as the action is placed, so a plan that reads
-    // the partner lazily afterwards reads the same pose the action was timed
-    // against: a partner who acted first inside the group is read as placed
-    // there, one who starts together with it at their last placed pose.
+    // (`IAutoMovieScheduleContext.meeting`) whose part still waits is read
+    // no later than the end of their placed actions, recorded as this action
+    // is placed, so a plan that reads the partner lazily afterwards reads the
+    // same pose the action was timed against: past it, at their last placed
+    // pose held. A partner placed whole before this action (a carrier the
+    // borne rides, a helper whose palm the helped grips) is read live.
     const meetings: Map<string, number> = new Map();
-    for (const other of self.people.keys())
-      if (other !== intent.subject && self.meeting?.(other) !== undefined)
-        meetings.set(other, start);
+    for (const other of self.people.keys()) {
+      if (other === intent.subject || self.meeting?.(other) === undefined)
+        continue;
+      const placed: readonly IAutoMovieMotionHumanSegment[] =
+        HumanPerformanceRead.person(self, other).segments;
+      if ((self.intended.get(other)?.length ?? 0) > placed.length)
+        meetings.set(other, placed.at(-1)?.end ?? 0);
+    }
     // The arm solutions this action's plans hand each other in this
     // performance: an alignment trial's, its placement's and a tempo
     // replan's read what the plan before them wrote, under one map.

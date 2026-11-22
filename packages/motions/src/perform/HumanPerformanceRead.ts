@@ -341,7 +341,8 @@ export namespace HumanPerformanceRead {
    * would change once they are placed; with none left, the person stays
    * where the last action put them. A partner of the reading action's own
    * parallel group is read no later than the instant (`met`) the action
-   * recorded when it was placed, its own start.
+   * recorded when it was placed: the end of the partner's placed actions,
+   * where their part still waited.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States film-second root/yaw reading, unresolved-future refusal and held terminal posture. The axis may be a fixed parameter name or an error-only lazy formatter, used synchronously only for that refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Checks the same placed endpoint and remaining-intent count before reading the selected raw posture's root and heading.
@@ -366,7 +367,8 @@ export namespace HumanPerformanceRead {
   /**
    * The film second a law reads another performer at: the asked one, or,
    * for a performer of the reader's own parallel group while an action is
-   * timed, no later than the reading action's own start; refused where the
+   * timed, no later than the end of their placed actions when the reading
+   * action was placed, where their part still waited; refused where the
    * performer is not known there.
    *
    * @param subject The performer read.
@@ -398,20 +400,26 @@ export namespace HumanPerformanceRead {
   function available(self: IAutoMovieMotionHumanPerformanceState, subject: string, seconds: number,
     axis: string | (() => string), met?: number): IAvailable {
     const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
-    // A partner of the reader's own group is read no later than the reader's
-    // own start (`met`, recorded when the reader was placed); a person a
-    // waiting part holds is placed first where the read needs it, holding
-    // their placed pose up to that part's start, or, as a partner whose part
-    // is itself being placed, their last placed pose
-    // (`placeDemandedHumanPerformer`).
-    const at: number = met === undefined ? seconds : Math.min(seconds, met);
+    // A partner of the reader's own group is read no later than the end of
+    // their placed actions (`met`, recorded when the reader was placed, only
+    // while their part still waited); a person a waiting part of another
+    // group holds is placed first where the read needs it, holding their
+    // placed pose up to that part's start (`placeDemandedHumanPerformer`).
+    // Once the partner's own actions are all placed, a lazy read (the
+    // contact resolution's, the display's) reads them live: a coupling rides
+    // its partner frame by frame.
+    const waits: boolean =
+      (self.intended.get(subject)?.length ?? 0) > person.segments.length;
+    const frozen: boolean = met !== undefined && waits;
+    const at: number =
+      met !== undefined && waits ? Math.min(seconds, met) : seconds;
     const held: boolean = placeDemandedHumanPerformer(
       self,
       person,
       subject,
       at,
       axis,
-      met !== undefined,
+      frozen,
     );
     const last: IAutoMovieMotionHumanSegment | undefined = person.segments.at(-1);
     const left: number =
@@ -446,7 +454,7 @@ export namespace HumanPerformanceRead {
     /** The person. */
     person: IAutoMovieMotionHumanSegment.IPerson;
 
-    /** The second the person is read at: the asked one, or the reader's own start for a partner of its group. */
+    /** The second the person is read at: the asked one, or no later than the recorded end of a waiting partner's placed actions. */
     seconds: number;
   }
 

@@ -40,7 +40,7 @@ export namespace HumanPerformanceAim {
    * @param target The target.
    * @param seconds Film seconds.
    * @param frame The aiming person's own frame, for `point` targets in the performer frame and `none`, their own body and bones, for `self`, and their subject, for a `person` that names them (read as `self`).
-   * @param meetings The instant each partner of the aiming action's own parallel group is read no later than, the action's own start, recorded when it was placed, so the aim reads the same pose whenever it is asked.
+   * @param meetings The instant each partner of the aiming action's own parallel group is read no later than, the end of their placed actions when the action was placed, for a partner whose part still waited, so the aim reads the same pose whenever it is asked.
    * @returns The aim.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States world-point/normal output, film seconds, own-body frame use and the person's existing reaction-time offset; target failures remain with their original branch owners.
