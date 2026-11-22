@@ -1,36 +1,23 @@
-import { AutoMovieGravity, Quaternion } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import {
-  type ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-} from "../core";
+import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
 import { EquineObstacle } from "./EquineObstacle";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedFooting } from "./QuadrupedFooting";
 import { QuadrupedGait } from "./QuadrupedGait";
-import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
+import { leastEquineFlight } from "./leastEquineFlight";
 import type { rideQuadruped } from "./rideQuadruped";
-
-/** Rotations whose lowest Y reads a part's least X, greatest X, least Z and greatest Z. */
-const SIDES: readonly IAutoMovieQuaternion[] = [
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
-];
 
 /**
  * One horse jump over the obstacles authored in the course's footing, and the scripted baulk that stops before them.
  *
- * The jump keeps the canter's own footfalls up to the takeoff stride. In that stride the trailing hind lands `GAP` of a stride after the first hind, so both hinds push off together, and the non-leading fore lands `FORE` after the final hind liftoff; between the two the hoof clock holds still (`QuadrupedRideClock.IHold`) while the body flies a ballistic arc at the course's constant ground speed. Every swing in that flight is carried with the body, so the limbs keep their mid-swing posture relative to the trunk. The flight's length is the least that lifts the actual displayed body, in that posture, over each rail and ditch by the authored clearance: the parabola is concave, so each part only needs the clearance at the two ends of its window over the obstacle, which gives the flight in closed form (`plan`). The canter stride whose takeoff needs the shortest flight is taken, and planEquineFlight then measures the flown body through the whole flight and lengthens it where the posture shifts from the held instant.
+ * The jump keeps the canter's own footfalls up to the takeoff stride. In that stride the trailing hind lands `GAP` of a stride after the first hind, so both hinds push off together, and the non-leading fore lands `FORE` after the final hind liftoff; between the two the hoof clock holds still (`QuadrupedRideClock.IHold`) while the body flies a ballistic arc at the course's constant ground speed. The limbs keep their posture on the trunk while the clock holds. The flight's length is the least that lifts the actual displayed body, in that posture, over each rail and ditch by the authored clearance: the centre of mass's path is concave, so each part only needs the clearance at the two ends of its window over the obstacle, which gives the flight in closed form (`leastEquineFlight`). The canter stride whose takeoff needs the shortest flight is taken, read on the posture at the middle of a nominal flight (`LONGEST`), and planEquineFlight then measures the flown, tucked and pitched body through the whole flight and settles the flight on the least that clears.
  *
- * Takeoff and landing do not resolve the push-off and the landing impact: the body's vertical velocity changes at final hind liftoff and at first fore landing, while its position is continuous.
+ * The push-off and the landing are resolved by the trunk's plan (`EquinePitch`): the centre of mass rises from rest to the takeoff velocity while the hinds push, flies its parabola while the trunk turns nose-down at the measured rate, and sinks to rest over the first fore stance, so the body's height, pitch and their rates are continuous through both. Every swing in the flight is carried in the flying body's frame from its own liftoff (`EquineFlightClock.swing`).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the stride changes, the hold, the flight law, the selection rule and the unresolved push-off.
+ * @evidence contracts/development/common.md#meaningful-documentation States the stride changes, the hold, the flight law, the selection rule and the pitched push-off and landing.
  * @evidence contracts/development/design.md#principled-representation Obstacles are intervals of course distance with a top height, read from the authored poles and plane gaps; the flight is two film seconds and a hold.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineFootwork` for a leg's technique and by `rideQuadruped` for the moved landings, the hold, the body height and the cues.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No authored trajectory is replayed; the arc follows from the obstacle and the displayed body.
@@ -50,6 +37,9 @@ export namespace EquineJump {
 
   /** Stride share between final hind liftoff and the non-leading fore landing, outside the held flight: authored, provisional. */
   export const FORE: number = 0.05;
+
+  /** The nominal flight whose middle posture a candidate's closed form reads, seconds: the longest aerial time Clayton, St George, Sinclair and Hobbs 2021 (J Equine Vet Sci 104:103698, Table 1) measured over Olympic fences, 0.73 s over the 1.50 m by 1.80 m spread (verticals to 1.60 m, 0.54 to 0.69 s), fences near the admitted `HEIGHT`. Its middle shows the trunk level and the limbs tucked as a real flight's. */
+  export const LONGEST: number = 0.73;
 
   /** Rounds in which the ride measures its flown body over the obstacles and adjusts the held flight: a shortfall extends it, a surplus shortens it by half, so the closed form's flight, read with untucked fores at one held instant, settles on the least clearing flight of the displayed tucked body. A flight still short after them refuses. */
   export const ROUNDS: number = 10;
@@ -120,7 +110,7 @@ export namespace EquineJump {
    * One trial assembly of the ride, on which a takeoff candidate is measured.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the ride hands the planner.
-   * @evidence contracts/development/design.md#principled-representation The stride plan, its clock and a sampler of the displayed parts and placement, with the flight's arc once one is known.
+   * @evidence contracts/development/design.md#principled-representation The stride plan, its clock, the rest centre of mass and a sampler of the displayed parts and placement, with the flight once one is known.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `rideQuadruped` for each candidate.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
@@ -129,6 +119,8 @@ export namespace EquineJump {
     strides: QuadrupedStridePlan.IPlan;
     /** The clock it was built on. */
     clock: QuadrupedRideClock.IClock;
+    /** The animal's rest centre of mass, model metres. */
+    centre: IAutoMovieVector3;
     /**
      * The displayed model parts, in model space, and the root's world placement at a film second.
      *
@@ -270,25 +262,28 @@ export namespace EquineJump {
    * @param request The admitted jump.
    * @param plan The course plan.
    * @param species The ride's species.
-   * @param trial Assemble the ride with moved landings and no hold.
+   * @param trial Assemble the ride with moved landings, without a hold or with a flight's.
    * @returns The flight.
    * @throws {ArchetypeRefusal} When no canter stride on the leg can take off before the obstacle and land within the leg at constant speed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation For a candidate stride, the body flies b(s) = g/(2v²)(s − s_T)(s_T + vT − s) over course distance s. A part whose lowest point is y and whose extent along the path is [z⁻, z⁺] overlaps an obstacle [a, b] of top h while the root is in [a − z⁺, b − z⁻], and needs b ≥ h + clearance − y there. The arc is concave, so each window end e needs vT ≥ (e − s_T) + 2v²R/(g(e − s_T)); the largest such T over parts, obstacles and ends is the least flight. Parts are read from the displayed model at the held phase, the posture the whole hold keeps.
+   * @evidence contracts/development/implementation.md#principled-implementation Each candidate's least flight is the closed form of `leastEquineFlight` on the displayed parts at the middle of a nominal `LONGEST` flight, where the trunk is level and the limbs tucked.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Build candidates, measure each in closed form, keep the shortest flight.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A candidate whose body already overlaps an obstacle at takeoff, or that lands past the leg, is discarded, never adjusted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trial assembly and one model sample per candidate stride, then O(P·O) per candidate for P parts and O obstacles.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The trial assembly is the ride's own; the extents reuse the exact primitive floor reader.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two trial assemblies and one model sample per candidate stride, then O(P·O) per candidate for P parts and O obstacles.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The trial assembly is the ride's own.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one record.
    */
   export function plan(
     archetype: string,
     request: IRequest,
     plan: ArchetypeCourse.IPlan,
-    trial: (moved: readonly QuadrupedStridePlan.IMoved[]) => ITrial,
+    trial: (
+      moved: readonly QuadrupedStridePlan.IMoved[],
+      flight: IFlight | undefined,
+    ) => ITrial,
   ): IFlight {
-    const first: ITrial = trial([]);
+    const first: ITrial = trial([], undefined);
     let best: IBest | undefined;
     for (
       let n: number = 1;
@@ -312,30 +307,30 @@ export namespace EquineJump {
           request.start
       )
         continue;
-      const measured: ITrial = trial(candidate.moved);
-      const seconds: number | undefined = flight(measured, candidate);
+      // The posture is read at the middle of a nominal flight, where the trunk is level and the limbs tucked.
+      const unflown: ITrial = trial(candidate.moved, undefined);
+      // A takeoff at or past the first obstacle has nothing left to jump.
+      if (
+        !(
+          plan.at(unflown.strides.secondsAt(candidate.takeoff)).distance <
+          request.obstacles[0]!.from
+        )
+      )
+        continue;
+      const nominal: IFlight = flown(unflown, candidate, LONGEST);
+      const seconds: number | undefined = leastEquineFlight(
+        request,
+        plan,
+        unflown,
+        candidate,
+        trial(candidate.moved, nominal).sample(
+          nominal.hold.start + nominal.hold.duration / 2,
+        ).parts,
+        unflown.centre,
+      );
       if (seconds === undefined) continue;
       if (best === undefined || seconds < best.seconds)
-        best = {
-          seconds,
-          flight: {
-            moved: candidate.moved,
-            hold: {
-              start: measured.strides.secondsAt(candidate.hold),
-              duration:
-                seconds -
-                (measured.strides.secondsAt(candidate.landing) -
-                  measured.strides.secondsAt(candidate.takeoff)),
-            },
-            phase: candidate.hold,
-            takeoff: candidate.takeoff,
-            landing: candidate.landing,
-            approach: candidate.approach,
-            recovery: candidate.recovery,
-            push: candidate.push,
-            absorb: candidate.absorb,
-          },
-        };
+        best = { seconds, flight: flown(unflown, candidate, seconds) };
     }
     if (best === undefined || !(best.flight.hold.duration > 0))
       throw new ArchetypeRefusal({
@@ -349,77 +344,29 @@ export namespace EquineJump {
         fix: "Lengthen the approach at a constant canter and leave room to land.",
       });
     return best.flight;
+  }
 
-    /** The flight seconds that clear every obstacle from one candidate, if it can. */
-    function flight(
-      measured: ITrial,
-      candidate: ICandidate,
-    ): number | undefined {
-      const lift: number = measured.strides.secondsAt(candidate.takeoff);
-      const touch: number = measured.strides.secondsAt(candidate.landing);
-      const state: ArchetypeCourse.IState = plan.at(lift);
-      const v: number = state.speed;
-      if (
-        !(v > 0) ||
-        [candidate.approach, candidate.recovery].some(
-          (phase: number): boolean =>
-            plan.at(measured.strides.secondsAt(phase)).speed !== v,
-        )
-      )
-        return undefined;
-      let least: number = touch - lift;
-      for (const part of measured.sample(
-        measured.strides.secondsAt(candidate.hold),
-      ).parts) {
-        if (
-          part.geometry.type !== "primitive" ||
-          part.geometry.shape.type === "plane"
-        )
-          continue;
-        const low: number = QuadrupedRestFloor(part);
-        const [, , rearmost, negatedForemost]: readonly number[] = SIDES.map(
-          (rotation: IAutoMovieQuaternion): number =>
-            QuadrupedRestFloor({
-              ...part,
-              transform: ArchetypeFrame.compose(
-                {
-                  rotation,
-                  translation: { x: 0, y: 0, z: 0 },
-                  scale: ArchetypeFrame.UNIT,
-                },
-                part.transform!,
-              ),
-            }),
-        );
-        for (const obstacle of request.obstacles) {
-          const need: number = obstacle.top + request.clearance - low;
-          // The root overlaps the obstacle from its start less the part's foremost model Z to its end less the rearmost.
-          for (const end of [
-            obstacle.from + negatedForemost!,
-            obstacle.to - rearmost!,
-          ]) {
-            const ahead: number = end - state.distance;
-            if (!(ahead > 0)) return undefined;
-            least = Math.max(
-              least,
-              (ahead +
-                (need > 0
-                  ? (2 * v * v * need) / (AutoMovieGravity.STANDARD * ahead)
-                  : 0)) /
-                v,
-            );
-          }
-        }
-      }
-
-      // After the hold every later event moves on by the held seconds at the same speed.
-      const recovery: number =
-        plan.at(measured.strides.secondsAt(candidate.recovery)).distance +
-        v * (least - (touch - lift));
-      return recovery <= request.end && plan.at(plan.when(recovery)).speed === v
-        ? least
-        : undefined;
-    }
+  /** A candidate's flight of a given length, held on its unheld trial's clock. */
+  function flown(
+    unflown: ITrial,
+    candidate: ICandidate,
+    seconds: number,
+  ): IFlight {
+    const at = (phase: number): number => unflown.strides.secondsAt(phase);
+    return {
+      moved: candidate.moved,
+      hold: {
+        start: at(candidate.hold),
+        duration: seconds - (at(candidate.landing) - at(candidate.takeoff)),
+      },
+      phase: candidate.hold,
+      takeoff: candidate.takeoff,
+      landing: candidate.landing,
+      approach: candidate.approach,
+      recovery: candidate.recovery,
+      push: candidate.push,
+      absorb: candidate.absorb,
+    };
   }
 
   /** The shortest flight found so far and its plan. */
@@ -430,8 +377,15 @@ export namespace EquineJump {
     seconds: number;
   }
 
-  /** One candidate takeoff stride's moved landings and event phases. */
-  interface ICandidate {
+  /**
+   * One candidate takeoff stride's moved landings and event phases.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each phase.
+   * @evidence contracts/development/design.md#principled-representation Stride-plan phases and the moved landings.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `plan` and read by `leastEquineFlight`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ICandidate {
     /** The moved landings. */
     moved: readonly QuadrupedStridePlan.IMoved[];
     /** Phase of final hind liftoff. */

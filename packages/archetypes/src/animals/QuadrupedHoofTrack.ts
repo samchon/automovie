@@ -80,21 +80,6 @@ export namespace QuadrupedHoofTrack {
   ) => ICross | undefined;
 
   /**
-   * The body displacement a swing spanning a hoof-clock hold is carried by, so the hoof travels with the body while the clock stands.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the world displacement and the elapsed share of the hold.
-   * @evidence contracts/development/design.md#principled-representation A world vector in metres and a unitless share from zero before the hold to one after it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by the ride for the swings a jump's flight holds.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface ICarry {
-    /** World displacement of the body over the whole hold, metres. */
-    shift: IAutoMovieVector3;
-    /** Share of the hold elapsed at the sample, zero to one. */
-    share: number;
-  }
-
-  /**
    * Read a stance from the admitted course and its gait clock.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Connects actual touchdown phase and hoof duty to the route's signed stance advance.
@@ -112,6 +97,7 @@ export namespace QuadrupedHoofTrack {
     body?: (
       state: ArchetypeCourse.IState,
       seconds: number,
+      fore: boolean,
     ) => IAutoMovieTransform,
     crossing?: Crossing,
   ): (
@@ -142,9 +128,9 @@ export namespace QuadrupedHoofTrack {
       );
       return {
         duty,
-        landed: { ...route, placement: body(route, seconds) },
+        landed: { ...route, placement: body(route, seconds, fore) },
         travel,
-        lifted: body(onward(plan, release), release),
+        lifted: body(onward(plan, release), release, fore),
         ...(across === undefined ? {} : { across }),
       };
     };
@@ -363,7 +349,6 @@ export namespace QuadrupedHoofTrack {
    * @param amount The smooth swing progression from zero to one.
    * @param worldAnchors Whether turns or a standing start require world anchoring.
    * @param footing Optional independently placed world surfaces and authored obstacles.
-   * @param carry The body displacement carrying a swing through a hoof-clock hold, when the swing spans one.
    * @param under The model fore-aft position the hoof is centred toward (`footprint`'s).
    * @param clear Moves a world foothold clear of the footing's concave edges (`QuadrupedCorner`); footholds stand where the course puts them when absent.
    * @returns Model-space coordinates in metres. The world-anchor path also returns the relative terminal axis rotation.
@@ -384,7 +369,6 @@ export namespace QuadrupedHoofTrack {
     amount: number,
     worldAnchors: boolean,
     footing?: QuadrupedFooting.IPlan,
-    carry?: ICarry,
     under?: number,
     clear?: (point: IAutoMovieVector3) => IAutoMovieVector3,
   ): Pick<QuadrupedRidePose.IGoal, "x" | "z" | "orientation" | "surface"> {
@@ -431,20 +415,10 @@ export namespace QuadrupedHoofTrack {
     const arrival: IAutoMovieVector3 | undefined =
       nextFoot === undefined ? undefined : (nextGround?.point ?? nextFoot);
 
-    // A swing the hoof clock holds is carried with the body: the hold's displacement is removed from the arrival and restored by its elapsed share.
     const chord: IAutoMovieVector3 =
       arrival === undefined
         ? beginning
-        : carry === undefined
-          ? Vector3.lerp(beginning, arrival, amount)
-          : Vector3.add(
-              Vector3.lerp(
-                beginning,
-                Vector3.subtract(arrival, carry.shift),
-                amount,
-              ),
-              Vector3.scale(carry.shift, carry.share),
-            );
+        : Vector3.lerp(beginning, arrival, amount);
     // A swinging hoof rises above the ground beneath it, not only above the chord between its footholds, which passes under a crest between them.
     const beneath: QuadrupedFooting.ILanding | undefined =
       arrival === undefined || footing === undefined

@@ -15,7 +15,7 @@ import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
  * @throws {RangeError} When the flight still falls short after the last round.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two stages and the failures.
- * @evidence contracts/development/implementation.md#principled-implementation The closed form reads the body at one held instant; the flown ride's own parts are then measured through the whole flight, so the result rests on the displayed geometry.
+ * @evidence contracts/development/implementation.md#principled-implementation The closed form reads the body at the middle of a nominal flight; the flown ride's own parts are then measured through the whole flight, so the result rests on the displayed geometry.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan, then a bounded measure-and-extend loop; kept apart from `rideQuadruped` for its size.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No clearance is relaxed; a flight still short refuses.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most `ROUNDS` + 1 trial assemblies and flight measurements.
@@ -35,8 +35,7 @@ export function planEquineFlight(
     archetype,
     request,
     plan,
-    (moved: readonly QuadrupedStridePlan.IMoved[]): EquineJump.ITrial =>
-      trial(moved, undefined),
+    trial,
   );
   for (let round: number = 0; ; round++) {
     const flown: EquineJump.ITrial = trial(flight.moved, flight);

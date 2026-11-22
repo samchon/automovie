@@ -61,13 +61,13 @@ interface IExtent {
  * A horse jumps real obstacles from its canter, flies clear of them, lands on a fore and recovers; a scripted baulk halts and settles without a jump; invalid approaches refuse before any jump is emitted.
  *
  * Scenarios:
- * 1. A vertical, a spread and a dry ditch, each across a level lane: the ride publishes approach, takeoff, landing and recovery; just before takeoff a hind is down, from takeoff to landing every hoof is clear of the floor, a fore lands at landing, and canter footfalls follow the recovery. The whole displayed body, hooves and limbs included, keeps the authored clearance above each rail wherever it passes over it, and no hoof lands inside the ditch.
+ * 1. A vertical, a spread and a dry ditch, each across a level lane: the ride publishes approach, takeoff, landing and recovery; just before takeoff a hind is down, from takeoff to landing every hoof is clear of the floor, a fore lands at landing, and canter footfalls follow the recovery. The whole displayed body, hooves and limbs included, keeps the authored clearance above each rail wherever it passes over it, and no hoof lands inside the ditch. The trunk's vertical velocity stays continuous through the push-off and the landing.
  * 2. A baulk before the vertical halts with all four soles on the floor and unmoving through the settle, and publishes no takeoff or landing.
  * 3. A jump on a turn, a 1.8 m vertical and a vertical too close to the leg's start refuse at the ride's construction.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the obstacles, the events read and the refused approaches.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed primitive parts, soles and published events of actual horse rides.
- * @evidence contracts/development/testing.md#independent-expectations Clearance is measured from each part's own primitive geometry against the authored rail capsules; flight from sole heights; the refusal bounds are the FEI's 1.70 m height. The 10 cm clearance is the authored request.
+ * @evidence contracts/development/testing.md#independent-expectations Clearance is measured from each part's own primitive geometry against the authored rail capsules; flight from sole heights; the rise from the displayed placement's own height; the refusal bounds are the FEI's 1.70 m height. The 10 cm clearance is the authored request.
  * @evidence contracts/development/testing.md#distinguishing-cases Vertical, spread, ditch, baulk, a curved approach, an over-height rail and a short approach.
  * @evidence contracts/development/testing.md#execution-ownership A memory-only archetype unit on the public horse ride.
  */
@@ -170,6 +170,17 @@ export function test_archetype_equine_jump(): void {
       issues.push(
         `${label}: the body overjumps, tightest margin ${tightest} m`,
       );
+    // The trunk's rise is continuous: between two 2 ms samples it changes by less than a fifth of the flight's takeoff velocity, g T / 2, so no push-off or impact is skipped.
+    const rise = (at: number): number =>
+      (ride.at(at + 0.001).placement.translation.y -
+        ride.at(at - 0.001).placement.translation.y) /
+      0.002;
+    const step: number = (0.2 * 9.80665 * (landing - takeoff)) / 2;
+    for (let at: number = takeoff - 0.4; at < landing + 0.4; at += 0.002)
+      if (!(Math.abs(rise(at + 0.002) - rise(at)) <= step)) {
+        issues.push(`${label}: the trunk's rise jumps at ${at.toFixed(3)} s`);
+        break;
+      }
     const quarter: number = takeoff + (landing - takeoff) / 4;
     for (const side of ["left", "right"] as const) {
       const fold: number = carpus(ride, side, quarter) - carpus(ride, side, 0);

@@ -4,22 +4,27 @@ import type { IAutoMovieTransform } from "@automovie/interface";
 import { ArchetypeFrame } from "../core";
 
 /**
- * The trunk's pitch through a jump: nose-up about the hips over the push-off, a ballistic flight, nose-down about the shoulders over the landing stance.
+ * The trunk's height and pitch through a jump: the push-off, a flight about the centre of mass, and the landing stance.
  *
- * The hinds stay planted through the push-off. A rigid trunk can therefore rise only by turning nose-up about the hip axis, which keeps the hips, and the planted hinds' reach, where they are. The angle grows from rest at constant angular acceleration, so φ = φ_T (τ/Δ)², until the root's vertical velocity at final hind liftoff equals the flight's own takeoff velocity. The landing mirrors this about the shoulder axis over the first fore stance. Between the two the root flies the ballistic parabola that meets both contact heights, and the pitch and the root's fore-aft offset follow cubic Hermite curves that match the angle, the offset and their rates at both ends. Height, pitch and their rates are thus continuous from the push-off to the end of the landing stance.
+ * In the air the horse is a body under gravity alone: its centre of mass flies a parabola and its trunk turns nose-down at a nearly constant rate. Galloux and Barrey 1997 (Components of the total kinetic moment in jumping horses, Equine Vet J Suppl 23:41, https://doi.org/10.1111/j.2042-3306.1997.tb05051.x; thirty horses over a 1.20 m fence) report a rotation of 120 ± 5 degrees per second, nearly constant through the airborne phase; Clayton, St George, Sinclair and Hobbs 2021 (Characteristics of the flight arc in horses jumping three different types of fences in Olympic competition, J Equine Vet Sci 104:103698, https://doi.org/10.1016/j.jevs.2021.103698, Table 1; twelve Olympic horses) report the trunk 30.7 degrees nose-up at takeoff and 37.8 nose-down at landing over a 1.60 m vertical, an average 110.38 degrees per second in a 0.62 s flight. The trunk here turns at `TURN` through the flight, level at its middle, so it leaves the ground nose-up by half the flight's turn and lands nose-down by as much: a derivation from those two reports.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the mechanism, the profiles and the continuity they give.
- * @evidence contracts/development/design.md#principled-representation Pivot heights and fore-aft positions in model metres, film seconds, and pitch angles in radians, positive nose-up.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Planned by the ride's flight clock and read by its body placement.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The angles follow from the flight and the actual pivots; none is authored.
+ * The push-off and the landing stance are the two contacts. Over the push-off, from both hinds down to final hind liftoff, the centre of mass rises from rest under a constant net force to the flight's takeoff velocity, and the pitch rises from level at rest to the takeoff angle and the flight's rate (a cubic Hermite curve, so the trunk is most nose-up shortly before liftoff and is already turning nose-down as it leaves). The landing stance mirrors this, from the flight's landing velocity and rate to rest. The three phases fix the takeoff velocity in closed form, so height, pitch and both rates are continuous from the push-off to the end of the landing stance. The turn about the centre of mass lowers the hips, which lie behind it, as the forehand rises, so the planted hinds are crouched at takeoff.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the mechanism, the sources, the derived angles, the contact profiles and the continuity they give.
+ * @evidence contracts/development/design.md#principled-representation The centre of mass in model metres, film seconds, a measured rate and pitch angles in radians, positive nose-up.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Planned by the ride's flight clock and read by its body placement and stance anchors (`shift`); `about` and `lean` turn a body about other pivots.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The angles and velocities follow from the measured rate, the flight's seconds and the body's own centre of mass; none is fitted.
  */
 export namespace EquinePitch {
+  /** The trunk's nose-down turn through a jump's flight, radians per second: Clayton et al. 2021's average trunk angular velocity over the 1.60 m vertical, 110.38 ± 9.63 degrees per second, Table 1. */
+  export const TURN: number = (110.38 * Math.PI) / 180;
+
   /**
-   * A lateral pivot axis of the trunk.
+   * A point of the trunk in its sagittal plane.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame.
-   * @evidence contracts/development/design.md#principled-representation Height and fore-aft position in model metres; the axis is the model's X.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The hips and the shoulders.
+   * @evidence contracts/development/design.md#principled-representation Height and fore-aft position in model metres; a turn about it is about the model's X.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The centre of mass, a lameness's pivot or the root.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPivot {
@@ -30,10 +35,10 @@ export namespace EquinePitch {
   }
 
   /**
-   * A planned pitch.
+   * A planned jump.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the seconds, pivots and angles.
-   * @evidence contracts/development/design.md#principled-representation The four contact seconds, the two pivots and the takeoff and landing angles.
+   * @evidence contracts/development/common.md#meaningful-documentation States the seconds, the centre, the angle, the rate and the velocity.
+   * @evidence contracts/development/design.md#principled-representation The four contact seconds, the centre of mass, the takeoff angle, the flight's rate and the takeoff velocity.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `at`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
@@ -46,14 +51,14 @@ export namespace EquinePitch {
     landing: number;
     /** Film second the first fore stance ends. */
     absorb: number;
-    /** The hip axis. */
-    hip: IPivot;
-    /** The shoulder axis. */
-    shoulder: IPivot;
+    /** The rest centre of mass. */
+    centre: IPivot;
     /** Nose-up angle at final hind liftoff, radians. */
     rise: number;
-    /** Angle at first fore landing, radians, negative nose-down. */
-    dive: number;
+    /** The flight's pitch rate, radians per second, negative nose-down. */
+    turn: number;
+    /** The centre of mass's vertical velocity at final hind liftoff, metres per second. */
+    launch: number;
   }
 
   /**
@@ -74,55 +79,44 @@ export namespace EquinePitch {
   }
 
   /**
-   * Plan the pitch for a flight.
+   * Plan the trunk through a jump.
    *
-   * @param hip The hip axis.
-   * @param shoulder The shoulder axis.
+   * @param centre The rest centre of mass.
    * @param push Both hinds down, film seconds.
    * @param takeoff Final hind liftoff.
    * @param landing First fore landing.
    * @param absorb End of the first fore stance.
    * @returns The plan.
-   * @throws {RangeError} When no pitch below a right angle reaches the flight's takeoff or landing velocity.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation The root's height under a pivot turned by φ is y = h_y(1 − cos φ) − h_z sin φ; its velocity at the end of the push-off is (2φ/Δ)(h_y sin φ − h_z cos φ). The ballistic flight between the two contact heights fixes both contact velocities, (y_L − y_T)/T ± g T/2. A fixed-point iteration alternates the two angles with these velocities, each angle found by bisection.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Velocities from heights, angles from velocities, repeated.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable velocity refuses rather than clamping the angle.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed 20 outer rounds of two 60-step bisections.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the root-height formulas with `at`.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs.
+   * @evidence contracts/development/implementation.md#principled-implementation With flight T, push-off P and landing stance A, the centre rises v P / 2 over the push-off, flies v T − g T² / 2, and sinks −(v − g T) A / 2 to rest over the landing stance; the three sum to zero, so v = g T (T + A) / (2 T + P + A). The trunk turns at −`TURN` and leaves nose-up by `TURN` T / 2.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two closed forms.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's gravity.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one record.
    */
   export function plan(
-    hip: IPivot,
-    shoulder: IPivot,
+    centre: IPivot,
     push: number,
     takeoff: number,
     landing: number,
     absorb: number,
   ): IPlan {
     const flight: number = landing - takeoff;
-    let rise: number = 0;
-    let dive: number = 0;
-    for (let round: number = 0; round < 20; round++) {
-      const span: number =
-        (height(shoulder, dive) - height(hip, rise)) / flight;
-      const up: number = span + (AutoMovieGravity.STANDARD * flight) / 2;
-      const down: number = span - (AutoMovieGravity.STANDARD * flight) / 2;
-      rise = solve(
-        (angle: number): number =>
-          ((2 * angle) / (takeoff - push)) * climb(hip, angle),
-        up,
-        1,
-      );
-      dive = solve(
-        (angle: number): number =>
-          ((-2 * angle) / (absorb - landing)) * climb(shoulder, angle),
-        down,
-        -1,
-      );
-    }
-    return { push, takeoff, landing, absorb, hip, shoulder, rise, dive };
+    const g: number = AutoMovieGravity.STANDARD;
+    return {
+      push,
+      takeoff,
+      landing,
+      absorb,
+      centre,
+      rise: (TURN * flight) / 2,
+      turn: -TURN,
+      launch:
+        (g * flight * (flight + absorb - landing)) /
+        (2 * flight + takeoff - push + absorb - landing),
+    };
   }
 
   /**
@@ -133,51 +127,53 @@ export namespace EquinePitch {
    * @returns The tilt; zero outside the push-off, flight and landing stance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result outside the jump.
-   * @evidence contracts/development/implementation.md#principled-implementation Push-off and landing turn about their pivots with the quadratic angle profiles; the flight is ballistic in height with cubic Hermite pitch and fore-aft offset matching both ends.
+   * @evidence contracts/development/implementation.md#principled-implementation The centre of mass rises at constant acceleration over the push-off, flies the parabola and sinks at constant deceleration over the landing stance; the pitch follows cubic Hermite curves over the contacts and the constant rate in flight. The root is the centre less its pitched offset, so the trunk turns about the centre of mass.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per phase.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the pivot formulas with `plan`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the turn about a pivot with `about`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(pitch: IPlan, seconds: number): ITilt {
-    const { push, takeoff, landing, absorb, hip, shoulder, rise, dive } = pitch;
+    const { push, takeoff, landing, absorb, centre, rise, turn, launch } =
+      pitch;
     if (!(seconds > push && seconds < absorb)) return { y: 0, z: 0, pitch: 0 };
-    if (seconds <= takeoff)
-      return about(hip, rise * ((seconds - push) / (takeoff - push)) ** 2);
-    if (seconds >= landing)
-      return about(
-        shoulder,
-        dive * ((absorb - seconds) / (absorb - landing)) ** 2,
-      );
+    const g: number = AutoMovieGravity.STANDARD;
     const flight: number = landing - takeoff;
-    const tau: number = seconds - takeoff;
-    const start: ITilt = about(hip, rise);
-    const end: ITilt = about(shoulder, dive);
-    const spin: number = (2 * rise) / (takeoff - push);
-    const settle: number = (-2 * dive) / (absorb - landing);
-    const up: number =
-      (end.y - start.y) / flight + (AutoMovieGravity.STANDARD * flight) / 2;
-    return {
-      y: start.y + up * tau - (AutoMovieGravity.STANDARD * tau * tau) / 2,
-      z: hermite(
-        start.z,
-        spin * along(hip, rise),
-        end.z,
-        settle * along(shoulder, dive),
-        tau / flight,
-        flight,
-      ),
-      pitch: hermite(rise, spin, dive, settle, tau / flight, flight),
-    };
+    let height: number;
+    let angle: number;
+    if (seconds <= takeoff) {
+      const tau: number = seconds - push;
+      height = (launch * tau * tau) / (2 * (takeoff - push));
+      angle = hermite(0, 0, rise, turn, tau / (takeoff - push), takeoff - push);
+    } else if (seconds >= landing) {
+      const left: number = absorb - seconds;
+      height =
+        (-(launch - g * flight) * left * left) / (2 * (absorb - landing));
+      angle = hermite(
+        rise + turn * flight,
+        turn,
+        0,
+        0,
+        (seconds - landing) / (absorb - landing),
+        absorb - landing,
+      );
+    } else {
+      const tau: number = seconds - takeoff;
+      height =
+        (launch * (takeoff - push)) / 2 + launch * tau - (g * tau * tau) / 2;
+      angle = rise + turn * tau;
+    }
+    const turned: ITilt = about(centre, angle);
+    return { ...turned, y: turned.y + height };
   }
 
   /**
-   * The body's world placement: a course placement turned about the body's up axis by a lateral figure's heading offset, then offset and pitched by a jump's tilt in the body's own frame.
+   * The body's world placement: a course placement turned about the body's up axis by a lateral figure's heading offset, then offset and pitched by a tilt in the body's own frame.
    *
    * @param placement The course placement.
    * @param yaw The heading offset, degrees, positive to the left.
-   * @param tilt The jump's tilt, if any.
+   * @param tilt The tilt, if any.
    * @returns The placement unchanged without either, else a new one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frames, units and the unchanged case.
@@ -193,7 +189,11 @@ export namespace EquinePitch {
     yaw: number,
     tilt: ITilt | undefined,
   ): IAutoMovieTransform {
-    if (yaw === 0 && (tilt === undefined || (tilt.y === 0 && tilt.pitch === 0)))
+    if (
+      yaw === 0 &&
+      (tilt === undefined ||
+        (tilt.y === 0 && tilt.z === 0 && tilt.pitch === 0))
+    )
       return placement;
     return {
       translation: Vector3.add(
@@ -219,6 +219,30 @@ export namespace EquinePitch {
   }
 
   /**
+   * A placement pitched by a lean about its own root on the floor.
+   *
+   * @param placement The placement.
+   * @param degrees The lean, degrees, positive nose-down.
+   * @returns The placement unchanged without a lean, else a new one.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the pivot, units, sign and unchanged case.
+   * @evidence contracts/development/implementation.md#principled-implementation A turn about the root's own lateral axis, through `place` and `about`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One composition.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `place` and `about`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh transform.
+   */
+  export function lean(
+    placement: IAutoMovieTransform,
+    degrees: number,
+  ): IAutoMovieTransform {
+    return degrees === 0
+      ? placement
+      : place(placement, 0, about({ y: 0, z: 0 }, (-degrees * Math.PI) / 180));
+  }
+
+  /**
    * The root's offset and the pitch when the trunk is turned by an angle about a lateral pivot axis.
    *
    * @param pivot The pivot axis in model metres.
@@ -230,30 +254,38 @@ export namespace EquinePitch {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation of one vector.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the height formula with plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by `at`, `lean` and a lameness's tilt.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function about(pivot: IPivot, angle: number): ITilt {
     return {
-      y: height(pivot, angle),
+      y: pivot.y * (1 - Math.cos(angle)) - pivot.z * Math.sin(angle),
       z: pivot.y * Math.sin(angle) + pivot.z * (1 - Math.cos(angle)),
       pitch: angle,
     };
   }
 
-  /** The root's height offset when turned by an angle about a pivot. */
-  function height(pivot: IPivot, angle: number): number {
-    return pivot.y * (1 - Math.cos(angle)) - pivot.z * Math.sin(angle);
-  }
-
-  /** The root's height per radian of turn about a pivot. */
-  function climb(pivot: IPivot, angle: number): number {
-    return pivot.y * Math.sin(angle) - pivot.z * Math.cos(angle);
-  }
-
-  /** The root's fore-aft offset per radian of turn about a pivot. */
-  function along(pivot: IPivot, angle: number): number {
-    return pivot.y * Math.cos(angle) + pivot.z * Math.sin(angle);
+  /**
+   * How far a tilt moves a point of the trunk forward.
+   *
+   * @param tilt The tilt.
+   * @param point The point, model metres.
+   * @returns The fore-aft displacement in the course's frame, metres, positive forward.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, units and sign.
+   * @evidence contracts/development/implementation.md#principled-implementation The root's offset plus the point's turned fore-aft position less its own, by the rotation `place` composes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function shift(tilt: ITilt, point: IPivot): number {
+    return (
+      tilt.z -
+      point.y * Math.sin(tilt.pitch) +
+      point.z * (Math.cos(tilt.pitch) - 1)
+    );
   }
 
   /** The cubic Hermite value at a share of an interval. */
@@ -273,28 +305,5 @@ export namespace EquinePitch {
       (-2 * s3 + 3 * s2) * p1 +
       (s3 - s2) * length * m1
     );
-  }
-
-  /** Bisect a monotone velocity law for the angle that reaches a velocity, on a quarter turn toward a sign. */
-  function solve(
-    law: (angle: number) => number,
-    target: number,
-    sign: number,
-  ): number {
-    let low: number = 0;
-    let high: number = (sign * Math.PI) / 2;
-    if (
-      !(Math.abs(law(high)) >= Math.abs(target)) ||
-      Math.sign(target) !== Math.sign(law(high))
-    )
-      throw new RangeError(
-        `No trunk pitch below a right angle reaches ${target} m/s through the jump's contact`,
-      );
-    for (let step: number = 0; step < 60; step++) {
-      const middle: number = (low + high) / 2;
-      if (Math.abs(law(middle)) < Math.abs(target)) low = middle;
-      else high = middle;
-    }
-    return (low + high) / 2;
   }
 }

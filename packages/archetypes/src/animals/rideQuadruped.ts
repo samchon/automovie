@@ -10,12 +10,10 @@ import {
   ArchetypeRide,
 } from "../core";
 import { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
-import { EquineArc } from "./EquineArc";
 import { EquineFlightClock } from "./EquineFlightClock";
 import { EquineFootwork } from "./EquineFootwork";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
-import { EquineObstacle } from "./EquineObstacle";
 import { EquinePitch } from "./EquinePitch";
 import { EquineRideTerrain } from "./EquineRideTerrain";
 import { EquineTuck } from "./EquineTuck";
@@ -37,6 +35,7 @@ import { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import { createQuadruped } from "./createQuadruped";
 import { planEquineFlight } from "./planEquineFlight";
 import { refuseQuadrupedReach } from "./refuseQuadrupedReach";
+import { trialEquineFlight } from "./trialEquineFlight";
 
 /** An altered public course producer retains its original opaque route. */
 const NATIVE_PLAN: typeof ArchetypeCourse.plan = ArchetypeCourse.plan;
@@ -63,7 +62,7 @@ const NATIVE_PLAN: typeof ArchetypeCourse.plan = ArchetypeCourse.plan;
  * @throws {RangeError} For unsupported actual geometry/carriage or foot goals whose four fixed chains and body-floor constraint have no common root height.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what moves, where the timing comes from, how the gait is chosen and changed, the techniques and instants added, and what the support frame is.
- * @evidence contracts/development/implementation.md#principled-implementation Integrate declared stride clocks and plan each real foot's stance travel from the course. Swing uses the minimum-jerk path, carried with the body through a jump's held clock. The body placement adds a lateral figure's heading and a jump's ballistic height. The four actual folded chains and body-floor support intersect into one vertical root interval, with the gait bob as a soft preference.
+ * @evidence contracts/development/implementation.md#principled-implementation Integrate declared stride clocks and plan each real foot's stance travel from the course. Swing uses the minimum-jerk path; a swing in a jump's flight is carried in the flying body's frame from its own liftoff (`EquineFlightClock.swing`). The body placement adds a lateral figure's heading and a jump's push-off, flight about the centre of mass and landing (`EquinePitch`). The four actual folded chains and body-floor support intersect into one vertical root interval, with the gait bob as a soft preference.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit requests, prepare techniques, assemble the stride plan, instants and stateless pose sampler once, or again when a jump's flight is known.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species case, undeclared-speed clamp, independent proximal translation, distance projection, stretched bone or endpoint-only floor proxy hides an infeasible request. Impossible common-root geometry refuses.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds S phase rows per assembly, one more per jump candidate. A sample uses binary phase searches, existing clock reads, four constant-size reach intersections and closed-form IK solves, two B-bone FK passes and O(P+A+V) emission.
@@ -216,15 +215,13 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         footwork.slide?.contact ?? Infinity,
       ),
     ];
-    const {
-      push,
-      takeoff,
-      landing,
-      absorb,
-      shift,
-      instants: cues,
-    }: EquineFlightClock.IClock = EquineFlightClock.of(flight, strides, plan);
-    instants.push(...cues);
+    const flown: EquineFlightClock.IClock = EquineFlightClock.of(
+      flight,
+      strides,
+      animal.properties.centerOfMass,
+    );
+    const { takeoff, landing, pitch }: EquineFlightClock.IClock = flown;
+    instants.push(...flown.instants);
 
     /** The body's world placement: the course's, turned by a lateral figure and pitched and lifted through a jump. */
     const body = (
@@ -234,11 +231,25 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       EquinePitch.place(
         state.placement,
         EquineLateral.heading(footwork.lateral, seconds),
-        flight === undefined
+        pitch === undefined ? undefined : EquinePitch.at(pitch, seconds),
+      );
+    /** Where a stance plants: the course placement turned by a lateral figure and moved by the jump's fore-aft shift of the limb's shoulder or hip, so a hoof lands within that joint's reach. */
+    const anchor = (
+      state: ArchetypeCourse.IState,
+      seconds: number,
+      fore: boolean,
+    ): IAutoMovieTransform =>
+      EquinePitch.place(
+        state.placement,
+        EquineLateral.heading(footwork.lateral, seconds),
+        pitch === undefined
           ? undefined
           : {
-              y: EquineArc(seconds, push, takeoff, landing, absorb),
-              z: 0,
+              y: 0,
+              z: EquinePitch.shift(
+                EquinePitch.at(pitch, seconds),
+                rig.limbs[fore ? "leftFore" : "leftHind"][0]!,
+              ),
               pitch: 0,
             },
       );
@@ -247,9 +258,35 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         plan,
         clock,
         strides.secondsAt,
-        plan.bends.length > 0 || footwork.lateral.length > 0 ? body : undefined,
+        plan.bends.length > 0 ||
+          footwork.lateral.length > 0 ||
+          pitch !== undefined
+          ? anchor
+          : undefined,
         EquineLateral.crossing(footwork.lateral, rig.limbs, animal.parts),
       );
+
+    /** The displayed placement: the body's, tilted by a lameness, pitched by a lean and banked into a bend when asked. As a horse on a circle leans by the gravitational and centripetal prediction (Pfau et al. 2012), the lean-in rolls the body about its long axis on the floor by the steady-turn balance of its speed and curvature; the hooves keep their world footprints (a bend anchors them). */
+    const place = (
+      state: ArchetypeCourse.IState,
+      seconds: number,
+      tilt?: EquinePitch.ITilt,
+    ): IAutoMovieTransform => {
+      const pitched: IAutoMovieTransform = EquinePitch.lean(
+        EquinePitch.place(body(state, seconds), 0, tilt),
+        (course.lean?.(seconds) ?? 0) + EquineFootwork.sit(footwork, seconds),
+      );
+      const inward: number =
+        course.leanIn === true ? ArchetypeCourse.lean(state) : 0;
+      return inward === 0
+        ? pitched
+        : ArchetypeCourse.banked({ ...state, placement: pitched }, inward);
+    };
+    /** The course state at a second with the displayed placement. */
+    const shown = (seconds: number): ArchetypeCourse.IState => {
+      const state: ArchetypeCourse.IState = plan.at(seconds);
+      return { ...state, placement: place(state, seconds) };
+    };
 
     /** Read the course and derive the four current footprint demands before any geometry sharing. */
     const posed: Posed = (
@@ -265,22 +302,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         phase,
         timing,
       );
-      const lean: number =
-        (course.lean?.(seconds) ?? 0) + EquineFootwork.sit(footwork, seconds);
-      const pitched: IAutoMovieTransform = EquinePitch.place(
-        EquinePitch.place(body(state, seconds), 0, lame?.tilt),
-        0,
-        lean === 0
-          ? undefined
-          : EquinePitch.about({ y: 0, z: 0 }, (-lean * Math.PI) / 180),
-      );
-      // Asked to lean in, the body leans into a bend by the steady-turn balance of its speed and curvature, rolled about its long axis on the floor; the hooves keep their world footprints (a bend anchors them), as a horse on a circle leans by the gravitational and centripetal prediction (Pfau et al. 2012).
-      const inward: number =
-        course.leanIn === true ? ArchetypeCourse.lean(state) : 0;
-      const placement: IAutoMovieTransform =
-        inward === 0
-          ? pitched
-          : ArchetypeCourse.banked({ ...state, placement: pitched }, inward);
+      const placement: IAutoMovieTransform = place(state, seconds, lame?.tilt);
       const current: ArchetypeCourse.IState = { ...state, placement };
       const going: number = Math.min(
         1,
@@ -317,54 +339,44 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           ? undefined
           : stance(coming, strides.strideOf(m + 1), fore);
 
-        // A swing spanning the jump's held clock is carried with the body.
-        const carry: QuadrupedHoofTrack.ICarry | undefined = step.planted
-          ? undefined
-          : EquineFlightClock.carry(
-              flight,
-              shift,
-              seconds,
-              landed + step.from.duty,
-              coming,
-            );
+        // A swing in the jump's flight is carried by the flying body from its own liftoff; a jump admits no lameness, so `place` needs no tilt there.
+        const carried: boolean =
+          !step.planted &&
+          EquineFlightClock.carries(flight, landed + step.from.duty, coming);
+        const off: number = strides.secondsAt(landed + step.from.duty);
+        const on: number = strides.secondsAt(coming);
         const height: number =
           which.elevation === undefined
             ? which.lift[end] * withers
             : QuadrupedHoofTrack.elevation(rest, which.elevation, fore);
-        // A carried swing rises above the flying body's own floor while the body is aloft, else above the ground; the two coincide at liftoff and landing.
-        const goal: QuadrupedRidePose.IGoal = {
-          ...QuadrupedHoofTrack.target(
-            current,
+        const aim = (
+          moment: ArchetypeCourse.IState,
+          amount: number,
+        ): EquineFlightClock.IAim =>
+          QuadrupedHoofTrack.target(
+            moment,
             rest[4]!,
             step.from,
             following,
-            step.along,
+            amount,
             worldAnchors,
-            trial ||
-              (carry !== undefined &&
-                placement.translation.y > state.placement.translation.y)
-              ? undefined
-              : ground,
-            carry,
+            trial ? undefined : ground,
             rest[0]!.z + rest[4]!.z - rest[3]!.z,
             terrain.clear[limb],
-          ),
+          );
+        const goal: QuadrupedRidePose.IGoal = {
+          ...(carried
+            ? EquineFlightClock.swing(aim, shown, current, off, on, step.along)
+            : aim(current, step.along)),
           lift: (going * height + (ground?.swingLift ?? 0)) * step.rise,
           fold: going * which.fold[end] * step.rise,
         };
         goals.set(
           limb,
-          carry !== undefined
+          carried
             ? tucks[limb](
                 goal,
-                EquineTuck.weight(
-                  seconds,
-                  strides.secondsAt(landed + step.from.duty),
-                  takeoff,
-                  landing,
-                  strides.secondsAt(coming),
-                  fore,
-                ),
+                EquineTuck.weight(seconds, off, takeoff, landing, on, fore),
               )
             : terrain.goal(limb, seconds, goal, placement),
         );
@@ -414,15 +426,13 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         trying: EquineJump.IFlight | undefined,
       ): EquineJump.ITrial => {
         const trial: IAssembly = assemble(moved, trying, true);
-        return {
-          strides: trial.strides,
-          clock: trial.clock,
-          sample: (seconds: number): EquineObstacle.ISample => {
-            const shown: ArchetypeRide.IPose<Affordance, Dimension> =
-              trial.posed(plan.at(seconds), seconds);
-            return { parts: shown.archetype.parts, placement: shown.placement };
-          },
-        };
+        return trialEquineFlight(
+          trial.strides,
+          trial.clock,
+          trial.posed,
+          plan,
+          animal.properties.centerOfMass,
+        );
       },
     );
     assembly = assemble(flight.moved, flight);
