@@ -46,6 +46,9 @@ export namespace EquineBank {
   /** The share of the hind limb's length the sliding hind hooves come forward under the body: authored, provisional. */
   export const TUCK: number = 0.25;
 
+  /** The sliding hind's hock fold beyond neutral while sat, degrees: authored, provisional, the hocks flexed deep under the haunches. */
+  export const HOCK: number = 40;
+
   /** How far down the face the horse is before it sits, shares of its hind hooves' distance behind the root: authored, provisional, so the hindquarters and the tail are over the face, not the crest. */
   export const REAR: number = 1.5;
 
@@ -287,7 +290,7 @@ export namespace EquineBank {
   }
 
   /**
-   * A hind hoof's goal while the horse slides: held `TUCK` forward under the body in its frame, so it travels with the body down the face, and laid on the face beneath it.
+   * A hind hoof's goal while the horse slides: held `TUCK` forward under the body in its frame, so it travels with the body down the face, laid on the face beneath it, its hock folded `HOCK` beyond neutral.
    *
    * @param windows The admitted slides.
    * @param seconds The film second.
@@ -349,7 +352,7 @@ export namespace EquineBank {
         normal: Quaternion.rotateVector(inverse, landing.normal),
       },
       lift: (1 - amount) * goal.lift,
-      fold: (1 - amount) * goal.fold,
+      fold: (1 - amount) * goal.fold + amount * HOCK,
     };
   }
 
