@@ -49,7 +49,7 @@ export namespace composeHumanBathing {
    * @returns The chain with the entry appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order, the place and the heading.
-   * @evidence contracts/development/implementation.md#principled-implementation The shipped step-over landing on the tub's floor, the shipped walk on the tub as its support to the place and heading, then the shipped long sit on that floor (`lieDown` sitting long).
+   * @evidence contracts/development/implementation.md#principled-implementation The shipped step-over landing on the tub's floor, the shipped walk on the tub as its support to the place facing the sitting heading throughout (a step or two in a tub turns toward the way one sits and steps aside or back to the place, never walks out and turns about), then the shipped long sit on that floor (`lieDown` sitting long).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three appends.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The composed actions plan and refuse.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three appends.
@@ -65,7 +65,7 @@ export namespace composeHumanBathing {
   ): Chain {
     return chain
       .act("stepOver", { obstacle: tub, onto: { prop: tub, point: floor } })
-      .act("walk", { to: at, face, on: { prop: tub } })
+      .act("walk", { to: at, facing: { yaw: face }, on: { prop: tub } })
       .act("lieDown", { position: "sitLong", hold: SOAK });
   }
 

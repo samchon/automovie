@@ -295,19 +295,28 @@ export namespace stepOverPath {
           ? 1
           : 0
         : minimumJerk.share(Math.min(1, Math.max(0, (x - a) / (b - a))));
-    const pitches: (side: "left" | "right", start: number, from: number) => (z: number) => number = (
+    // A foot that leaves pitched levels as its toe comes up to the near
+    // side, or as it rises to the obstacle's top where its toe starts at the
+    // near side and has no way along to level over: whichever is further.
+    // Leveling sooner only lifts a toes-down toe, so the required heights,
+    // read along the way alone, stay cleared.
+    const pitches: (side: "left" | "right", start: number, from: number) => (z: number, rise?: number) => number = (
       side: "left" | "right",
       start: number,
       from: number,
-    ): ((z: number) => number) => {
+    ): ((z: number, rise?: number) => number) => {
       const level: IAutoMovieMotionHumanClearance.IPoint[] = sole(side, 0);
       const toe: number = near - level[2]!.z;
       const heel: number = near - level[0]!.z;
-      return (z: number): number =>
-        start * (1 - smooth(z, from, toe)) +
-        (side === lead
-          ? stepOver.TOE_UP * (smooth(z, from, toe) - smooth(z, toe, heel))
-          : 0);
+      return (z: number, rise: number = 0): number => {
+        const along: number = toe > from ? smooth(z, from, toe) : 0;
+        return (
+          start * (1 - Math.max(along, rise)) +
+          (side === lead
+            ? stepOver.TOE_UP * (along - smooth(z, toe, heel))
+            : 0)
+        );
+      };
     };
     const trailRadius: number = Math.max(...HumanFoot.SOCKETS.map(
       (socket): number => Vector3.length(HumanFoot.offset(body, trail, socket)),
@@ -321,7 +330,7 @@ export namespace stepOverPath {
       const a: IAutoMovieVector3 = framed.local(
         heeled(side, feet[side], start).ankle,
       );
-      const pitch: (z: number) => number = pitches(side, start, a.z);
+      const pitch: (z: number, rise?: number) => number = pitches(side, start, a.z);
       const b: IAutoMovieVector3 = framed.local(end[side]);
       const across: number = b.x - a.x;
       const forward: number = Math.max(1e-9, b.z - a.z);
@@ -349,7 +358,7 @@ export namespace stepOverPath {
             y: at.y,
             z: at.z,
           }),
-          rotation: pitched[side](pitch(at.z)),
+          rotation: pitched[side](pitch(at.z, smooth(at.y, a.y, top(side)))),
         };
       };
     };
