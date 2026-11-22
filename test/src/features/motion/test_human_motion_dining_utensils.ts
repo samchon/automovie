@@ -194,7 +194,13 @@ function cut(
       ],
       seconds: 1.2,
       side,
-      steady: { tool: "fork", tip: "face", at: [edge - sign * 0.07, 0] },
+      // The fork pins a hand's breadth from the knife: about 0.4 of the
+      // hand's length (provisional ratio).
+      steady: {
+        tool: "fork",
+        tip: "face",
+        at: [edge - sign * 0.4 * body.measure.hand, 0],
+      },
     })
     .registered("write", {
       tool: "fork",

@@ -56,8 +56,8 @@ const SWEEP: number = 1.2;
 /** Sweeps when none are asked. */
 const SWEEPS: number = 3;
 
-/** The stream's sweep, degrees in all: provisional, kept small because the line is a rigid run whose backup grip swings with the nozzle. */
-const SPAN: number = 10;
+/** The stream's sweep, degrees in all: provisional. */
+const SPAN: number = 30;
 
 /** Seconds to set the hands and the lean: provisional. */
 const SET: number = 0.6;
@@ -72,7 +72,9 @@ const SET: number = 0.6;
  * the target and sweeps it side to side, as `extinguish` sweeps its horn.
  * The backup member, behind, grips the line at their `grip` with both
  * hands without carrying it: the hands follow that grip where the
- * operator's hold puts the line at each second. Both members lean into the
+ * operator's hold puts the line at each second. The line bends at the
+ * operator's hold (its `flex`) against the sweep, so the run behind the
+ * nozzle stays put and the backup's grip barely moves. Both members lean into the
  * reaction: the stream pushes the line back with `REACTION` newtons, which
  * the team shares, so each member's trunk tips forward by
  * `atan(REACTION / 2 / (m g))` over the feet, the lean that brings the
@@ -202,6 +204,21 @@ function nozzle(
         return open * (u * u * (3 - 2 * u)) * (1 - v * v * (3 - 2 * v));
       },
     },
+    // The line bends at the hold against the sweep, so the run behind the
+    // nozzle, and the backup's grip on it, stays where the backup holds it.
+    ...(held.affordances.some(
+      (a: IAutoMovieAffordance): boolean => a.id === "flex",
+    )
+      ? [
+          {
+            prop: p.prop,
+            articulation: "flex",
+            from: 0,
+            to: 1,
+            travel: (seconds: number): number => -sweep(seconds),
+          },
+        ]
+      : []),
   ];
   const push: workHeldPush.IPush = workHeldPush(
     context,
@@ -234,6 +251,14 @@ function nozzle(
       hand.worldRotation,
     ),
   );
+  // The stream's heading off the aim at a second: side to side over the sweeps.
+  const sweep: (seconds: number) => number = (seconds: number): number => {
+    const u: number = Math.min(
+      1,
+      Math.max(0, (seconds - ready) / (done - ready)),
+    );
+    return (SPAN / 2) * Math.sin(2 * Math.PI * sweeps * u);
+  };
   const kept: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
     context,
     held,
@@ -257,16 +282,11 @@ function nozzle(
       _posture: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): IAutoMovieHumanLimbGoal => {
-      const u: number = Math.min(
-        1,
-        Math.max(0, (seconds - ready) / (done - ready)),
-      );
-      const yaw: number = (SPAN / 2) * Math.sin(2 * Math.PI * sweeps * u);
       return {
         point: hand.worldPosition,
         rotation: Quaternion.normalize(
           Quaternion.multiply(
-            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, sweep(seconds)),
             aimed,
           ),
         ),
