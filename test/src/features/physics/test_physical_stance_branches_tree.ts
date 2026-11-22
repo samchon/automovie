@@ -20,11 +20,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. One link swinging on a translating base: its joint torque is (Ic + m l^2) q'' + m l (sin t (a_y + g) + cos t a_x), and the base exerts m (a_com - g) on it, a_com = a + q'' l (cos t, sin t) - q'^2 l (sin t, -cos t), with moment Ic q'' + ((c - c_base) x F)_z about the base's centre.
  * 2. Two links hanging from the base as a T: each joint's torque ignores the other branch's acceleration, and the base's resultant is the sum of the two single-link Newton-Euler wrenches.
  * 3. A planar two-link arm built as a tree: its mass matrix (by `mass` and by unit accelerations of `evaluate`), gravity and Coriolis terms are Spong, Hutchinson and Vidyasagar 2006, Section 7.4: M11 = I1 + I2 + m1 lc1^2 + m2 (l1^2 + lc2^2 + 2 l1 lc2 cos q2), M12 = I2 + m2 (lc2^2 + l1 lc2 cos q2), M22 = I2 + m2 lc2^2; g1 = (m1 lc1 + m2 l1) g cos q1 + m2 lc2 g cos(q1 + q2), g2 = m2 lc2 g cos(q1 + q2); h1 = -m2 l1 lc2 sin q2 (2 q1' q2' + q2'^2), h2 = m2 l1 lc2 sin q2 q1'^2.
+ * 4. The Human's branches assembled at rest at the authored pose: no leg or digit degree of freedom, the declared bounds, zero posture targets, the base carrying the branches' weight and its moment, the trunk being spine, chest, neck and head, and a target turned by delta asking 50^2 delta at weight 1 of the chest but 1 delta at weight 0.1 of the forearm.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each scenario's closed form.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBranches.evaluate` and `physicalStanceBranches.mass` on in-memory trees and compares the torques, the base's resultant and the mass matrix. A wrong sign of the base's resultant, a moment taken about the wrong point, a branch coupled to its sibling, a missing velocity product or a mass term on the wrong path fails.
- * @evidence contracts/development/testing.md#independent-expectations Scenario 1 is one rigid body's Newton-Euler written by hand, scenario 2 its sum over two independent bodies, scenario 3 the textbook two-link arm; none reuses the recursion. The 1e-9 allowance covers float64 rounding of these sums.
- * @evidence contracts/development/testing.md#distinguishing-cases A tilted pendulum with a joint rate and a base acceleration on two axes separates the gravity, base and velocity terms; the T separates sibling branches from a chain; the bent elbow with nonzero rates separates the configuration-dependent mass terms and the velocity products. The native body assembly and the stance solve belong to the stance tests.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBranches.evaluate` and `physicalStanceBranches.mass` on in-memory trees, and `physicalStanceBranches` on the Human profile over resting native-segment doubles, and compares the torques, the base's resultant, the mass matrix, the chosen degrees of freedom and the posture rows. A wrong sign of the base's resultant, a moment taken about the wrong point, a branch coupled to its sibling, a missing velocity product, a mass term on the wrong path, a leg or digit taken as a branch, or a trunk or limb posture at the wrong gain or weight fails.
+ * @evidence contracts/development/testing.md#independent-expectations Scenario 1 is one rigid body's Newton-Euler written by hand, scenario 2 its sum over two independent bodies, scenario 3 the textbook two-link arm; scenario 4 takes the branches' weight and moment from the profile's segment masses and centres, and the posture targets from the stated law, kp delta for a target turned by delta. None reuses the recursion. The 1e-9 allowance covers float64 rounding of these sums.
+ * @evidence contracts/development/testing.md#distinguishing-cases A tilted pendulum with a joint rate and a base acceleration on two axes separates the gravity, base and velocity terms; the T separates sibling branches from a chain; the bent elbow with nonzero rates separates the configuration-dependent mass terms and the velocity products; the turned chest and forearm separate the trunk's posture from a limb's. The stance solve itself belongs to the stance tests.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory, entered through the discoverable function `test_physical_stance_branches_tree`; no native world, viewer or file host.
  */
 export function test_physical_stance_branches_tree(): void {
@@ -371,6 +372,77 @@ export function test_physical_stance_branches_tree(): void {
     close("no side force at rest z", rest.force.z, 0);
     close("their weight's moment x", rest.moment.x, moment.x);
     close("their weight's moment z", rest.moment.z, moment.z);
+
+    // The trunk and the posture law: turn the chest's and the left forearm's
+    // targets by delta about their first axis, in the joint's parent frame.
+    TestValidator.equals(
+      "the trunk is the axial chain",
+      result.trunk.map(childOf),
+      ["spine", "chest", "neck", "head"],
+    );
+    const delta: number = 0.05;
+    const turned: Record<string, IAutoMovieRigidTransform> = { ...targets };
+    const columnOf = (id: string): number => {
+      let at: number = 0;
+      for (const joint of result.joints) {
+        if (joint.id === id) return at;
+        at += joint.axes.length;
+      }
+      return -1;
+    };
+    const probes = (["chest", "leftLowerArm"] as const).map((bone) => {
+      const joint: IAutoMoviePhysicalJoint = profile.joints.find(
+        (candidate: IAutoMoviePhysicalJoint) => candidate.child === bone,
+      )!;
+      const axis = result.joints.find((entry) => entry.id === joint.id)!
+        .axes[0]!;
+      const frame: IAutoMovieQuaternion = Quaternion.multiply(
+        targets[joint.parent]!.rotation,
+        joint.parentFrame.rotation,
+      );
+      const spin: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        {
+          x: axis === "x" ? 1 : 0,
+          y: axis === "y" ? 1 : 0,
+          z: axis === "z" ? 1 : 0,
+        },
+        (delta * 180) / Math.PI,
+      );
+      turned[bone] = {
+        position: targets[bone]!.position,
+        rotation: Quaternion.multiply(
+          Quaternion.multiply(
+            frame,
+            Quaternion.multiply(spin, Quaternion.inverse(frame)),
+          ),
+          targets[bone]!.rotation,
+        ),
+      };
+      return { bone, column: columnOf(joint.id) };
+    });
+    const posed: physicalStanceBranches.IResult = physicalStanceBranches({
+      profile,
+      segments,
+      members,
+      root: "hips",
+      targets: turned,
+      gravity,
+    });
+    for (const { bone, column } of probes) {
+      const row = posed.branches.posture[column]!;
+      const scale: number = row.weights[column]!;
+      const trunk: boolean = bone === "chest";
+      close(
+        `${bone} posture acceleration`,
+        row.target / scale,
+        (trunk ? physicalStanceBranches.TRUNK_FREQUENCY ** 2 : 1) * delta,
+      );
+      close(
+        `${bone} posture weight`,
+        scale * scale * posed.branches.weight,
+        trunk ? 1 : 0.1,
+      );
+    }
   }
 
   TestValidator.equals(

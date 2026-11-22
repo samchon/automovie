@@ -21,10 +21,13 @@ import type { physicalStanceDynamics } from "./physicalStanceDynamics";
  * `minimumMass` of the body (a digit), which rides its parent link rigidly.
  * The tree's resultant on the base and its joint torques come from a
  * recursive Newton-Euler pass over the tree (Featherstone 2008, Section 5.3).
- * The posture task is TSID Talos's, q'' = kp (q_ref - q) - kd q' with kp = 1
- * s^-2, kd = 2 sqrt(kp) and weight 0.1 (TSID talos_conf.py), q_ref being the
- * authored relative rotation and the error measured as the joint motors
- * measure theirs (`physicalJointMotorCommand`). The solved torques reach each
+ * The posture task is q'' = kp (q_ref - q) - kd q', critically damped, q_ref
+ * being the authored relative rotation and the error measured as the joint
+ * motors measure theirs (`physicalJointMotorCommand`). The trunk, the path
+ * from the root that always enters the heaviest subtree, is held at
+ * `TRUNK_FREQUENCY` with `TRUNK_WEIGHT`, so a push cannot swing it on the
+ * base; every other branch keeps TSID Talos's limb posture, kp = 1 s^-2 at
+ * weight 0.1 (TSID talos_conf.py), free to swing. The solved torques reach each
  * joint's implicit velocity motor as feed-forward, the way that motor adds a
  * torque to its PD, so `refresh` recomputes them at the present state from
  * the solved accelerations every substep.
@@ -119,11 +122,37 @@ export function physicalStanceBranches(
     0,
   );
 
-  // Posture rows and torque bounds, in degree-of-freedom order.
+  // The trunk: from the root, always into the heaviest subtree.
+  const trunk: Set<string> = new Set();
+  for (let bone: string = input.root; ; ) {
+    const next: IAutoMoviePhysicalJoint | undefined = (children.get(bone) ?? [])
+      .filter((joint) => !input.members.has(joint.child))
+      .reduce<
+        IAutoMoviePhysicalJoint | undefined
+      >((best, joint) => (best === undefined || subtree(joint.child) > subtree(best.child) ? joint : best), undefined);
+    if (next === undefined) break;
+    trunk.add(next.id);
+    bone = next.child;
+  }
+
+  // Posture rows and torque bounds, in degree-of-freedom order. A row scaled
+  // by s costs weight s^2 against the shared slack weight, which is the
+  // trunk's; the limbs' rows carry their own lower weight that way.
   const posture: { weights: number[]; target: number }[] = [];
   const bounds: { lower: number; upper: number }[] = [];
+  const limbScale: number = Math.sqrt(
+    physicalStanceBranches.LIMB_WEIGHT / physicalStanceBranches.TRUNK_WEIGHT,
+  );
   let column: number = 0;
   for (const joint of joints) {
+    const axial: boolean = trunk.has(joint.id);
+    const stiffness: number = axial
+      ? physicalStanceBranches.TRUNK_FREQUENCY ** 2
+      : physicalStanceBranches.LIMB_STIFFNESS;
+    const damping: number = axial
+      ? 2 * physicalStanceBranches.TRUNK_FREQUENCY
+      : physicalStanceBranches.LIMB_DAMPING;
+    const scale: number = axial ? 1 : limbScale;
     const parent: RigidBody = input.segments.get(joint.parent)!;
     const child: RigidBody = input.segments.get(joint.child)!;
     const parentFrame: IAutoMovieQuaternion = Quaternion.multiply(
@@ -162,12 +191,11 @@ export function physicalStanceBranches(
     );
     for (const axis of joint.axes) {
       const weights: number[] = new Array<number>(size).fill(0);
-      weights[column] = 1;
+      weights[column] = scale;
       posture.push({
         weights,
         target:
-          physicalStanceBranches.STIFFNESS * error[axis.axis] -
-          physicalStanceBranches.DAMPING * rate[axis.axis],
+          scale * (stiffness * error[axis.axis] - damping * rate[axis.axis]),
       });
       bounds.push({
         lower: -(axis.reverseTorque ?? axis.maximumTorque),
@@ -181,7 +209,7 @@ export function physicalStanceBranches(
     size,
     evaluate: (request) => physicalStanceBranches.evaluate(tree, base, request),
     posture,
-    weight: physicalStanceBranches.WEIGHT,
+    weight: physicalStanceBranches.TRUNK_WEIGHT,
     bounds,
   };
   return {
@@ -191,6 +219,9 @@ export function physicalStanceBranches(
       id: joint.id,
       axes: joint.axes.map((axis) => axis.axis),
     })),
+    trunk: joints
+      .filter((joint: IAutoMoviePhysicalJoint) => trunk.has(joint.id))
+      .map((joint: IAutoMoviePhysicalJoint) => joint.id),
     refresh: (solution: {
       base: readonly number[];
       acceleration: readonly number[];
@@ -213,12 +244,23 @@ export function physicalStanceBranches(
   };
 }
 export namespace physicalStanceBranches {
-  /** TSID Talos's posture gain, s^-2. */
-  export const STIFFNESS: number = 1;
+  /**
+   * The trunk's posture natural frequency, rad/s. A push at the body's centre
+   * of mass, which sits below the trunk's, turns the trunk with an angular
+   * impulse J dh; a critically damped task holds the swing to theta_max when
+   * omega_n >= J dh / (I_trunk e theta_max), about 50 rad/s for the quarter
+   * push, under the 120 Hz solve's cap of about 60 (design-4017-qp3, Section
+   * 2). The root's servo uses the same frequency.
+   */
+  export const TRUNK_FREQUENCY: number = 50;
+  /** The trunk's posture weight: at least the balance task's, as Feng et al. 2013 (Table I) weight torso orientation at 1. */
+  export const TRUNK_WEIGHT: number = 1;
+  /** The limbs' posture gain, TSID Talos's kp, s^-2. */
+  export const LIMB_STIFFNESS: number = 1;
   /** Its critical damping, 2 sqrt(kp), s^-1. */
-  export const DAMPING: number = 2;
-  /** Its weight. */
-  export const WEIGHT: number = 0.1;
+  export const LIMB_DAMPING: number = 2;
+  /** The limbs' posture weight, TSID Talos's. */
+  export const LIMB_WEIGHT: number = 0.1;
 
   /** The branches' problem. */
   export interface IInput {
@@ -246,6 +288,8 @@ export namespace physicalStanceBranches {
     branches: physicalStanceDynamics.IBranches;
     /** The articulated joints and their axes: the degree-of-freedom order. */
     joints: { id: string; axes: ("x" | "y" | "z")[] }[];
+    /** The articulated joints on the trunk: the path from the root that always enters the heaviest subtree. */
+    trunk: string[];
     /** The joint torques at the present state for the solved base and branch accelerations, in degree-of-freedom order. */
     refresh(solution: {
       base: readonly number[];
