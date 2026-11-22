@@ -34,7 +34,7 @@ const GRASP: NonNullable<IAutoMovieMotionHumanArmCarry.ICarry["grasp"]> = [
  * @param side The striking arm.
  * @param entry The pose the stroke starts from, whose arm angles the reach leaves.
  * @param clock The stroke's clock.
- * @param hand The striking hand's grip point at the entry, world metres, where the reach to the backswing starts.
+ * @param hand The striking hand's grip point at the entry, world metres, where the reach to the backswing starts and the return ends.
  * @param second The other hand on the implement; none for a one-handed stroke.
  * @returns The plan with its arms written by the course.
  * @throws {HumanRefusal} When no arm course meets the trajectory's constraints, as the plan is composed.
@@ -83,6 +83,17 @@ export function coursePrecisionStroke(
             ),
           ) /
             clock.at("ready")),
+        // The return from the stroke's end to the entry's place, over the
+        // stroke's recovery, the same minimum-jerk peak.
+        (15 / 8) *
+          (Vector3.length(
+            Vector3.subtract(
+              plan.posture(clock.at("relax")).limbs[`${side}Arm`]?.point ??
+                hand,
+              hand,
+            ),
+          ) /
+            (clock.duration - clock.at("relax"))),
       )),
     ...(second === undefined
       ? {}

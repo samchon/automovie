@@ -255,13 +255,16 @@ export namespace PrecisionStrokeForms {
         ),
       );
 
-      // The shoulder stands at that height, the arm's reach from the grip
-      // with the rest of that reach across the floor, back along the
-      // implement's line; a grip lower than the reach below it lies on the
-      // line's own horizontal run.
+      // A one-handed arm reaches out from the shoulder at its height: the
+      // shoulder lies the arm's reach from the grip, the rest of that reach
+      // across the floor back along the implement's line. Two hands on one
+      // implement hang the arms along it (the arm-and-club line), so the
+      // shoulders lie over the line's own horizontal run of the reach, the
+      // hinge setting their height. A grip lower than the reach below a
+      // one-handed shoulder also lies on that run.
       const drop: number = offset.y - grip.y;
       const across: number =
-        Math.abs(drop) < span
+        (form.oneHand === true || form.bare === true) && Math.abs(drop) < span
           ? Math.sqrt(span * span - drop * drop)
           : span * Math.hypot(working.x, working.z);
       const shoulder: IAutoMovieVector3 = Vector3.add(

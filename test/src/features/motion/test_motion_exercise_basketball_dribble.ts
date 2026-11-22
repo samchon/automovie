@@ -188,7 +188,7 @@ export function test_motion_exercise_basketball_dribble(): void {
   const film: HumanPerformance = take([first, second], true);
   const play: IAutoMovieMotionHumanBallPlay = film.play("ball");
   TestValidator.equals(
-    "the guard dribbles twice, gathering each bounce, then shoots",
+    `the guard dribbles twice, gathering each bounce, then shoots: ${ballPossessions(play).join(", ")}`,
     ballPossessions(play),
     [
       "hold:feeder:false",

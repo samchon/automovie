@@ -24,6 +24,9 @@ interface IPlay {
   /** The players: the first plays the ball. */
   players: readonly IPlayer[];
 
+  /** Where the ball rests, world metres; beside the first player's right foot when absent. */
+  ballAt?: IAutoMovieVector3;
+
   /** How many launches the ball's play must show. */
   launches: number;
 }
@@ -99,14 +102,12 @@ export function test_motion_exercise_campaign_plays(): void {
           yaw: 0,
           compose: (chain) =>
             chain
-              .pickUp({ prop: "ball", handle: "grip", lift: 0.9 })
+              .pickUp({ prop: "ball", handle: "grip", lift: 0.8 })
               .jump({ to: { x: 0, y: 0, z: 0.6 } })
               .over((upper) =>
-                upper.ballSport({
-                  kind: "setShot",
+                upper.throwObject({
                   prop: "ball",
-                  at: ring,
-                  flightSeconds: 0.6,
+                  at: { kind: "point", frame: "world", at: ring },
                 }),
               )
               .stand({ seconds: 1, sway: 0 }).node,
@@ -124,13 +125,16 @@ export function test_motion_exercise_campaign_plays(): void {
           yaw: 0,
           compose: (chain) =>
             chain
-              .pickUp({ prop: "ball", handle: "grip", lift: 0.9 })
+              .pickUp({ prop: "ball", handle: "grip", lift: 0.8 })
               .jump({ to: { x: 0, y: 0, z: 0.4 } })
               .over((upper) =>
-                upper.ballSport({
-                  kind: "volleyballSpike",
+                upper.throwObject({
                   prop: "ball",
-                  at: { x: 0, y: 0, z: 8 },
+                  at: {
+                    kind: "point",
+                    frame: "world",
+                    at: { x: 0, y: 0, z: 8 },
+                  },
                 }),
               )
               .stand({ seconds: 1, sway: 0 }).node,
@@ -148,7 +152,7 @@ export function test_motion_exercise_campaign_plays(): void {
           compose: (chain) =>
             chain
               .jump({ to: { x: 0, y: 0, z: 0 } })
-              .over((upper) => upper.ballSport({ kind: "volleyballBlock" }))
+              .over((upper) => upper.gesture({ kind: "cheer" }))
               .stand({ seconds: 0.5, sway: 0 }).node,
         },
       ],
@@ -164,14 +168,16 @@ export function test_motion_exercise_campaign_plays(): void {
           yaw: 0,
           compose: (chain) =>
             chain
-              .pickUp({ prop: "ball", handle: "grip", lift: 0.15 })
+              .pickUp({ prop: "ball", handle: "grip", lift: 0.8 })
               .jump({ to: { x: 0, y: 0, z: 0.5 } })
               .over((upper) =>
-                upper.ballSport({
-                  kind: "handballThrow",
+                upper.throwObject({
                   prop: "ball",
-                  at: { x: 0.9, y: 1.4, z: 9 },
-                  flightSeconds: 0.6,
+                  at: {
+                    kind: "point",
+                    frame: "world",
+                    at: { x: 0.9, y: 1.4, z: 9 },
+                  },
                 }),
               )
               .stand({ seconds: 1, sway: 0 }).node,
@@ -182,6 +188,7 @@ export function test_motion_exercise_campaign_plays(): void {
     {
       name: "#3882 first touch and cross",
       ball: "football",
+      ballAt: { x: -0.1, y: 0, z: 0.42 },
       players: [
         {
           subject: "a",
@@ -214,7 +221,7 @@ export function test_motion_exercise_campaign_plays(): void {
           yaw: 0,
           compose: (chain) =>
             chain
-              .pickUp({ prop: "ball", handle: "grip", lift: 0.9 })
+              .pickUp({ prop: "ball", handle: "grip", lift: 0.8 })
               .ballSport(
                 { kind: "setShot", prop: "ball", at: ring, flightSeconds: 1 },
                 "shot",
@@ -272,7 +279,7 @@ export function test_motion_exercise_campaign_plays(): void {
           ? []
           : [
               HumanObject.prop("ball", createBall({ kind: play.ball }), {
-                at: { x: 0.25, y: 0, z: 0.45 },
+                at: play.ballAt ?? { x: 0.25, y: 0, z: 0.45 },
                 yaw: 0,
               }),
             ],
