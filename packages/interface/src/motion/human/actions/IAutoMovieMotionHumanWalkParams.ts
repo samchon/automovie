@@ -25,15 +25,16 @@ export interface IAutoMovieMotionHumanWalkParams {
    * {@link IAutoMovieMotionHumanGait}). No step exceeds 0.75 m
    * (`walk.longestStep`):
    *
-   * - `slow`: about 1.05 m/s, about 96 steps a minute; a stroll, a weary,
+   * - `slow`: about 0.82 m/s, about 85 steps a minute; a stroll, a weary,
    *   sad or cautious walk.
    * - `normal`: about 1.5 m/s, about 120 steps a minute; ordinary walking.
-   * - `fast`: about 1.7 m/s, about 136 steps a minute; hurrying, a brisk
+   * - `fast`: about 1.72 m/s, about 138 steps a minute; hurrying, a brisk
    *   errand. A quicker way is a `run` jog.
    *
    * `normal` when absent. `normal` is the metabolic minimum of ordinary
-   * limbs (PMID 21653821); the `slow` and `fast` Froude numbers have no
-   * stated source.
+   * limbs (PMID 21653821); `slow` and `fast` are the slow and the fast
+   * outdoor paces of healthy adults at the reference hip (Murtagh, Mair,
+   * Aguiar, Tudor-Locke and Murphy 2021, Sports Med 51:125).
    */
   pace?: "slow" | "normal" | "fast";
 

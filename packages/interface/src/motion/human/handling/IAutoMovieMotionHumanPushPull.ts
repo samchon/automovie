@@ -22,7 +22,7 @@ import type { IAutoMovieMotionHumanPushPullLean } from "./IAutoMovieMotionHumanP
  *
  * The lean is the measured one for the declared load at the handles' height
  * (`pushPullLean`, Lett and McGill 2006), so a heavier load leans the trunk
- * further. The walk is the walk's `slow` pace, about 1.05 m/s at the
+ * further. The walk is the walk's `slow` pace, about 0.82 m/s at the
  * reference hip ({@link IAutoMovieMotionHumanWalkParams.pace}), whatever the
  * load, its steps shorter than a free walk's; the load's friction does not
  * slow it (not yet modelled). A load that does not move (`moves: false`) is pressed for

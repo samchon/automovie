@@ -37,7 +37,7 @@ export namespace HumanPartner {
     role: "outgoing",
   });
 
-  /** The leader of a walking partner dance: the slow walk, about 1.05 m/s at the reference hip ({@link IAutoMovieMotionHumanWalkParams.pace}), the follower keeps pace with; a waltz-like promenade, a stately procession. The composition gives where to. */
+  /** The leader of a walking partner dance: the slow walk, about 0.82 m/s at the reference hip ({@link IAutoMovieMotionHumanWalkParams.pace}), the follower keeps pace with; a waltz-like promenade, a stately procession. The composition gives where to. */
   export const danceLead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceLead"]
   > = HumanActionRow.of("danceLead", walk, {

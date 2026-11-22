@@ -20,6 +20,7 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
+import { loadedWalkPace } from "./loadedWalkPace";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -39,7 +40,8 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
  * The walk is the walk law's own (`walk.plan`), the base every unclaimed
  * channel keeps, so footfalls, pelvis and the free arm's swing are the
  * walk's; the load claims the arms that hold it, which stop swinging (arm
- * swing is suppressed on the loaded side), and leans the trunk by its mass,
+ * swing is suppressed on the loaded side), slows a held load's walk by its
+ * mass (`loadedWalkPace`), and leans the trunk by its mass,
  * a share of the body's mass in [0, 0.25] (the issue's band):
  *
  * - `oneHand`: the loaded arm hangs straight beside the body with the hand
@@ -296,7 +298,8 @@ export namespace carry {
       params: {
         to: p.to,
         ...(p.pace === undefined ? {} : { pace: p.pace }),
-        ...(p.manner === undefined ? {} : { manner: p.manner }),
+        // A held load slows the walk by its mass (`loadedWalkPace`); a pushed one rolls on its wheels.
+        manner: { ...p.manner, pace: (p.manner?.pace ?? 1) * (how === "push" ? 1 : loadedWalkPace(load)) },
       },
     });
     const duration: number = base.duration;

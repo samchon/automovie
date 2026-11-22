@@ -5,7 +5,7 @@ import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanR
  * composition gives the person as the target. Register the ones a film
  * uses.
  *
- * `follow`, `escort` and `chase` go where the person goes: the stop is
+ * `follow` and `escort` go where the person goes: the stop is
  * taken where the person comes to rest, read from their placed actions, and
  * the pursuer sets off late enough to arrive just after them. So the person
  * pursued is composed before the pursuer (`leader.with(follower)`), and a
@@ -13,7 +13,8 @@ import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanR
  * the pursuer does not match the person's speed on the way or keep a gap
  * through their turns. `confront` steps up to a person where they stand.
  *
- * `intercept` heads a moving person off, running to where they will be.
+ * `intercept` heads a moving person off, running to where they will be,
+ * and `chase` is a row of it: a chase runs.
  * `flee` is the opposite travel: a run straight away from a person, read
  * where they are when it begins. It is a law of its own over the run,
  * since its destination comes from the person and not from the scene.

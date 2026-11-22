@@ -47,7 +47,7 @@ export namespace HumanLabour {
     IAutoMovieMotionHumanLexiconParams["labour"]["pushCart"]
   > = HumanActionRow.of("pushCart", carry, { how: "push" });
 
-  /** Haul a heavy load slowly in both hands: the slow walk (about 1.05 m/s, {@link IAutoMovieMotionHumanWalkParams.pace}) with a load of 0.25 of the body mass, the most a carry accepts; labour, strain. */
+  /** Haul a heavy load slowly in both hands: the slow walk (about 0.82 m/s, {@link IAutoMovieMotionHumanWalkParams.pace}) with a load of 0.25 of the body mass, the most a carry accepts; labour, strain. */
   export const haul: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["haul"]
   > = HumanActionRow.of("haul", carry, {

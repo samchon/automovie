@@ -16,6 +16,10 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * - `personal` 1.0 m, the far phase where conversation between acquaintances
  *   happens (Hall; Hayduk 1978, Psychol Bull 85:117, reviews measured
  *   comfortable distances of the same order, larger in front than behind);
+ * - `fighting` 1.5 m, the middle of the 1.01 to 2.00 m two taekwondo
+ *   fighters keep for 60 % of a fight (Maloney, Renshaw and Farrow 2021, Int
+ *   J Perf Anal Sport 21:993), the kicking sport measured; a kickboxing or
+ *   karate bout takes it, where `faceToFace` lies inside a punch's reach;
  * - `social` 1.6 m, the middle of the social close phase, impersonal business;
  * - `handing`: the gap at which both people's hands meet midway between
  *   their chests with the elbows flexed 35 degrees, the middle of the 20 to
@@ -38,17 +42,19 @@ export namespace IAutoMovieMotionHumanProxemics {
    * The gap of a request between two people. A named gap.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The gap of a request between two people. A named gap.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "intimate", "faceToFace", "personal", "social", "handing" distinguish the admitted cases.
+   * @evidence contracts/development/design.md#principled-representation Closed choices "intimate", "faceToFace", "personal", "fighting", "social", "handing" distinguish the admitted cases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanProxemics.ts (HumanProxemics.gap, request); everyday/HumanProxemics.ts (HumanProxemics.GAPS).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanProxemics.gap.
    */
   export type Band =
     /** 0.3 m (`HumanProxemics.GAPS`): an embrace, a whisper. */
     | "intimate"
-    /** 0.6 m: squared up within arm's reach; a confrontation. A fight that keeps its distance takes metres, not a band: a punch steps in by up to one stance length when the arm falls short ({@link IAutoMovieMotionHumanPunch}). */
+    /** 0.6 m: squared up within arm's reach; a confrontation, not a fight: a striking bout keeps the `fighting` gap. */
     | "faceToFace"
     /** 1.0 m: acquaintances talking; out of arm's reach. */
     | "personal"
+    /** 1.5 m: two striking fighters squared off, out of punching reach and a step from a kick (`HumanProxemics.GAPS`; Maloney, Renshaw and Farrow 2021). */
+    | "fighting"
     /** 1.6 m: impersonal business, a follower's distance. */
     | "social"
     /** The gap where both people's hands meet midway with the elbows bent 35 degrees (`HumanProxemics.HANDING_ELBOW`); it follows the arm length. */

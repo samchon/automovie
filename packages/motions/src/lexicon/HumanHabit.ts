@@ -43,11 +43,11 @@ export namespace HumanHabit {
     seconds: { between: [1.6, 2.1] },
   });
 
-  /** The walk under a screen read while walking (`handToFace({ task: "read" })` over it): the slow pace, 0.77 of the free walk's speed, inside the 20 to 40 per cent reduction #3338 states for texting walkers (Lamberg and Muratori 2012 report about a third; the band is provisional until the paper's table is read). The composition gives where to. That is about 1.05 m/s against the normal walk's 1.5 m/s, 0.69 of it, not the 0.77 stated (`IAutoMovieMotionHumanWalkParams.pace`); a person walking while reading or texting. */
+  /** The walk under a screen read while walking (`handToFace({ task: "read" })` over it): the normal walk slowed by a third (a manner pace of 2/3), the reduction Lamberg and Muratori 2012 report for texting walkers, inside the 20 to 40 per cent band #3338 states (provisional until the paper's table is read). The composition gives where to; a person walking while reading or texting. */
   export const readingWalk: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["readingWalk"]
   > = HumanActionRow.of("readingWalk", walk, {
-    pace: "slow",
+    manner: { pace: 2 / 3 },
   });
 
   /**

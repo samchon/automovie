@@ -18,8 +18,8 @@ export interface IAutoMovieMotionHumanLexiconPursuitParams {
   /** Come to a person's left side at the personal distance, as an escort takes station. */
   escort: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at" | "track">;
 
-  /** Close on a person fast, to arm's length, as a chase ends. */
-  chase: Omit<IAutoMovieMotionHumanApproach.IParams, "pace" | "at" | "track">;
+  /** Run after a person to arm's length of where they will be, as a chase ends: a row of `intercept`, so a chase runs. */
+  chase: IAutoMovieMotionHumanPursuit.IIntercept;
 
   /** Step up face to face, as a confrontation begins. */
   confront: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at">;

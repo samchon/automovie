@@ -23,6 +23,10 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * - `personal` 1.0 m, the far phase where conversation between acquaintances
  *   happens (Hall; Hayduk 1978, Psychol Bull 85:117, reviews measured
  *   comfortable distances of the same order, larger in front than behind);
+ * - `fighting` 1.5 m, the middle of the 1.01 to 2.00 m two taekwondo
+ *   fighters keep for 60 % of a fight (Maloney, Renshaw and Farrow 2021, Int
+ *   J Perf Anal Sport 21:993, the kicking sport measured), where a kickboxing
+ *   or karate bout squares off out of punching reach;
  * - `social` 1.6 m, the middle of the social close phase, impersonal business;
  * - `handing`: the gap at which both people's hands meet midway between
  *   their chests with the elbows flexed 35 degrees, the middle of the 20 to
@@ -63,6 +67,7 @@ export namespace HumanProxemics {
     intimate: 0.3,
     faceToFace: 0.6,
     personal: 1.0,
+    fighting: 1.5,
     social: 1.6,
   };
 

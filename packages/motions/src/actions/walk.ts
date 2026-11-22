@@ -15,14 +15,15 @@ import { walkLevelSupport } from "./walkLevelSupport";
 import { walkLocomote } from "./walkLocomote";
 import { walkPlayback } from "./walkPlayback";
 import { walkReach } from "./walkReach";
+import { walkRoot } from "./walkRoot";
 
 /**
  * Walking to a floor point in whole steps, ending with the feet side by side.
  *
  * Speed comes from dynamic similarity (Alexander 1984): people of different
  * leg length walk alike at equal Froude number `v^2 / (g l)`, so each pace is
- * a Froude number on the hip height `l`: slow 0.12, normal 0.25 and fast
- * 0.32, which give 1.05, 1.51 and 1.71 m/s at the reference hip (`walkRoot.REFERENCE_HIP`, 0.93 m).
+ * a Froude number on the hip height `l`: slow 0.074, normal 0.25 and fast
+ * 0.325, which give 0.82, 1.51 and 1.72 m/s at the reference hip (`walkRoot.REFERENCE_HIP`, 0.93 m).
  * Step length grows with
  * the square root of speed (Grieve and Gear 1966): `1.2 l sqrt(sqrt(Fr))`,
  * 0.8 hip heights at the normal pace (about 0.4 stature, Perry and Burnfield);
@@ -67,10 +68,22 @@ export namespace walk {
     "rightArm",
   ];
 
-  /** Froude number of each pace. Normal uses the metabolic minimum reported for ordinary limbs in Optimal walking speed following changes in limb geometry (2011, PMID 21653821). */
+  /**
+   * Froude number of each pace. Normal uses the metabolic minimum reported
+   * for ordinary limbs in Optimal walking speed following changes in limb
+   * geometry (2011, PMID 21653821). Slow and fast are the slow and the
+   * fast outdoor paces of healthy adults, 0.82 and 1.72 m/s (Murtagh, Mair,
+   * Aguiar, Tudor-Locke and Murphy 2021, Sports Med 51:125, a meta-analysis
+   * of 35 studies; its fast pace includes "walk briskly"), as Froude
+   * numbers at the reference hip (`walkRoot.REFERENCE_HIP`).
+   */
   export const FROUDE: Readonly<
     Record<NonNullable<IAutoMovieMotionHumanWalkParams["pace"]>, number>
-  > = { slow: 0.12, normal: 0.25, fast: 0.32 };
+  > = {
+    slow: 0.82 ** 2 / (AutoMovieGravity.STANDARD * walkRoot.REFERENCE_HIP),
+    normal: 0.25,
+    fast: 1.72 ** 2 / (AutoMovieGravity.STANDARD * walkRoot.REFERENCE_HIP),
+  };
 
   /**
    * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most

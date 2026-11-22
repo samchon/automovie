@@ -67,9 +67,9 @@ export function test_motion_documented_numbers(): void {
     step: (fr: number) => number,
   ): number => (speed(froude) / (step(froude) * REFERENCE)) * 60;
   const walks: Record<"slow" | "normal" | "fast", [number, number]> = {
-    slow: [1.05, 96],
+    slow: [0.82, 85],
     normal: [1.5, 120],
-    fast: [1.7, 136],
+    fast: [1.72, 138],
   };
   for (const [pace, [metres, steps]] of Object.entries(walks) as [
     "slow" | "normal" | "fast",
@@ -143,7 +143,7 @@ export function test_motion_documented_numbers(): void {
       0.06,
     );
   preset("weary", 1.0);
-  preset("brisk", 2.2);
+  preset("brisk", 1.72);
   preset("sad", 1.1);
   preset("proud", 1.4);
   preset("punch", 2.2);

@@ -18,8 +18,8 @@ export interface IAutoMovieMotionHumanLexiconHabitParams {
   /** A draw on a cigarette: held at the lips for a puff's length, drawn by the seed between 1.6 and 2.1 s (#3346: mean puff durations of the Pennsylvania Adult Smoking Study and NCT04844762; a cigarette's dozen puffs, their intervals of 25 to 28 s and the decline of the puff over the cigarette are the composition's), the head level, between fingers that point up and back at the mouth with the palm toward the chin; its end stands 0.15 of a hand off the fingertips' pads (provisional). With `prop`, the held cigarette's `mouth` end meets the lips. */
   smoke: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task" | "seconds">;
 
-  /** The walk under a screen read while walking (`handToFace({ task: "read" })` over it): the slow pace, 0.77 of the free walk's speed, inside the 20 to 40 per cent reduction #3338 states for texting walkers (Lamberg and Muratori 2012 report about a third; the band is provisional until the paper's table is read). The composition gives where to. */
-  readingWalk: Omit<IAutoMovieMotionHumanWalkParams, "pace">;
+  /** The walk under a screen read while walking (`handToFace({ task: "read" })` over it): the normal walk slowed by a third (a manner pace of 2/3), the reduction Lamberg and Muratori 2012 report for texting walkers, inside the 20 to 40 per cent band #3338 states (provisional until the paper's table is read). The composition gives where to. */
+  readingWalk: Omit<IAutoMovieMotionHumanWalkParams, "pace" | "manner">;
 
   /**
    * A photograph through a camera's viewfinder, with the camera in hand: the

@@ -221,8 +221,8 @@ export namespace AutoMovieMotionManner {
    * actions `punch`, `dab`, `slash` and `flick` take 0.7 times the time (a
    * walk of about 2.2 m/s) and `press`, `glide`, `wring` and `float` 1.3
    * times (about 1.2 m/s). `weary` takes 1.51 times the time, a walk of
-   * about 1.0 m/s, at an intensity of 0.7; `brisk` 0.68 times, about
-   * 2.2 m/s; `sad` 1.39 times, about 1.1 m/s, at an intensity of 0.7; `proud`
+   * about 1.0 m/s, at an intensity of 0.7; `brisk` 0.88 times, about
+   * 1.72 m/s, the fast walk where Murtagh et al. 2021 place walking briskly; `sad` 1.39 times, about 1.1 m/s, at an intensity of 0.7; `proud`
    * 1.05 times, about 1.4 m/s; `enclosing` and `spreading` do
    * not change the time. Each is `1 - 0.3 time` over the preset's `pace`.
    */
@@ -242,7 +242,10 @@ export namespace AutoMovieMotionManner {
       pace: 0.8,
       intensity: 0.7,
     },
-    brisk: { effort: { time: 0.6, space: 0.6 }, pace: 1.2 },
+    // The fast outdoor pace, where "walk briskly" belongs (Murtagh et al.
+    // 2021, Sports Med 51:125): 1.72 m/s against the normal walk's 1.51 m/s
+    // at the reference hip, over the quick Effort's 1 - 0.3 * 0.6.
+    brisk: { effort: { time: 0.6, space: 0.6 }, pace: (0.82 * 1.72) / 1.51 },
     sad: {
       effort: { weight: -0.3, time: -0.6, flow: 0.7 },
       pace: 0.85,
