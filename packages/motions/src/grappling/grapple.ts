@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanGrapple,
 } from "@automovie/interface";
@@ -109,6 +110,60 @@ export namespace grapple {
   }
 
   /**
+   * The least distance between two partners' marks at which their heads and
+   * chests cannot meet when both lean into the scene's entry stance: each
+   * body's head and chest fronts stand forward of its hips by the stance's
+   * trunk pitch about the hip over their heights above it, plus the head's
+   * radius or half the chest's depth, and the two partners' farther fronts
+   * meet at their sum. A staged scene's marks derived from it suit both
+   * bodies, where a fixed spacing let the leaning heads overlap (the MMA
+   * reset's 4.3 cm).
+   *
+   * @param kind The scene.
+   * @param initiator The initiating body.
+   * @param receiver The receiving body.
+   * @returns Metres between the two marks along the initiator's facing.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, from which stance and why marks read it.
+   * @evidence contracts/development/implementation.md#principled-implementation The trunk pitched about the hip carries a point at height h above it forward by h sin(pitch); each body's front is the farther of its head and chest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One front per role, then their sum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pitch is the scene's own entry stance and the depths are each body's measure.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per role.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the stance from the scene's own keys.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function spacing(
+    kind: IAutoMovieMotionHumanGrapple.Kind,
+    initiator: IAutoMovieMotionHumanBody,
+    receiver: IAutoMovieMotionHumanBody,
+  ): number {
+    const front = (
+      role: IAutoMovieMotionHumanGrapple.Role,
+      body: IAutoMovieMotionHumanBody,
+    ): number => {
+      const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+      const lean: number =
+        ((grappleStances
+          .keys(
+            { kind, role, partner: role },
+            grappleStances.seconds(kind),
+            m.stature,
+          )
+          .find(
+            (stance: ReturnType<typeof grappleStances.keys>[number]): boolean =>
+              stance.event === "entry",
+          )?.prefer?.pitch ?? 0) *
+          Math.PI) /
+        180;
+      return Math.max(
+        (m.headHeight - m.headRadius - m.hipHeight) * Math.sin(lean) +
+          m.headRadius,
+        (m.chestHeight - m.hipHeight) * Math.sin(lean) + m.chestDepth / 2,
+      );
+    };
+    return front("initiator", initiator) + front("receiver", receiver);
+  }
+  /**
    * Build the pose plan for one role.
    *
    * @param context Staged role, other actor and initial support.
@@ -196,13 +251,24 @@ export namespace grapple {
 
     const regions: ReturnType<typeof grappleStances.regions> =
       grappleStances.regions(p.kind, p.side ?? "right");
+    // The MMA reset's fighters step back from marks set by their own bodies
+    // (`spacing`): the hands come back in the time their travel needs at the
+    // planner's pace (`grappleArms.returning`), not in a fixed share.
+    const rest: number =
+      p.kind === "mmaReset"
+        ? Math.min(
+            floor.duration,
+            floor.duration * timing.release +
+              grappleArms.returning(context, regions),
+          )
+        : floor.duration * timing.rest;
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       floor.duration,
       [
         { name: "reach", seconds: floor.duration * timing.reach },
         { name: "take", seconds: floor.duration * timing.take },
         { name: "release", seconds: floor.duration * timing.release },
-        { name: "rest", seconds: floor.duration * timing.rest },
+        { name: "rest", seconds: rest },
       ],
     );
     const contacts: IAutoMovieMotionHumanContactWindow[] = [...floor.contacts];

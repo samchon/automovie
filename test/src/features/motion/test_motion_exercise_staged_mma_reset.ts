@@ -40,12 +40,23 @@ const ACTOR_YAW: number = 8;
 /** Receiver heading on its mark, degrees. */
 const RECEIVER_YAW: number = 188;
 
+/** The initiator's mark, metres. */
+const ACTOR_MARK: IAutoMovieVector3 = { x: 0, y: 0, z: -0.27 };
+
 /**
- * The receiver's mark, metres: the Greco-Roman tie-up's marks with the
- * receiver 4 cm farther back, since the MMA entry leans its trunk 8 degrees
- * further forward over the same grip.
+ * The receiver's mark, metres: ahead of the initiator's along its facing by
+ * the least spacing at which the two bodies' leaning heads and chests cannot
+ * meet in the entry stance (`grapple.spacing`).
  */
-const RECEIVER_MARK: IAutoMovieVector3 = { x: 0.09, y: 0, z: 0.31 };
+const receiverMark = (body: IAutoMovieMotionHumanBody): IAutoMovieVector3 => {
+  const along: number = grapple.spacing("mmaReset", body, body);
+  const yaw: number = (ACTOR_YAW * Math.PI) / 180;
+  return {
+    x: ACTOR_MARK.x + Math.sin(yaw) * along,
+    y: 0,
+    z: ACTOR_MARK.z + Math.cos(yaw) * along,
+  };
+};
 
 /**
  * The matted fighting area at floor level: a square of 7.3 m between its
@@ -111,14 +122,14 @@ function scene(
       {
         subject: "a",
         body,
-        at: { x: 0, y: 0, z: -0.27 },
+        at: ACTOR_MARK,
         yaw: ACTOR_YAW,
         proficiency: { level: "trained" },
       },
       {
         subject: "b",
         body,
-        at: RECEIVER_MARK,
+        at: receiverMark(body),
         yaw: RECEIVER_YAW,
         proficiency: { level: "trained" },
       },

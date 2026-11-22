@@ -14,6 +14,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -26,6 +27,8 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { touchHold } from "../touch/touchHold";
 import { clinch } from "./clinch";
@@ -288,6 +291,65 @@ export function grappleArms(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's context, plan, clock and region types.
  */
 export namespace grappleArms {
+  /**
+   * The least seconds the gripping hands take to come back from the
+   * partner: the farthest hand's travel from where it hangs at the entry to
+   * its region on the partner as the scene starts, on a minimum-jerk unit
+   * whose peak is a daily reach's fastest hand (`HumanArmTrajectoryModel`'s
+   * `UNIT` and `ENVELOPE`). A scene whose marks stand farther apart gives its
+   * return the time that distance needs.
+   *
+   * @param context The initiator's context.
+   * @param regions The partner's region each gripping hand is laid on.
+   * @returns Seconds; zero with no gripping hand.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the travel, the speed bound and why a scene reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation A minimum-jerk movement of length d whose peak is v takes UNIT d / v (Flash and Hogan 1985).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One travel per hand, the farthest timed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The speed bound is the planner's own; the partner is read where the performer sees them as the scene starts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pose read and one partner read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses clinch placement and the planner's constants.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function returning(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGrapple.IParams>,
+    regions: IProps["regions"],
+  ): number {
+    const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
+      context.params.partner,
+    );
+    const sides: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (side: AutoMovieHumanSide): boolean => regions[side] !== undefined,
+    );
+    if (sides.length === 0) return 0;
+    const own: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      context.body,
+      context.entry.pose,
+    );
+    const seen: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =
+      partner.bones(
+        context.start,
+        new Set(
+          sides.map(
+            (side: AutoMovieHumanSide): AutoMovieHumanoidBone =>
+              partner.body.surfaces.regions[regions[side]!].bone,
+          ),
+        ),
+      );
+    let farthest: number = 0;
+    for (const side of sides)
+      farthest = Math.max(
+        farthest,
+        Vector3.distance(
+          own.get(`${side}Hand`)!.worldPosition,
+          clinch.place(partner.body, seen, regions[side]!, 0).point,
+        ),
+      );
+    return (
+      (HumanArmTrajectoryModel.UNIT * farthest) /
+      HumanArmTrajectoryModel.ENVELOPE
+    );
+  }
   /** How far the shoulder throw's sleeve hand stands off the sleeve at the middle of its release, in hand lengths (provisional). */
   export const SEPARATION: number = 0.55;
 
