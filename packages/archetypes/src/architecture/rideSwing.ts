@@ -134,10 +134,10 @@ export namespace rideSwing {
     /** The swing angle at second 0, a turning point, degrees toward `+Z`. */
     start: number;
 
-    /** Half swings the ride lasts. */
+    /** Whole number of half swings the ride lasts; each takes pi / sqrt(g / length) seconds, with standard gravity g. */
     halves: number;
 
-    /** The first half swings that are pumped. */
+    /** Whole number of leading half swings that gain `increment`, at most `halves`; later half swings keep their amplitude. */
     pumps: number;
 
     /** The angle each pumped half swing adds to the amplitude, degrees. */
