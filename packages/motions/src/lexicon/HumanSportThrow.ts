@@ -7,6 +7,19 @@ import { jump } from "../actions/jump";
 import { run } from "../actions/run";
 import { kickBall } from "../ballStrike/kickBall";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_BOWLING_DELIVERY } from "../next/presets/HUMAN_BOWLING_DELIVERY";
+import { HUMAN_THROWCATCH_CRICKET_BOWL } from "../next/presets/HUMAN_THROWCATCH_CRICKET_BOWL";
+import { HUMAN_THROWCATCH_GLOVE_CATCH } from "../next/presets/HUMAN_THROWCATCH_GLOVE_CATCH";
+import { HUMAN_THROWCATCH_GRIDIRON_PASS } from "../next/presets/HUMAN_THROWCATCH_GRIDIRON_PASS";
+import { HUMAN_THROWCATCH_GRIDIRON_SNAP } from "../next/presets/HUMAN_THROWCATCH_GRIDIRON_SNAP";
+import { HUMAN_THROWCATCH_KICK_LEFT } from "../next/presets/HUMAN_THROWCATCH_KICK_LEFT";
+import { HUMAN_THROWCATCH_KICK_RIGHT } from "../next/presets/HUMAN_THROWCATCH_KICK_RIGHT";
+import { HUMAN_THROWCATCH_PITCH } from "../next/presets/HUMAN_THROWCATCH_PITCH";
+import { HUMAN_THROWCATCH_PUSH_PASS } from "../next/presets/HUMAN_THROWCATCH_PUSH_PASS";
+import { HUMAN_THROWCATCH_RUGBY_PASS } from "../next/presets/HUMAN_THROWCATCH_RUGBY_PASS";
+import { HUMAN_THROWCATCH_SOFTBALL_WINDMILL } from "../next/presets/HUMAN_THROWCATCH_SOFTBALL_WINDMILL";
+import { HUMAN_THROWCATCH_TWO_HAND_CATCH } from "../next/presets/HUMAN_THROWCATCH_TWO_HAND_CATCH";
+import { HUMAN_THROWCATCH_UNDERARM_PITCH } from "../next/presets/HUMAN_THROWCATCH_UNDERARM_PITCH";
 import { bowlingSlide as bowlingSlideLaw } from "../sport/bowlingSlide";
 import { cartwheel } from "../sport/cartwheel";
 import { salto } from "../sport/salto";
@@ -36,26 +49,34 @@ export namespace HumanSportThrow {
   /** A baseball pitch, a crow-hop throw or a javelin throw: overarm. The windup is not planned. Overarm: release 20 degrees above the horizontal after a 0.5 s windup. A farther target is a faster throw. */
   export const pitch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["pitch"]
-  > = HumanActionRow.of("pitch", throwObject, {
-    style: "overarm",
-  });
+  > = HumanActionRow.of("pitch", throwObject, HUMAN_THROWCATCH_PITCH);
 
   /** A softball pitch or a bowling delivery: underarm. The windmill is not planned. Underarm: release 40 degrees after a 0.45 s windup. A farther target is a faster throw. */
   export const underarmPitch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["underarmPitch"]
-  > = HumanActionRow.of("underarmPitch", throwObject, {
-    style: "underarm",
-  });
+  > = HumanActionRow.of(
+    "underarmPitch",
+    throwObject,
+    HUMAN_THROWCATCH_UNDERARM_PITCH,
+  );
 
   /** A fastpitch softball delivery with an underhand windmill. Release 2 degrees after a 0.64 s windup. A farther target is a faster throw. */
   export const softballWindmill: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["softballWindmill"]
-  > = HumanActionRow.of("softballWindmill", throwObject, { style: "windmill" });
+  > = HumanActionRow.of(
+    "softballWindmill",
+    throwObject,
+    HUMAN_THROWCATCH_SOFTBALL_WINDMILL,
+  );
 
   /** A high cricket release directed toward the authored pitch bounce. Release 4 degrees below the horizontal after a 0.42 s windup. A farther target is a faster throw. */
   export const cricketBowl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["cricketBowl"]
-  > = HumanActionRow.of("cricketBowl", throwObject, { style: "cricket" });
+  > = HumanActionRow.of(
+    "cricketBowl",
+    throwObject,
+    HUMAN_THROWCATCH_CRICKET_BOWL,
+  );
 
   /** Slide on the supporting foot before a delivery. */
   export const bowlingSlide: IAutoMovieMotionHumanActionLaw<
@@ -65,57 +86,63 @@ export namespace HumanSportThrow {
   /** The low delivery of a one-handed ten-pin bowling approach. Release 1 degree below the horizontal after a 0.58 s windup, along the lane. A farther target is a faster throw. */
   export const bowlingDelivery: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["bowlingDelivery"]
-  > = HumanActionRow.of("bowlingDelivery", throwObject, { style: "bowling" });
+  > = HumanActionRow.of("bowlingDelivery", throwObject, HUMAN_BOWLING_DELIVERY);
 
   /** A chest or bounce pass, a free throw or a shot put: a push from before the chest. The leap of a jump shot and the glide of a shot put are not planned. Toss: release 50 degrees after a 0.35 s windup. A farther target is a faster throw. */
   export const pushPass: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["pushPass"]
-  > = HumanActionRow.of("pushPass", throwObject, {
-    style: "toss",
-  });
+  > = HumanActionRow.of("pushPass", throwObject, HUMAN_THROWCATCH_PUSH_PASS);
 
   /** Rugby pass with a two-hand release to the receiver's mark. Release 18 degrees after a 0.3 s windup. A farther target is a faster throw. */
   export const rugbyPass: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["rugbyPass"]
-  > = HumanActionRow.of("rugbyPass", throwObject, { style: "rugby" });
+  > = HumanActionRow.of("rugbyPass", throwObject, HUMAN_THROWCATCH_RUGBY_PASS);
 
   /** Overarm gridiron pass. Release 17 degrees after a 0.45 s windup. A farther target is a faster throw. */
   export const gridironPass: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["gridironPass"]
-  > = HumanActionRow.of("gridironPass", throwObject, { style: "gridironPass" });
+  > = HumanActionRow.of(
+    "gridironPass",
+    throwObject,
+    HUMAN_THROWCATCH_GRIDIRON_PASS,
+  );
 
   /** Gridiron snap from a folded stance. Release 22 degrees after a 0.24 s windup. A farther target is a faster throw. */
   export const gridironSnap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["gridironSnap"]
-  > = HumanActionRow.of("gridironSnap", throwObject, { style: "gridironSnap" });
+  > = HumanActionRow.of(
+    "gridironSnap",
+    throwObject,
+    HUMAN_THROWCATCH_GRIDIRON_SNAP,
+  );
 
   /** A catch of a fly ball or a thrown ball in one hand. */
   export const gloveCatch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["gloveCatch"]
-  > = HumanActionRow.of("gloveCatch", catchObject, {
-    hands: "one",
-  });
+  > = HumanActionRow.of(
+    "gloveCatch",
+    catchObject,
+    HUMAN_THROWCATCH_GLOVE_CATCH,
+  );
 
   /** A goalkeeper's or a receiver's catch in both hands. */
   export const twoHandCatch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["twoHandCatch"]
-  > = HumanActionRow.of("twoHandCatch", catchObject, {
-    hands: "two",
-  });
+  > = HumanActionRow.of(
+    "twoHandCatch",
+    catchObject,
+    HUMAN_THROWCATCH_TWO_HAND_CATCH,
+  );
 
   /** A football pass, shot, cross or punt with the right foot; the composition gives the ball and where it goes. */
   export const kickRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["kickRight"]
-  > = HumanActionRow.of("kickRight", kickBall, {
-    foot: "right",
-  });
+  > = HumanActionRow.of("kickRight", kickBall, HUMAN_THROWCATCH_KICK_RIGHT);
 
   /** The same with the left foot. */
   export const kickLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["kickLeft"]
-  > = HumanActionRow.of("kickLeft", kickBall, {
-    foot: "left",
-  });
+  > = HumanActionRow.of("kickLeft", kickBall, HUMAN_THROWCATCH_KICK_LEFT);
 
   /** A rebound, a block, a long jump or a hurdle clearance: a jump to the place the composition gives. The run-up is a run before it; a hurdle's trail leg is not planned, and a high jump's arch over the bar is `HumanGymnastics.fosburyFlop`. */
   export const leap: IAutoMovieMotionHumanActionLaw<

@@ -1,4 +1,4 @@
-import { createGoal, createPuck, createStick } from "@automovie/archetypes";
+﻿import { createGoal, createPuck, createStick } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBallPlay,
@@ -8,7 +8,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanThrowCatch,
-  HumanBallPlay,
   HumanChain,
   HumanObject,
   HumanPerformance,
@@ -90,7 +89,7 @@ export function test_motion_exercise_hockey_goal(): void {
               ball: "puck",
               speed,
               hand: "left",
-              toward: {
+              target: {
                 kind: "point",
                 frame: "world",
                 at: { x: 0, y: 0.0125, z: 4 },
@@ -120,7 +119,7 @@ export function test_motion_exercise_hockey_goal(): void {
       );
     if (shot?.kind !== "launch")
       throw new Error("The blade never strikes the puck");
-    return HumanBallPlay.crossing(
+    return AutoMovieMotionHumanThrowCatch.HumanBallPlay.crossing(
       film,
       "puck",
       mouth,

@@ -1,4 +1,4 @@
-import { createBall, createRacket } from "@automovie/archetypes";
+﻿import { createBall, createRacket } from "@automovie/archetypes";
 import { AutoMovieComposition, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
@@ -19,13 +19,12 @@ import type {
 import {
   AutoMovieMotionHumanHeld,
   AutoMovieMotionHumanStance,
-  HumanBallPlay,
+  AutoMovieMotionHumanSwing,
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
-  HumanPrecisionSport,
-  PrecisionStrokeForms,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -161,7 +160,7 @@ export function test_motion_exercise_tennis_point(): void {
       },
     );
   const place = (point: IAutoMovieVector3, yaw: number): IAutoMovieVector3 =>
-    PrecisionStrokeForms.address({
+    AutoMovieMotionHumanSwing.PrecisionStrokeForms.address({
       body,
       row: "tennisForehandReturn",
       side: "right",
@@ -211,7 +210,7 @@ export function test_motion_exercise_tennis_point(): void {
   const film = (shots: readonly IShot[]): HumanPerformance => {
     const chains: Record<Player, IAutoMovieMotionHumanChain> = {
       a: HumanChain.subject("a")
-        .registered(`tennisHold-a`, { seconds: 0.3, sway: 0 })
+        .registered(`tennisHold-a`, { hold: 0.3, sway: 0 })
         .ballSport(
           {
             kind: "handballThrow",
@@ -226,7 +225,7 @@ export function test_motion_exercise_tennis_point(): void {
         .until({ event: "relax" })
         .stand({ hold: 0.05, sway: 0 }),
       b: HumanChain.subject("b").registered(`tennisHold-b`, {
-        seconds: 0.3,
+        hold: 0.3,
         sway: 0,
       }),
     };
@@ -350,7 +349,7 @@ export function test_motion_exercise_tennis_point(): void {
       laws: [
         holding("a"),
         holding("b"),
-        HumanPrecisionSport.tennisForehandReturn,
+        AutoMovieMotionHumanSwing.HumanPrecisionSport.tennisForehandReturn,
       ],
       performers: [
         {
@@ -425,7 +424,7 @@ export function test_motion_exercise_tennis_point(): void {
     if (bounce?.kind !== "contact")
       throw new Error(`shot ${index} never lands`);
     const down: IAutoMovieMotionHumanBallPlay.ICrossing | undefined =
-      HumanBallPlay.crossing(
+      AutoMovieMotionHumanThrowCatch.HumanBallPlay.crossing(
         take,
         "ball",
         {
@@ -494,7 +493,7 @@ export function test_motion_exercise_tennis_point(): void {
     launches.every((seconds: number, index: number): boolean => {
       const side: number = index % 2 === 0 ? 1 : -1;
       return (
-        HumanBallPlay.crossing(
+        AutoMovieMotionHumanThrowCatch.HumanBallPlay.crossing(
           won,
           "ball",
           {

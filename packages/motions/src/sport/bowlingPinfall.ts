@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBowling,
   IAutoMovieMotionHumanPrecisionDeck,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalSegment,
@@ -23,8 +24,7 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * than the footprint's inradius makes the angle slightly larger, so a
  * borderline lean is credited as standing.
  *
- * @param pins The placed pins, each upright on its base with +Y along its axis.
- * @param result The baked deck whose cache holds the pins.
+ * @param params The placed `pins`, each upright on its base with +Y along its axis, and the baked `result` deck whose cache holds them.
  * @returns The ids of the pins down at the cache end.
  * @throws {RangeError} When a pin has no hull base below its centre of mass, or is missing from the cache.
  *
@@ -37,11 +37,12 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh id list and retains nothing.
  */
 export function bowlingPinfall(
-  pins: readonly IAutoMovieMotionHumanPrecisionDeck.IRigid[],
-  result: IAutoMovieMotionHumanPrecisionDeck.IResult,
-): string[] {
-  const last: IAutoMoviePhysicalFrame = result.cache.at(result.cache.duration);
-  return pins
+  params: IAutoMovieMotionHumanBowling.IReadPinfall,
+): IAutoMovieMotionHumanBowling.IPinfall {
+  const last: IAutoMoviePhysicalFrame = params.result.cache.at(
+    params.result.cache.duration,
+  );
+  return params.pins
     .filter((pin: IAutoMovieMotionHumanPrecisionDeck.IRigid): boolean => {
       const root: IAutoMovieRigidTransform | undefined =
         last.bodies[pin.id]?.root;

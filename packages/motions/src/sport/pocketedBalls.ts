@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBilliards,
   IAutoMovieMotionHumanPrecisionDeck,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalSegment,
@@ -18,9 +19,7 @@ import type {
  * that falls below the bed outside every reach left the table over a rail
  * and is never credited.
  *
- * @param balls The ball and target balls to credit, each one rigid sphere whose centre of mass is its centre.
- * @param pockets The table's pocket mouths at bed height.
- * @param result The baked shot.
+ * @param params The `balls` to credit, each one rigid sphere whose centre of mass is its centre, the table's `pockets` at bed height and the baked `result` shot.
  * @returns The pocketed balls in drop order; empty when none drops.
  * @throws {RangeError} When a ball has no sphere shape, there is no pocket, or a ball is missing from the cache.
  *
@@ -33,10 +32,9 @@ import type {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and retains no frame.
  */
 export function pocketedBalls(
-  balls: readonly IAutoMovieMotionHumanPrecisionDeck.IRigid[],
-  pockets: readonly IAutoMovieMotionHumanPrecisionDeck.IPocket[],
-  result: IAutoMovieMotionHumanPrecisionDeck.IResult,
-): IAutoMovieMotionHumanPrecisionDeck.IPocketed[] {
+  params: IAutoMovieMotionHumanBilliards.IReadPocketed,
+): IAutoMovieMotionHumanBilliards.IPocketed {
+  const { balls, pockets, result } = params;
   if (pockets.length === 0)
     throw new RangeError("A pocket credit needs at least one mouth");
   const bed: number = pockets[0]!.point.y;

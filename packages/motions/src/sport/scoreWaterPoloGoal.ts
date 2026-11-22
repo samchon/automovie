@@ -1,8 +1,8 @@
-import { Quaternion, Vector3, projectileAt } from "@automovie/engine";
+﻿import { Quaternion, Vector3, projectileAt } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanWaterPolo,
   IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
@@ -10,7 +10,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanPerformance } from "../perform/HumanPerformance";
 
 /** Tolerance on the mouth's unit up axis for a level scoring plane, unitless rounding. */
 const LEVEL: number = 1e-8;
@@ -21,9 +20,7 @@ const LEVEL: number = 1e-8;
  * contact or takeover that can end a scoring opportunity. The fixed mouth's
  * +Z faces the field and its +Y begins at the waterline.
  *
- * @param film Performance displaying both the ball and the fixed goal.
- * @param ball Subject id of the ball through catch, carry and shot.
- * @param goal Fixed placed goal with the physical "mouth" aperture.
+ * @param params The `film` displaying both the ball and the fixed goal, the `ball`'s subject id through catch, carry and shot, and the fixed placed `goal` with the physical "mouth" aperture.
  * @returns Each credited goal, in film order.
  * @evidence contracts/development/common.md#meaningful-documentation States the shot family, coordinate frames, authoritative end conditions, and output order.
  * @evidence contracts/development/implementation.md#principled-implementation A horizontal goal normal gives constant downrange speed on the drag-free engine flight. Solve for the entire sphere to clear the front plane, then read its centre through the engine.
@@ -34,10 +31,9 @@ const LEVEL: number = 1e-8;
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the output cues leave the query.
  */
 export function scoreWaterPoloGoal(
-  film: Pick<HumanPerformance, "duration" | "flights" | "prop">,
-  ball: string,
-  goal: IAutoMovieMotionHumanProp,
-): readonly scoreWaterPoloGoal.ICue[] {
+  params: IAutoMovieMotionHumanWaterPolo.IGoal,
+): readonly IAutoMovieMotionHumanWaterPolo.ICue[] {
+  const { film, ball, goal } = params;
   const mouth: IAutoMovieAffordance | undefined = goal.affordances?.find(
     (contact) => contact.id === "mouth" && contact.kind === "aperture",
   );
@@ -71,7 +67,7 @@ export function scoreWaterPoloGoal(
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
   const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
     Quaternion.rotateVector(inverse, Vector3.subtract(point, position));
-  const cues: scoreWaterPoloGoal.ICue[] = [];
+  const cues: IAutoMovieMotionHumanWaterPolo.ICue[] = [];
   for (const flight of film.flights(ball)) {
     // A spherical launch's projectile is the ball's physical centre, so the
     // whole ball has crossed once that centre is one radius behind the plane.
@@ -125,30 +121,4 @@ function invalidGoal(goal: IAutoMovieMotionHumanProp): HumanRefusal {
       "a water polo goal needs a fixed, upright mouth aperture at the waterline",
     fix: "bind the goal as a fixed prop with its mouth facing into the field",
   });
-}
-
-/**
- * Film-clock cues for credited direct goals.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the original ball, opening, player, instant and measured centre.
- * @evidence contracts/development/design.md#principled-representation A cue records the physical event and its existing subjects.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Carries only the information needed to render or report the credited shot.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A predictor or independent ball identity never enters a credited cue.
- */
-export namespace scoreWaterPoloGoal {
-  /** The complete ball has gone through the goal's aperture. */
-  export interface ICue {
-    /** Cue discriminator. */
-    kind: "goal";
-    /** The ball's existing performance subject id. */
-    ball: string;
-    /** The chosen goal's existing performance subject id. */
-    goal: string;
-    /** The performer responsible for the observed launch. */
-    scorer: IAutoMovieMotionHumanPropFlight.IFlight["source"]["subject"];
-    /** The scoring instant in film seconds. */
-    seconds: number;
-    /** The physical ball centre at the scoring instant, world metres. */
-    center: IAutoMovieVector3;
-  }
 }

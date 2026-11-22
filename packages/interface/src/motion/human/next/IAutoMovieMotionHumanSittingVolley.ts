@@ -1,3 +1,6 @@
+﻿import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
+
 /**
  * Sitting volleyball, a rally played from the floor.
  *
@@ -52,9 +55,9 @@ export namespace IAutoMovieMotionHumanSittingVolley {
     lateral: number;
 
     /** Floor palm used to assist the shift. */
-    hand: "left" | "right";
+    hand: AutoMovieHumanSide;
 
     /** World location of the intended forearm-platform midpoint, in metres. */
-    target: { x: number; y: number; z: number };
+    target: IAutoMovieVector3;
   }
 }

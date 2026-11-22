@@ -1,3 +1,4 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanKickBall } from "../ballStrike/IAutoMovieMotionHumanKickBall";
 import type { IAutoMovieMotionHumanJuggle } from "../exercise/IAutoMovieMotionHumanJuggle";
 import type { IAutoMovieMotionHumanBallSport } from "../sport/IAutoMovieMotionHumanBallSport";
@@ -5,6 +6,7 @@ import type { IAutoMovieMotionHumanFieldThrow } from "../sport/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanStickBall } from "../sport/IAutoMovieMotionHumanStickBall";
 import type { IAutoMovieMotionHumanCatchObject } from "../throwing/IAutoMovieMotionHumanCatchObject";
 import type { IAutoMovieMotionHumanRelease } from "../throwing/IAutoMovieMotionHumanRelease";
+import type { IAutoMovieMotionHumanThrowObjectForm } from "../throwing/IAutoMovieMotionHumanThrowObjectForm";
 import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMovieMotionHumanThrowObjectParams";
 
 /**
@@ -261,4 +263,43 @@ export namespace IAutoMovieMotionHumanThrowCatch {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IBallSport = IAutoMovieMotionHumanBallSport.IParams;
+
+  /**
+   * A throw preset that fixes the throw's style: the pitch, the underarm pitch, the softball windmill, the cricket bowl, the bowling delivery, the push pass, the rugby pass and the two gridiron throws. Spread into `throwObject`'s parameters with the target; the style fixes the release angle and the windup (`IAutoMovieMotionHumanThrowObjectForm.Style`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and where the style's values are.
+   * @evidence contracts/development/design.md#principled-representation One required member, the throw's own style, so a preset fixes exactly it and the throw keeps every other default.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; the `AutoMovieMotionHumanThrowCatch` throw presets are its data and the sport-throw rows read them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the member is named once here instead of an inline pick of the throw's parameters.
+   */
+  export interface IStylePreset {
+    /** The throw's style. */
+    style: IAutoMovieMotionHumanThrowObjectForm.Style;
+  }
+
+  /**
+   * A catch preset that fixes how many hands take the object: the glove catch and the two-hand catch. Spread into `catchObject`'s parameters with the anchor of the throw caught.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes and how it is applied.
+   * @evidence contracts/development/design.md#principled-representation One required member, the catch's own hand count.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; the catch presets are its data and the sport-throw rows read them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the member is named once here instead of an inline pick of the catch's parameters.
+   */
+  export interface IHandsPreset {
+    /** How many hands take the object. */
+    hands: IAutoMovieMotionHumanCatchObject.Hands;
+  }
+
+  /**
+   * A kick preset that fixes the kicking foot: the right-foot and left-foot kicks. Spread into `kickBall`'s parameters with the ball.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes and how it is applied.
+   * @evidence contracts/development/design.md#principled-representation One required member, the kicking foot, on the canonical side type.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; the kick presets are its data and the sport-throw rows read them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the member is named once here instead of an inline pick of the kick's parameters.
+   */
+  export interface IFootPreset {
+    /** The kicking foot. */
+    foot: AutoMovieHumanSide;
+  }
 }

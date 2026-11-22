@@ -1,4 +1,4 @@
-import { createBall, createRacket } from "@automovie/archetypes";
+﻿import { createBall, createRacket } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -8,10 +8,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSportSwing,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -75,7 +75,7 @@ export function test_motion_contact_equipment_marker(): void {
       };
       const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "forehand",
-        laws: [HumanSportSwing.forehand],
+        laws: [AutoMovieMotionHumanThrowCatch.HumanSportSwing.forehand],
         performers: [performer],
         props: [
           HumanObject.prop("racket", racket, {

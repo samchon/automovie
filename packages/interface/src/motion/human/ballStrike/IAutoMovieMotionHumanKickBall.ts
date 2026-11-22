@@ -1,3 +1,4 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
@@ -44,7 +45,7 @@ export namespace IAutoMovieMotionHumanKickBall {
     ball: string;
 
     /** The kicking foot; `right` when absent. */
-    foot?: "left" | "right";
+    foot?: AutoMovieHumanSide;
 
     /** Where the ball is kicked toward; along the heading when absent. */
     target?: IAutoMovieMotionTarget;

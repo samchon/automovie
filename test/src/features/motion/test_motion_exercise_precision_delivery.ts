@@ -1,4 +1,4 @@
-import {
+﻿import {
   createBall,
   createBowlingLane,
   createBowlingPin,
@@ -19,11 +19,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanStance,
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
-  HumanSportThrow,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -80,8 +80,16 @@ export function test_motion_exercise_precision_delivery(): void {
       }),
     };
   for (const [kind, row, to] of [
-    ["softball", HumanSportThrow.softballWindmill, { x: 0, y: 0.75, z: 5 }],
-    ["bowling", HumanSportThrow.bowlingDelivery, { x: 0, y: 0.11, z: 2 }],
+    [
+      "softball",
+      AutoMovieMotionHumanThrowCatch.HumanSportThrow.softballWindmill,
+      { x: 0, y: 0.75, z: 5 },
+    ],
+    [
+      "bowling",
+      AutoMovieMotionHumanThrowCatch.HumanSportThrow.bowlingDelivery,
+      { x: 0, y: 0.11, z: 2 },
+    ],
   ] as const) {
     const ball: ReturnType<typeof createBall> = createBall({ kind });
     const ballGrip: IAutoMovieVector3 =
@@ -97,10 +105,10 @@ export function test_motion_exercise_precision_delivery(): void {
         }),
       ],
       composition: HumanChain.subject("player")
-        .registered(hold.name, { seconds: 0.2, sway: 0 })
+        .registered(hold.name, { hold: 0.2, sway: 0 })
         .registered(row.name, {
           prop: "ball",
-          at: { kind: "point", frame: "world", at: to },
+          target: { kind: "point", frame: "world", at: to },
         }).node,
     });
     const act: IAutoMovieMotionHumanSegment = film.segments("player")[1]!;

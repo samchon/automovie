@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanSword } from "../lexicon/IAutoMovieMotionHumanSword";
+import type { IAutoMovieMotionHumanSwordGuard } from "../lexicon/IAutoMovieMotionHumanSwordGuard";
 import type { IAutoMovieMotionHumanBaseball } from "../sport/IAutoMovieMotionHumanBaseball";
 import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHumanRacket";
 
@@ -72,4 +74,69 @@ export namespace IAutoMovieMotionHumanSwing {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IRacket = IAutoMovieMotionHumanRacket.IParams;
+
+  /**
+   * How many hands hold the implement: one or two.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two grips a swing preset fixes.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the swing's hand counts, as `IAutoMovieMotionHumanSword.IWield.hands`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two-hand swing presets read it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per hand count, with no optional fields to combine.
+   */
+  export type Hands = 1 | 2;
+
+  /**
+   * A swing preset that fixes the line the cut comes from: the one-handed racket strokes (forehand, backhand drive, topspin, overhead smash, volley) and the volleyball spike. Spread into the cut's parameters; the composition gives the rest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and which rows read it.
+   * @evidence contracts/development/design.md#principled-representation One required member, the cut's own line, so a preset fixes exactly it and the cut keeps every other default.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; the `AutoMovieMotionHumanSwing` stroke presets are its data and the sport-swing rows read them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the member is named once here instead of an inline pick of the cut's parameters.
+   */
+  export interface IStrokePreset {
+    /** The line the cut comes from. */
+    from: IAutoMovieMotionHumanSword.Line;
+  }
+
+  /**
+   * A swing preset that fixes the line and the grip: the baseball swing, the two-hand backhand, the golf swing and the putt.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and which rows read it.
+   * @evidence contracts/development/design.md#principled-representation Two required members, the cut's own line and grip.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; the grip presets are its data and the sport-swing rows read them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the cut's parameters.
+   */
+  export interface IGripPreset extends IStrokePreset {
+    /** How many hands hold the implement. */
+    hands: Hands;
+  }
+
+  /**
+   * A swing preset that fixes the line, the grip and the withdrawn share: the checked swing.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and which row reads it.
+   * @evidence contracts/development/design.md#principled-representation Three required members: the cut's line, its grip and its feint share in (0, 1).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; the check preset is its data and the checkSwing row reads it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the cut's parameters.
+   */
+  export interface ICheckPreset extends IGripPreset {
+    /** The share of the stroke shown before it is withdrawn, in (0, 1). */
+    feint: number;
+  }
+
+  /**
+   * A swing preset that fixes the guard and the grip: the bunt, the bat held level before the body.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and which row reads it.
+   * @evidence contracts/development/design.md#principled-representation Two required members, the guard's own name and grip.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; the bunt preset is its data and the bunt row reads it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the guard's parameters.
+   */
+  export interface IBuntPreset {
+    /** The guard held. */
+    guard: IAutoMovieMotionHumanSwordGuard.Guard;
+
+    /** How many hands hold the bat. */
+    hands: Hands;
+  }
 }

@@ -1,4 +1,4 @@
-import { createBall } from "@automovie/archetypes";
+﻿import { createBall } from "@automovie/archetypes";
 import { AutoMovieComposition } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
@@ -8,11 +8,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSportThrow,
-  stageCatch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,7 +77,10 @@ export function test_motion_exercise_gridiron_play(): void {
         .pickUp({ prop: "ball", handle: "grip" })
         .registered(
           "gridironSnap",
-          { prop: "ball", at: { kind: "point", frame: "world", at: snapTo } },
+          {
+            prop: "ball",
+            target: { kind: "point", frame: "world", at: snapTo },
+          },
           "snap",
         ).node,
     ];
@@ -93,7 +95,7 @@ export function test_motion_exercise_gridiron_play(): void {
       parts.push(
         HumanChain.subject("quarterback")
           .registered("stageCatch", {
-            from: "snap",
+            partner: "snap",
             ball: "ball",
             hands: "two",
             intercept: stations.quarterback.intercept,
@@ -103,7 +105,7 @@ export function test_motion_exercise_gridiron_play(): void {
             "gridironPass",
             {
               prop: "ball",
-              at: { kind: "point", frame: "world", at: passTo },
+              target: { kind: "point", frame: "world", at: passTo },
             },
             "pass",
           )
@@ -122,7 +124,7 @@ export function test_motion_exercise_gridiron_play(): void {
       parts.push(
         HumanChain.subject("receiver")
           .registered("stageCatch", {
-            from: "pass",
+            partner: "pass",
             ball: "ball",
             hands: "two",
             intercept: stations.receiver.intercept,
@@ -133,9 +135,9 @@ export function test_motion_exercise_gridiron_play(): void {
     return new HumanPerformance({
       seed,
       laws: [
-        HumanSportThrow.gridironSnap,
-        HumanSportThrow.gridironPass,
-        stageCatch,
+        AutoMovieMotionHumanThrowCatch.HumanSportThrow.gridironSnap,
+        AutoMovieMotionHumanThrowCatch.HumanSportThrow.gridironPass,
+        AutoMovieMotionHumanThrowCatch.stageCatch,
       ],
       performers,
       props: [

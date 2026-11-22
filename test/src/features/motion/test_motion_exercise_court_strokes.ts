@@ -1,4 +1,4 @@
-import {
+﻿import {
   createBall,
   createBaseballBat,
   createFieldHockeyStick,
@@ -23,11 +23,10 @@ import type {
 import {
   AutoMovieMotionHumanHeld,
   AutoMovieMotionHumanStance,
+  AutoMovieMotionHumanSwing,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanPrecisionSport,
-  PrecisionStrokeForms,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -212,26 +211,27 @@ export function test_motion_exercise_court_strokes(): void {
           }).node,
         },
       ).bones("striker", 0);
-      const at: IAutoMovieVector3 = PrecisionStrokeForms.address({
-        body,
-        row: stroke.row,
-        side: "right",
-        yaw: 0,
-        ball,
-        radius,
-        toward,
-        held: AutoMovieMotionHumanHeld.grasped(
+      const at: IAutoMovieVector3 =
+        AutoMovieMotionHumanSwing.PrecisionStrokeForms.address({
           body,
-          "right",
-          "tool",
-          held(quiet),
-          stroke.tool.affordances ?? [],
-          {
-            point: quiet.get("rightHand")!.worldPosition,
-            rotation: quiet.get("rightHand")!.worldRotation,
-          },
-        ),
-      });
+          row: stroke.row,
+          side: "right",
+          yaw: 0,
+          ball,
+          radius,
+          toward,
+          held: AutoMovieMotionHumanHeld.grasped(
+            body,
+            "right",
+            "tool",
+            held(quiet),
+            stroke.tool.affordances ?? [],
+            {
+              point: quiet.get("rightHand")!.worldPosition,
+              rotation: quiet.get("rightHand")!.worldRotation,
+            },
+          ),
+        });
       const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] =
         [
           {
@@ -263,7 +263,7 @@ export function test_motion_exercise_court_strokes(): void {
         };
       const take: HumanPerformance = new HumanPerformance({
         seed: `${stroke.row}-${kind}`,
-        laws: [hold, HumanPrecisionSport[stroke.row]],
+        laws: [hold, AutoMovieMotionHumanSwing.HumanPrecisionSport[stroke.row]],
         performers,
         props: [
           HumanObject.prop(
@@ -277,12 +277,12 @@ export function test_motion_exercise_court_strokes(): void {
           }),
         ],
         composition: HumanChain.subject("striker")
-          .registered(hold.name, { seconds: 0.2, sway: 0 })
+          .registered(hold.name, { hold: 0.2, sway: 0 })
           .registered(stroke.row, {
             tool: "tool",
             ball: "ball",
             speed: 12,
-            toward: { kind: "point", frame: "world", at: toward },
+            target: { kind: "point", frame: "world", at: toward },
             ...(stroke.miss === true ? { miss: true } : {}),
           })
           .stand({ hold: 0.5, sway: 0 }).node,

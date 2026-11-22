@@ -1,4 +1,4 @@
-import { createBall, createClub, createGolfClub } from "@automovie/archetypes";
+﻿import { createBall, createClub, createGolfClub } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -17,12 +17,11 @@ import type {
 import {
   AutoMovieMotionHumanHeld,
   AutoMovieMotionHumanStance,
+  AutoMovieMotionHumanSwing,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
-  HumanPrecisionSport,
-  PrecisionStrokeForms,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -84,7 +83,7 @@ export function test_motion_exercise_precision_contact(): void {
   const golf: ReturnType<typeof createBall> = createBall({ kind: "golf" });
   const cases = [
     {
-      row: HumanPrecisionSport.baseballHit,
+      row: AutoMovieMotionHumanSwing.HumanPrecisionSport.baseballHit,
       tool: bat,
       point: bat.affordance("strike"),
       ball: baseball,
@@ -93,7 +92,7 @@ export function test_motion_exercise_precision_contact(): void {
       front: 0.28,
     },
     {
-      row: HumanPrecisionSport.golfChip,
+      row: AutoMovieMotionHumanSwing.HumanPrecisionSport.golfChip,
       tool: iron,
       point: iron.affordance("face"),
       ball: golf,
@@ -149,23 +148,24 @@ export function test_motion_exercise_precision_contact(): void {
       rotation: Quaternion.multiply(wrist.worldRotation, inHand.rotation),
     };
     const toward: IAutoMovieVector3 = { ...centre, z: centre.z + 3 };
-    const stance: IAutoMovieVector3 = PrecisionStrokeForms.address({
-      body,
-      row: fixture.row.name,
-      side: "right",
-      yaw: 0,
-      ball: centre,
-      radius,
-      toward,
-      held: AutoMovieMotionHumanHeld.grasped(
+    const stance: IAutoMovieVector3 =
+      AutoMovieMotionHumanSwing.PrecisionStrokeForms.address({
         body,
-        "right",
-        "implement",
-        held,
-        fixture.tool.affordances ?? [],
-        { point: wrist.worldPosition, rotation: wrist.worldRotation },
-      ),
-    });
+        row: fixture.row.name,
+        side: "right",
+        yaw: 0,
+        ball: centre,
+        radius,
+        toward,
+        held: AutoMovieMotionHumanHeld.grasped(
+          body,
+          "right",
+          "implement",
+          held,
+          fixture.tool.affordances ?? [],
+          { point: wrist.worldPosition, rotation: wrist.worldRotation },
+        ),
+      });
     const implement: IAutoMovieRigidTransform = {
       position: Vector3.add(held.position, stance),
       rotation: held.rotation,
@@ -180,13 +180,13 @@ export function test_motion_exercise_precision_contact(): void {
         HumanObject.prop("ball", fixture.ball, ballAt),
       ],
       composition: HumanChain.subject("player")
-        .registered(hold.name, { seconds: 0.2, sway: 0 })
+        .registered(hold.name, { hold: 0.2, sway: 0 })
         .registered(fixture.row.name, {
           tool: "implement",
           ball: "ball",
           speed: 6,
           impact,
-          toward: { kind: "point", frame: "world", at: toward },
+          target: { kind: "point", frame: "world", at: toward },
         }).node,
     });
     const action: IAutoMovieMotionHumanSegment = film.segments("player")[1]!;

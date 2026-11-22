@@ -1,9 +1,12 @@
-import { Vector3 } from "@automovie/engine";
+﻿import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBallPlay,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanBallPlay, HumanPerformance } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanThrowCatch,
+  HumanPerformance,
+} from "@automovie/motions";
 
 import type { IBallStation } from "./IBallStation";
 
@@ -41,7 +44,7 @@ export function ballStation(
     y: 0,
   });
   const crossing: IAutoMovieMotionHumanBallPlay.ICrossing | undefined =
-    HumanBallPlay.crossing(
+    AutoMovieMotionHumanThrowCatch.HumanBallPlay.crossing(
       film,
       ball,
       {

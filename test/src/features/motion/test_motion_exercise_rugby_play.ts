@@ -1,4 +1,4 @@
-import { createBall } from "@automovie/archetypes";
+﻿import { createBall } from "@automovie/archetypes";
 import { AutoMovieComposition, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
@@ -9,11 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSportThrow,
-  stageCatch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -111,7 +110,7 @@ export function test_motion_exercise_rugby_play(): void {
       });
       const caught: IAutoMovieMotionHumanChain = HumanChain.subject(subject)
         .registered("stageCatch", {
-          from,
+          partner: from,
           ball: "ball",
           hands: "two",
           intercept: station.intercept,
@@ -125,7 +124,7 @@ export function test_motion_exercise_rugby_play(): void {
                 "rugbyPass",
                 {
                   prop: "ball",
-                  at: { kind: "point", frame: "world", at: next },
+                  target: { kind: "point", frame: "world", at: next },
                 },
                 anchor,
               )
@@ -153,7 +152,10 @@ export function test_motion_exercise_rugby_play(): void {
     }
     return new HumanPerformance({
       seed,
-      laws: [HumanSportThrow.rugbyPass, stageCatch],
+      laws: [
+        AutoMovieMotionHumanThrowCatch.HumanSportThrow.rugbyPass,
+        AutoMovieMotionHumanThrowCatch.stageCatch,
+      ],
       performers,
       props: [
         HumanObject.prop("ball", ball, {
