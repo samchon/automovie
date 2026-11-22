@@ -437,7 +437,6 @@ function flown(
             goal.point,
             reached,
           ),
-          planted: false,
         };
       }
       return {
