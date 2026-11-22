@@ -185,12 +185,16 @@ export function test_motion_exercise_campaign_catches(): void {
         worn: {
           subject: "receiver",
           bone: "rightHand",
+          // The crosse's grip frame on the hand's own frame: the shaft held
+          // along the hand's grip axis.
           offset: {
-            position: Vector3.scale(
-              crosse.affordance("grip").frame.translation,
-              -1,
+            position: Quaternion.rotateVector(
+              Quaternion.inverse(crosse.affordance("grip").frame.rotation),
+              Vector3.scale(crosse.affordance("grip").frame.translation, -1),
             ),
-            rotation: Quaternion.identity(),
+            rotation: Quaternion.inverse(
+              crosse.affordance("grip").frame.rotation,
+            ),
           },
         },
       },
@@ -206,7 +210,7 @@ export function test_motion_exercise_campaign_catches(): void {
       })
       .sync({ of: "throw" }),
     // On the receiver's right (+X as they face -Z), the crosse's side.
-    { x: 0.35, y: 1.8, z: receiverAt.z - 0.4 },
+    { x: 0.5, y: 1.8, z: receiverAt.z - 0.4 },
     [],
   );
   // 2. #3898: a two-hand catch by a player seated in a wheelchair.

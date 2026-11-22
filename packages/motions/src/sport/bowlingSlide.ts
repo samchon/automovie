@@ -133,6 +133,10 @@ function plan(
       Math.PI
     );
   };
+  // The trailing ankle's height where the slide stops.
+  const stoppedHeight: number =
+    feet[trail].ankle.y +
+    0.07 * leg * Math.sin((Math.PI * (to - from)) / (settle - from)) ** 2;
   // The trailing hip where the slide stops it.
   const stopped: IAutoMovieVector3 = hipJoints(
     body,
@@ -236,15 +240,17 @@ function plan(
         HumanFrame.turn(entry.yaw),
       )[trail];
       const height: number = feet[trail].ankle.y + 0.07 * leg * swing;
+      // Once the slide stops the leg's place behind is the one it reached
+      // there, at the slide's last height, so the foot leaves the floor
+      // before it travels.
+      const reached: IAutoMovieVector3 = time <= to ? hip : stopped;
       const back: number = Math.sqrt(
         Math.max(
           0,
-          (REACH * leg) ** 2 - ((time <= to ? hip : stopped).y - height) ** 2,
+          (REACH * leg) ** 2 -
+            (reached.y - (time <= to ? height : stoppedHeight)) ** 2,
         ),
       );
-      // Once the slide stops the leg's place behind is the one it reached,
-      // so the foot leaves the floor before it travels.
-      const reached: IAutoMovieVector3 = time <= to ? hip : stopped;
       const behind: IAutoMovieVector3 = {
         ...Vector3.subtract(reached, Vector3.scale(direction, back)),
         y: height,
@@ -268,8 +274,8 @@ function plan(
         rotation: HumanFoot.rotation(
           HumanFoot.heading(feet[trail].rotation),
           HumanFoot.pitch(feet[trail].rotation) -
-            (lean(hip, trailingAnkle) +
-              tilt(hip, trailingAnkle) -
+            (lean(reached, trailingAnkle) +
+              tilt(reached, trailingAnkle) -
               lean(rest, feet[trail].ankle) -
               tilt(rest, feet[trail].ankle)) *
               (1 -

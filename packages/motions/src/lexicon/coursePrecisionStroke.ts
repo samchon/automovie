@@ -61,6 +61,10 @@ export function coursePrecisionStroke(
   // halfway through the downswing, and the backswing before it is the arm's
   // reach, free to find an attitude it reaches clear of the body.
   const ready: number = (clock.at("strokeStart") + clock.at("stroke")) / 2;
+  // ... and only out of it: the hold ends halfway through the
+  // follow-through, whose end the arm reaches freely back to its rest, so the
+  // swing's last attitude is not asked of an arm wrapped past its reach.
+  const relax: number = (clock.at("stroke") + clock.at("strokeEnd")) / 2;
   return courseArmGoal({
     body,
     side,
@@ -69,7 +73,7 @@ export function coursePrecisionStroke(
     span: {
       start: 0,
       ready,
-      relax: clock.at("relax"),
+      relax,
       end: clock.duration,
     },
     pace: (): number =>
@@ -93,12 +97,11 @@ export function coursePrecisionStroke(
         (15 / 8) *
           (Vector3.length(
             Vector3.subtract(
-              plan.posture(clock.at("relax")).limbs[`${side}Arm`]?.point ??
-                hand,
+              plan.posture(relax).limbs[`${side}Arm`]?.point ?? hand,
               hand,
             ),
           ) /
-            (clock.duration - clock.at("relax"))),
+            (clock.duration - relax)),
       )),
     ...(second === undefined
       ? {}

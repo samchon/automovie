@@ -70,12 +70,21 @@ export namespace HumanBallPlay {
           b: IAutoMovieMotionHumanPerformanceState.IGrip,
         ): number => a.from - b.from,
       );
+    // A launch ends a possession: a grip that closes after the ball left the
+    // hand begins a new one, however the hands' windows overlap (a dribbler
+    // releasing and gathering the bounce).
+    const flights: ReturnType<typeof HumanPropFlight.flights> =
+      HumanPropFlight.flights(self, ball);
     let open: IAutoMovieMotionHumanBallPlay.IHold | undefined;
     for (const grip of grips) {
       if (
         open !== undefined &&
         open.subject === grip.subject &&
-        grip.from <= open.to
+        grip.from <= open.to &&
+        !flights.some(
+          (flight: (typeof flights)[number]): boolean =>
+            flight.launch > open!.from && flight.launch <= grip.from,
+        )
       ) {
         open.to = Math.max(open.to, grip.to);
         if (!open.hands.includes(grip.side)) open.hands.push(grip.side);
@@ -97,7 +106,7 @@ export namespace HumanBallPlay {
           (a: AutoMovieHumanSide, b: AutoMovieHumanSide): number =>
             a.localeCompare(b),
         );
-    for (const flight of HumanPropFlight.flights(self, ball)) {
+    for (const flight of flights) {
       events.push({
         kind: "launch",
         seconds: flight.launch,
