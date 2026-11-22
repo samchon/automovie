@@ -4202,6 +4202,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           {
             "const": "wristRight"
+          },
+          {
+            "const": "yoke"
           }
         ],
         "description": "Closed vocabulary of anatomical surface regions on a humanoid body: the\nplaces another body or an object touches, strikes, grips or presents to.\n\nNames follow surface anatomy (Gray's Anatomy surface landmarks; the region\ndivisions of anatomical charts): head and face, neck, the anterior and\nposterior trunk with the hypochondriac regions over the liver (right) and\nspleen (left) and the lumbar regions over the kidneys, and the limbs by\nsegment and aspect. Paired regions carry their side, the body's own left\nor right. Contact points the body itself presents (the palm, the tip and\nthe pad of every digit, the sole, the heel, the seat) are regions too, so\na key, a string, another body\nor an object can be aimed at them. Each region is anchored to one humanoid bone and resolved to a\npoint and an outward normal on that bone's collision shapes by the engine,\nso the same name serves a generated Human, an imported character or a\nparametric figure. The list grows additively; no name is ever repurposed."
@@ -14328,6 +14331,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               {
                 "const": "wristRight"
+              },
+              {
+                "const": "yoke"
               }
             ],
             "description": "The victim's region the hands close on; `shoulderLeft` and `shoulderRight` together when absent."
@@ -14719,6 +14725,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               {
                 "const": "wristRight"
+              },
+              {
+                "const": "yoke"
               }
             ],
             "description": "The hostage's region the weapon is presented at; `templeRight` when absent."
@@ -34681,7 +34690,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "depth": {
             "type": "number",
-            "description": "How far the working point goes in, metres; positive."
+            "description": "How far the working point goes in, metres; positive. The socket's own declared depth (IAutoMovieAffordance.depth, a bore's length) when absent."
           },
           "withdraw": {
             "type": "boolean",
@@ -34691,8 +34700,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "required": [
           "kind",
           "prop",
-          "into",
-          "depth"
+          "into"
         ],
         "additionalProperties": false,
         "description": "A held prop inserted into a socket."
@@ -38951,6 +38959,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               {
                 "const": "wristRight"
+              },
+              {
+                "const": "yoke"
               }
             ],
             "description": "The thrower's region the body turns over, for a `thrown` outcome (#3439)."
@@ -39229,6 +39240,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               {
                 "const": "wristRight"
+              },
+              {
+                "const": "yoke"
               }
             ],
             "description": "The thrown body's region on the fulcrum, for a `thrown` outcome; the abdomen when absent (#3439)."
@@ -40249,6 +40263,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               {
                 "const": "wristRight"
+              },
+              {
+                "const": "yoke"
               }
             ],
             "description": "The region the right hand works on; `null` for a held sheet before the eyes."
@@ -40527,6 +40544,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               {
                 "const": "wristRight"
+              },
+              {
+                "const": "yoke"
               }
             ],
             "description": "The region the left hand works on at the same time; one hand when absent."
