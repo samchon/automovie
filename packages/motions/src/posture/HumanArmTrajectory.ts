@@ -150,17 +150,22 @@ export namespace HumanArmTrajectory {
   }
 
   /**
-   * Whether a plan was solved in its mirror image: set by the plan and read
-   * by `solve` to tell a refusal in the author's names.
+   * What a plan tells besides its result: whether it was solved in its
+   * mirror image, which `solve` reads to tell a refusal in the author's
+   * names, and the solution a refusal for time was reached at, which the
+   * caller hands to the plan at the slower time.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States who sets and who reads the flag.
-   * @evidence contracts/development/design.md#principled-representation One boolean record shared by `solve` and its plan.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written by planHumanArmTrajectory and read by solve.
+   * @evidence contracts/development/common.md#meaningful-documentation States who sets and who reads each member.
+   * @evidence contracts/development/design.md#principled-representation One record shared by `solve`, its plan and its caller.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Written by planHumanArmTrajectory and read by solve and AutoMovieMotionHumanArmPlanned.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A record rather than a return value, so a thrown refusal still carries it.
    */
   export interface IMirrorTold {
     /** Whether the plan read the mirror image. */
     flip: boolean;
+
+    /** The solution a `duration` refusal was reached at, in the plan's own reading (mirrored where `flip`), as `ISolved.state` holds one: a path the speed bound alone refuses, which the same path over the span the refusal names meets (Hollerbach 1984), so the replan at that span starts from it (`warm`). Absent for any other end. */
+    state?: IState;
   }
 
   /**
@@ -181,6 +186,7 @@ export namespace HumanArmTrajectory {
    * @param course A laid course the model refused (`admitted`): where its reading is given, only the stretches about the instants it fails at are optimised, each from the course and between two of its instants held fixed, the rest of the course kept; where that is refused, or the course carries no reading (a stretch cut from one), the whole span is solved from it at the knots; the sampling planner's seed (`HumanArmSeed`) on a grid of thirtieths of a second when absent, and after a course with a reading when it leads to no admitted trajectory.
    * @param warm An earlier solution of this action on this span's seconds (`ISolved.state`, retimed by the caller where the span changed): tried first as it stands and returned where the model admits it at its knots and on the frame grid, the optimiser's start at its penalty where not, and dropped for the course and the planner's seed where that ends unadmitted. Any state is safe to give: nothing of it is trusted.
    * @param stretches Whether the span is its law's own, lengthened by a replan at a slower tempo; a laid course refused only for its speed is then handed back for the span it needs before any optimisation. False for a span a meeting fixes.
+   * @param told Where the plan tells whether it read the mirror image and, with a `duration` refusal, the solution it was reached at (`IMirrorTold.state`); a fresh record when absent.
    * @returns Each arm's trajectory, in the problem's order, and the solution.
    * @throws {HumanRefusal} When no trajectory meets the constraints at its knots and on the frame grid.
    *
@@ -198,10 +204,10 @@ export namespace HumanArmTrajectory {
     course?: IAdmitted,
     warm?: IState,
     stretches: boolean = false,
+    told: IMirrorTold = { flip: false },
   ): ISolved {
     // A problem solved in its mirror image refuses in the mirror's names,
     // told here in the author's (`HumanArmTrajectoryMirror.refusal`).
-    const told: IMirrorTold = { flip: false };
     try {
       return planHumanArmTrajectory(read, times, course, warm, stretches, told);
     } catch (error) {

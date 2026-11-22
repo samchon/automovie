@@ -490,6 +490,12 @@ export function planHumanArmTrajectory(
       last.evaluation.worst.value > M.TOLERANCE
         ? last.evaluation.worst
         : last.played.evaluation.worst;
+    // The path a refusal for time was reached at is the replan's start:
+    // over the span the refusal names, the same path moves within the bound
+    // (Hollerbach 1984), so the replan at the slower time begins where this
+    // solve ended rather than solving the whole span again.
+    if (worst.axis === "duration")
+      told.state = { times: [...at], x: last.x, penalty: last.penalty };
     throw new HumanRefusal({
       kind: "reach",
       axis: worst.axis,
