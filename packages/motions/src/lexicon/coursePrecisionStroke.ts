@@ -57,6 +57,10 @@ export function coursePrecisionStroke(
   second?: AutoMovieHumanSide,
 ): IAutoMovieMotionHumanActionPlan {
   let fastest: number | undefined;
+  // Two hands already closed on the implement hold its goals from the first
+  // instant, seeded on the rest, with no reach to close them; one hand
+  // reaches to its backswing first.
+  const ready: number = second === undefined ? clock.at("ready") : 0;
   return courseArmGoal({
     body,
     side,
@@ -64,7 +68,7 @@ export function coursePrecisionStroke(
     rest: AutoMovieMotionHumanArm.angles(entry, side),
     span: {
       start: 0,
-      ready: clock.at("ready"),
+      ready,
       relax: clock.at("relax"),
       end: clock.duration,
     },
@@ -74,15 +78,16 @@ export function coursePrecisionStroke(
         // The reach from the entry to the backswing, a minimum-jerk
         // movement over the stroke's preparation: its peak is 15/8 of its
         // mean speed.
-        (15 / 8) *
-          (Vector3.length(
-            Vector3.subtract(
-              plan.posture(clock.at("ready")).limbs[`${side}Arm`]?.point ??
-                hand,
-              hand,
-            ),
-          ) /
-            clock.at("ready")),
+        ready > 0
+          ? (15 / 8) *
+              (Vector3.length(
+                Vector3.subtract(
+                  plan.posture(ready).limbs[`${side}Arm`]?.point ?? hand,
+                  hand,
+                ),
+              ) /
+                ready)
+          : 0,
         // The return from the stroke's end to the entry's place, over the
         // stroke's recovery, the same minimum-jerk peak.
         (15 / 8) *

@@ -1,17 +1,44 @@
 import { createBall } from "@automovie/archetypes";
-import { AutoMovieComposition } from "@automovie/engine";
+import { AutoMovieComposition, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBallPlay,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanStand,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPerformance,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+/**
+ * The ball held in the right hand from the start, for the plays whose
+ * acceptance starts with the ball in hand rather than a pick-up from the
+ * floor: a stand that holds it.
+ */
+const HOLD: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
+  {
+    ...stand,
+    name: "playFixtureHold",
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
+    ): IAutoMovieMotionHumanActionPlan => ({
+      ...stand.plan(context),
+      holds: [{ side: "right", prop: "ball", from: 0 }],
+    }),
+  };
 
 /** One player's play composed from shipped laws. */
 interface IPlay {
@@ -75,6 +102,26 @@ interface IPlayer {
 export function test_motion_exercise_campaign_plays(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const ring: IAutoMovieVector3 = { x: 0, y: 3.05, z: 1.6 };
+  // The right hand's grip at the quiet stance, where a held ball starts.
+  const hand: IAutoMovieVector3 = HumanHand.frame(
+    body,
+    new HumanPerformance({
+      seed: "play-ready",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a").stand({ seconds: 0.2, sway: 0 })
+        .node,
+    }).bones("a", 0),
+    "right",
+    "grip",
+  ).point;
   const plays: readonly IPlay[] = [
     {
       name: "#3880 jump stop",
@@ -102,7 +149,7 @@ export function test_motion_exercise_campaign_plays(): void {
           yaw: 0,
           compose: (chain) =>
             chain
-              .pickUp({ prop: "ball", handle: "grip", lift: 0.8 })
+              .registered(HOLD.name, { seconds: 0.2, sway: 0 })
               .jump({ to: { x: 0, y: 0, z: 0.6 } })
               .over((upper) =>
                 upper.throwObject({
@@ -125,7 +172,7 @@ export function test_motion_exercise_campaign_plays(): void {
           yaw: 0,
           compose: (chain) =>
             chain
-              .pickUp({ prop: "ball", handle: "grip", lift: 0.8 })
+              .registered(HOLD.name, { seconds: 0.2, sway: 0 })
               .jump({ to: { x: 0, y: 0, z: 0.4 } })
               .over((upper) =>
                 upper.throwObject({
@@ -168,7 +215,7 @@ export function test_motion_exercise_campaign_plays(): void {
           yaw: 0,
           compose: (chain) =>
             chain
-              .pickUp({ prop: "ball", handle: "grip", lift: 0.8 })
+              .registered(HOLD.name, { seconds: 0.2, sway: 0 })
               .jump({ to: { x: 0, y: 0, z: 0.5 } })
               .over((upper) =>
                 upper.throwObject({
@@ -221,7 +268,7 @@ export function test_motion_exercise_campaign_plays(): void {
           yaw: 0,
           compose: (chain) =>
             chain
-              .pickUp({ prop: "ball", handle: "grip", lift: 0.8 })
+              .registered(HOLD.name, { seconds: 0.2, sway: 0 })
               .ballSport(
                 { kind: "setShot", prop: "ball", at: ring, flightSeconds: 1 },
                 "shot",
@@ -273,14 +320,23 @@ export function test_motion_exercise_campaign_plays(): void {
       );
     const take: HumanPerformance = new HumanPerformance({
       seed: play.name,
+      laws: [HOLD],
       performers,
       props:
         play.ball === undefined
           ? []
           : [
               HumanObject.prop("ball", createBall({ kind: play.ball }), {
-                at: play.ballAt ?? { x: 0.25, y: 0, z: 0.45 },
-                yaw: 0,
+                ...(play.ballAt === undefined
+                  ? {
+                      position: Vector3.subtract(
+                        hand,
+                        createBall({ kind: play.ball }).affordance("grip").frame
+                          .translation,
+                      ),
+                      rotation: Quaternion.identity(),
+                    }
+                  : { at: play.ballAt, yaw: 0 }),
               }),
             ],
       composition: AutoMovieComposition.parallel(
