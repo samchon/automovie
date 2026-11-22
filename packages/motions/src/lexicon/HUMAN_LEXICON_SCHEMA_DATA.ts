@@ -22449,6 +22449,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "grade": {
             "type": "number",
             "description": "Descent angle in degrees along the entry heading, in [-20, 20]. Absent is level."
+          },
+          "slope": {
+            "type": "string",
+            "description": "Scene subject id of the slope the skis glide on, whose surface descends at `grade`; required with a nonzero grade, and absent on level snow, where the skis bear on the ground."
           }
         },
         "required": [
