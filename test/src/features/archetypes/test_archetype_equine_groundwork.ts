@@ -5,6 +5,7 @@ import {
   type ArchetypeSpan,
   EquineHobble,
   EquineLunge,
+  EquineLungeLine,
   EquineStance,
   EquineTie,
   QuadrupedBody,
@@ -183,9 +184,9 @@ export function test_archetype_equine_groundwork(): void {
   }
 
   // 2. The line, from the line hand to the halter.
-  const hand: EquineLunge.IHand = { height: 1.05, reach: 0.4, spread: 0.2 };
+  const hand: EquineLungeLine.IHand = { height: 1.05, reach: 0.4, spread: 0.2 };
   const length: number = 9.14;
-  const lined: Ride = EquineLunge.line(
+  const lined: Ride = EquineLungeLine.layer(
     lunge,
     "lead",
     centre,

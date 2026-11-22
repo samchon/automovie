@@ -15,6 +15,7 @@ export * from "./EquineHobbleCue";
 export * from "./EquineHobbleRows";
 export * from "./EquineLine";
 export * from "./EquineLunge";
+export * from "./EquineLungeLine";
 export * from "./EquineHeadCourse";
 export * from "./EquineLiberty";
 export * from "./EquineLibertyCue";

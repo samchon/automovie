@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -12,7 +12,6 @@ import {
   ArchetypeRefusal,
   type ArchetypeRide,
 } from "../core";
-import { EquineLine } from "./EquineLine";
 import { EquineStance } from "./EquineStance";
 import type { EquineStanceCue } from "./EquineStanceCue";
 import { QuadrupedBody } from "./QuadrupedBody";
@@ -39,7 +38,7 @@ interface ISegment<Id extends string, D extends string> {
  *
  * A circle is refused when it is tighter than a work's gait admits: on a circle of radius r at speed v the hooves `d` either side of the path's line travel at v(r ∓ d)/r, and both must stay within the gait's admitted speeds (`QuadrupedGait.range`), so r ≥ max(d·v/(v − v_min), d·v/(v_max − v)), the bound a team horse's turn is held to. Two consecutive reins on the same side, which no change of rein joins, are refused.
  *
- * `line` lays the equid's lead out as the lunge line to the handler's line hand at the centre (`EquineLine`).
+ * `EquineLungeLine` lays the equid's lead out as the lunge line to the handler's line hand at the centre.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each rein's course, the speeds, the lean, the halt, the turns and the refusals.
  * @evidence contracts/development/design.md#principled-representation A centre, a radius, a starting bearing and the reins with their works, in metres, seconds and degrees.
@@ -137,41 +136,6 @@ export namespace EquineLunge {
 
     /** Seconds it stands facing the handler at each halt, at least 0. */
     face: number;
-  }
-
-  /**
-   * The handler's line hand: where the lunge line leaves it, in the frame of the handler at the centre facing the equid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Metres: up from the floor, out toward the equid and aside toward the rein's side.
-   * @evidence contracts/development/design.md#principled-representation Three distances.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `line` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IHand {
-    /** Height above the floor, metres. */
-    height: number;
-
-    /** Distance out from the centre toward the equid, metres. */
-    reach: number;
-
-    /** Distance aside toward the rein's side, the side the equid's head is on, metres. */
-    spread: number;
-  }
-
-  /**
-   * A change of the line from one hand to the other at a change of rein, on the film clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Film seconds; three phases of equal seconds: in to the middle, held there while the other hand takes it, out to the other side.
-   * @evidence contracts/development/design.md#principled-representation A start and a phase length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `line` reads; the handler's law changes hands on the same clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IChange {
-    /** Film second the line hand starts in to the middle. */
-    from: number;
-
-    /** Seconds each of the three phases takes, positive. */
-    phase: number;
   }
 
   /**
@@ -423,69 +387,6 @@ export namespace EquineLunge {
         );
       },
     };
-  }
-
-  /**
-   * Lay the equid's lead out as the lunge line to the handler's line hand at the centre.
-   *
-   * @param ride The lunge, after any layer that moves the head's contacts.
-   * @param lead The lead's held-run contact.
-   * @param centre Where the handler stands.
-   * @param side The side of the handler the line hand is on at the start.
-   * @param hand Where the line leaves the hand.
-   * @param length The line's whole length, metres.
-   * @param change When the line passes to the other hand at a change of rein; kept in the one hand when absent.
-   * @returns The ride with the line laid.
-   * @throws {ArchetypeRefusal} As `EquineLine.layer` refuses a stretched line.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame the hand is read in.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand stands out from the centre toward the equid's root, aside toward the line hand's side and up by its height; across a change it comes in to the middle over one phase on a minimum-jerk share, stays there through the second while the other hand takes it, and goes out to the other side over the third; the line runs from there to the halter.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One held point per sample.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One placement read per sample beyond the layer's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `EquineLine`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the ride and the hand.
-   */
-  export function line<Id extends string, D extends string>(
-    ride: ArchetypeRide.IRide<Id, D>,
-    lead: Id,
-    centre: IPoint,
-    side: Side,
-    hand: IHand,
-    length: number,
-    change?: IChange,
-  ): ArchetypeRide.IRide<Id, D> {
-    const sign: number = side === "left" ? 1 : -1;
-    const aside = (seconds: number): number => {
-      if (change === undefined) return sign;
-      const local: number = (seconds - change.from) / change.phase;
-      if (local <= 0) return sign;
-      if (local < 1) return sign * (1 - minimumJerk.share(local));
-      if (local < 2) return 0;
-      return -sign * minimumJerk.share(Math.min(1, local - 2));
-    };
-    return EquineLine.layer(
-      ride,
-      lead,
-      (
-        seconds: number,
-        sample: ArchetypeRide.ISample<Id, D>,
-      ): IAutoMovieVector3 => {
-        const root: IAutoMovieVector3 = sample.placement.translation;
-        const out: IAutoMovieVector3 = Vector3.normalize({
-          x: root.x - centre.x,
-          y: 0,
-          z: root.z - centre.z,
-        });
-        const across: number = hand.spread * aside(seconds);
-        return {
-          x: centre.x + out.x * hand.reach + out.z * across,
-          y: hand.height,
-          z: centre.z + out.z * hand.reach - out.x * across,
-        };
-      },
-      length,
-    );
   }
 
   /** Half the hooves' lateral spacing at rest, metres: the fore pair's. */
