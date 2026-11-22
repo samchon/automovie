@@ -1,6 +1,5 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -13,10 +12,8 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -24,14 +21,12 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
+import { HumanMountOnFrame } from "./HumanMountOnFrame";
 import { HumanMountPlace } from "./HumanMountPlace";
 import { HumanMountPush } from "./HumanMountPush";
 
-/** Where the pelvis is at an instant of getting on: the root, the heading, the pelvis pitch and the set joints. */
-type Frame = Pick<
-  IAutoMovieMotionHumanPosture,
-  "root" | "yaw" | "pitch" | "roll" | "joints"
->;
+/** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
+type Frame = HumanMountOnFrame.Frame;
 
 /**
  * Getting onto a high seat, or a seat sat astride, from standing beside or
@@ -105,12 +100,8 @@ export namespace HumanMountOn {
       manner?: IAutoMovieMotionManner;
     }>,
     seat: IAutoMovieMotionHumanSeated.ISeat,
-    final: {
-      pitch: number;
-      joints: Partial<
-        Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-      >;
-    },
+    final: HumanMountOnFrame.IFinal,
+
     turn: number,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
@@ -157,77 +148,21 @@ export namespace HumanMountOn {
     );
     const contact: number = 0.8 * climb;
     const hop: number = settled ? 0 : HumanMount.HOP * m.thigh;
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
-      ...stand.relaxed(body),
-      ...standUpright.of(body).joints,
-    };
-    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
-      Object.entries(final.joints) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][];
-
-    // The pelvis crosses to a saddle late, after the far leg has left the floor; it backs onto a stool from the start.
-    const crossing: readonly [number, number] = astride
-      ? [0.3 * climb, contact]
-      : [0, 0.7 * climb];
-    const frameAt = (t: number): Frame => {
-      const across: number = minimumJerk.share(
-        (t - crossing[0]) / (crossing[1] - crossing[0]),
-      );
-      const socket: IAutoMovieVector3 = {
-        x: start.x + (goal.x - start.x) * across,
-        y:
-          start.y +
-          (goal.y + hop - start.y) *
-            minimumJerk.share((t - 0.1 * climb) / (0.45 * climb)) -
-          hop * minimumJerk.share((t - 0.55 * climb) / (0.25 * climb)),
-        z: start.z + (goal.z - start.z) * across,
-      };
-      const settle: number = minimumJerk.share(
-        (t - 0.6 * climb) / (0.4 * climb),
-      );
-      const lean: number =
-        t < 0.6 * climb
-          ? HumanMount.LEAN * minimumJerk.share(t / (0.4 * climb))
-          : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
-      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
-      for (const [bone, a] of finish) {
-        const was: readonly [number, number, number] = joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [
-          was[0] + a[0] * settle,
-          was[1] + a[1] * settle,
-          was[2] + a[2] * settle,
-        ];
-      }
-      // The hanging arms open out while the legs climb, clear of a thigh
-      // the leading leg lifts, and close again as the body settles.
-      const open: number =
-        HumanMount.OPEN * minimumJerk.share(t / (0.3 * climb)) * (1 - settle);
-      for (const side of ["left", "right"] as const) {
-        const arm: readonly [number, number, number] = joints[
-          `${side}UpperArm`
-        ] ?? [0, 0, 0];
-        joints[`${side}UpperArm`] = [arm[0], arm[1] + open, arm[2]];
-      }
-      const tilt: {
-        pitch: number;
-        joints: IAutoMovieMotionHumanPosture["joints"];
-      } = HumanTrunk.incline(joints, lean);
-      const yaw: number = yaw0 + turn * across;
-      // A tipped or tilted seat, as a saddle on a grade, tips the pelvis with it as the body crosses onto it.
-      const pitch: number = tilt.pitch + (seat.pitch ?? 0) * across;
-      const roll: number = (seat.roll ?? 0) * across;
-      return {
-        root: seated.root(body, socket, { yaw, pitch, roll }),
-        yaw,
-        pitch,
-        roll,
-        joints: tilt.joints,
-      };
-    };
+    const crossing: readonly [number, number] = HumanMountOnFrame.crossing(
+      climb,
+      astride,
+    );
+    const frameAt: (t: number) => Frame = HumanMountOnFrame.of({
+      body,
+      seat,
+      start,
+      goal,
+      climb,
+      hop,
+      yaw: yaw0,
+      turn,
+      final,
+    });
     const hipsAt = (t: number): Record<"left" | "right", IAutoMovieVector3> => {
       const frame: Frame = frameAt(t);
       return hipJoints(
