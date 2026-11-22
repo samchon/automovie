@@ -115,12 +115,46 @@ export function operateLongInsert(
     context,
     mechanism,
   );
+  // The hands' attitudes on the staff's line: the carrying hand's at the
+  // presentation, the steadying hand's a power grip from its side (its
+  // approach, square to the bore's line from its shoulder, is the same
+  // wherever along the line it holds).
+  const presentation: IAutoMovieMotionHumanArmTarget.ITarget = operateInsert
+    .prepareMoving(context, mechanism, tool, props.socket)
+    .target(context.entry.posture, 0);
+  const shoulderA: IAutoMovieVector3 = bones.get(`${A}UpperArm`)!.worldPosition;
+  const shoulderB: IAutoMovieVector3 = bones.get(`${B}UpperArm`)!.worldPosition;
+  const offB: IAutoMovieVector3 = Vector3.subtract(at(0), shoulderB);
+  const approach: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(offB, Vector3.scale(n, Vector3.dot(offB, n))),
+  );
+  const turnB: IAutoMovieQuaternion = HumanGrasp.hand(body, B, {
+    point: at(0),
+    approach,
+    axis: inward,
+    width: run.width,
+  }).rotation;
+  // Each wrist lies a fixed offset behind its grip on the line, the grip's
+  // own offset in the hand turned by the hand's fixed attitude; the arm's
+  // reach bounds the wrist, so each grip reaches the line as from its
+  // shoulder moved on by that offset.
+  const wrist: (
+    side: AutoMovieHumanSide,
+    turn: IAutoMovieQuaternion,
+  ) => IAutoMovieVector3 = (
+    side: AutoMovieHumanSide,
+    turn: IAutoMovieQuaternion,
+  ): IAutoMovieVector3 =>
+    Quaternion.rotateVector(
+      turn,
+      HumanHand.offset(body, side, "grip", "relaxed").point,
+    );
   const course: operateLongInsertCourse.IResult = operateLongInsertCourse({
     mouth: props.socket.point,
     normal: n,
     shoulders: {
-      A: bones.get(`${A}UpperArm`)!.worldPosition,
-      B: bones.get(`${B}UpperArm`)!.worldPosition,
+      A: Vector3.add(shoulderA, wrist(A, presentation.rotation)),
+      B: Vector3.add(shoulderB, wrist(B, turnB)),
     },
     step: toward,
     reach: props.reach * (body.measure.upperArm + body.measure.forearm),
@@ -131,25 +165,6 @@ export function operateLongInsert(
     depth: mechanism.depth!,
     withdraw: true,
   });
-
-  // The hands' attitudes on the staff's line: the carrying hand's at the
-  // presentation, the steadying hand's a power grip from its side.
-  const presentation: IAutoMovieMotionHumanArmTarget.ITarget = operateInsert
-    .prepareMoving(context, mechanism, tool, props.socket)
-    .target(context.entry.posture, 0);
-  const steady: IAutoMovieVector3 = at(course.presented.uB);
-  const shoulderB: IAutoMovieVector3 = bones.get(`${B}UpperArm`)!.worldPosition;
-  const offB: IAutoMovieVector3 = Vector3.subtract(steady, shoulderB);
-  const approach: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(offB, Vector3.scale(n, Vector3.dot(offB, n))),
-  );
-  const turnB: IAutoMovieQuaternion = HumanGrasp.hand(body, B, {
-    point: steady,
-    approach,
-    axis: inward,
-    width: run.width,
-  }).rotation;
-
   // Each step's walk, from the stance it leaves.
   const stepped: (
     from: number,
@@ -353,6 +368,20 @@ export function operateLongInsert(
       bend: { x: 0, y: 0, z: 0 },
     }),
   );
+  // The steadying hand's bearing on the staff over a share of the act.
+  const steadied: (
+    from: number,
+    to: number,
+  ) => IAutoMovieMotionHumanContactWindow = (
+    from: number,
+    to: number,
+  ): IAutoMovieMotionHumanContactWindow => ({
+    part: `${B}Hand`,
+    kind: "grip",
+    from,
+    to,
+    support: { kind: "prop", subject: mechanism.prop, carries: false },
+  });
   const composed: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({
       base,
@@ -361,8 +390,20 @@ export function operateLongInsert(
       primitives: [carrying, steadying],
     });
   // The carrying hand holds the staff throughout, the staff moving in it as
-  // it slides; the steadying hand bears on it without carrying it.
+  // it slides; the steadying hand bears on it without carrying it wherever
+  // it keeps its place on the staff, and lets go of it as it slides along.
   const along: IAutoMovieVector3 = tool.axis;
+  const bears: IAutoMovieMotionHumanContactWindow[] = [];
+  let since: number = ready;
+  course.segments.forEach(
+    (s: operateLongInsertCourse.ISegment, k: number): void => {
+      if (s.kind !== "slideB") return;
+      if (starts[k]! > since)
+        bears.push(steadied(since / duration, starts[k]! / duration));
+      since = starts[k]! + lengths[k]!;
+    },
+  );
+  if (relax > since) bears.push(steadied(since / duration, relax / duration));
   return {
     ...composed,
     hands: [A, B],
@@ -379,13 +420,7 @@ export function operateLongInsert(
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         }),
       },
-      {
-        part: `${B}Hand`,
-        kind: "grip",
-        from: ready / duration,
-        to: relax / duration,
-        support: { kind: "prop", subject: mechanism.prop, carries: false },
-      },
+      ...bears,
     ],
   };
 }

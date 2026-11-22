@@ -223,16 +223,23 @@ function hose(
   const tip = model.affordance("tip").frame;
   const height: number = body.measure.hipHeight + 0.1;
   // The line runs by the operator's right hand; the backup stands on its
-  // run, so it lies before the backup's middle for both hands.
+  // run, so it lies before the backup's middle for both hands, a forearm
+  // ahead of the chest at the backup's grip.
   const run: number = -0.2;
+  // The line's tail, its nozzle grip just ahead of the operator.
+  const tail: number = 0.35 - 3;
+  const behind: number =
+    tail +
+    model.affordance("backup").frame.translation.z -
+    (body.measure.chestDepth / 2 + body.measure.forearm);
   const props: IAutoMovieMotionHumanProp[] = [
-    everydayTake.prop("hose", model, { x: run, y: height, z: 0.35 - 3 }),
+    everydayTake.prop("hose", model, { x: run, y: height, z: tail }),
   ];
   const [operator, second] = HumanFirefight.hoseTeam(
     { chain: HumanChain.subject("actor").stand(), at: { x: 0, y: 0, z: 0 } },
     {
       chain: HumanChain.subject("backup").stand(),
-      at: { x: run, y: 0, z: -1.1 },
+      at: { x: run, y: 0, z: behind },
     },
     { prop: "hose", target: TARGET, sweeps: 1 },
   );
@@ -246,7 +253,7 @@ function hose(
       {
         subject: "backup",
         body,
-        at: { x: run, y: 0, z: -1.1 },
+        at: { x: run, y: 0, z: behind },
         yaw: 0,
         chain: second,
       },
@@ -343,12 +350,16 @@ function flames(
   checks: motionComplaints.IGatherer,
 ): void {
   const cloth = createPalette({ id: "sack", kind: "cloth" });
-  // The victim lies across the way ahead; the helper kneels on both knees
-  // beside their chest, the first knee abreast of the sternum a knee's
-  // breadth (two shank radii) off their flank, which lies half a chest's
-  // breadth from their midline. Where the sternum lies is read off the
-  // victim's own lying pose, turned and placed as the victim is.
-  const lying: number = 0.9 * (body.measure.upperArm + body.measure.forearm);
+  // The helper kneels on both knees where it stands, the first knee over the
+  // middle of its own foot; the victim lies across before it, placed so the
+  // sternum lies abreast of that knee, the flank a knee's breadth (two shank
+  // radii) off it and the sternum half a chest's breadth beyond. Where the
+  // sternum lies in the victim's own lying pose is read off that pose.
+  const knee: IAutoMovieVector3 = {
+    x: -body.measure.hipHalfWidth,
+    y: 0,
+    z: body.measure.footLength / 2 - body.measure.heel,
+  };
   const alone: HumanPerformance = everydayTake.perform(
     `firefight-${label}-lying`,
     body,
@@ -361,20 +372,21 @@ function flames(
   const torso: IAutoMovieResolvedBone = alone
     .bones("actor", down.end)
     .get(region.bone)!;
-  const sternum: IAutoMovieVector3 = Vector3.add(
-    { x: 0.1, y: 0, z: lying },
-    Quaternion.rotateVector(
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
-      Vector3.add(
-        torso.worldPosition,
-        Quaternion.rotateVector(torso.worldRotation, region.point),
-      ),
+  const own: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    Vector3.add(
+      torso.worldPosition,
+      Quaternion.rotateVector(torso.worldRotation, region.point),
     ),
   );
-  const knee: IAutoMovieVector3 = {
-    x: sternum.x,
+  const victim: IAutoMovieVector3 = {
+    x: knee.x - own.x,
     y: 0,
-    z: lying - body.measure.chestBreadth / 2 - 2 * body.measure.shankRadius,
+    z:
+      knee.z +
+      2 * body.measure.shankRadius +
+      body.measure.chestBreadth / 2 -
+      own.z,
   };
   const props: IAutoMovieMotionHumanProp[] = [
     everydayTake.prop("sack", cloth, { x: -0.3, y: 0.9, z: 0.25 }),
@@ -404,7 +416,7 @@ function flames(
       {
         subject: "victim",
         body,
-        at: { x: 0.1, y: 0, z: lying },
+        at: victim,
         yaw: 90,
         chain: HumanChain.subject("victim").lieDown({}),
       },
