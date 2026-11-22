@@ -204,17 +204,25 @@ export function planHumanArmTrajectory(
     // the path solved again from itself at the penalty it reached, until
     // the reading admits it or the affected intervals are already frames.
     while (solved.evaluation.worst.value > M.TOLERANCE && context.n < fine.n) {
-      // A hand that misses its site or a task point at a knot itself misses
-      // it with every freedom the path had there: a finer interval adds no
-      // configuration that reaches it, only a larger problem to solve again.
-      // Such a path is refused as it stands, naming what holds the hand off,
-      // instead of being refined down to the frame grid at growing cost.
-      const knotted: ReadonlySet<number> = new Set(knots);
+      // A hand that misses its site or a task point at a knot whose two
+      // intervals are already single frames misses it with every freedom a
+      // path can have there: no finer interval exists about it, only a larger
+      // problem to solve again. Such a path is refused as it stands, naming
+      // what holds the hand off. A knot with a wider interval beside it may
+      // miss only because the few knots' interpolant pulls it off, so its
+      // intervals are split as any failing frame's.
+      const framed: ReadonlySet<number> = new Set(
+        knots.filter(
+          (g: number, i: number): boolean =>
+            (i === 0 || g - knots[i - 1]! <= 1) &&
+            (i === knots.length - 1 || knots[i + 1]! - g <= 1),
+        ),
+      );
       if (
         (solved.evaluation.worst.term === "site" ||
           solved.evaluation.worst.term === "limit") &&
         solved.evaluation.failing.some(
-          (failed: boolean, g: number): boolean => failed && knotted.has(g),
+          (failed: boolean, g: number): boolean => failed && framed.has(g),
         )
       )
         break;
