@@ -2,16 +2,21 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieMotionHumanWeaponHeld,
   IAutoMovieMotionHumanWeaponPresent,
   IAutoMovieMotionPropDrive,
   IAutoMovieMotionPropLaunch,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -25,7 +30,9 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -260,7 +267,7 @@ export namespace HumanWeaponPresent {
           )?.share ?? 0) * presented.duration;
         return courseArmGoal({
           body: context.body,
-          plan: presented,
+          plan: placedElbows(context.body, presented, tool.side),
           side: tool.side,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, tool.side),
           grasp: ["hand"],
@@ -384,11 +391,26 @@ export namespace HumanWeaponPresent {
           context.body,
           context.entry.pose,
         );
-        const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
+        const entered: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
           point: HumanHand.frame(context.body, bones, s.tool.side, "grip")
             .point,
           rotation: bones.get(`${s.tool.side}Hand`)!.worldRotation,
         };
+        // Over a carrier the hand is laid on the chest the carrier holds at
+        // the shot's own start, kept where the entry put it on the chest, so
+        // a moving support never leaves the shot's hand behind; on foot it is
+        // the entry's own.
+        const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+          context.carrier === undefined
+            ? entered
+            : onChest(
+                entered,
+                bones.get("chest")!,
+                poseBones(
+                  context.body,
+                  resolveHumanPosture(context.body, context.carrier.posture(0)),
+                ).get("chest")!,
+              );
         const bore: IAutoMovieVector3 = Quaternion.rotateVector(
           held.rotation,
           s.tool.axis,
@@ -525,7 +547,7 @@ export namespace HumanWeaponPresent {
           s.tool.side === "left" ? "right" : "left";
         return courseArmGoal({
           body: context.body,
-          plan: shooting,
+          plan: placedElbows(context.body, shooting, s.tool.side),
           side: s.tool.side,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, s.tool.side),
           grasp: ["hand"],
@@ -545,4 +567,123 @@ export namespace HumanWeaponPresent {
         });
       },
     };
+}
+
+/** A hand frame kept on a chest: where it lay on one chest's frame, carried onto another's. */
+function onChest(
+  hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+  then: IAutoMovieResolvedBone,
+  now: IAutoMovieResolvedBone,
+): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
+  const back: IAutoMovieQuaternion = Quaternion.inverse(then.worldRotation);
+  return {
+    point: Vector3.add(
+      now.worldPosition,
+      Quaternion.rotateVector(
+        now.worldRotation,
+        Quaternion.rotateVector(
+          back,
+          Vector3.subtract(hand.point, then.worldPosition),
+        ),
+      ),
+    ),
+    rotation: Quaternion.multiply(
+      now.worldRotation,
+      Quaternion.multiply(back, hand.rotation),
+    ),
+  };
+}
+
+/**
+ * Two arms on one weapon with their elbows placed outside each other: at each second each arm's elbow is put on the circle one upper arm from its shoulder and one forearm from its wrist, at the point nearest outward and a little down on its own side, and the goal names it authoritative (`elbow: "placed"`); an arm whose wrist lies past its reach keeps the law's own hint.
+ */
+function placedElbows(
+  body: IAutoMovieMotionHumanBody,
+  plan: IAutoMovieMotionHumanActionPlan,
+  side: AutoMovieHumanSide,
+): IAutoMovieMotionHumanActionPlan {
+  const sides: readonly AutoMovieHumanSide[] = [
+    side,
+    side === "left" ? "right" : "left",
+  ];
+  return {
+    ...plan,
+    posture: (
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture => {
+      const posture: IAutoMovieMotionHumanPosture = plan.posture(
+        seconds,
+        channels,
+        resolution,
+        projection,
+      );
+      const trunk: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
+        body,
+        posture,
+      );
+      const chest: IAutoMovieQuaternion = trunk.get("chest")!.worldRotation;
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+      for (const arm of sides) {
+        const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${arm}Arm`];
+        if (goal === undefined || goal.rotation === undefined) continue;
+        const shoulder: IAutoMovieVector3 = trunk.get(
+          `${arm}UpperArm`,
+        )!.worldPosition;
+        const wrist: IAutoMovieVector3 = HumanHand.place(
+          body,
+          arm,
+          "grip",
+          goal.point,
+          goal.rotation,
+          "relaxed",
+        ).point;
+        const outward: IAutoMovieVector3 = Vector3.normalize(
+          Quaternion.rotateVector(chest, {
+            x: arm === "left" ? 1 : -1,
+            y: -0.5,
+            z: 0,
+          }),
+        );
+        const elbow: IAutoMovieVector3 | undefined = elbowOn(
+          shoulder,
+          wrist,
+          body.measure.upperArm,
+          body.measure.forearm,
+          outward,
+        );
+        if (elbow === undefined) continue;
+        limbs[`${arm}Arm`] = { ...goal, bend: elbow, elbow: "placed" };
+      }
+      return { ...posture, limbs };
+    },
+  };
+}
+
+/** The elbow one upper arm from the shoulder and one forearm from the wrist nearest a direction, or undefined when the wrist lies past the arm's reach. */
+function elbowOn(
+  shoulder: IAutoMovieVector3,
+  wrist: IAutoMovieVector3,
+  upper: number,
+  fore: number,
+  toward: IAutoMovieVector3,
+): IAutoMovieVector3 | undefined {
+  const span: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
+  const d: number = Vector3.length(span);
+  if (!(d > 1e-9) || d >= upper + fore || d <= Math.abs(upper - fore))
+    return undefined;
+  const axis: IAutoMovieVector3 = Vector3.scale(span, 1 / d);
+  const along: number = (d * d + upper * upper - fore * fore) / (2 * d);
+  const radius: number = Math.sqrt(Math.max(0, upper * upper - along * along));
+  const square: IAutoMovieVector3 = Vector3.subtract(
+    toward,
+    Vector3.scale(axis, Vector3.dot(toward, axis)),
+  );
+  if (!(Vector3.length(square) > 1e-9)) return undefined;
+  return Vector3.add(
+    Vector3.add(shoulder, Vector3.scale(axis, along)),
+    Vector3.scale(Vector3.normalize(square), radius),
+  );
 }
