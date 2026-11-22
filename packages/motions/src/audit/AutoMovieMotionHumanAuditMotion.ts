@@ -95,12 +95,14 @@ export namespace AutoMovieMotionHumanAuditMotion {
 
   /**
    * The floor under one foot and its leg, where the person stands on two
-   * levels (a tread and the next, the two sides of a step): the ground the
-   * foot's own bearing contact declares while it bears; between its
-   * contacts, the lower of the ground it left and the ground it lands on,
-   * the levels its swing travels between; the person's floor (`floors`)
-   * where the foot declares no ground of its own, and none where the person
-   * has none.
+   * levels (a tread and the next, the two sides of a step): the lowest of
+   * the person's floor (`floors`), the ground the foot's own bearing
+   * contact declares while it bears and, between its contacts, the ground
+   * it left and the ground it lands on, the levels its swing travels
+   * between; none where the person has none. It is never above the
+   * person's floor: a foot leaving a lower tread is read on that tread, and
+   * a foot resting on a raised footrest, which declares a height and not a
+   * plane, is read no higher than the person's.
    *
    * @param motion The motion.
    * @param subject The person.
@@ -134,15 +136,12 @@ export namespace AutoMovieMotionHumanAuditMotion {
       let next: IAutoMovieMotionHumanAuditMotionContract.IWindow | undefined;
       for (const w of own) {
         if (w.from <= seconds + 1e-9 && seconds <= w.to + 1e-9)
-          return ground(w) ?? floor;
+          return Math.min(floor, ground(w) ?? floor);
         if (w.to < seconds && (last === undefined || w.to > last.to)) last = w;
         if (w.from > seconds && (next === undefined || w.from < next.from))
           next = w;
       }
-      const left: number | undefined = ground(last);
-      const landing: number | undefined = ground(next);
-      if (left === undefined) return landing === undefined ? floor : Math.min(floor, landing);
-      return landing === undefined ? left : Math.min(left, landing);
+      return Math.min(floor, ground(last) ?? floor, ground(next) ?? floor);
     };
   }
 
