@@ -38,6 +38,9 @@ export namespace HumanPerformanceHold {
   /** Active samples on one socket path. Each subject is indexed by film second. */
   type AutoMovieMountPath = Map<string, Set<number>>;
 
+  /** The hands being read, by performer and second: a re-entrant read is a posture reading the prop its own hand holds. */
+  const HANDS: AutoMovieMountPath = new Map();
+
   /**
    * A prop's world frame at a film second (`HumanPerformanceRead.prop`).
    *
@@ -217,8 +220,31 @@ export namespace HumanPerformanceHold {
           if (times.size === 0) visited.delete(subject);
         }
       }
-      if (w.bone === undefined)
-        return HumanPerformanceRead.hand(self, w.subject, w.side, at);
+      if (w.bone === undefined) {
+        // A posture that reads a prop its own performer holds would read the
+        // very hand it is still placing: the read re-enters at the same
+        // second. It reads the hand where the grip took the prop instead, an
+        // earlier instant, never the fit in progress.
+        const reading: Set<number> = HANDS.get(w.subject) ?? new Set();
+        if (reading.has(at)) {
+          if (w.from < at && !reading.has(w.from)) return carrier(w, w.from);
+          throw new HumanRefusal({
+            kind: "parameter",
+            axis: `props.${subject}.held`,
+            value: subject,
+            reason: `placing ${w.subject}'s ${w.side} hand at ${at} s reads ${subject}, which that hand holds`,
+            fix: "build the goal from the law's own carrying hand, not from the held prop's displayed frame",
+          });
+        }
+        HANDS.set(w.subject, reading);
+        reading.add(at);
+        try {
+          return HumanPerformanceRead.hand(self, w.subject, w.side, at);
+        } finally {
+          reading.delete(at);
+          if (reading.size === 0) HANDS.delete(w.subject);
+        }
+      }
       const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
         self,
         w.subject,
