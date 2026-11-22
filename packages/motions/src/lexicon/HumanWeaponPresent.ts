@@ -508,10 +508,40 @@ export namespace HumanWeaponPresent {
             attitude: { kind: "velocity" },
           });
         }
-        return HumanWeaponHeld.carried(context, s, {
-          ...shot,
-          ...(drives.length === 0 ? {} : { drives }),
-          ...(launches.length === 0 ? {} : { launches }),
+        const shooting: IAutoMovieMotionHumanActionPlan = HumanWeaponHeld.carried(
+          context,
+          s,
+          {
+            ...shot,
+            ...(drives.length === 0 ? {} : { drives }),
+            ...(launches.length === 0 ? {} : { launches }),
+          },
+        );
+        if (s.support === null) return shooting;
+        // Two hands on one weapon ride the shot in one course, the hands on
+        // it excused from each other, so neither arm is refitted at each
+        // instant and both stay rigid on the weapon through the recoil.
+        const other: AutoMovieHumanSide =
+          s.tool.side === "left" ? "right" : "left";
+        return courseArmGoal({
+          body: context.body,
+          plan: shooting,
+          side: s.tool.side,
+          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, s.tool.side),
+          grasp: ["hand"],
+          span: {
+            start: 0,
+            ready: Math.min(clock.at("strokeStart"), shooting.duration),
+            relax: shooting.duration,
+            end: shooting.duration,
+          },
+          with: [
+            {
+              side: other,
+              rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
+              grasp: ["hand"],
+            },
+          ],
         });
       },
     };
