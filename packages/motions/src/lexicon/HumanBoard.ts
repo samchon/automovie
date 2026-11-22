@@ -307,8 +307,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         body: context.body,
         // The grip holds from the instant the hand reaches its hold.
         plan: {
-          ...goals,
-          contacts: goals.contacts.map(
+          ...local,
+          contacts: local.contacts.map(
             (
               c: IAutoMovieMotionHumanContactWindow,
             ): IAutoMovieMotionHumanContactWindow =>

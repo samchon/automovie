@@ -1,11 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieMotionHumanChannel,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanMounted,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
+  IAutoMoviePose,
+  IAutoMoviePoseResolution,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -301,7 +305,12 @@ export namespace HumanMountedFrame {
   ): IAutoMovieMotionHumanActionPlan {
     const local: IAutoMovieMotionHumanActionPlan = {
       ...plan,
-      posture: (seconds, channels, resolution, projection) =>
+      posture: (
+        seconds: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+        resolution?: IAutoMoviePoseResolution.ISource,
+        projection?: (pose: IAutoMoviePose) => IAutoMoviePose,
+      ): IAutoMovieMotionHumanPosture =>
         move(
           plan.posture(seconds, channels, resolution, projection),
           carrier(start + seconds),
@@ -311,7 +320,12 @@ export namespace HumanMountedFrame {
     const laid: IAutoMovieMotionHumanActionPlan = lay(local);
     return {
       ...laid,
-      posture: (seconds, channels, resolution, projection) =>
+      posture: (
+        seconds: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+        resolution?: IAutoMoviePoseResolution.ISource,
+        projection?: (pose: IAutoMoviePose) => IAutoMoviePose,
+      ): IAutoMovieMotionHumanPosture =>
         move(
           laid.posture(seconds, channels, resolution, projection),
           LOCAL,
