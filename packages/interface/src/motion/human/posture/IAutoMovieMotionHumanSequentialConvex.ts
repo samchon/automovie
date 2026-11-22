@@ -344,7 +344,7 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
     /** The penalties, ascending, each tried while the constraints are not met at the one before. */
     penalties: readonly number[];
 
-    /** Convexifications per penalty at most. */
+    /** Convexifications at most: per penalty of an unsteered ladder, and for the whole of a steered solve, whose raised penalties share one budget. */
     rounds: number;
 
     /** The penalty to start at, a solve continued from another's result (`IResult.penalty`); the first when absent. */
