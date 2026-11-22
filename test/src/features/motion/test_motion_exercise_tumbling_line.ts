@@ -81,9 +81,11 @@ export function test_motion_exercise_tumbling_line(): void {
         ),
     );
     const facing: IAutoMovieVector3 = forward(film, feetDown + 0.05);
+    const handsFirst: boolean = handsDown < feetDown;
+    const facingBack: boolean = facing.z < -0.5;
     TestValidator.predicate(
       `${name} round-off bears on its hands and lands facing back`,
-      handWindow && handsDown < feetDown && facing.z < -0.5,
+      handWindow && handsFirst && facingBack,
     );
 
     // 2. The salto takes off from the landed feet.

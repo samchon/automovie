@@ -84,9 +84,11 @@ export function test_human_motion_bed(): void {
     const turns: readonly IAutoMovieMotionHumanSegment[] = named(segments, "turnOver");
     TestValidator.equals(`${name}: turns over twice`, turns.length, 2);
     const facing: readonly number[] = turns.map((s: IAutoMovieMotionHumanSegment): number => chest(film, s.end - 1e-3).y);
+    const sideways: boolean = Math.abs(facing[0]!) < 0.35;
+    const faceDown: boolean = facing[1]! < -0.8;
     TestValidator.predicate(
       `${name}: on the side the chest faces sideways, face down it faces down (${facing.map((y: number): string => y.toFixed(2)).join(", ")})`,
-      Math.abs(facing[0]!) < 0.35 && facing[1]! < -0.8,
+      sideways && faceDown,
     );
     TestValidator.predicate(
       `${name}: stands at the end`,

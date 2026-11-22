@@ -55,7 +55,7 @@ export namespace HumanPropSweep {
    * @param departing The collider whose existing support or rebound contact the projectile is leaving. Only the engine's certificate can defer its initial contact and it continues to check later entry.
    * @param radius An opt-in spherical radius in metres. Its supplied projectile travels by its centre. Absent, use the prop's point or tip.
    * @param captureHands Gripping hands owned by a staged capture during their final approach. The remaining body surfaces continue to participate.
-   * @param handback The later launch that ends this flight, when one does. The props its performer holds at that launch are left out from the start of the launching action, whose own fit owns the meeting, to the end of the sweep.
+   * @param handback The later launch that ends this flight, when one does. The props its performer holds at that launch are left out from the start of the launching action, whose own fit owns the meeting, to the end of the sweep, and the hands that hold or touch them through that action's approach.
    * @returns The first meeting, or null when it meets nothing before the horizon.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States film/flight clocks, the launcher and pass exclusions, support departure and rebound opt-in, physical certificate scope, first meeting and finite-horizon sweep.
@@ -88,14 +88,18 @@ export namespace HumanPropSweep {
         { x: 0, y: 1, z: 0 },
       ),
     ];
-    // A later launch's touching hands (a deliberate deflection) are left to
-    // that launch through its action, as a staged catch's hands are.
+    // A later launch's touching hands (a deliberate deflection) and the hands
+    // holding its instrument (a racket's grip) are left to that launch through
+    // its action, as a staged catch's hands are: its fit owns the meeting of
+    // the instrument and the hand that carries it.
+    const handedSides: readonly AutoMovieHumanSide[] =
+      handback === undefined ? [] : handbackSides(self, handback);
     const approaches: readonly HumanPropCatchHands.IApproach[] =
-      handback === undefined || handback.hands.length === 0
+      handback === undefined || handedSides.length === 0
         ? captureHands
         : [
             ...captureHands,
-            ...handback.hands.map(
+            ...handedSides.map(
               (side: AutoMovieHumanSide): HumanPropCatchHands.IApproach => ({
                 subject: handback.subject,
                 side,
@@ -290,7 +294,7 @@ export namespace HumanPropSweep {
     /** The film second the launching action starts, from which its fit owns the approach. */
     from: number;
 
-    /** The launcher's hands that meet the prop at that launch (`IAutoMovieMotionPropLaunch.touching`); none for a launch made with a held instrument. */
+    /** The launcher's hands that meet the prop at that launch (`IAutoMovieMotionPropLaunch.touching`); none for a launch made with a held instrument, whose holding hands the sweep reads from the grips. */
     hands: readonly AutoMovieHumanSide[];
   }
 
@@ -319,6 +323,29 @@ export namespace HumanPropSweep {
           ? { distance: Infinity, point: a, normal: { x: 0, y: 1, z: 0 } }
           : collider.nearest(a, b, t),
     };
+  }
+
+  /**
+   * The handback launcher's hands its fit owns at the launch: the hands that
+   * touch the prop and the hands that hold a prop then (the instrument that
+   * strikes), each side once.
+   */
+  function handbackSides(
+    self: IAutoMovieMotionHumanPerformanceState,
+    handback: IHandback,
+  ): AutoMovieHumanSide[] {
+    const sides: Set<AutoMovieHumanSide> = new Set(handback.hands);
+    for (const other of self.props.values())
+      for (const grip of HumanPerformanceRead.grips(self, other.subject))
+        if (
+          grip.subject === handback.subject &&
+          grip.bone === undefined &&
+          grip.mount === undefined &&
+          grip.from <= handback.at &&
+          grip.to >= handback.at - 1e-6
+        )
+          sides.add(grip.side);
+    return [...sides];
   }
 
   /** Whether any action launches a prop. */
