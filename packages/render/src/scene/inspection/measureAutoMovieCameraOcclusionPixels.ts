@@ -256,15 +256,17 @@ export function measureAutoMovieCameraOcclusionPixels(
   });
 }
 
-/** Outcomes of one delivery pixel audit. */
+/**
+ * Outcomes of one delivery pixel audit.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation IResult states each member's units and when zero passes occur.
+ * @evidence contracts/development/design.md#principled-representation Matched isolated and composite counts, or a refusal; without a budget no third, postponed state exists.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface IResult carries the counts and the passes the finding reports, or one reason for the coverage row.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A refusal never carries estimated pixels.
+ */
 export namespace measureAutoMovieCameraOcclusionPixels {
   /**
    * An exact matched count, or the reason the frame cannot be audited.
-   *
-   * @evidence contracts/development/design.md#principled-representation Matched isolated and composite counts, or a refusal; without a budget no third, postponed state exists.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the counts and the passes the finding reports, or one reason for the coverage row.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A refusal never carries estimated pixels.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's units and when zero passes occur.
    */
   export type IResult =
     | {

@@ -43,15 +43,17 @@ export function resolveAutoMovieCollisionHit(
   });
 }
 
-/** Inputs and resolutions of one candidate pair. */
+/**
+ * Inputs and resolutions of one candidate pair.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names each input and states that a resolution is a permitted pair or the witness search's outcome.
+ * @evidence contracts/development/design.md#principled-representation IProps holds the Engine hit, the frame's surfaces and solids, the layer's windows and clock, and the shared budget.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by the placed-frame and motion observers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The budget is shared with the whole observation.
+ */
 export namespace resolveAutoMovieCollisionHit {
   /**
    * One hit and the frame state that decides it.
-   *
-   * @evidence contracts/development/design.md#principled-representation The Engine hit, the frame's surfaces and solids, the layer's windows and clock, and the shared budget.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by the placed-frame and motion observers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The budget is shared with the whole observation.
-   * @evidence contracts/development/common.md#meaningful-documentation Names each input.
    */
   export interface IProps {
     /** The Engine search's observation of the pair. */

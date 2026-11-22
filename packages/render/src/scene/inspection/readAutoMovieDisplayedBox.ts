@@ -199,18 +199,17 @@ function finite(point: THREE.Vector3): boolean {
   );
 }
 
-/** Stock display admission shared with the posed vertex reader. */
+/**
+ * Stock display admission shared with the posed vertex reader.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the admitted material and skin shader relationship, that surface admission covers only the fragment-side appearance, and that the skin envelope bounds the current pose conservatively in world space.
+ * @evidence contracts/development/design.md#principled-representation Admission is a predicate over the current stock material and vertex path, and the skin envelope is the stock skin's own conservative sphere projected by each world affine row.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The collision mesh, instance and cord readers, the camera subject listing and the near-clip measurement share these helpers instead of each admitting display paths.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Custom, displaced, wireframe, partially transparent or clipped appearances are refused instead of approximated.
+ */
 export namespace readAutoMovieDisplayedBox {
   /**
    * Admit original opaque stock vertex paths with unchanged geometric output.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the admitted material and supported skin shader relationship.
-   * @evidence contracts/development/implementation.md#principled-implementation Validates the stock Three material, unchanged pre-render geometry path and supported linear or owned dual quaternion shader route.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keeps display admission with the stock mesh geometry owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unsupported custom, displaced, wireframe, partially transparent or clipped appearance never certifies displayed contact here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Inspects fixed-size material and stock patch facts before traversing vertices.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads current mesh and material properties directly.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps neither a render callback nor a mesh or shader reference after checking.
    */
   export function supportsStockMaterial(mesh: THREE.Mesh): boolean {
     const material: THREE.Material | THREE.Material[] = mesh.material;
@@ -224,14 +223,6 @@ export namespace readAutoMovieDisplayedBox {
 
   /**
    * Admit one opaque stock surface material, leaving its vertex program to the caller.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that only the fragment-side appearance is admitted here.
-   * @evidence contracts/development/implementation.md#principled-implementation Requires a stock lit or unlit class with full opacity, no clipping, displacement, wireframe or back-only faces.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared by single-material meshes and multi-material instanced members, whose vertex programs differ.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A caller must still prove the vertex path before certifying displayed contact.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant-size property checks.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads current material properties directly.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no material reference.
    */
   export function supportsStockSurface(material: THREE.Material): boolean {
     return (
@@ -274,14 +265,6 @@ export namespace readAutoMovieDisplayedBox {
 
   /**
    * Project the stock skin's owned conservative sphere by each world affine row.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the current pose and conservative world-space bounds.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing skin sphere and the Euclidean length of each world matrix row to enclose its full affine projection.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Leaves skinning and local sphere production to AutoMovieSkinnedMesh.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never claims exact occupancy from a conservative envelope. Missing bounds stay unavailable.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The world projection is constant size after the skin owner obtains its sphere.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the skin owner's current-pose cache and its original culling sphere.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only a new world box. Existing skin pose and culling storage remains owned by the mesh.
    */
   export function skinEnvelope(
     mesh: AutoMovieSkinnedMesh,

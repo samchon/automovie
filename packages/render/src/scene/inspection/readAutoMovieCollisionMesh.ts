@@ -98,7 +98,14 @@ export function readAutoMovieCollisionMesh(
   );
 }
 
-/** The callback shape every collision source reports parts through. */
+/**
+ * The callback shape every collision source reports parts through.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what one report carries: a part, its optional lazy surface and an optional unsupported reason.
+ * @evidence contracts/development/design.md#principled-representation One callback receives a part with its optional surface and reason, so every source reports through the same shape.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only the collector supplies the callback, and the cord, instance and mesh readers call it.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A reason accompanies a part whose geometry cannot be read instead of the part being dropped.
+ */
 export namespace readAutoMovieCollisionMesh {
   /** Receives one part, its optional lazy surface and an optional unsupported reason. */
   export type IAdd = (

@@ -157,7 +157,17 @@ export namespace IAutoMovieDrawScene {
     /** Which host placed this scene. The Viewer samples actual painted frames. */
     readonly mode: "viewer" | "capture" | "delivery";
 
-    /** The subject's synchronous placement, when it offers one. A caller that places another second must place this sample's second again before returning. */
+    /**
+     * The subject's synchronous placement, when it offers one. A caller that places another second must place this sample's second again before returning.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States where it comes from and the caller's obligation after placing another second.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the subject that implements it answers.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the subject that implements it answers.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the subject that implements it answers.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the subject that implements it answers.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the subject that implements it answers.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the subject that implements it answers.
+     */
     readonly place?: (seconds: number) => void;
 
     /** Scratch render access for the offscreen capture and delivery audits, absent in the Viewer. Restore renderer and scene state before returning. */

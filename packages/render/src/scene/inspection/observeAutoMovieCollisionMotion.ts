@@ -171,15 +171,17 @@ export function observeAutoMovieCollisionMotion(
   return { findings, coverage };
 }
 
-/** The span, placement, layers and limits of one motion observation. */
+/**
+ * The span, placement, layers and limits of one motion observation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names each layer field's clock, each limit's unit and each input.
+ * @evidence contracts/development/design.md#principled-representation ILayer is the same layer identity, root, ownership and windows the placed-frame observer reads; ILimits adds placements and bisection depth beside the witness limits; IProps is the drawn clock, the preceding instant, the continuity of the span and the host's placement.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ILayer carries only what the pair resolution needs, the host chooses ILimits per mode, and the production inspection entry point supplies IProps.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A layer missing at an instant contributes no pair there, a reached limit defers and never clears, and the host decides continuity from its cut instead of the observer guessing it.
+ */
 export namespace observeAutoMovieCollisionMotion {
   /**
    * A collision layer readable at any placed instant.
-   *
-   * @evidence contracts/development/design.md#principled-representation The same layer identity, root, ownership and windows the placed-frame observer reads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the pair resolution needs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A layer missing at an instant contributes no pair there.
-   * @evidence contracts/development/common.md#meaningful-documentation Names each field's clock.
    */
   export interface ILayer extends collectAutoMovieCollisionParts.ILayer {
     /** Distinct layer identity, shared with the placed-frame rows. */
@@ -194,11 +196,6 @@ export namespace observeAutoMovieCollisionMotion {
 
   /**
    * Work the observation may spend.
-   *
-   * @evidence contracts/development/design.md#principled-representation Placements and bisection depth beside the witness limits.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Chosen by the host per mode.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A reached limit defers, never clears.
-   * @evidence contracts/development/common.md#meaningful-documentation Names each unit.
    */
   export interface ILimits {
     /** Extra instants that may be placed, including the preceding one. */
@@ -217,11 +214,6 @@ export namespace observeAutoMovieCollisionMotion {
 
   /**
    * One motion observation.
-   *
-   * @evidence contracts/development/design.md#principled-representation The drawn clock, the preceding instant, the continuity of the span and the host's placement.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by the production inspection entry point.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The host decides continuity from its cut; the observer never guesses it.
-   * @evidence contracts/development/common.md#meaningful-documentation Names each input.
    */
   export interface IProps {
     /** The drawn sample's clock. */

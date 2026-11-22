@@ -59,6 +59,10 @@ interface IProps {
  * for excluded subjects, unmeasured bounds, and exact pixel observations.
  * @evidence contracts/development/common.md#meaningful-documentation Documents
  * original-frame ownership, projected bounds, and the optional triangle cap.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the target, bound it, classify the six clip planes, optionally sample witnesses, then delegate grading to classifyAutoMovieCameraInspection.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hidden target, missing bounds or a nonfinite projection or plane is reported unavailable rather than graded, and box overlap never counts as visible.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses cached rigid geometry bounds and the skin's pose cache through the subject bound owner, and takes exact pixel observations instead of rays when a capture supplies them.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates only per-call matrices, bounds and a frustum, borrows the scene and keeps nothing.
  */
 export function observeAutoMovieCameraInspection(
   props: IProps,

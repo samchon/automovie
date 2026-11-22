@@ -78,7 +78,17 @@ export namespace ISelectAutoMoviePlacedChecks {
     /** Entity paths reported with every finding. */
     readonly paths?: readonly string[];
 
-    /** Actual touching evidence for the declared pair at a film second, when the producer has it. */
+    /**
+     * Actual touching evidence for the declared pair at a film second, when the producer has it.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what evidence is returned, for which pair and second, and that it is optional.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the producer that supplies it answers.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the producer that supplies it answers.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the producer that supplies it answers.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the producer that supplies it answers.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the producer that supplies it answers.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the producer that supplies it answers.
+     */
     readonly contact?: (
       filmSeconds: number,
     ) => IObserveAutoMoviePlacedScene.ICheck["observedContact"];
@@ -231,6 +241,14 @@ export namespace ISelectAutoMoviePlacedChecks {
      * The entity's authored world transform at a shot-local second: a present
      * or missing required record, null when the shot does not involve the
      * entity, or undefined when it cannot be determined.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the clock of the argument and the four answers.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the producer that supplies it answers.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the producer that supplies it answers.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the producer that supplies it answers.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the producer that supplies it answers.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the producer that supplies it answers.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the producer that supplies it answers.
      */
     readonly observe: (
       shot: string,

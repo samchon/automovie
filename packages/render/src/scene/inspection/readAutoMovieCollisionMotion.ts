@@ -79,15 +79,17 @@ export function readAutoMovieCollisionMotion(
   };
 }
 
-/** Feature poses and their comparison between instants. */
+/**
+ * Feature poses and their comparison between instants.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the units of a pose and states what the displacement and swept helpers return.
+ * @evidence contracts/development/design.md#principled-representation IPose holds world-metre points in a fixed order per part, a world box and a full thickness.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A pose is read by the motion subdivision only.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Points of two instants compare only in the same order; features that do not correspond give an infinite displacement instead of a guessed match.
+ */
 export namespace readAutoMovieCollisionMotion {
   /**
    * A part's features, world box and thickness at one instant.
-   *
-   * @evidence contracts/development/design.md#principled-representation World-metre points in a fixed order per part, a world box and a full thickness.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the motion subdivision only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Points of two instants compare only in the same order.
-   * @evidence contracts/development/common.md#meaningful-documentation Names units.
    */
   export interface IPose {
     /** Feature points in world metres. */

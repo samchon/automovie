@@ -136,15 +136,17 @@ export function collectAutoMovieCollisionParts(
   return { parts, surfaces, reasons, truncated };
 }
 
-/** The layer read by the collector and the surfaces and reasons it returns. */
+/**
+ * The layer read by the collector and the surfaces and reasons it returns.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what each member carries: ILayer what each member replaces, ISurface its units and index spaces, IPartSurface the three outcomes of reading, and IResult each map.
+ * @evidence contracts/development/design.md#principled-representation ILayer is a root with source identities; ISurface holds world vertices with the drawn triangle list, closure, pose error and optional joint labels; IPartSurface pairs a shared surface with an optional ownership test; IResult is keyed by part identity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only ownership and opaque replacements reach the collector, the witness search alone consumes surfaces, reading charges the vertex budget once, and the observer reads each map once per finding.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Nesting implies no identity, degenerate drawn triangles contribute no vertex, a refused budget stays distinct from an unsupported surface, and a part without geometry carries its reason.
+ */
 export namespace collectAutoMovieCollisionParts {
   /**
    * One source-owned layer, after its exact placement and world-matrix update.
-   *
-   * @evidence contracts/development/design.md#principled-representation A root and source identities describe the drawn layer.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only ownership and opaque replacements reach the collector.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Nesting implies no identity.
-   * @evidence contracts/development/common.md#meaningful-documentation States what each member replaces.
    */
   export interface ILayer {
     /** Placed root whose visible descendants are drawn. */
@@ -159,11 +161,6 @@ export namespace collectAutoMovieCollisionParts {
 
   /**
    * Drawn world surface of one part.
-   *
-   * @evidence contracts/development/design.md#principled-representation World vertices with the drawn triangle list, closure, pose error and optional joint labels.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Consumed by the witness search only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Degenerate drawn triangles contribute no vertex.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the units and index spaces.
    */
   export interface ISurface {
     /** World vertex positions by vertex index. */
@@ -190,11 +187,6 @@ export namespace collectAutoMovieCollisionParts {
 
   /**
    * A lazily posed surface and the part of it a collision part owns.
-   *
-   * @evidence contracts/development/design.md#principled-representation A shared surface and an optional ownership test.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Reading charges the vertex budget once.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A refused budget is distinct from an unsupported surface.
-   * @evidence contracts/development/common.md#meaningful-documentation States the three outcomes of reading.
    */
   export interface IPartSurface {
     /** The posed surface, null when unsupported, or "budget" when its vertices exceed the remaining allowance. */
@@ -206,11 +198,6 @@ export namespace collectAutoMovieCollisionParts {
 
   /**
    * Parts, their drawn surfaces and unsupported reasons.
-   *
-   * @evidence contracts/development/design.md#principled-representation Keyed by part identity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The observer reads each map once per finding.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A part without geometry carries its reason.
-   * @evidence contracts/development/common.md#meaningful-documentation Names each map.
    */
   export interface IResult {
     /** Parts in traversal order. */
