@@ -214,7 +214,7 @@ export namespace HumanPursuit {
   export function search<
     Chain extends {
       walk(params: { to: IAutoMovieVector3 }): Chain;
-      stand(params: { seconds: number }, anchor?: string): Chain;
+      stand(params: { hold: number }, anchor?: string): Chain;
     },
   >(
     chain: Chain,
@@ -224,7 +224,7 @@ export namespace HumanPursuit {
   ): Chain {
     let out: Chain = chain;
     places.forEach((to: IAutoMovieVector3, index: number): void => {
-      out = out.walk({ to }).stand({ seconds: pause }, `${name}${index}`);
+      out = out.walk({ to }).stand({ hold: pause }, `${name}${index}`);
     });
     return out;
   }

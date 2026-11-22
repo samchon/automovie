@@ -207,6 +207,26 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.drunk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
   drunk(params: IAutoMovieMotionHumanGaitStyled.IDrunk, anchor?: string): Chain;
+
+  /**
+   * Walk at a run's speed with one foot always on the ground (World Athletics rule TR54.2): a Froude number of 0.9, about 2.9 m/s on a 0.93 m hip, the swing taking just under a whole step period so the double support shrinks to a sliver, the pelvis barely rising, and the arms pumping with the elbows near a right angle (`HumanRaceGait.FROUDE`, `SWING`, `BOB` and `ARMS`; provisional). It ends as the walk does, with the feet side by side.
+   *
+   * @param params The walk's parameters but the pace, stride and arm swing, which the gait fixes.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the race walk appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule the walk follows, its speed and the factors that give its signature, how it ends, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGaitStyled.raceWalk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGaitStyled.raceWalk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGaitStyled.raceWalk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGaitStyled.raceWalk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.raceWalk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.raceWalk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
+   */
+  raceWalk(
+    params: IAutoMovieMotionHumanGaitStyled.IRaceWalk,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -312,4 +332,14 @@ export namespace IAutoMovieMotionHumanGaitStyled {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `drunk` takes the type its law reads.
    */
   export type IDrunk = IAutoMovieMotionHumanGait.IParams;
+
+  /**
+   * The parameters of `raceWalk`: the shared `IAutoMovieMotionHumanGait.IParams`, the walk's parameters without the `pace`, `stride` and `armSwing` the gait fixes, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared type it aliases unchanged and the walk members that type leaves out.
+   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `raceWalk` signature, one name per method so each can diverge with its law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `raceWalk` takes the type its law reads.
+   */
+  export type IRaceWalk = IAutoMovieMotionHumanGait.IParams;
 }

@@ -2,3 +2,6 @@
 export { stepOver } from "../../everyday/stepOver";
 export { vault } from "../../sport/vault";
 export { squatVault } from "../../sport/squatVault";
+export { HumanTraversal } from "../../lexicon/HumanTraversal";
+export { HumanWallRun } from "../../lexicon/HumanWallRun";
+export { stepVaultSupport } from "../../terrain/stepVaultSupport";
