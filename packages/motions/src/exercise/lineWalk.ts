@@ -316,6 +316,8 @@ export namespace lineWalk {
         const time: number = (t - lift) / (SWING * PERIOD);
         const swung: IAutoMovieMotionHumanFoot.IPlacement =
           AutoMovieMotionHumanFootSwing(
+            body,
+            side,
             list[i]!.place,
             next.place,
             0.03 * body.measure.stature,

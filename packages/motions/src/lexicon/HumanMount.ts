@@ -218,7 +218,13 @@ export namespace HumanMount {
    * A foot a share of the way between two placements: the ankle on the
    * straight line between them, or on the curve through `over` at its
    * middle, raised by `lift sin(pi share)`; the knee's aim and the heading
-   * go the same share.
+   * go the same share. Along the floor the ankle runs the cycloid's share
+   * `s - sin(2 pi s) / (2 pi)`, whose rate and acceleration vanish at both
+   * ends, so the foot rises off its place before it travels and comes down
+   * onto the next before it stops (the cycloid foot trajectory of
+   * Sakakibara, Kan, Hosoda, Hattori and Fujie 1990, "Foot trajectory for a
+   * quadruped walking machine", IEEE IROS, pp. 315-322): a sole still on the
+   * floor as the swing begins is lifted, not dragged along it.
    *
    * @param from Where it leaves.
    * @param to Where it arrives.
@@ -228,7 +234,7 @@ export namespace HumanMount {
    * @returns The placement.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the path, the clearance and what else is carried the same share.
-   * @evidence contracts/development/implementation.md#principled-implementation A quadratic curve whose middle is `over`: the chord plus `4 s (1 - s)` times the offset of `over` from the chord's middle, so it starts and ends on the placements exactly.
+   * @evidence contracts/development/implementation.md#principled-implementation A quadratic curve whose middle is `over`: the chord plus `4 s (1 - s)` times the offset of `over` from the chord's middle, so it starts and ends on the placements exactly; the chord's floor components run the cycloid share (Sakakibara et al. 1990), zero in rate and acceleration at both ends.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One interpolation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The share is held within 0 and 1, so a caller's eased share past either end stays on the placements.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -243,7 +249,12 @@ export namespace HumanMount {
     over?: IAutoMovieVector3,
   ): IFoot {
     const s: number = Math.min(1, Math.max(0, share));
-    const line: IAutoMovieVector3 = Vector3.lerp(from.ankle, to.ankle, s);
+    const along: number = s - Math.sin(2 * Math.PI * s) / (2 * Math.PI);
+    const line: IAutoMovieVector3 = {
+      x: from.ankle.x + (to.ankle.x - from.ankle.x) * along,
+      y: from.ankle.y + (to.ankle.y - from.ankle.y) * s,
+      z: from.ankle.z + (to.ankle.z - from.ankle.z) * along,
+    };
     const ankle: IAutoMovieVector3 =
       over === undefined
         ? line

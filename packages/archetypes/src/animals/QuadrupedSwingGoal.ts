@@ -101,6 +101,8 @@ export namespace QuadrupedSwingGoal {
     on: number;
     /** The share of the gait's lift and fold the speed calls for, 0 to 1. */
     going: number;
+    /** The share of a stance's peak load the hoof bears, 0 to 1 (`QuadrupedRidePose.IGoal.load`); a flying hoof bears none whatever is given. */
+    load: number;
     /** The ride's pole apexes, absent when its footing has no poles. */
     crossings: QuadrupedPoleSwing.Crossings | undefined;
   }
@@ -112,7 +114,7 @@ export namespace QuadrupedSwingGoal {
    * @returns The goal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the output.
-   * @evidence contracts/development/implementation.md#principled-implementation The hoof track's target, carried in a jump's flight (`EquineFlightClock.swing`); the lift is the gait's height, by landmark when stated, plus the footing's lift, raised to a crossed pole's apex (`QuadrupedPoleSwing`), times the swing's rise; the fold the gait's times the rise.
+   * @evidence contracts/development/implementation.md#principled-implementation The hoof track's target, carried in a jump's flight (`EquineFlightClock.swing`); the lift is the gait's height, by landmark when stated, plus the footing's lift, raised to a crossed pole's apex (`QuadrupedPoleSwing`), times the swing's rise; the fold the gait's times the rise; the load the ride's (`IInput.load`), none in a flight.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One aim, one goal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A planted or flying hoof reads no pole apex.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beside the track and pole reads.
@@ -162,6 +164,7 @@ export namespace QuadrupedSwingGoal {
                 0),
         ) * step.rise,
       fold: going * gait.fold[end] * step.rise,
+      load: carried ? 0 : input.load,
     };
   }
 }

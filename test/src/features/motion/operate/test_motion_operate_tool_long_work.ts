@@ -239,7 +239,7 @@ function take(
         prop: "tool",
         at: stage.at,
         hand: "right",
-        cycles: 2,
+        count: 2,
       }).node,
   });
 }

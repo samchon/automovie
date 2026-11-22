@@ -136,7 +136,7 @@ export function test_motion_throw_catch_campaign_catches(): void {
         ],
         composition: AutoMovieComposition.parallel(
           HumanChain.subject("thrower")
-            .registered(thrower.name, { seconds: 0.2, sway: 0 })
+            .registered(thrower.name, { hold: 0.2, sway: 0 })
             .throwObject(
               {
                 prop: "ball",
@@ -220,10 +220,10 @@ export function test_motion_throw_catch_campaign_catches(): void {
     HumanChain.subject("receiver")
       .stand({ hold: 0.2, sway: 0 })
       .registered("stageCatch", {
-        from: "throw",
+        partner: "throw",
         ball: "ball",
         hands: "one",
-        side: "right",
+        hand: "right",
         glove: "crosse",
       })
       .sync({ of: "throw" }),
@@ -263,7 +263,7 @@ export function test_motion_throw_catch_campaign_catches(): void {
       .over((upper) =>
         upper
           .registered("stageCatch", {
-            from: "throw",
+            partner: "throw",
             ball: "ball",
             hands: "two",
           })

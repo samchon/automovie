@@ -48,6 +48,7 @@ import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegment } from "./HumanSegment";
+import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 
 /**
@@ -214,13 +215,21 @@ export namespace HumanPerformancePlace {
     // hand read again is read once, as an animation graph evaluates a pose
     // once per update and lets every reader share it (Unreal Engine
     // `FAnimNode_SaveCachedPose`).
+    // An overlay entering where the act before it in its chain ends reads
+    // that act's end, which hands its channels on (`HumanSegmentOverlay.handing`).
+    const read: () => ReturnType<typeof HumanSegment.entry> = (): ReturnType<
+      typeof HumanSegment.entry
+    > =>
+      HumanSegment.planning(
+        self.people.values(),
+        (): ReturnType<typeof HumanSegment.entry> =>
+          HumanSegment.entry(person, previous, start, blend),
+      );
     const entry: ReturnType<typeof HumanSegment.entry> =
       kept === undefined
-        ? HumanSegment.planning(
-            self.people.values(),
-            (): ReturnType<typeof HumanSegment.entry> =>
-              HumanSegment.entry(person, previous, start, blend),
-          )
+        ? over
+          ? HumanSegmentOverlay.handing(start, read)
+          : read()
         : kept.context.entry;
     const instance: number = [...person.segments, ...person.overlays].filter(
       (s: IAutoMovieMotionHumanSegment): boolean =>
@@ -529,12 +538,18 @@ export namespace HumanPerformancePlace {
     // to its carrier.
     const context: IAutoMovieMotionHumanActionContext<never> =
       kept?.context ?? drafted;
-    if (!over && kept === undefined)
+    if (!over && kept === undefined) {
       context.demands = HumanPerformanceAhead.reader(
         self,
         context,
         person.segments.length,
       );
+      // How the composition cuts this action into the next one, and what
+      // that one plants (`HumanPerformanceAhead.cut`).
+      const cut: IAutoMovieMotionHumanActionContext.ICut | undefined =
+        HumanPerformanceAhead.cut(self, intent, person.segments.length);
+      if (cut !== undefined) context.cut = cut;
+    }
     // A plan too fast for the speed bound is replanned slower by its own
     // refusal's factor (`HumanPerformanceTempo`).
     let plan: IAutoMovieMotionHumanActionPlan =

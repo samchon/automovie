@@ -105,7 +105,7 @@ export function test_motion_throw_catch_handball_goal(): void {
       parts.push(
         HumanChain.subject("keeper")
           .registered("stageCatch", {
-            from: "throw",
+            partner: "throw",
             ball: "ball",
             hands: "two",
             intercept: keeper.intercept,

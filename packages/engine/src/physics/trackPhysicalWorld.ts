@@ -343,6 +343,8 @@ export function trackPhysicalWorld(
       `${body.id}/${root.bone}`,
     )!;
     trackPhysicalRoot({
+      world,
+      goals,
       settings: input,
       body,
       bound,

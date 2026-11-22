@@ -130,7 +130,7 @@ export function test_motion_throw_catch_stage_catch(): void {
     const catcher: IAutoMovieMotionHumanChain = HumanChain.subject(
       "catcher",
     ).registered("stageCatch", {
-      from: "foam-release",
+      partner: "foam-release",
       ball: launch.prop,
       hands: "one",
     });
@@ -172,14 +172,14 @@ export function test_motion_throw_catch_stage_catch(): void {
       composition: AutoMovieComposition.parallel(
         HumanChain.subject("emitter").registered(
           "releaseFoamBall",
-          { seconds: 2 },
+          { hold: 2 },
           "foam-release",
         ).node,
         (cut ? catcher.until({ event: "prepare" }) : catcher).node,
         ...(redirect
           ? [
               HumanChain.subject("redirector").registered("releaseFoamBall", {
-                seconds: 2,
+                hold: 2,
               }).node,
             ]
           : []),

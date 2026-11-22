@@ -130,6 +130,47 @@ export namespace HumanPerformanceAhead {
     };
   }
 
+  /**
+   * How an action is cut into its performer's next one
+   * (`IHumanActionContext.cut`): the composition's cut at one of the
+   * action's own events or shares, with what the next action in walk order
+   * plants (`IHumanActionLaw.plants`), read from its resolved parameters.
+   *
+   * @param self The performance being placed.
+   * @param intent The action's intent.
+   * @param ordinal Its place among its performer's actions that carry the body.
+   * @returns The cut; undefined when the action is not cut at its own event or share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which cuts are read and where the plant comes from.
+   * @evidence contracts/development/implementation.md#principled-implementation The intent's own `until` and the next intent's law and parameters, as the composition gives them; a cut at another action's event or at a proximity is found only once this action is planned, so it is not known here.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the cut, one of the next intent.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A next action the vocabulary lacks plants nothing; it is refused where it is placed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: one map lookup and one parameter resolution.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The walk-order list and parameter reading `find` uses.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
+   */
+  export function cut(
+    self: IAutoMovieMotionHumanPerformanceState,
+    intent: IAutoMovieIntent,
+    ordinal: number,
+  ): IAutoMovieMotionHumanActionContext.ICut | undefined {
+    const until: IAutoMovieIntent["until"] = intent.until;
+    if (until === undefined || "of" in until || "proximity" in until)
+      return undefined;
+    const next: IAutoMovieIntent | undefined = (self.intended.get(
+      intent.subject,
+    ) ?? [])[ordinal + 1];
+    const law: IAutoMovieMotionHumanActionLaw<never> | undefined =
+      next === undefined ? undefined : self.laws.get(next.capability);
+    const given: object = next === undefined ? {} : params(next);
+    const plant: IAutoMovieMotionHumanActionLaw.IPlant | undefined =
+      law?.plants?.((law.resolve?.(given) ?? given) as never);
+    return {
+      ...("event" in until ? { event: until.event } : { share: until.share }),
+      ...(plant === undefined ? {} : { plant }),
+    };
+  }
+
   /** An action asked for its demands: its law and its resolved parameters. */
   interface INext {
     /** Its law. */

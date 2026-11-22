@@ -41,6 +41,9 @@ elax may lower for a swinging limb. */
 
     /** A hind limb's hip on the pelvis (`QuadrupedPelvis`), whose turn within the pelvis's range may carry the attachment toward the goal and so raise the upper bound. */
     pelvis?: QuadrupedScapula.IJoint;
+
+    /** The share of a stance's load the hoof bears, 0 to 1: one planted or at a swing's ends, falling to none mid-swing (`QuadrupedSwingGoal`). An unloaded hoof caps the root's height less, by its share of the leg's reach, and falls short of its goal instead; one when absent. */
+    load?: number;
   }
 
   /**
@@ -61,6 +64,8 @@ elax may lower for a swinging limb. */
   /**
    * Intersect four-limb reach with one whole-body floor requirement.
    *
+   * A hoof that bears less than a stance's load caps the root less, by its unloaded share of the leg's reach (`IConstraint.load`); its limb then falls short of its goal (`QuadrupedRidePose`).
+   *
    * The proximal joint stays above its terminal target. For horizontal offset q
    * and radial interval [r,R], its vertical drop is exactly
    * [sqrt(max(0,r²-q²)), sqrt(R²-q²)]. Subtracting the neutral attachment height
@@ -72,7 +77,7 @@ elax may lower for a swinging limb. */
    * @throws {RangeError} For malformed/nonrepresentable geometry, horizontal overreach or incompatible whole-body constraints.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Gives the exact geometric interval, above-foot branch, metre frames and physical floor requirement, distinguishing feasibility from path selection.
-   * @evidence contracts/development/implementation.md#principled-implementation Derive each limb's vertical-drop interval from its radial reach and fixed horizontal separation, translate it into root coordinates and intersect all four with the body-floor lower bound. A fore limb with a shoulder blade takes the highest bound its blade reaches within range (`QuadrupedScapula.high`), and the two hinds the highest at which one turn of the pelvis within its range lets both reach (`QuadrupedPelvis.high`); that shared turn is chosen once the root is (`QuadrupedPelvis.turn`).
+   * @evidence contracts/development/implementation.md#principled-implementation Derive each limb's vertical-drop interval from its radial reach and fixed horizontal separation, translate it into root coordinates and intersect all four with the body-floor lower bound; a limb's upper bound is relaxed by its unloaded share (`IConstraint.load`) of its reach, so the planted hooves set the body's height and a swinging hoof adapts to it (the orthodox quadruped rule), exactly while a hoof bears and continuously as it lifts and lands. A fore limb with a shoulder blade takes the highest bound its blade reaches within range (`QuadrupedScapula.high`), and the two hinds the highest at which one turn of the pelvis within its range lets both reach (`QuadrupedPelvis.high`); that shared turn is chosen once the root is (`QuadrupedPelvis.turn`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit each complete constraint, derive its two bounds once and accumulate their intersection before one final emptiness check.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Targets, attachments and reach radii remain unchanged. Squared-radius arithmetic is normalized to avoid avoidable overflow; an empty or unrepresentable interval is refused rather than padded or projected.
    * @evidence contracts/development/implementation.md#efficient-algorithms Exactly four constant-size constraints take O(1) work and storage with no root search, event enumeration, physical simulation or retained samples.
@@ -204,17 +209,23 @@ elax may lower for a swinging limb. */
     const bound: IBound = { minimum: floorMinimum, maximum: Infinity };
     for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const [low, high] = limbBounds(limb, constraints?.[limb]);
+      // The planted hooves set the body's height and a swinging hoof adapts: the less a hoof bears, the less its reach caps the root.
+      const capped: number = slack(high, constraints[limb]!);
       if (low > bound.minimum) [bound.minimum, bound.lowest] = [low, limb];
-      if (high < bound.maximum) [bound.maximum, bound.highest] = [high, limb];
+      if (capped < bound.maximum)
+        [bound.maximum, bound.highest] = [capped, limb];
     }
-    // Both hips ride one pelvis: the hinds bound the root jointly.
+    // Both hips ride one pelvis: the hinds bound the root jointly, exactly while either bears, since one turn of the pelvis serves both.
     const left: IConstraint | undefined = constraints?.leftHind;
     const right: IConstraint | undefined = constraints?.rightHind;
     if (left?.pelvis !== undefined && right?.pelvis !== undefined) {
-      const shared: number = QuadrupedPelvis.high([
-        { joint: left.pelvis, goal: left.goal, reach: left.reach },
-        { joint: right.pelvis, goal: right.goal, reach: right.reach },
-      ]);
+      const shared: number = slack(
+        QuadrupedPelvis.high([
+          { joint: left.pelvis, goal: left.goal, reach: left.reach },
+          { joint: right.pelvis, goal: right.goal, reach: right.reach },
+        ]),
+        loaded(left) >= loaded(right) ? left : right,
+      );
       if (shared < bound.maximum)
         [bound.maximum, bound.highest] = [
           shared,
@@ -224,6 +235,19 @@ elax may lower for a swinging limb. */
         ];
     }
     return bound;
+  }
+
+  /** The share of a stance's load a hoof bears, clamped to 0 to 1; one when the constraint states none. */
+  function loaded(constraint: IConstraint): number {
+    return Math.min(1, Math.max(0, constraint.load ?? 1));
+  }
+
+  /** A limb's cap on the root height, relaxed by its unloaded share of the leg's reach: exact while the hoof bears, none in effect mid-swing, continuous between. */
+  function slack(high: number, constraint: IConstraint): number {
+    const free: number = 1 - loaded(constraint);
+    return free === 0 || high === -Infinity
+      ? high
+      : high + free * constraint.reach.maximum;
   }
 
   /** One limb's lowest and highest root translation. */

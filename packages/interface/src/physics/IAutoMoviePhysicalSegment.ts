@@ -34,4 +34,14 @@ export interface IAutoMoviePhysicalSegment {
 
   /** At least one finite solid collider, including optional equipment shapes. */
   shapes: IAutoMoviePhysicalShape[];
+
+  /**
+   * Simulation-only colliders: the physical world collides them alongside
+   * `shapes`, but they carry no mass and nothing else reads them (motion
+   * audits, placement and surface rays read `shapes` only), as a physics
+   * engine's simulation shapes are kept apart from its query shapes (PhysX
+   * `eSIMULATION_SHAPE` against `eSCENE_QUERY_SHAPE`). Ids are unique across
+   * both lists; absent means none.
+   */
+  contactShapes?: IAutoMoviePhysicalShape[];
 }

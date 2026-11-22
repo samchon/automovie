@@ -14,6 +14,7 @@ import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdSnapshot } from "./AutoMovieXpbdSnapshot";
 import { solveXpbdContacts } from "./solveXpbdContacts";
 import { solveXpbdJoints } from "./solveXpbdJoints";
+import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
 /**
  * The engine's rigid-body world: extended position-based dynamics in plain
@@ -66,6 +67,22 @@ export class AutoMovieXpbdWorld {
 
   /** The last step's contacts, sensors included. */
   private found: solveXpbdContacts.IContact[] = [];
+
+  /**
+   * The ground-reaction wrench each articulation's root controller asks of
+   * its supports this step, keyed by the root body: set by the controllers
+   * before `step`, read by the motors' solve and cleared by `step`.
+   */
+  public readonly rootTasks: Map<AutoMovieXpbdBody, AutoMovieXpbdWorld.IRootTask> =
+    new Map();
+
+  /**
+   * Each articulation's active sets from its last support cascade, keyed by
+   * the root body: the warm start of the next substep's solve, kept across
+   * steps and in snapshots so a restored world continues bit for bit.
+   */
+  public readonly activeSets: Map<AutoMovieXpbdBody, solveXpbdSupportCascade.IWarm> =
+    new Map();
 
   /** The next handle. */
   private counter: number = 0;
@@ -229,7 +246,14 @@ export class AutoMovieXpbdWorld {
     );
     for (const body of dynamic) derive(body, h);
     solveXpbdContacts.velocities(this.found, h, Vector3.length(this.gravity));
-    solveXpbdJoints.motors(this.joints, h);
+    solveXpbdJoints.motors(
+      this.joints,
+      h,
+      this.found,
+      this.rootTasks,
+      this.activeSets,
+    );
+    this.rootTasks.clear();
   }
 
   /**
@@ -477,6 +501,28 @@ export class AutoMovieXpbdWorld {
 
 /** Companion types of {@link AutoMovieXpbdWorld}. */
 export namespace AutoMovieXpbdWorld {
+  /**
+   * A root task: the wrench an articulation's supports should give its root
+   * this step, the floating base's momentum task of whole-body control
+   * (Herzog, Rotella, Mason, Grimminger, Schaal and Righetti 2016; Wensing
+   * and Orin 2013), produced through the joints and the ground.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record asks and of whom.
+   * @evidence contracts/development/design.md#principled-representation A world force in newtons and a moment in newton metres about a world origin in metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Set by trackPhysicalRoot under internal actuation and read by solveXpbdArticulationContacts.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The wrench is the root controller's own demand; nothing is allocated before the solve.
+   */
+  export interface IRootTask {
+    /** The point the moment is taken about, world metres. */
+    origin: IAutoMovieVector3;
+
+    /** The requested force, newtons. */
+    force: IAutoMovieVector3;
+
+    /** The requested moment about the origin, newton metres. */
+    torque: IAutoMovieVector3;
+  }
+
   /**
    * A responding pair of the last step.
    *

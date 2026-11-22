@@ -221,10 +221,11 @@ export namespace footStrike {
         });
       const hipOf = (
         primitive: IAutoMovieMotionHumanPrimitive,
+        seconds: number = shown,
       ): IAutoMovieVector3 =>
         HumanTrunk.resolve(
           body,
-          primitive.write(entry, shown),
+          primitive.write(entry, seconds),
           undefined,
           undefined,
           new Set<AutoMovieHumanoidBone>([`${side}UpperLeg`]),
@@ -272,6 +273,8 @@ export namespace footStrike {
         dropped.write(entry, shown).yaw,
         low,
         ankle,
+        m.thigh,
+        m.shank,
       );
       const lower: IAutoMovieMotionHumanPrimitive =
         tilt === undefined ? dropped : lowerWith(drop, tilt);
@@ -302,17 +305,40 @@ export namespace footStrike {
           : goal;
       ankle = clamp(ankle);
 
-      // The foot's attitude is the form's, turned square to the leg it ends,
+      // The knee bends toward the line between the hip and the ankle, raised,
+      // its turn about the leg kept inside the hip's twist range
+      // (`FootStrikeTilt.knee`).
+      const pelvis: IAutoMovieQuaternion = resolveHumanPosture.heading(
+        lower.write(entry, shown),
+      );
+      const hinted = (at: IAutoMovieVector3): IAutoMovieVector3 =>
+        FootStrikeTilt.knee(
+          side,
+          pelvis,
+          hip,
+          at,
+          Vector3.add(
+            Vector3.lerp(hip, at, 0.5),
+            Vector3.scale(FootStrikeForms.UP, 0.25 * m.thigh),
+          ),
+        );
+      // The foot's attitude is the form's, turned square to the shank it
+      // ends (the knee placed toward its hint by the two links' closed form),
       // so the ankle stays near neutral at the contact whatever the target's
-      // height; the ankle is placed again for that attitude.
+      // height and however far the knee is bent there; the ankle is placed
+      // again for that attitude.
       const square = (
         v: IAutoMovieVector3,
         along: IAutoMovieVector3,
       ): IAutoMovieVector3 =>
         Vector3.subtract(v, Vector3.scale(along, Vector3.dot(v, along)));
       for (let i: number = 0; i < 2; ++i) {
-        const leg: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.subtract(ankle, hip),
+        const leg: IAutoMovieVector3 = FootStrikeTilt.shank(
+          hip,
+          ankle,
+          hinted(ankle),
+          m.thigh,
+          m.shank,
         );
         const toes: IAutoMovieVector3 = square(
           form.toes(line, left, outward),
@@ -351,7 +377,7 @@ export namespace footStrike {
             Vector3.scale(line, 0.25),
           ),
         ) * reach;
-      const folded: IAutoMovieVector3 =
+      const authored: IAutoMovieVector3 =
         p.technique === "axe"
           ? Vector3.add(
               hip,
@@ -380,6 +406,17 @@ export namespace footStrike {
                   Vector3.scale(line, 0.25 * reach),
                 ),
               );
+      // The chamber's thigh within the hip's range, the body tilted there by
+      // its share of the contact's tilt (`FootStrikeTilt.chambered`).
+      const folded: IAutoMovieVector3 = FootStrikeTilt.chambered(
+        side,
+        lower.write(entry, chamber).yaw,
+        hipOf(lower, chamber),
+        authored,
+        m.thigh,
+        m.shank,
+        (tilt?.degrees ?? 0) * share(chamber),
+      );
       const through: IAutoMovieVector3 = Vector3.add(
         folded,
         Vector3.scale(
@@ -387,19 +424,7 @@ export namespace footStrike {
           1 / minimumJerk.share(MEET),
         ),
       );
-      // The knee bends toward the line between the hip and the ankle, raised,
-      // its turn about the leg kept inside the hip's twist range
-      // (`FootStrikeTilt.knee`).
-      const knee: IAutoMovieVector3 = FootStrikeTilt.knee(
-        side,
-        resolveHumanPosture.heading(lower.write(entry, shown)),
-        hip,
-        ankle,
-        Vector3.add(
-          Vector3.lerp(hip, ankle, 0.5),
-          Vector3.scale(FootStrikeForms.UP, 0.25 * m.thigh),
-        ),
-      );
+      const knee: IAutoMovieVector3 = hinted(ankle);
       const release: number = RELEASE * chamber;
       const leg: IAutoMovieMotionHumanPrimitive = FootStrikeLeg({
         body,
@@ -420,6 +445,19 @@ export namespace footStrike {
         rotation,
         lead: LEAD,
         meet: MEET,
+        // Every airborne goal inside the hip's whole range, the body tilted
+        // there by its share of the contact's tilt.
+        reachable: (point: IAutoMovieVector3, seconds: number): IAutoMovieVector3 =>
+          FootStrikeTilt.chambered(
+            side,
+            lower.write(entry, seconds).yaw,
+            hipOf(lower, seconds),
+            point,
+            m.thigh,
+            m.shank,
+            (tilt?.degrees ?? 0) * share(seconds),
+            1,
+          ),
       });
       // The support foot stands on its ball throughout, or around the jump's
       // flight.

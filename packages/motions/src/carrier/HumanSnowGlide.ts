@@ -4,11 +4,13 @@ import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClockInstant,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSurface,
@@ -17,6 +19,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountRider } from "../lexicon/HumanMountRider";
@@ -49,11 +54,11 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
  * @throws {HumanRefusal} When the edge change or the pole support is infeasible.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the supported techniques, sources and path and hand-contact ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Unweight between opposite ski cants about the actual support points. A Nordic pole catch carries the hand on the named moving grip through an opposite-foot kick.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one shared glide, then overlay the optional edge transfer and the optional pole stroke.
+ * @evidence contracts/development/implementation.md#principled-implementation Unweight between opposite ski cants about the actual support points. A Nordic pole stroke is one planned arm over the action (the reach to the named moving grip, the hold on it and the return), composed over the glide with the opposite-foot kick.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one shared glide, then overlay the optional edge transfer, or compose the optional pole stroke's arm over the kicked glide.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Consume the given snow orientation and the named pole frames. A missing pole contact or a same-sign edge transfer is not converted into bilateral travel.
- * @evidence contracts/development/implementation.md#efficient-algorithms Once per pose, one base sample, two local foot rotations if the edge transfer is active, and named pole reads only while the hand approaches, holds or releases.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared glide, foot pivot and round-handle fit.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Once per pose, one base sample and two local foot rotations if the edge transfer is active; the pole arm is planned once per action and read off its trajectory.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared glide, foot pivot, round-handle fit and the arm planner (`AutoMovieMotionHumanArm.carried`).
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the input edge or pole data and one base plan for the action.
  */
 export function HumanSnowGlide(context: Context): Plan {
@@ -244,35 +249,50 @@ export function HumanSnowGlide(context: Context): Plan {
   read(release);
   const leg: AutoMovieHumanLimb =
     stroke.hand === "left" ? "rightLeg" : "leftLeg";
-  return {
+  const duration: number = base.duration;
+  const events: IAutoMovieMotionEvent[] = [
+    ...base.events,
+    { name: "poleCatch", share: catchAt / duration },
+    { name: "poleRelease", share: release / duration },
+  ].sort(byShare);
+
+  // The glide with the opposite ski's kick through the pole phase.
+  const kicked: Plan = {
     ...base,
-    events: [
-      ...base.events,
-      { name: "poleCatch", share: catchAt / base.duration },
-      { name: "poleRelease", share: release / base.duration },
-    ].sort(byShare),
+    events,
     contacts: [
       ...base.contacts,
       {
         part: `${stroke.hand}Hand`,
         kind: "grip",
         support: { kind: "prop", subject: stroke.on },
-        from: catchAt / base.duration,
-        to: release / base.duration,
+        from: catchAt / duration,
+        to: release / duration,
       },
     ],
-    posture: (at: number): Posture => {
-      const posture: Posture = base.posture(at);
+    posture: (
+      at: number,
+      channels?: Parameters<Plan["posture"]>[1],
+      resolution?: Parameters<Plan["posture"]>[2],
+      projection?: Parameters<Plan["posture"]>[3],
+    ): Posture => {
+      const posture: Posture = base.posture(
+        at,
+        channels,
+        resolution,
+        projection,
+      );
+      const foot: IAutoMovieHumanLimbGoal | undefined = posture.limbs[leg];
+      if (foot === undefined) return posture;
       const amount: number =
         minimumJerk.share((at - catchAt) / (release - catchAt)) *
-        (1 - minimumJerk.share((at - release) / (base.duration - release)));
-      const foot: IAutoMovieHumanLimbGoal = posture.limbs[leg]!;
+        (1 - minimumJerk.share((at - release) / (duration - release)));
       const kick: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation!, {
         x: 0,
         y: 0,
         z: -stroke.kick * amount,
       });
-      const next: Posture = {
+      return {
         ...posture,
         limbs: {
           ...posture.limbs,
@@ -283,25 +303,49 @@ export function HumanSnowGlide(context: Context): Plan {
           },
         },
       };
-      const gain: number =
-        minimumJerk.share(at / catchAt) *
-        (1 - minimumJerk.share((at - release) / (base.duration - release)));
-      if (gain === 0) return next;
-      const arm: ReturnType<typeof HumanMountRider.hold> = HumanMountRider.hold(
-        context.body,
-        stroke.hand,
-        next,
-        read(at),
-        gain,
-        {},
-      );
-      return {
-        ...next,
-        joints: { ...next.joints, ...arm.fingers },
-        limbs: { ...next.limbs, [`${stroke.hand}Arm`]: arm.arm },
-      };
     },
   };
+
+  // The pole hand's whole stroke is one planned arm (the planner's
+  // trajectory over the action, `AutoMovieMotionHumanArm.carried`): it
+  // leaves its rest at the start, takes the grip by the catch, rides the
+  // moving grip to the release and returns by the end. A grip goal solved
+  // afresh at each second chose its elbow anew at each, and turned it over
+  // between two of them.
+  const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried({
+    body: context.body,
+    side: stroke.hand,
+    from: 0,
+    to: duration,
+    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, stroke.hand),
+    weight: (at: number): number =>
+      (catchAt > 0 ? minimumJerk.share(at / catchAt) : 1) *
+      (release < duration
+        ? 1 - minimumJerk.share((at - release) / (duration - release))
+        : 1),
+    span: { start: 0, ready: catchAt, relax: release, end: duration },
+    goal: (posture: Posture, at: number): IAutoMovieHumanLimbGoal =>
+      HumanMountRider.hold(context.body, stroke.hand, posture, read(at), 1, {})
+        .arm,
+  });
+  const composed: Plan = composeAutoMovieMotionHumanAction({
+    base: kicked,
+    clock: AutoMovieMotionClock.of(
+      duration,
+      events.map(
+        (event: IAutoMovieMotionEvent): IAutoMovieMotionClockInstant => ({
+          name: event.name,
+          seconds: event.share * duration,
+        }),
+      ),
+    ),
+    primitives: [arm],
+  });
+  // The glide writes the whole body: the composed arm is its own, not a
+  // channel it leaves to a carrier.
+  const { channels: _arm, ...written }: Plan = composed;
+  void _arm;
+  return { ...kicked, ...written };
 }
 
 /** Emit simultaneous support events in chronological order. */

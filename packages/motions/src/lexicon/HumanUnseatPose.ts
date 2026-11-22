@@ -10,7 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
+import { HumanColliders } from "../posture/HumanColliders";
 import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -191,6 +194,36 @@ export namespace HumanUnseatPose {
   }
 
   /**
+   * Where a hand holding nothing hangs: beside the hip, a quarter metre out
+   * and a tenth below the root, turned by the posture's heading.
+   *
+   * @param posture The posture.
+   * @param side The hand.
+   * @returns The hand's place, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the place and its frame.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand's rest offset from the hips turned by the posture's heading, the place `reach` starts a free hand from.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One offset.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new point.
+   */
+  export function hang(
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieVector3 {
+    return Vector3.add(
+      posture.root,
+      Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+        x: (side === "left" ? 1 : -1) * 0.25,
+        y: -0.1,
+        z: 0,
+      }),
+    );
+  }
+
+  /**
    * A hand reaching for a point by a share: its arm goal moves from where the hand hangs to the point.
    *
    * @param posture The posture.
@@ -218,11 +251,7 @@ export namespace HumanUnseatPose {
     const sign: number = side === "left" ? 1 : -1;
     // From where the hand is held now, or where it hangs by the hip.
     const hanging: IAutoMovieVector3 =
-      posture.limbs[`${side}Arm`]?.point ??
-      Vector3.add(
-        posture.root,
-        Quaternion.rotateVector(turn, { x: sign * 0.25, y: -0.1, z: 0 }),
-      );
+      posture.limbs[`${side}Arm`]?.point ?? hang(posture, side);
     return {
       ...posture,
       limbs: {
@@ -391,6 +420,76 @@ export namespace HumanUnseatPose {
       undefined,
       requested,
     ).get(bone)!.worldPosition;
+  }
+
+  /**
+   * The first of a span's samples at which the arm's own fit puts the hand
+   * on its target and keeps the forearm clear of the body's trunk: the still
+   * problem a planned arm course solves at an instant of its hold (the hand
+   * on its site within the site's disc, the arm clear), so what is admitted
+   * here is what the course can place.
+   *
+   * @param body The body.
+   * @param side The hand.
+   * @param from The span's start, local seconds.
+   * @param to The span's end, local seconds.
+   * @param posture The posture at a local second, without the hand's goal.
+   * @param target The hand's target at a local second, world metres.
+   * @returns The first placeable second, or undefined when none is.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the reading, what it agrees with and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Sixteen even samples of the span; at each the posture's own arm fit of the goal (`reach`, `resolveHumanPosture`), the wrist within the course's default site disc (`AutoMovieMotionHumanAuditTangle.BUILT`) of the target and the forearm, widened by its radius, outside the trunk's colliders (`HumanColliders.distanceToSegment`).
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target never placeable yields none; nothing is stretched or excused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most seventeen posture fits and segment distances, each demanding only the arm's and the trunk's bones.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function placeable(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    from: number,
+    to: number,
+    posture: (t: number) => IAutoMovieMotionHumanPosture,
+    target: (t: number) => IAutoMovieVector3,
+  ): number | undefined {
+    const hand: AutoMovieHumanoidBone = `${side}Hand`;
+    const lower: AutoMovieHumanoidBone = `${side}LowerArm`;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([
+        hand,
+        lower,
+        ...HumanArmObstacleBones.TRUNK,
+      ]);
+    for (let k: number = 0; k <= 16; ++k) {
+      const t: number = from + ((to - from) * k) / 16;
+      const point: IAutoMovieVector3 = target(t);
+      const bones: ReturnType<typeof poseBones> = poseBones(
+        body,
+        resolveHumanPosture(body, reach(posture(t), side, point, 1)),
+        undefined,
+        requested,
+      );
+      const wrist: IAutoMovieVector3 = bones.get(hand)!.worldPosition;
+      if (Vector3.distance(wrist, point) > AutoMovieMotionHumanAuditTangle.BUILT)
+        continue;
+      const trunk: ReturnType<typeof poseBones> = new Map(
+        [...bones].filter(([bone]): boolean =>
+          HumanArmObstacleBones.TRUNK.has(bone),
+        ),
+      );
+      if (
+        HumanColliders.distanceToSegment(
+          body,
+          trunk,
+          bones.get(lower)!.worldPosition,
+          wrist,
+          [body.measure.forearmRadius, body.measure.forearmRadius],
+        ).distance >= 0
+      )
+        return t;
+    }
+    return undefined;
   }
 
   /**

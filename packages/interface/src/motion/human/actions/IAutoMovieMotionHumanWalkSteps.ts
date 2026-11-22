@@ -134,14 +134,7 @@ export namespace IAutoMovieMotionHumanWalkSteps {
     }[];
 
     /** Stance spans per foot, seconds. */
-    stances: {
-      /** Foot kept planted throughout this stance interval. */
-      side: "left" | "right";
-      /** Stance beginning in action-local seconds. */
-      from: number;
-      /** Stance ending in action-local seconds. */
-      to: number;
-    }[];
+    stances: IStance[];
 
     /**
      * The rig origin before `reach`, world metres.
@@ -210,5 +203,27 @@ export namespace IAutoMovieMotionHumanWalkSteps {
       side: "left" | "right",
       seconds: number,
     ): IAutoMovieMotionHumanWalkFoot.IScheduled;
+  }
+
+  /**
+   * One foot's stance span in a walk's footstep plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation side: The foot kept planted. from, to: The span, action-local seconds. inPlace: Whether the footfall that begins it is taken in place at the arrival.
+   * @evidence contracts/development/design.md#principled-representation One planted span of one foot, marked when its footfall only turns the body at the arrival.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkSteps.ts (walkSteps.plan, return); actions/walkLocomote.ts (the swing's reach ranges).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain seconds and a flag; the footfall's place and timing stay with walkSteps.
+   */
+  export interface IStance {
+    /** Foot kept planted throughout this stance interval. */
+    side: "left" | "right";
+
+    /** Stance beginning in action-local seconds. */
+    from: number;
+
+    /** Stance ending in action-local seconds. */
+    to: number;
+
+    /** Whether the footfall that begins this stance is one taken in place at a turned-about or facing walk's arrival, where the swing landing in it fades its reach ranges into the landing as a turn in place does; false when absent. */
+    inPlace?: boolean;
   }
 }

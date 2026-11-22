@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSharedCarry,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -245,7 +246,7 @@ function carrier(
   const shoulder: IAutoMovieVector3 = bones.get(
     `${side}UpperArm`,
   )!.worldPosition;
-  const posture: IAutoMovieMotionHumanPosture = {
+  const free: IAutoMovieMotionHumanPosture = {
     ...standing,
     joints: { ...standing.joints, ...HumanHand.shape(side, "fist") },
     limbs: {
@@ -256,14 +257,27 @@ function carrier(
       },
     },
   };
+  // The ready hand holds the attitude it grips the panel with, so the
+  // posture places the grip itself: a goal that leaves the hand's attitude
+  // free is shown at whatever forearm turn the display continues, and the
+  // grip lands elsewhere than the carry's site.
+  const rotation: IAutoMovieQuaternion = poseBones(
+    body,
+    resolveHumanPosture(body, free),
+  ).get(`${side}Hand`)!.worldRotation;
+  const posture: IAutoMovieMotionHumanPosture = {
+    ...free,
+    limbs: {
+      ...free.limbs,
+      [`${side}Arm`]: { ...free.limbs[`${side}Arm`]!, rotation },
+    },
+  };
   return {
     performer: { subject, body, at, yaw: 0, proficiency: { level: "trained" } },
     site: subject,
     side,
     posture: (): IAutoMovieMotionHumanPosture => posture,
-    rotation: poseBones(body, resolveHumanPosture(body, posture)).get(
-      `${side}Hand`,
-    )!.worldRotation,
+    rotation,
   };
 }
 

@@ -20,6 +20,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
+import { AutoMovieMotionHumanFootSwing } from "../compose/AutoMovieMotionHumanFootSwing";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
@@ -157,7 +158,7 @@ export namespace athletics {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Set, clock, root row, two leg rows, two arm rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every place is the body's; provisional times are named.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed entry/block pairs prepare each leg's original quaternion arc once; fixed standing/set hip points share Vector3.prepareLerp's original component deltas. Trunk pitch/flexion differences and the joint reader also prepare once, while current joints/shares/points evaluate each second. Placed-arm and posture-heading formulas remain shared owners.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The rear foot's fixed block/recovery pair prepares its quaternion arc once, and each step into a block reads the shared foot swing; fixed standing/set hip points share Vector3.prepareLerp's original component deltas. Trunk pitch/flexion differences and the joint reader also prepare once, while current joints/shares/points evaluate each second. Placed-arm and posture-heading formulas remain shared owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the set position and the clock.
    */
   export function plan(
@@ -307,11 +308,21 @@ export namespace athletics {
         rotation: context.entry.feet[side].rotation,
       };
       const block: IAutoMovieMotionHumanFoot.IPlacement = target.feet[side];
-      const trajectory: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> =
-        AutoMovieMotionHumanLeg.prepareArc(
+      // The step back into the block leaves the floor before it travels and
+      // sets down after it stops (`AutoMovieMotionHumanFootSwing`): an arc
+      // rising on the travel's own share slid the toes along the track.
+      const trajectory: (
+        share: number,
+      ) => IAutoMovieMotionHumanFoot.IPlacement = (
+        share: number,
+      ): IAutoMovieMotionHumanFoot.IPlacement =>
+        AutoMovieMotionHumanFootSwing(
+          body,
+          side,
           stance,
           block,
           0.05 * body.measure.stature,
+          share,
         );
       const recovery:
         | ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>
@@ -341,22 +352,46 @@ export namespace athletics {
           side,
           from: 0,
           to: clock.duration,
-          // The rear foot recovering off its block bears nothing, so it
-          // keeps within the passive dorsal range.
           placement: (
             posture: IAutoMovieMotionHumanPosture,
             seconds: number,
-          ): IAutoMovieMotionHumanFoot.IPlacement =>
-            recovery !== undefined && seconds > rearOff
-              ? AutoMovieMotionHumanFootRelax.of(
-                  body,
-                  posture,
-                  side,
-                  recovery((seconds - rearOff) / (end - rearOff)),
-                  0,
-                  false,
-                )
-              : trajectory(share(seconds)),
+          ): IAutoMovieMotionHumanFoot.IPlacement => {
+            // The rear foot recovering off its block bears nothing, so it
+            // keeps within the passive dorsal range.
+            if (recovery !== undefined && seconds > rearOff)
+              return AutoMovieMotionHumanFootRelax.of(
+                body,
+                posture,
+                side,
+                recovery((seconds - rearOff) / (end - rearOff)),
+                0,
+                false,
+              );
+            const at: number = share(seconds);
+            // A foot stepping back into its block bears nothing on the way,
+            // so it too keeps within the passive dorsal range.
+            if (at > 0 && at < 1)
+              return AutoMovieMotionHumanFootRelax.of(
+                body,
+                posture,
+                side,
+                trajectory(at),
+                0,
+                false,
+              );
+            // A rear foot that leaves its block sheds the weight before it
+            // lifts, its heel rising about the toes' joint, so it leaves
+            // within the passive dorsal range.
+            if (recovery !== undefined && seconds > b)
+              return AutoMovieMotionHumanFootRelax.of(
+                body,
+                posture,
+                side,
+                trajectory(at),
+                AutoMovieMotionHumanFootRelax.load(seconds, rearOff),
+              );
+            return trajectory(at);
+          },
           planted: (seconds: number): boolean => {
             if (recovery !== undefined && seconds > rearOff) return false;
             const at: number = share(seconds);

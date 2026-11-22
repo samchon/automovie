@@ -31,6 +31,7 @@ import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { QuadrupedStridePlan } from "./QuadrupedStridePlan";
+import { QuadrupedSwingChord } from "./QuadrupedSwingChord";
 import { QuadrupedSwingGoal } from "./QuadrupedSwingGoal";
 import type { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
@@ -388,6 +389,10 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           EquineFlightClock.carries(flight, landed + step.from.duty, coming);
         const off: number = strides.secondsAt(landed + step.from.duty);
         const on: number = strides.secondsAt(coming);
+        // How far the hoof's leg caps the body's height (`QuadrupedRidePose.IGoal.load`): wholly while planted, since a hoof on the ground cannot leave it before lift-off whatever its ground reaction, and over the swing as far as the hoof still rests on the ground (`QuadrupedSwingChord.weight`, nil at both ends), so the swing leg adapts to the body the planted legs carry and the cap eases continuously at lift-off and touchdown.
+        const load: number = step.planted
+          ? 1
+          : 1 - swinging * QuadrupedSwingChord.weight(step.along);
         const goal: QuadrupedRidePose.IGoal = QuadrupedSwingGoal.of({
           limb,
           index: m,
@@ -406,6 +411,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           off,
           on,
           going: swinging,
+          load,
           crossings,
         });
         goals.set(

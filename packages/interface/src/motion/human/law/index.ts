@@ -2,6 +2,7 @@ export type { AutoMovieMotionHumanScheduledInstant } from "./AutoMovieMotionHuma
 export type { IAutoMovieMotionHumanActionContext } from "./IAutoMovieMotionHumanActionContext";
 export type { IAutoMovieMotionHumanActionLaw } from "./IAutoMovieMotionHumanActionLaw";
 export type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
+export type { IAutoMovieMotionHumanFollow } from "./IAutoMovieMotionHumanFollow";
 export type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 export type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
 export type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";

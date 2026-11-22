@@ -161,6 +161,27 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
   demands?(
     ahead: IAutoMovieMotionHumanActionLaw.IAhead<P>,
   ): readonly IAutoMovieMotionHumanActionLaw.IDemand[];
+
+  /**
+   * The held prop this action plants on the floor ahead as it is entered
+   * (a vault's pole), read from its own parameters before it is planned, so
+   * the action cut into it carries the prop down to the plant over its last
+   * strides (`IAutoMovieMotionHumanActionContext.cut`), as a vaulter lowers
+   * the pole through the run's last strides. Undefined when these parameters
+   * plant nothing; absent when the action never plants.
+   *
+   * @param params The action's resolved parameters.
+   * @returns The plant, or undefined.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.plants: The held prop this action plants on the floor ahead as it is entered, read from its own parameters before it is planned, so the action cut into it carries the prop down to the plant over its last strides.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
+   */
+  plants?(params: P): IAutoMovieMotionHumanActionLaw.IPlant | undefined;
 }
 
 /**
@@ -233,6 +254,26 @@ export namespace IAutoMovieMotionHumanActionLaw {
 
     /** A stray the action proved before any search, metres: a lower bound on what any fit of the pose leaves, so the pose is judged no better (an infeasibility certificate). None when absent. */
     least?: number;
+  }
+
+  /**
+   * A held prop an action plants on the floor ahead as it is entered
+   * (`IAutoMovieMotionHumanActionLaw.plants`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it is and its unit.
+   * @evidence contracts/development/design.md#principled-representation The prop by its subject id, its planted end by affordance id and the plant's lean from upright, all the action's own parameters and constants.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, what an action cut into the plant reads to carry the prop down to it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop or action is named: the prop and its end are the planting action's parameters.
+   */
+  export interface IPlant {
+    /** The planted prop's subject id. */
+    prop: string;
+
+    /** The affordance id of the end planted on the floor. */
+    end: string;
+
+    /** The least lean of the prop from upright at the plant, degrees. */
+    lean: number;
   }
 
   /**

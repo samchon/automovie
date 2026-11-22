@@ -115,7 +115,7 @@ export function test_motion_mechanism_prop_hit_sync(): void {
     ],
     composition: AutoMovieComposition.sequence(
       HumanChain.subject("stagehand").registered("stageFoamLaunch", {
-        seconds: 1,
+        hold: 1,
       }).node,
       HumanChain.subject("witness")
         .flinch({})

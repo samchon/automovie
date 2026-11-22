@@ -202,7 +202,7 @@ export namespace HumanLimbFit {
    * @evidence contracts/development/implementation.md#principled-implementation The engine's two-bone fit, a fixed-point re-aim with Anderson mixing, and the clearance as the fit's obstruction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One world goal, one obstruction, one fit, then the re-aim loop and the toes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The re-aim keeps the fit whose contact lay nearest, not its last pass, and stops at `REAIM_PASSES`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy canonical source read requests only the actual effector, attachment and selected trunk/thigh/placed-arm obstacle frames plus their ancestors, preserving all authored admission. At most REAIM_PASSES targets share rig work, a re-aim pass after the first continuing the previous pass's seed instead of searching again, and every obstruction candidate shares fixed shape-frame preparation; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy canonical source read requests only the actual effector, attachment and selected trunk/thigh/placed-arm obstacle frames plus their ancestors, preserving all authored admission. At most REAIM_PASSES targets share rig work, a re-aim pass after the first continuing the first pass's seed instead of searching again, and every obstruction candidate shares fixed shape-frame preparation; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader, limb workspace and prepared obstruction serve the fixed body/source pose, placed colliders, goal bend/rotation/reference and cold/near mode; only fit targets and candidate points vary. No callback value, distance or fitted answer is shared across distinct candidates.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one source-FK map, fit workspace and at most one opaque distance reader per queried fixed shape through synchronous return or failure. Its lazy reader is local or borrowed; only pose/seed/value escape, and no returned plan or body-memory entry captures readers or callbacks.
    */
@@ -418,13 +418,13 @@ export namespace HumanLimbFit {
     return HumanLimbMirror.goal(goal);
   }
 
-  /** Public near/cold fitting retains its original workspace entry and order; a re-aim pass continues its previous pass, prescribed where the fit's own seed is. */
+  /** Public near/cold fitting retains its original workspace entry and order; a re-aim pass continues its first pass, prescribed where the fit's own seed is. */
   function ordinary(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
     near: IAutoMovieSwivelNear | undefined, continued?: IAutoMovieSwivelNear,
     incumbent?: IAutoMovieSwivelSeed, capture?: fitHumanLimbContact.ICapture): IAutoMovieSeededChainFit {
     // A re-aim pass of a prescribed fit keeps the prescription at the swivel
-    // the pass before it settled on: re-aiming moves the target, never the
-    // swivel the course chose.
+    // the instant's first pass settled on: re-aiming moves the target, never
+    // the swivel the course chose.
     const pass: IAutoMovieSwivelNear | undefined =
       continued !== undefined && near?.prescribed === true ? { ...continued, prescribed: true } : continued;
 

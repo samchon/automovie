@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanCartwheel,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanGymnasticsWheel,
   IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
@@ -98,13 +99,24 @@ export namespace cartwheel {
     return ExerciseKey.from(body, {}, { spread: 35, raise: 150, elbow: 3 });
   }
 
-  /** The joints a wheel may bear on. */
-  const SPOKES: readonly (
-    | "leftFoot"
-    | "rightFoot"
-    | "leftHand"
-    | "rightHand"
-  )[] = ["leftFoot", "rightFoot", "leftHand", "rightHand"];
+  /** A joint a wheel may bear on. */
+  type Spoke = "leftFoot" | "rightFoot" | "leftHand" | "rightHand";
+
+  /** The joints a wheel to the left bears on, the leading side first. */
+  const SPOKES: readonly Spoke[] = [
+    "leftFoot",
+    "rightFoot",
+    "leftHand",
+    "rightHand",
+  ];
+
+  /** The joints a wheel to the right bears on, the leading side first. */
+  const SPOKES_RIGHT: readonly Spoke[] = [
+    "rightFoot",
+    "leftFoot",
+    "rightHand",
+    "leftHand",
+  ];
 
   /**
    * Plan a cartwheel.
@@ -170,9 +182,13 @@ export namespace cartwheel {
         new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]),
       );
     const laid: number = GymnasticsWheel.laid(body);
-    const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = SPOKES.map(
+    // The leading side first, so the leading foot keeps the weight from the
+    // stand, where both feet are level (`GymnasticsWheel.roll`'s tie rule).
+    const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = (
+      sign < 0 ? SPOKES : SPOKES_RIGHT
+    ).map(
       (
-        bone: (typeof SPOKES)[number],
+        bone: Spoke,
       ): IAutoMovieMotionHumanGymnasticsWheel.ISpoke => ({
         bones: [bone],
         height: bone.endsWith("Hand")
@@ -196,11 +212,26 @@ export namespace cartwheel {
     // The seconds at which the turn reaches an angle.
     const when: (angle: number) => number = (angle: number): number =>
       GymnasticsWheel.when(angle, 360, duration);
+    // The wheel bears on one spoke a row, but the cartwheel ends standing on
+    // both feet: the foot that landed first stays down while the other comes
+    // down beside it, so its last window runs to the end.
     const contacts: IAutoMovieMotionHumanContactWindow[] =
       GymnasticsWheel.contacts(
         rolling,
         spokes,
         (angle: number): number => when(angle) / duration,
+      ).map(
+        (
+          window: IAutoMovieMotionHumanContactWindow,
+          index: number,
+          all: readonly IAutoMovieMotionHumanContactWindow[],
+        ): IAutoMovieMotionHumanContactWindow =>
+          index === all.length - 2 &&
+          window.part.endsWith("Foot") &&
+          all[index + 1]!.part.endsWith("Foot") &&
+          all[index + 1]!.part !== window.part
+            ? { ...window, to: 1 }
+            : window,
       );
     const inverted: number = when(180);
     const first: (suffix: string, after: number) => number = (
@@ -236,7 +267,7 @@ export namespace cartwheel {
     // The bearing hands and feet laid where they came down, not turned with
     // the rigid shape, the hands in the T-shape: the first along the travel,
     // the second toward the way the body faces (`GymnasticsWheelPlants`).
-    const frame: Parameters<typeof HumanFrame.point>[0] = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: 0, y: 0, z: 0 },
       yaw: standing.yaw,
     };
@@ -251,7 +282,10 @@ export namespace cartwheel {
     /** The landing shape restarts at zero angle on the final support row. */
     const landed: () => IAutoMovieMotionHumanPosture =
       (): IAutoMovieMotionHumanPosture =>
-        lay({ ...shaped(0), root: rolling.rows.at(-1)!.root }, duration);
+        lay(
+          { ...shaped(360), roll: 0, root: rolling.rows.at(-1)!.root },
+          duration,
+        );
     const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,

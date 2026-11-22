@@ -10,6 +10,7 @@ import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
 import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanFlight } from "./IAutoMovieMotionHumanFlight";
+import type { IAutoMovieMotionHumanFollow } from "./IAutoMovieMotionHumanFollow";
 import type { IAutoMovieMotionPropDrive } from "./IAutoMovieMotionPropDrive";
 import type { IAutoMovieMotionPropHold } from "./IAutoMovieMotionPropHold";
 import type { IAutoMovieMotionPropLaunch } from "./IAutoMovieMotionPropLaunch";
@@ -68,6 +69,16 @@ export interface IAutoMovieMotionHumanActionPlan {
    * The channels the plan's own movements write, when it is composed of part primitives over a base: what an overlay takes from its carrier. Absent for a plan that writes the whole body.
    */
   channels?: readonly AutoMovieMotionHumanChannelClaim[];
+
+  /**
+   * The channels whose writer follows another performer live, each over its
+   * window (an arm course that tracks a partner's region a feedback delay
+   * earlier), so a plan-level reading that needs no such arm there (the
+   * display's swivel course of the plan's own limb goals) reads the plan
+   * without it inside the window and never reads that partner. Absent, no
+   * channel follows anyone.
+   */
+  follows?: readonly IAutoMovieMotionHumanFollow[];
 
   /** Claimed channels whose authored transport starts from the displayed entry pose.
    * Their planned movement already includes acquisition from the carrier.

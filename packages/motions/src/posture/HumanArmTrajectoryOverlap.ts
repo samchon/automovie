@@ -133,20 +133,21 @@ export namespace HumanArmTrajectoryOverlap {
               i: number,
             ): void => {
               if (!mine[i]) return;
-              // The two arms' segments on one grasped object meet by design.
-              if (
-                c.grasped(
-                  a,
-                  k,
-                  segment,
-                  owners[i] === "upper"
-                    ? "upperArm"
-                    : owners[i] === "lower"
-                      ? "lowerArm"
-                      : "hand",
-                )
-              )
-                return;
+              // The two arms' segments on one grasped object meet by design
+              // on the hold, and keep that depth only by the reach's share as
+              // the hands close on it and part from it.
+              const grip: number | undefined = c.grasped(
+                a,
+                k,
+                segment,
+                owners[i] === "upper"
+                  ? "upperArm"
+                  : owners[i] === "lower"
+                    ? "lowerArm"
+                    : "hand",
+                i,
+              );
+              if (grip === Infinity) return;
               const apart: number =
                 Vector3.length(Vector3.subtract(p, shape.centre)) -
                 shape.radius -
@@ -154,7 +155,8 @@ export namespace HumanArmTrajectoryOverlap {
               if (apart >= T.REACH) return;
               const key: string = `${a}|${segment}|${i}`;
               const known: ICrossing | undefined = out.get(key);
-              const allowance: number = c.between(a, k, probe, i, shape.bone);
+              const allowance: number =
+                c.between(a, k, probe, i, shape.bone) - (grip ?? 0);
 
               // Bounded as `deepest`: a probe the bounding sphere shows no
               // deeper than the pair's deepest so far is not read exactly.

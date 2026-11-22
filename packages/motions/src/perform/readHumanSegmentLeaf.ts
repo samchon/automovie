@@ -2,6 +2,7 @@ import { hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -22,7 +23,9 @@ import { HumanSegmentLayer } from "./HumanSegmentLayer";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import type { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { demandedHumanChannels } from "./demandedHumanChannels";
 import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
+import { unfollowedHumanChannels } from "./unfollowedHumanChannels";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
 /** The arms, placed at the anchor course (`readHumanSegmentLeaf.anchors`) where the plan's own course does not place them. */
@@ -65,11 +68,18 @@ export function readHumanSegmentLeaf(
       prepared.resolution,
       prepared.clamp,
     );
+  // An observation of some bones reads only the channels their frames hang
+  // from (`demandedHumanChannels`), so the plan evaluates no writer of a
+  // part the observation does not show (a trunk read never runs an arm's
+  // course, nor through it a partner's): the demand-driven evaluation of
+  // required bones (Unreal Engine `FBoneContainer`).
+  const channels: readonly AutoMovieMotionHumanChannel[] | undefined =
+    observed === undefined ? undefined : demandedHumanChannels(observed);
   const raw: IAutoMovieMotionHumanPosture =
     sample?.posture ??
     Reflect.apply(reader, segment.plan, [
       localSeconds,
-      undefined,
+      channels,
       prepared.resolution,
       prepared.clamp,
     ]);
@@ -106,10 +116,15 @@ export function readHumanSegmentLeaf(
   // A read with no fits of its own places each limb at its plan's swivel
   // course (`readHumanSegmentLeaf.swivels`): the displayed goals stay, the
   // branch and swivel come from the course, so no limb is swept afresh.
+  // An observation that shows no arm reads no arm course.
+  const armed: boolean =
+    channels === undefined ||
+    channels.includes("leftArm") ||
+    channels.includes("rightArm");
   const course:
     | ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>
     | undefined =
-    fits === undefined
+    fits === undefined && armed
       ? readHumanSegmentLeaf.swivels(
           segment.plan,
           person.performer.body,
@@ -124,6 +139,7 @@ export function readHumanSegmentLeaf(
   // a second shows the same pose, whatever was read before it.
   const anchoring: boolean =
     fits === undefined &&
+    armed &&
     (borne.length !== 0 ||
       (person.overlays.length !== 0 &&
         HumanSegmentOverlay.running(person, t).length !== 0) ||
@@ -258,8 +274,9 @@ export namespace readHumanSegmentLeaf {
       found = courseLimbSwivels.swivels({
         entry: entered,
         body,
+        // Without an arm that follows a partner (`unfollowedHumanChannels`).
         posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-          plan.posture(seconds),
+          plan.posture(seconds, unfollowedHumanChannels(plan, seconds)),
         // The legs keep their own fits: a planted foot is held by its plant
         // and transition corrections, which a course of the leaf alone would
         // not see.

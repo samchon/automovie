@@ -121,7 +121,7 @@ export function test_motion_contact_prop_contact_timeline(): void {
       },
     ],
     composition: HumanChain.subject("stagehand").registered("stageBallDrop", {
-      seconds: duration,
+      hold: duration,
     }).node,
   });
 

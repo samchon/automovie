@@ -4,6 +4,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanLimbReference,
+  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -13,7 +14,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -26,6 +26,9 @@ interface IKey {
 
   /** The foot's world attitude there. */
   attitude: IAutoMovieQuaternion;
+
+  /** The ankle's clinical angles there, degrees. */
+  ankle: readonly [number, number, number];
 }
 
 /**
@@ -43,7 +46,7 @@ interface IKey {
  * @evidence contracts/development/common.md#meaningful-documentation States the phases and how the keys anchor the fit.
  * @evidence contracts/development/implementation.md#principled-implementation Two solved keys and the entry's own solution, blended as joint rotations, anchor every goal; the foot rises before it travels and travels before it sets down.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Keys first, then one phase branch per second.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contact goal is the law's; an airborne foot is only turned toes down by the shared relax's closed form where the passive dorsal range asks.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contact goal is the law's; an airborne foot carries its keys' ankle angles, the contact key's solved with the form's attitude, and an airborne goal is only turned down into the hip's whole range.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two limb solves per plan; each second blends two references.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the stance's knee hint, the posture resolver's references and the joint blend.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains its keys until plan release.
@@ -70,6 +73,7 @@ export function FootStrikeLeg(
     rotation,
     lead,
     meet,
+    reachable,
   }: FootStrikeLeg.IProps = props;
   // The kicking foot leaves from its planted place, attitude and knee
   // hint (the stance's own, `StrikingStance.legs`), rises before it
@@ -118,11 +122,19 @@ export function FootStrikeLeg(
         undefined,
         new Set<AutoMovieHumanoidBone>([`${side}Foot`]),
       ).get(`${side}Foot`)!.worldRotation,
+      ankle: ankleOf(pose),
     };
   };
+  function ankleOf(of: IAutoMoviePose): readonly [number, number, number] {
+    const j: IAutoMovieJointPose | undefined = of.joints.find(
+      (q: IAutoMovieJointPose): boolean => q.bone === `${side}Foot`,
+    );
+    return [j?.flexion ?? 0, j?.abduction ?? 0, j?.twist ?? 0];
+  }
   const rest: IKey = {
     reference: resolveHumanPosture.reference(pose, limb),
     attitude: feet[side].rotation,
+    ankle: ankleOf(pose),
   };
   const cocked: IKey = solve(chamber, {
     point: folded,
@@ -151,6 +163,11 @@ export function FootStrikeLeg(
       ),
     },
     attitude: Quaternion.slerp(a.attitude, b.attitude, s),
+    ankle: [
+      a.ankle[0] + (b.ankle[0] - a.ankle[0]) * s,
+      a.ankle[1] + (b.ankle[1] - a.ankle[1]) * s,
+      a.ankle[2] + (b.ankle[2] - a.ankle[2]) * s,
+    ],
   });
   const leg: IAutoMovieMotionHumanPrimitive = {
     channels: [limb],
@@ -190,32 +207,40 @@ export function FootStrikeLeg(
         bend = Vector3.lerp(knee, startBend, s);
         key = between(struck, rest, s);
       }
-      // A foot off the floor bears nothing, so it turns toes down about its
-      // ankle until its shank's lean leaves it within the passive dorsal
-      // range (`AutoMovieMotionHumanFootRelax`): the attitude blended between
-      // keys stays level while the knee folds, and the folding shank leaned
-      // it to the ankle's full 39 degrees.
-      const attitude: IAutoMovieQuaternion =
-        seconds <= release
-          ? key.attitude
-          : AutoMovieMotionHumanFootRelax.of(
-              body,
-              posture,
-              side,
-              { ankle: point, rotation: key.attitude },
-              0,
-              false,
-            ).rotation;
+      // Planted, the foot keeps its world attitude. Off the floor its ankle
+      // carries the keys' own angles, blended as the hip and the knee are,
+      // relative to the shank: a world attitude asked of an airborne foot
+      // made the fit turn the whole leg wherever the ankle met its range
+      // (the foot flipping 95 degrees in a frame), and the keys' angles are
+      // the fit's own, inside the range.
+      if (seconds <= release)
+        return {
+          ...posture,
+          limbs: {
+            ...posture.limbs,
+            [limb]: {
+              point,
+              bend,
+              rotation: key.attitude,
+              reference: key.reference,
+              planted: true,
+            },
+          },
+        };
+      // An airborne goal the hip cannot lift the thigh to is turned down
+      // into its reach, so the fit never meets the range's edge, where two
+      // clamped branches of the hip answer the same goal and the leg flips
+      // between them from one frame to the next.
       return {
         ...posture,
+        joints: { ...posture.joints, [`${side}Foot`]: key.ankle },
         limbs: {
           ...posture.limbs,
           [limb]: {
-            point,
+            point: reachable === undefined ? point : reachable(point, seconds),
             bend,
-            rotation: attitude,
             reference: key.reference,
-            planted: seconds <= release,
+            planted: false,
           },
         },
       };
@@ -288,5 +313,8 @@ export namespace FootStrikeLeg {
 
     /** The share of the extension unit at which the foot meets the target. */
     meet: number;
+
+    /** An airborne ankle goal at a second brought inside the hip's reach (`FootStrikeTilt.chambered`); the goal unchanged when absent. */
+    reachable?: (point: IAutoMovieVector3, seconds: number) => IAutoMovieVector3;
   }
 }

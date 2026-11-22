@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -10,10 +11,12 @@ import type {
   IAutoMovieMotionHumanReach,
   IAutoMovieMotionHumanRise,
   IAutoMovieMotionHumanTouchStance,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanLeanInto } from "./AutoMovieMotionHumanLeanInto";
@@ -42,8 +45,9 @@ import { AutoMovieMotionHumanRise } from "./AutoMovieMotionHumanRise";
  * as a person turns the chest toward a hand reaching across the body. The
  * lean, solved again on the turned trunk, refuses a region still out of
  * reach at its limit. Two hands' regions off to one side (`faces`) are
- * turned toward from the start, the trunk facing their middle from the
- * pelvis, so both arms reach from that side and neither crosses the body.
+ * turned toward from the start, the leaned trunk facing their middle from
+ * the shoulders, the turn and the lean solved together to their fixed
+ * point, so both arms reach from that side and neither crosses the body.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two movements, their order, why the rise comes first, what bounds each and who refuses.
  * @evidence contracts/development/design.md#principled-representation A girdle angle, a heel angle and a lean solved once from the wrist's place on the posture, the body's three ways of closing a reach without a step.
@@ -185,6 +189,19 @@ export namespace AutoMovieMotionHumanTouchStance {
       return Math.max(-range, Math.min(range, angle));
     };
 
+    // The middle of the shoulder joints on a posture, world metres.
+    const shoulders = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3 => {
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, resolveHumanPosture(body, posture), undefined, ARMS);
+      return Vector3.lerp(
+        bones.get("leftUpperArm")!.worldPosition,
+        bones.get("rightUpperArm")!.worldPosition,
+        0.5,
+      );
+    };
+
     // The worst of the stroke's start, middle and end on a posture: how far
     // the wrist lies beyond the kept share, and how far above the shoulder.
     const probes: readonly number[] = props.fixed === true ? [0] : [0, 0.5, 1];
@@ -265,6 +282,25 @@ export namespace AutoMovieMotionHumanTouchStance {
       lean = leanOn(twisted(upright, turn));
       arrival = lean.pitch(twisted(upright, turn), 0);
     }
+    // The lean pitches the trunk along the pelvis's heading, not the turned
+    // chest's, so the shoulders it carries forward see the two regions'
+    // middle off to the side again: a disarm's leaned shoulders saw it at 40
+    // degrees when the trunk had turned 18 toward it from the pelvis, and
+    // the far arm crossed the chest. The turn is therefore the one the
+    // leaned body faces the middle with, a fixed point of turning and
+    // leaning (successive substitution), read from the shoulders' middle.
+    if (props.faces !== undefined)
+      for (let pass: number = 0; pass < FACING; ++pass) {
+        const leaned: IAutoMovieMotionHumanPosture = lean.tip(
+          twisted(upright, turn),
+          arrival,
+        );
+        const next: number = angleTo(leaned, shoulders(leaned), props.faces);
+        if (Math.abs(next - turn) <= SETTLED) break;
+        turn = next;
+        lean = leanOn(twisted(upright, turn));
+        arrival = lean.pitch(twisted(upright, turn), 0);
+      }
     const risen: IAutoMovieMotionHumanPosture = twisted(upright, turn);
     const leaning: boolean =
       arrival > 0 ||
@@ -375,6 +411,17 @@ export namespace AutoMovieMotionHumanTouchStance {
     }
   }
 }
+
+/** The most turn-and-lean passes a two-handed facing takes before it keeps its last turn (provisional). */
+const FACING: number = 6;
+
+/** The change of turn below which a facing has settled, degrees (provisional). */
+const SETTLED: number = 0.5;
+
+/** The bones whose joints the shoulders' middle is read between. */
+const ARMS: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
+  ["leftUpperArm", "rightUpperArm"],
+);
 
 /** The spine's bones a turn of the trunk toward a wrist off to the side twists: the lumbar and the thoracic spine. */
 const TWISTED: readonly TwistedBone[] = ["spine", "chest"];

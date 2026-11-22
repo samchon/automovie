@@ -1,6 +1,7 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
@@ -8,6 +9,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
@@ -32,6 +34,7 @@ import { AutoMovieMotionHumanPartnerClear } from "../compose/AutoMovieMotionHuma
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { courseArmGoal } from "../compose/courseArmGoal";
+import { HumanTrunkLean } from "../handling/HumanTrunkLean";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -54,7 +57,9 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * Slip a ring onto a partner's finger (#4015). The partner's presented hand
  * is read where it is at the action's start, so the partner presents it
  * first (`presentHand`). The dresser's other hand takes the partner's
- * forearm from its own side, its fingers toward the partner's wrist, and holds it from `ready` to `relax`. The ring hand brings
+ * forearm from its own side, its fingers toward the partner's wrist, before
+ * the ring hand leaves its rest, and lets go once the ring hand is back at it
+ * (Guiard 1987: the non-dominant hand leads and lags). The ring hand brings
  * the ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by
  * `ready`, then slides it along the axis to `SEAT` of the proximal phalanx
  * over the stroke: the ring's `wear` axis lies along the finger, from the
@@ -62,7 +67,10 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * steps, that turns the holding hand least from how it holds the ring. From `strokeEnd` the ring is worn on the
  * partner's proximal bone and the ring hand's grip ends, so custody passes
  * without a gap; both hands then return. Both arms are laid in one course
- * (`courseArmGoal` with `with`), the hands excused from each other.
+ * (`courseArmGoal` with `with`), the hands excused from each other. A
+ * presented hand beyond the standing arms is reached by the least hinge at
+ * the hips that brings both wrists within their arms (`HumanTrunkLean`), as
+ * `dressPartner` reaches a region, so the dresser keeps its standoff.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States who holds what, the ring's path, the custody change, the timing and the course.
  * @evidence contracts/development/design.md#principled-representation The ring's frame along the partner's finger axis is the plan; the ring hand follows from it and the steadying hand from the partner's forearm.
@@ -297,12 +305,28 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           Vector3.distance(from(steady), under.point),
         ),
       );
+      // The steadying hand sets the frame the ring hand works in, so it
+      // takes the partner's forearm before the ring hand leaves its rest and
+      // lets go only once the ring hand is back: the non-dominant hand leads
+      // and lags the dominant one (Guiard 1987, "Asymmetric division of
+      // labor in human skilled bimanual action: the kinematic chain as a
+      // model", J. Motor Behavior 19:486). Laid over one span, the two
+      // reaches and returns crossed in front of the body (the ring hand
+      // 14.8 mm inside the steadying forearm). The ring hand's phrase runs
+      // inside the steadying hand's hold, each reach and return one
+      // `prepare` long.
       const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
-        prepare,
+        prepare: 2 * prepare,
         attack: AutoMovieMotionHumanTiming.transport(
           Vector3.distance(begin, seat),
         ),
         hold: AutoMovieMotionHumanTiming.seconds("beat"),
+        retract: 2 * prepare,
+      });
+      const steadying: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+        prepare,
+        attack: 0,
+        hold: clock.duration - 2 * prepare,
         retract: prepare,
       });
       const plan: IAutoMovieMotionHumanActionPlan =
@@ -329,7 +353,7 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
             {
               ...AutoMovieMotionHumanArmPhrase.stroke({
                 body,
-                clock,
+                clock: steadying,
                 side: steady,
                 origin: origins[steady],
                 path: (): IAutoMovieMotionHumanArmTarget.ITarget => under,
@@ -339,12 +363,90 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           ],
           contact: "strokeEnd",
         });
-      const span = {
-        start: 0,
+      // The ring hand leaves its rest once the steadying hand holds, and is
+      // back at it before the steadying hand lets go.
+      const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+        start: prepare,
         ready: clock.at("ready"),
         relax: clock.at("relax"),
-        end: clock.duration,
+        end: clock.at("relax") + prepare,
       };
+      const grasping: IAutoMovieMotionHumanArmPlanned.ISpan = {
+        start: 0,
+        ready: steadying.at("ready"),
+        relax: steadying.at("relax"),
+        end: steadying.duration,
+      };
+      // A presented hand beyond the standing arms (a small partner's hand
+      // before a tall dresser, or the forearm the steadying palm takes) is
+      // reached by the least hinge at the hips that brings both wrists the
+      // plan asks at the stroke's end within their arms (`HumanTrunkLean`),
+      // as `dressPartner` reaches a region, eased in over the reach and out
+      // over the return on the minimum-jerk profile (Flash and Hogan 1985):
+      // the dresser keeps its standoff instead of an arm held past its reach.
+      const asked: IAutoMovieMotionHumanPosture = plan.posture(
+        clock.at("strokeEnd"),
+      );
+      const wrists: HumanTrunkLean.IWrist[] = [side, steady].flatMap(
+        (arm: AutoMovieHumanSide): HumanTrunkLean.IWrist[] => {
+          const goal: IAutoMovieHumanLimbGoal | undefined =
+            asked.limbs[`${arm}Arm`];
+          return goal === undefined || goal.on !== undefined
+            ? []
+            : [
+                {
+                  side: arm,
+                  point: goal.point,
+                  rotation: goal.rotation ?? Quaternion.identity(),
+                },
+              ];
+        },
+      );
+      const forward: number =
+        wrists.length === 0 ? 0 : HumanTrunkLean.least(context, wrists);
+      // The hinge comes in with the steadying hand's reach and goes out with
+      // its return, the first and last arm to move.
+      const hinge: (seconds: number) => number = (seconds: number): number =>
+        forward *
+        (seconds <= grasping.relax
+          ? minimumJerk.share(
+              grasping.ready > 0
+                ? Math.min(1, Math.max(0, seconds / grasping.ready))
+                : 1,
+            )
+          : 1 -
+            minimumJerk.share(
+              Math.min(
+                1,
+                Math.max(
+                  0,
+                  (seconds - grasping.relax) / (grasping.end - grasping.relax),
+                ),
+              ),
+            ));
+      const leaned: IAutoMovieMotionHumanActionPlan =
+        forward > 0
+          ? {
+              ...HumanTrunkLean.moving(plan, forward),
+              posture: (
+                seconds: number,
+                channels?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[1],
+                resolution?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[2],
+                projection?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[3],
+              ): IAutoMovieMotionHumanPosture =>
+                HumanTrunkLean.lean(
+                  body,
+                  plan.posture(seconds, channels, resolution, projection),
+                  hinge(seconds),
+                ),
+            }
+          : plan;
       // The partner's body is both arms' obstacle (`AutoMovieMotionHumanPartnerClear`),
       // except the presented hand, its fingers and its forearm, which the
       // ring goes onto and the steadying palm lies under: those are the
@@ -357,7 +459,7 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
         (bone.startsWith(hand) &&
           /(Thumb|Index|Middle|Ring|Little)/.test(bone));
       const cleared: IAutoMovieMotionHumanActionPlan = {
-        ...plan,
+        ...leaned,
         posture: (
           seconds: number,
           channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -385,7 +487,7 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
             );
           return AutoMovieMotionHumanPartnerClear.onto(
             AutoMovieMotionHumanPartnerClear.onto(
-              plan.posture(seconds, channels, resolution, projection),
+              leaned.posture(seconds, channels, resolution, projection),
               `${side}Arm`,
               clear,
             ),
@@ -407,6 +509,7 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
             side: steady,
             rest: AutoMovieMotionHumanArm.angles(context.entry.pose, steady),
             grasp: ["hand"],
+            span: grasping,
           },
         ],
       });
@@ -425,8 +528,8 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           {
             part: steady === "left" ? "leftHand" : "rightHand",
             kind: "grip",
-            from: clock.at("ready") / clock.duration,
-            to: clock.at("relax") / clock.duration,
+            from: grasping.ready / clock.duration,
+            to: grasping.relax / clock.duration,
             support: { kind: "person", subject: p.partner, region: palmRegion },
           },
         ],

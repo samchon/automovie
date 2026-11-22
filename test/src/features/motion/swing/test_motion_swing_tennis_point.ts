@@ -245,7 +245,7 @@ export function test_motion_swing_tennis_point(): void {
           {
             tool: `racket-${shot.hitter}`,
             ball: "ball",
-            toward: { kind: "point", frame: "world", at: shot.toward },
+            target: { kind: "point", frame: "world", at: shot.toward },
             impact,
             speed: shot.speed,
           },

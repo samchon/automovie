@@ -123,7 +123,7 @@ export function test_motion_mount_initial_prop_mount(): void {
         },
       ],
       composition: HumanChain.subject("stagehand").registered(law.name, {
-        seconds: 1.5,
+        hold: 1.5,
         sway: 0,
       }).node,
     });

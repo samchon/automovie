@@ -70,12 +70,18 @@ export namespace HumanArmTrajectoryContext {
       /** Its segments that grasp one object with the other arm over the action (`HumanArmTrajectoryModel.IContext.grasped`); none when absent. */
       grasp?: readonly M.Segment[];
 
+      /** The arm the goal's own solution gives at the hold's start, whose grasping pairs' depth the closing and the parting keep (`HumanArmTrajectoryModel.IContext.grasped`); none when absent. */
+      guess?: IAutoMovieMotionHumanArmClearance.IArm;
+
       /** The arm a still configuration is drawn to, its distance from it the objective's (`HumanArmTrajectoryModel.IContext.anchor`); none when absent. */
       anchor?: IAutoMovieMotionHumanArmClearance.IArm;
     }[];
 
     /** Whether the problem is a still configuration (`HumanArmTrajectoryModel.IContext.still`). */
     still?: boolean;
+
+    /** The share of the reach made at a second, 0 at rest and 1 on the hold (`HumanArmTrajectory.IProblem.share`); a grasp's closing and parting keep its depth on the hold by it. Nothing is kept when absent. */
+    share?: (seconds: number) => number;
   }
 
   /**
@@ -394,6 +400,69 @@ export namespace HumanArmTrajectoryContext {
       return v;
     };
 
+    // A grasp both hands share (`HumanArmTrajectoryModel.IContext.grasped`):
+    // the depth a grasping pair has with both arms on the hold, the goal's
+    // own solution there (`guess`), read at a waypoint's own base as the rest
+    // reference is, once per waypoint and pair; none without both guesses.
+    const holding: readonly boolean[] = problem.times.map(
+      (_: number, k: number): boolean =>
+        problem.arms.every(
+          (arm: IProblem["arms"][number]): boolean =>
+            arm.sites[k] !== undefined,
+        ),
+    );
+    const guessed: number[][] | undefined =
+      problem.arms.length === 2 &&
+      problem.arms.every(
+        (arm: IProblem["arms"][number]): boolean => arm.guess !== undefined,
+      )
+        ? problem.arms.map(
+            (arm: IProblem["arms"][number], a: number): number[] =>
+              G.encode(setups[a]!, arm.guess!),
+          )
+        : undefined;
+    const held: (IAutoMovieMotionHumanArmGeometry.IPlaced[] | undefined)[] =
+      [];
+    const holdDepths: Map<string, number> = new Map();
+    const holdDepth = (
+      a: number,
+      k: number,
+      own: M.Segment,
+      shape: number,
+    ): number => {
+      if (guessed === undefined) return 0;
+      const key: string = `${a}|${k}|${own}|${shape}`;
+      let v: number | undefined = holdDepths.get(key);
+      if (v === undefined) {
+        const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = (held[k] ??=
+          setups.map(
+            (
+              setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+              b: number,
+            ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+              G.placed(setup, frames[b]![k]!, guessed[b]!),
+          ));
+        const theirs: IAutoMovieMotionHumanArmGeometry.IShape = S.colliders(
+          frames[1 - a]![k]!,
+          placed[1 - a]!,
+        )[shape]!;
+        let deepest: number = 0;
+        placed[a]!.probes.forEach(
+          ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
+            if (probe < G.SURFACE || S.segment(frames[a]![k]!, probe) !== own)
+              return;
+            deepest = Math.max(
+              deepest,
+              r -
+                physicalShapeSegmentDistance(theirs.pose, theirs.shape, p, p),
+            );
+          },
+        );
+        holdDepths.set(key, (v = deepest));
+      }
+      return v;
+    };
+
     const context: M.IContext = {
       ...(problem.material === undefined ? {} : {
         material: {
@@ -441,18 +510,34 @@ export namespace HumanArmTrajectoryContext {
       ),
       allowed,
       between,
-      // A grasp both hands share: over the action, as they close on the
-      // object, hold it and part from it, a pair of segments each arm
-      // declares is the grasp's contact, not a collision.
+      // A grasp both hands share: on the hold a pair of segments each arm
+      // declares is the grasp's contact, not a collision; as the hands close
+      // on the object and part from it the pair keeps its depth on the hold
+      // by the share of the reach still made, down to the margin every pair
+      // keeps at rest, so a parting hand leaves the other arm, never passes
+      // through it.
       grasped: (
         a: number,
-        _k: number,
+        k: number,
         own: M.Segment,
         other: M.Segment,
-      ): boolean =>
-        problem.arms.length === 2 &&
-        (problem.arms[a]!.grasp ?? []).includes(own) &&
-        (problem.arms[1 - a]!.grasp ?? []).includes(other),
+        shape: number,
+      ): number | undefined => {
+        if (
+          !(
+            problem.arms.length === 2 &&
+            (problem.arms[a]!.grasp ?? []).includes(own) &&
+            (problem.arms[1 - a]!.grasp ?? []).includes(other)
+          )
+        )
+          return undefined;
+        if (holding[k]!) return Infinity;
+        const share: number = Math.min(
+          1,
+          Math.max(0, problem.share?.(problem.times[k]!) ?? 0),
+        );
+        return share > 0 ? share * holdDepth(a, k, own, shape) : 0;
+      },
       inside,
       lying,
       normals: setups.map(

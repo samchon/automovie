@@ -285,8 +285,19 @@ function thread(
   const across: number = wardrobeHands.duration(first, last);
   const finish: number = prepare + across;
   const total: number = finish + 0.18;
+  // Through a jacket a partner holds open, the threaded arm has no further
+  // part in the dressing (the partner's release puts the jacket on), so it
+  // returns to the arm it entered with: a free-space transfer as long as the
+  // reach (the retraction that closes a reach, McNeill 1992), on the same
+  // planned course, so it comes down clear of the body instead of being
+  // blended back in joint space by the next action. A wearer dressing alone
+  // keeps the threaded arm where it is for the next garment act (a zip, a
+  // sleeve pulled out), which reaches on from there.
+  const back: number = held ? wardrobeHands.duration(last, home) : 0;
+  const end: number = total + back;
   // A demand that leaves the arm out (`courseArmGoal`, the arm on its
-  // course) takes no goal of it (`wardrobeHands.arm`).
+  // course) takes no goal of it (`wardrobeHands.arm`). After the hold the
+  // plan's goal is the entry grip, the course's return's end.
   const posture: (
     t: number,
     channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -298,9 +309,11 @@ function thread(
       body,
       entry.posture,
       side,
-      t <= prepare
-        ? wardrobeHands.path(home, first, t / prepare)
-        : wardrobeHands.path(first, last, (t - prepare) / across),
+      t > total
+        ? home
+        : t <= prepare
+          ? wardrobeHands.path(home, first, t / prepare)
+          : wardrobeHands.path(first, last, (t - prepare) / across),
       channels,
     );
   wardrobeHands.verify(
@@ -326,17 +339,17 @@ function thread(
     body,
     side,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
-    span: { start: 0, ready: prepare, relax: total, end: total },
+    span: { start: 0, ready: prepare, relax: total, end },
     plan: {
-      ...AutoMovieMotionHumanBase.under(context, total),
+      ...AutoMovieMotionHumanBase.under(context, end),
       events: [
-        { name: "sleeveReady", share: prepare / total },
+        { name: "sleeveReady", share: prepare / end },
         {
           name: "sleeveOpening",
-          share: (prepare + across * (reverse ? 1 - passage : passage)) / total,
+          share: (prepare + across * (reverse ? 1 - passage : passage)) / end,
         },
-        { name: "sleeveClear", share: finish / total },
-        { name: "relax", share: 1 },
+        { name: "sleeveClear", share: finish / end },
+        { name: "relax", share: total / end },
       ],
       hands: [side],
       posture,

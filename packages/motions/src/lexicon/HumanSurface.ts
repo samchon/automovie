@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanMedium,
   IAutoMovieMotionHumanPlayground,
@@ -71,8 +72,16 @@ export namespace HumanSurface {
       name: "snowGlide",
       interrupts: AT_END,
       yields: YIELDS,
+      // The pole hand is the stroke's planned arm; only the other hangs.
       plan: (context: Parameters<typeof HumanSnowGlide>[0]) =>
-        swungArms(HumanSnowGlide(context), context.body),
+        swungArms(
+          HumanSnowGlide(context),
+          context.body,
+          (["left", "right"] as const).filter(
+            (side: AutoMovieHumanSide): boolean =>
+              context.params.nordic?.hand !== side,
+          ),
+        ),
     };
 
   /** Carry the acquired stance on a moving deck. */

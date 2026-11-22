@@ -31,8 +31,9 @@ const PLANT: number = 0.005;
  * 1. Every footfall's sole lies on the beam's top: its middle within half
  *    the beam's width of the beam's line and its ankle at the ankle's
  *    standing height above the top within 10 mm.
- * 2. Each foot holds its toes' joint within 5 mm while it bears, and the
- *    feet bear on the beam.
+ * 2. Each foot holds the ball it bears the line under within 5 mm while it
+ *    bears (the law's heel rises about that ball), and the feet bear on the
+ *    beam.
  * 3. The hips stay over the line within the sway band, and the walk stops
  *    within a foot's length of the authored point.
  * 4. A stop beyond the beam's end is refused on `to`, and a walk entered
@@ -76,8 +77,8 @@ export function test_motion_gait_line_walk(): void {
         .bones("a", from)
         .get(`${side}Foot`)!.worldPosition;
       const slip: number = Vector3.distance(
-        socket(film, body, from, side, "mtp"),
-        socket(film, body, to, side, "mtp"),
+        socket(film, body, from, side, "ball"),
+        socket(film, body, to, side, "ball"),
       );
       TestValidator.predicate(
         `${name} ${side} footfall at ${from.toFixed(2)} s on the beam (${(sole.x * 1000).toFixed(1)} mm across, ${((foot.y - top - ankle) * 1000).toFixed(1)} mm high, ${(slip * 1000).toFixed(1)} mm slip)`,

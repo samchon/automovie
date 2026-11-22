@@ -77,6 +77,19 @@ import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGrasp
  */
 export namespace IAutoMovieMotionHumanPickUp {
   /**
+   * A place along a grip's band: the share of the band's length from its
+   * end against the grip's wrapped axis (0) to its end along it (1), the
+   * middle 0.5, so a long bar is taken where the act needs it (a vaulter's
+   * top hand on the shaft).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the share's ends, its middle and its axis.
+   * @evidence contracts/development/design.md#principled-representation A dimensionless share of the affordance's own band (`IAutoMovieAffordance.length`), along its own wrapped axis.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One number, read by the pick up's grasp target.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No metre offset is assumed: the band's length is the prop's.
+   */
+  export type Along = number;
+
+  /**
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation hand: The grasping hand; `right` when absent. lift: How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. use: What the prop is taken up for, when it is a tool: the grasp is then chosen for the use and not only for the reach. A handle can be wrapped from any side, and the side the hanging arm reaches most easily leaves a blade or a barrel where the wrist cannot later aim it. With a use, the grasp must also hold with the tool presented ahead of the shoulder on the line the use names, and a handle no grasp serves so is refused. Absent, the grasp is chosen for the reach and the lift alone.
@@ -90,6 +103,9 @@ export namespace IAutoMovieMotionHumanPickUp {
 
     /** The grip affordance's id. */
     handle: string;
+
+    /** Where along the grip's band the hand takes it (`IAutoMovieMotionHumanPickUp.Along`); the band's middle when absent. */
+    along?: IAutoMovieMotionHumanPickUp.Along;
 
     /** The grasping hand; `right` when absent. */
     hand?: AutoMovieHumanSide;

@@ -1,3 +1,4 @@
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -30,7 +31,8 @@ export namespace AutoMovieMotionHumanToesOnFloor {
    * How far a foot risen on its ball bends its toes back: by the heel's
    * lift about the toes' joint, in full once the ball is down, fading out
    * over `TOUCH` above the support on a smoothstep, so a foot leaving or
-   * reaching the support bends them continuously.
+   * reaching the support bends them continuously; and above it, at least as
+   * far as keeps the toes' tip from passing under the support.
    *
    * @param body The body.
    * @param side The foot.
@@ -39,8 +41,8 @@ export namespace AutoMovieMotionHumanToesOnFloor {
    * @returns The toes' extension, degrees, at least 0.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the rule, the fade and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation The metatarsophalangeal joint extends by the heel's rise in the forefoot rocker, so the toes stay on the floor (Perry and Burnfield, Gait Analysis: the forefoot rocker).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lift, one fade.
+   * @evidence contracts/development/implementation.md#principled-implementation The metatarsophalangeal joint extends by the heel's rise in the forefoot rocker, so the toes stay on the floor (Perry and Burnfield, Gait Analysis: the forefoot rocker); above it the toes, turning about the ball, bend by the closed-form arcsine excess of the tip's angle below the ball over the one that reaches the support.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lift, one fade, one tip bound.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fade height is provisional and named.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanFoot`, the one owner of the foot's points and pitch.
@@ -53,14 +55,24 @@ export namespace AutoMovieMotionHumanToesOnFloor {
     floor: number,
   ): number {
     const lift: number = -HumanFoot.pitch(at.rotation);
+    const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", at);
     const near: number = Math.max(
       0,
-      Math.min(
-        1,
-        1 - (HumanFoot.point(body, side, "ball", at).y - floor) / TOUCH,
-      ),
+      Math.min(1, 1 - (ball.y - floor) / TOUCH),
     );
-    return Math.max(0, lift) * near * near * (3 - 2 * near);
+    const faded: number = Math.max(0, lift) * near * near * (3 - 2 * near);
+    // Above the support the toes still bend at their joint as far as keeps
+    // their tip on it: a foot pitched toes down nearing the floor (a risen
+    // foot landing, a heel lifted in the air) would otherwise put the tips
+    // under the support before the ball is down. The toes turn about the
+    // ball, so the tip's angle below it may be no more than the one that
+    // reaches down to the support (closed form, by the arcsine).
+    const toe: IAutoMovieVector3 = HumanFoot.point(body, side, "toe", at);
+    const length: number = Vector3.distance(ball, toe);
+    if (!(length > 1e-9)) return faded;
+    const down = (drop: number): number =>
+      (Math.asin(Math.max(-1, Math.min(1, drop / length))) * 180) / Math.PI;
+    return Math.max(faded, down(ball.y - toe.y) - down(ball.y - floor));
   }
 
   /**

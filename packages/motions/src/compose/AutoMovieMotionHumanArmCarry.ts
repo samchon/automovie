@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanHandAttitude } from "../posture/HumanHandAttitude";
 import { poseBones } from "../posture/poseBones";
@@ -206,12 +207,13 @@ export namespace AutoMovieMotionHumanArmCarry {
       props.beside === undefined
         ? AutoMovieMotionHumanArmPlanned.planned(
             props.body,
-            span!,
+            // One problem over every member's span, each arm on its own hold.
+            union(group.carries, span!),
             group.carries.map(
               (
                 member: IAutoMovieMotionHumanArmCarry.ICarry,
               ): IAutoMovieMotionHumanArmCarry.ICarry =>
-                hung(member, span!, before),
+                hung(member, union([member], span!), before),
             ),
             before,
             group,
@@ -274,8 +276,12 @@ export namespace AutoMovieMotionHumanArmCarry {
     let chain:
       | ReturnType<typeof AutoMovieMotionHumanArmChain.continued>
       | undefined;
+    // The arm's room as it entered the action (`entering`), read once.
+    let handed: HumanArmSwing.Entered | undefined;
     return {
       channels: [limb],
+      // An arm that follows a person reads that person live (`follower`).
+      ...(span !== undefined && props.tracked === true ? { follows: true } : {}),
       reads: (seconds: number): readonly AutoMovieMotionHumanChannel[] =>
         span !== undefined &&
         props.tracked !== true &&
@@ -385,6 +391,8 @@ export namespace AutoMovieMotionHumanArmCarry {
             [props.side],
             source,
             projection,
+            undefined,
+            (handed ??= entering(props, so(props.from))),
           );
         if (props.attitude === undefined || !(weight > 0 && weight < 1))
           return out;
@@ -498,28 +506,22 @@ export namespace AutoMovieMotionHumanArmCarry {
  * @param span Its span.
  * @param before The posture so far, the planned arms left out.
  * @returns The carry, itself where neither end is let out.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both ends, the owner of the let-out and the identity result.
- * @evidence contracts/development/implementation.md#principled-implementation A hanging arm is kept clear of the legs and trunk by the least added abduction (`HumanArmSwing.of`); a plan that starts from the unlet arm would jump from the arm the carry shows off its plan.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readings of one rule, at the span's two ends.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A law's own return arm (`back`) is kept; a hold to the end has no return to let out.
- * @evidence contracts/development/implementation.md#efficient-algorithms One or two hanging-arm readings per member per plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanArmSwing.of` is the one owner of a hanging arm's clearance.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the carry or one copy of it; retains nothing.
  */
 function hung(
   member: IAutoMovieMotionHumanArmCarry.ICarry,
   span: IAutoMovieMotionHumanArmPlanned.ISpan,
   before: (seconds: number) => IAutoMovieMotionHumanPosture,
 ): IAutoMovieMotionHumanArmCarry.ICarry {
+  const handed: HumanArmSwing.Entered = entering(member, before(member.from));
   const rest: IAutoMovieMotionHumanArmAngles.IAngles = hanging(
     member,
     before(span.start),
+    handed,
   );
   const back: IAutoMovieMotionHumanArmAngles.IAngles | undefined =
     member.back !== undefined || !(span.relax < span.end)
       ? member.back
-      : hanging(member, before(span.end));
+      : hanging(member, before(span.end), handed);
   if (rest === member.rest && (back === undefined || back === member.rest))
     return member;
   return {
@@ -530,46 +532,118 @@ function hung(
 }
 
 /**
+ * The span one problem of a group is solved over: the first member's, or,
+ * where the members' own spans differ (a hold handed from one hand to the
+ * other), from the earliest start and reach to the latest release and end,
+ * each arm keeping its own hold (`AutoMovieMotionHumanArmPlanned.planned`).
+ *
+ * @param carries The group's members.
+ * @param span The span of the member prepared first.
+ * @returns The group's span.
+ */
+function union(
+  carries: readonly IAutoMovieMotionHumanArmCarry.ICarry[],
+  span: IAutoMovieMotionHumanArmPlanned.ISpan,
+): IAutoMovieMotionHumanArmPlanned.ISpan {
+  const spans: IAutoMovieMotionHumanArmPlanned.ISpan[] = carries.map(
+    (member: IAutoMovieMotionHumanArmCarry.ICarry): IAutoMovieMotionHumanArmPlanned.ISpan =>
+      member.span ?? span,
+  );
+  if (
+    spans.every(
+      (s: IAutoMovieMotionHumanArmPlanned.ISpan): boolean =>
+        s.start === span.start &&
+        s.ready === span.ready &&
+        s.relax === span.relax &&
+        s.end === span.end,
+    )
+  )
+    return span;
+  return {
+    start: Math.min(...spans.map((s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.start)),
+    ready: Math.min(...spans.map((s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.ready)),
+    relax: Math.max(...spans.map((s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.relax)),
+    end: Math.max(...spans.map((s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.end)),
+  };
+}
+
+/**
  * A carry's rest arm hanging in a posture: its upper arm let out by the least
  * abduction that keeps it clear (`HumanArmSwing.of`).
  *
  * @param member The carry.
  * @param posture The posture the arm hangs in.
+ * @param handed The arm's room as it entered the action (`entering`).
  * @returns The rest angles, the same record where nothing is let out.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the reading and its identity result.
- * @evidence contracts/development/implementation.md#principled-implementation The rest written into the posture with its goal removed is the joint-written arm the swing owner clears.
- * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One write and one reading.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the abduction the owner adds changes; the elbow and the wrist keep the rest.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One owner call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanArmSwing.of`.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 function hanging(
   member: IAutoMovieMotionHumanArmCarry.ICarry,
   posture: IAutoMovieMotionHumanPosture,
+  handed: HumanArmSwing.Entered,
 ): IAutoMovieMotionHumanArmAngles.IAngles {
   const side: AutoMovieHumanSide = member.side;
-  const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-  delete limbs[`${side}Arm`];
   const upper: readonly [number, number, number] | undefined =
     HumanArmSwing.of(
       member.body,
-      {
-        ...posture,
-        joints: {
-          ...posture.joints,
-          [`${side}UpperArm`]: member.rest.upper,
-          [`${side}LowerArm`]: member.rest.lower,
-          [`${side}Hand`]: member.rest.hand,
-        },
-        limbs,
-      },
+      rested(member, posture),
       [side],
+      undefined,
+      undefined,
+      undefined,
+      handed,
     ).joints[`${side}UpperArm`];
   return upper === undefined || upper[1] === member.rest.upper[1]
     ? member.rest
     : { ...member.rest, upper };
+}
+
+/**
+ * A carry's arm's room as it enters its action: its rest in the posture of
+ * the action's first second, read as the hanging-arm owner reads a room
+ * (`HumanArmClearance.baseline`). An arm the action before left lying on a
+ * thigh enters deeper than it hangs in the quiet stance; the carry starts on
+ * that arm, so its let-out reads that depth as the arm's own.
+ *
+ * @param member The carry.
+ * @param posture The posture of the action's first second.
+ * @returns The room, by the carry's side.
+ */
+function entering(
+  member: IAutoMovieMotionHumanArmCarry.ICarry,
+  posture: IAutoMovieMotionHumanPosture,
+): HumanArmSwing.Entered {
+  const out: Partial<
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>
+  > = {};
+  out[member.side] = HumanArmClearance.baseline(
+    member.body,
+    resolveHumanPosture.seeded(member.body, rested(member, posture)).pose,
+    member.side,
+    member.rest,
+  );
+  return out;
+}
+
+/**
+ * A posture with a carry's rest written on its arm and the arm's goal
+ * removed: the arm as the carry holds it at weight 0.
+ *
+ * @param member The carry.
+ * @param posture The posture.
+ * @returns The posture with the rest arm.
+ */
+function rested(
+  member: IAutoMovieMotionHumanArmCarry.ICarry,
+  posture: IAutoMovieMotionHumanPosture,
+): IAutoMovieMotionHumanPosture {
+  const side: AutoMovieHumanSide = member.side;
+  const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+  joints[`${side}UpperArm`] = member.rest.upper;
+  joints[`${side}LowerArm`] = member.rest.lower;
+  joints[`${side}Hand`] = member.rest.hand;
+  delete limbs[`${side}Arm`];
+  return { ...posture, joints, limbs };
 }
 
 /** A retained standalone follower needs only the original fixed posture. */

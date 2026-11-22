@@ -62,7 +62,9 @@ export namespace AutoMovieMotionHumanAuditMotion {
    * the lower foot on a slope), the lowest while several bear at once; none
    * while only a prop or a person bears them (a saddle, a seat, a partner),
    * whose surface, not a floor, is under them; between contacts (a jump, a
-   * swing), the support the last one ended on. While the motion says water
+   * swing), the support the last one ended on. A raised rest one sole point
+   * bears on (a declared socket at a declared height: a stirrup's tread, a
+   * footrest) holds that point and gives no floor plane. While the motion says water
    * carries the person (`IAutoMovieMotionHumanAuditMotion.water`) only a
    * ground contact gives a floor. With no bearing contact yet, the world
    * plane `y = 0`.
@@ -75,6 +77,10 @@ export namespace AutoMovieMotionHumanAuditMotion {
     motion: IAutoMovieMotionHumanAuditMotionContract,
     subject: string,
   ): (seconds: number) => number | null {
+    const rest = (w: IAutoMovieMotionHumanAuditMotionContract.IWindow): boolean =>
+      w.contact.support.kind === "ground" &&
+      w.contact.socket !== undefined &&
+      w.contact.support.height !== undefined;
     const bearing: IAutoMovieMotionHumanAuditMotionContract.IWindow[] = windows(
       motion,
       subject,
@@ -86,6 +92,8 @@ export namespace AutoMovieMotionHumanAuditMotion {
       let borne: boolean = false;
       let last: IAutoMovieMotionHumanAuditMotionContract.IWindow | undefined;
       for (const w of bearing) {
+        // A raised rest a sole point bears on (a stirrup's tread, a footrest: a declared socket at a declared height) holds that point, not a plane: the toes of a foot standing on a stirrup by its ball hang past the tread, so the floor stays the ground the person stood on.
+        if (rest(w)) continue;
         if (w.from <= seconds + 1e-9 && seconds <= w.to + 1e-9) {
           if (w.contact.support.kind === "ground")
             lowest = Math.min(

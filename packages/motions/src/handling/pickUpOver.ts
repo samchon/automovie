@@ -23,6 +23,7 @@ import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
+import { pickUpAlong } from "./pickUpAlong";
 import { pickUpPosture } from "./pickUpPosture";
 import { pickUpSearch } from "./pickUpSearch";
 
@@ -78,11 +79,14 @@ export namespace pickUpOver {
         posture: IAutoMovieMotionHumanPosture,
       ): IAutoMovieMotionHumanPosture => posture,
     };
-    const authored: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.target(
+    const authored: IAutoMovieMotionHumanGrasp.ITarget = pickUpAlong(
       context,
-      context.params.prop,
-      context.params.handle,
-      context.start,
+      HumanGrasp.target(
+        context,
+        context.params.prop,
+        context.params.handle,
+        context.start,
+      ),
     );
     const { chosen, bend }: pickUpSearch.ISearched = pickUpSearch.of(
       context,

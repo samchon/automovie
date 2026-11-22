@@ -12,8 +12,9 @@ import { lieDown } from "../floor/lieDown";
 /**
  * The sumo bouts of the grapple law: both wrestlers crouch at the shikiri
  * lines with their fists down, charge at the tachiai into contact, and the
- * initiator either drives the receiver back out of the ring with palms on
- * the chest (oshi-dashi) or hands on the belt (yori-kiri), or throws him
+ * initiator either drives the receiver back out of the ring with the hands
+ * pushing up at the sides of the chest (oshi-dashi) or hands on the belt
+ * (yori-kiri), or throws him
  * with an overarm belt grip (uwate-nage) onto the clay.
  *
  * The staging is from the shikiri lines: the lines lie 70 cm apart and the
@@ -124,8 +125,13 @@ export namespace grappleSumo {
   }
 
   /**
-   * The partner's regions each of the initiator's hands takes: the chest
-   * for a push, the belt at the hips for a belt grip.
+   * The partner's regions each of the initiator's hands takes: the sides of
+   * the chest for a push, the belt at the hips for a belt grip. A push is
+   * the hazu grip, the thumb and index spread in a V that pushes up under
+   * the armpit (hazu-oshi, the Japan Sumo Association's glossary), the
+   * hands on the chest's two sides; two palms on the chest regions beside
+   * the sternum lay a palm's breadth apart, 74 mm on the small body, and
+   * the two hands met.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each grip's regions.
    * @evidence contracts/development/implementation.md#principled-implementation The partner faces the initiator, so the left hand meets the partner's right side.
@@ -139,7 +145,7 @@ export namespace grappleSumo {
     kind: Kind,
   ): Readonly<Partial<Record<AutoMovieHumanSide, AutoMovieHumanoidRegion>>> {
     return kind === "oshiDashi"
-      ? { left: "chestRight", right: "chestLeft" }
+      ? { left: "ribsRight", right: "ribsLeft" }
       : { left: "hipRight", right: "hipLeft" };
   }
 
@@ -166,7 +172,7 @@ export namespace grappleSumo {
 
   /**
    * One role's support keys: the shikiri crouch on both feet and fists, the
-   * tachiai's step into contact, the drive's alternating steps or the
+   * tachiai's two steps into contact, the drive's alternating steps or the
    * throw's fall, and the finish.
    *
    * @param p The scene.
@@ -175,8 +181,8 @@ export namespace grappleSumo {
    * @returns The timed support keys.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the keys in order.
-   * @evidence contracts/development/implementation.md#principled-implementation Foot and fist targets in the performer's own frame; the receiver's drive mirrors the initiator's, both stepping the same distance on the same keys.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shikiri, tachiai, then the drive or the throw, then the finish.
+   * @evidence contracts/development/implementation.md#principled-implementation Foot and fist targets in the performer's own frame; the charge steps both feet, one key each, so the root over them closes the authored gap; the receiver's drive mirrors the initiator's, both stepping the same distance on the same keys.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shikiri, the charge's two steps, then the drive or the throw, then the finish.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step count follows the drive's length; the floor fit stays the support law's.
    * @evidence contracts/development/implementation.md#efficient-algorithms A key per drive step, independent of the playback rate.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the floor poses of lieDown and getUp.
@@ -229,6 +235,31 @@ export namespace grappleSumo {
         },
       }),
     );
+    // The charge is two steps, the lead foot then the trail foot, a foot's
+    // length apart about the charge: the root stands over its feet, so a lead
+    // step alone, the trail foot left on the line, carried the root half the
+    // charge and left the pair a third of a metre short of contact. A key's
+    // stepping feet leave the floor together (`supportStep`), so each foot
+    // steps on a key of its own. A foot that has stepped is restated on its
+    // place in every later key: a contact keeps its place only when it is the
+    // same contact as the stance before's (`supportContact`), and a foot
+    // left to bear without its place was set down again by the fit, the lead
+    // foot drawn 0.15 m back under the body at the tachiai.
+    const placed: Map<AutoMovieHumanSide, number> = new Map();
+    const stepTo = (
+      side: AutoMovieHumanSide,
+      z: number,
+    ): IAutoMovieMotionHumanSupport.IContact => {
+      placed.set(side, z);
+      return at(side, z);
+    };
+    const planted = (
+      side: AutoMovieHumanSide,
+      z: number,
+    ): IAutoMovieMotionHumanSupport.IContact => {
+      const kept: number | undefined = placed.get(side);
+      return kept === undefined ? at(side, z, false) : at(side, kept);
+    };
     const keys: IAutoMovieMotionHumanSupport.IStance[] = [
       {
         event: "shikiri",
@@ -236,12 +267,20 @@ export namespace grappleSumo {
         prefer: CROUCH,
       },
       {
+        event: "charge",
+        contacts: [stepTo("left", charge + foot / 2), planted("right", 0)],
+        prefer: CHARGE,
+      },
+      {
         event: "tachiai",
-        contacts: [at("left", charge), at("right", charge, false)],
+        contacts: [
+          planted("left", charge),
+          stepTo("right", charge - foot / 2),
+        ],
         prefer: CHARGE,
       },
     ];
-    const shares: number[] = [SHIKIRI, TACHIAI];
+    const shares: number[] = [SHIKIRI, (SHIKIRI + TACHIAI) / 2, TACHIAI];
 
     if (p.kind === "uwateNage" && complete) {
       keys.push(
@@ -254,7 +293,7 @@ export namespace grappleSumo {
             }
           : {
               event: "transfer",
-              contacts: [at("right", charge), at("left", charge, false)],
+              contacts: [stepTo("right", charge), planted("left", charge)],
               prefer: CHARGE,
               turn: -60,
             },
@@ -267,7 +306,7 @@ export namespace grappleSumo {
             }
           : {
               event: "thrown",
-              contacts: [at("left", charge, false), at("right", charge, false)],
+              contacts: [planted("left", charge), planted("right", charge)],
               prefer: CHARGE,
               turn: -60,
             },
@@ -284,8 +323,8 @@ export namespace grappleSumo {
         keys.push({
           event: k === count ? (complete ? "pushedOut" : "held") : `drive.${k}`,
           contacts: [
-            at(side, z),
-            at(side === "left" ? "right" : "left", z, false),
+            stepTo(side, z),
+            planted(side === "left" ? "right" : "left", z),
           ],
           prefer: CHARGE,
         });

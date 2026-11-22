@@ -26,8 +26,8 @@ const NEAR: number = 0.01;
 /** How near a palm lies to the abdomen, metres: a skin contact and the palm's own thickness (provisional). */
 const PALM: number = 0.03;
 
-/** How far toward the partner's left the embracer stands, metres (staging: behind the shoulder the chin rests on, half a shoulder's width from the midline less the neck's; provisional). */
-const ASIDE: number = 0.08;
+/** How far toward the partner's left the embracer stands, metres: none, centred behind the partner with the shoulders square, so both arms pass around the partner's flanks to the clasp on the midline (staged 0.08 m aside, the right shoulder stood inside the partner's chest's breadth and the right arm's way to the clasp ran through the partner's chest). The head leans and turns to the shoulder the chin rests on. */
+const ASIDE: number = 0;
 
 /** How long the embrace is held, seconds. */
 const HOLD: number = 2;
@@ -42,10 +42,13 @@ const GAP: number = 0.2;
  * woman embracing another small woman, each take clean:
  * 1. Through the hold, the chest lies on the partner's upper back, the chin
  *    on the top of the partner's left shoulder beside the neck (halfway
- *    between the shoulder's and the neck's side regions), and each palm on
- *    the partner's abdomen.
- * 2. The chest, the chin and the palms bear on the partner in windows, the
- *    chest's loaded.
+ *    between the shoulder's and the neck's side regions), and the hands are
+ *    clasped on the partner's abdomen: the left palm on the abdomen, the
+ *    right palm on the back of the left hand (one hand resting on the other,
+ *    as clasped hands are laid; placed each on its own, the two hands met
+ *    fingertip into fingertip).
+ * 2. The chest, the chin and the left palm bear on the partner in windows,
+ *    the chest's loaded; the right palm lies on the performer's own hand.
  * 3. The small woman cannot rest her chin on the tall man's shoulder from
  *    behind: the refusal states the miss.
  *
@@ -84,20 +87,21 @@ export function test_motion_touch_embrace_from_behind(): void {
         region(film, "a", a, "chin", t),
         top,
       );
-      const palms: readonly number[] = (["palmLeft", "palmRight"] as const).map(
-        (palm: AutoMovieHumanoidRegion): number =>
-          Vector3.distance(
-            region(film, "a", a, palm, t),
-            region(film, "b", b, "abdomen", t),
-          ),
+      const under: number = Vector3.distance(
+        region(film, "a", a, "palmLeft", t),
+        region(film, "b", b, "abdomen", t),
+      );
+      const over: number = Vector3.distance(
+        region(film, "a", a, "palmRight", t),
+        region(film, "a", a, "handBackLeft", t),
       );
       TestValidator.predicate(
         `${label}: at ${t.toFixed(2)} s the chest (${(chest * 1000).toFixed(0)} mm) and the chin (${(chin * 1000).toFixed(0)} mm) rest on the partner`,
         chest <= NEAR && chin <= NEAR,
       );
       TestValidator.predicate(
-        `${label}: at ${t.toFixed(2)} s the palms lie on the abdomen (${palms.map((p: number): string => (p * 1000).toFixed(0)).join(", ")} mm)`,
-        palms.every((p: number): boolean => p <= PALM + a.measure.hand / 2),
+        `${label}: at ${t.toFixed(2)} s the left palm lies on the abdomen (${(under * 1000).toFixed(0)} mm) and the right palm on the back of the left hand (${(over * 1000).toFixed(0)} mm)`,
+        under <= PALM + a.measure.hand / 2 && over <= PALM,
       );
     }
     const windows: readonly IAutoMovieMotionHumanContactWindow[] =
@@ -106,8 +110,8 @@ export function test_motion_touch_embrace_from_behind(): void {
           w.support.kind === "person" && w.support.subject === "b",
       );
     TestValidator.predicate(
-      `${label}: chest, chin and palms bear on the partner, the chest loaded`,
-      windows.length === 4 &&
+      `${label}: chest, chin and the left palm bear on the partner, the chest loaded`,
+      windows.length === 3 &&
         windows.some(
           (w: IAutoMovieMotionHumanContactWindow): boolean =>
             w.part === "chest" && w.load !== undefined && w.load > 0,

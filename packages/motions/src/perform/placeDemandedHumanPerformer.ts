@@ -17,13 +17,18 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * covered or no waiting part holds the person, a topological order over the
  * reads, so a production need not declare the read person's chain before
  * the reader's. A person of the reader's own group whose part still waits
- * (`meeting`) is read no later than the end of their placed actions, the
- * reader having recorded it when it was placed, at their last placed pose
- * held past it, without placing their part: within one exchange each actor
- * commits to what the other had done when its own action was placed, and the
- * other's part may itself wait on this action (a defence anchored on the
- * strike that reads the defender, or two roles of a mutual action that start
- * together); a partner placed whole before it is read live.
+ * (`meeting`) is placed on demand the same way, so a strike reads the
+ * partner's guard as the partner holds it, and what follows the strike is
+ * planned from the strike as it is finally shown, the partner then read
+ * live. Only where that part is itself waiting on this read (a defence
+ * anchored on the strike that reads the defender, or two roles of a mutual
+ * action that start together), the demand's cycle, is the partner read no
+ * later than the end of their placed actions, the caller holding their last
+ * placed pose: the fixed point of a cycle of reads within one exchange,
+ * where each actor commits to what the other had done when its own action
+ * was placed. Lazy evaluation of the reads, placed in demand order, needs no
+ * pass that places anything again (a topological order over the reads, with
+ * the freeze only on a detected cycle).
  * Across groups two parts that read each other are a cycle and are refused;
  * a person no waiting part holds is left to the caller's own refusal.
  *
@@ -32,12 +37,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @param subject The person's subject.
  * @param seconds The film second read.
  * @param axis The refusal's axis, or a reader of it.
- * @param meeting Whether the person belongs to the reader's own parallel group with their part still waiting.
- * @returns Whether the read holds the person's last placed pose at the second.
+ * @param meeting Whether the person belongs to the reader's own parallel group with their part still waiting; such a person's cycle is held, not refused.
+ * @returns Whether the read holds the person's last placed pose at the second; false for a partner whose cycle the caller holds.
  * @throws {HumanRefusal} When parts of different groups holding the two people read each other.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what is known without placement, when placement is demanded, the frozen meeting within a group, the cycle across groups and what is left to the caller.
- * @evidence contracts/development/implementation.md#principled-implementation A person's next action cannot begin before its part does, so up to that start the person holds their placed pose; past it the read person's waiting part is placed before the read answers, a depth-first topological order over the reads; within a group, an action commits to what a partner whose part still waits had placed when it was placed, so a lazy read afterwards answers the same.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is known without placement, when placement is demanded, the partner within a group placed on demand and held only on a cycle, the cycle across groups and what is left to the caller.
+ * @evidence contracts/development/implementation.md#principled-implementation A person's next action cannot begin before its part does, so up to that start the person holds their placed pose; past it the read person's waiting part is placed before the read answers, a depth-first topological order over the reads (lazy, demand-driven placement), a partner of the same group included; only a detected cycle within a group holds the partner at what they had placed, the fixed point of two reads that wait on each other.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One horizon check and one loop over the demand's answers.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is read past what is placed except a held pose; a part is placed whole, once, never resumed, and a cycle across groups is refused, never broken by a default order.
  * @evidence contracts/development/implementation.md#efficient-algorithms One horizon scan, then at most one demand per waiting part holding the person, each placing that part once.
@@ -56,16 +61,15 @@ export function placeDemandedHumanPerformer(
     self.resolving &&
     (self.intended.get(subject)?.length ?? 0) - person.segments.length > 0 &&
     seconds > (person.segments.at(-1)?.end ?? 0) + 1e-9;
-  // A partner of the reader's own group whose part still waits holds their
-  // last placed pose past it: their part may wait on this very action (a
-  // defence on the strike that reads it), so placing it now could need this
-  // action placed first.
-  if (meeting) return unplaced();
   while (unplaced() && self.demand !== undefined) {
     const horizon: number | undefined = self.horizon?.(subject);
     if (horizon !== undefined && seconds <= horizon + 1e-9) return false;
     const found: IAutoMovieScheduleContext.Demand = self.demand(subject);
     if (found === "placed") continue;
+    // A partner of the reader's own group whose part is itself waiting on
+    // this read (a defence anchored on the strike that reads the defender)
+    // is read as placed: the caller holds them at their last placed pose.
+    if (found === "cycle" && meeting) return false;
     if (found === "cycle")
       throw new HumanRefusal({
         kind: "participant",

@@ -109,6 +109,9 @@ export namespace HumanArmMirror {
   /**
    * A collider segment's frame and shapes reflected, whatever carries it (a
    * prop's or an animal's segment, `IAutoMovieMotionHumanColliders.IExternal`).
+   * The shapes are reflected once per source list (`mirroredShapes`), so two
+   * readings of one segment, as two arms laid on one partner each make,
+   * stay one segment in the mirror image as they are in the world.
    *
    * @param placed The segment.
    * @returns Its mirror image, its other members unchanged.
@@ -123,18 +126,43 @@ export namespace HumanArmMirror {
         position: flip(placed.pose.position),
         rotation: turn(placed.pose.rotation),
       },
-      shapes: placed.shapes.map(
-        (shape: IAutoMovieMotionHumanColliders.IFramed["shapes"][number]) => ({
-          ...shape,
-          transform: {
-            ...shape.transform,
-            position: flip(shape.transform.position),
-            rotation: turn(shape.transform.rotation),
-          },
-          ...(shape.kind === "hull" ? { points: flipped(shape.points) } : {}),
-        }),
-      ) as IAutoMovieMotionHumanColliders.IFramed["shapes"],
+      shapes: mirroredShapes(placed.shapes),
     };
+  }
+
+  /**
+   * A segment's shape list reflected, one list per source list. A frame
+   * counts a segment once however many goals read it, by its bone, its pose
+   * and the identity of its shape list (`HumanArmFrame.of`); the placement
+   * owner hands every reading of a segment the same list, and a fresh list
+   * per reflection made the two arms' readings of one partner two segments
+   * in a mirrored problem, the region a hand is laid on kept as an obstacle
+   * in the other reading.
+   *
+   * @param shapes The shapes.
+   * @returns Their mirror images, the same list for the same source list.
+   */
+  function mirroredShapes(
+    shapes: IAutoMovieMotionHumanColliders.IFramed["shapes"],
+  ): IAutoMovieMotionHumanColliders.IFramed["shapes"] {
+    let found: IAutoMovieMotionHumanColliders.IFramed["shapes"] | undefined =
+      REFLECTED.get(shapes);
+    if (found === undefined)
+      REFLECTED.set(
+        shapes,
+        (found = shapes.map(
+          (shape: IAutoMovieMotionHumanColliders.IFramed["shapes"][number]) => ({
+            ...shape,
+            transform: {
+              ...shape.transform,
+              position: flip(shape.transform.position),
+              rotation: turn(shape.transform.rotation),
+            },
+            ...(shape.kind === "hull" ? { points: flipped(shape.points) } : {}),
+          }),
+        ) as IAutoMovieMotionHumanColliders.IFramed["shapes"]),
+      );
+    return found;
   }
 
   /**
@@ -187,6 +215,12 @@ export namespace HumanArmMirror {
         : bone;
   }
 }
+
+/** Each segment's mirrored shape list, kept while the source list is held. */
+const REFLECTED: WeakMap<
+  IAutoMovieMotionHumanColliders.IFramed["shapes"],
+  IAutoMovieMotionHumanColliders.IFramed["shapes"]
+> = new WeakMap();
 
 /** Each hull's mirrored points, kept while the source array is held. */
 const FLIPPED: WeakMap<readonly IAutoMovieVector3[], IAutoMovieVector3[]> =

@@ -5,15 +5,18 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMoviePose,
   IAutoMovieSwivelNear,
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { refitHumanPosture } from "../posture/refitHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
+import { courseLimbJudgement } from "./courseLimbJudgement";
 
 /**
  * The swivel-and-branch course of a plan's limb goals, read by a display
@@ -146,7 +149,7 @@ export namespace courseLimbSwivels {
    * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of a two-bone limb on its goal; coursing it keeps the branch coherent while the closed form keeps the goal exact.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Root knots in order, a recursive judgement, a descending read.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every knot is the resolve's own limb fit on the posture's assembly, cold or continued from the knot before it, the digits the seeds do not read left out; interpolation is admitted against the solver's tolerance and only where the display's closed form places it as given.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Knots only where the swivel path bends away from its interpolation, judged only along the paths reads descend: a judgement costs one knot resolve and two placements that share one assembly and skip the digits, and a read costs a descent through at most the span over the frame grid's halvings, with no solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Knots only where the swivel path bends away from its interpolation, judged only along the paths reads descend: a judgement costs one knot limb fit and one prescribed placement on the middle's own end joints (no contact re-aim), sharing one assembly and skipping the digits, and a read costs a descent through at most the span over the frame grid's halvings, with no solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Knots and judgements are kept; a second's goal posture and assembly are made once and shared by the knot and both placements judged there, kept for the course's later judgements.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the reader and the knots; the goal postures and assemblies of the judged seconds, one each.
    */
@@ -210,6 +213,44 @@ export namespace courseLimbSwivels {
       // the plain resolve, which may take a prepared solve.
       const continued: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> =
         from === undefined ? {} : near(from.seeds, prescribed);
+      // A limb whose goal begins after the knot before (a hand laid on the
+      // floor mid-turn, a fist taking its grip), the plan writing it no goal
+      // there, has no fit there to continue: it is placed at the swivel,
+      // branch and forearm turn its arm has in the plan's own posture at
+      // this second, its joints without the goal, as the first knot is
+      // placed at the arm the entry shows (`IPrepare.entry`), so the course
+      // takes the limb on from the arm the plan showed rather than from a
+      // cold fit, which may split the arm's turn between the upper arm and
+      // the forearm otherwise. A limb whose goal the knot before held but
+      // whose fit reported no seed there keeps its own fit.
+      if (from !== undefined) {
+        const posture: IAutoMovieMotionHumanPosture = goals(seconds);
+        let shown: IAutoMoviePose | undefined;
+        for (const limb of limbs) {
+          if (
+            continued[limb] !== undefined ||
+            posture.limbs[limb] === undefined ||
+            from.held?.has(limb) !== false
+          )
+            continue;
+          shown ??= resolveHumanPosture(body, { ...posture, limbs: {} });
+          const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(
+            body,
+            shown,
+            limb,
+          );
+          // The swivel and the branch only: the forearm's turn the goal's own
+          // hand attitude fixes once the elbow is placed, and the shown arm's
+          // turn is of a hand not yet on the goal.
+          if (seed !== null)
+            continued[limb] = {
+              swivel: seed.swivel,
+              branch: seed.branch,
+              tolerance: hingedArmSwivel.RESOLUTION,
+              prescribed: true,
+            };
+        }
+      }
       const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
         Object.keys(continued).length === 0
           ? resolveHumanPosture.seeded(body, goals(seconds))
@@ -225,7 +266,18 @@ export namespace courseLimbSwivels {
           solved.seeds[limb];
         if (seed !== undefined && seed !== null) seeds.set(limb, seed);
       }
-      return { seconds, seeds };
+      const written: IAutoMovieMotionHumanPosture["limbs"] =
+        goals(seconds).limbs;
+      lent = solved.pose;
+      return {
+        seconds,
+        seeds,
+        held: new Set<AutoMovieHumanLimb>(
+          limbs.filter(
+            (limb: AutoMovieHumanLimb): boolean => written[limb] !== undefined,
+          ),
+        ),
+      };
     };
     const between = (
       seconds: number,
@@ -262,6 +314,11 @@ export namespace courseLimbSwivels {
           ...(twist === undefined ? {} : { twist }),
         });
       }
+      // A limb whose goal begins inside the interval (the plan writes it none
+      // at the earlier knot) takes the later knot's placement, the arm its
+      // goal starts from there.
+      for (const [limb, to] of b.seeds)
+        if (!out.has(limb) && a.held?.has(limb) === false) out.set(limb, to);
       return out;
     };
     // A second's assembly (the posture's root, heading and clamped direct
@@ -286,16 +343,19 @@ export namespace courseLimbSwivels {
     // and clear of what it keeps clear of. The digits a full resolve fits
     // last are left out: a judged knuckle is the proximal joint's origin,
     // which only the hand's own frame places.
+    // The last fitted knot's pose, lent to the judgement that made it.
+    let lent: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["pose"] | undefined;
     const placed = (
       seconds: number,
       seeds: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>,
+      pinned?: IAutoMovieMotionHumanPosture["limbs"],
     ): IPlacement => {
       const assembly: resolveHumanPosture.IAssembled = assembled(seconds);
       const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
         refitHumanPosture.constructed(
           body,
           assembly.pose,
-          assembly.limbs,
+          pinned ?? assembly.limbs,
           near(seeds, true),
         );
       return {
@@ -364,15 +424,31 @@ export namespace courseLimbSwivels {
       }
       const middle: number = (a.seconds + b.seconds) / 2;
       const knot: ISwivelKnot = fit(middle, a);
-      let split: boolean = [...a.seeds].some(
-        ([limb, seed]: [AutoMovieHumanLimb, IAutoMovieSwivelSeed]): boolean =>
-          b.seeds.get(limb)?.branch !== seed.branch,
-      );
+      // A branch change, a goal that ends or a goal that begins inside the
+      // interval is split down to the frame grid.
+      let split: boolean =
+        [...a.seeds].some(
+          ([limb, seed]: [AutoMovieHumanLimb, IAutoMovieSwivelSeed]): boolean =>
+            b.seeds.get(limb)?.branch !== seed.branch,
+        ) ||
+        [...b.seeds.keys()].some(
+          (limb: AutoMovieHumanLimb): boolean =>
+            !a.seeds.has(limb) && a.held?.has(limb) === false,
+        );
       if (!split) {
         const swivels: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
           between(middle, a, b);
-        const interpolated: IPlacement = placed(middle, swivels);
-        const own: IPlacement = placed(middle, knot.seeds);
+        // The middle's own fit as it stands, and the interpolated swivels
+        // placed on its end joints, clearance probed (`courseLimbJudgement`).
+        const own: IPlacement = {
+          bones: poseBones(body, lent!, undefined, ends),
+          seeds: Object.fromEntries(knot.seeds),
+        };
+        const interpolated: IPlacement = placed(
+          middle,
+          swivels,
+          courseLimbJudgement(body, assembled(middle), limbs, (l: AutoMovieHumanLimb): AutoMovieHumanoidBone => chain(l)[2]!, own.bones),
+        );
         for (const bone of ends)
           if (
             Vector3.distance(
@@ -444,6 +520,9 @@ export namespace courseLimbSwivels {
 
     /** Each fitted limb's seed. */
     seeds: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
+
+    /** The coursed limbs the plan writes a goal for at this second; unknown for the entered knot. */
+    held?: ReadonlySet<AutoMovieHumanLimb>;
   }
 
   /**

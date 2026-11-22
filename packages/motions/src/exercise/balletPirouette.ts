@@ -24,8 +24,8 @@ import { balletPositions } from "./balletPositions";
 
 /**
  * A pirouette from fourth (#3991). The dancer takes fourth in plié by the
- * first beat, the supporting foot in front and the working foot behind;
- * over `RISE` of a beat the supporting foot rises onto its ball
+ * first beat, the supporting foot in front and the working foot behind, and
+ * holds the plié on both feet over the next beat; over `RISE` of a beat the supporting foot rises onto its ball
  * (`balletPositions.RELEVE`), the hips come over that ball, and the working
  * foot draws up to retiré, its toes before the supporting knee. The body
  * then turns about the supporting ball, one beat a turn, on minimum-jerk
@@ -47,20 +47,11 @@ export namespace balletPirouette {
   /** The rise to demi-pointe and the landing, a share of a beat (provisional). */
   export const RISE: number = 0.4;
 
-  /** The hip abductions searched for the retiré, degrees, within the hip's range. */
-  export const ABDUCTION: readonly number[] = [0, 40];
-
-  /** The retiré's hip turnout (external rotation), degrees, within its range (provisional). */
+  /** The retiré's turnout, degrees: the side of the heading the knee bends toward (provisional). */
   export const TURNOUT: number = 45;
 
-  /** The hip flexions searched for the retiré, degrees. */
-  export const FLEXION: readonly number[] = [20, 90];
-
-  /** The knee flexions searched for the retiré, degrees. */
-  export const KNEE: readonly number[] = [60, 150];
-
-  /** The search's step, degrees. */
-  export const STEP: number = 10;
+  /** How many times the retiré's ankle goal is moved by the toe's miss and fitted again; the miss shrinks each time, the toe's offset from the ankle turning a little with the leg. */
+  export const PASSES: number = 4;
 
   /** The retiré's pointed foot, degrees of plantar flexion (provisional). */
   export const POINT: number = 45;
@@ -102,7 +93,14 @@ export namespace balletPirouette {
     > = balletPositions.feet(context, 4, turnout, supporting);
 
     // The instants: in fourth by the first beat, risen, turned, landed, up.
-    const prepared: number = beats.at(1);
+    // The feet open into fourth as the plie deepens, by the first beat (the
+    // working foot behind reaches the floor only on bent knees); then both
+    // bear through the plie held over the beat that follows and push off it
+    // together, the working foot in fourth for the whole held plie, never a
+    // touch (Laws 1984, The Physics of Dance, ch. 3: the pirouette's
+    // preparation from fourth).
+    const set: number = beats.at(1);
+    const prepared: number = set + beats.period;
     const risen: number = prepared + RISE * beats.period;
     const turned: number = risen + turns * beats.period;
     const landed: number = turned + RISE * beats.period;
@@ -203,7 +201,8 @@ export namespace balletPirouette {
     const hips: (t: number) => IAutoMovieVector3 = (
       t: number,
     ): IAutoMovieVector3 => {
-      if (t <= prepared) return plie(minimumJerk.share(t / prepared));
+      if (t <= set) return plie(minimumJerk.share(t / set));
+      if (t <= prepared) return plie(1);
       if (t <= risen) return Vector3.lerp(plie(1), over, lift(t));
       if (t <= turned) return over;
       if (t <= landed) return Vector3.lerp(over, plie(1), 1 - lift(t));
@@ -215,21 +214,17 @@ export namespace balletPirouette {
     };
 
     // The retiré is a configuration of the working leg, not a foot pose:
-    // the hip turned out within its range, its flexion, abduction and the
-    // knee's chosen once, on the risen stance, so the pointed toe comes
-    // nearest a point `TOUCH` of the stature before the standing knee
-    // (placed in closed form between the supporting hip joint and ankle,
-    // bent along the heading). The foot that configuration places is the
-    // gesture's, carried with the hips through the turn, so the leg can
-    // always reach it.
+    // fitted once, on the risen stance, so the pointed toe lands on a point
+    // `TOUCH` of the stature before the standing knee (placed in closed form
+    // between the supporting hip joint and ankle, bent along the heading).
+    // The foot that configuration places is the gesture's, carried with the
+    // hips through the turn, so the leg can always reach it.
     const upper: IAutoMovieVector3 = body.rest.get(
       supporting === "left" ? "leftUpperLeg" : "rightUpperLeg",
     )!;
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     const leg: AutoMovieHumanoidBone =
       working === "left" ? "leftUpperLeg" : "rightUpperLeg";
-    const shin: AutoMovieHumanoidBone =
-      working === "left" ? "leftLowerLeg" : "rightLowerLeg";
     const foot: AutoMovieHumanoidBone =
       working === "left" ? "leftFoot" : "rightFoot";
     const shaped: IAutoMovieMotionHumanFoot.IPlacement =
@@ -239,12 +234,14 @@ export namespace balletPirouette {
           origin: hips(risen),
           yaw: heading,
         };
+        // The turned-out supporting knee bends over its toes, along the
+        // supporting foot's own heading.
         const knee: IAutoMovieVector3 = kneeBetween(
           HumanFrame.point(frame, upper),
           support(risen).ankle,
           body.measure.thigh,
           body.measure.shank,
-          HumanFrame.forward(heading),
+          HumanFrame.forward(HumanFoot.heading(support(risen).rotation)),
         );
         const target: IAutoMovieVector3 = HumanFrame.point(
           { origin: knee, yaw: heading },
@@ -257,49 +254,53 @@ export namespace balletPirouette {
             rest,
           ),
         );
+        // The working leg is the rig's own analytic two-bone fit of an ankle
+        // goal, the knee bent toward the turned-out side (`TURNOUT` from the
+        // heading) and the foot pointed by `POINT`; the ankle goal is moved by
+        // the toe's miss and fitted again (`PASSES` substitutions), so the
+        // pointed toe lands on the point before the knee, not on the nearest
+        // of a grid of configurations.
+        const pointed: IAutoMovieMotionHumanPosture = {
+          ...entry,
+          root,
+          yaw: heading,
+          limbs: {},
+          joints: { ...entry.joints, [foot]: [-POINT, 0, 0] },
+        };
+        const hip: IAutoMovieVector3 = poseBones(
+          body,
+          resolveHumanPosture(body, pointed),
+          undefined,
+          new Set<AutoMovieHumanoidBone>([leg]),
+        ).get(leg)!.worldPosition;
+        const pole: IAutoMovieVector3 = Vector3.addScaled(
+          hip,
+          HumanFrame.forward(
+            heading + (working === "right" ? -TURNOUT : TURNOUT),
+          ),
+          body.measure.thigh,
+        );
+        let ankle: IAutoMovieVector3 = target;
         let best: IAutoMovieMotionHumanFoot.IPlacement | undefined;
-        let nearest: number = Infinity;
-        for (
-          let flexion: number = FLEXION[0]!;
-          flexion <= FLEXION[1]!;
-          flexion += STEP
-        )
-          for (let bend: number = KNEE[0]!; bend <= KNEE[1]!; bend += STEP)
-            for (
-              let abduction: number = ABDUCTION[0]!;
-              abduction <= ABDUCTION[1]!;
-              abduction += STEP
-            ) {
-              const posed: IAutoMovieResolvedBone = poseBones(
-                body,
-                resolveHumanPosture(body, {
-                  ...entry,
-                  root,
-                  yaw: heading,
-                  limbs: {},
-                  joints: {
-                    ...entry.joints,
-                    [leg]: [flexion, abduction, TURNOUT],
-                    [shin]: [bend, 0, 0],
-                    [foot]: [-POINT, 0, 0],
-                  },
-                }),
-                undefined,
-                new Set<AutoMovieHumanoidBone>([foot]),
-              ).get(foot)!;
-              const placed: IAutoMovieMotionHumanFoot.IPlacement = {
-                ankle: posed.worldPosition,
-                rotation: posed.worldRotation,
-              };
-              const off: number = Vector3.distance(
-                HumanFoot.point(body, working, "toe", placed),
-                target,
-              );
-              if (off < nearest) {
-                nearest = off;
-                best = placed;
-              }
-            }
+        for (let pass: number = 0; pass < PASSES; ++pass) {
+          const posed: IAutoMovieResolvedBone = poseBones(
+            body,
+            resolveHumanPosture(body, {
+              ...pointed,
+              limbs: { [`${working}Leg`]: { point: ankle, bend: pole } },
+            }),
+            undefined,
+            new Set<AutoMovieHumanoidBone>([foot]),
+          ).get(foot)!;
+          best = { ankle: posed.worldPosition, rotation: posed.worldRotation };
+          ankle = Vector3.add(
+            ankle,
+            Vector3.subtract(
+              target,
+              HumanFoot.point(body, working, "toe", best),
+            ),
+          );
+        }
         // Held in the hips' frame on the risen stance.
         return {
           ankle: HumanFrame.local(frame, best!.ankle),
@@ -355,9 +356,9 @@ export namespace balletPirouette {
       ],
     };
     course[supporting] = [
-      stood(supporting, 0.05 * prepared),
+      stood(supporting, 0.05 * set),
       {
-        at: 0.45 * prepared,
+        at: 0.45 * set,
         leave: end,
         place: fourth[supporting],
         bears: true,
@@ -366,9 +367,9 @@ export namespace balletPirouette {
       },
     ];
     course[working] = [
-      stood(working, 0.55 * prepared),
+      stood(working, 0.55 * set),
       {
-        at: 0.95 * prepared,
+        at: 0.95 * set,
         leave: prepared,
         place: fourth[working],
         bears: true,

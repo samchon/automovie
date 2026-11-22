@@ -77,6 +77,9 @@ export namespace solveXpbdContacts {
     /** Dynamic friction impulse accumulated over this step's velocity passes, newton seconds. */
     tangentImpulse: number;
 
+    /** The same dynamic friction as a vector, the impulse the first body received, newton seconds. */
+    frictionImpulse: IAutoMovieVector3;
+
     /** Normal approach speed at detection, metres per second; positive closing. */
     approach: number;
 
@@ -189,6 +192,7 @@ export namespace solveXpbdContacts {
             normalLambda: 0,
             tangentLambda: { x: 0, y: 0, z: 0 },
             tangentImpulse: 0,
+            frictionImpulse: { x: 0, y: 0, z: 0 },
             approach: Vector3.dot(relative, measured.normal),
             separation: gap,
             detected: gap,
@@ -388,6 +392,10 @@ export namespace solveXpbdContacts {
         );
         if (weight > 0 && amount > 0) {
           head.tangentImpulse += amount;
+          head.frictionImpulse = Vector3.add(
+            head.frictionImpulse,
+            Vector3.scale(direction, amount),
+          );
           AutoMovieXpbdMath.impulse(
             first,
             second,
@@ -436,8 +444,22 @@ export namespace solveXpbdContacts {
     }
   }
 
-  /** The responding contacts grouped by collider pair, in pair order; sensors are left out. */
-  function manifolds(contacts: readonly IContact[]): IContact[][] {
+  /**
+   * The responding contacts grouped by collider pair, in pair order;
+   * sensors are left out.
+   *
+   * @param contacts The step's contacts, the points of one pair adjacent.
+   * @returns One array per pair; the contacts are the given records.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the grouping, its order and the sensor exclusion.
+   * @evidence contracts/development/implementation.md#principled-implementation detect emits a pair's points together, so consecutive equal pair indices form its patch.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop that opens a group whenever the pair changes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sensors are skipped; no pair has its own rule.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in contacts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each pass groups the step's current contacts; nothing is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh arrays over the given records; retains nothing.
+   */
+  export function manifolds(contacts: readonly IContact[]): IContact[][] {
     const result: IContact[][] = [];
     for (const contact of contacts) {
       if (contact.a.sensor || contact.b.sensor) continue;

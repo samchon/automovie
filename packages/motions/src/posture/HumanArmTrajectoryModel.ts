@@ -187,8 +187,14 @@ export namespace HumanArmTrajectoryModel {
       shape: number,
       bone: string,
     ) => number;
-    /** Whether a segment of one arm and a segment of the other hold one object together at a waypoint: each segment in its arm's declared grasp, over the action, as the hands close on the object, hold it and part from it. Such a pair is the allowed-collision set of the shared grasp (as a motion planner's allowed-collision matrix excuses the links that grasp an object through its approach and retreat); clearance against the body stays. */
-    grasped: (a: number, k: number, own: Segment, other: Segment) => boolean;
+    /** How much deeper than `between` a probe of one arm's segment may lie in the other arm's collider shape (by index) at a waypoint when both segments are in their arms' declared grasp of one object, metres; none for any other pair. On the hold, where both hands are on their sites, it is unbounded (`Infinity`): the pair is the allowed-collision set of the shared grasp, as a motion planner's allowed-collision matrix excuses the links that grasp an object. As the hands close on it and part from it, it is the pair's own depth with both arms on the hold (the goal's own solution, `guess`), read at that waypoint's base, scaled by the share of the reach made, so it falls to the margin every pair keeps at rest and a parting hand cannot pass through the other arm. Clearance against the body stays. */
+    grasped: (
+      a: number,
+      k: number,
+      own: Segment,
+      other: Segment,
+      shape: number,
+    ) => number | undefined;
     /** The depth a body corner (`G.IFrame.body`) may keep inside one of the arm's own collider shapes (`S.colliders`, by index) at a waypoint, metres (negative inside): the reverse of `allowed`, as the audit reads every pair both ways. */
     inside: (a: number, k: number, corner: number, shape: number) => number;
     /** Whether an arm's segment lies on a bone at a waypoint, a declared rest (`IRest`). */

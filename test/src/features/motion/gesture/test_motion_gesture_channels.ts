@@ -19,7 +19,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanGesture,
-  AutoMovieMotionHumanHandToBody,
   HumanChain,
   AutoMovieMotionHumanGaze,
 } from "@automovie/motions";
@@ -263,15 +262,21 @@ function checkChannelSignals(): void {
 
 function checkAuthoredChannels(): void {
   const body = motionHumanBody("m-average");
-  // All five laws are evaluated from one real standing context without scheduling five performances.
-  const standing = motionHumanLaw.perform(
-    "channels",
-    [{ subject: "a", body }],
-    HumanChain.subject("a").stand({ hold: 1 }),
-  );
-  const context = standing.performance.segments("a")[0]!.context;
-  const authored = (params: IAutoMovieMotionHumanSelfAction.IParams) =>
-    AutoMovieMotionHumanHandToBody.selfAction.plan({ ...context, params });
+  // Each law is performed after a stand and its plan read from its segment:
+  // a raised arm's laid course may need more time than the law first plans,
+  // which the performance gives it by replanning at a slower tempo
+  // (`stretches`), so a plan taken from the law outside a performance is
+  // refused where the performed one is not.
+  const authored = (
+    params: IAutoMovieMotionHumanSelfAction.IParams,
+  ): IAutoMovieMotionHumanActionPlan =>
+    motionHumanLaw
+      .perform(
+        "channels",
+        [{ subject: "a", body }],
+        HumanChain.subject("a").stand({ hold: 1 }).selfAction(params),
+      )
+      .performance.segments("a")[1]!.plan;
   const at = (plan: IAutoMovieMotionHumanActionPlan, name: string) =>
     plan.events.find((e) => e.name === name)!.share * plan.duration;
   for (const [kind, bone] of [

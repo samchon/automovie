@@ -160,14 +160,14 @@ function umbrella(
       // Held on the midline, the grip and the runner's stop as near both
       // shoulders as the chest allows.
       at: { out: 0, up: shoulder - stop, forward: before },
-      seconds: 0.4,
+      duration: 0.4,
     })
     .registered("workHeld", {
       prop: "umbrella",
-      side: "right",
+      hand: "right",
       drive: [{ articulation: "runner", to: runner.travel! }],
       push: "runner",
-      seconds: 0.8,
+      duration: 0.8,
     })
     .registered("workHeld", {
       prop: "umbrella",
@@ -178,7 +178,7 @@ function umbrella(
         up: shoulder - grip.frame.translation.y,
         forward: before,
       },
-      seconds: 0.4,
+      duration: 0.4,
     })
     .walk({ to: { x: 0, y: 0, z: 2 } }, "share");
   const partner: everydayTake.IOther = {
@@ -306,14 +306,14 @@ function umbrella(
           .registered("workHeld", {
             prop: "umbrella",
             at: { out: 0.05, up: shoulder + 0.25, forward: 0.15 },
-            seconds: 0.4,
+            duration: 0.4,
           })
           .registered("workHeld", {
             prop: "umbrella",
-            side: "right",
+            hand: "right",
             drive: [{ articulation: "runner", to: runner.travel! }],
             push: "runner",
-            seconds: 0.8,
+            duration: 0.8,
           }),
         Object.values(HUMAN_LEXICON).flat(),
       ),
@@ -367,7 +367,7 @@ function scissors(
     chain = chain
       .registered("workHeld", {
         prop: "scissors",
-        side,
+        hand: side,
         drive: [
           {
             articulation: "pivot",
@@ -375,7 +375,7 @@ function scissors(
             by: { digit: "thumb", site: "thumbRing" },
           },
         ],
-        seconds: 0.3,
+        duration: 0.3,
       })
       .registered("write", {
         tool: "scissors",
@@ -479,7 +479,7 @@ function scissors(
           .stand()
           .registered("workHeld", {
             prop: "scissors",
-            side,
+            hand: side,
             drive: [
               {
                 articulation: "pivot",
@@ -487,7 +487,7 @@ function scissors(
                 by: { digit: "thumb", site: "thumbRing" },
               },
             ],
-            seconds: 0.3,
+            duration: 0.3,
           }),
         Object.values(HUMAN_LEXICON).flat(),
       ),
@@ -516,16 +516,16 @@ function knife(
     .pickUp({ prop: "knife", handle: "grip", hand: side, lift: 0.1 })
     .registered("workHeld", {
       prop: "knife",
-      side,
+      hand: side,
       drive: [{ articulation: "blade", to: 180 }],
-      seconds: 0.25,
+      duration: 0.25,
     })
     .stand({ hold: 0.6, sway: 0 })
     .registered("workHeld", {
       prop: "knife",
-      side,
+      hand: side,
       drive: [{ articulation: "blade", to: 0 }],
-      seconds: 0.6,
+      duration: 0.6,
     });
   const take: HumanPerformance = play(`${label} knife`, body, props, chain);
   const works: IAutoMovieMotionHumanSegment[] = named(take, "workHeld");

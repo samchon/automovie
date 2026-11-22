@@ -97,7 +97,7 @@ export function test_motion_throw_catch_ball_pass_custody(): void {
         passer.node,
         contest.node,
         HumanChain.subject("receiver").registered("stageCatch", {
-          from: "pass",
+          partner: "pass",
           ball: ballId,
           hands: "one",
           intercept,
@@ -188,6 +188,6 @@ export function test_motion_throw_catch_ball_pass_custody(): void {
     "the same receiver cannot take custody before arrival",
     failure instanceof HumanRefusal &&
       failure.kind === "reach" &&
-      failure.axis === "from",
+      failure.axis === "partner",
   );
 }

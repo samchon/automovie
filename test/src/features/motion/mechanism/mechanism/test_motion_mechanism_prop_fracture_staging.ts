@@ -109,7 +109,7 @@ export function test_motion_mechanism_prop_fracture_staging(): void {
       },
     ],
     composition: HumanChain.subject("operator").registered("releaseFoamToken", {
-      seconds: 3,
+      hold: 3,
       sway: 0,
     }).node,
     props: [

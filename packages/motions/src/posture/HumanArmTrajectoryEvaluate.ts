@@ -79,8 +79,8 @@ export function HumanArmTrajectoryEvaluate(
     at: 0,
     term: "",
   };
-  // A clearance miss refuses only past the audit's own skin, the margin
-  // the allowance keeps below it aside (`HumanArmTrajectoryTerms.SKIN`).
+  // A clearance miss refuses past its allowance, which keeps a margin below
+  // the audit's own skin (`HumanArmTrajectoryTerms.SKIN`).
   // The waypoint the loop below reads, where a violation noted is placed.
   let here: number = 0;
   const pairs: M.IEvaluation["pairs"] = x.map(

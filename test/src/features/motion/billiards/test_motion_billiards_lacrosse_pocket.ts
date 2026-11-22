@@ -100,7 +100,7 @@ export function test_motion_billiards_lacrosse_pocket(): void {
           : free,
       ],
       composition: (placement === "action"
-        ? player.registered("seatCrosseBall", { seconds: 0.4 })
+        ? player.registered("seatCrosseBall", { hold: 0.4 })
         : player
       ).registered("stickBall", {
         kind: "lacrossePass",

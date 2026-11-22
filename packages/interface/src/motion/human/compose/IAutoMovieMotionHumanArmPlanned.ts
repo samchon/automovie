@@ -99,6 +99,7 @@ export namespace IAutoMovieMotionHumanArmPlanned {
     | "skinDistance"
     | "disc"
     | "on"
+    | "span"
   > {
     /** The arm at the end of the span, where it returns to another arm than it left; `rest` when absent. */
     back?: IAutoMovieMotionHumanArmAngles.IAngles;

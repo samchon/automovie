@@ -1,4 +1,4 @@
-﻿import { minimumJerk } from "@automovie/engine";
+import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,

@@ -52,7 +52,7 @@ export function test_motion_hand_to_body_tuck_hair(): void {
       ],
       composition: HumanChain.subject("a")
         .stand({ hold: 0.3 })
-        .registered("tuckHair", { side }).node,
+        .registered("tuckHair", { hand: side }).node,
     });
     const segment: IAutoMovieMotionHumanSegment = performance
       .segments("a")

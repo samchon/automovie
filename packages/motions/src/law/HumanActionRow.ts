@@ -74,6 +74,16 @@ export namespace HumanActionRow {
                 ahead as unknown as IAutoMovieMotionHumanActionLaw.IAhead<P>,
               ),
           }),
+      // The owner's plant, read from the resolved parameters as its plan
+      // reads them.
+      ...(law.plants === undefined
+        ? {}
+        : {
+            plants: (
+              params: Omit<P, Fixed>,
+            ): IAutoMovieMotionHumanActionLaw.IPlant | undefined =>
+              law.plants!(params as unknown as P),
+          }),
     };
   }
 }

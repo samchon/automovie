@@ -400,28 +400,35 @@ export namespace HumanPerformanceRead {
   function available(self: IAutoMovieMotionHumanPerformanceState, subject: string, seconds: number,
     axis: string | (() => string), met?: number): IAvailable {
     const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
-    // A partner of the reader's own group is read no later than the end of
-    // their placed actions (`met`, recorded when the reader was placed, only
-    // while their part still waited); a person a waiting part of another
-    // group holds is placed first where the read needs it, holding their
-    // placed pose up to that part's start (`placeDemandedHumanPerformer`).
-    // Once the partner's own actions are all placed, a lazy read (the
-    // contact resolution's, the display's) reads them live: a coupling rides
-    // its partner frame by frame.
-    const waits: boolean =
+    // A person whose part still waits is placed first where the read needs
+    // it, holding their placed pose up to that part's start
+    // (`placeDemandedHumanPerformer`), a partner of the reader's own group as
+    // much as a person of another. Only a partner whose part cannot be
+    // placed before this read, because it is itself waiting on the reader (a
+    // cycle of reads), is read no later than the end of their placed actions
+    // (`met`, recorded when the reader was placed, or the end of what has
+    // been placed since). Once the partner's own actions are all placed, a
+    // lazy read (the contact resolution's, the display's) reads them live: a
+    // coupling rides its partner frame by frame, and it reads what the
+    // reader was planned against.
+    const meeting: boolean =
+      met !== undefined &&
       (self.intended.get(subject)?.length ?? 0) > person.segments.length;
-    const frozen: boolean = met !== undefined && waits;
-    const at: number =
-      met !== undefined && waits ? Math.min(seconds, met) : seconds;
     const held: boolean = placeDemandedHumanPerformer(
       self,
       person,
       subject,
-      at,
+      seconds,
       axis,
-      frozen,
+      meeting,
     );
     const last: IAutoMovieMotionHumanSegment | undefined = person.segments.at(-1);
+    const waits: boolean =
+      (self.intended.get(subject)?.length ?? 0) > person.segments.length;
+    const at: number =
+      meeting && waits
+        ? Math.min(seconds, Math.max(met!, last?.end ?? 0))
+        : seconds;
     const left: number =
       (self.intended.get(subject)?.length ?? 0) - person.segments.length;
     const known: number = Math.max(

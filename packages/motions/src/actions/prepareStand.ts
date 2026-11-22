@@ -16,9 +16,11 @@ import type {
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanBound } from "../law/HumanBound";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanSkill } from "../skill/HumanSkill";
 import { stand } from "./stand";
+import { standClearArms } from "./standClearArms";
 import { standFeet } from "./standFeet";
 import { standUpright } from "./standUpright";
 
@@ -52,11 +54,17 @@ export function prepareStand(
   const initial: IAutoMovieVector3 = course.offset(0);
   const upright: IAutoMovieMotionHumanStandUpright.IAlignment = standUpright.of(context.body);
   const middle: IAutoMovieVector3 = stand.root(context.body, course.flat, yaw);
+  const from: IAutoMovieVector3 = context.entry.posture.root;
+  // The arms hang relaxed beside the thighs of the stance settled on the
+  // entry's feet, which may stand wider or staggered than the quiet stance;
+  // while the stance settles, a hand the moving thighs meet is let out at
+  // the shoulder (`HumanArmClearance.swung`), as a gait's swinging arm is.
   const aligned: IAutoMovieMotionHumanPosture["joints"] = {
-    ...stand.relaxed(context.body),
+    ...standClearArms(context.body, [
+      course.write({ root: middle, yaw, pitch: 0, roll: 0, joints: upright.joints, limbs: {} }, 1),
+    ]),
     ...upright.joints,
   };
-  const from: IAutoMovieVector3 = context.entry.posture.root;
   const sway: number =
     context.params.sway ?? stand.SWAY * HumanSkill.sway(context.skill);
   HumanBound.least("sway", sway, 0, "m");
@@ -154,7 +162,7 @@ export function prepareStand(
             swayed.z,
         };
         const carry: IAutoMovieMotionHumanSupportCarry.ICarry | undefined = carried(t);
-        return feet.write(
+        const written: IAutoMovieMotionHumanPosture = feet.write(
           {
             root: carry?.point(root) ?? root,
             yaw: yaw + (carry?.yaw ?? 0),
@@ -165,7 +173,13 @@ export function prepareStand(
           },
           carry,
         );
+        // Settled, the arms hang clear of the thighs they were found clear
+        // of; while settling, the thighs move under them.
+        return s < 1 ? HumanArmClearance.swung(context.body, written, SIDES) : written;
       },
     };
   };
 }
+
+/** Both arms, which a settling stand keeps clear of its moving thighs. */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

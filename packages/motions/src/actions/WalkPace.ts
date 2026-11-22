@@ -73,6 +73,9 @@ export class WalkPace {
   /** The last heel strike, seconds. */
   public readonly last: number;
 
+  /** The first toe-off, seconds: a standing start's initiation (`FIRST`), or, for a gait entered in stride (`IProps.stride`), a period less a swing less the time the standing foot has stood, so the foot in the air lands one period after the standing foot's stance began. */
+  public readonly first: number;
+
   /** How far ahead of the pelvis a landing footprint lies, steps. */
   public readonly front: number;
 
@@ -108,7 +111,13 @@ export class WalkPace {
       longest: number;
     },
   ) {
-    const first: number = WalkPace.FIRST;
+    // The first toe-off at a period: a standing start's initiation, or a
+    // gait in stride's next footfall one period after the standing foot's
+    // stance began, `stride` seconds before the start.
+    const opening = (period: number): number =>
+      props.stride === undefined
+        ? WalkPace.FIRST
+        : period * (1 - props.share) - props.stride;
     const n: number = props.steps;
     const floor: number = WalkPace.FLOOR;
     const base: number = props.period(
@@ -143,6 +152,7 @@ export class WalkPace {
       // A way set from outside keeps the asked period: its pelvis does not ramp by itself.
       const was: number = T;
       T = base + (fixedCadence ? 0 : excess / (2 * n));
+      const first: number = opening(T);
       const formula: number = Math.max(
         WalkPace.SHORTEST_RAMP,
         2 * (first + props.share * T - (1 - front) * T),
@@ -184,7 +194,8 @@ export class WalkPace {
     this.period = T;
     this.swing = props.share * T;
     this.front = front;
-    this.last = first + this.swing + n * T;
+    this.first = opening(T);
+    this.last = this.first + this.swing + n * T;
 
     const decel: number = 2 * (1 - front) * T;
     // Both speed ramps integrate to half their duration. Solve the

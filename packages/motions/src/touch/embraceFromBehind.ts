@@ -1,17 +1,19 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanEmbraceFromBehind,
   IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
@@ -38,6 +40,8 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -45,6 +49,7 @@ import { StrikingBody } from "../striking/StrikingBody";
 import { kiss } from "./kiss";
 import { kissBody } from "./kissBody";
 import { kissPose } from "./kissPose";
+import { touchHoldRests } from "./touchHoldRests";
 
 /** The miss under which a region rests on another, metres (provisional: a skin contact, as `headRest`'s). */
 const NEAR: number = 0.01;
@@ -60,6 +65,14 @@ const FLEXION: readonly [number, number] = [-30, 45];
 
 /** The side bend's range searched, degrees: `headRestAim.TILT`. */
 const TILT: number = 40;
+
+/** The partner's bones whose colliders the embracing arms reach around: the trunk and the thighs. */
+const AROUND: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>([
+    ...HumanArmObstacleBones.TRUNK,
+    "leftUpperLeg",
+    "rightUpperLeg",
+  ]);
 
 /** The neck's two bones a resting head bends over. */
 type NeckBone = "neck" | "head";
@@ -118,11 +131,14 @@ interface ISolved {
  * height that flexion costs plus what was missing. A
  * chest already in the partner's back, a back the lean cannot reach, or a
  * chin left farther than `NEAR` from the shoulder is refused with the gap or
- * the miss. The hands go palm in onto the partner's abdomen, one each side
- * of its midline, the fingers toward it, and both arms are laid as one
- * course (`courseArmGoal`). Everything is read where the partner stands at
- * the start. Loaded windows: the chest on the upper back (`LEAN`), the chin
- * on the shoulder, the palms on the abdomen.
+ * the miss. The hands are clasped on the partner's abdomen, one placement
+ * for both as one hand rests on the other (`restClasped`): the left palm on the
+ * abdomen's midline, the fingers toward the partner's right, and the right
+ * palm on the back of the left hand, the fingers the other way. Both arms
+ * are laid as one course (`courseArmGoal`) around the partner's trunk and
+ * thighs, the left palm lying on the abdomen's. Everything is read where the
+ * partner stands at the start. Loaded windows: the chest on the upper back
+ * (`LEAN`), the chin on the shoulder, the left palm on the abdomen.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two solves, the refusals, the hands, the course and the windows.
  * @evidence contracts/development/design.md#principled-representation The kiss's lean model with a chest contact, a chin aim and two hand places on the partner's regions.
@@ -180,7 +196,13 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
       };
       const solved: ISolved = solve(body, entry, stance, back, rest, p.partner);
 
-      // The palms on the abdomen, one each side of the midline, the fingers toward it.
+      // The hands clasped on the abdomen, one placement for both, as one hand
+      // rests on the other (`restClasped`): the left palm on the abdomen's
+      // midline, its fingers toward the partner's right, the side the left
+      // arm reaches across to; the right palm on the back of the left hand,
+      // its fingers the other way. Two hands placed each on its own, either
+      // side of the midline with the fingers toward it, met fingertip into
+      // fingertip.
       const belly: IAutoMovieMotionHumanStrikingBody.IRegionResult =
         StrikingBody.region(partner.body, bones, "abdomen");
       const leftward: IAutoMovieVector3 = Vector3.normalize(
@@ -189,33 +211,58 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
           StrikingBody.region(partner.body, bones, "hipRight").point,
         ),
       );
-      const place = (
+      const laid = (
         side: AutoMovieHumanSide,
-      ): IAutoMovieMotionHumanArmTarget.ITarget => {
-        const out: IAutoMovieVector3 = Vector3.scale(
-          leftward,
-          side === "left" ? 1 : -1,
-        );
-        return AutoMovieMotionHumanArmTarget.prepareTarget(
+        point: IAutoMovieVector3,
+        normal: IAutoMovieVector3,
+        forward: IAutoMovieVector3,
+      ): IAutoMovieMotionHumanArmTarget.ITarget =>
+        AutoMovieMotionHumanArmTarget.prepareTarget(
           body,
           side,
           "palm",
           "flat",
         )({
-          point: Vector3.add(
-            belly.point,
-            Vector3.scale(out, body.measure.hand / 2),
-          ),
+          point,
           rotation: HumanHand.align(
             HumanHand.offset(body, side, "palm", "flat"),
-            {
-              normal: Vector3.scale(belly.normal, -1),
-              forward: Vector3.scale(out, -1),
-            },
+            { normal: Vector3.scale(normal, -1), forward },
           ),
           bend: AutoMovieMotionHumanBend.hang(body, entry, side, 0.2),
         });
-      };
+      const under: IAutoMovieMotionHumanArmTarget.ITarget = laid(
+        "left",
+        belly.point,
+        belly.normal,
+        Vector3.scale(leftward, -1),
+      );
+      const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
+        body,
+        "left",
+        under.surface,
+        under.point,
+        under.rotation,
+        under.shape,
+      );
+      const backed: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+        body,
+        "left",
+        "handBack",
+        under.shape,
+      );
+      const over: IAutoMovieMotionHumanArmTarget.ITarget = laid(
+        "right",
+        Vector3.add(
+          wrist.point,
+          Quaternion.rotateVector(wrist.rotation, backed.point),
+        ),
+        Quaternion.rotateVector(wrist.rotation, backed.normal),
+        leftward,
+      );
+      const place = (
+        side: AutoMovieHumanSide,
+      ): IAutoMovieMotionHumanArmTarget.ITarget =>
+        side === "left" ? under : over;
 
       const chin = (): IAutoMovieVector3 =>
         HumanTrunk.region(body, entry, "chin").point;
@@ -318,9 +365,54 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
           ],
           contact: "stroke",
         });
+      // The arms reach around the partner's waist and back: each arm's goal
+      // carries the partner's trunk and thighs where the partner stands, the
+      // abdomen's segments and their neighbours as the ones the palm lies on,
+      // the rest as ones the arm keeps clear of, as a touch's do
+      // (`touchHold.others`); the partner's own arms, which an embrace
+      // encloses, are pressed, not cleared.
+      const placed: ReturnType<ReturnType<typeof HumanColliders.preparePlaced>> =
+        HumanColliders.preparePlaced(partner.body, AROUND)(bones);
+      const lies: (segment: IAutoMovieMotionHumanColliders.IPlaced) => boolean =
+        touchHoldRests(partner.body, "abdomen", body.measure.hand)(bones);
+      const clear: IAutoMovieMotionHumanColliders.IPlaced[] = placed.filter(
+        (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+          !lies(segment),
+      );
+      const rests: IAutoMovieMotionHumanColliders.IPlaced[] =
+        placed.filter(lies);
+      const around: IAutoMovieMotionHumanActionPlan = {
+        ...plan,
+        posture: (
+          seconds: number,
+          channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+          resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+          projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+        ): IAutoMovieMotionHumanPosture => {
+          const shown: IAutoMovieMotionHumanPosture = plan.posture(
+            seconds,
+            channels,
+            resolution,
+            projection,
+          );
+          const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+            ...shown.limbs,
+          };
+          for (const limb of ["leftArm", "rightArm"] as const) {
+            const goal: IAutoMovieHumanLimbGoal | undefined = limbs[limb];
+            if (goal !== undefined)
+              limbs[limb] = {
+                ...goal,
+                clear: [...(goal.clear ?? []), ...clear],
+                rests: [...(goal.rests ?? []), ...rests],
+              };
+          }
+          return { ...shown, limbs };
+        },
+      };
       const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
         body,
-        plan,
+        plan: around,
         side: "left",
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
         span: {
@@ -363,20 +455,20 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
             to,
             support: { kind: "person", subject: p.partner, region: shoulder },
           },
-          ...(["left", "right"] as const).map(
-            (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
-              part: side === "left" ? "leftHand" : "rightHand",
-              kind: "bear",
-              region: side === "left" ? "palmLeft" : "palmRight",
-              from,
-              to,
-              support: {
-                kind: "person",
-                subject: p.partner,
-                region: "abdomen",
-              },
-            }),
-          ),
+          // The left palm bears on the abdomen; the right lies on the left
+          // hand, the performer's own, which bears no support of the body.
+          {
+            part: "leftHand",
+            kind: "bear",
+            region: "palmLeft",
+            from,
+            to,
+            support: {
+              kind: "person",
+              subject: p.partner,
+              region: "abdomen",
+            },
+          },
         ],
       };
     },
@@ -620,6 +712,10 @@ function solve(
           );
     const reached: ISolved = scored({ ...flexed, raise });
     if (reached.miss < best.miss) best = reached;
+    // The forward reach moves the chin aside too: the side lean, the turn
+    // and the neck are refined once more about it, by degrees.
+    if (best.miss > NEAR)
+      best = protracted(necked(sideways(best, 1, 4), 1, 4), 1);
   }
   if (best.miss > NEAR) {
     // Where the shoulder lies from the chin, in the performer's frame.

@@ -3,6 +3,7 @@ import type {
   IAutoMoviePhysicalMaterial,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -147,12 +148,29 @@ export function validatePhysicalProfile(
       Array.isArray(segment.shapes) && segment.shapes.length > 0,
       `${path}.shapes`,
     );
+    fail(
+      segment.contactShapes === undefined ||
+        Array.isArray(segment.contactShapes),
+      `${path}.contactShapes`,
+    );
     const shapes: Set<string> = new Set();
-    for (const [j, shape] of (Array.isArray(segment.shapes)
-      ? segment.shapes
-      : []
-    ).entries()) {
-      const location: string = `${path}.shapes[${j}]`;
+    // The simulation-only colliders are admitted as the shapes are, their
+    // ids unique across both lists.
+    const lists: IShapeList[] = [
+      {
+        key: "shapes",
+        shapes: Array.isArray(segment.shapes) ? segment.shapes : [],
+      },
+      {
+        key: "contactShapes",
+        shapes: Array.isArray(segment.contactShapes)
+          ? segment.contactShapes
+          : [],
+      },
+    ];
+    for (const list of lists)
+    for (const [j, shape] of list.shapes.entries()) {
+      const location: string = `${path}.${list.key}[${j}]`;
       if (!shape || typeof shape !== "object") {
         errors.push(location);
         continue;
@@ -422,4 +440,10 @@ export function validatePhysicalProfile(
     fail(current === undefined, `joints: cycle at ${bone}`);
   }
   return errors;
+}
+
+/** One of a segment's collider lists with the key its defects are reported under. */
+interface IShapeList {
+  key: string;
+  shapes: readonly IAutoMoviePhysicalShape[];
 }

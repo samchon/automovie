@@ -2,7 +2,6 @@ import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
-  IAutoMovieHumanLimbReference,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -17,11 +16,13 @@ import type {
 
 import { support } from "../actions/support";
 import { supportContact } from "../actions/supportContact";
+import type { supportCourse } from "../actions/supportCourse";
+import { crawl } from "../floor/crawl";
 import { getUp } from "../floor/getUp";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { carryCrutchHands } from "./carryCrutchHands";
+import { crutchHeldLeg } from "./crutchHeldLeg";
 import { crutchStairsFlight } from "./crutchStairsFlight";
 
 /** World vertical. */
@@ -50,7 +51,8 @@ function refuse(axis: string, value: unknown, reason: string): never {
 /**
  * Climbing stairs on two crutches (#3994): "up with the good, down with the
  * bad" (HealthLinkBC, Using crutches). The hands take the handgrips on both
- * feet, then the injured leg is held off the steps (`HELD`). Going up, each
+ * feet, then the injured leg is held off the steps (`HELD`), its foot first
+ * lifted clear over its place (`crutchHeldLeg`). Going up, each
  * step first sets the sound foot down on the next tread while the crutches
  * stay planted (`footUp<n>`), then lifts both crutches up and over the
  * nosing onto that tread (`crutchUp<n>`); going down, each step first moves
@@ -251,9 +253,45 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     // stays still while the crutches move instead of rocking about its toes'
     // joint, the only point a raised foot target places; on the floor plane
     // the foot already bears flat on its sole.
+    // A step between treads lifts the toes' joint straight up a stepping
+    // limb's rise (`crawl.LIFT`) above the higher tread, carries it level and
+    // sets it straight down (`supportCourse`'s toe course between the
+    // waypoints), so the sole leaves and meets each tread vertically and never
+    // travels within its bearing height; a joint-space swing between the keys
+    // slid it while the root moved.
+    const toesAt: (point: IAutoMovieVector3) => number = (
+      point: IAutoMovieVector3,
+    ): number =>
+      point.y > HumanFoot.BEARING ? point.y : point.y + joint;
+    const via: NonNullable<supportCourse.ICourse["via"]> = (
+      previous: IAutoMovieMotionHumanSupport.IContact,
+      next: IAutoMovieMotionHumanSupport.IContact,
+    ): readonly IAutoMovieVector3[] | undefined => {
+      if (
+        previous.part !== `${sound}Foot` ||
+        next.part !== `${sound}Foot` ||
+        previous.target === undefined ||
+        previous.target === "on" ||
+        previous.target.kind !== "point" ||
+        next.target === undefined ||
+        next.target === "on" ||
+        next.target.kind !== "point"
+      )
+        return undefined;
+      const from: IAutoMovieVector3 = previous.target.at;
+      const to: IAutoMovieVector3 = next.target.at;
+      // A foot named again where it stands does not step.
+      if (Vector3.distance(from, to) <= HumanFoot.BEARING) return undefined;
+      const height: number = Math.max(toesAt(from), toesAt(to)) + crawl.LIFT;
+      return [
+        { ...from, y: height },
+        { ...to, y: height },
+      ];
+    };
     const plan: IAutoMovieMotionHumanActionPlan = support.plan(
       { ...context, params: { stances } },
       {
+        via,
         level: (contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
           contact.part === `${sound}Foot` &&
           contact.target !== undefined &&
@@ -309,47 +347,29 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     // instant the first step's foot leaves its place: a support step lifts at
     // a third of its move (`supportStep`), the move being half a step.
     const lifted: number = climb.ready;
-    const held: number = climb.ready + climb.step / 2 / 3;
-    let raised: IAutoMovieHumanLimbReference | undefined;
+    const hold: ReturnType<typeof crutchHeldLeg> = crutchHeldLeg({
+      body,
+      side: injured,
+      lifted,
+      held: lifted + climb.step / 2 / 3,
+      hip: HELD.hip,
+      knee: HELD.knee,
+      read: (seconds: number): IAutoMovieMotionHumanPosture =>
+        plan.posture(seconds),
+    });
     const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
       seconds,
       channels,
       resolution,
       projection,
-    ): IAutoMovieMotionHumanPosture => {
-      const base: IAutoMovieMotionHumanPosture = carryCrutchHands(
-        plan.posture(seconds, channels, resolution, projection),
-        offset(seconds),
+    ): IAutoMovieMotionHumanPosture =>
+      hold(
+        carryCrutchHands(
+          plan.posture(seconds, channels, resolution, projection),
+          offset(seconds),
+        ),
+        seconds,
       );
-      if (seconds <= lifted) return base;
-      raised ??= resolveHumanPosture.reference(
-        resolveHumanPosture(body, plan.posture(lifted)),
-        `${injured}Leg`,
-      );
-      const s: number = minimumJerk(
-        Math.min(1, (seconds - lifted) / (held - lifted)),
-      ).s;
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
-      delete limbs[`${injured}Leg`];
-      const from: IAutoMovieHumanLimbReference = raised;
-      return {
-        ...base,
-        limbs,
-        joints: {
-          ...base.joints,
-          [`${injured}UpperLeg`]: [
-            from.upper[0] + (HELD.hip - from.upper[0]) * s,
-            from.upper[1] * (1 - s),
-            from.upper[2] * (1 - s),
-          ],
-          [`${injured}LowerLeg`]: [
-            from.lower[0] + (HELD.knee - from.lower[0]) * s,
-            from.lower[1] * (1 - s),
-            from.lower[2] * (1 - s),
-          ],
-        },
-      };
-    };
     return {
       ...plan,
       posture,

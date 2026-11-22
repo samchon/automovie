@@ -104,7 +104,7 @@ export namespace standFeet {
    * @param yaw The quiet heading, degrees.
    * @returns The contact-preserving foot course.
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, units and result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each planted foot rolls about its lowest displayed sole socket; pitch, roll, heading and toe flexion approach their quiet values, and HumanFoot.pivot derives the ankle from that fixed contact at every share.
+   * @evidence contracts/development/implementation.md#principled-implementation Each planted foot rolls about its lowest displayed sole socket; pitch, roll and toe flexion approach their quiet values while the heading it stands at is kept (a flat sole turned on the floor would slide), and HumanFoot.pivot derives the ankle from that fixed contact at every share.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the two contacts once, then evaluates the two rockers and their mean displacement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No ankle-height floor inference or contact translation is used for a planted foot.
    * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK requests only planted socket bones and their ancestry; each socket set is measured once and each moving writer evaluates its rockers once per share. At exactly completed progress the already required flat endpoint geometry supplies fresh vector copies without repeating its fixed rotations and contact construction.
@@ -175,9 +175,10 @@ export namespace standFeet {
           b.point.y < a.point.y ? b : a),
       );
       const rotation: IAutoMovieQuaternion = entry.feet[side].rotation;
+      // A planted foot keeps the heading it stands at: turned on the floor
+      // about its bearing socket, the rest of a sole lying on the floor would
+      // slide across it, so the stance's legs take the difference instead.
       const from: number = HumanFoot.heading(rotation);
-      const turn: number =
-        heading - from - 360 * Math.round((heading - from) / 360);
       const pitch: number = HumanFoot.pitch(rotation);
       const roll: number = HumanFoot.roll(rotation);
       const flexion: number =
@@ -194,7 +195,7 @@ export namespace standFeet {
             side,
             pivot.socket,
             pivot.point,
-            from + turn * share,
+            from,
             pitch * (1 - share),
             toes(share),
             roll * (1 - share),

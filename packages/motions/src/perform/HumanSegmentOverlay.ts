@@ -315,6 +315,9 @@ export namespace HumanSegmentOverlay {
         under,
         ((postures ??= [])[k] ??= postureAt(overlay)),
       );
+      // An overlay handing its channels on to the act after it in its chain
+      // keeps them to its end (`handsOn`), so the act after it enters from
+      // where it ended and blends in from it, not from the carrier.
       const weight: number = ((weights ??= [])[k] ??= Math.min(
         minimumJerk.share(
           Math.min(
@@ -322,9 +325,7 @@ export namespace HumanSegmentOverlay {
             Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
           ),
         ),
-        minimumJerk.share(
-          Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
-        ),
+        released(person, overlay, seconds),
       ));
 
       // The prefix names exactly the included overlays, in their original
@@ -400,14 +401,7 @@ export namespace HumanSegmentOverlay {
       const entered: IAutoMovieMotionHumanActionPlan["enteredChannels"] =
         overlay.plan.enteredChannels;
       const release: number =
-        entered === undefined
-          ? weight
-          : minimumJerk.share(
-              Math.min(
-                1,
-                Math.max(0, (overlay.end - seconds) / HumanSegment.FADE),
-              ),
-            );
+        entered === undefined ? weight : released(person, overlay, seconds);
       for (const bone of owned) {
         const pair: [
           IAutoMovieJointPose | undefined,
@@ -483,4 +477,77 @@ export namespace HumanSegmentOverlay {
         seconds >= o.entryTime - 1e-12 && seconds <= o.end + 1e-12,
     );
   }
+
+  /**
+   * Read a state with the overlays that end at a second handing their
+   * channels on there: an overlay chain's next act is placed at the instant
+   * the act before it ends, and reads its entry from that act's end, not
+   * from the carrier the act would release to were nothing to follow it.
+   *
+   * @param seconds The film second the next act enters at.
+   * @param run The read.
+   * @returns What the read returns.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the scope, its second and why the entry reads the act's end.
+   * @evidence contracts/development/implementation.md#principled-implementation A sequence hands each act's channels to the next at its end, as a blend tree's transition hands a pose on, so the next act starts where the last one ended; a release to the carrier belongs only to an act nothing follows.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoped second, saved and restored in finally.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only overlays ending at exactly that second are read as handing on; scopes nest and restore on throw.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The second lives for the synchronous read.
+   */
+  export function handing<T>(seconds: number, run: () => T): T {
+    const enclosing: number | undefined = entering;
+    entering = seconds;
+    try {
+      return run();
+    } finally {
+      entering = enclosing;
+    }
+  }
+}
+
+/** The second an overlay chain's next act enters at, while its entry is read (`HumanSegmentOverlay.handing`). */
+let entering: number | undefined;
+
+/** Seconds two instants of one handoff may differ by. */
+const HANDOFF: number = 1e-9;
+
+/** Whether two overlays claim a channel in common. */
+function shares(
+  a: IAutoMovieMotionHumanSegment.IOverlay,
+  b: IAutoMovieMotionHumanSegment.IOverlay,
+): boolean {
+  return a.channels.some(
+    (channel: (typeof a.channels)[number]): boolean =>
+      b.channels.includes(channel),
+  );
+}
+
+/** Whether an overlay hands its channels on at its end: to one that enters then, or to the act whose entry is being read there (`HumanSegmentOverlay.handing`). */
+function handsOn(
+  person: IAutoMovieMotionHumanSegment.IPerson,
+  overlay: IAutoMovieMotionHumanSegment.IOverlay,
+): boolean {
+  if (entering !== undefined && Math.abs(entering - overlay.end) <= HANDOFF)
+    return true;
+  return person.overlays.some(
+    (o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
+      o !== overlay &&
+      Math.abs(o.entryTime - overlay.end) <= HANDOFF &&
+      shares(o, overlay),
+  );
+}
+
+/** How far an overlay still holds its channels at a second, released to the carrier over the fade before its end unless it hands them on. */
+function released(
+  person: IAutoMovieMotionHumanSegment.IPerson,
+  overlay: IAutoMovieMotionHumanSegment.IOverlay,
+  seconds: number,
+): number {
+  return handsOn(person, overlay)
+    ? 1
+    : minimumJerk.share(
+        Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
+      );
 }

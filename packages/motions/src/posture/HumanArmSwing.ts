@@ -1,5 +1,6 @@
 import { bracketedBisection } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanActionPlan,
@@ -95,10 +96,11 @@ export namespace HumanArmSwing {
    * @param source Optional exact FK source borrowed only from this synchronous same-body operation.
    * @param projection Optional genuine same-body ROM projector for the complete current pose and initial stance fit.
    * @param resolved The cold resolve of this very posture, when its caller already holds it (`resolveHumanPosture.seeded` or `fit` of its assembly); absent, the posture is resolved here.
+   * @param entered Each arm's room as it entered the action, where it entered lying deeper than in the quiet stance (a hand left on a thigh by the action before); the stance's alone when absent.
    * @returns The posture with the arms' upper arm joints let out.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which arms, against what allowance and what is written back.
-   * @evidence contracts/development/implementation.md#principled-implementation A hanging arm's fingers lie against the thigh in the quiet stance, which the tangle audit takes as its baseline; the swing may come that near and no nearer, the same rule the audit reads.
+   * @evidence contracts/development/implementation.md#principled-implementation A hanging arm's fingers lie against the thigh in the quiet stance, which the tangle audit takes as its baseline; the swing may come that near and no nearer, the same rule the audit reads. An arm that entered lying deeper, on a contact the action before left, may stay as deep as it entered and no deeper, so the action starts on the arm it was handed.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve and one ordered current-joint scan per free arm precede its bisection in the pose earlier arms produced; the same continuous room crossing determines least abduction.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal is the fit's to clear and is left alone.
    * @evidence contracts/development/implementation.md#efficient-algorithms Keeps all current arm fits, clearance and bisection readings and fresh outputs. In a call that needs both quiet-stance allowances, both read the same stance fit and collider placement. When all needed allowances already exist, it prepares no quiet stance.
@@ -112,9 +114,15 @@ export namespace HumanArmSwing {
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     resolved?: IAutoMoviePose,
+    entered?: HumanArmSwing.Entered,
   ): IAutoMovieMotionHumanPosture {
-    return cleared(body, posture, sides, source, projection, resolved);
+    return cleared(body, posture, sides, source, projection, resolved, undefined, entered);
   }
+
+  /** Each arm's room as it entered an action, by side (`of`'s `entered`). */
+  export type Entered = Readonly<
+    Partial<Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>>
+  >;
 
   /** The exact pose search, or a final-arm certificate in a stride-maximum reduction. */
   function cleared(
@@ -125,6 +133,7 @@ export namespace HumanArmSwing {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     resolved?: IAutoMoviePose,
     maxima?: Readonly<Record<"left" | "right", number>>,
+    entered?: Entered,
   ): IAutoMovieMotionHumanPosture {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     let pose: IAutoMoviePose = resolved ??
@@ -168,11 +177,21 @@ export namespace HumanArmSwing {
       // The least added abduction that keeps the arm's room within its
       // stance baseline, by bisection: the least moves continuously as the
       // swing does, where a local search could jump between frames.
-      const baseline: IAutoMovieMotionHumanArmClearance.IBaseline = stance(
+      const quietRoom: IAutoMovieMotionHumanArmClearance.IBaseline = stance(
         body,
         side,
         standing,
       );
+      // An arm handed on lying deeper may stay as deep as it entered.
+      const handed: IAutoMovieMotionHumanArmClearance.IBaseline | undefined =
+        entered?.[side];
+      const baseline: IAutoMovieMotionHumanArmClearance.IBaseline =
+        handed === undefined
+          ? quietRoom
+          : {
+              forearm: Math.max(quietRoom.forearm, handed.forearm),
+              segments: Math.max(quietRoom.segments, handed.segments),
+            };
       const out: (a: number) => IAutoMovieMotionHumanArmClearance.IArm = (a: number): IAutoMovieMotionHumanArmClearance.IArm => ({
         ...arm,
         upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],

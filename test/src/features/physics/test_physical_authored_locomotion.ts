@@ -273,7 +273,7 @@ function measure(
   };
 }
 
-/** Fit the public settled Stand once, as test_human_motion_stand_support_geometry does. */
+/** Fit the public settled Stand once, as test_motion_support_stand_support_geometry does. */
 function stand(
   human: IAutoMovieMotionHumanBody,
 ): Record<string, IAutoMovieRigidTransform> {

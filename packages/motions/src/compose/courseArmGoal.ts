@@ -70,10 +70,12 @@ export function courseArmGoal(
   const { plan }: courseArmGoal.IProps = props;
   const arms: readonly courseArmGoal.IArm[] = [props, ...(props.with ?? [])];
   // Arms coursed together are one trajectory problem: one group, solved
-  // when the first of them is prepared.
+  // when the first of them is prepared, each arm on its own hold.
   const group: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
     props.together ??
     (arms.length > 1 ? AutoMovieMotionHumanArm.together() : undefined);
+  const beside: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
+    props.beside;
   let last: courseArmGoal.IRead | undefined;
   const kept: Map<courseArmGoal.Limb, IAutoMovieMotionHumanPosture["joints"]> =
     new Map();
@@ -211,7 +213,7 @@ export function courseArmGoal(
         arm.span ?? props.span;
       return AutoMovieMotionHumanArm.carried({
         ...(group === undefined ? {} : { together: group }),
-        ...(props.beside === undefined ? {} : { beside: props.beside }),
+        ...(beside === undefined ? {} : { beside }),
         ...(arm.disc === undefined ? {} : { disc: arm.disc }),
         ...(arm.skinDistance === undefined
           ? {}
@@ -288,9 +290,13 @@ export function courseArmGoal(
       primitives,
     });
   laid = true;
+  // An arm that follows its partner live (`tracked`) is planned by its
+  // follower; the composition names it (`IAutoMovieMotionHumanActionPlan.follows`),
+  // so a plan-level reading of the plan's own goals never reads the partner.
   const coursed: IAutoMovieMotionHumanActionPlan = {
     ...plan,
     posture: composed.posture,
+    ...(composed.follows === undefined ? {} : { follows: composed.follows }),
   };
   courseArmGoal.SOURCES.set(coursed, plan);
   return coursed;
@@ -342,7 +348,7 @@ export namespace courseArmGoal {
     /** The arm's angles before the span, which the reach leaves. */
     rest: IAutoMovieMotionHumanArmAngles.IAngles;
 
-    /** The arm's own instants, for an arm of `with` whose span differs; the course's `span` when absent. */
+    /** The arm's own instants, for an arm of `with` whose span differs; the course's `span` when absent. Arms laid together whose spans differ stay one trajectory problem, each arm's site read on its own hold (`AutoMovieMotionHumanArmPlanned.planned`). */
     span?: IAutoMovieMotionHumanArmPlanned.ISpan;
   }
 

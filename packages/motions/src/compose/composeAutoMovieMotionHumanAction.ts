@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFollow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionWeaponContact,
@@ -235,10 +236,28 @@ export function composeAutoMovieMotionHumanAction(
   )
     ? undefined
     : (base.legsStill ?? base.still);
+  // The channels whose writer follows another performer live, each over its
+  // window: the base's and the primitives' (`IAutoMovieMotionHumanPrimitive.follows`).
+  const follows: IAutoMovieMotionHumanFollow[] = [
+    ...(base.follows ?? []),
+    ...primitives.flatMap(
+      (p: IAutoMovieMotionHumanPrimitive): IAutoMovieMotionHumanFollow[] =>
+        p.follows === true
+          ? p.channels.map(
+              (channel: AutoMovieMotionHumanChannel): IAutoMovieMotionHumanFollow => ({
+                channel,
+                from: p.from,
+                to: p.to,
+              }),
+            )
+          : [],
+    ),
+  ];
   const plan: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: props.clock.events(),
     contacts,
+    ...(follows.length === 0 ? {} : { follows }),
     ...(legsStill === undefined ? {} : { legsStill }),
     channels: HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean =>

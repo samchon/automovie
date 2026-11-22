@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -7,7 +8,7 @@ import type {
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 
 /** The two arms. */
-const SIDES: readonly ("left" | "right")[] = ["left", "right"];
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /**
  * A plan whose arms, written as joints with no hand goal, swing out by the
@@ -18,6 +19,7 @@ const SIDES: readonly ("left" | "right")[] = ["left", "right"];
  *
  * @param plan The plan.
  * @param body The body.
+ * @param sides The arms that hang, both when absent; an arm the plan lays on something (a hand on a rail) is left out.
  * @returns The plan with its hanging arms let out.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States which arms move, by what rule and which are left alone.
@@ -31,7 +33,9 @@ const SIDES: readonly ("left" | "right")[] = ["left", "right"];
 export function swungArms(
   plan: IAutoMovieMotionHumanActionPlan,
   body: IAutoMovieMotionHumanBody,
+  sides: readonly AutoMovieHumanSide[] = SIDES,
 ): IAutoMovieMotionHumanActionPlan {
+  if (sides.length === 0) return plan;
   return {
     ...plan,
     posture: (
@@ -40,7 +44,7 @@ export function swungArms(
       HumanArmClearance.swung(
         body,
         plan.posture(...args),
-        SIDES,
+        sides,
         args[2],
         args[3],
       ),

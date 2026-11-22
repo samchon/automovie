@@ -1,4 +1,9 @@
-﻿import { minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  hingedArmSwivel,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -9,7 +14,9 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
   IAutoMovieResolvedBone,
+  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -18,6 +25,7 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHandShape } from "../posture/HumanHandShape";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -262,10 +270,9 @@ export namespace GymnasticsWheelPlants {
           : l.side === "left"
             ? "leftLeg"
             : "rightLeg";
-        const chain: readonly AutoMovieHumanoidBone[] = l.hand
-          ? [`${l.side}UpperArm`, `${l.side}LowerArm`, `${l.side}Hand`]
-          : [`${l.side}UpperLeg`, `${l.side}LowerLeg`, `${l.side}Foot`, `${l.side}Toes`];
-        const middle: AutoMovieHumanoidBone = chain[1]!;
+        const middle: AutoMovieHumanoidBone = l.hand
+          ? `${l.side}LowerArm`
+          : `${l.side}LowerLeg`;
         // The elbow or the knee kept where the carried shape holds it, so the
         // laid limb takes the same branch as the carried one. A straight
         // arm's elbow lies on the line from the shoulder to the hand and
@@ -273,10 +280,11 @@ export namespace GymnasticsWheelPlants {
         // way the elbow goes as the arm bends, opposite to where an elbow
         // flexion carries the hand.
         const free: IAutoMovieMotionHumanPosture = { ...posture, limbs: {} };
+        const shown: IAutoMoviePose = resolveHumanPosture(body, free);
         const carriedBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           poseBones(
             body,
-            resolveHumanPosture(body, free),
+            shown,
             undefined,
             new Set<AutoMovieHumanoidBone>([
               l.bone,
@@ -324,54 +332,107 @@ export namespace GymnasticsWheelPlants {
               l.fingers,
             )
           : { goal: { ...l.goal(posture), bend }, joints: {} };
-        const digits: IAutoMovieMotionHumanPosture["joints"] = l.hand
-          ? { ...flat[l.side], ...risen.joints }
-          : {};
-        if (w >= 1) {
-          Object.assign(joints, digits);
-          limbs[key] = risen.goal;
+        // A laid foot stays the leg's goal, held by the planted leg's own fit
+        // (its contact re-aim and heel rocker), eased from the carried foot
+        // over the lead.
+        if (!l.hand) {
+          limbs[key] =
+            w >= 1
+              ? risen.goal
+              : {
+                  ...risen.goal,
+                  point: Vector3.lerp(
+                    carriedEnd.worldPosition,
+                    risen.goal.point,
+                    w,
+                  ),
+                  ...(risen.goal.rotation === undefined
+                    ? {}
+                    : {
+                        rotation: Quaternion.slerp(
+                          carriedEnd.worldRotation,
+                          risen.goal.rotation,
+                          w,
+                        ),
+                      }),
+                };
           continue;
         }
-        // Between the carried and the laid limb: each joint of the chain and
-        // each finger on its rotation from the carried angle toward the laid
-        // solve's, by the weight.
-        const solved: IAutoMovieJointPose[] = resolveHumanPosture(body, {
-          ...posture,
-          joints: { ...posture.joints, ...digits },
-          limbs: { [key]: risen.goal },
-        }).joints;
-        const reached: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
-          new Map(
-            solved.map((j: IAutoMovieJointPose): [
-              AutoMovieHumanoidBone,
-              IAutoMovieJointPose,
-            ] => [j.bone, j]),
-          );
-        for (const bone of chain) {
-          const at: IAutoMovieJointPose | undefined = reached.get(bone);
-          if (at === undefined) continue;
-          joints[bone] = blendHumanJoint(
-            body,
-            bone,
-            posture.joints[bone] ?? [0, 0, 0],
-            [at.flexion ?? 0, at.abduction ?? 0, at.twist ?? 0],
-            w,
-          );
+        const digits: IAutoMovieMotionHumanPosture["joints"] = {
+          ...flat[l.side],
+          ...risen.joints,
+        };
+        // The laid limb solved at the carried limb's own swivel and branch
+        // (`HumanLimbFit.seed` of the shown pose, prescribed), so the solve
+        // keeps the elbow's or the knee's side and the forearm's turn the
+        // carried limb has and follows it continuously as the body turns.
+        const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(
+          body,
+          shown,
+          key,
+        );
+        const solved: IAutoMoviePose = resolveHumanPosture.seeded(
+          body,
+          {
+            ...posture,
+            joints: { ...posture.joints, ...digits },
+            limbs: { [key]: risen.goal },
+          },
+          undefined,
+          seed === null
+            ? {}
+            : {
+                [key]: {
+                  ...seed,
+                  tolerance: hingedArmSwivel.RESOLUTION,
+                  prescribed: true,
+                },
+              },
+        ).pose;
+        // The limb is written as joints, the solve's at full weight and, at
+        // the ends, each joint on its rotation from the shown angle toward
+        // the solve's: the law owns the laid limb, so no later fit of the
+        // goal chooses another turn of it.
+        const before: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
+          angles(shown);
+        for (const [bone, at] of angles(solved)) {
+          const was: IAutoMovieJointPose | undefined = before.get(bone);
+          const to: readonly [number, number, number] = [
+            at.flexion ?? 0,
+            at.abduction ?? 0,
+            at.twist ?? 0,
+          ];
+          const from: readonly [number, number, number] = [
+            was?.flexion ?? 0,
+            was?.abduction ?? 0,
+            was?.twist ?? 0,
+          ];
+          if (
+            Math.abs(to[0] - from[0]) +
+              Math.abs(to[1] - from[1]) +
+              Math.abs(to[2] - from[2]) <=
+            1e-9
+          )
+            continue;
+          joints[bone] = w >= 1 ? to : blendHumanJoint(body, bone, from, to, w);
         }
-        for (const [bone, angles] of Object.entries(digits) as [
-          AutoMovieHumanoidBone,
-          readonly [number, number, number],
-        ][])
-          joints[bone] = blendHumanJoint(
-            body,
-            bone,
-            posture.joints[bone] ?? [0, 0, 0],
-            angles,
-            w,
-          );
         delete limbs[key];
       }
       return { ...posture, joints, limbs };
     };
   }
+}
+
+/** A pose's joints by bone. */
+function angles(
+  pose: IAutoMoviePose,
+): Map<AutoMovieHumanoidBone, IAutoMovieJointPose> {
+  return new Map(
+    pose.joints.map(
+      (j: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [
+        j.bone,
+        j,
+      ],
+    ),
+  );
 }

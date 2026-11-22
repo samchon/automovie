@@ -471,6 +471,17 @@ export namespace AutoMovieMotionHumanArmPlanned {
         spaced(span.end - span.relax, travel(span.relax, -1)),
         true,
       );
+      // An arm's own hold begins and ends on waypoints of its own.
+      for (const c of carries)
+        if (c.span !== undefined)
+          for (const t of [c.span.ready, c.span.relax])
+            if (
+              t > span.start &&
+              t < span.end &&
+              !times.some((u: number): boolean => Math.abs(u - t) < 1e-9)
+            )
+              times.push(t);
+      times.sort((a: number, b: number): number => a - b);
     };
 
     // Each instant's base, one record however often the refinement reads it,
@@ -498,23 +509,18 @@ export namespace AutoMovieMotionHumanArmPlanned {
               ...(goal.clearExternal ?? []),
             ],
           );
-        const rests: IAutoMovieMotionHumanColliders.IPlaced[] = holding(t)
-          ? goals.flatMap(
-              (
-                goal: IAutoMovieHumanLimbGoal,
-              ): IAutoMovieMotionHumanColliders.IPlaced[] => [
-                ...(goal.rests ?? []),
-              ],
-            )
-          : [];
+        const rests: IAutoMovieMotionHumanColliders.IPlaced[] = goals.flatMap(
+          (
+            goal: IAutoMovieHumanLimbGoal,
+            a: number,
+          ): IAutoMovieMotionHumanColliders.IPlaced[] =>
+            holding(carries[a]!, t) ? [...(goal.rests ?? [])] : [],
+        );
         // The performer's own segments the hand is laid on, on the hold.
-        const restsOwn: AutoMovieHumanoidBone[] = holding(t)
-          ? goals.flatMap(
-              (goal: IAutoMovieHumanLimbGoal): AutoMovieHumanoidBone[] => [
-                ...(goal.restsOwn ?? []),
-              ],
-            )
-          : [];
+        const restsOwn: AutoMovieHumanoidBone[] = goals.flatMap(
+          (goal: IAutoMovieHumanLimbGoal, a: number): AutoMovieHumanoidBone[] =>
+            holding(carries[a]!, t) ? [...(goal.restsOwn ?? [])] : [],
+        );
         found = {
           pose: at(t).pose,
           others: goals.flatMap(
@@ -533,8 +539,15 @@ export namespace AutoMovieMotionHumanArmPlanned {
       }
       return found;
     };
-    const holding = (t: number): boolean =>
-      t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
+    // Each arm holds over its own span where it states one (a hold handed
+    // from one hand to the other), the group's otherwise.
+    const holding = (
+      c: IAutoMovieMotionHumanArmPlanned.IPlanned,
+      t: number,
+    ): boolean => {
+      const own: IAutoMovieMotionHumanArmPlanned.ISpan = c.span ?? span;
+      return t >= own.ready - 1e-9 && t <= own.relax + 1e-9;
+    };
 
     // Each arm's own fit at the hold's start, the optimiser's seed's first
     // start: fitted only once the laid course is refused, since an admitted
@@ -574,7 +587,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
                 );
           // The site where the arm's goal puts it at an instant, on the hold.
           const located = (t: number): HumanArmTrajectory.ISite | undefined => {
-            if (!holding(t)) return undefined;
+            if (!holding(c, t)) return undefined;
             const pose: IAutoMoviePose = at(t).pose;
             const own: HumanArmTrajectory.ISite =
               AutoMovieMotionHumanArmObservation.site(
@@ -660,8 +673,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
         },
         inheritedPace,
       );
-    let solved: IAutoMovieMotionHumanArmTrajectory.Trajectory[];
-    if (laid?.admitted === true) solved = laid.trajectories;
+    let solved: IAutoMovieMotionHumanArmTrajectory.Trajectory[];    if (laid?.admitted === true) solved = laid.trajectories;
     else {
       // An earlier plan's solution of these arms, carried onto this span,
       // starts the solve; this plan's own is left for the next. Both are

@@ -118,7 +118,7 @@ export function test_motion_throw_catch_self_catch(): void {
   }
   TestValidator.predicate(
     "a toss that never rises to the chest is refused",
-    refused?.axis === "from",
+    refused?.axis === "partner",
   );
 }
 

@@ -152,7 +152,11 @@ export function bindPhysicalWorld(
       }
       bound.bodies.set(`${body.id}/${segment.bone}`, rigid);
       local.set(segment.bone, rigid);
-      for (const shape of segment.shapes) {
+      // Simulation-only colliders collide with the segment's own shapes.
+      for (const shape of [
+        ...segment.shapes,
+        ...(segment.contactShapes ?? []),
+      ]) {
         const material: IAutoMoviePhysicalMaterial =
           body.profile.materials.find(
             (candidate: (typeof body.profile.materials)[number]): boolean =>

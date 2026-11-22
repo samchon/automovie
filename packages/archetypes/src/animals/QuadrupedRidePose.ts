@@ -75,6 +75,8 @@ export namespace QuadrupedRidePose {
     lift: number;
     /** Relative carpus/hock fold beyond the neutral angle, degrees. */
     fold: number;
+    /** The share of a stance's load the hoof bears, 0 to 1 (`AutoMovieArchetypeQuadrupedRootRange.IConstraint.load`); one, planted, when absent. */
+    load?: number;
   }
 
   /**
@@ -248,12 +250,12 @@ export namespace QuadrupedRidePose {
             targets.get(limb)!.solver.range(fold),
           512 * Number.EPSILON * Math.max(1, coordinateScale, Math.abs(floor)),
         );
-      const range: AutoMovieArchetypeQuadrupedRootRange.IRange = settled.range;
       for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
         const target: Target = targets.get(limb)!;
         target.constraint = settled.constraints[limb];
         target.fold = target.constraint.fold ?? target.fold;
       }
+      const range: AutoMovieArchetypeQuadrupedRootRange.IRange = settled.range;
       /** Solve the shared-root limbs and prove their canonical FK. */
       const geometry = (): ReturnType<typeof pose.position> => {
         const height: number = chooseQuadrupedBodyRoot(
@@ -300,17 +302,41 @@ export namespace QuadrupedRidePose {
             hip === undefined
               ? shoulder(target, height, turned)
               : QuadrupedScapula.glenoid(hip, pelvis);
+          const joint: IAutoMovieVector3 = {
+            ...attachment,
+            y: attachment.y + height,
+          };
           solved.set(
             limb,
-            target.solver.solve(
-              { ...attachment, y: attachment.y + height },
-              target.endpoint,
-              target.fold,
-            ),
+            target.solver.solve(joint, short(target, joint), target.fold),
           );
         }
         return pose.position(solved, root, turned);
       };
+
+      /**
+       * A swinging hoof's endpoint where its leg reaches at the chosen root: its goal where the leg reaches it, otherwise raised under the joint (its forward place kept, or drawn in as far as the leg's reach requires) until the leg just reaches, as a swinging foot adapts to the body the planted ones carry. A loaded hoof keeps its goal: its leg's reach capped the root.
+       */
+      function short(target: Target, joint: IAutoMovieVector3): IAutoMovieVector3 {
+        if ((target.constraint.load ?? 1) >= 1) return target.endpoint;
+        const goal: IAutoMovieVector3 = target.constraint.goal;
+        const reach: number =
+          target.constraint.reach.maximum -
+          512 * Number.EPSILON * Math.max(1, coordinateScale);
+        const dx: number = goal.x - joint.x;
+        const dy: number = goal.y - joint.y;
+        const dz: number = goal.z - joint.z;
+        if (Math.hypot(dx, dy, dz) <= reach) return target.endpoint;
+        const across: number = Math.max(0, reach * reach - dx * dx);
+        const forward: number =
+          dz * dz <= across ? dz : Math.sign(dz) * Math.sqrt(across);
+        const down: number = -Math.sqrt(Math.max(0, across - forward * forward));
+        return {
+          x: target.endpoint.x,
+          y: target.endpoint.y + (down - dy),
+          z: target.endpoint.z + (forward - dz),
+        };
+      }
       const prepared: ReturnType<typeof geometry> =
         witness === undefined
           ? geometry()
@@ -333,6 +359,7 @@ export namespace QuadrupedRidePose {
                       ? goals[limb].lift
                       : targets.get(limb)!.endpoint.y,
                     goals[limb].fold,
+                    goals[limb].load ?? 1,
                     goals[limb].orientation?.x ?? 0,
                     goals[limb].orientation?.y ?? 0,
                     goals[limb].orientation?.z ?? 0,
@@ -452,6 +479,7 @@ export namespace QuadrupedRidePose {
           goal: support.solver.target(endpoint),
           reach: support.solver.range(goal.fold),
           fold: goal.fold,
+          ...(goal.load === undefined ? {} : { load: goal.load }),
           ...(blade === undefined
             ? {
                 pelvis: {

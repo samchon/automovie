@@ -251,6 +251,9 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
     grip: IAutoMovieMotionHumanActionLaw.IGrip,
   ): readonly IAutoMovieMotionHumanActionLaw.IDemand[];
 
+  /** How the composition cuts this action into the performer's next one, when it cuts it at one of this action's own events or shares (`IAutoMovieIntent.until`), with what that next action plants: a run cut into a vault lowers the pole to the plant over its last strides. Absent when the action is not so cut, on an overlay and on a context built outside a performance. */
+  cut?: IAutoMovieMotionHumanActionContext.ICut;
+
   /**
    * This instance's draw stream for one channel.
    *
@@ -379,6 +382,27 @@ export namespace IAutoMovieMotionHumanActionContext {
 
     /** Which occurrence of the action's id in the performer's chain this is, from 0. */
     index: number;
+  }
+
+  /**
+   * How the composition cuts an action into the performer's next one
+   * (`IAutoMovieMotionHumanActionContext.cut`): at one of the action's own
+   * events or at a share of it, and what the next action plants.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it is; exactly one of `event` and `share` is present.
+   * @evidence contracts/development/design.md#principled-representation The composition's own cut (`IAutoMovieIntent.until`) in this action's terms, and the next law's own plant declaration.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, what an action reads to prepare the next one's entry; built by `HumanPerformanceAhead.cut`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No action is named: the plant is the next law's declaration, read from its resolved parameters.
+   */
+  export interface ICut {
+    /** The event of this action the cut falls at, its first occurrence; absent when the cut is at a share. */
+    event?: string;
+
+    /** The share of this action's uncut duration the cut falls at, in [0, 1]; absent when the cut is at an event. */
+    share?: number;
+
+    /** What the next action plants on the floor ahead as it is entered (`IAutoMovieMotionHumanActionLaw.plants`); absent when it plants nothing. */
+    plant?: IAutoMovieMotionHumanActionLaw.IPlant;
   }
 
   /**

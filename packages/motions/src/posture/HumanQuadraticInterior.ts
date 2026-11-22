@@ -106,7 +106,7 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * @evidence contracts/development/implementation.md#principled-implementation Newton's method on the perturbed optimality conditions of a convex program with Mehrotra's predictor-corrector, derived above and matching HPIPM's reduced system; convex curvature is the caller's premise as for the OSQP solve, and the method's own premises (positive slacks and multipliers) are kept by the step length.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission and equilibration stay with `HumanQuadraticPreparation`, the banded assembly, factor and substitution with the OSQP solve's owners; this file owns the iteration alone.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No row, bound or penalty is dropped or relaxed: a zero-weight soft end, which costs nothing, and an empty row, which holds no variable, are the only ends left out, and a hard empty row that excludes zero fails the solve. `ITERATIONS`, `BOUNDARY`, `REGULAR` and `ACCURACY` are named parameters with their origins stated; a solve that misses its accuracy returns nothing rather than an approximate answer.
- * @evidence contracts/development/implementation.md#efficient-algorithms An iteration costs O(n w^2 + n w + Z + m) for Z stored row coefficients and m rows, at most `ITERATIONS` of them and one last residual reading, independent of the curvature's conditioning; storage is O(n w + n + m). The per-end and per-row passes visit the live ends and the rows that hold one, listed once per solve in their original order, so every sum, step and matrix entry is formed in the same order as over all ends; the rows' values the residual test reads are formed for every row.
+ * @evidence contracts/development/implementation.md#efficient-algorithms An iteration costs O(n w^2 + n w + Z + m) for Z stored row coefficients and m rows, at most `ITERATIONS` of them and one last residual reading, independent of the curvature's conditioning; storage is O(n w + n + m). No speedup is claimed.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One factor serves an iteration's two solves; within a session its last preparation serves a program of the same data and scaling (`HumanQuadraticPreparation.scaled`), and its variable and cost scales, its scratch and its last converged point as a start: any positive diagonal scaling leaves the program's minimiser, and a start decides no answer since a warm solve short of its accuracy is solved again cold.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Without a session all scratch is the call's own, one banded factor and O(n + m) vectors, released on return or throw; a session holds one scaling, one preparation, one scratch set of its sizes and one point until its caller drops it; the returned arrays are fresh.
  */
@@ -156,33 +156,6 @@ export function HumanQuadraticInterior(
       }
     }
   }
-
-  // The live ends in order, those of them with a slack (every live end but
-  // an equation's), and the rows that hold one: an iteration's per-end and
-  // per-row passes visit these alone, since a dead end adds nothing to any
-  // sum, step, bound or matrix and keeps its zeros throughout.
-  let lively: number = 0;
-  let slacked: number = 0;
-  let holding: number = 0;
-  for (let r: number = 0; r < m; ++r) {
-    const upper: number = live[2 * r]!;
-    const lower: number = live[2 * r + 1]!;
-    lively += upper + lower;
-    slacked +=
-      (upper === 1 && free[2 * r] === 0 ? 1 : 0) +
-      (lower === 1 && free[2 * r + 1] === 0 ? 1 : 0);
-    if (upper + lower > 0) ++holding;
-  }
-  const liveEnds: Int32Array = new Int32Array(lively);
-  const slackEnds: Int32Array = new Int32Array(slacked);
-  const liveRows: Int32Array = new Int32Array(holding);
-  for (let j: number = 0, a: number = 0, b: number = 0; j < ends; ++j) {
-    if (live[j] === 0) continue;
-    liveEnds[a++] = j;
-    if (free[j] === 0) slackEnds[b++] = j;
-  }
-  for (let r: number = 0, k: number = 0; r < m; ++r)
-    if (live[2 * r] === 1 || live[2 * r + 1] === 1) liveRows[k++] = r;
 
   const x: Float64Array = new Float64Array(n);
   const t: Float64Array = new Float64Array(ends);
@@ -265,8 +238,7 @@ export function HumanQuadraticInterior(
     second: boolean,
   ): void => {
     for (let i: number = 0; i < n; ++i) rhs[i] = -dual[i]!;
-    for (let k: number = 0; k < liveRows.length; ++k) {
-      const r: number = liveRows[k]!;
+    for (let r: number = 0; r < m; ++r) {
       let push: number = 0;
       for (let side: number = 0; side < 2; ++side) {
         const j: number = 2 * r + side;
@@ -291,17 +263,9 @@ export function HumanQuadraticInterior(
         rhs[cols[a]!] = rhs[cols[a]!]! + vals[a]! * push;
     }
     HumanQuadraticSubstitute(factor, rhs, dx);
-    // Only a live end reads its row's motion.
-    for (let k: number = 0; k < liveRows.length; ++k) {
-      const r: number = liveRows[k]!;
-      let sum: number = 0;
-      const end: number = start[r + 1]!;
-      for (let a: number = start[r]!; a < end; ++a)
-        sum += vals[a]! * dx[cols[a]!]!;
-      along[r] = sum;
-    }
-    for (let k: number = 0; k < liveEnds.length; ++k) {
-      const j: number = liveEnds[k]!;
+    products(dx, along);
+    for (let j: number = 0; j < ends; ++j) {
+      if (live[j] === 0) continue;
       const moved: number = (j & 1) === 0 ? along[j >> 1]! : -along[j >> 1]!;
       dLambda[j] = stiff[j]! * (moved - rho[j]!);
       if (free[j] === 1) continue;
@@ -320,8 +284,8 @@ export function HumanQuadraticInterior(
   /** The longest step that keeps every slack and multiplier nonnegative; unbounded where none falls. */
   const longest: () => number = (): number => {
     let step: number = Infinity;
-    for (let k: number = 0; k < slackEnds.length; ++k) {
-      const j: number = slackEnds[k]!;
+    for (let j: number = 0; j < ends; ++j) {
+      if (live[j] === 0 || free[j] === 1) continue;
       if (dT[j]! < 0) step = Math.min(step, -t[j]! / dT[j]!);
       if (dLambda[j]! < 0) step = Math.min(step, -lambda[j]! / dLambda[j]!);
       if (soft[j] === 0) continue;
@@ -378,10 +342,8 @@ export function HumanQuadraticInterior(
       let gap: number = 0;
       let missed: number = 0;
       let reached: number = 0;
-      for (let r: number = 0; r < m; ++r)
+      for (let r: number = 0; r < m; ++r) {
         reached = Math.max(reached, Math.abs(value[r]!));
-      for (let k: number = 0; k < liveRows.length; ++k) {
-        const r: number = liveRows[k]!;
         let multiplier: number = 0;
         for (let side: number = 0; side < 2; ++side) {
           const j: number = 2 * r + side;
@@ -440,8 +402,7 @@ export function HumanQuadraticInterior(
 
       // The reduced matrix, factored once for the predictor and the corrector.
       const matrices: Workspace.IFactor = Workspace.system(s, REGULAR, work);
-      for (let k: number = 0; k < liveRows.length; ++k) {
-        const r: number = liveRows[k]!;
+      for (let r: number = 0; r < m; ++r) {
         const both: number = stiff[2 * r]! + stiff[2 * r + 1]!;
         if (both > 0) HumanQuadraticRow(s, matrices.system, r, both);
       }
@@ -456,8 +417,8 @@ export function HumanQuadraticInterior(
       if (pairs !== 0 && mu > 0) {
         const affine: number = Math.min(1, longest());
         let left: number = 0;
-        for (let k: number = 0; k < slackEnds.length; ++k) {
-          const j: number = slackEnds[k]!;
+        for (let j: number = 0; j < ends; ++j) {
+          if (live[j] === 0 || free[j] === 1) continue;
           left +=
             (lambda[j]! + affine * dLambda[j]!) * (t[j]! + affine * dT[j]!);
           secondT[j] = dLambda[j]! * dT[j]!;
@@ -480,8 +441,8 @@ export function HumanQuadraticInterior(
         size = Math.max(size, Math.abs(x[i]!));
       }
       moved = (step * far) / size;
-      for (let k: number = 0; k < liveEnds.length; ++k) {
-        const j: number = liveEnds[k]!;
+      for (let j: number = 0; j < ends; ++j) {
+        if (live[j] === 0) continue;
         lambda[j] = lambda[j]! + step * dLambda[j]!;
         if (free[j] === 1) continue;
         t[j] = t[j]! + step * dT[j]!;

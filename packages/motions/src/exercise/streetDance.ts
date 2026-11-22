@@ -383,9 +383,14 @@ export namespace streetDance {
             context.entry.feet.right.ankle,
             0.5,
           );
+          // The hips sink to the crouch by the first beat and rise after the
+          // last, on the groove's envelope, as the rock's bounce does: sunk
+          // at once, the knees jumped as the groove began.
           return {
             x: standing.x + mid.x - start.x,
-            y: standing.y - CROUCH * body.measure.stature,
+            y:
+              standing.y -
+              CROUCH * body.measure.stature * settle(t, beats, end),
             z: standing.z + mid.z - start.z,
           };
         },

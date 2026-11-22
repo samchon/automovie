@@ -23,6 +23,7 @@ import { walk } from "../actions/walk";
 import { walkLeg } from "../actions/walkLeg";
 import { walkRoot } from "../actions/walkRoot";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
+import { swungArms } from "../carrier/swungArms";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -452,11 +453,22 @@ export namespace climbStairs {
     // is; one boarding it from the floor (a turning disc's raised deck) is
     // carried footprint by footprint, a floor print staying in the world and
     // a tread print riding from its touchdown (`climbStairsCarry`).
-    if (p.on === undefined || context.prop(p.on).prop.motion === undefined)
-      return railed;
-    return climbStairsCarry.boarded(context)
-      ? HumanSupportCarry.on(context, railed, p.on)
-      : climbStairsCarry(context, railed, p.on);
+    const moved: IAutoMovieMotionHumanActionPlan =
+      p.on === undefined || context.prop(p.on).prop.motion === undefined
+        ? railed
+        : climbStairsCarry.boarded(context)
+          ? HumanSupportCarry.on(context, railed, p.on)
+          : climbStairsCarry(context, railed, p.on);
+    // The arms the climb leaves hanging are let out of the thighs the steps
+    // raise and spread under them (`swungArms`); a hand on the rail is the
+    // rail's.
+    return swungArms(
+      moved,
+      body,
+      (["left", "right"] as const).filter(
+        (side: AutoMovieHumanSide): boolean => p.rail?.hand !== side,
+      ),
+    );
   }
 
   /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */

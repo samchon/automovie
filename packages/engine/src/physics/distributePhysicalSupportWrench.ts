@@ -131,16 +131,71 @@ export function distributePhysicalSupportWrench(
       upper: desired[index]!,
     });
 
+  // Each support's moment about its own points' centroid, one auxiliary
+  // variable per axis: the contact wrench split into its resultant and its
+  // moment about the contact (Caron, Pham and Nakamura 2015, eq. 2). A
+  // support pressing its load off its centre moves its centre of pressure
+  // toward its edge, where any realization error tips it; penalizing that
+  // moment like the forces carries the requested moment by the load shared
+  // between supports first.
+  const supports: number[][] = [
+    ...new Set(
+      input.points.map((point: (typeof input.points)[number]): string => point.bone),
+    ),
+  ].map((bone: string): number[] =>
+    input.points
+      .map((point: (typeof input.points)[number], index: number): number =>
+        point.bone === bone ? index : -1,
+      )
+      .filter((index: number): boolean => index >= 0),
+  );
+  supports.forEach((members: number[], group: number): void => {
+    const centroid: IAutoMovieVector3 = Vector3.scale(
+      members.reduce(
+        (sum: IAutoMovieVector3, index: number): IAutoMovieVector3 =>
+          Vector3.add(sum, input.points[index]!.point),
+        { x: 0, y: 0, z: 0 },
+      ),
+      1 / members.length,
+    );
+    for (const [row, coordinate] of axes.entries()) {
+      const indices: number[] = [];
+      const weights: number[] = [];
+      for (const index of members)
+        for (const [axis, name] of axes.entries()) {
+          const direction: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+          direction[name] = 1;
+          indices.push(3 * index + axis);
+          weights.push(
+            Vector3.cross(
+              Vector3.subtract(input.points[index]!.point, centroid),
+              direction,
+            )[coordinate] / length,
+          );
+        }
+      rows.push({
+        indices: [...indices, size + 6 + 3 * group + row],
+        weights: [...weights, -1],
+        lower: 0,
+        upper: 0,
+      });
+    }
+  });
+
   // Dimensionless wrench error is primary; sqrt(machine epsilon) provides a
-  // small explicit effort penalty to select among redundant contact forces.
-  // Its resulting wrench bias remains measured in the returned SI residual.
+  // small explicit penalty on the forces and on each support's own moment to
+  // select among redundant contact forces. Its resulting wrench bias remains
+  // measured in the returned SI residual.
   const result: IAutoMovieSolveQuadraticProgram.IResult =
     solveAutoMovieQuadraticProgram({
       diagonal: [
         ...new Array<number>(size).fill(Math.sqrt(Number.EPSILON)),
         ...new Array<number>(6).fill(1),
+        ...new Array<number>(3 * supports.length).fill(
+          Math.sqrt(Number.EPSILON),
+        ),
       ],
-      linear: new Array<number>(size + 6).fill(0),
+      linear: new Array<number>(size + 6 + 3 * supports.length).fill(0),
       rows,
     });
   if (

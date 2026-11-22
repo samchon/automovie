@@ -252,10 +252,10 @@ export function prepareWalkReachSwing(
 
     // Stances outside the leg's reach are left and joined where they stand:
     // the reach ranges fade in from the departure and out into the landing.
-    // The ankle's range does not fade: a foot leaving the floor bears nothing
-    // from that instant, and the stance it leaves already holds it inside the
-    // unloaded limit (`walkReachStance`), so a quickly folding knee cannot
-    // carry it past the limit while the reach ranges come in.
+    // The ankle's range does not fade in: a foot leaving the floor bears
+    // nothing from that instant, and the stance it leaves already holds it
+    // inside the unloaded limit (`walkReachStance`), so a quickly folding knee
+    // cannot carry it past the limit while the reach ranges come in.
     const held: number = Math.min(
       minimumJerk.share(Math.min(1, Math.max(0, share) / bounds.fade)),
       minimumJerk.share(Math.min(1, Math.max(0, 1 - share) / bounds.fade)),
@@ -265,11 +265,19 @@ export function prepareWalkReachSwing(
       ankle,
       held,
     );
-    const turned: IAutoMovieQuaternion = ankleRange(
-      h,
-      joined,
-      Quaternion.slerp(foot.placement.rotation, rotation, held),
+    // A landing joins the stance it reaches, which turns its ankle by its
+    // own rocker and may stand a little past this swing's clamp (within the
+    // margin it keeps inside the limit, `walkLeg.ANKLE`): the range goes
+    // with the reach ranges into a landing, so the swing lands on that
+    // stance's foot. Only a turn in place fades into its landing.
+    const asked: IAutoMovieQuaternion = Quaternion.slerp(
+      foot.placement.rotation,
+      rotation,
+      held,
     );
+    const ranged: IAutoMovieQuaternion = ankleRange(h, joined, asked);
+    const turned: IAutoMovieQuaternion =
+      share > 0.5 ? Quaternion.slerp(asked, ranged, held) : ranged;
     const low: number = lowest({ ankle: joined, rotation: turned });
     if (low < target) joined = { ...joined, y: joined.y + target - low };
 

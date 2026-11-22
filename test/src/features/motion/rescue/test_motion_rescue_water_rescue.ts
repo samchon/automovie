@@ -78,7 +78,7 @@ function distress(body: IAutoMovieMotionHumanBody): void {
     composition: HumanChain.subject("victim").registered("aquatic", {
       kind: "distress",
       water: WATER,
-      seconds: 20,
+      duration: 20,
     }).node,
   });
   const segment: IAutoMovieMotionHumanSegment = film.segments("victim")[0]!;
@@ -146,7 +146,7 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
             .registered("aquatic", {
               kind: "distress",
               water: WATER,
-              seconds: 40,
+              duration: 40,
             })
             .registered("aquatic", {
               kind: "towed",

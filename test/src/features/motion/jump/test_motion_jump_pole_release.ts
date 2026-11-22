@@ -21,6 +21,14 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 /**
  * Load a pole at the plant and let it go at the release.
  *
+ * The pole lies across a rack in front of the performer, its tip to the
+ * left, and is taken up as a vaulter carries it: the right hand at its top
+ * grip, the left steadying it at the lower grip toward the tip, the lower
+ * hand the fulcrum of the drop (Coaches Insider, "Pole carry and drop"),
+ * planted from the top hand overhead (Frontiers in Sports and Active Living
+ * 2022, 10.3389/fspor.2022.835659: the upper grip at take-off 121 % of
+ * stature in men).
+ *
  * Scenarios:
  * 1. Through the swing the pole's `tip` stays planted within 5 mm while the
  *    hand holds the pole within 10 mm of its grip.
@@ -54,9 +62,10 @@ export function test_motion_jump_pole_release(): void {
       },
     ],
     props: [
+      // Across a rack, its top to the right: the pole's +Y turned onto -X.
       HumanObject.prop("pole", pole, {
-        position: { x: -0.25, y: 0, z: 0.3 },
-        rotation: Quaternion.identity(),
+        position: { x: 2.6, y: 1, z: 0.3 },
+        rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
       }),
       HumanObject.prop("mat", createLandingMat({ kind: "poleVault" }), {
         at: { x: 0, y: 0, z: 20 },
@@ -65,7 +74,8 @@ export function test_motion_jump_pole_release(): void {
     ],
     composition: HumanChain.subject("a")
       .stand({ hold: 0.3 })
-      .pickUp({ prop: "pole", handle: "shaft", hand: "right", lift: 0.05 })
+      .pickUp({ prop: "pole", handle: "topGrip", hand: "right", lift: 0.05 })
+      .pickUp({ prop: "pole", handle: "lowerGrip", hand: "left" })
       .stand({ hold: 0.3 })
       .run({ to: { x: 0, y: 0, z: 10 }, pace: "sprint" })
       .until({ event: "leftHeelStrike3" })

@@ -82,16 +82,25 @@ export function test_motion_seat_seated_draw(): void {
         HumanObject.prop("knife", knife, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
         { mouth: "mouth", tip: "point", handle: "grip", clearance: CLEARANCE },
       );
+      // The draw, its grip on the hilt included, is timed to the settled
+      // seat and the return follows it.
       const sitting: IAutoMovieMotionHumanChain = HumanChain.subject("s")
         .kneel({ kind: "sitBack", hold: 8, rise: false }, "sit")
         .over(
           (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             AutoMovieMotionHumanDress.HumanSheath.sheathe(
-              AutoMovieMotionHumanDress.HumanSheath.draw(upper, staged.sheath, "right", "draw"),
+              AutoMovieMotionHumanDress.HumanSheath.draw(
+                upper,
+                staged.sheath,
+                "right",
+                "draw",
+                undefined,
+                { of: "sit", event: "settled" },
+              ),
               staged.sheath,
               "right",
               "sheathe",
-            ).sync({ of: "sit", event: "settled" }),
+            ),
         );
       const props: IAutoMovieMotionHumanProp[] = [staged.carrier, staged.blade];
       const film: HumanPerformance = new HumanPerformance({

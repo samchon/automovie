@@ -11,6 +11,7 @@ import { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
+import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
 /**
  * The complete state of an extended position-based dynamics world
@@ -53,6 +54,28 @@ export namespace AutoMovieXpbdSnapshot {
 
     /** The last step's contacts, which controllers read before the next step. */
     contacts: IContactState[];
+
+    /** Each articulation's warm active sets, by root body handle. */
+    activeSets: IActiveSetState[];
+  }
+
+  /**
+   * One articulation's warm active sets in a snapshot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the root's handle and both levels' keys.
+   * @evidence contracts/development/design.md#principled-representation A handle and two key lists.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read by this namespace.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The keys are copied as they are.
+   */
+  export interface IActiveSetState {
+    /** The root body's handle. */
+    body: number;
+
+    /** Level one's active keys. */
+    first: string[];
+
+    /** Level two's active keys. */
+    second: string[];
   }
 
   /**
@@ -224,6 +247,13 @@ export namespace AutoMovieXpbdSnapshot {
           b: contact.b.handle,
         }),
       ),
+      activeSets: [...world.activeSets].map(
+        ([body, warm]: [AutoMovieXpbdBody, solveXpbdSupportCascade.IWarm]): IActiveSetState => ({
+          body: body.handle,
+          first: [...warm.first],
+          second: [...warm.second],
+        }),
+      ),
     };
   }
 
@@ -309,6 +339,11 @@ export namespace AutoMovieXpbdSnapshot {
         }),
       ),
     );
+    for (const entry of state.activeSets)
+      world.activeSets.set(bodies.get(entry.body)!, {
+        first: [...entry.first],
+        second: [...entry.second],
+      });
     world.resume(state.settings[3]);
   }
 

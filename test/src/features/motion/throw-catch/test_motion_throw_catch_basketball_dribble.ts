@@ -84,7 +84,7 @@ export function test_motion_throw_catch_basketball_dribble(): void {
       );
     let chain: IAutoMovieMotionHumanChain = HumanChain.subject("guard")
       .registered("stageCatch", {
-        from: "feed",
+        partner: "feed",
         ball: "ball",
         hands: "two",
         intercept: 0.42,
@@ -98,10 +98,10 @@ export function test_motion_throw_catch_basketball_dribble(): void {
       if (index < catches.length)
         chain = chain
           .registered("stageCatch", {
-            from: `dribble${index}`,
+            partner: `dribble${index}`,
             ball: "ball",
             hands: "one",
-            side: "right",
+            hand: "right",
             intercept: catches[index]!,
           })
           .sync({ of: `dribble${index}` });

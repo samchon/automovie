@@ -1,5 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanChannelClaim,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -11,6 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { prepareSupportHelperGrip } from "./prepareSupportHelperGrip";
@@ -93,19 +95,23 @@ export namespace supportPlan {
     );
     const contacts: IAutoMovieMotionHumanActionPlan["contacts"] =
       supportWindows.of(context, keys, duration, course?.observe, socket);
-    // Contact windows own the arm that reaches and the hand that holds.
+    // Contact windows own the arm that reaches and the hand that holds; an
+    // arm no window names hangs.
     const yields: AutoMovieMotionHumanChannelClaim[] = ["head"];
+    const hanging: AutoMovieHumanSide[] = [];
     for (const side of ["left", "right"] as const)
       if (
         !contacts.some(
           (contact: IAutoMovieMotionHumanContactWindow): boolean =>
             contact.part === side + "Hand",
         )
-      )
+      ) {
+        hanging.push(side);
         yields.push(
           side === "left" ? "leftArm" : "rightArm",
           side === "left" ? "leftHand" : "rightHand",
         );
+      }
     const follow: ReturnType<typeof prepareSupportHelperGrip> =
       prepareSupportHelperGrip(context, contacts, duration);
     const intervals: ReturnType<typeof prepareSupportInterval>[] = keys
@@ -150,8 +156,34 @@ export namespace supportPlan {
       keys,
     );
 
-    /** Carry a support interval after the containing transfer has been selected. */
+    /** Carry a support interval, its hanging arms let out of the legs and trunk the keys move under them (`HumanArmClearance.swung`). */
     const transfer = (
+      index: number,
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture => {
+      const carried: IAutoMovieMotionHumanPosture = interval(
+        index,
+        seconds,
+        channels,
+        resolution,
+        projection,
+      );
+      return hanging.length === 0
+        ? carried
+        : HumanArmClearance.swung(
+            body,
+            carried,
+            hanging,
+            resolution,
+            projection,
+          );
+    };
+
+    /** Carry a support interval after the containing transfer has been selected. */
+    const interval = (
       index: number,
       seconds: number,
       channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],

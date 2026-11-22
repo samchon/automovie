@@ -1,20 +1,23 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanGestureStroke,
   IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTargetGrid,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanTrunk } from "./HumanTrunk";
 import { gestureJoints } from "./gestureJoints";
 import { gestureSignal } from "./gestureSignal";
 import { gestureStrokeTables } from "./gestureStrokeTables";
@@ -158,7 +161,7 @@ export namespace gestureStroke {
    * @evidence contracts/development/implementation.md#principled-implementation Builds each goal in the performer's frame from the body's own measure (arm length, shoulder and waist heights), on the eye-to-target line for pointing (Henriques and Crawford 2002, the reach solved as a ray-sphere intersection from the shoulder), or on the body's face regions offset by the finger's collider radius for self-touch, so every gesture fits any stature; periodic strokes ride {@link gestureSignal.oscillation}.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch over the kind; pointing and self-touch, which need the posed trunk, live in {@link gestureTouch}; joint gestures live in {@link gestureJoints}.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm-length shares, swing sizes and outward elbow shares are documented provisional values; no body or scene is special-cased. The `thumbsDown` knuckle tilt is a fixed 45 degrees read off the polygon man's thumb (Limitation: it should aim the fist's thumb down from the body's own digit direction).
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for frame gestures: the heading's sine and cosine are computed once per call, on first need, and serve every point and direction. Pointing and self-touch cost one trunk forward-kinematics pass each.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Frame gestures compute the heading's sine and cosine once per call, on first need, for every point and direction, and two trunk forward-kinematics passes demanding the chest alone, the posed and the upright chest the place rides between. Pointing and self-touch cost one trunk forward-kinematics pass each.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one call, the points and directions share one frame preparation of the base's heading; nothing is kept between calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
@@ -177,29 +180,64 @@ export namespace gestureStroke {
       input,
     );
     // A place of the air is named in the body's heading frame; a body not
-    // upright (a prone swimmer, a leaning rider) carries it with its trunk:
-    // the goal turns about the root by the posture's pitch and roll beyond
-    // its heading. Pointing and self-touch already read the posed trunk.
+    // upright (a prone swimmer, a leaning rider, a trunk bent over a hand
+    // that bears) carries it with its upper trunk: the goal moves rigidly
+    // from the chest of the same body standing upright on the same root and
+    // heading to the posed chest. A tilt of the whole posture moves the chest
+    // about the root, so the goal turns about the root by the posture's pitch
+    // and roll as before; a bend of the spine moves it too, where turning by
+    // the posture alone left the place where the bent trunk brought the head
+    // (a wave over a braced hand, the head 5.8 mm inside the waving hand).
+    // Pointing and self-touch already read the posed trunk.
     if (TRUNK_POSED.has(kind)) return goal;
-    const tilt: IAutoMovieQuaternion = Quaternion.multiply(
-      resolveHumanPosture.heading(input.base),
-      Quaternion.inverse(HumanFrame.turn(input.base.yaw)),
+    const posed: IAutoMovieResolvedBone = HumanTrunk.resolve(
+      input.body,
+      input.base,
+      undefined,
+      input.resolution,
+      CHEST,
+    ).get("chest")!;
+    const erect: IAutoMovieResolvedBone = HumanTrunk.resolve(
+      input.body,
+      { ...input.base, pitch: 0, roll: 0 },
+      { ...input.base.joints, ...STRAIGHT },
+      input.resolution,
+      CHEST,
+    ).get("chest")!;
+    const carry: IAutoMovieQuaternion = Quaternion.multiply(
+      posed.worldRotation,
+      Quaternion.inverse(erect.worldRotation),
     );
-    if (Quaternion.angle(tilt, Quaternion.identity()) < 1e-9) return goal;
+    if (
+      Quaternion.angle(carry, Quaternion.identity()) < 1e-9 &&
+      Vector3.distance(posed.worldPosition, erect.worldPosition) < 1e-9
+    )
+      return goal;
     return {
       ...goal,
       point: Vector3.add(
-        input.base.root,
+        posed.worldPosition,
         Quaternion.rotateVector(
-          tilt,
-          Vector3.subtract(goal.point, input.base.root),
+          carry,
+          Vector3.subtract(goal.point, erect.worldPosition),
         ),
       ),
       ...(goal.rotation === undefined
         ? {}
-        : { rotation: Quaternion.multiply(tilt, goal.rotation) }),
+        : { rotation: Quaternion.multiply(carry, goal.rotation) }),
     };
   }
+
+  /** The bone a place of the air rides. */
+  const CHEST: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>(["chest"]);
+
+  /** The trunk's joints of a body standing upright. */
+  const STRAIGHT: IAutoMovieMotionHumanPosture["joints"] = {
+    hips: [0, 0, 0],
+    spine: [0, 0, 0],
+    chest: [0, 0, 0],
+  };
 
   /** The gesture kinds whose hand goals read the posed trunk already. */
   const TRUNK_POSED: ReadonlySet<IAutoMovieMotionHumanGestureStroke.Kind> =

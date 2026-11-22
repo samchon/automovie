@@ -103,11 +103,14 @@ export namespace DanceFootwork {
         return dwelt(key, Math.min(t, key.leave));
       const next: IAutoMovieMotionHumanDanceFootKey = keys[i + 1]!;
       const u: number = (t - key.leave) / Math.max(1e-9, next.at - key.leave);
-      // A step from one bearing place to another lifts before it travels
-      // and lands after it stops; a brush or a gesture grazes the floor in
-      // passing, so its rise follows the travel's own share.
-      return key.bears && next.bears
+      // A travel that lands on a bearing place (a step from another, or a
+      // gesture closing to the floor) lifts before it travels and lands after
+      // it stops; a brush or a gesture grazes the floor in passing, so its
+      // rise follows the travel's own share, and a slide keeps to the floor.
+      return next.bears && next.clearance > 0
         ? AutoMovieMotionHumanFootSwing(
+            body,
+            side,
             dwelt(key, key.leave),
             dwelt(next, next.at),
             next.clearance,

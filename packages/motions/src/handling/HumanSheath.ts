@@ -218,10 +218,11 @@ export namespace HumanSheath {
    * @param hand The drawing hand; `right` when absent.
    * @param anchor The action's anchor for cues; none when absent.
    * @param pull The other hand's pull on a worn carrier for a blade longer than the arm draws alone; the carrier holds still when absent.
+   * @param sync The instant the manoeuvre starts at (`IAutoMovieMotionHumanChainCore.sync`), its first grip timed to it and the draw following at grip closure; where the chain puts it when absent.
    * @returns The chain with the grip and the draw appended, after the other hand's grip on the carrier's throat when it pulls; the grip's `gripClosed` marks closure and the draw's `unseated` and `drawn` the start and end of the withdrawal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the entry state, the appended action and its events.
-   * @evidence contracts/development/implementation.md#principled-implementation The carrier pickup grips the handle and is cut at grip closure, so the body does not straighten away from the carrier first; then the draw moves the blade's frame from the seat to the entry on the carrier's line, the hand keeping its grip.
+   * @evidence contracts/development/implementation.md#principled-implementation The carrier pickup grips the handle and is cut at grip closure, so the body does not straighten away from the carrier first; then the draw moves the blade's frame from the seat to the entry on the carrier's line, the hand keeping its grip. Grip and draw are one manoeuvre: a timed draw times its first grip, so the hand never waits on a seated hilt between them.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two registered actions; the pickup owns reach and grip refusals and the draw owns the line and reach refusals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The line is the staged seat and entry, not a tuned height.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Appends two intents.
@@ -234,8 +235,12 @@ export namespace HumanSheath {
     hand?: AutoMovieHumanSide,
     anchor?: string,
     pull?: IAutoMovieMotionHumanDrawFromCarrier.IPull,
+    sync?: IAutoMovieMotionHumanChainCore.ISync,
   ): Chain {
     const other: AutoMovieHumanSide = hand === "left" ? "right" : "left";
+    // The manoeuvre's first grip, cut at its closure and timed when asked.
+    const timed: (taken: Chain) => Chain = (taken: Chain): Chain =>
+      sync === undefined ? taken : taken.sync(sync);
     const grip: IAutoMovieMotionHumanPickUp.IParams = {
       prop: sheath.blade,
       handle: sheath.handle,
@@ -259,18 +264,24 @@ export namespace HumanSheath {
     const held: Chain =
       pull === undefined
         ? chain
-        : chain
-            .registered(HumanCarrierCustody.name, {
-              prop: sheath.carrier,
-              handle: pull.handle,
-              lift: 0,
-              hand: other,
-            } satisfies IAutoMovieMotionHumanPickUp.IParams)
-            .until({ event: "gripClosed" });
-    return held
+        : timed(
+            chain
+              .registered(HumanCarrierCustody.name, {
+                prop: sheath.carrier,
+                handle: pull.handle,
+                lift: 0,
+                hand: other,
+              } satisfies IAutoMovieMotionHumanPickUp.IParams)
+              .until({ event: "gripClosed" }),
+          );
+    const gripped: Chain = held
       .registered(HumanCarrierCustody.name, grip)
-      .until({ event: "gripClosed" })
-      .registered(drawFromCarrier.name, out, anchor);
+      .until({ event: "gripClosed" });
+    return (pull === undefined ? timed(gripped) : gripped).registered(
+      drawFromCarrier.name,
+      out,
+      anchor,
+    );
   }
 
   /**

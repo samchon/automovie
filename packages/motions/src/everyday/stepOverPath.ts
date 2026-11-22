@@ -323,6 +323,29 @@ export namespace stepOverPath {
     ));
     const departure: number = heeled(trail, feet[trail], -stepOver.PUSH).ankle.y;
     const summit: number = origin.y + top(trail) + trailRadius;
+    // The straight approach and departure on either side of the obstacle
+    // join each lead socket's own flat footprints to its full clearance.
+    const leadTop: number = top(lead);
+    const envelope = (socket: IAutoMovieMotionHumanFoot.Socket): ((z: number) => number) => {
+      const start: number = framed.local(
+        HumanFoot.point(body, lead, socket, flat(lead, feet[lead])),
+      ).z;
+      const finish: number = framed.local(
+        HumanFoot.point(body, lead, socket, flat(lead, end[lead])),
+      ).z;
+      return (z: number): number => {
+        if (z < near)
+          return near > start ? leadTop * Math.max(0, (z - start) / (near - start)) : 0;
+        if (z > far)
+          return finish > far
+            ? ground + (leadTop - ground) * Math.max(0, (finish - z) / (finish - far))
+            : ground;
+        return leadTop;
+      };
+    };
+    const envelopes: Record<IAutoMovieMotionHumanFoot.Socket, (z: number) => number> = {
+      heel: envelope("heel"), ball: envelope("ball"), toe: envelope("toe"),
+    };
     const path: (side: "left" | "right", start: number) => (u: number) => IAutoMovieMotionHumanFoot.IPlacement = (
       side: "left" | "right",
       start: number,
@@ -341,8 +364,16 @@ export namespace stepOverPath {
         { z: b.z, y: b.y },
         (z: number): number => {
           let height: number = -Infinity;
-          for (const point of sole(side, pitch(z)))
-            height = Math.max(height, surface(side, z + point.z) - point.y);
+          // The lead also clears its sockets' approach and departure ramps
+          // here, so the correction rounds never take hold mid-swing and
+          // kink its path.
+          sole(side, pitch(z)).forEach((point: IAutoMovieMotionHumanClearance.IPoint, k: number): void => {
+            height = Math.max(
+              height,
+              surface(side, z + point.z) - point.y,
+              side === lead ? envelopes[HumanFoot.SOCKETS[k]!](z + point.z) - point.y : -Infinity,
+            );
+          });
           if (side === lead) return height;
           const gap: number = Math.max(near - z, z - far, 0);
           return gap < trailRadius
@@ -396,29 +427,6 @@ export namespace stepOverPath {
         };
       if (t >= b) return { placement: flat(side, end[side]), planted: true };
       return { placement: swings[side]((t - a) / (b - a)), planted: false };
-    };
-    // The straight approach and departure on either side of the obstacle
-    // join each lead socket's own flat footprints to its full clearance.
-    const leadTop: number = top(lead);
-    const envelope = (socket: IAutoMovieMotionHumanFoot.Socket): ((z: number) => number) => {
-      const start: number = framed.local(
-        HumanFoot.point(body, lead, socket, flat(lead, feet[lead])),
-      ).z;
-      const finish: number = framed.local(
-        HumanFoot.point(body, lead, socket, flat(lead, end[lead])),
-      ).z;
-      return (z: number): number => {
-        if (z < near)
-          return near > start ? leadTop * Math.max(0, (z - start) / (near - start)) : 0;
-        if (z > far)
-          return finish > far
-            ? ground + (leadTop - ground) * Math.max(0, (finish - z) / (finish - far))
-            : ground;
-        return leadTop;
-      };
-    };
-    const envelopes: Record<IAutoMovieMotionHumanFoot.Socket, (z: number) => number> = {
-      heel: envelope("heel"), ball: envelope("ball"), toe: envelope("toe"),
     };
     const needed: IPlan["needed"] = (side, socket, point): number => {
       const z: number = framed.local(point).z;

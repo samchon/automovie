@@ -36,6 +36,14 @@ export interface IAutoMovieMotionHumanPrimitive {
     | readonly AutoMovieMotionHumanChannel[]
     | ((seconds: number) => readonly AutoMovieMotionHumanChannel[]);
 
+  /**
+   * Whether its writer follows another performer live (an arm that tracks a
+   * partner's region a feedback delay earlier), so the composed plan names
+   * its channels (`IAutoMovieMotionHumanActionPlan.follows`). Absent, it
+   * follows no one.
+   */
+  follows?: boolean;
+
   /** Seconds since the action's start from which it writes. */
   from: number;
 

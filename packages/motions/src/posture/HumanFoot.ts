@@ -150,6 +150,26 @@ export namespace HumanFoot {
     return prepareHumanFootSole(body, side)(foot);
   }
 
+  /**
+   * The height of a placed foot's lowest sole point, flat-toed (`sole`):
+   * the point a swing's clearance is measured at, as gait measures the
+   * swinging foot's clearance at its lowest point (Winter 1992).
+   *
+   * @param body The body.
+   * @param side The foot.
+   * @param foot The foot's placement.
+   * @returns The least height of its sole's points, world metres.
+   */
+  export function lowest(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+  ): number {
+    return Math.min(
+      ...sole(body, side, foot).map((point: IAutoMovieVector3): number => point.y),
+    );
+  }
+
   /** Flat-toed sole geometry over changing foot placements (`prepareHumanFootSole`), shared only for unchanged body-local geometry. */
   export const prepareSole: typeof prepareHumanFootSole = prepareHumanFootSole;
 

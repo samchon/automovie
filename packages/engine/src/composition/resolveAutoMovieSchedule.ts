@@ -126,6 +126,20 @@ export function resolveAutoMovieSchedule(
       (part: IAutoMovieSchedulePart): boolean =>
         part.status === "pending" && part.subjects.has(subject),
     );
+    // A part that names an anchor a part being placed declares and has not
+    // yet placed (in an `at`, a cut's `of` or its intents' parameters, where
+    // a law names the action it answers) waits on that part: placing it now
+    // would read an anchor not yet there, so the two read each other.
+    if (
+      next !== undefined &&
+      placing.some((reader: IAutoMovieSchedulePart): boolean =>
+        [...reader.anchors].some(
+          (anchor: string): boolean =>
+            !walk.anchors.has(anchor) && next.references.has(anchor),
+        ),
+      )
+    )
+      return "cycle";
     if (next !== undefined) {
       ++demanding;
       try {
@@ -185,6 +199,7 @@ export function resolveAutoMovieSchedule(
           status: "pending",
           subjects: subjects(part),
           anchors: anchors(part),
+          references: references(part),
           siblings: group,
         };
         group.push(record);
@@ -240,6 +255,9 @@ interface IAutoMovieSchedulePart {
   /** The anchors its intents declare. */
   anchors: ReadonlySet<string>;
 
+  /** The names it may refer an anchor by: its `at` parts' anchors, its cuts' `of` and every string its intents' parameters hold. */
+  references: ReadonlySet<string>;
+
   /** Every part of its group, itself included. */
   siblings: readonly IAutoMovieSchedulePart[];
 }
@@ -254,6 +272,36 @@ function subjects(node: IAutoMovieComposition): Set<string> {
     if (n.kind === "intent") out.add(n.intent.subject);
     else if (n.kind === "at") visit(n.part);
     else n.parts.forEach(visit);
+  };
+  visit(node);
+  return out;
+}
+
+/**
+ * The names a composition may refer an anchor by: the anchor of each `at`
+ * part, the `of` of each cut, and every string its intents' parameters
+ * hold, where a law names the anchored action it answers. A string that is
+ * no anchor's name is read only against the anchors of the parts being
+ * placed, so it can at most hold a partner at what they had placed, as a
+ * cycle is held.
+ */
+function references(node: IAutoMovieComposition): Set<string> {
+  const out: Set<string> = new Set();
+  const strings = (value: unknown): void => {
+    if (typeof value === "string") out.add(value);
+    else if (Array.isArray(value)) value.forEach(strings);
+    else if (typeof value === "object" && value !== null)
+      Object.values(value).forEach(strings);
+  };
+  const visit = (n: IAutoMovieComposition): void => {
+    if (n.kind === "intent") {
+      strings(n.intent.parameters);
+      if (n.intent.until !== undefined && "of" in n.intent.until)
+        out.add(n.intent.until.of);
+    } else if (n.kind === "at") {
+      out.add(n.anchor);
+      visit(n.part);
+    } else n.parts.forEach(visit);
   };
   visit(node);
   return out;

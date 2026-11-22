@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanFoot } from "../posture/HumanFoot";
 import { prepareSupportFootCourse } from "./prepareSupportFootCourse";
 import { supportContact } from "./supportContact";
 import { supportWindows } from "./supportWindows";
@@ -281,7 +282,7 @@ export namespace supportCourse {
    * @evidence contracts/development/common.md#meaningful-documentation States the frame and the result.
    * @evidence contracts/development/implementation.md#principled-implementation While the root travels the stretch is expressed in the root's frame, so the foot's offset blends between two reachable offsets and stays reachable.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to prepareSupportFootCourse with both key roots.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stretch's ends are the course's own points.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stretch's ends are the course's own points, a place on the floor plane read at the toes' joint's flat height above it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per stretch.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each stretch is distinct.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The writer lives as long as the plan.
@@ -292,12 +293,25 @@ export namespace supportCourse {
     rootFrom: IAutoMovieVector3,
     rootTo: IAutoMovieVector3,
   ): Write {
+    // A place on the floor plane is the sole's, the foot bearing flat on it;
+    // the course is the toes' joint's, which then stands its flat height
+    // above the floor.
+    const joint: number = HumanFoot.point(body, leg.side, "mtp", {
+      ankle: { x: 0, y: body.measure.ankleHeight, z: 0 },
+      rotation: HumanFoot.rotation(0, 0),
+    }).y;
+    const toes: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
+      supportContact.onFloorTarget(point)
+        ? { ...point, y: point.y + joint }
+        : point;
     return prepareSupportFootCourse(
       body,
       leg.side,
       leg.yaw,
-      leg.from,
-      leg.to,
+      toes(leg.from),
+      toes(leg.to),
       false,
       rootFrom,
       rootTo,

@@ -2,7 +2,6 @@ import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
-  IAutoMovieHumanLimbReference,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -19,8 +18,8 @@ import { support } from "../actions/support";
 import { supportContact } from "../actions/supportContact";
 import { getUp } from "../floor/getUp";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { carryCrutchHands } from "./carryCrutchHands";
+import { crutchHeldLeg } from "./crutchHeldLeg";
 import { crutchWalkCourse } from "./crutchWalkCourse";
 
 /** How far a staged crutch tip may stand off the floor, metres. */
@@ -70,7 +69,8 @@ function centreOf(
  * Each station first advances both crutch tips (`ADVANCE` of its time),
  * the feet standing; then the hands bear on the planted handgrips while the
  * feet swing. In a three-point gait only the sound foot bears and steps, the
- * injured leg held off the floor (`HELD`); in a swing-to gait both feet land
+ * injured leg held off the floor (`HELD`), its foot first lifted clear over
+ * its place before the leg folds; in a swing-to gait both feet land
  * level with the tips, and in a swing-through gait `THROUGH` past them
  * (Physiopedia, Crutches, https://www.physio-pedia.com/Crutches). The crutch
  * props share the walk's clock (`track`), so a scene's crutches and the body
@@ -364,10 +364,18 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
         offset(seconds),
       );
 
-    // A three-point gait holds the injured leg off the floor once the hands bear.
-    const lifted: number = timing.ready;
-    const held: number = timing.stations[0]!.plant;
-    let raised: IAutoMovieHumanLimbReference | undefined;
+    // A three-point gait holds the injured leg off the floor once the hands
+    // bear, held by the end of the first advance (`crutchHeldLeg`).
+    const hold: ReturnType<typeof crutchHeldLeg> = crutchHeldLeg({
+      body,
+      side: injured,
+      lifted: timing.ready,
+      held: timing.stations[0]!.plant,
+      hip: HELD.hip,
+      knee: HELD.knee,
+      read: (seconds: number): IAutoMovieMotionHumanPosture =>
+        plan.posture(seconds),
+    });
     const posture: IAutoMovieMotionHumanActionPlan["posture"] =
       pattern !== "threePoint"
         ? carried
@@ -376,46 +384,8 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
             channels,
             resolution,
             projection,
-          ): IAutoMovieMotionHumanPosture => {
-            const base: IAutoMovieMotionHumanPosture = carried(
-              seconds,
-              channels,
-              resolution,
-              projection,
-            );
-            // Standing on both feet until the hands bear, then raised from
-            // the leg's own angles there to `HELD` over the first advance.
-            if (seconds <= lifted) return base;
-            raised ??= resolveHumanPosture.reference(
-              resolveHumanPosture(body, plan.posture(lifted)),
-              `${injured}Leg`,
-            );
-            const s: number = minimumJerk(
-              Math.min(1, (seconds - lifted) / (held - lifted)),
-            ).s;
-            const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-              ...base.limbs,
-            };
-            delete limbs[`${injured}Leg`];
-            const from: IAutoMovieHumanLimbReference = raised;
-            return {
-              ...base,
-              limbs,
-              joints: {
-                ...base.joints,
-                [`${injured}UpperLeg`]: [
-                  from.upper[0] + (HELD.hip - from.upper[0]) * s,
-                  from.upper[1] * (1 - s),
-                  from.upper[2] * (1 - s),
-                ],
-                [`${injured}LowerLeg`]: [
-                  from.lower[0] + (HELD.knee - from.lower[0]) * s,
-                  from.lower[1] * (1 - s),
-                  from.lower[2] * (1 - s),
-                ],
-              },
-            };
-          };
+          ): IAutoMovieMotionHumanPosture =>
+            hold(carried(seconds, channels, resolution, projection), seconds);
     return {
       ...plan,
       posture,

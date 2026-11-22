@@ -13,6 +13,9 @@ import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { limitPhysicalSwingTwist } from "./limitPhysicalSwingTwist";
 import { solveXpbdArticulation } from "./solveXpbdArticulation";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import type { solveXpbdContacts } from "./solveXpbdContacts";
+import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 
 /**
@@ -105,6 +108,9 @@ export namespace solveXpbdJoints {
    *
    * @param joints The joints, in creation order.
    * @param h The substep, seconds.
+   * @param contacts The step's contacts, which hold each tree at its supports.
+   * @param tasks The root tasks the trees' supports should meet, by root body.
+   * @param warm Each tree's warm start for its supports' cascade, by root body, kept across steps.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the tree solve, the coupled rows of the remaining joints, the implicit damper and its cap.
    * @evidence contracts/development/implementation.md#principled-implementation Trees by the articulated-body algorithm; each remaining joint's attachment and motor velocity rows as one linear system (J M^-1 J^T + diag(0, 1 / (h c))) x = rhs, solved directly; a capped motor becomes a fixed impulse.
@@ -117,8 +123,17 @@ export namespace solveXpbdJoints {
   export function motors(
     joints: readonly AutoMovieXpbdJoint[],
     h: number,
+    contacts: readonly solveXpbdContacts.IContact[],
+    tasks: ReadonlyMap<AutoMovieXpbdBody, AutoMovieXpbdWorld.IRootTask>,
+    warm: Map<AutoMovieXpbdBody, solveXpbdSupportCascade.IWarm>,
   ): void {
-    for (const joint of solveXpbdArticulation.motors(joints, h)) {
+    for (const joint of solveXpbdArticulation.motors(
+      joints,
+      h,
+      contacts,
+      tasks,
+      warm,
+    )) {
       const parent: AutoMovieXpbdBody = joint.parent;
       const child: AutoMovieXpbdBody = joint.child;
       if (!parent.dynamic && !child.dynamic) continue;

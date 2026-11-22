@@ -84,6 +84,9 @@ export namespace IAutoMovieMotionHumanWalkPace {
     /** The pelvis's speed along the way as the gait is entered, m/s, never negative: the ramp up starts from it, and from rest when absent. */
     entrySpeed?: number;
 
+    /** How long the standing foot of a gait entered in stride has stood at the start, seconds, never negative: one foot standing and the other in the air (a run out of a hurdle clearance), so the foot in the air lands one period after the standing foot's stance began, as the next footfall of a gait in progress does, instead of after a standing start's initiation (`WalkPace.FIRST`). A standing start when absent. */
+    stride?: number;
+
     /**
      * The share of the way the pelvis has gone at a second of the walk, from 0, never falling and reaching 1, when the way is set from outside (a cadenced station, `walkStation.cadenced`); the pelvis ramps, cruises and ramps by itself when absent.
      *

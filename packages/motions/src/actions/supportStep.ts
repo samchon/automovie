@@ -37,7 +37,9 @@ import type { supportPlan } from "./supportPlan";
  * never travels within the floor band. Its heel leaves first, risen as far
  * as keeps the ankle within a weightless ankle's dorsiflexion, and comes
  * down above where the set-down key lays it, so the foot does not turn on
- * the floor. A swing that only rose over the
+ * the floor; a foot stepping to a named floor place comes down over that
+ * place, its heel levelled beneath the raised toe, and the set-down is
+ * solved from there. A swing that only rose over the
  * middle of the step carried the sole across the floor at lift-off and
  * set-down (the staged clinch's 1.3 m/s skates). Any other step keeps the
  * single mid-step lift.
@@ -68,16 +70,19 @@ export function supportStep(props: supportStep.IProps): number {
       };
     },
   );
-  // A foot stepping across the floor with no course clears it at both ends.
+  // A foot stepping across the floor with no course clears it at both ends,
+  // whether its new place is named on the floor (a crutch walk's footfall)
+  // or left to the set-down's solve.
   const cleared: supportCourse.ICrossing[] = crossings.filter(
     (crossing: supportCourse.ICrossing): boolean => {
       const old: IAutoMovieVector3 | null = oldPlace(crossing.previous);
+      const onto: IAutoMovieVector3 | null = place(crossing.contact);
       return (
         crossing.waypoints.length === 0 &&
         crossing.contact.part.endsWith("Foot") &&
         old !== null &&
         supportContact.onFloorTarget(old) &&
-        place(crossing.contact) === null
+        (onto === null || supportContact.onFloorTarget(onto))
       );
     },
   );
@@ -131,6 +136,10 @@ export function supportStep(props: supportStep.IProps): number {
       return crossing.waypoints[Math.min(l, crossing.waypoints.length - 1)];
     if (!cleared.includes(crossing)) return undefined;
     if (l === 0) return up(oldPlace(crossing.previous)!);
+    // A named place is its own new end; the set-down is then solved from
+    // the lift over it, which already stands nearest to it.
+    const onto: IAutoMovieVector3 | null = place(crossing.contact);
+    if (onto !== null) return up(onto);
     if (above === undefined) {
       landed = setDown(keys.at(-1)!.posture);
       const ends: IAutoMovieVector3[] = supportContact.points(
@@ -243,7 +252,9 @@ export function supportStep(props: supportStep.IProps): number {
                   over(crossing, l),
                 );
               if (top === null) return [];
-              if (cleared.includes(crossing))
+              // Over a named place no set-down is solved yet to lay the heel
+              // above, so it is levelled beneath the raised toe instead.
+              if (cleared.includes(crossing) && (l === 0 || landed !== undefined))
                 return [top, heelOver(crossing, l, start)];
               if (!crossing.contact.part.endsWith("Foot")) return [top];
               // The toe joint's elevation alone leaves the ankle free to

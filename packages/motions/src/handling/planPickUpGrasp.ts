@@ -28,6 +28,7 @@ import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
+import { pickUpAlong } from "./pickUpAlong";
 import { pickUp } from "./pickUp";
 import { pickUpAdjust } from "./pickUpAdjust";
 import type { pickUpIntercept } from "./pickUpIntercept";
@@ -80,11 +81,14 @@ export function planPickUpGrasp(
   // hand turned as asked (a cylinder grips alike from any azimuth).
   const authored: IAutoMovieMotionHumanGrasp.ITarget =
     interception?.target ??
-    HumanGrasp.target(
+    pickUpAlong(
       context,
-      context.params.prop,
-      context.params.handle,
-      context.start,
+      HumanGrasp.target(
+        context,
+        context.params.prop,
+        context.params.handle,
+        context.start,
+      ),
     );
   const carried: IAutoMovieVector3 | undefined =
     interception === undefined

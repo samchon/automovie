@@ -45,8 +45,8 @@ import { vclose } from "../../internal/vclose";
  * 2. The released ball, handed to the precision deck at its displayed pose
  *    and launch velocity, rolls 1.5 m and drops below the green inside the
  *    cup's mouth: a holed putt.
- * 3. The same putt aimed 0.3 m wide of the cup rolls past and is never
- *    credited.
+ * 3. The same putt addressed and aimed on a line 0.3 m wide of the cup
+ *    rolls past and is never credited.
  * 4. The deck's ball starts exactly where the performance shows it.
  *
  * Rules of Golf, definition of Hole: 4.25 in (108 mm) across and at least
@@ -96,9 +96,14 @@ export async function test_motion_swing_golf_putt(): Promise<void> {
       .node,
   }).bones("golfer", 0);
 
-  // The golfer stands at the putt's own address for the ball, the putter
-  // read in the hand as the hold keeps it (`PrecisionStrokeForms.address`).
-  const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] = [
+  // The golfer stands at the putt's own address for the ball and the line
+  // putted, as a golfer aims the stance along the line, the putter read in
+  // the hand as the hold keeps it (`PrecisionStrokeForms.address`).
+  const heading = (aim: IAutoMovieVector3): number =>
+    (Math.atan2(aim.x - resting.x, aim.z - resting.z) * 180) / Math.PI;
+  const performers = (
+    aim: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanPerformance.IInput["performers"] => [
     {
       subject: "golfer",
       body,
@@ -106,10 +111,10 @@ export async function test_motion_swing_golf_putt(): Promise<void> {
         body,
         row: "golfPutt",
         side: "right",
-        yaw: 0,
+        yaw: heading(aim),
         ball: resting,
         radius,
-        toward: cup,
+        toward: aim,
         held: AutoMovieMotionHumanHeld.grasped(
           body,
           "right",
@@ -128,22 +133,29 @@ export async function test_motion_swing_golf_putt(): Promise<void> {
           },
         ),
       }),
-      yaw: 0,
+      yaw: heading(aim),
       proficiency: { level: "trained" },
     },
   ];
-  const ready: HumanPerformance = new HumanPerformance({
-    seed: "golf-ready",
-    performers,
-    composition: HumanChain.subject("golfer").stand({ hold: 0.2, sway: 0 })
-      .node,
-  });
-  const hand: IAutoMovieVector3 = HumanHand.frame(
-    body,
-    ready.bones("golfer", 0),
-    "right",
-    "grip",
-  ).point;
+  // The putter hangs in the hand as at the quiet pose, turned with the
+  // stance to the line.
+  const hung = (aim: IAutoMovieVector3): IAutoMovieQuaternion =>
+    Quaternion.multiply(
+      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading(aim)),
+      shaft,
+    );
+  const hand = (aim: IAutoMovieVector3): IAutoMovieVector3 =>
+    HumanHand.frame(
+      body,
+      new HumanPerformance({
+        seed: "golf-ready",
+        performers: performers(aim),
+        composition: HumanChain.subject("golfer").stand({ hold: 0.2, sway: 0 })
+          .node,
+      }).bones("golfer", 0),
+      "right",
+      "grip",
+    ).point;
 
   const hold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
     {
@@ -161,14 +173,14 @@ export async function test_motion_swing_golf_putt(): Promise<void> {
     new HumanPerformance({
       seed: `golf-putt-${aim.x}`,
       laws: [hold, AutoMovieMotionHumanSwing.HumanPrecisionSport.golfPutt],
-      performers,
+      performers: performers(aim),
       props: [
         HumanObject.prop("putter", putter, {
           position: Vector3.subtract(
-            hand,
-            Quaternion.rotateVector(shaft, grip),
+            hand(aim),
+            Quaternion.rotateVector(hung(aim), grip),
           ),
-          rotation: shaft,
+          rotation: hung(aim),
         }),
         HumanObject.prop("ball", ball, {
           position: Vector3.subtract(resting, centre),
