@@ -66,10 +66,18 @@ export namespace HumanPerformanceAim {
             seconds,
             frame,
           );
-        const other: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
+        // A person whose place at the perceived second is not decided yet is
+        // refused, as every other reader of a performer refuses it, never
+        // read in the pose they entered with: their root is read through the
+        // same availability refusal (`HumanPerformanceRead.root`).
+        HumanPerformanceRead.root(
           self,
           target.subject,
+          seconds - HumanPerception.REACTION,
+          "target.subject",
         );
+        const other: IAutoMovieMotionHumanSegment.IPerson =
+          HumanPerformanceRead.person(self, target.subject);
         const region: IAutoMovieHumanoidSurfaces.IFrame | undefined =
           other.performer.body.surfaces.regions[target.region];
         if (region === undefined)
@@ -126,7 +134,9 @@ export namespace HumanPerformanceAim {
         return { point: placed.point, normal: placed.normal };
       }
       case "prop": {
-        const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(target.subject);
+        const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(
+          target.subject,
+        );
         // A part an act has moved is where the prop's state poses it.
         const local: ReturnType<typeof HumanPerformanceObject.point> =
           prop === undefined
