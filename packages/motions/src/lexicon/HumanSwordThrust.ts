@@ -150,20 +150,6 @@ export namespace HumanSwordThrust {
           ),
         );
 
-        // The chamber's turn about the blade is chosen for the chamber itself,
-        // as the landing's is: with the landing's turn carried back, the arm
-        // of a small body could not hold the chamber (the hand 35 degrees off
-        // what was asked, the wrist at its limits) and the fit jumped there.
-        const drawn: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-          StrikingRoll.hand(
-            context,
-            s.tool,
-            s.tool.length,
-            hilt,
-            Vector3.subtract(a.target, hilt),
-            0,
-            context.entry.posture,
-          );
         // What the advance carries the shoulder by the decisive instant: the
         // displayed shoulder of the advanced body there against the entry's,
         // each read on the whole fitted posture, since the trunk-only read
@@ -177,15 +163,42 @@ export namespace HumanSwordThrust {
             undefined,
             new Set<AutoMovieHumanoidBone>([`${s.tool.side}UpperArm`]),
           ).get(`${s.tool.side}UpperArm`)!.worldPosition;
-        const carried: number =
+        const travel: IAutoMovieVector3 =
           a.advance === "none"
-            ? 0
-            : Vector3.length(
-                Vector3.subtract(
-                  shoulderOf(a.posture),
-                  shoulderOf(context.entry.posture),
-                ),
+            ? { x: 0, y: 0, z: 0 }
+            : Vector3.subtract(
+                shoulderOf(a.posture),
+                shoulderOf(context.entry.posture),
               );
+        const carried: number = Vector3.length(travel);
+
+        // The chamber is the landing drawn back along the stroke's line, the
+        // hand's attitude kept: the arm the landing chose, its elbow and its
+        // forearm's turn, only less extended, so the attack is one basin of
+        // the arm from the chamber to the landing. A chamber turned for
+        // itself lay in the other basin of the elbow (out by the side, the
+        // landing's ahead and up), and no arm joins them along the straight
+        // hilt line: the fit let the hand go 0.30 m soft and jumped between
+        // the basins within a frame. The hand draws back, from where it
+        // lands as the entry's shoulder stands, as deep along the line as the
+        // hilt's chamber by the side lies.
+        const line: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.subtract(a.target, a.reach),
+        );
+        const reached: IAutoMovieVector3 = Vector3.subtract(
+          landed.point,
+          travel,
+        );
+        const drawn: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
+          point: Vector3.subtract(
+            reached,
+            Vector3.scale(
+              line,
+              Math.max(0, Vector3.dot(Vector3.subtract(reached, hilt), line)),
+            ),
+          ),
+          rotation: landed.rotation,
+        };
 
         // The hand sets from its entry hold to the chamber and returns to it
         // from where the point lands.
