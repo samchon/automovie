@@ -259,6 +259,12 @@ export function ballCourt(
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         weight,
         span,
+        // The clock is the law's own, lengthened by a slower tempo.
+        together: AutoMovieMotionHumanArm.together(
+          context.handover,
+          true,
+          context.tempo,
+        ),
         bend: guard || kind === "handballThrow" ? "raised" : "forward",
         place: (
           posture,

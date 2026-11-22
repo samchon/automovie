@@ -208,6 +208,11 @@ export namespace ballSport {
       side: "left" | "right",
     ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
+    // Each arm's group: the clock is the law's own, lengthened by a slower
+    // tempo, so a course too fast for its pace is handed back at once.
+    const stretching: () => IAutoMovieMotionHumanArmPlanned.ITogether =
+      (): IAutoMovieMotionHumanArmPlanned.ITogether =>
+        AutoMovieMotionHumanArm.together(context.handover, true, context.tempo);
     const crouch: (
       depth: number,
       pitch: number,
@@ -244,6 +249,7 @@ export namespace ballSport {
             rest: rest(side),
             weight: into,
             span,
+            together: stretching(),
             // The dribbling elbow bends forward, as the court releases bend
             // it (`ballCourt`), so the hand's goal names its bend instead of
             // searching one at every second the ball's flight is swept.
@@ -294,6 +300,7 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
+              together: stretching(),
               place: (
                 posture: IAutoMovieMotionHumanPosture,
                 s: number,
@@ -350,6 +357,7 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
+              together: stretching(),
               place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({
                 point: Vector3.lerp(
                   AutoMovieMotionHumanPlaced.grid(body, posture, side, {
@@ -434,6 +442,7 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
+              together: stretching(),
               place: (_posture: IAutoMovieMotionHumanPosture, s: number) => ({
                 point: Vector3.add(
                   Vector3.lerp(drawn, released, stroke(s)),

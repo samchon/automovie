@@ -411,6 +411,12 @@ export namespace athletics {
           weight: (seconds: number): number =>
             into(seconds) * (1 - drive(seconds)),
           span,
+          // The clock is the law's own, lengthened by a slower tempo.
+          together: AutoMovieMotionHumanArm.together(
+            context.handover,
+            true,
+            context.tempo,
+          ),
           place: () => target.palms[side],
           bend: "front",
         }),

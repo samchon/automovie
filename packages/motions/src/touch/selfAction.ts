@@ -279,7 +279,11 @@ export namespace selfAction {
     // their mirror places (measured). As one problem of both arms they
     // mirrored, at several times the cost of two.
     const together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
-      AutoMovieMotionHumanArmPlanned.together(context.handover);
+      AutoMovieMotionHumanArmPlanned.together(
+        context.handover,
+        true,
+        context.tempo,
+      );
     const raise = (r: IRaised): void => {
       const side: AutoMovieHumanSide = r.side;
       primitives.push(

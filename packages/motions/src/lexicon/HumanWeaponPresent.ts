@@ -277,6 +277,12 @@ export namespace HumanWeaponPresent {
             relax: presented.duration,
             end: presented.duration,
           },
+          // The clock is the law's own, lengthened by a slower tempo.
+          together: AutoMovieMotionHumanArm.together(
+            context.handover,
+            true,
+            context.tempo,
+          ),
           with: [
             {
               side: other,
@@ -557,6 +563,12 @@ export namespace HumanWeaponPresent {
             relax: shooting.duration,
             end: shooting.duration,
           },
+          // The clock is the law's own, lengthened by a slower tempo.
+          together: AutoMovieMotionHumanArm.together(
+            context.handover,
+            true,
+            context.tempo,
+          ),
           with: [
             {
               side: other,

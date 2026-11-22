@@ -198,6 +198,12 @@ export namespace pour {
             from: 0,
             to: clock.duration,
             span,
+            // Every stage is the law's own, lengthened by a slower tempo.
+            together: AutoMovieMotionHumanArm.together(
+              context.handover,
+              true,
+              context.tempo,
+            ),
             rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
             weight: (seconds: number): number =>
               clock.envelope(

@@ -401,7 +401,11 @@ export namespace touch {
       );
     // Two hands are planned as one trajectory; one hand is a group of one,
     const together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
-      AutoMovieMotionHumanArmPlanned.together(context.handover);
+      AutoMovieMotionHumanArmPlanned.together(
+        context.handover,
+        true,
+        context.tempo,
+      );
     for (const [side, target] of hands) {
       const disc: number | undefined = touchRegion.disc(
         context,

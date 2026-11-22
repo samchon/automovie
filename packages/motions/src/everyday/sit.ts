@@ -356,7 +356,11 @@ export namespace sit {
     // lowered shoulder is nearest it; a hand with none hangs while the thighs come up under it and
     // is laid on its thigh from contact to seated.
     const together: IAutoMovieMotionHumanArmPlanned.ITogether =
-      AutoMovieMotionHumanArmPlanned.together(context.handover);
+      AutoMovieMotionHumanArmPlanned.together(
+        context.handover,
+        true,
+        context.tempo,
+      );
     const arm: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanPrimitive => {

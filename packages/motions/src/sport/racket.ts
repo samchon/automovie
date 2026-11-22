@@ -169,6 +169,13 @@ export namespace racket {
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
         weight: into,
         span,
+        // The clock is the law's own and a slower tempo lengthens it, except
+        // a split step's, whose stroke start is fixed.
+        together: AutoMovieMotionHumanArm.together(
+          context.handover,
+          p.kind !== "splitStep",
+          context.tempo,
+        ),
         surface: "grip",
         shape: "fist",
         place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({

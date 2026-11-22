@@ -184,7 +184,15 @@ export namespace baseball {
         rest: rest(side),
         weight: into,
         span,
-        ...(together === undefined ? {} : { together }),
+        // The clock is the law's own, lengthened by a slower tempo: an arm
+        // planned alone takes a group of its own that says so.
+        together:
+          together ??
+          AutoMovieMotionHumanArmPlanned.together(
+            context.handover,
+            true,
+            context.tempo,
+          ),
         place,
         surface: shape === "fist" ? "grip" : "palm",
         shape,
@@ -248,6 +256,11 @@ export namespace baseball {
             rest: rest("right"),
             weight: into,
             span,
+            together: AutoMovieMotionHumanArmPlanned.together(
+              context.handover,
+              true,
+              context.tempo,
+            ),
             goal: (): IAutoMovieHumanLimbGoal => guard,
           }),
           AutoMovieMotionHumanHand.shape({

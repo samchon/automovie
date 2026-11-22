@@ -318,6 +318,12 @@ function plan(
       relax: clock.at("relax"),
       end: clock.at("end"),
     },
+    // The whole clock is the law's own, lengthened by a slower tempo.
+    together: AutoMovieMotionHumanArm.together(
+      context.handover,
+      true,
+      context.tempo,
+    ),
   });
   const from: number = clock.at("strokeStart") / clock.duration;
   const to: number = clock.at("strokeEnd") / clock.duration;

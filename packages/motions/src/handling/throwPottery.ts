@@ -235,6 +235,12 @@ function plan(
       from: 0,
       to: clock.duration,
       span: { start: 0, ready, relax: done, end: clock.duration },
+      // The whole clock is the law's own, lengthened by a slower tempo.
+      together: AutoMovieMotionHumanArm.together(
+        context.handover,
+        true,
+        context.tempo,
+      ),
       rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
       disc: 0,
       weight: (seconds: number): number =>

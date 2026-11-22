@@ -274,6 +274,12 @@ function planWrite(
     from: 0,
     to: clock.duration,
     span: { start: 0, ready, relax: done, end: clock.duration },
+    // The whole clock is the law's own, lengthened by a slower tempo.
+    together: AutoMovieMotionHumanArm.together(
+      context.handover,
+      true,
+      context.tempo,
+    ),
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
     // A point target leaves the millimetre allowance to the arm solver.
     disc: 0,

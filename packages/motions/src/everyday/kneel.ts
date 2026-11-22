@@ -571,7 +571,7 @@ export namespace kneel {
       end: armEnd,
     };
     const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
-      AutoMovieMotionHumanArm.together();
+      AutoMovieMotionHumanArm.together(context.handover, true, context.tempo);
     const hand: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanPrimitive =>
