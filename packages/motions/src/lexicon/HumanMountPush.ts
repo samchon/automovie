@@ -311,16 +311,18 @@ export namespace HumanMountPush {
    * axis immobile), so the knee's swivel must supply this turn: at zero
    * the leg's closed-form root lies at the goal's pole. The knee is the
    * pole-vector two-link solution (`bend`), the shank runs from the ankle
-   * to it, and the turn is the angle about the shank from the knee's
-   * forward, square to the shank in the knee's plane, to the toes.
+   * to it, and the turn is the angle about the shank from the knee's hinge
+   * to the foot's own lateral axis, the axis the ankle flexes about, both
+   * square to the shank: unlike the toes, which a pointed foot lays along
+   * the shank, it never runs along it.
    *
    * @param body The body, whose thigh and shank lengths are read.
    * @param hip The hip joint, world metres.
    * @param goal The leg's goal, its pole and foot rotation.
-   * @returns The turn, degrees, positive about the shank toward the knee; null for a degenerate leg or toes along the shank.
+   * @returns The turn, degrees, about the shank; null for a degenerate leg or a foot's lateral axis along the shank.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the turn is, why it decides the knee and the degenerate cases.
-   * @evidence contracts/development/implementation.md#principled-implementation An ankle with an immobile axial axis meets a foot rotation only at the swivel whose bend plane holds the toes' projection square to the shank (Tolani, Goswami and Badler 2000, section 3.2.4, a joint limit as a function of the swivel); the pole-vector knee gives that plane in closed form.
+   * @evidence contracts/development/implementation.md#principled-implementation An ankle with an immobile axial axis meets a foot rotation only at the swivel whose bend plane holds the ankle's flexion axis parallel to the knee's hinge (Tolani, Goswami and Badler 2000, section 3.2.4, a joint limit as a function of the swivel); the pole-vector knee gives that hinge in closed form.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One closed form.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -343,20 +345,29 @@ export namespace HumanMountPush {
     const leg: IAutoMovieVector3 = Vector3.subtract(knee, goal.point);
     if (Vector3.length(leg) < 1e-9) return null;
     const shank: IAutoMovieVector3 = Vector3.normalize(leg);
-    const forward: IAutoMovieVector3 | null = square(
+    // The knee's hinge, signed as the foot's own lateral axis lies in a
+    // straight leg whose knee points ahead.
+    const down: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(goal.point, hip),
+    );
+    const out: IAutoMovieVector3 = square(
       Vector3.subtract(goal.bend, hip),
+      down,
+    )!;
+    const hinge: IAutoMovieVector3 | null = square(
+      Vector3.cross(out, down),
       shank,
     );
-    const toes: IAutoMovieVector3 | null = square(
-      Quaternion.rotateVector(goal.rotation, { x: 0, y: 0, z: 1 }),
+    const lateral: IAutoMovieVector3 | null = square(
+      Quaternion.rotateVector(goal.rotation, { x: 1, y: 0, z: 0 }),
       shank,
     );
-    if (forward === null || toes === null) return null;
+    if (hinge === null || lateral === null) return null;
     return {
       degrees:
         Math.atan2(
-          Vector3.dot(Vector3.cross(forward, toes), shank),
-          Vector3.dot(forward, toes),
+          Vector3.dot(Vector3.cross(hinge, lateral), shank),
+          Vector3.dot(hinge, lateral),
         ) / Quaternion.DEG2RAD,
       shank,
     };
