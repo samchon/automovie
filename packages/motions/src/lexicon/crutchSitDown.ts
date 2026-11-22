@@ -1,0 +1,328 @@
+import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanCrutchSit,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { seated } from "../everyday/seated";
+import { sit } from "../everyday/sit";
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { crutchSitKit } from "./crutchSitKit";
+import { crutchSitPath } from "./crutchSitPath";
+
+/** The injured leg held off the floor standing, degrees: the crutch walk's three-point gait's hip and knee flexion. */
+const STANDING: IAutoMovieHumanLimbReference = {
+  upper: [30, 0, 0],
+  lower: [80, 0, 0],
+};
+
+/** The injured leg held forward off the floor seated, degrees (provisional: the thigh level, the shank 30 degrees forward of vertical). */
+const SEATED: IAutoMovieHumanLimbReference = {
+  upper: [90, 0, 0],
+  lower: [60, 0, 0],
+};
+
+/** How far apart the two crutches stand in one hand, metres (provisional: two shafts side by side). */
+const SPACING: number = 0.035;
+
+/** How far a seated hand rests beside the thigh's side, metres (provisional: a hand's breadth out). */
+const BESIDE: number = 0.08;
+
+/**
+ * Sit down onto a chair with two crutches (#3994), in the prescribed order
+ * (Cornell Health and HealthLinkBC, Using crutches), from standing with the
+ * crutches standing on their tips beside the body.
+ *
+ * First each hand closes on its crutch's handgrip where it stands
+ * (`taken`, `crutchSitPath.grasped`) while the injured leg lifts off the
+ * floor to `STANDING`. Then both crutches are gathered into the injured
+ * side's hand (`gathered`): that hand carries its crutch to stand upright
+ * on the floor at the tip from which, pivoting, its grip comes down to the
+ * seated hand's place beside the thigh, and the sound hand carries its
+ * crutch `SPACING` beside it, where it is worn on the injured side's hand
+ * from then on. Then the sound hand reaches back to the chair (`reached`):
+ * onto its armrest on the sound side, as the sit law places a hand there,
+ * or onto the seat beside the hip. Then the sit law lowers the body onto
+ * the seat while the injured side's hand comes down the crutches' pivot arc
+ * to its seated place, the crutches tilting on their planted tips, top
+ * back, and the injured leg goes from `STANDING` to `SEATED`.
+ *
+ * @param context The crutch sit's context.
+ * @param kit Its shared reads.
+ * @returns The order's plan before the arms are coursed.
+ * @throws {HumanRefusal} When no seat is named.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the order, the crutch paths, the reuse of the sit, the leg and the refusal.
+ * @evidence contracts/development/implementation.md#principled-implementation The sit law for the body, the crutches on rigid paths from their own contacts, and the hands holding them by their grasped offsets.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Four phases on one clock, then the windows.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every crutch frame follows from its staged frame, the seat and the body's measure.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per posture read.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the sit plan only through the posture.
+ */
+export function crutchSitDown(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
+  kit: crutchSitKit.IKit,
+): crutchSitKit.IOrder {
+  const { body, entry, injured, sound, crutch, subject }: crutchSitKit.IKit =
+    kit;
+  const seat: IAutoMovieMotionHumanSeated.ISeat | undefined =
+    context.params.seat;
+  if (seat === undefined)
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "seat",
+      value: null,
+      reason: "a crutch sit names the chair it sits on",
+      fix: "give the seat",
+    });
+  const f: IAutoMovieVector3 = crutchSitKit.forward(seat.yaw);
+  const m: (typeof body)["measure"] = body.measure;
+
+  // Each hand takes its crutch's handgrip where the crutch stands.
+  const held = (side: AutoMovieHumanSide): IAutoMovieMotionHumanHeld.IHeld =>
+    crutchSitPath.grasped(
+      side,
+      crutch[side],
+      kit.start(side),
+      entry.yaw,
+      subject(side),
+      kit.affordances(side),
+    );
+  const hA: IAutoMovieMotionHumanHeld.IHeld = held(injured);
+  const hB: IAutoMovieMotionHumanHeld.IHeld = held(sound);
+  const reachOf = (side: AutoMovieHumanSide): number =>
+    Vector3.distance(
+      crutchSitPath.socket(body, context.entry.pose, side),
+      kit.goal(side, side === injured ? hA : hB, kit.start(side)).point,
+    );
+  const take: number = AutoMovieMotionHumanTiming.transport(
+    Math.max(reachOf("left"), reachOf("right")),
+  );
+  const lifted: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+    resolveHumanPosture(body, entry),
+    `${injured}Leg`,
+  );
+
+  // The seated hand's grip place beside the injured thigh, and the planted
+  // tip from which the crutch's pivot brings its grip there.
+  const cA: crutchSitPath.ICrutch = crutch[injured];
+  const seatedAt: IAutoMovieVector3 = Vector3.add(
+    Vector3.add(
+      seat.at,
+      Vector3.scale(
+        crutchSitKit.lateral(seat.yaw, injured),
+        m.hipHalfWidth + m.thighRadius + BESIDE,
+      ),
+    ),
+    {
+      x: -f.x * m.thigh * 0.5,
+      y: 2 * m.thighRadius + 0.03,
+      z: -f.z * m.thigh * 0.5,
+    },
+  );
+  const tilt: number =
+    (Math.acos(Math.min(1, seatedAt.y / cA.length)) * 180) / Math.PI;
+  const tip: IAutoMovieVector3 = Vector3.add(
+    { x: seatedAt.x, y: 0, z: seatedAt.z },
+    Vector3.scale(f, cA.length * Math.sin((tilt * Math.PI) / 180)),
+  );
+  const axis: IAutoMovieVector3 = crutchSitKit.lateral(seat.yaw, "left");
+  const upright: IAutoMovieQuaternion = kit.start(injured).rotation;
+  const gatheredA: IAutoMovieRigidTransform = crutchSitPath.pivoted(
+    cA,
+    tip,
+    upright,
+    axis,
+    0,
+  );
+  const gatheredB: IAutoMovieRigidTransform = {
+    position: Vector3.add(
+      gatheredA.position,
+      Vector3.scale(crutchSitKit.lateral(seat.yaw, injured), SPACING),
+    ),
+    rotation: gatheredA.rotation,
+  };
+  const gather: number = AutoMovieMotionHumanTiming.transport(
+    Math.max(
+      Vector3.distance(kit.start(injured).position, gatheredA.position),
+      Vector3.distance(kit.start(sound).position, gatheredB.position),
+    ),
+  );
+
+  // The sound hand's rest on the chair: its armrest, or the seat beside the hip.
+  const armrest: IAutoMovieVector3 | undefined = seat.armrests?.[sound];
+  const settled: IAutoMovieHumanLimbGoal =
+    armrest !== undefined
+      ? seated.armrest(body, entry, sound, armrest, seat.yaw)
+      : {
+          ...HumanHand.place(
+            body,
+            sound,
+            "palm",
+            Vector3.add(
+              Vector3.add(
+                seat.at,
+                Vector3.scale(
+                  crutchSitKit.lateral(seat.yaw, sound),
+                  m.hipHalfWidth + m.thighRadius + BESIDE,
+                ),
+              ),
+              { x: -f.x * m.thigh * 0.6, y: 0, z: -f.z * m.thigh * 0.6 },
+            ),
+            HumanHand.facing(sound, seat.yaw, {
+              fingers: "forward",
+              palm: "down",
+            }),
+            "flat",
+          ),
+          bend: AutoMovieMotionHumanBend.hang(body, entry, sound, 0.2),
+        };
+  const reach: number = AutoMovieMotionHumanTiming.transport(
+    Vector3.distance(kit.goal(sound, hB, gatheredB).point, settled.point),
+  );
+  const plan: IAutoMovieMotionHumanActionPlan = sit.plan({
+    ...context,
+    params: { seat },
+  });
+  const carried: number = take + gather;
+  const lower: number = carried + reach;
+  const descent: number = kit.at(plan, "seated");
+  const duration: number = lower + plan.duration;
+
+  const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
+    const t: number = Math.min(duration, Math.max(0, seconds));
+    const under: IAutoMovieMotionHumanPosture =
+      t < lower ? entry : plan.posture(t - lower);
+    const k: number = minimumJerk.share(
+      Math.min(1, Math.max(0, (t - lower) / descent)),
+    );
+    const moved = (side: AutoMovieHumanSide): IAutoMovieRigidTransform =>
+      crutchSitPath.carried(
+        kit.start(side),
+        side === injured ? gatheredA : gatheredB,
+        (t - take) / gather,
+      );
+    const injuredArm: IAutoMovieHumanLimbGoal =
+      t < carried
+        ? kit.goal(injured, hA, moved(injured))
+        : kit.goal(
+            injured,
+            hA,
+            crutchSitPath.pivoted(cA, tip, upright, axis, -tilt * k),
+          );
+    const soundArm: IAutoMovieHumanLimbGoal =
+      t < carried
+        ? kit.goal(sound, hB, moved(sound))
+        : crutchSitKit.blend(
+            kit.goal(sound, hB, gatheredB),
+            settled,
+            (t - carried) / reach,
+          );
+    return kit.write(
+      under,
+      injured === "left"
+        ? { left: injuredArm, right: soundArm }
+        : { left: soundArm, right: injuredArm },
+      t < take
+        ? crutchSitKit.leg(t / take, lifted, STANDING)
+        : crutchSitKit.leg((t - lower) / descent, STANDING, SEATED),
+    );
+  };
+  const later = (share: number): number =>
+    (lower + share * plan.duration) / duration;
+  const grip = (
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanContactWindow["part"] =>
+    side === "left" ? "leftHand" : "rightHand";
+  const contacts: IAutoMovieMotionHumanContactWindow[] = [
+    {
+      part: `${sound}Foot`,
+      kind: "plant",
+      from: 0,
+      to: lower / duration,
+      support: { kind: "ground" },
+    },
+    ...plan.contacts
+      .filter(
+        (w: IAutoMovieMotionHumanContactWindow): boolean =>
+          w.part !== `${injured}Foot` &&
+          w.part !== "leftHand" &&
+          w.part !== "rightHand",
+      )
+      .map(
+        (
+          w: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanContactWindow => ({
+          ...w,
+          from: later(w.from),
+          to: later(w.to),
+        }),
+      ),
+    {
+      part: grip(injured),
+      kind: "grip",
+      from: take / duration,
+      to: 1,
+      support: { kind: "prop", subject: subject(injured) },
+    },
+    {
+      part: grip(sound),
+      kind: "grip",
+      from: take / duration,
+      to: carried / duration,
+      support: { kind: "prop", subject: subject(sound) },
+    },
+    {
+      part: grip(sound),
+      kind: "plant",
+      from: lower / duration,
+      to: 1,
+      support: HumanSupportFrame.of(context),
+    },
+  ];
+  const events: IAutoMovieMotionEvent[] = [
+    { name: "taken", share: take / duration },
+    { name: "gathered", share: carried / duration },
+    { name: "reached", share: lower / duration },
+    ...plan.events.map(
+      (e: IAutoMovieMotionEvent): IAutoMovieMotionEvent => ({
+        ...e,
+        share: later(e.share),
+      }),
+    ),
+  ];
+  return {
+    duration,
+    ready: take,
+    posture,
+    contacts,
+    events,
+    holds: [{ side: injured, prop: subject(injured), from: 1 }],
+    wears: [
+      {
+        prop: subject(sound),
+        bone: `${injured}Hand`,
+        from: carried / duration,
+      },
+    ],
+    base: plan.base,
+  };
+}

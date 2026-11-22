@@ -52,7 +52,8 @@ const WAY: Readonly<
  * they let go and return; pushing runs the way from the chest down. The
  * hands face the body, the palms down onto the cover, the fingers toward
  * the feet. Both arms are laid in one course (`courseArmGoal`). A performer
- * whose trunk is not lying is refused.
+ * not lying on the back (the sternum less than half the chest's depth above
+ * the upper back) is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the way, the grip on the soft prop, the timing, the hands' turn, the course and the refusal.
  * @evidence contracts/development/design.md#principled-representation Two strokes of the arm phrase over the body's own regions, gripping the soft prop.
@@ -79,7 +80,10 @@ export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPull
         entry,
         "upperBack",
       ).point;
-      if (Math.abs(sternum.y - back.y) > body.measure.chestDepth / 2)
+      // Lying on the back, the sternum lies a chest's depth above the upper
+      // back; standing or on a side, the two are about level, and face down
+      // the sternum lies below.
+      if (sternum.y - back.y < body.measure.chestDepth / 2)
         throw new HumanRefusal({
           kind: "base",
           axis: "base",

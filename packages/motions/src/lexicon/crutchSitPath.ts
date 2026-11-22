@@ -35,7 +35,7 @@ const LIFT: number = 0.04;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace computes and the crutch's frame.
  * @evidence contracts/development/design.md#principled-representation A crutch is its rigid frame with a grip and a tip; every path is a frame of it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Five functions the crutch sit reads.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Six functions the crutch sit reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The grip's height is the crutch's own contact, never typed.
  */
 export namespace crutchSitPath {
@@ -161,6 +161,89 @@ export namespace crutchSitPath {
         Vector3.scale(UP, LIFT * minimumJerk.share(2 * Math.min(s, 1 - s))),
       ),
       rotation: Quaternion.slerp(from.rotation, to.rotation, blend),
+    };
+  }
+
+  /**
+   * A hand's grip socket on a pose, world metres.
+   *
+   * @param body The body.
+   * @param pose The pose.
+   * @param side The hand.
+   * @returns The grip socket's world point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
+   * @evidence contracts/development/implementation.md#principled-implementation The grip socket read by `HumanHand.frame` on the pose's bones.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read on the displayed entry pose.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward kinematics of the hand's chain.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per hand.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function socket(
+    body: IAutoMovieMotionHumanBody,
+    pose: IAutoMoviePose,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieVector3 {
+    return HumanHand.frame(
+      body,
+      poseBones(
+        body,
+        pose,
+        undefined,
+        HumanHand.frameBones(body, side, "grip"),
+      ),
+      side,
+      "grip",
+    ).point;
+  }
+
+  /**
+   * A crutch in the grip frame of the hand that closes on its handgrip: the
+   * grip socket on the handgrip, the hand turned as it holds a front-to-back
+   * bar at its side, the fingers down and the palm in (the suitcase grasp the
+   * crutch walk's hands take), with the crutch on its world frame.
+   *
+   * @param side The hand.
+   * @param c The crutch.
+   * @param frame The crutch's world frame as the hand closes on it.
+   * @param yaw The heading the hand faces, degrees.
+   * @param prop The crutch's subject.
+   * @param affordances Its contacts.
+   * @returns The crutch in the hand's grip frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the grasp, the frames and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The inverse of the hand's rigid frame applied to the crutch's: the offset `AutoMovieMotionHumanHeld` keeps while the grip holds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation and one inverse transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The socket lies on the crutch's own grip.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per crutch.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function grasped(
+    side: AutoMovieHumanSide,
+    c: ICrutch,
+    frame: IAutoMovieRigidTransform,
+    yaw: number,
+    prop: string,
+    affordances: readonly IAutoMovieAffordance[],
+  ): IAutoMovieMotionHumanHeld.IHeld {
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      HumanHand.facing(side, yaw, { fingers: "down", palm: "in" }),
+    );
+    return {
+      prop,
+      side,
+      frame: {
+        position: Quaternion.rotateVector(
+          inverse,
+          Vector3.scale(Quaternion.rotateVector(frame.rotation, c.grip), -1),
+        ),
+        rotation: Quaternion.normalize(
+          Quaternion.multiply(inverse, frame.rotation),
+        ),
+      },
+      affordances,
     };
   }
 
