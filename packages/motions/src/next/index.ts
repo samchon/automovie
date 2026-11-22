@@ -1,0 +1,1 @@
+export { AutoMovieMotionHumanGait } from "./AutoMovieMotionHumanGait";
