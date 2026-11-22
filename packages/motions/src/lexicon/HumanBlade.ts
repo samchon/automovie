@@ -8,11 +8,12 @@ import { step } from "../striking/step";
 import { HumanSword } from "./HumanSword";
 import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanSwordParry } from "./HumanSwordParry";
+import { HumanSwordTaken } from "./HumanSwordTaken";
 import { HumanSwordThrust } from "./HumanSwordThrust";
 
 /**
  * Blade work under film names, each a row of a law of `HumanSword`,
- * `HumanSwordGuard`, `HumanSwordParry` or `HumanSwordThrust`. The composition gives the held blade (`blade`, a sword prop the hand picked
+ * `HumanSwordGuard`, `HumanSwordParry`, `HumanSwordTaken` or `HumanSwordThrust`. The composition gives the held blade (`blade`, a sword prop the hand picked
  * up) and the target; with neither, the row is a solo drill of the bare
  * hand. Register the ones a film uses.
  *
@@ -24,7 +25,10 @@ import { HumanSwordThrust } from "./HumanSwordThrust";
  *
  * An exchange is three rows on two people: the attacker's `cut` or `thrust`
  * with `outcome: "parried"` and an anchor, the defender's `parry` with
- * `against` that anchor, and the defender's `riposte` after it.
+ * `against` that anchor, and the defender's `riposte` after it. A parried
+ * attack declared `taken` ends where it was stopped; the attacker's `taken`
+ * row then keeps the blade on the defender's `bind` while it carries the
+ * blade aside, and holds it there until the riposte ends.
  *
  * Every attack row keeps the blade timing of `IAutoMovieMotionHumanSword`: a
  * thrust, lunge, stab, wind and disengage reach contact on a point speed of
@@ -192,4 +196,9 @@ export namespace HumanBlade {
   export const riposte: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["riposte"]
   > = HumanActionRow.of("riposte", HumanSwordThrust.thrust, {});
+
+  /** A taken blade: the attacker's blade kept on the parry that took it while it is carried aside, then held there until `until` ends. */
+  export const taken: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["blade"]["taken"]
+  > = HumanActionRow.of("taken", HumanSwordTaken.taken, {});
 }

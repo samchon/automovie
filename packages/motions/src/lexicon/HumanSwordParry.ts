@@ -1,5 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -14,6 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -43,9 +46,13 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * It meets the attacking blade on its weak and, while the arm cannot hold
  * its own blade across it there, slides the meeting back along that blade
  * (`SLIDE`), where the stopped blade stands farther from the defender. A
- * blade to meet that lies beyond the arm is refused. First pass: the meeting
- * is where the stopped attack stands, so a parry does not beat the attacking
- * blade aside, and a bind is not planned.
+ * blade to meet that lies beyond the arm is refused. The meeting is where
+ * the stopped attack stands. An attack declared `taken` ends where it was
+ * stopped, and the parry carries its blade aside while the blades stay
+ * together (`aside`): level and square to the defender's front, until the
+ * whole attacking blade lies outside the defender's broadest half breadth,
+ * so a riposte's lunge passes beside it; the attacker's blade follows
+ * (`HumanSwordTaken`). First pass: a blade not taken is not beaten aside.
  *
  * What the row fixes: the parry meets the attacking blade at the middle of
  * its foible, 1/6 of its length back from the point (`WEAK`), slides to the
@@ -58,7 +65,9 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * skill: a parry that starts late meets late. It waits in its hold until
  * its meeting falls on the attack's decisive instant, so a parry synced to
  * the attack's `stroke` is in time; the hold afterwards is the stopped
- * attack's own stay.
+ * attack's own stay. A taken blade is carried aside by one minimum-jerk unit
+ * from the end of the attack's follow-through to the parry's relax, and the
+ * parry keeps it there until it turns back.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a parry answers, where and when the blades meet, the drill, the refusal and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner; the attack is read through its anchor, the outcome having been declared on the attack.
@@ -86,14 +95,48 @@ export namespace HumanSwordParry {
    */
   export const LEAN: number = (Math.atan(0.57) * 180) / Math.PI;
 
-  /** Where a parry's blade goes: the point its strong meets, the way it points, the way its edge faces, the seconds from the start to the attack's decisive instant and the seconds the stopped attack stays there before it turns back (null and 0 for a drill). */
+  /** Where a parry's blade goes: the point its strong meets, the way it points, the way its edge faces, the seconds from the start to the attack's decisive instant, the seconds the stopped attack stays there before it turns back (null and 0 for a drill), how far a taken blade is carried aside (none when the blade is not taken) and the second since the start the carrying begins. */
   interface IMeet {
     at: IAutoMovieVector3;
     point: IAutoMovieVector3;
     edge: IAutoMovieVector3;
     lead: number | null;
     stays: number;
+    aside: IAutoMovieVector3;
+    sweep: number;
   }
+
+  /**
+   * How far a parry carries a taken blade aside, world metres: square to the
+   * defender's front, level, toward the side of the defender's centre line
+   * the meeting lies on, until the whole attacking blade, from its grip's
+   * end to its point, lies outside the defender's broadest half breadth, the
+   * shoulders with the upper arm's girth or the chest, by the blades' `GAP`;
+   * none when it already does. The defender's own forward lunge then passes
+   * beside it.
+   */
+  const aside = (
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>,
+    s: IAutoMovieMotionHumanSword.ISetup,
+    ends: readonly [IAutoMovieVector3, IAutoMovieVector3],
+    middle: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
+    const lateral: IAutoMovieVector3 = s.world({ out: 1, up: 0, forward: 0 });
+    const centre: IAutoMovieVector3 = context.entry.posture.root;
+    const off = (p: IAutoMovieVector3): number =>
+      Vector3.dot(Vector3.subtract(p, centre), lateral);
+    const side: number = off(middle) >= 0 ? 1 : -1;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      context.body.measure;
+    const clear: number =
+      Math.max(m.chestBreadth / 2, m.shoulderHalfWidth + m.upperArmRadius) +
+      HumanSword.GAP;
+    const shift: number = Math.max(
+      0,
+      clear - Math.min(side * off(ends[0]), side * off(ends[1])),
+    );
+    return Vector3.scale(lateral, side * shift);
+  };
 
   /** Where the parry meets: the drill's line, or the attacker's stopped blade read through the attack's anchor, `weak` of its length back from its point; `hand` is the parrying hand's grip in its entry hold, which divides the high lines from the low. */
   const meet = (
@@ -132,6 +175,8 @@ export namespace HumanSwordParry {
         edge: s.world({ out: outside, up: 0, forward: 0 }),
         lead: null,
         stays: 0,
+        aside: { x: 0, y: 0, z: 0 },
+        sweep: 0,
       };
     }
 
@@ -151,7 +196,7 @@ export namespace HumanSwordParry {
 
     // The stopped attack stays where it was met until it turns back.
     const relax: number | undefined = attack.plan.events.find(
-      (e: { name: string; share: number }): boolean => e.name === "relax",
+      (e: IAutoMovieMotionEvent): boolean => e.name === "relax",
     )?.share;
     const stays: number =
       relax === undefined
@@ -178,13 +223,23 @@ export namespace HumanSwordParry {
       tip.normal,
     );
     const length: number = Vector3.dot(tip.point, tip.normal);
+    const end: IAutoMovieVector3 = Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(frame.rotation, tip.point),
+    );
     const middle: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, tip.point),
-      ),
+      end,
       Vector3.scale(along, weak * length),
     );
+
+    // A taken blade is carried aside from the end of the attack's
+    // follow-through, where it stops waiting on the parry.
+    const taken: boolean = HumanSword.taken(
+      attack.params as IAutoMovieMotionHumanSword.IAttack,
+    );
+    const through: number | undefined = attack.plan.events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === "strokeEnd",
+    )?.share;
 
     // The parrying blade crosses the attacker's, point up for a high line
     // and down for a low one, and sits on the defender's side of it; the
@@ -218,6 +273,18 @@ export namespace HumanSwordParry {
       edge: Vector3.scale(normal, -mine),
       lead: seconds - context.start,
       stays,
+      aside: taken
+        ? aside(
+            context,
+            s,
+            [end, Vector3.subtract(end, Vector3.scale(along, length))],
+            middle,
+          )
+        : { x: 0, y: 0, z: 0 },
+      sweep:
+        attack.start +
+        (through === undefined ? decisive : through * attack.plan.duration) -
+        context.start,
     };
   };
 
@@ -226,7 +293,7 @@ export namespace HumanSwordParry {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what meets what, the instant and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The attacker's displayed blade at the attack's decisive instant gives the meeting point (`WEAK` of its length back from its point, the strong of the parrying blade on the weak of the attacking one); the parrying blade crosses it, upright for a high line and point down for a low one, offset to the defender's side by `HumanSword.GAP`. The parry waits in its entry hold so that its own travel ends on that instant.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Where the blades meet, the closed pose, the timing, then the shared stroke planner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Where the blades meet, the closed pose, the timing, a taken blade's carrying aside, then the shared stroke planner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The meeting and receiving places are the blades' thirds, the hold is the stopped attack's own stay and every travel one minimum-jerk unit at the cited peak speed; a parry that starts too late for its travel keeps its own time and arrives late, never faster than its skill; a drill's meeting is the guard's hand carried to the trunk's edge and `LEAN` the friction angle of steel on steel.
    * @evidence contracts/development/implementation.md#efficient-algorithms One read of the attacker's prop frame per plan.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
@@ -362,26 +429,42 @@ export namespace HumanSwordParry {
           speed;
         const lead: number = met.lead ?? natural;
         const recovery: number = StrikingSkill.recovery(context.skill);
+        const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
+          AutoMovieMotionClock.phrase({
+            prepare: Math.max(0, lead - natural),
+            attack: natural,
+            hold: HumanBound.least(
+              "hold",
+              context.params.hold ?? met.stays,
+              0,
+              "s",
+            ),
+            retract:
+              (recovery *
+                HumanSwordTiming.UNIT *
+                HumanSwordTiming.travel(s.tool, closed, held)) /
+              speed,
+          }),
+          AutoMovieMotionManner.of(context, context.params.manner),
+        );
+
+        // A taken blade is carried aside by one minimum-jerk unit from the
+        // end of the attack's follow-through to this parry's relax, and the
+        // parry keeps it there until it turns back.
+        const relax: number = clock.at("relax");
+        const sweep: number = Math.min(met.sweep, relax);
         return StrikingBlade.plan(context, {
           tool: s.tool,
-          clock: AutoMovieMotionManner.time(
-            AutoMovieMotionClock.phrase({
-              prepare: Math.max(0, lead - natural),
-              attack: natural,
-              hold: HumanBound.least(
-                "hold",
-                context.params.hold ?? met.stays,
-                0,
-                "s",
-              ),
-              retract:
-                (recovery *
-                  HumanSwordTiming.UNIT *
-                  HumanSwordTiming.travel(s.tool, closed, held)) /
-                speed,
-            }),
-            AutoMovieMotionManner.of(context, context.params.manner),
-          ),
+          clock,
+          ...(Vector3.length(met.aside) === 0
+            ? {}
+            : {
+                follow: (seconds: number): IAutoMovieVector3 =>
+                  Vector3.scale(
+                    met.aside,
+                    AutoMovieMotionInterval.progress(sweep, relax, seconds),
+                  ),
+              }),
           path: (
             progress: number,
           ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({

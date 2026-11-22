@@ -315,6 +315,9 @@ export namespace HumanSword {
     return s1 < guard ? Math.min(1, (s0 - guard) / (s0 - s1)) : 1;
   };
 
+  /** Whether a parried attack's blade is taken by its parry (`IAttack.taken`), so it has no return and ends where it was stopped; never a feint's. */
+  export const taken = (params: IAutoMovieMotionHumanSword.IAttack): boolean => params.taken === true && params.outcome === "parried" && params.feint === undefined;
+
   /** Where a held blade's weak lies, `THIRDS[0]` of its length back from its point, for a hand frame. */
   export const weak = (tool: IAutoMovieMotionHumanStrikingHeld.ITool, frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame): IAutoMovieVector3 =>
     Vector3.add(frame.point, Quaternion.rotateVector(frame.rotation, Vector3.subtract(tool.tip, Vector3.scale(tool.axis, THIRDS[0] * tool.length))));
@@ -444,7 +447,7 @@ export namespace HumanSword {
           1,
           0,
           HumanSwordTiming.travel(s.tool, entered, path(0)),
-          HumanSwordTiming.travel(s.tool, path(2), entered),
+          taken(context.params) ? 0 : HumanSwordTiming.travel(s.tool, path(2), entered),
         );
 
         // The landing follows a target that moves after the start.
@@ -465,7 +468,7 @@ export namespace HumanSword {
             advance: a.advance,
             travel: a.travel,
             line: a.line,
-            stay: false,
+            stay: taken(context.params),
             stop: stopped(context, weak(s.tool, path(0)), weak(s.tool, landed), a.target, a.line),
           },
         );

@@ -120,9 +120,9 @@ export namespace IAutoMovieMotionHumanSword {
   /**
    * Parameters of a cut or a thrust.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation target: What it is aimed at; a place at the blade's reach ahead when absent. advance: How the body goes with it; when absent, the least of none, a step and a lunge that brings the target inside the arm. outcome: Whether it lands or is stopped short for a parry to meet; `lands` when absent.
-   * @evidence contracts/development/design.md#principled-representation target: What it is aimed at; a place at the blade's reach ahead when absent. advance: How the body goes with it; when absent, the least of none, a step and a lunge that brings the target inside the arm. outcome: Whether it lands or is stopped short for a parry to meet; `lands` when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.aim, context); lexicon/HumanSword.ts (HumanSword.stopped, params); lexicon/HumanSwordThrust.ts (HumanSwordThrust.thrust, context); lexicon/HumanSwordTiming.ts (HumanSwordTiming.timed, context); lexicon/HumanSword.ts (HumanSword.aim); lexicon/HumanSwordThrust.ts (HumanSwordThrust.thrust).
+   * @evidence contracts/development/common.md#meaningful-documentation target: What it is aimed at; a place at the blade's reach ahead when absent. advance: How the body goes with it; when absent, the least of none, a step and a lunge that brings the target inside the arm. outcome: Whether it lands or is stopped short for a parry to meet; `lands` when absent. taken: Whether the meeting parry takes the stopped blade, so the attack ends where it was stopped; false when absent.
+   * @evidence contracts/development/design.md#principled-representation target: What it is aimed at; a place at the blade's reach ahead when absent. advance: How the body goes with it; when absent, the least of none, a step and a lunge that brings the target inside the arm. outcome: Whether it lands or is stopped short for a parry to meet; `lands` when absent. taken: Whether the meeting parry takes the stopped blade, so the attack ends where it was stopped; false when absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.aim, context); lexicon/HumanSword.ts (HumanSword.stopped, params); lexicon/HumanSword.ts (HumanSword.taken, params); lexicon/HumanSwordParry.ts (HumanSwordParry.meet, taken); lexicon/HumanSwordThrust.ts (HumanSwordThrust.thrust, context); lexicon/HumanSwordTiming.ts (HumanSwordTiming.timed, context); lexicon/HumanSword.ts (HumanSword.aim); lexicon/HumanSwordThrust.ts (HumanSwordThrust.thrust).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanStrikingAdvance.Advance identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IAttack extends IAutoMovieMotionHumanSword.IWield {
@@ -137,6 +137,9 @@ export namespace IAutoMovieMotionHumanSword {
 
     /** A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried. */
     feint?: number;
+
+    /** Whether the parry that meets a `parried` attack takes its blade: the attack then ends where it was stopped, not back in its entry hold, for the parry to carry it aside and a following action to hold it there; false when absent. */
+    taken?: boolean;
   }
 
   /**

@@ -449,6 +449,7 @@ export * from "./lexicon/HumanSwordGuard";
 export * from "./striking/StrikingRoll";
 export * from "./striking/StrikingAdvance";
 export * from "./lexicon/HumanSwordThrust";
+export * from "./lexicon/HumanSwordTaken";
 export * from "./lexicon/HumanSportSwing";
 export * from "./lexicon/HumanSportThrow";
 export * from "./lexicon/HumanWeaponMelee";

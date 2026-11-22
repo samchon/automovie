@@ -17,13 +17,15 @@ import type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";
  * It meets the attacking blade on its weak and, while the arm cannot hold
  * its own blade across it there, slides the meeting back along that blade
  * (`SLIDE`), where the stopped blade stands farther from the defender. A
- * blade to meet that lies beyond the arm is refused. First pass: the meeting
- * is where the stopped attack stands, so a parry does not beat the attacking
- * blade aside, and a bind is not planned.
+ * blade to meet that lies beyond the arm is refused. The meeting is where
+ * the stopped attack stands. An attack declared `taken` ends where it was
+ * stopped, the parry carries its blade aside while the blades stay together,
+ * and a taken blade (`ITaken`) follows it. First pass: a blade not taken is
+ * not beaten aside.
  *
  * @evidence contracts/development/common.md#meaningful-documentation against: The anchor of the cut or thrust it meets; a drill to `line` when absent. line: The line closed when it answers no attack; `highOutside` when absent. hold: Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; as long as the stopped attack stays where it was met when absent, none for a drill. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation against: The anchor of the cut or thrust it meets; a drill to `line` when absent. line: The line closed when it answers no attack; `highOutside` when absent. hold: Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; as long as the stopped attack stays where it was met when absent, none for a drill. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSwordParry.ts (HumanSwordParry.meet, context); lexicon/HumanSwordParry.ts (HumanSwordParry.parry, context); lexicon/HumanSwordParry.ts (HumanSwordParry.meet); lexicon/HumanSwordParry.ts (HumanSwordParry.parry).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSwordParry.ts (HumanSwordParry.meet, context); lexicon/HumanSwordParry.ts (HumanSwordParry.parry, context); lexicon/HumanSwordParry.ts (HumanSwordParry.meet); lexicon/HumanSwordParry.ts (HumanSwordParry.parry); lexicon/HumanSwordTaken.ts (HumanSwordTaken.taken).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanSwordParry.meet.
  */
 export namespace IAutoMovieMotionHumanSwordParry {
@@ -58,5 +60,21 @@ export namespace IAutoMovieMotionHumanSwordParry {
 
     /** Seconds the blades stay together after they meet, at least 0: a beat leaves at once, a bind stays; as long as the stopped attack stays where it was met when absent, none for a drill. */
     hold?: number;
+  }
+
+  /**
+   * Parameters of a taken blade: the attacker's blade, stopped and taken by a parry, kept on the parrying blade while that parry carries it aside, then held where it was left.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation against: The anchor of the parry that took the blade. until: The anchor of the action whose end it is held to; that parry's own end when absent.
+   * @evidence contracts/development/design.md#principled-representation against: The anchor of the parry that took the blade. until: The anchor of the action whose end it is held to; that parry's own end when absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSwordTaken.ts (HumanSwordTaken.taken, context).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The parrying blade is read from the performance through the parry's anchor, never restated here.
+   */
+  export interface ITaken extends IAutoMovieMotionHumanSword.IWield {
+    /** The anchor of the parry that took the blade. */
+    against: string;
+
+    /** The anchor of the action whose end it is held to; that parry's own end when absent. */
+    until?: string;
   }
 }

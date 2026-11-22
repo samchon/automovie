@@ -213,7 +213,9 @@ export namespace HumanSwordThrust {
           0,
           carried,
           HumanSwordTiming.travel(s.tool, entered, drawn),
-          HumanSwordTiming.travel(s.tool, landed, entered),
+          HumanSword.taken(context.params)
+            ? 0
+            : HumanSwordTiming.travel(s.tool, landed, entered),
         );
 
         // The landing follows a target that moves after the start.
@@ -243,7 +245,7 @@ export namespace HumanSwordThrust {
             advance: a.advance,
             travel: a.travel,
             line: a.line,
-            stay: false,
+            stay: HumanSword.taken(context.params),
             stop: HumanSword.stopped(
               context,
               HumanSword.weak(s.tool, drawn),

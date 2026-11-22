@@ -35,8 +35,11 @@ import { nclose } from "../internal/nclose";
  * Scenarios:
  * 1. After a two-second opener preparation, the block starts at 2.5 seconds,
  *    meets the cue at 3.25 and ends at 4. The reply starts at 4 and ends at 5.
- * 2. With the cast reversed and a new cue, the second block starts at 7.5,
- *    meets at 8.25 and ends at 9. Omit the reply to end the scene at 9.
+ *    The answered opening is taken: the opener holds the blade from 4 to the
+ *    reply's end at 5, then guards until 5.5; the block is a bind.
+ * 2. With the cast reversed and a new cue, the second block starts at 8,
+ *    meets at 8.75 and ends at 9.5. Omit the reply to end the scene at 9.5
+ *    with a plain parry.
  * 3. Retain each role's authored prop and mark. Refuse repeated performers,
  *    repeated props, blank ids and a negative lead.
  * 4. Read the first exchange's editing cues from the placed schedule.
@@ -84,7 +87,10 @@ export function test_human_motion_blade_exchange_composition(): void {
     prepareBlock: { duration: 1 },
     cut: { duration: 2, contact: 1.25 },
     parry: { duration: 1.5, events: [{ name: "stroke", share: 0.5 }] },
+    bind: { duration: 1.5, events: [{ name: "stroke", share: 0.5 }] },
     riposte: { duration: 1 },
+    taken: { duration: 1 },
+    enGarde: { duration: 0.5 },
   };
   const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.entries(
     timings,
@@ -164,21 +170,42 @@ export function test_human_motion_blade_exchange_composition(): void {
       nclose(block.end, 4) && nclose(reply.start, 4) && nclose(reply.end, 5),
   );
   TestValidator.predicate(
+    "the opener keeps the taken blade until the reply ends, then guards",
+    (): boolean =>
+      nclose(placed("first.taken").start, 4) &&
+      nclose(placed("first.taken").end, 5) &&
+      nclose(placed("first.guard").start, 5) &&
+      nclose(placed("first.guard").end, 5.5),
+  );
+  TestValidator.predicate(
     "the next block reads its own cue",
     (): boolean =>
-      nclose(reversed.start, 7.5) &&
-      nclose(reversed.events?.[0]?.seconds ?? Number.NaN, 8.25) &&
-      nclose(film.duration, 9),
+      nclose(reversed.start, 8) &&
+      nclose(reversed.events?.[0]?.seconds ?? Number.NaN, 8.75) &&
+      nclose(film.duration, 9.5),
   );
   TestValidator.equals(
-    "the opening is authored as blocked",
+    "the answered opening is authored as blocked and taken",
     opening.intent.parameters,
     {
       params: {
         blade: "foam-a",
         outcome: "parried",
         target: { kind: "prop", subject: "set", point: "mark-a" },
+        taken: true,
       },
+    },
+  );
+  TestValidator.equals(
+    "the answered block is a bind, the unanswered one a parry",
+    [block.intent.capability, reversed.intent.capability],
+    ["bind", "parry"],
+  );
+  TestValidator.equals(
+    "the taken blade holds on the block until the reply",
+    placed("first.taken").intent.parameters,
+    {
+      params: { blade: "foam-a", against: "first.block", until: "first.reply" },
     },
   );
   TestValidator.equals(

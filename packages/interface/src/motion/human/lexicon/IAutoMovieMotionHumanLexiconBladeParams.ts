@@ -84,4 +84,7 @@ export interface IAutoMovieMotionHumanLexiconBladeParams {
 
   /** A riposte: the thrust that answers out of a parry. */
   riposte: IAutoMovieMotionHumanSword.IAttack;
+
+  /** A taken blade: the attacker's blade kept on the parry that took it while it is carried aside, then held there (`against`, `until`). */
+  taken: IAutoMovieMotionHumanSwordParry.ITaken;
 }

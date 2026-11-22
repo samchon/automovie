@@ -85,7 +85,8 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
     /**
      * A displacement added to the path's hand point at a second since the
      * action's start, world metres: the landing's following of a target that
-     * moves after the stroke is planned. The arm's reference at the decisive
+     * moves after the stroke is planned, or a blade carried aside by a parry
+     * and the taken blade carried with it. The arm's reference at the decisive
      * pose is planned on the path alone, so two strokes that follow each
      * other never wait on each other's plan. None when absent.
      *
