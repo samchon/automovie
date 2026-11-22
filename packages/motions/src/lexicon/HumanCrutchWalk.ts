@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbReference,
   AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
@@ -20,6 +21,7 @@ import { supportContact } from "../actions/supportContact";
 import { getUp } from "../floor/getUp";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /** The crutch's visible lift as it swings forward, metres (provisional, as the aided walk's). */
 const LIFT: number = 0.04;
@@ -288,21 +290,15 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
       left: crutch("left"),
       right: crutch("right"),
     };
-    const gripAt: (side: AutoMovieHumanSide, seconds: number) => IAutoMovieVector3 = (side: AutoMovieHumanSide, seconds: number): IAutoMovieVector3 => {
-      const frame: IAutoMovieRigidTransform = frameAt(
-        crutches[side].moves,
-        crutches[side].start,
-        seconds,
-      );
-      return Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, crutches[side].grip),
-      );
-    };
-    const hand: (side: AutoMovieHumanSide, seconds: number) => IAutoMovieMotionHumanSupport.IContact = (side: AutoMovieHumanSide, seconds: number): IAutoMovieMotionHumanSupport.IContact => ({
+
+    // Each hand grips its crutch's handgrip, a bar front to back between the
+    // rails, the palm turned in: pressed palm down onto a point at the hip's
+    // height instead, the wrist would extend past its range and the arm flip.
+    // The grip is read where the crutch's track has it at each key.
+    const hand: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanSupport.IContact = (side: AutoMovieHumanSide): IAutoMovieMotionHumanSupport.IContact => ({
       part: `${side}Hand`,
-      kind: "bear",
-      target: { kind: "point", frame: "world", at: gripAt(side, seconds), normal: UP },
+      kind: "grip",
+      target: { kind: "prop", subject: side === "left" ? params.left : params.right, point: "grip" },
     });
 
     // The feet: the bearing ones, at entry and carried by each station.
@@ -360,9 +356,21 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
         target: { kind: "point", frame: "world", at: initial[i]!, normal: UP },
       }),
     );
+    // Both feet stand while the hands take the grips; a three-point gait
+    // lifts its injured foot only once the hands bear (`HELD`).
+    const both: IAutoMovieMotionHumanSupport.IContact[] =
+      pattern === "threePoint"
+        ? supportContact
+            .onFloors(body, entry, ["leftFoot", "rightFoot"])
+            .map((at: IAutoMovieVector3, i: number): IAutoMovieMotionHumanSupport.IContact => ({
+              part: i === 0 ? "leftFoot" : "rightFoot",
+              kind: "bear",
+              target: { kind: "point", frame: "world", at, normal: UP },
+            }))
+        : standing;
     const stances: IAutoMovieMotionHumanSupport.IStance[] = [
       {
-        contacts: [...standing, hand("left", 0), hand("right", 0)],
+        contacts: [...both, hand("left"), hand("right")],
         seconds: timing.ready,
         event: "crutchReady",
         prefer,
@@ -373,7 +381,7 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
         const at: IStationClock = timing.stations[i]!;
         // The crutches advance while the feet stand.
         stances.push({
-          contacts: [...standing, hand("left", at.plant), hand("right", at.plant)],
+          contacts: [...standing, hand("left"), hand("right")],
           seconds: at.plant - at.lift,
           turn: station.turn ?? 0,
           event: `crutchPlant${i + 1}`,
@@ -384,7 +392,7 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
           (_side: AutoMovieHumanSide, f: number): IAutoMovieMotionHumanSupport.IContact => footAt(f, i),
         );
         stances.push({
-          contacts: [...standing, hand("left", at.plant), hand("right", at.plant)],
+          contacts: [...standing, hand("left"), hand("right")],
           seconds: at.land - at.plant,
           turn: station.turn ?? 0,
           event: `footLand${i + 1}`,
@@ -397,7 +405,10 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
       params: { stances },
     });
 
-    // A three-point gait holds the injured leg off the floor throughout.
+    // A three-point gait holds the injured leg off the floor once the hands bear.
+    const lifted: number = timing.ready;
+    const held: number = timing.stations[0]!.plant;
+    let raised: IAutoMovieHumanLimbReference | undefined;
     const posture: IAutoMovieMotionHumanActionPlan["posture"] =
       pattern !== "threePoint"
         ? plan.posture
@@ -408,15 +419,32 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
               resolution,
               projection,
             );
+            // Standing on both feet until the hands bear, then raised from
+            // the leg's own angles there to `HELD` over the first advance.
+            if (seconds <= lifted) return base;
+            raised ??= resolveHumanPosture.reference(
+              resolveHumanPosture(body, plan.posture(lifted)),
+              `${injured}Leg`,
+            );
+            const s: number = minimumJerk(Math.min(1, (seconds - lifted) / (held - lifted))).s;
             const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
             delete limbs[`${injured}Leg`];
+            const from: IAutoMovieHumanLimbReference = raised;
             return {
               ...base,
               limbs,
               joints: {
                 ...base.joints,
-                [`${injured}UpperLeg`]: [HELD.hip, 0, 0],
-                [`${injured}LowerLeg`]: [HELD.knee, 0, 0],
+                [`${injured}UpperLeg`]: [
+                  from.upper[0] + (HELD.hip - from.upper[0]) * s,
+                  from.upper[1] * (1 - s),
+                  from.upper[2] * (1 - s),
+                ],
+                [`${injured}LowerLeg`]: [
+                  from.lower[0] + (HELD.knee - from.lower[0]) * s,
+                  from.lower[1] * (1 - s),
+                  from.lower[2] * (1 - s),
+                ],
               },
             };
           };

@@ -37,8 +37,10 @@ const STRAIGHT: number = 170;
 /** How far a shoulder may stand off the vertical over its hand, metres (provisional). */
 const OVER: number = 0.1;
 
-/** How far short of the lying partner's sternum line the knees come down, metres (provisional: half a chest and a knee's width, against the side). */
-const BESIDE: number = 0.28;
+/** How far short of the lying partner's sternum line the knees come down, metres: half the partner's chest breadth and the carer's shank radius, the knee against the partner's side. */
+function beside(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody): number {
+  return b.measure.chestBreadth / 2 + a.measure.shankRadius;
+}
 
 /** How far before the knee point the carer stands, metres (provisional: within one step). */
 const STEP: number = 0.35;
@@ -80,7 +82,7 @@ export function test_human_motion_care(): void {
     const cpr: HumanPerformance = stage(
       a,
       b,
-      BESIDE,
+      beside(a, b),
       (
         chain: IAutoMovieMotionHumanChain,
         knee: IAutoMovieMotionTarget,
@@ -106,7 +108,7 @@ export function test_human_motion_care(): void {
       .get("rightLowerLeg")!.worldPosition;
     const off: number = Math.hypot(
       knee.x - (sternum.x + a.rest.get("rightFoot")!.x),
-      knee.z - (sternum.z - BESIDE),
+      knee.z - (sternum.z - beside(a, b)),
     );
     TestValidator.predicate(
       `${label}: the right knee is down ${(off * 1000).toFixed(1)} mm from its point beside the partner`,
@@ -126,7 +128,7 @@ export function test_human_motion_care(): void {
     const check: HumanPerformance = stage(
       a,
       b,
-      BESIDE,
+      beside(a, b),
       (
         chain: IAutoMovieMotionHumanChain,
         knee: IAutoMovieMotionTarget,
@@ -160,7 +162,7 @@ export function test_human_motion_care(): void {
     const wound: HumanPerformance = stage(
       a,
       b,
-      BESIDE,
+      beside(a, b),
       (
         chain: IAutoMovieMotionHumanChain,
         knee: IAutoMovieMotionTarget,

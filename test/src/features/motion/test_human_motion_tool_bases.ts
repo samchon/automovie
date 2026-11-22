@@ -104,7 +104,8 @@ export function test_human_motion_tool_bases(): void {
       z: -KNEE_BACK,
     };
     const floorPoint: IAutoMovieVector3 = {
-      x: knee.x - HAMMER / 2,
+      // Out beside the kneeling thigh, so the striking forearm passes clear of it.
+      x: knee.x - HAMMER,
       y: 0,
       z: knee.z + KNEEL_WORK,
     };

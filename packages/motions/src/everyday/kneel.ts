@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
@@ -456,6 +456,7 @@ export namespace kneel {
           goal,
           feet[side].toes,
           weight,
+          Quaternion.rotateVector(resolveHumanPosture.heading(placed), { x: 0, y: 0, z: 1 }),
         );
         limbs[`${side}Leg`] = turned.goal;
         joints[`${side}Toes`] = [turned.toes, 0, 0];

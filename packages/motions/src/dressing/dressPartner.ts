@@ -15,6 +15,9 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { armPhrase } from "../everyday/armPhrase";
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** How far up a region's normal must point for the item to be set down onto it from above: within 45 degrees of up. */
+const UP: number = Math.SQRT1_2;
+
 /**
  * Dress another performer (#4015). The dresser's hand carries the held item
  * to the partner's region by the arm phrase that visits a target, the item
@@ -50,6 +53,9 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
       const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
         params.partner,
       );
+      // Whether the partner's region faces up, read where the partner is at the start.
+      const upward: boolean =
+        context.aim({ kind: "person", subject: params.partner, region: params.region }, context.start).normal.y > UP;
       const phrase: IAutoMovieMotionHumanActionPlan = armPhrase.plan({
         ...context,
         params: {
@@ -60,10 +66,12 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
             region: params.region,
           },
           side,
-          // The item is set down onto the region from above it: the palm
-          // faces down and the fingers forward, so the hand's frame is
-          // defined even where the region's normal points up, as a crown's does.
-          facing: { fingers: "forward", palm: "down" },
+          // An item set onto a region facing up, as a crown does, is set down
+          // from above it: the palm faces down and the fingers forward, so the
+          // hand's frame is defined where the region's normal points up. On
+          // any other region (a chest, a wrist) the palm lays it against the
+          // region's own normal, the arm phrase's default.
+          ...(upward ? { facing: { fingers: "forward", palm: "down" } } : {}),
           held: params.prop,
           ...(params.point === undefined ? {} : { point: params.point }),
           ...(params.hold === undefined ? {} : { hold: params.hold }),

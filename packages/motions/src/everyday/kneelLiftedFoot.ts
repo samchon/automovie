@@ -22,6 +22,7 @@ import { HumanFoot } from "../posture/HumanFoot";
  *
  * @param body The body.
  * @param side The leg.
+ * @param pole The leg's pole: the direction its knee bends toward, the body's forward.
  * @param hip The leg's hip joint, world metres.
  * @param goal The leg goal, its foot turned by `rotation`.
  * @param toes The toes' extension the foot has, degrees.
@@ -43,6 +44,7 @@ export function kneelLiftedFoot(
   goal: IAutoMovieHumanLimbGoal,
   toes: number,
   weight: number,
+  pole: IAutoMovieVector3,
 ): kneelLiftedFoot.IFoot {
   const kept: kneelLiftedFoot.IFoot = { goal, toes };
   if (goal.rotation === undefined || weight <= 0) return kept;
@@ -51,11 +53,18 @@ export function kneelLiftedFoot(
   const reach: IAutoMovieVector3 = Vector3.subtract(goal.point, hip);
   const d: number = Math.max(1e-9, Vector3.length(reach));
   const u: IAutoMovieVector3 = Vector3.scale(reach, 1 / d);
-  const toward: IAutoMovieVector3 = Vector3.subtract(goal.bend, hip);
-  const off: IAutoMovieVector3 = Vector3.subtract(
-    toward,
-    Vector3.scale(u, Vector3.dot(toward, u)),
-  );
+  const across: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
+    Vector3.subtract(point, Vector3.scale(u, Vector3.dot(point, u)));
+  // The knee lies on the side of the hip-to-ankle line its bend point does,
+  // never behind it: a knee bends forward, the leg's own pole. Where the bend
+  // point falls near the line (a knee coming down under its hip) its side is
+  // undetermined, so the pole decides, as the leg's fit does.
+  const bend: IAutoMovieVector3 = across(Vector3.subtract(goal.bend, hip));
+  const ahead: IAutoMovieVector3 = across(pole);
+  const off: IAutoMovieVector3 =
+    Vector3.length(bend) > SIDE * d && Vector3.dot(bend, ahead) > 0 ? bend : ahead;
   if (Vector3.length(off) < 1e-9) return kept;
   const a: number = Math.min(
     thigh,
@@ -157,6 +166,9 @@ export namespace kneelLiftedFoot {
   /** A foot point the turn keeps in place. */
   export type Pivot = Parameters<typeof HumanFoot.point>[2];
 }
+
+/** How far off the hip-to-ankle line a bend point must lie to name the knee's side, as a share of that line (provisional: a hundredth). */
+const SIDE: number = 0.01;
 
 /** How far short of the unloaded limit the reading keeps a weightless ankle, degrees: the closed-form knee and the fitted one differ by a few degrees where the pelvis turns (provisional, as `unloadedFoot`'s). */
 const MARGIN: number = 3;

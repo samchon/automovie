@@ -30,7 +30,7 @@ const REST: number = 3;
 const DEEPER: number = 0.08;
 
 /** The gap left between the two on the bench, metres (provisional: the resting one sits a little apart, so the side lean carries the head over onto the shoulder). */
-const GAP: number = 0.15;
+const GAP: number = 0.2;
 
 /** How far apart the two sit, metres between their hips: each one's hip joint half width and thigh radius, the seated hips' half breadth, and the gap. */
 function apart(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody): number {
