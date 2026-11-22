@@ -257,8 +257,22 @@ export namespace HumanPerformanceHold {
       w: IAutoMovieMotionHumanPerformanceState.IGrip,
     ): IAutoMovieRigidTransform => {
       if (w.offset !== undefined) return w.offset;
+      // A hand that takes the prop over from another carrier (a socket it
+      // rode, a bone it was worn on: a blade the scabbard's slide guided out)
+      // holds it where it actually closed on it, read from the displayed
+      // frames at closure, never by an earlier grasp's offset, so the prop
+      // does not step at the handover.
+      const handed: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
+        custody(grips, w.from - 1e-6, false).active;
+      const taken: boolean =
+        handed !== undefined &&
+        handed !== w &&
+        (handed.mount !== undefined || handed.bone !== undefined);
       const earlier: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
-        w.bone !== undefined || w.mount !== undefined || w.capture !== undefined
+        w.bone !== undefined ||
+        w.mount !== undefined ||
+        w.capture !== undefined ||
+        taken
           ? undefined
           : grips.find(
               (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
