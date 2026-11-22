@@ -46,27 +46,27 @@ const SOLE: number = 0.03;
 /** The toes' depth below the hands that grip the top in a hang on the face, statures (provisional: the body near straight along the wall, its arms bent). */
 const HANG: number = 0.95;
 
-/** Stepping onto the wall: the arms carried bent and forward of the hips as in a run, clear of the thigh the stepping leg raises (provisional angles, degrees). */
+/** Stepping in and onto the wall: the arms carried forward and out from the hips, clear of the thigh the stepping leg raises and of each other (provisional angles, degrees). */
 const STEPPING: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 0,
   roll: 0,
   joints: {
-    leftUpperArm: [30, 20, 0],
-    rightUpperArm: [30, 20, 0],
-    leftLowerArm: [80, 0, 0],
-    rightLowerArm: [80, 0, 0],
+    leftUpperArm: [30, 25, 0],
+    rightUpperArm: [30, 25, 0],
+    leftLowerArm: [40, 0, 0],
+    rightLowerArm: [40, 0, 0],
   },
 };
 
-/** Hanging from the top: the arms up over the head, the elbows a little bent, the fists closed on the edge and the legs hanging (provisional angles, degrees). */
+/** Hanging from the top: the arms up and out over the head, the elbows a little bent and clear of it, the fists closed on the edge and the legs hanging (provisional angles, degrees). */
 const HANGING: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 0,
   roll: 0,
   joints: {
     ...HumanHand.shape("left", "fist"),
     ...HumanHand.shape("right", "fist"),
-    leftUpperArm: [160, 15, 0],
-    rightUpperArm: [160, 15, 0],
+    leftUpperArm: [160, 30, 0],
+    rightUpperArm: [160, 30, 0],
     leftLowerArm: [20, 0, 0],
     rightLowerArm: [20, 0, 0],
     leftUpperLeg: [15, 5, 0],
@@ -200,7 +200,7 @@ export function planWallRun(
     // Both feet where they stand, so the step in is a swing, not a slide.
     { contacts: [foot(lead), foot(trail)], seconds: SET, event: "set", prefer: getUp.POSES.stood },
     // The take-off foot steps in to the wall, where the wall step reaches.
-    { contacts: [foot(lead), takeOff], seconds: BEAT, event: "approach", prefer: getUp.POSES.stood },
+    { contacts: [foot(lead), takeOff], seconds: BEAT, event: "approach", prefer: STEPPING },
     {
       contacts: [foot(lead, FIRST * measure.hipHeight), takeOff],
       seconds: BEAT,
@@ -371,12 +371,6 @@ function flown(
     body,
     to,
   ).joints;
-  // Each hand reaches straight for its grip on the top: from its wrist at the
-  // take-off to the catch's goal over the flight's first half.
-  const wrists: ReturnType<typeof poseBones> = poseBones(
-    body,
-    resolveHumanPosture.seeded(body, from).pose,
-  );
   const g: number = AutoMovieGravity.STANDARD;
   // The take-off velocity that lands the projectile on the hang's root.
   const v: IAutoMovieVector3 = {
@@ -425,20 +419,6 @@ function flown(
           p[2] + (q[2] - p[2]) * w,
         ];
       }
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-      for (const side of ["left", "right"] as const) {
-        const goal: IAutoMovieMotionHumanPosture["limbs"]["leftArm"] =
-          to.limbs[`${side}Arm`];
-        if (goal === undefined || goal.on !== undefined) continue;
-        limbs[`${side}Arm`] = {
-          ...goal,
-          point: Vector3.lerp(
-            wrists.get(`${side}Hand`)!.worldPosition,
-            goal.point,
-            reached,
-          ),
-        };
-      }
       return {
         root: {
           x: from.root.x + v.x * tau,
@@ -449,7 +429,7 @@ function flown(
         pitch: from.pitch + (to.pitch - from.pitch) * shaped,
         roll: from.roll + (to.roll - from.roll) * shaped,
         joints,
-        limbs,
+        limbs: {},
       };
     },
   };
