@@ -12,6 +12,7 @@ import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { limitPhysicalSwingTwist } from "./limitPhysicalSwingTwist";
+import { solveXpbdArticulation } from "./solveXpbdArticulation";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 
 /**
@@ -23,8 +24,9 @@ import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
  * clinical swing-twist limit where the joint declares one (`limitPhysicalSwingTwist`). Solving each attachment's rows together removes the whole linearized error in one correction, whatever the inertia's anisotropy, where a scalar constraint along the error direction converges only over passes. `motors` drives each free axis's relative angular
  * velocity toward its motor's speed by the backward-Euler damper
  * `mu = h c (s - v')`, capped at the motor's torque times the substep,
- * solved together with the attachment's velocity rows so the motor meets
- * the inertia about the joint rather than about the child's centre.
+ * over each whole articulation (`solveXpbdArticulation`) so a motor meets
+ * the inertia of everything it moves; a joint outside the forest solves its
+ * motors with its own attachment's velocity rows.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the attachment, both limits, the motor law and its cap.
  * @evidence contracts/development/design.md#principled-representation A namespace over the world's joints; angles in radians, impulses in newton metre seconds.
@@ -89,24 +91,26 @@ export namespace solveXpbdJoints {
   }
 
   /**
-   * The velocity pass of the joints' motors. Each joint's motor rows are
-   * solved together with its attachment's three velocity rows, so a motor
-   * turns the child about the joint with the inertia it really meets there:
-   * unknowns are the attachment impulse `p` and one angular impulse `mu_i`
-   * per motor axis `a_i`, the attachment rows ask the anchors' relative
-   * velocity to vanish, and each motor row is the backward-Euler damper
-   * `mu_i = h c_i (s_i - v_i')` on the axis's relative angular velocity
-   * after the impulse, `v_i' + mu_i / (h c_i) = s_i`. A motor whose impulse
-   * exceeds its cap `tau_i h` is held at the cap and the rest re-solved.
+   * The velocity pass of the joints' motors. Every articulation's motors
+   * are solved at once over its tree (`solveXpbdArticulation`). A joint
+   * outside the forest (closing a loop, or with a kinematic child) has its
+   * motor rows solved together with its own attachment's three velocity
+   * rows: unknowns are the attachment impulse `p` and one angular impulse
+   * `mu_i` per motor axis `a_i`, the attachment rows ask the anchors'
+   * relative velocity to vanish, and each motor row is the backward-Euler
+   * damper `mu_i = h c_i (s_i - v_i')` on the axis's relative angular
+   * velocity after the impulse, `v_i' + mu_i / (h c_i) = s_i`. A motor whose
+   * impulse exceeds its cap `tau_i h` is held at the cap and the rest
+   * re-solved.
    *
    * @param joints The joints, in creation order.
    * @param h The substep, seconds.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the coupled rows, the implicit damper and its cap.
-   * @evidence contracts/development/implementation.md#principled-implementation The joint's attachment and motor velocity rows as one linear system (J M^-1 J^T + diag(0, 1 / (h c))) x = rhs, the backward-Euler damper of each motor with its anchor held, solved directly; a capped motor becomes a fixed impulse.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over joints: assemble the block by its unit responses, solve, clamp, apply.
+   * @evidence contracts/development/common.md#meaningful-documentation States the tree solve, the coupled rows of the remaining joints, the implicit damper and its cap.
+   * @evidence contracts/development/implementation.md#principled-implementation Trees by the articulated-body algorithm; each remaining joint's attachment and motor velocity rows as one linear system (J M^-1 J^T + diag(0, 1 / (h c))) x = rhs, solved directly; a capped motor becomes a fixed impulse.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The forest belongs to solveXpbdArticulation; here one loop over the remaining joints: assemble the block by its unit responses, solve, clamp, apply.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A motor without damping or torque is skipped; a singular block applies nothing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most six unknowns per joint and at most three re-solves, linear in joints.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The trees cost solveXpbdArticulation's linear sweeps; at most six unknowns and three re-solves per remaining joint.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Motors are reset by their owner each step.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the bodies it is given; allocates only transient vectors.
    */
@@ -114,7 +118,7 @@ export namespace solveXpbdJoints {
     joints: readonly AutoMovieXpbdJoint[],
     h: number,
   ): void {
-    for (const joint of joints) {
+    for (const joint of solveXpbdArticulation.motors(joints, h)) {
       const parent: AutoMovieXpbdBody = joint.parent;
       const child: AutoMovieXpbdBody = joint.child;
       if (!parent.dynamic && !child.dynamic) continue;

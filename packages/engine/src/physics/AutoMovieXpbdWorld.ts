@@ -28,7 +28,8 @@ import { solveXpbdJoints } from "./solveXpbdJoints";
  * predicted poses; one position pass corrects the joints and the
  * contacts; velocities are re-derived from the pose change,
  * `v = dx / h`, `w = 2 vec(dq q^-1) / h`; and one velocity pass applies
- * dynamic friction and restitution before the joints' motors. Accuracy
+ * dynamic friction and restitution before the joints' motors, which act
+ * over each articulation. Accuracy
  * comes from substeps, not passes (Macklin, Storey, Lu, Terdiman,
  * Chentanez, Jeschke and Mueller 2019, "Small Steps in Physics
  * Simulation"; Mueller et al. 2020 use one iteration per substep). Every loop runs in
@@ -185,7 +186,7 @@ export class AutoMovieXpbdWorld {
    * Advance one substep of `timestep` seconds: integrate every body and
    * freeze each dynamic body's inverse inertia, detect contacts at the
    * predicted poses among pairs neither joined nor filtered out, run one joint and contact position pass, re-derive the dynamic bodies'
-   * velocities, run one contact velocity pass and finally the joint motors. The step keeps the contacts it found for the readers until the
+   * velocities, run one contact velocity pass and finally the joint motors over each articulation. The step keeps the contacts it found for the readers until the
    * next step.
    *
    * @param filter Whether two colliders may touch; every pair when absent.

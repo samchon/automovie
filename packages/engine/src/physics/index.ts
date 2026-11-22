@@ -159,6 +159,7 @@ export * from "./solvePhysicalChainTarget";
 export * from "./solvePhysicalCompliantContacts";
 export * from "./solvePhysicalFloorChainTarget";
 export * from "./solvePhysicalTargetStep";
+export * from "./solveXpbdArticulation";
 export * from "./solveXpbdContacts";
 export * from "./solveXpbdJoints";
 export * from "./suggestCollisionResponse";
