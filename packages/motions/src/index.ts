@@ -316,6 +316,7 @@ export * from "./touch/touchSite";
 export * from "./touch/highFive";
 export * from "./touch/HumanSeatedReach";
 export * from "./touch/kiss";
+export * from "./touch/headRest";
 export * from "./touch/selfAction";
 export * from "./lexicon/HUMAN_DRILL_CADENCES";
 export * from "./lexicon/HumanEmblem";
