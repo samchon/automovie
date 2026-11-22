@@ -5,6 +5,9 @@ import type {
 
 import { carry } from "../carrying/carry";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_LABOUR_HAMMER } from "../next/presets/HUMAN_LABOUR_HAMMER";
+import { HUMAN_LABOUR_HAUL } from "../next/presets/HUMAN_LABOUR_HAUL";
+import { HUMAN_LABOUR_SCRUB } from "../next/presets/HUMAN_LABOUR_SCRUB";
 import { holdInfant } from "../tasks/holdInfant";
 import { longTool } from "../tasks/longTool";
 import { useTool } from "../tasks/useTool";
@@ -50,19 +53,12 @@ export namespace HumanLabour {
   /** Haul a heavy load slowly in both hands: the slow walk (about 0.82 m/s, {@link IAutoMovieMotionHumanWalkParams.pace}) with a load of 0.25 of the body mass, the most a carry accepts; labour, strain. */
   export const haul: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["haul"]
-  > = HumanActionRow.of("haul", carry, {
-    kind: "twoHands",
-    pace: "slow",
-    load: 0.25,
-  });
+  > = HumanActionRow.of("haul", carry, HUMAN_LABOUR_HAUL);
 
   /** Drive nails: a hammer swung four times at 2 Hz, 2 s ({@link useTool.PERIODS}); building, repair. */
   export const hammer: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["hammer"]
-  > = HumanActionRow.of("hammer", useTool, {
-    tool: "hammer",
-    count: 4,
-  });
+  > = HumanActionRow.of("hammer", useTool, HUMAN_LABOUR_HAMMER);
 
   /** Saw through a board: 4 push-pull cycles of 0.5 s, 2 s, when `cycles` is absent ({@link useTool.PERIODS}). */
   export const saw: IAutoMovieMotionHumanActionLaw<
@@ -84,7 +80,7 @@ export namespace HumanLabour {
   /** Scrub a surface: six passes of the cloth. Circles at the tool-stroke hand speed (`useTool.STROKE_SPEED`); cleaning a table, a window, a floor. */
   export const scrub: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["scrub"]
-  > = HumanActionRow.of("scrub", wipe, { count: 6 });
+  > = HumanActionRow.of("scrub", wipe, HUMAN_LABOUR_SCRUB);
 
   /** Toss something lightly to a place or a person. The release speed follows from the distance by the range equation (`throwObject`, Dupuy et al. 2000); handing something across a short gap, a light throw. */
   export const toss: IAutoMovieMotionHumanActionLaw<
