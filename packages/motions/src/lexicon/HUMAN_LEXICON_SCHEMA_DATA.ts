@@ -39349,7 +39349,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "technique": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanCloseStrike.Technique",
-            "description": "The close strike. It keeps the punch's timing: 0.405 s from launch to contact at elite skill, 1.06 times at novice, and 0.35 s back to the guard (IAutoMovieMotionHumanPunch); no study of an elbow's or a headbutt's delivery time was located. GLORY rules ban elbows (`KickboxingRules`)."
+            "description": "The close strike. It keeps the elite cross's timing: 0.310 s from launch to contact at elite skill (Cheraghi et al. 2014), 1.06 times at novice, and 0.35 s back to the guard (IAutoMovieMotionHumanPunch); no study of an elbow's or a headbutt's delivery time was located. GLORY rules ban elbows (`KickboxingRules`)."
           },
           "at": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
