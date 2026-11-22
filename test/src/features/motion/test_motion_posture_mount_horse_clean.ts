@@ -50,9 +50,12 @@ export function test_motion_posture_mount_horse_clean(): void {
     { withersHeight: 1.65 },
     8,
   );
+  // The saddle is the horse's: its carrier, which the climb clears.
   const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
     horse,
     PLACED,
+    undefined,
+    "horse",
   );
   const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
     "horse",

@@ -21,10 +21,12 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
+import { HumanMountClear } from "./HumanMountClear";
 import { HumanMountFlight } from "./HumanMountFlight";
 import { HumanMountOnFrame } from "./HumanMountOnFrame";
 import { HumanMountPlace } from "./HumanMountPlace";
 import { HumanMountPush } from "./HumanMountPush";
+import { HumanMountStand } from "./HumanMountStand";
 import { HumanMountTrack } from "./HumanMountTrack";
 import { HumanSwungLeg } from "./HumanSwungLeg";
 
@@ -54,13 +56,10 @@ type Frame = HumanMountOnFrame.Frame;
  * floor, its heel rolling up over the ball, until the extended leg's toes
  * leave, at the latest at the contact, or astride at 35 %, then follows over
  * 30 % of the climb; astride it crosses as the pelvis crosses, arriving at
- * the contact, its ankle passing above and behind the seat
- * (`HumanMount.OVER`). A foot bears on its
- * rest once the seat has taken the body and the foot has arrived: a leg
- * cannot hold a fixed rest under a pelvis that still travels. So between
- * the push-off and the contact the body is off the floor, as in a hop onto
- * a stool or a vault onto a saddle; a climb that stands in a stirrup is not
- * modelled.
+ * the contact over `HumanMount.OVER`, each course clear of the seat's carrier
+ * (`HumanMountClear`). A foot bears on its rest once the seat takes the body
+ * and the foot has arrived; astride onto a stirrup the near foot bears from
+ * its arrival and the rider stands in it (`HumanMountStand`).
  *
  * It continues from the entry: a foot the entry holds off the floor, on a
  * rest, hanging or in flight, goes on from where it is, and a body already
@@ -157,17 +156,19 @@ export namespace HumanMountOn {
       climb,
       astride,
     );
-    const frameAt: (t: number) => Frame = HumanMountOnFrame.of({
-      body,
-      seat,
-      start,
-      goal,
-      climb,
-      hop,
-      yaw: yaw0,
-      turn,
-      final,
-    });
+    const frameWith = (rise: number): ((t: number) => Frame) =>
+      HumanMountOnFrame.of({
+        body,
+        seat,
+        start,
+        goal,
+        climb,
+        hop: rise,
+        yaw: yaw0,
+        turn,
+        final,
+      });
+    let frameAt: (t: number) => Frame = frameWith(hop);
     const hipsAt = (t: number): Record<"left" | "right", IAutoMovieVector3> => {
       const frame: Frame = frameAt(t);
       return hipJoints(
@@ -253,13 +254,22 @@ export namespace HumanMountOn {
       left: stay("left"),
       right: stay("right"),
     };
+    // Astride from the floor onto a stirrup, the rider stands in the near stirrup (`HumanMountStand`).
+    const standing: boolean =
+      astride && !settled && onFloor[lead] && places[lead].rests;
+    if (standing)
+      frameAt = HumanMountStand({
+        body,
+        side: lead,
+        ankle: places[lead].foot.ankle,
+        frame: frameWith,
+        hop,
+        apex: 0.55 * climb,
+        bears: 0.45 * climb,
+        until: contact,
+      });
 
-    // The pushing leg extends as it pushes: as the pelvis rises its knee
-    // straightens and its heel rolls up over the ball, by as much as the
-    // shank, in the knee's own plane, would bend the flat foot's ankle past
-    // what an unloaded ankle holds. The foot leaves when the extended leg's
-    // toes leave: when even the rolled foot's ankle is past the leg's reach,
-    // or the toes are extended as far as they go.
+    // The pushing leg extends as it pushes: as the pelvis rises its knee straightens and its heel rolls up over the ball, by as much as the shank, in the knee's own plane, would bend the flat foot's ankle past what an unloaded ankle holds. The foot leaves when the extended leg's toes leave: when even the rolled foot's ankle is past the leg's reach, or the toes are extended as far as they go.
     const longest: number = m.thigh + m.shank;
     const rolledAt = (t: number): HumanMountPush.IRoll =>
       HumanMountPush.roll(
@@ -283,16 +293,19 @@ export namespace HumanMountOn {
       right: [0, 0],
     };
     flight[lead] = [onFloor[lead] ? 0.1 * climb : 0, 0.45 * climb];
-    // The far leg crosses a saddle's croup as the pelvis crosses onto it: a
-    // foot that crossed ahead of the pelvis would have to rise above its hip.
+    // The far leg crosses a saddle's croup as the pelvis crosses onto it: a foot that crossed ahead of the pelvis would have to rise above its hip.
     flight[push] = [
       off,
       astride ? crossing[1] : Math.min(climb, off + 0.3 * climb),
     ];
 
-    // A foot bears on its rest once the seat has taken the body and the foot has arrived: before that the pelvis is still on its way, and a leg cannot hold a fixed rest under a pelvis that travels.
+    // A foot bears on its rest once the seat has taken the body and the foot has arrived, or, standing in the near stirrup, once it arrives there.
     const bears = (side: "left" | "right"): number =>
-      stays[side] ? 0 : Math.max(contact, flight[side][1]);
+      stays[side]
+        ? 0
+        : standing && side === lead
+          ? flight[side][1]
+          : Math.max(contact, flight[side][1]);
     const bearing: Record<"left" | "right", number> = {
       left: bears("left"),
       right: bears("right"),
@@ -337,13 +350,16 @@ export namespace HumanMountOn {
           kind: "plant",
           from: bearing[side] / duration,
           to: 1,
-          // A foot rest bears at its own height, a stirrup's above the floor,
-          // under the ball the foot is placed on it by.
+          // A foot rest bears at its own height, a stirrup's above the floor, under the ball the foot is placed on it by.
           support: { kind: "ground", height: places[side].height },
           socket: "ball",
         });
     }
-    // A swinging leg's goal at an instant, before its toes turn down.
+    // A swinging leg's goal at an instant, before its toes turn down; its course clears the seat's carrier (`HumanMountClear`).
+    const rise: ReturnType<typeof HumanMountClear> = HumanMountClear(
+      context,
+      seat,
+    );
     const flown = HumanMountFlight.of({
       body,
       flight,
@@ -360,6 +376,7 @@ export namespace HumanMountOn {
       yaw: yaw0,
       astride,
       over,
+      ...(rise === undefined ? {} : { rise }),
     });
     // Each swinging foot's turn out of the knee's plane as it leaves and as it arrives, read once.
     const twists: Partial<Record<"left" | "right", readonly [number, number]>> =
@@ -407,9 +424,7 @@ export namespace HumanMountOn {
             continue;
           }
           const { share, hip, goal }: HumanMountFlight.IFlown = flown(side, t);
-          // The foot's turn out of the knee's plane eases between its two
-          // ends, so the knee keeps its own side (`HumanMountPush.twist`).
-          // Once the foot is on its rest it keeps its own turn there.
+          // The foot's turn out of the knee's plane eases between its two ends, so the knee keeps its own side (`HumanMountPush.twist`). Once the foot is on its rest it keeps its own turn there.
           const lands: number = places[side].rests
             ? Math.min(arrives, bearing[side])
             : arrives;
@@ -422,10 +437,7 @@ export namespace HumanMountOn {
           );
           if (side === push && onFloor[side])
             toes[`${side}Toes`] = [left().roll * (1 - share), 0, 0];
-          // A foot that bears nothing turns its toes down about its ball, so
-          // the ball, not the ankle, comes onto the rest; once on it the heel
-          // lowers about that ball as the seat takes the body, from the
-          // contact to seated.
+          // A foot that bears nothing turns its toes down about its ball, so the ball, not the ankle, comes onto the rest; once on it the heel lowers about that ball as the seat takes the body, from the contact to seated.
           limbs[limb] = HumanMountPush.tip(
             body,
             side,
@@ -461,9 +473,7 @@ export namespace HumanMountOn {
       },
     };
 
-    // A swinging leg is keyed in joint space where its world course leaves
-    // the leg's range (`HumanSwungLeg`): a course over a saddle asks the
-    // ankle past what the hip reaches, and a fit pinned there flips its knee.
+    // A swinging leg is keyed in joint space where its world course leaves the leg's range (`HumanSwungLeg`): a course over a saddle asks the ankle past what the hip reaches, and a fit pinned there flips its knee.
     return HumanSwungLeg.plan(
       body,
       mounted,
