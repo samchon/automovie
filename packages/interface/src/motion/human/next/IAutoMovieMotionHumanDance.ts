@@ -274,31 +274,65 @@ export namespace IAutoMovieMotionHumanDance {
      * so `bpm` is not read. The track is the performance's input, never
      * audio. Unlocked, the beats follow `bpm` from one period after the start.
      */
-    lock?: {
-      /** Performance cue-track id whose instants entrain the dance beats. */
-      of: string;
-      /** Cue event name whose instants are used; defaults to beat. */
-      event?: string;
-    };
+    lock?: IAutoMovieMotionHumanDance.ILock;
 
     /** The foot that steps first; `right` when absent. */
-    side?: "left" | "right";
+    side?: IAutoMovieMotionHumanDance.Side;
 
     /** Waltz timing and travel for the box step. Omitted keeps the basic square. */
-    waltz?: {
-      /** Signed rotation through the last beat, in degrees. Defaults to zero. */
-      turn?: number;
-      /** Shared pivot in world metres. Omitted uses this performer's starting origin. */
-      pivot?: IAutoMovieVector3;
-      /** World displacement of the pivot over the figure, metres: the line of dance a led couple travels down the floor. Omitted keeps the pivot in place. */
-      travel?: IAutoMovieVector3;
-      /** Step back on beat one, for the dancer facing the forward-stepping role. */
-      reverse?: boolean;
-    };
+    waltz?: IAutoMovieMotionHumanDance.IWaltz;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;
   }
+
+  /**
+   * The cue track a dance's beats lock to.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
+   * @evidence contracts/development/design.md#principled-representation A track id and the event name read from it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the beat lock reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The track is the performance's input, never audio.
+   */
+  export interface ILock {
+    /** Performance cue-track id whose instants entrain the dance beats. */
+    of: string;
+
+    /** Cue event name whose instants are used; defaults to beat. */
+    event?: string;
+  }
+
+  /**
+   * The waltz timing and travel of the box step.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, frame and default.
+   * @evidence contracts/development/design.md#principled-representation A turn in degrees, a pivot and a travel in world metres, and the role.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The four values the waltz box reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Omitted members keep the basic square; nothing is assumed.
+   */
+  export interface IWaltz {
+    /** Signed rotation through the last beat, in degrees. Defaults to zero. */
+    turn?: number;
+
+    /** Shared pivot in world metres. Omitted uses this performer's starting origin. */
+    pivot?: IAutoMovieVector3;
+
+    /** World displacement of the pivot over the figure, metres: the line of dance a led couple travels down the floor. Omitted keeps the pivot in place. */
+    travel?: IAutoMovieVector3;
+
+    /** Step back on beat one, for the dancer facing the forward-stepping role. */
+    reverse?: boolean;
+  }
+
+  /**
+   * The foot that steps first.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two admitted feet.
+   * @evidence contracts/development/design.md#principled-representation Closed choices "left", "right" distinguish the admitted cases.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The foot choice of the solo dance steps.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
+   */
+  export type Side = "left" | "right";
 
   /**
    * Capture cases of the solo dance steps (#3253), eight beats at 120 bpm from quiet standing. The steps.

@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanChainCore } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanChainCore,
+  IAutoMovieMotionHumanDance,
+} from "@automovie/interface";
 
 import { shiftStandingWeight } from "../everyday/shiftStandingWeight";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -27,7 +30,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
  */
 export function composeHumanSlowDanceSway<
   Chain extends IAutoMovieMotionHumanChainCore,
->(chain: Chain, params: composeHumanSlowDanceSway.IParams): Chain {
+>(chain: Chain, params: IAutoMovieMotionHumanDance.ISlowDanceSway): Chain {
   if (!(Number.isInteger(params.count) && params.count >= 1))
     throw new HumanRefusal({
       kind: "parameter",
@@ -41,25 +44,8 @@ export function composeHumanSlowDanceSway<
     for (const sign of [1, -1])
       out = out.registered(shiftStandingWeight.name, {
         by: sign * params.by,
-        seconds: params.beat / 2,
+        duration: params.beat / 2,
         returnSeconds: params.beat / 2,
       });
   return out;
-}
-
-/**
- * Companion types of {@link composeHumanSlowDanceSway}.
- */
-export namespace composeHumanSlowDanceSway {
-  /** A sway's size, beat and repetitions. */
-  export interface IParams {
-    /** How far the pelvis goes over each foot, metres; positive. */
-    by: number;
-
-    /** The beat, seconds: each half of a sway, over one foot and back, takes one. */
-    beat: number;
-
-    /** How many sways, each over the left foot and then the right. */
-    count: number;
-  }
 }

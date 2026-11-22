@@ -4,3 +4,6 @@ export { balletStep as ballet } from "../../exercise/balletStep";
 export { tapDance } from "../../exercise/tapDance";
 export { streetDance } from "../../exercise/streetDance";
 export { groupDance } from "../../exercise/groupDance";
+export { composeHumanSlowDanceSway as slowDanceSway } from "../../touch/composeHumanSlowDanceSway";
+export { balletPositions } from "../../exercise/balletPositions";
+export { HumanDanceStyles } from "../../lexicon/HumanDanceStyles";

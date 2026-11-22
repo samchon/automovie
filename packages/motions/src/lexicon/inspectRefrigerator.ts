@@ -1,6 +1,6 @@
 import type {
-  AutoMovieHumanSide,
   IAutoMovieMotionHumanChainCore,
+  IAutoMovieMotionHumanDining,
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
@@ -29,19 +29,7 @@ export function inspectRefrigerator<
   Chain extends IAutoMovieMotionHumanChainCore,
 >(
   chain: Chain,
-  scene: {
-    /** The fixed refrigerator prop's subject. */
-    refrigerator: string;
-
-    /** Shelf number from the bottom of the refrigerator compartment. */
-    shelf: 1 | 2 | 3 | 4;
-
-    /** Additional opening in degrees within the door's remaining travel. */
-    swing: number;
-
-    /** The hand on the handle. The `operate` default is right. */
-    hand?: AutoMovieHumanSide;
-  },
+  scene: IAutoMovieMotionHumanDining.IInspectRefrigerator,
 ): Chain {
   const swing: number = HumanBound.above("swing", scene.swing, 0, "deg");
   return chain
