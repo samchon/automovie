@@ -12,6 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { putDown } from "./putDown";
 import { putDownTarget } from "./putDownTarget";
@@ -177,7 +179,7 @@ function plan(
     offset,
     route,
   );
-  if (onto.guide === undefined) return plan;
+  if (onto.guide === undefined) return coursed(context, side, plan);
 
   // A guided receptacle carries the object from the opening to the seat: the
   // object rides the guide's socket while the slider runs back to the seat,
@@ -190,7 +192,7 @@ function plan(
   const placed: number = share("placed");
   const length: number = Vector3.length(offset);
   const duration: number = plan.duration;
-  return {
+  return coursed(context, side, {
     ...plan,
     mounts: [
       { prop, onto: onto.prop, point: onto.guide.slide, from: entry },
@@ -214,5 +216,28 @@ function plan(
             ).s),
       },
     ],
-  };
+  });
+}
+
+/**
+ * The placing arm laid as one admitted course over the whole placement
+ * (`courseArmGoal`): it holds the plan's own goal at every second, the
+ * carry, the insertion, the release and the retreat, with branch and swivel
+ * continuity and the arm and the hand's digits kept clear of the body, in
+ * place of a fresh fit at each second. Over a carrier the carried hand
+ * keeps its own riding goal.
+ */
+function coursed(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDownAperture>,
+  side: AutoMovieHumanSide,
+  plan: IAutoMovieMotionHumanActionPlan,
+): IAutoMovieMotionHumanActionPlan {
+  if (context.carrier !== undefined) return plan;
+  return courseArmGoal({
+    body: context.body,
+    plan,
+    side,
+    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+    span: { start: 0, ready: 0, relax: plan.duration, end: plan.duration },
+  });
 }
