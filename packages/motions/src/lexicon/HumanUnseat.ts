@@ -327,14 +327,19 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       if (t < leave || (standing && t === leave)) return seatedAt(t);
       const shown: IAutoMovieMotionHumanPosture = flown(t);
       // From the release on the falling hand's goal is its place on the floor beside the shoulder, which the course reaches by the touch.
-      return standing
-        ? shown
-        : HumanUnseatPose.reach(
-            shown,
-            side,
-            HumanUnseatPose.beside(shown, side, context.body),
-            1,
-          );
+      if (standing) return shown;
+      const reached: IAutoMovieMotionHumanPosture = HumanUnseatPose.reach(
+        shown,
+        side,
+        HumanUnseatPose.beside(shown, side, context.body),
+        1,
+      );
+      // The hand bears on the floor from the touch, not before: until then the goal is only where the course is bound.
+      reached.limbs = {
+        ...reached.limbs,
+        [`${side}Arm`]: { ...reached.limbs[`${side}Arm`]!, planted: t >= touch },
+      };
+      return reached;
     },
   };
   if (standing) return goals;
