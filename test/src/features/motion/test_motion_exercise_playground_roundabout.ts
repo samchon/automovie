@@ -1,6 +1,7 @@
 import { createRoundabout, rideRoundabout } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanWalkParams,
@@ -42,7 +43,7 @@ export function test_motion_exercise_playground_roundabout(): void {
     roundabout(key, failures);
   TestValidator.equals("roundabout ride", failures, []);
 }
-/** The climb's default distance from the toes to its first nosing, metres (`climbStairs`): the toes stop this short of the disc's rim. */
+/** How far short of the disc's rim the pusher's toes stop, metres: the climb's first nosing that far ahead of them (`climbStairs.start`'s default). */
 const RISER_START: number = 0.05;
 
 /** A pusher walks a roundabout round by its bar, then climbs on and rides. */
@@ -97,13 +98,21 @@ function roundabout(key: playgroundTake.BodyKey, failures: string[]): void {
     HumanObject.prop("disc", disc, discAt(0), discAt),
   ];
 
-  // A level step onto the disc's top, 0.15 m above the ground, is a step up.
+  // The disc's walking surface: its top above the ground and its rim's
+  // distance from the spindle, as the disc declares them.
+  const surface: IAutoMovieAffordance = disc.affordances.find(
+    (item: IAutoMovieAffordance): boolean => item.kind === "surface",
+  )!;
+  const top: number = discAt(release).position.y + surface.frame.translation.y;
+  const radius: number = disc.dimensions.radius!;
+
+  // A level step onto the disc's top, above the ground, is a step up.
   const board: IAutoMovieVector3 = Quaternion.rotateVector(
     discAt(release).rotation,
     {
-      x: 0.7 * Math.sin(25 * Quaternion.DEG2RAD),
-      y: 0.15,
-      z: 0.7 * Math.cos(25 * Quaternion.DEG2RAD),
+      x: 0.7 * radius * Math.sin(25 * Quaternion.DEG2RAD),
+      y: top,
+      z: 0.7 * radius * Math.cos(25 * Quaternion.DEG2RAD),
     },
   );
   let refusal: unknown;
@@ -134,7 +143,7 @@ function roundabout(key: playgroundTake.BodyKey, failures: string[]): void {
   // spindle with its toes the climb's first-nosing distance short of the
   // rim, then climbs the disc's one riser onto it.
   const toes: number = body.measure.footLength - body.measure.heel;
-  const rim: number = 1 + RISER_START + toes;
+  const rim: number = radius + RISER_START + toes;
   const ahead: number = (110 * Math.PI) / 180;
   const edge: IAutoMovieVector3 = {
     x: rim * Math.sin(ahead),
@@ -157,7 +166,7 @@ function roundabout(key: playgroundTake.BodyKey, failures: string[]): void {
         to: edge,
         face: (Math.atan2(-edge.x, -edge.z) * 180) / Math.PI,
       })
-      .climbStairs({ count: 1, riser: 0.15, start: RISER_START, on: "disc" })
+      .climbStairs({ count: 1, riser: top, start: RISER_START, on: "disc" })
       .stand({ seconds: 1.5, on: { prop: "disc" } }).node,
   });
   playgroundTake.clean(`${key} roundabout`, film, failures);
