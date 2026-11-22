@@ -1,6 +1,7 @@
 import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -11,6 +12,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { KnockdownFloor } from "../reaction/KnockdownFloor";
 import { HumanMountedFrame } from "./HumanMountedFrame";
@@ -352,7 +354,7 @@ export namespace HumanUnseatPose {
   }
 
   /**
-   * A posture's shoulder joint on a side, from its root and heading by the body's measures.
+   * A posture's shoulder joint on a side, where its trunk places it.
    *
    * @param body The body.
    * @param posture The posture.
@@ -360,10 +362,10 @@ export namespace HumanUnseatPose {
    * @returns World metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the point.
-   * @evidence contracts/development/implementation.md#principled-implementation The shoulder's height over the hips and half width, turned by the posture's heading from its root.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture resolved for the upper arm alone; its joint is the shoulder the trunk places.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One offset.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One resolve restricted to the upper arm.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new point.
    */
@@ -372,15 +374,23 @@ export namespace HumanUnseatPose {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
   ): IAutoMovieVector3 {
-    const m = body.measure;
-    return Vector3.add(
-      posture.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
-        x: (side === "left" ? 1 : -1) * m.shoulderHalfWidth,
-        y: m.shoulderHeight - m.hipHeight,
-        z: 0,
-      }),
-    );
+    // The joint where the posture's trunk actually places it, resolved for the upper arm alone, its limbs' goals left out.
+    const bone: AutoMovieHumanoidBone = `${side}UpperArm`;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([bone]);
+    return poseBones(
+      body,
+      resolveHumanPosture.seeded(
+        body,
+        { ...posture, limbs: {} },
+        undefined,
+        {},
+        undefined,
+        requested,
+      ).pose,
+      undefined,
+      requested,
+    ).get(bone)!.worldPosition;
   }
 
   /**
@@ -398,7 +408,7 @@ export namespace HumanUnseatPose {
    * @evidence contracts/development/implementation.md#principled-implementation Sixteen even samples of the span; reachable within the upper arm, forearm and half the hand.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target never in reach yields none; nothing is stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen posture reads.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen posture reads, each with one shoulder resolve restricted to the upper arm.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
