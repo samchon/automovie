@@ -8,6 +8,7 @@ import { stand } from "../actions/stand";
 import { exercise } from "../exercise/exercise";
 import { workout } from "../exercise/workout";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_STANCE_MOUNTAIN_POSE } from "../next/presets/HUMAN_STANCE_MOUNTAIN_POSE";
 
 /**
  * Exercises, stretches, yoga poses, dance holds and turns, and a few sport
@@ -249,9 +250,7 @@ export namespace HumanSportWorkout {
   /** The mountain pose of yoga: standing still ten seconds (provisional). */
   export const mountainPose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportWorkout"]["mountainPose"]
-  > = HumanActionRow.of("mountainPose", stand, {
-    hold: 10,
-  });
+  > = HumanActionRow.of("mountainPose", stand, HUMAN_STANCE_MOUNTAIN_POSE);
 
   /** Warrior I of yoga. */
   export const warriorOne: IAutoMovieMotionHumanActionLaw<

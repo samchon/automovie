@@ -3,7 +3,10 @@ import type { IAutoMovieMotionHumanCrawl } from "../floor/IAutoMovieMotionHumanC
 import type { IAutoMovieMotionHumanDive } from "../floor/IAutoMovieMotionHumanDive";
 import type { IAutoMovieMotionHumanGetUp } from "../floor/IAutoMovieMotionHumanGetUp";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
+import type { IAutoMovieMotionHumanLieOnSurface } from "../floor/IAutoMovieMotionHumanLieOnSurface";
+import type { IAutoMovieMotionHumanLogRoll } from "../floor/IAutoMovieMotionHumanLogRoll";
 import type { IAutoMovieMotionHumanRoll } from "../floor/IAutoMovieMotionHumanRoll";
+import type { IAutoMovieMotionHumanTurnOver } from "../floor/IAutoMovieMotionHumanTurnOver";
 
 /**
  * The actions on and from the floor: lying down, rolling, crawling and getting up.
@@ -119,6 +122,63 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   dive(params: IAutoMovieMotionHumanFloor.IDive, anchor?: string): Chain;
+
+  /**
+   * Lying down on, or sitting up from, a raised support such as a bed or a sofa: from sitting on its long edge the trunk lowers toward the head end while the legs swing up, then the body rolls onto the back; with `rise` the reverse.
+   *
+   * @param params The `prop`, `surface`, `edge`, `position`, `rise`, `hold` and `manner` of `IAutoMovieMotionHumanLieOnSurface`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   */
+  lieOnSurface(
+    params: IAutoMovieMotionHumanFloor.ILieOnSurface,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * Turning over while lying, about the body's long axis, between the back, either side and the front, on the floor or on a bed's surface.
+   *
+   * @param params The `to`, `via`, `on`, `hold` and `manner` of `IAutoMovieMotionHumanTurnOver`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   */
+  turnOver(
+    params: IAutoMovieMotionHumanFloor.ITurnOver,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * A log roll across the floor: the lying body, straight with the arms overhead, rolls about its long axis toward one side for a number of half turns or to a named place, ending on the back or the front.
+   *
+   * @param params The `toward`, `halfTurns`, `to`, `end` and `manner` of `IAutoMovieMotionHumanLogRoll`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
+   */
+  logRoll(params: IAutoMovieMotionHumanFloor.ILogRoll, anchor?: string): Chain;
 }
 
 /**
@@ -184,4 +244,44 @@ export namespace IAutoMovieMotionHumanFloor {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `dive` takes the type its law reads.
    */
   export type IDive = IAutoMovieMotionHumanDive.IParams;
+
+  /**
+   * The parameters of `lieOnSurface`: the law's own `IAutoMovieMotionHumanLieOnSurface`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLieOnSurface` owns the type; the alias serves this family's `lieOnSurface` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `lieOnSurface` takes the type its law reads.
+   */
+  export type ILieOnSurface = IAutoMovieMotionHumanLieOnSurface;
+
+  /**
+   * The parameters of `turnOver`: the law's own `IAutoMovieMotionHumanTurnOver`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTurnOver` owns the type; the alias serves this family's `turnOver` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `turnOver` takes the type its law reads.
+   */
+  export type ITurnOver = IAutoMovieMotionHumanTurnOver;
+
+  /**
+   * The parameters of `logRoll`: the law's own `IAutoMovieMotionHumanLogRoll`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLogRoll` owns the type; the alias serves this family's `logRoll` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `logRoll` takes the type its law reads.
+   */
+  export type ILogRoll = IAutoMovieMotionHumanLogRoll;
+
+  /**
+   * The kind and hold that a named lying or sitting down fixes: the `kind` and `hold` of `lieDown`. Spread into `lieDown`'s parameters; `AutoMovieMotionHumanFloor.SIT_ON_FLOOR`, `SIT_CROSS_LEGGED`, `SIT_SIDEWAYS` and `LIE_STILL` are its data and the rows of the same names read them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, which presets use it, how it is applied and where the members' meanings are.
+   * @evidence contracts/development/design.md#principled-representation The lieDown law's own members, so a preset fixes only the values its row means and the law keeps every other default.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `lieDown` owns the members' meanings.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type names the pick of `lieDown`'s own members and redefines none.
+   */
+  export type ILieDownPreset = Pick<ILieDown, "kind" | "hold">;
 }

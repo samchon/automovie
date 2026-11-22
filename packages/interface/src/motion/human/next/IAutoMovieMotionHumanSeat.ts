@@ -1,5 +1,7 @@
+import type { IAutoMovieMotionHumanCrossAnkleOverKnee } from "../everyday/IAutoMovieMotionHumanCrossAnkleOverKnee";
 import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHumanKneel";
 import type { IAutoMovieMotionHumanRise } from "../everyday/IAutoMovieMotionHumanRise";
+import type { IAutoMovieMotionHumanSeatedHeelBounce } from "../everyday/IAutoMovieMotionHumanSeatedHeelBounce";
 import type { IAutoMovieMotionHumanSit } from "../everyday/IAutoMovieMotionHumanSit";
 
 /**
@@ -62,6 +64,46 @@ export interface IAutoMovieMotionHumanSeat<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSeat.kneel is provided by the chain that implements IAutoMovieMotionHumanSeat.
    */
   kneel(params: IAutoMovieMotionHumanSeat.IKneel, anchor?: string): Chain;
+
+  /**
+   * An ankle-over-knee rest after sitting on a chair with both feet down: one ankle lifts over the other knee, rests there and returns.
+   *
+   * @param params The `side` and `hold` of `IAutoMovieMotionHumanCrossAnkleOverKnee`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSeat.crossAnkleOverKnee is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSeat.crossAnkleOverKnee is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSeat.crossAnkleOverKnee is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSeat.crossAnkleOverKnee is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSeat.crossAnkleOverKnee is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSeat.crossAnkleOverKnee is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   */
+  crossAnkleOverKnee(
+    params: IAutoMovieMotionHumanSeat.ICrossAnkleOverKnee,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * One or more rhythmic heel raises from a seated position with both feet planted: the moving leg's heel rises and returns while the opposite foot stays down.
+   *
+   * @param params The `side`, `count`, `cadence` and `amplitude` of `IAutoMovieMotionHumanSeatedHeelBounce`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSeat.seatedHeelBounce is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSeat.seatedHeelBounce is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSeat.seatedHeelBounce is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSeat.seatedHeelBounce is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSeat.seatedHeelBounce is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSeat.seatedHeelBounce is provided by the chain that implements IAutoMovieMotionHumanSeat.
+   */
+  seatedHeelBounce(
+    params: IAutoMovieMotionHumanSeat.ISeatedHeelBounce,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -97,4 +139,34 @@ export namespace IAutoMovieMotionHumanSeat {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IKneel = IAutoMovieMotionHumanKneel.IParams;
+
+  /**
+   * The parameters of `crossAnkleOverKnee`: the law's own `IAutoMovieMotionHumanCrossAnkleOverKnee`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCrossAnkleOverKnee` owns the type; the alias serves this family's `crossAnkleOverKnee` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `crossAnkleOverKnee` takes the type its law reads.
+   */
+  export type ICrossAnkleOverKnee = IAutoMovieMotionHumanCrossAnkleOverKnee;
+
+  /**
+   * The parameters of `seatedHeelBounce`: the law's own `IAutoMovieMotionHumanSeatedHeelBounce`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSeatedHeelBounce` owns the type; the alias serves this family's `seatedHeelBounce` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `seatedHeelBounce` takes the type its law reads.
+   */
+  export type ISeatedHeelBounce = IAutoMovieMotionHumanSeatedHeelBounce;
+
+  /**
+   * The kind, hold and rise that a named kneel fixes: the `kind`, `hold` and `rise` of `kneel`. Spread into `kneel`'s parameters; `AutoMovieMotionHumanSeat.TAKE_A_KNEE`, `KNEEL_BRIEFLY` and `KNEEL_SIT` are its data and the rows of the same names read them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, which presets use it, how it is applied and where the members' meanings are.
+   * @evidence contracts/development/design.md#principled-representation The kneel law's own members, so a preset fixes only the values its row means and the law keeps every other default.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `kneel` owns the members' meanings.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type names the pick of `kneel`'s own members and redefines none.
+   */
+  export type IKneelPreset = Pick<IKneel, "kind" | "hold" | "rise">;
 }

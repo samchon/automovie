@@ -5,6 +5,13 @@ import type {
 
 import { rest } from "../everyday/rest";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_STANCE_ARMS_CROSSED } from "../next/presets/HUMAN_STANCE_ARMS_CROSSED";
+import { HUMAN_STANCE_HANDS_BEHIND_HEAD } from "../next/presets/HUMAN_STANCE_HANDS_BEHIND_HEAD";
+import { HUMAN_STANCE_HANDS_CLASPED } from "../next/presets/HUMAN_STANCE_HANDS_CLASPED";
+import { HUMAN_STANCE_HANDS_IN_POCKETS } from "../next/presets/HUMAN_STANCE_HANDS_IN_POCKETS";
+import { HUMAN_STANCE_HANDS_ON_HIPS } from "../next/presets/HUMAN_STANCE_HANDS_ON_HIPS";
+import { HUMAN_STANCE_PARADE_REST } from "../next/presets/HUMAN_STANCE_PARADE_REST";
+import { HUMAN_STANCE_THINKING } from "../next/presets/HUMAN_STANCE_THINKING";
 import { selfAction } from "../touch/selfAction";
 
 /**
@@ -20,58 +27,41 @@ export namespace HumanStance {
   /** Arms crossed on the chest. */
   export const armsCrossed: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["armsCrossed"]
-  > = HumanActionRow.of("armsCrossed", rest, {
-    left: "crossed",
-    right: "crossed",
-  });
+  > = HumanActionRow.of("armsCrossed", rest, HUMAN_STANCE_ARMS_CROSSED);
 
   /** Hands on the hips. */
   export const handsOnHips: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["handsOnHips"]
-  > = HumanActionRow.of("handsOnHips", rest, {
-    left: "hip",
-    right: "hip",
-  });
+  > = HumanActionRow.of("handsOnHips", rest, HUMAN_STANCE_HANDS_ON_HIPS);
 
   /** Hands in the pockets. */
   export const handsInPockets: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["handsInPockets"]
-  > = HumanActionRow.of("handsInPockets", rest, {
-    left: "pocket",
-    right: "pocket",
-  });
+  > = HumanActionRow.of("handsInPockets", rest, HUMAN_STANCE_HANDS_IN_POCKETS);
 
   /** Parade rest: the hands clasped behind the back. */
   export const paradeRest: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["paradeRest"]
-  > = HumanActionRow.of("paradeRest", rest, {
-    left: "claspedBehind",
-    right: "claspedBehind",
-  });
+  > = HumanActionRow.of("paradeRest", rest, HUMAN_STANCE_PARADE_REST);
 
   /** The hands clasped in front. */
   export const handsClasped: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["handsClasped"]
-  > = HumanActionRow.of("handsClasped", rest, {
-    left: "claspedFront",
-    right: "claspedFront",
-  });
+  > = HumanActionRow.of("handsClasped", rest, HUMAN_STANCE_HANDS_CLASPED);
 
   /** The hands behind the head. */
   export const handsBehindHead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["handsBehindHead"]
-  > = HumanActionRow.of("handsBehindHead", rest, {
-    left: "behindHead",
-    right: "behindHead",
-  });
+  > = HumanActionRow.of(
+    "handsBehindHead",
+    rest,
+    HUMAN_STANCE_HANDS_BEHIND_HEAD,
+  );
 
   /** The thinker: the chin on one hand, the other arm supporting its elbow. */
   export const thinking: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["thinking"]
-  > = HumanActionRow.of("thinking", rest, {
-    left: "elbowSupport",
-    right: "chinRest",
-  });
+  > = HumanActionRow.of("thinking", rest, HUMAN_STANCE_THINKING);
 
   /** A victory raise of the arms. */
   export const victory: IAutoMovieMotionHumanActionLaw<
