@@ -16,7 +16,7 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the law.
  */
 export namespace HumanFloorFall {
-  /** A goalkeeper's dive to the left: off the feet to the side, landing on the side with the hip and the lower hand on the floor. */
+  /** A goalkeeper's dive to the left: off the feet to the side, landing on the side with the hip and the lower hand on the floor. Crouches 0.3 s, flies 0.45 s and rests 0.6 s (1.35 s in all), the hips moving 0.8 statures to the side (`dive.PHASES`, `dive.REACH`, provisional). */
   export const goalkeeperDiveLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorFall"]["goalkeeperDiveLeft"]
   > = HumanActionRow.of("goalkeeperDiveLeft", dive, {
@@ -24,7 +24,7 @@ export namespace HumanFloorFall {
     side: "left",
   });
 
-  /** A goalkeeper's dive to the right. */
+  /** A goalkeeper's dive to the right. Crouches 0.3 s, flies 0.45 s and rests 0.6 s (1.35 s in all), the hips moving 0.8 statures to the side (`dive.PHASES`, `dive.REACH`, provisional). */
   export const goalkeeperDiveRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorFall"]["goalkeeperDiveRight"]
   > = HumanActionRow.of("goalkeeperDiveRight", dive, {
@@ -32,7 +32,7 @@ export namespace HumanFloorFall {
     side: "right",
   });
 
-  /** A sliding tackle: leaning back onto the hip and sliding forward with the lead leg reaching ahead. */
+  /** A sliding tackle: leaning back onto the hip and sliding forward with the lead leg reaching ahead. Crouches 0.2 s, slides 0.8 s and rests 0.5 s (1.5 s in all), the hips sliding 0.7 statures forward (`dive.PHASES`, `dive.REACH`, provisional). */
   export const slidingTackle: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorFall"]["slidingTackle"]
   > = HumanActionRow.of("slidingTackle", dive, {

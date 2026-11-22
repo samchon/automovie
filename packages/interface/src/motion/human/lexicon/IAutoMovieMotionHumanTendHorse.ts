@@ -23,10 +23,10 @@ export interface IAutoMovieMotionHumanTendHorse {
   /** What the hand does there. */
   task: IAutoMovieMotionHumanTendHorse.Task;
 
-  /** Seconds the action lasts, acquiring and releasing included, more than twice `transition`. */
+  /** Seconds the action lasts, acquiring and releasing included, more than twice `transition`. No natural value is defined: choose it for the beat (provisional, missing). */
   seconds: number;
 
-  /** Seconds the hand takes to reach the place, and again to let go, positive. */
+  /** Seconds the hand takes to reach the place, and again to let go, positive. No natural value is defined: choose it for the beat (provisional, missing). */
   transition: number;
 
   /** For a brush, the stroke's length along the contact's line, metres, nonnegative; zero when absent. */

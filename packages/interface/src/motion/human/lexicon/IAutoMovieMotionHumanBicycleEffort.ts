@@ -20,7 +20,7 @@ export interface IAutoMovieMotionHumanBicycleEffort {
   /** Left and right bar grip point ids on the bicycle. */
   hands: { left: string; right: string };
 
-  /** Total action length in seconds. */
+  /** Total action length in seconds; it holds `seatOff`, `up`, `lower` and `seatOn` in order. No natural value is defined: choose it for the beat (provisional, missing). */
   seconds: number;
 
   /** Second the pelvis begins to leave the saddle, after grip acquisition. */

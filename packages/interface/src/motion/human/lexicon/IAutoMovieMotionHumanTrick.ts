@@ -45,10 +45,10 @@ export namespace IAutoMovieMotionHumanTrick {
     /** The side a drag or a pickup is made on; the left, the near side, when absent. */
     side?: AutoMovieHumanSide;
 
-    /** Seconds it takes to reach from the figure before. */
+    /** Seconds it takes to reach from the figure before. No natural value is defined: choose it for the beat (provisional, missing). */
     transfer: number;
 
-    /** Seconds it is held. */
+    /** Seconds it is held. No natural value is defined: choose it for the beat (provisional, missing). */
     seconds: number;
 
     /** The prop a pickup takes from the ground. */

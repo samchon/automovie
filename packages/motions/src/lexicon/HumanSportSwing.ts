@@ -21,6 +21,15 @@ import { HumanSwordGuard } from "./HumanSwordGuard";
  * prop with a motion of its own, released by the scene at the row's
  * `stroke`.
  *
+ * Every row has the cut's timing, whatever the implement: the striking part
+ * peaks at 6 m/s at novice to 10 m/s at elite skill (`HumanSword.SPEED`,
+ * provisional: under the 9.89 m/s of a knife slash, Bleetman et al. 2003) and
+ * each hand path lasts 1.875 times its length over that peak, so a hand path of
+ * 1 m takes about 0.19 s at elite and 0.31 s at novice; the setting
+ * and the return are slower by 1.4 at novice to 1.0 at elite, and
+ * `manner.pace` stretches the whole clock ({@link IAutoMovieMotionHumanSword}).
+ * No sourced swing speed for a racket, a club or a bat was read.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered law (`HumanActionRow`), so it is data over a law that fits the body, refuses and is checked.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One row per swing a screenplay names; a production registers the ones it uses.

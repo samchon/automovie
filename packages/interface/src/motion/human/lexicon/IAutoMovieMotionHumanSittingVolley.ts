@@ -8,7 +8,7 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The shift is expressed in metres relative to the entry heading and the receive is supplied by a world location, so no actor or court is fixed.
  */
 export interface IAutoMovieMotionHumanSittingVolley {
-  /** Seconds for the floor shift and receive. */
+  /** Seconds for the floor shift and receive; the palm plants at 0.25 of it, releases at 0.55 and the receive lands at 0.8 (`HumanSittingVolley` shares, provisional). No natural value is defined: choose it for the beat (provisional, missing). */
   seconds: number;
 
   /** Signed floor displacement in metres toward the left of entry heading. */

@@ -34,6 +34,9 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * same inert prop from its slot to a moving socket. The release rows can
  * hand it off to a scene-authored animation carrier on a film cue (#3713–3714).
  *
+ * The rows fix no time: the pick up, put down and operate laws time them, and
+ * the release is handed to a scene-authored carrier on a film cue.
+ *
  * - `takeArrow`: a pick up of the arrow by its shaft just ahead of the
  *   nock (`nockGrip`), where the fingers hold it to nock it, from where the
  *   composition says it lies (a quiver's slot site).

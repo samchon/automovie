@@ -34,7 +34,7 @@ export namespace IAutoMovieMotionHumanTravelCarExit {
     /** Exterior ground elevation, world metres. */
     floor: number;
 
-    /** Seconds for the seated turn and both foot passages before the rise, before tempo scaling. Positive. */
+    /** Seconds for the seated turn and both foot passages before the rise, before tempo scaling. Positive. No natural value is defined: choose it for the beat (provisional, missing). */
     turnSeconds: number;
 
     /** Gap from the sill and jambs, metres. Nonnegative. */

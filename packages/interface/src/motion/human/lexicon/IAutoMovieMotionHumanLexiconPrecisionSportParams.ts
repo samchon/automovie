@@ -77,10 +77,10 @@ export namespace IAutoMovieMotionHumanLexiconPrecisionSportParams {
     /** The outgoing shot's horizontal direction, from the ball toward this target. */
     toward: IAutoMovieMotionTarget;
 
-    /** Positive seconds from the action start to impact. Omit for the stroke's neutral timing. */
+    /** Positive seconds from the action start to impact. Omit for the stroke's neutral timing (the row's own, provisional). */
     impact?: number;
 
-    /** Positive outgoing ball speed in metres per second. The row fixes the departure inclination. */
+    /** Positive outgoing ball speed in metres per second. The row fixes the departure inclination. No natural value is defined: choose it for the beat (provisional, missing). */
     speed: number;
 
     /** The striking hand. Defaults to right. */

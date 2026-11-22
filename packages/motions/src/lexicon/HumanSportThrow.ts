@@ -33,26 +33,26 @@ import { throwObject } from "../throwing/throwObject";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own or fixes a length in metres.
  */
 export namespace HumanSportThrow {
-  /** A baseball pitch, a crow-hop throw or a javelin throw: overarm. The windup is not planned. */
+  /** A baseball pitch, a crow-hop throw or a javelin throw: overarm. The windup is not planned. Overarm: release 20 degrees above the horizontal after a 0.5 s windup. A farther target is a faster throw. */
   export const pitch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["pitch"]
   > = HumanActionRow.of("pitch", throwObject, {
     style: "overarm",
   });
 
-  /** A softball pitch or a bowling delivery: underarm. The windmill is not planned. */
+  /** A softball pitch or a bowling delivery: underarm. The windmill is not planned. Underarm: release 40 degrees after a 0.45 s windup. A farther target is a faster throw. */
   export const underarmPitch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["underarmPitch"]
   > = HumanActionRow.of("underarmPitch", throwObject, {
     style: "underarm",
   });
 
-  /** A fastpitch softball delivery with an underhand windmill. */
+  /** A fastpitch softball delivery with an underhand windmill. Release 2 degrees after a 0.64 s windup. A farther target is a faster throw. */
   export const softballWindmill: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["softballWindmill"]
   > = HumanActionRow.of("softballWindmill", throwObject, { style: "windmill" });
 
-  /** A high cricket release directed toward the authored pitch bounce. */
+  /** A high cricket release directed toward the authored pitch bounce. Release 4 degrees below the horizontal after a 0.42 s windup. A farther target is a faster throw. */
   export const cricketBowl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["cricketBowl"]
   > = HumanActionRow.of("cricketBowl", throwObject, { style: "cricket" });
@@ -62,29 +62,29 @@ export namespace HumanSportThrow {
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["bowlingSlide"]
   > = bowlingSlideLaw;
 
-  /** The low delivery of a one-handed ten-pin bowling approach. */
+  /** The low delivery of a one-handed ten-pin bowling approach. Release 1 degree below the horizontal after a 0.58 s windup, along the lane. A farther target is a faster throw. */
   export const bowlingDelivery: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["bowlingDelivery"]
   > = HumanActionRow.of("bowlingDelivery", throwObject, { style: "bowling" });
 
-  /** A chest or bounce pass, a free throw or a shot put: a push from before the chest. The leap of a jump shot and the glide of a shot put are not planned. */
+  /** A chest or bounce pass, a free throw or a shot put: a push from before the chest. The leap of a jump shot and the glide of a shot put are not planned. Toss: release 50 degrees after a 0.35 s windup. A farther target is a faster throw. */
   export const pushPass: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["pushPass"]
   > = HumanActionRow.of("pushPass", throwObject, {
     style: "toss",
   });
 
-  /** Rugby pass with a two-hand release to the receiver's mark. */
+  /** Rugby pass with a two-hand release to the receiver's mark. Release 18 degrees after a 0.3 s windup. A farther target is a faster throw. */
   export const rugbyPass: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["rugbyPass"]
   > = HumanActionRow.of("rugbyPass", throwObject, { style: "rugby" });
 
-  /** Overarm gridiron pass. */
+  /** Overarm gridiron pass. Release 17 degrees after a 0.45 s windup. A farther target is a faster throw. */
   export const gridironPass: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["gridironPass"]
   > = HumanActionRow.of("gridironPass", throwObject, { style: "gridironPass" });
 
-  /** Gridiron snap from a folded stance. */
+  /** Gridiron snap from a folded stance. Release 22 degrees after a 0.24 s windup. A farther target is a faster throw. */
   export const gridironSnap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["gridironSnap"]
   > = HumanActionRow.of("gridironSnap", throwObject, { style: "gridironSnap" });
@@ -141,28 +141,28 @@ export namespace HumanSportThrow {
     way: "backward",
   });
 
-  /** A cartwheel to the performer's left: one sideways turn over a foot, the two hands and the other foot. */
+  /** A cartwheel to the performer's left: one sideways turn over a foot, the two hands and the other foot. Takes 1.6 s by default (`cartwheel.SECONDS`, provisional). */
   export const cartwheelLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["cartwheelLeft"]
   > = HumanActionRow.of("cartwheelLeft", cartwheel, {
     to: "left",
   });
 
-  /** Capoeira's aú: a cartwheel to the left through both hands. */
+  /** Capoeira's aú: a cartwheel to the left through both hands. Takes 1.6 s by default (`cartwheel.SECONDS`, provisional). */
   export const au: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["au"]
   > = HumanActionRow.of("au", cartwheel, {
     to: "left",
   });
 
-  /** A cartwheel to the performer's right. */
+  /** A cartwheel to the performer's right. Takes 1.6 s by default (`cartwheel.SECONDS`, provisional). */
   export const cartwheelRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["cartwheelRight"]
   > = HumanActionRow.of("cartwheelRight", cartwheel, {
     to: "right",
   });
 
-  /** A sprint: the acceleration out of the start, a base run or a run-up, at sprint pace. */
+  /** A sprint: the acceleration out of the start, a base run or a run-up, at sprint pace. The `sprint` run: about 6.8 m/s at the reference hip ({@link IAutoMovieMotionHumanRun.IParams.pace}); a start, a charge or a finish. */
   export const dash: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["dash"]
   > = HumanActionRow.of("dash", run, { pace: "sprint" });

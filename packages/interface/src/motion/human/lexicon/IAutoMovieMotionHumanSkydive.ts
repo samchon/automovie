@@ -40,7 +40,7 @@ export namespace IAutoMovieMotionHumanSkydive {
     /** The toggle pulled; the canopy turns toward it. */
     side: "left" | "right";
 
-    /** Seconds the toggle is held down. */
+    /** Seconds the toggle is held down. No natural value is defined: choose it for the beat (provisional, missing). */
     seconds: number;
   }
 
@@ -64,10 +64,10 @@ export namespace IAutoMovieMotionHumanSkydive {
     /** The altitude the canopy is deployed at, metres above the landing ground. */
     deploy: number;
 
-    /** A forward glide in freefall, metres per second over the ground; none when absent. */
+    /** A forward glide in freefall, metres per second over the ground; none when absent. No natural value is defined: choose it for the beat (provisional, missing). */
     track?: number;
 
-    /** A freefall turn, degrees per second, positive to the left; none when absent. */
+    /** A freefall turn, degrees per second, positive to the left; none when absent. No natural value is defined: choose it for the beat (provisional, missing). */
     turn?: number;
 
     /** Toggle pulls under the canopy, in time order without overlap; none when absent. */

@@ -72,10 +72,10 @@ export namespace IAutoMovieMotionHumanSurface {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The outcome of the deceleration is declared separately from path turn and carries no fabricated friction figure.
    */
   export interface IGlideParams {
-    /** Duration in seconds, positive. */
+    /** Duration in seconds, positive. No natural value is defined: choose it for the beat (provisional, missing). */
     seconds: number;
 
-    /** Travel speed in metres per second, positive. Approached from the entry speed. */
+    /** Travel speed in metres per second, positive. Approached from the entry speed. No natural value is defined: choose it for the beat (provisional, missing). */
     speed: number;
 
     /** Signed total turn in degrees relative to entry heading, in [-180, 180]. Absent is straight. */
@@ -170,7 +170,7 @@ export namespace IAutoMovieMotionHumanSurface {
     /** Positive duration in seconds. */
     seconds: number;
 
-    /** Positive forward glide speed in metres per second. */
+    /** Positive forward glide speed in metres per second. No natural value is defined: choose it for the beat (provisional, missing). */
     speed: number;
 
     /** Ease to a stop and recover upright by the end. */
@@ -295,7 +295,7 @@ export namespace IAutoMovieMotionHumanSurface {
     /** Scene subject id of the board on which both feet bear. */
     on: string;
 
-    /** Duration in seconds, positive. */
+    /** Duration in seconds, positive. No natural value is defined: choose it for the beat (provisional, missing). */
     seconds: number;
 
     /** The point of the same support each named hand grips while riding, by the support's point id. No grip when absent. */
