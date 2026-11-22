@@ -179,10 +179,13 @@ export namespace AutoMovieMotionHumanTrunk {
    * heading, and the trunk inclined forward over them by the lumbopelvic
    * rhythm (`HumanTrunk.incline`), the pelvis taking no more than the planted
    * legs' hip flexion leaves it (`HumanTrunk.pelvisLimit`) and the spine the
-   * rest. The legs keep their goals.
+   * rest. The legs keep their goals. The hips start where the posture's own
+   * heading (its yaw, pitch and roll) puts them, so a posture already pitched
+   * (a lean an earlier action left) at no depth, back or inclination is
+   * returned in place.
    *
    * @param body The body.
-   * @param posture The posture, its pelvis level.
+   * @param posture The posture, its pelvis level or already pitched.
    * @param depth How far the hips sink, metres.
    * @param inclination The trunk's forward inclination, degrees.
    * @param back How far the hips move back along the heading, metres.
@@ -190,8 +193,8 @@ export namespace AutoMovieMotionHumanTrunk {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is lowered, moved and inclined, who shares the inclination and each parameter's unit.
    * @evidence contracts/development/implementation.md#principled-implementation Folded thighs use up the hip's flexion range, so a deep crouch inclines the trunk through the spine rather than the pelvis (Esola et al. 1996 for the rhythm); a pelvis pitched past the range would pull the planted feet off the floor. The limit is read over the leg goals' ankles with the hips at their sunk place.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One hips goal, one incline and one root placed under the pitched hips.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A posture without both leg goals has no thighs to read, so its pelvis takes the rhythm's full share; the hips' place is read in the yaw frame, so a posture already pitched is not a valid input, as the parameter states.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One hips goal from the posture's own heading, one incline and one root placed under the pitched hips.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A posture without both leg goals has no thighs to read, so its pelvis takes the rhythm's full share; the hips' place is read through the posture's whole heading, so a pitched posture keeps its hips and a zero share writes no movement.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the split and the limit to `HumanTrunk`, the owner the bend, the sit and the rise read.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -204,9 +207,17 @@ export namespace AutoMovieMotionHumanTrunk {
     back: number,
   ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const goal: IAutoMovieVector3 = HumanFrame.point(
-      { origin: posture.root, yaw: posture.yaw },
-      { x: hips.x, y: hips.y - depth, z: hips.z - back },
+    // The hips where the posture's own heading puts them, then lowered and
+    // moved back along the yaw.
+    const goal: IAutoMovieVector3 = Vector3.add(
+      Vector3.add(
+        posture.root,
+        Quaternion.rotateVector(resolveHumanPosture.heading(posture), hips),
+      ),
+      HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+        { x: 0, y: -depth, z: -back },
+      ),
     );
     const level: IAutoMovieVector3 = Vector3.subtract(
       goal,
