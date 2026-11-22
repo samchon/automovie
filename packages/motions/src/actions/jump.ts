@@ -34,6 +34,7 @@ import { fitJumpAbsorption } from "./fitJumpAbsorption";
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpEndpoints } from "./jumpEndpoints";
 import { jumpFlight } from "./jumpFlight";
+import { jumpGroundMemo } from "./jumpGroundMemo";
 import { jumpGroundPosture } from "./jumpGroundPosture";
 import { jumpJoints } from "./jumpJoints";
 import { jumpLanding } from "./jumpLanding";
@@ -520,7 +521,8 @@ export namespace jump {
     ): IAutoMovieMotionHumanPosture =>
       landingAtRoot(rootAt(seconds), seconds, read);
     const ground: prepareJumpPosture.IGround = {
-      before: (seconds, _channels, resolution) => {
+      // Each second's push posture is cleared once (`jumpGroundMemo`).
+      before: jumpGroundMemo((seconds, _channels, resolution) => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
         return jumpGroundPosture(
@@ -529,8 +531,8 @@ export namespace jump {
           reaching,
           read,
         );
-      },
-      after: (seconds, _channels, resolution) => {
+      }),
+      after: jumpGroundMemo((seconds, _channels, resolution) => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
         return jumpGroundPosture(
@@ -539,7 +541,7 @@ export namespace jump {
           "landing",
           read,
         );
-      },
+      }),
       sampleBefore: (seconds, _channels, resolution, projection) => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
