@@ -42,9 +42,9 @@ type Limb = IAutoMovieFootfallPattern["limbs"][number];
 export namespace physicalStanceBalance {
   /**
    * The margin the commanded and the borne centres of pressure keep from the
-   * planted outlines' edges, metres: the realized centre of pressure's worst
-   * error from the command in a centre-of-pressure sweep, plus slack
-   * (`test_physical_stance_layers`, P1); no source gives a number.
+   * planted outlines' edges, metres: twice the realized centre of pressure's
+   * error from the command in quiet stance, about 0.01 m (Pratt et al.,
+   * M2V2, footnote 2, give the shrinking but no number).
    */
   export const MARGIN: number = 0.02;
 
