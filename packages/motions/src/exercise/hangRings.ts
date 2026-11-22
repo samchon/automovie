@@ -10,7 +10,6 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanWorkout,
-  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -18,26 +17,26 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /** Seconds a fist takes to come onto its grip before the window and to leave it after (provisional: the workout's setup beat). */
 const REACH: number = 0.25;
 
-/** The elbow's place off the fist, metres in the performer's frame: out, down, and level fore and aft (provisional). */
-const ELBOW: IAutoMovieVector3 = { x: 0.3, y: -0.3, z: 0 };
-
 /** One fist laid on its grip over the plan's windows. */
 interface IFist {
+  /** The side. */
+  side: AutoMovieHumanSide;
+
   /** The arm's limb. */
   limb: "leftArm" | "rightArm";
 
-  /** The hand bone. */
+  /** The hand and forearm bones. */
   hand: AutoMovieHumanoidBone;
+  lower: AutoMovieHumanoidBone;
 
-  /** The arm goal on the grip. */
-  goal: IAutoMovieHumanLimbGoal;
+  /** The grip's world point. */
+  grip: IAutoMovieVector3;
 
   /** The share of the goal at an action second. */
   weight(seconds: number): number;
@@ -48,9 +47,9 @@ interface IFist {
  * hung (#3875's rings): the hanging kinds keep the two fists' middle on the
  * support's middle, which leaves each fist off its own grip by however far
  * the arms' spread differs from the grips'. Here each fist is laid on its
- * own grip while the plan declares that hand's grip window, the palms
- * turned in toward each other (the neutral hang on rings) and the elbow out
- * and below the hand; over `REACH` seconds before the window and after it
+ * own grip while the plan declares that hand's grip window, turned as the
+ * keyed arm holds it and with the keyed elbow's side, so a hang and a dip
+ * keep their own grips; over `REACH` seconds before the window and after it
  * the fist moves from where the keyed arm holds it to the grip and back. A
  * support of one grip leaves the writer as it is.
  *
@@ -61,12 +60,12 @@ interface IFist {
  * @returns The writer with the fists laid on their grips.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the gap it closes, where each fist goes, its attitude, the blends and the single-grip case.
- * @evidence contracts/development/implementation.md#principled-implementation Each grip's world point and the neutral fist at it, laid by the arm goal over its window with minimum-jerk blends from the keyed hand.
+ * @evidence contracts/development/implementation.md#principled-implementation Each grip's world point with the keyed fist's attitude and elbow, laid by the arm goal over its window with minimum-jerk blends from the keyed hand.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Grips, windows, one wrapper.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The keyed hand is read where the blend needs it, never assumed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample, one hand FK only inside a blend.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The arm goal, the hand attitude and the pose reader.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the two goals and their windows.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample: one FK of the keyed hand and forearm per fist while it grips.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The arm goal and the pose reader.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the two grips and their windows.
  */
 export function hangRings(
   write: IAutoMovieMotionHumanPrimitive["write"],
@@ -115,28 +114,12 @@ export function hangRings(
         c.support.subject === on.prop,
     );
     if (windows.length === 0) continue;
-    const at: IAutoMovieVector3 = grips[side];
-    const inward: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(grips[side === "left" ? "right" : "left"], at),
-    );
-    const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
-      fingers: { x: 0, y: 1, z: 0 },
-      palm: inward,
-    });
-    const elbow: IAutoMovieVector3 = HumanFrame.point(
-      { origin: at, yaw },
-      { ...ELBOW, x: side === "left" ? ELBOW.x : -ELBOW.x },
-    );
     fists.push({
+      side,
       limb: side === "left" ? "leftArm" : "rightArm",
       hand,
-      goal: AutoMovieMotionHumanArm.goal(context.body, side, {
-        surface: "grip",
-        shape: "fist",
-        point: at,
-        rotation,
-        bend: elbow,
-      }),
+      lower: side === "left" ? "leftLowerArm" : "rightLowerArm",
+      grip: grips[side],
       weight: (seconds: number): number => {
         let w: number = 0;
         for (const c of windows) {
@@ -172,34 +155,39 @@ export function hangRings(
     for (const fist of fists) {
       const w: number = fist.weight(seconds);
       if (w <= 0) continue;
-      if (w >= 1) {
-        limbs = { ...limbs, [fist.limb]: fist.goal };
-        continue;
-      }
-      const from: IAutoMovieResolvedBone = poseBones(
+      // The key decides the fist's attitude and the elbow's side; the grip
+      // decides where the fist is.
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(
+          context.body,
+          resolveHumanPosture(context.body, {
+            ...keyed,
+            limbs: { ...keyed.limbs, [fist.limb]: undefined },
+          }),
+          undefined,
+          new Set<AutoMovieHumanoidBone>([fist.hand, fist.lower]),
+        );
+      const from: IAutoMovieResolvedBone = bones.get(fist.hand)!;
+      const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArm.goal(
         context.body,
-        resolveHumanPosture(context.body, {
-          ...keyed,
-          limbs: { ...keyed.limbs, [fist.limb]: undefined },
-        }),
-        undefined,
-        new Set<AutoMovieHumanoidBone>([fist.hand]),
-      ).get(fist.hand)!;
+        fist.side,
+        {
+          surface: "grip",
+          shape: "fist",
+          point: fist.grip,
+          rotation: from.worldRotation,
+          bend: bones.get(fist.lower)!.worldPosition,
+        },
+      );
       limbs = {
         ...limbs,
-        [fist.limb]: {
-          ...fist.goal,
-          point: Vector3.lerp(from.worldPosition, fist.goal.point, w),
-          ...(fist.goal.rotation === undefined
-            ? {}
+        [fist.limb]:
+          w >= 1
+            ? goal
             : {
-                rotation: Quaternion.slerp(
-                  from.worldRotation,
-                  fist.goal.rotation,
-                  w,
-                ),
-              }),
-        },
+                ...goal,
+                point: Vector3.lerp(from.worldPosition, goal.point, w),
+              },
       };
     }
     return limbs === keyed.limbs ? keyed : { ...keyed, limbs };
