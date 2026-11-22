@@ -1,5 +1,6 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanArmAngles,
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -21,6 +22,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
@@ -410,6 +412,20 @@ export namespace putDown {
     const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const part: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
+    const free: boolean =
+      displacement === undefined &&
+      mouth === undefined &&
+      route === undefined &&
+      tool === undefined;
+    let ends: IDistal | undefined;
+    const distal = (): IDistal =>
+      (ends ??= {
+        from: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+        to: AutoMovieMotionHumanArm.angles(
+          resolveHumanPosture(body, plan.posture(down)),
+          side,
+        ),
+      });
     const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
@@ -484,6 +500,39 @@ export namespace putDown {
           wrist = travel.retreat.wrist(back - r);
           turned = travel.retreat.turn(back - r);
           digits = returnShape(r / back);
+        }
+        // A prop laid where it stays is carried with the forearm's twist and
+        // the wrist's two angles going in joint space from the hand's entry
+        // to the placing hand's: a slerped attitude takes the shorter arc in
+        // the world, which can leave the forearm's twist range midway and
+        // turn the forearm half a turn between two seconds, while the
+        // joints' own path stays inside their ranges (Soechting and
+        // Lacquaniti 1981, joint-space transport). The hand reaches the
+        // placing attitude exactly at the placement.
+        if (free && t < down) {
+          const share: number = minimumJerk.share(t / down);
+          const { from, to }: IDistal = distal();
+          return {
+            ...held,
+            joints: {
+              ...held.joints,
+              ...digits,
+              [`${side}LowerArm`]: [
+                to.lower[0],
+                to.lower[1],
+                from.lower[2] + (to.lower[2] - from.lower[2]) * share,
+              ],
+              [`${side}Hand`]: [
+                from.hand[0] + (to.hand[0] - from.hand[0]) * share,
+                from.hand[1] + (to.hand[1] - from.hand[1]) * share,
+                from.hand[2] + (to.hand[2] - from.hand[2]) * share,
+              ],
+            },
+            limbs: {
+              ...held.limbs,
+              [limb]: { point: wrist, bend, reference, planted: true },
+            },
+          };
         }
         // Ease the receiver's displacement in and out while matching its velocity through opening.
         if (displacement !== undefined) {
@@ -600,4 +649,13 @@ export namespace putDown {
       },
     ];
   }
+}
+
+/** The carry's distal joints at its two ends: the hand's entry arm and the placing arm. */
+interface IDistal {
+  /** The arm the hand enters with. */
+  from: IAutoMovieMotionHumanArmAngles.IAngles;
+
+  /** The arm at the placement. */
+  to: IAutoMovieMotionHumanArmAngles.IAngles;
 }
