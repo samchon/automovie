@@ -64,7 +64,7 @@ export namespace IAutoMovieMotionHumanClinch {
     /** The collar hand of `collarSleeve`; `right` when absent. */
     hand?: AutoMovieHumanSide;
 
-    /** Seconds the grip is held once both hands have closed, before they let go; 2 s when absent ({@link clinch}, provisional: no study of a grip's duration was read). The hands reach in their aimed movement time first (McIntosh et al. 2018), so the whole action is that time, `hold` and the release. 0 closes and lets go at once; a few seconds fits a held neck tie or a grip taken before a throw.
+    /** Seconds the grip is held once both hands have closed, before they let go; 2 s when absent (`clinch`, provisional: no study of a grip's duration was read). The hands reach in their aimed movement time first (McIntosh et al. 2018), so the whole action is that time, `hold` and the release. 0 closes and lets go at once; a few seconds fits a held neck tie or a grip taken before a throw.
      * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     hold?: number;

@@ -5,7 +5,7 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * scene is one law and one parameter set for judo, wrestling, MMA mat work
  * and sumo: a paired clock of reach, take, release and rest beats whose
  * length is `seconds`, and an authored outcome. The scene takes 3 to 6 s
- * at the lengths on {@link Kind}; no skill or strength
+ * at the lengths on `Kind`; no skill or strength
  * is read. A kind is a staging, not a rulebook: the award is not inferred
  * from the pose.
  *
@@ -49,7 +49,7 @@ export namespace IAutoMovieMotionHumanGrapple {
     | "guardPass"
     /** MMA reset after a mat exchange, 4.2 s. */
     | "mmaReset"
-    /** Sumo push out, 4.5 s: a charge from the shikiri lines 0.7 m apart, a drive of 2.1 m in 0.35 m steps over the 4.55 m ring ({@link grappleSumo}). */
+    /** Sumo push out, 4.5 s: a charge from the shikiri lines 0.7 m apart, a drive of 2.1 m in 0.35 m steps over the 4.55 m ring (`grappleSumo`). */
     | "oshiDashi"
     /** Sumo belt-grip force-out, 5 s, driven the same way. */
     | "yoriKiri"
@@ -94,7 +94,7 @@ export namespace IAutoMovieMotionHumanGrapple {
     /** Lead side of the staged scene, right when absent. */
     side?: AutoMovieHumanSide;
 
-    /** Total scene duration in seconds, positive and finite. Absent, each kind takes its own length listed on {@link Kind} ({@link grappleStances.seconds}, {@link grappleSumo.seconds}); every one is an authored staging length, provisional: no study of a bout's phase times was read. The phases keep their shares of it, so a longer scene is the same beats slower. */
+    /** Total scene duration in seconds, positive and finite. Absent, each kind takes its own length listed on `Kind` (`grappleStances.seconds`, `grappleSumo.seconds`); every one is an authored staging length, provisional: no study of a bout's phase times was read. The phases keep their shares of it, so a longer scene is the same beats slower. */
     seconds?: number;
   }
 

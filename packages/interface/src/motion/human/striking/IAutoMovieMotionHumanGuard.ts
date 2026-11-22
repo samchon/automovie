@@ -7,7 +7,7 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * turns to the stance heading, and the gloves come up to the guard, then the
  * stance holds with a light bounce through the knees.
  *
- * The stance itself is {@link StrikingStance}: measured on the body, so any
+ * The stance itself is `StrikingStance`: measured on the body, so any
  * stature takes its own. A foot already within 1 cm of its place stays
  * planted. The line faces the `facing` target when one is given (read at
  * the start), otherwise it keeps the entry's line: a performer already in a
@@ -46,7 +46,7 @@ export namespace IAutoMovieMotionHumanGuard {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
-    /** How long the guard is held, seconds; 1 when absent and never under the 0.6 s the stance takes to set ({@link guard.SET}). */
+    /** How long the guard is held, seconds; 1 when absent and never under the 0.6 s the stance takes to set (`guard.SET`). */
     seconds?: number;
 
     /** Which side leads; the entry's leading side when absent. */

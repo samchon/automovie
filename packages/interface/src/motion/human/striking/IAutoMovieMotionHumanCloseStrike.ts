@@ -67,7 +67,7 @@ export namespace IAutoMovieMotionHumanCloseStrike {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
-    /** The close strike. It keeps the punch's timing: 0.405 s from launch to contact at elite skill, 1.06 times at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}); no study of an elbow's or a headbutt's delivery time was located. GLORY rules ban elbows ({@link KickboxingRules}). */
+    /** The close strike. It keeps the punch's timing: 0.405 s from launch to contact at elite skill, 1.06 times at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}); no study of an elbow's or a headbutt's delivery time was located. GLORY rules ban elbows (`KickboxingRules`). */
     technique: IAutoMovieMotionHumanCloseStrike.Technique;
 
     /** What it strikes. */

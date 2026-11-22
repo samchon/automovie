@@ -32,7 +32,7 @@ import type { IAutoMovieMotionHumanStrikingHeld } from "../striking/IAutoMovieMo
  * frame's change of the target's predicted place at contact is superposed
  * on the landing one correction latency later (`HumanSwordFollow`).
  *
- * Timing of every blade attack ({@link HumanSword.SPEED}, {@link HumanSwordTiming}):
+ * Timing of every blade attack (`HumanSword.SPEED`, `HumanSwordTiming`):
  * the hand moves each path as one minimum-jerk unit, lasting 1.875 times the
  * path over the point's peak speed. The thrust's point peaks at 2.6 m/s at
  * novice to 3.2 m/s at elite (Chen et al. 2017); the cut's edge peaks at

@@ -5,7 +5,7 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * hands hold the opponent's head or neck (the clinch) or stay at the guard.
  *
  * The knee is the weapon, and the thigh carries it on a circle about the hip
- * ({@link KneeReach}). The hips square to the thigh's heading, the support
+ * (`KneeReach`). The hips square to the thigh's heading, the support
  * foot pivoting on its ball with them; the pelvis travels along the line
  * until the knee's front is on the target, lowered as far as the planted
  * support leg needs to keep its foot, and the knee is solved from the hip
@@ -15,19 +15,19 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * body.
  *
  * The knee is lifted, then the hips are driven in
- * ({@link KneeForm.LIFT_SHARE}): the thigh swings about the hip from where
+ * (`KneeForm.LIFT_SHARE`): the thigh swings about the hip from where
  * the stance had it to its solved elevation on an early clock, the pelvis
  * travels on a late one, and the way back mirrors it. The shank folds under
- * the knee and the toes point down along it ({@link KneeForm.FLEXION},
- * {@link KneeForm.PLANTAR}), so the foot trails behind the knee instead of
+ * the knee and the toes point down along it (`KneeForm.FLEXION`,
+ * `KneeForm.PLANTAR`), so the foot trails behind the knee instead of
  * leading it into the opponent's legs. The trunk leans back slightly to keep
  * the centre of mass over the pivoting support foot.
  *
  * The thigh, the shank and the foot are offered to the performance's joint
- * contact resolution as capsules on the shown leg ({@link StrikingWeapon}),
+ * contact resolution as capsules on the shown leg (`StrikingWeapon`),
  * so the knee stops where any part of the leg first meets the other body; it
  * holds for the contact dwell, gives way before the body it rests on
- * ({@link StrikingRide}), and withdraws along the way it came, as the kick
+ * (`StrikingRide`), and withdraws along the way it came, as the kick
  * does.
  *
  * Timing (kickboxing research of #3201): the knee rises through the round

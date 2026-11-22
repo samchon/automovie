@@ -18,7 +18,7 @@ export namespace IAutoMovieMotionHumanThrowObjectForm {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in throwCases.
    */
   export type Style =
-    /** Release 20 degrees above the horizontal after a 0.5 s windup; a ball or stone thrown far ({@link throwObjectForm.ANGLE}, {@link throwObjectForm.WINDUP}). */
+    /** Release 20 degrees above the horizontal after a 0.5 s windup; a ball or stone thrown far (`throwObjectForm.ANGLE`, `throwObjectForm.WINDUP`). */
     | "overarm"
     /** 40 degrees, 0.45 s; a lob or a precision throw from below. */
     | "underarm"

@@ -32,13 +32,13 @@ export interface IAutoMovieMotionHumanThrowObjectParams {
    */
   prop?: string;
 
-  /** The release angle above the horizontal, degrees; the style's when absent ({@link throwObjectForm.ANGLE}). A target the angle cannot reach is refused. */
+  /** The release angle above the horizontal, degrees; the style's when absent (`throwObjectForm.ANGLE`). A target the angle cannot reach is refused. */
   angle?: number;
 
   /**
    * How the prop turns in flight (`IAutoMovieProjectile.attitude`): along
    * its velocity for a javelin; `turns` for a knife, whose spin the act
-   * chooses ({@link throwObjectLever.spin}); its release rotation kept when
+   * chooses (`throwObjectLever.spin`); its release rotation kept when
    * absent.
    */
   attitude?:
