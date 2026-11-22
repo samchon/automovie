@@ -11903,6 +11903,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             },
             "description": "Floor points passed on the way, world metres; none when absent."
           },
+          "face": {
+            "type": "number",
+            "description": "The heading faced on arrival, degrees; a turn in place when `to` is where the walker stands. The direction of travel when absent."
+          },
           "severity": {
             "type": "number",
             "description": "How frail the walk is, from 0, the ordinary walk, to 1, a shuffle;\n0.5 when absent.\nUnit: \"1\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
@@ -30164,7 +30168,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "pull": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanDrawFromCarrier.IPull",
-            "description": "The other hand pulling a worn carrier back along the line while the trunk turns, as a longsword is drawn from the hip; the carrier holds still when absent."
+            "description": "The other hand turning a worn carrier toward the drawing shoulder while the trunk turns, as a longsword is drawn from the hip; the carrier holds still when absent."
           }
         },
         "required": [
@@ -30215,21 +30219,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "type": "string",
             "description": "The carrier's affordance the other hand grips, at its throat."
           },
-          "back": {
-            "type": "number",
-            "description": "How far the carrier retreats along the line, metres; positive."
-          },
           "turn": {
             "type": "number",
             "description": "How far the trunk turns away from the drawing side, degrees; 0 when absent."
           }
         },
         "required": [
-          "handle",
-          "back"
+          "handle"
         ],
         "additionalProperties": false,
-        "description": "The other hand's share of a long draw. A blade longer than the drawing\narm's reach along the line leaves its scabbard only when the other hand\npulls the scabbard back at its throat and the hips turn away from the\ndrawing side, so the two hands part along the line by the blade's\nlength.\nThe carrier rides the other hand from its throat, retreats `back` along\nthe line and is worn again on the bone it hung from where the draw\nleaves it."
+        "description": "The other hand's share of a long draw. A blade longer than the drawing\narm's reach along the line leaves its scabbard only when the other hand\nturns the scabbard at its throat and the hips turn away from the\ndrawing side, so the blade leaves across the body.\nThe carrier rides the other hand from its throat and turns about where\nit hangs, its line tipping toward the drawing shoulder by the least angle\nthat brings the drawn hand within the arm's reach, so the blade leaves up\nand across the body along the turning line; it is worn again on the bone\nit hung from where the draw leaves it."
       },
       "IAutoMovieMotionHumanBowViolinParams": {
         "type": "object",
