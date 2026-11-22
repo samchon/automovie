@@ -691,7 +691,7 @@ function unswivelled(
     axis: "region",
     value: Math.max(0, blocked.value),
     feasible: null,
-    reason: `no swivel of the ${side} arm keeps the hand on its site in its asked attitude with the arm clear at ${c.times[k]!.toFixed(3)} s: ${blocked.what}`,
+    reason: `no swivel of the ${side} arm keeps the hand on its site in its asked attitude with the arm clear at ${c.times[k]!.toFixed(3)} s; the course's arm there: ${blocked.what}`,
     fix: "put the hand on a site its arm reaches with the body clear",
   });
 }

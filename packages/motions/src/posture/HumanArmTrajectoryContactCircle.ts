@@ -26,6 +26,8 @@ import { HumanArmTrajectoryTravel } from "./HumanArmTrajectoryTravel";
  * Search outwards from the preceding shoulder orientation on both arcs and
  * read the actual rig and clearance at each candidate. Two additional circles
  * retain the incoming or authored hand attitude through native distal twist.
+ * A candidate's contact is on its site within the region's disc and the
+ * model's tolerance, the trajectory admission's own test.
  *
  * @param c Original action geometry and physical bounds.
  * @param a Arm index in course order.
@@ -78,11 +80,16 @@ export function HumanArmTrajectoryContactCircle(
   const range: IAutoMovieHingedChainGeometry["range"] = low === null || high === null ? undefined
     : { min: Math.min(low, high) * rad, max: Math.max(low, high) * rad };
   const wanted: IAutoMovieQuaternion = G.shoulder(setup, reference);
+  // The contact is on its site within the region's disc and the model's own
+  // tolerance, metres: what the trajectory's admission accepts (a site
+  // missed only past `M.TOLERANCE` beyond its disc), so a zero disc is not
+  // asked to hold to the rounding of the fit.
+  const reach: number = site.disc + M.TOLERANCE / 1000;
   const branches: IBranch[] = [];
   const add = (offset: IAutoMovieVector3, point: IAutoMovieVector3, hand?: IAutoMovieQuaternion): void => {
     const target: IAutoMovieHingedArmSwivel.IPreparedTarget = hingedArmSwivel.prepare({ ...geometry, endOffset: offset }).target(point, range);
     for (const stop of target.branches() ?? []) {
-      if (stop.shortfall > site.disc) continue;
+      if (stop.shortfall > reach) continue;
       const turn: IAutoMovieHingedArmSwivel.IHarmonic | undefined = target.harmonic?.(stop.theta);
       if (turn === undefined) continue;
       branches.push({
@@ -103,7 +110,7 @@ export function HumanArmTrajectoryContactCircle(
       HumanArmTrajectoryDistal(setup, G.chain(setup, frame, q).upper, branch.hand, q);
     const chain: ReturnType<typeof G.chain> = G.chain(setup, frame, q);
     const palm: IAutoMovieVector3 = P.pad(chain, site.contact);
-    if (Vector3.distance(palm, site.point) > site.disc) return undefined;
+    if (Vector3.distance(palm, site.point) > reach) return undefined;
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = placeHumanArmGeometry(setup, frame, chain, true);
     for (const pair of P.deepest(c, a, k, placed, P.CUT).values())
       if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
