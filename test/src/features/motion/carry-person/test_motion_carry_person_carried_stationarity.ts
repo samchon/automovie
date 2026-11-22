@@ -8,15 +8,15 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBase,
+  AutoMovieMotionHumanSupport,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSupportCarry,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /**
  * A locally held posture travels with a translating bench. The whole-body
@@ -30,7 +30,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#distinguishing-cases The locally identical base can certify a stationary ground branch, but cannot certify the bench or the whole rider in world coordinates. Late-first, earlier and repeated pose reads expose representative-second substitution.
  * @evidence contracts/development/testing.md#execution-ownership A discovered motions test using a canonical Human body, a bench and a registered law, without a host or rendering dependency.
  */
-export function test_motion_dynamics_carried_stationarity(): void {
+export function test_motion_carry_person_carried_stationarity(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const frame = (seconds: number): IAutoMovieRigidTransform => ({
     position: { x: 4 + 0.2 * seconds, y: 0, z: 0 },
@@ -57,8 +57,8 @@ export function test_motion_dynamics_carried_stationarity(): void {
         }),
         legsStill: [0, 1],
       };
-      ground = HumanSupportCarry.plan(context, local, ["leftArm"]);
-      carried = HumanSupportCarry.plan(
+      ground = AutoMovieMotionHumanSupport.carry.plan(context, local, ["leftArm"]);
+      carried = AutoMovieMotionHumanSupport.carry.plan(
         {
           ...context,
           entry: {
@@ -75,7 +75,7 @@ export function test_motion_dynamics_carried_stationarity(): void {
         local,
         ["leftArm"],
       );
-      return HumanSupportCarry.on(context, local, "bench");
+      return AutoMovieMotionHumanSupport.carry.on(context, local, "bench");
     },
   };
   const performance: HumanPerformance = new HumanPerformance({

@@ -8,8 +8,8 @@ import {
 import { Quaternion, Vector3 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { animalLocomotionFixture as fixture } from "../internal/animalLocomotionFixture";
-import { qclose, vclose } from "../internal/predicates";
+import { animalLocomotionFixture as fixture } from "../../internal/animalLocomotionFixture";
+import { qclose, vclose } from "../../internal/predicates";
 
 /**
  * The moving head carries its equipment socket and sampling a prepared ride owns its returned transforms.
@@ -24,7 +24,7 @@ import { qclose, vclose } from "../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership Samples a prepared analytic ride.
  * @evidence contracts/development/common.md#meaningful-documentation Identifies socket transport and sample ownership.
  */
-export function test_archetype_motion_carried_socket(): void {
+export function test_motion_carry_person_carried_socket(): void {
   const animal = createCamel(
     {
       ...createCamel.REFERENCE,

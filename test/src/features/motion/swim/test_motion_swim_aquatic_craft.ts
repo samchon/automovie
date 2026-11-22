@@ -11,15 +11,15 @@ import type {
 import {
   AutoMovieMotionHumanSwim,
   HumanChain,
-  HumanFrame,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
+import { vclose } from "../../internal/vclose";
 
 /**
  * Stroke and cross-deck motions have geometry in a time-varying hull frame.
@@ -36,7 +36,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases The sculler must move inside the frame, and tacking and aborting differ under rotatable support. Sliding hardware, oar locks and sail geometry have no oracle in the proxy hulls.
  * @evidence contracts/development/testing.md#execution-ownership Runs in-memory course and body pose reads through the public composition path.
  */
-export function test_motion_exercise_aquatic_craft(): void {
+export function test_motion_swim_aquatic_craft(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const boat: ReturnType<typeof createBoat> = createBoat({
     kind: "rowboat",

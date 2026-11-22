@@ -4,7 +4,11 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformer,
 } from "@automovie/interface";
-import { HumanChain, HumanCoupled, HumanPerformance } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanCarryPerson,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 
 /**
  * The instant a throw's thrower has closed its grips: the `ready` of its
@@ -32,7 +36,8 @@ export function motionThrowGrip(
   start: number,
   seconds: number,
 ): number {
-  const act: IAutoMovieMotionHumanMutual.IAct = HumanCoupled.throwing.act(
+  const act: IAutoMovieMotionHumanMutual.IAct =
+    AutoMovieMotionHumanCarryPerson.HumanCoupled.throwing.act(
     "thrower",
     { kind, outcome },
     { thrower: "a", thrown: "b" },

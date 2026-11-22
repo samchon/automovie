@@ -18,19 +18,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBathing,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  composeHumanBathing,
   touchEffectors,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The touch contract's contact bound, metres. */
 const TOUCH: number = 0.01;
@@ -63,7 +63,7 @@ const MAT: number = 0.25;
  * @evidence contracts/development/testing.md#distinguishing-cases The tub entry and the shower wash on two bodies.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory performance through the public chain.
  */
-export function test_human_motion_bathing(): void {
+export function test_motion_bathing_basic(): void {
   for (const fit of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
     const tub: AutoMovieArchetype<
@@ -96,13 +96,12 @@ export function test_human_motion_bathing(): void {
     const bath: HumanPerformance = stage(
       body,
       [placed],
-      composeHumanBathing.intoTub(
-        HumanChain.subject("a"),
-        "tub",
-        "bottom",
-        sitAt,
+      AutoMovieMotionHumanBathing.intoTub(HumanChain.subject("a"), {
+        tub: "tub",
+        floor: "bottom",
+        at: sitAt,
         face,
-      ),
+      }),
     );
     assertTakeClean(`${fit} into the tub`, bath);
     const over: IAutoMovieMotionHumanSegment = bath.segments("a")[0]!;
@@ -159,9 +158,9 @@ export function test_human_motion_bathing(): void {
     const out: HumanPerformance = stage(
       body,
       [placed, outside],
-      composeHumanBathing.outOfTub(HumanChain.subject("a"), "tub", {
-        prop: "mat",
-        point: "surface",
+      AutoMovieMotionHumanBathing.outOfTub(HumanChain.subject("a"), {
+        tub: "tub",
+        onto: { prop: "mat", point: "surface" },
       }),
       // The middle of the well: the tub stands turned, its local +Z toward the bather.
       { x: 0, y: floor, z: at.z - tub.site("bottom").translation.z },
@@ -193,10 +192,8 @@ export function test_human_motion_bathing(): void {
           fixed: true,
         }),
       ],
-      composeHumanBathing.shower(HumanChain.subject("a"), {
-        kind: "prop",
-        subject: "tap",
-        point: "lever",
+      AutoMovieMotionHumanBathing.shower(HumanChain.subject("a"), {
+        tap: { kind: "prop", subject: "tap", point: "lever" },
       }),
     );
     assertTakeClean(`${fit} shower`, shower);

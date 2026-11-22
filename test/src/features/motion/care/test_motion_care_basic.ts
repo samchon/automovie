@@ -13,17 +13,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanCare,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  composeHumanCare,
   touchEffectors,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The touch contract's contact bound, metres. */
 const TOUCH: number = 0.01;
@@ -74,7 +74,7 @@ const KNEE: number = 0.05;
  * @evidence contracts/development/testing.md#distinguishing-cases Both body pairs, all three acts and the reach refusal.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory two-performer performance through the public chain.
  */
-export function test_human_motion_care(): void {
+export function test_motion_care_basic(): void {
   for (const [carer, patient] of [
     ["m-average", "f-small"],
     ["f-small", "m-average"],
@@ -90,16 +90,16 @@ export function test_human_motion_care(): void {
         chain: IAutoMovieMotionHumanChain,
         knee: IAutoMovieMotionTarget,
       ): IAutoMovieMotionHumanChain =>
-        composeHumanCare.compressions(
-          composeHumanCare.kneelBeside(chain, knee),
-          "b",
+        AutoMovieMotionHumanCare.compressions(
+          AutoMovieMotionHumanCare.kneelBeside(chain, { at: knee }),
+          { partner: "b" },
         ),
     );
     assertTakeClean(`${label}: compressions`, cpr);
     const press: IAutoMovieMotionHumanSegment = named(cpr, "touch");
     const from: number = event(press, "strokeStart");
     const to: number = event(press, "strokeEnd");
-    const rate: number = (composeHumanCare.COMPRESSIONS / (to - from)) * 60;
+    const rate: number = (AutoMovieMotionHumanCare.COMPRESSIONS / (to - from)) * 60;
     TestValidator.predicate(
       `${label}: 30 compressions at ${rate.toFixed(1)} a minute`,
       rate >= RATE[0] && rate <= RATE[1],
@@ -136,10 +136,9 @@ export function test_human_motion_care(): void {
         chain: IAutoMovieMotionHumanChain,
         knee: IAutoMovieMotionTarget,
       ): IAutoMovieMotionHumanChain =>
-        composeHumanCare.pulse(
-          composeHumanCare.kneelBeside(chain, knee),
-          "b",
-          "carotid",
+        AutoMovieMotionHumanCare.pulse(
+          AutoMovieMotionHumanCare.kneelBeside(chain, { at: knee }),
+          { partner: "b", site: "carotid" },
         ),
     );
     assertTakeClean(`${label}: pulse`, check);
@@ -147,7 +146,7 @@ export function test_human_motion_care(): void {
     const felt: number = event(feel, "relax") - event(feel, "ready");
     TestValidator.predicate(
       `${label}: the pulse is felt for 10 s at the neck`,
-      felt >= composeHumanCare.PULSE_HOLD - 1e-6 &&
+      felt >= AutoMovieMotionHumanCare.PULSE_HOLD - 1e-6 &&
         [0, 0.5, 1].every(
           (share: number): boolean =>
             gap(
@@ -170,11 +169,9 @@ export function test_human_motion_care(): void {
         chain: IAutoMovieMotionHumanChain,
         knee: IAutoMovieMotionTarget,
       ): IAutoMovieMotionHumanChain =>
-        composeHumanCare.pressWound(
-          composeHumanCare.kneelBeside(chain, knee),
-          "b",
-          "thighFrontLeft",
-          2,
+        AutoMovieMotionHumanCare.pressWound(
+          AutoMovieMotionHumanCare.kneelBeside(chain, { at: knee }),
+          { partner: "b", region: "thighFrontLeft", hold: 2 },
         ),
     );
     assertTakeClean(`${label}: wound`, wound);
@@ -207,9 +204,9 @@ export function test_human_motion_care(): void {
               chain: IAutoMovieMotionHumanChain,
               knee: IAutoMovieMotionTarget,
             ): IAutoMovieMotionHumanChain =>
-              composeHumanCare.compressions(
-                composeHumanCare.kneelBeside(chain, knee),
-                "b",
+              AutoMovieMotionHumanCare.compressions(
+                AutoMovieMotionHumanCare.kneelBeside(chain, { at: knee }),
+                { partner: "b" },
               ),
           ).bones("a", 3);
           return false;

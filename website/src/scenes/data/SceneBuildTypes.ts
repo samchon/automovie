@@ -5,8 +5,7 @@ import type {
   IAutoMovieMotionObstacleAperture,
 } from "@automovie/interface";
 import type {
-  HumanAssistedTransfer,
-  HumanCoupled,
+  AutoMovieMotionHumanCarryPerson,
   HumanSocial,
   shoulderClasp,
 } from "@automovie/motions";
@@ -173,9 +172,11 @@ export namespace SceneBuildTypes {
     | "toast"
     | "toastOfFour"
   > &
-    Pick<typeof HumanCoupled, "grappling"> & {
+    Pick<typeof AutoMovieMotionHumanCarryPerson.HumanCoupled, "grappling"> & {
       shoulderClasp: typeof shoulderClasp;
-      assistedTransfer: NonNullable<(typeof HumanAssistedTransfer)["mutual"]>;
+      assistedTransfer: NonNullable<
+        (typeof AutoMovieMotionHumanCarryPerson.HumanAssistedTransfer)["mutual"]
+      >;
     };
 
   /** Mutual actions supplied by the installed records used in scene data. */

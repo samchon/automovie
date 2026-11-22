@@ -27,9 +27,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { qclose } from "../internal/qclose";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { qclose } from "../../internal/qclose";
+import { vclose } from "../../internal/vclose";
 
 interface IHeldLip {
   point: IAutoMovieVector3;
@@ -76,7 +76,7 @@ interface IHeldReading {
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and one archetype and builds short performances in memory; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, how it is read and the 4 scenarios with their bound.
  */
-export function test_motion_contact_carried_frame(): void {
+export function test_motion_carry_person_carried_frame(): void {
   const complaints: string[] = [];
   const archetype = createDrinkware({ kind: "glass" });
   for (const name of ["m-average", "f-small"] as const) {

@@ -16,15 +16,17 @@ import type {
 import {
   HumanChain,
   HumanHand,
-  HumanLabour,
+  AutoMovieMotionHumanLabour,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { HumanLabour } = AutoMovieMotionHumanLabour;
 
 /** Where the crib stands, world metres. */
 const CRIB: IAutoMovieVector3 = { x: 0, y: 0, z: 0.6 };
@@ -57,7 +59,7 @@ const LYING: ReturnType<typeof Quaternion.fromAxisAngle> =
  * @evidence contracts/development/testing.md#distinguishing-cases Three holds, a reachable and an unreachable placement, two bodies.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances of generated bodies and archetypes.
  */
-export function test_motion_infant_care(): void {
+export function test_motion_care_infant_care(): void {
   for (const profile of ["m-average", "f-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
     care(body, profile);
@@ -91,8 +93,8 @@ function care(body: IAutoMovieMotionHumanBody, profile: string): void {
       composition: HumanChain.subject("carer")
         .stand({ hold: 0.3 })
         .pickUp({ prop: "infant", handle: "seat", hand: "right" })
-        .registered("cradleInfant", { prop: "infant", rock: ROCK, seconds: 3 })
-        .registered("burpInfant", { prop: "infant", seconds: 2 })
+        .registered("cradleInfant", { prop: "infant", rock: ROCK, hold: 3 })
+        .registered("burpInfant", { prop: "infant", hold: 2 })
         // The crib lies below the reach of the standing arm: bend to it.
         .bend({ target: { kind: "prop", subject: "crib", point: "surface" } })
         .until({ event: "deepest" })
@@ -220,7 +222,7 @@ function feed(body: IAutoMovieMotionHumanBody, profile: string): void {
       .registered("feedInfant", {
         prop: "infant",
         bottle: "bottle",
-        seconds: 3,
+        hold: 3,
       }).node,
   });
   assertTakeClean(`${profile} infant feed`, film);

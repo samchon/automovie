@@ -11,9 +11,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanCarryPerson,
-  HumanCarriedCoupling,
-  HumanCarriedCouplingLoad,
-  HumanCarriedLean,
   HumanChain,
   HumanPerformance,
   HumanPhysics,
@@ -68,7 +65,7 @@ export function motionCoupledCarry(
   const film: IAutoMovieMotionHumanPerformance = profileHumanMotion(
     `${walking ? "coupled-walk" : "coupled-stand"}/${carry}/${names[0]}/${names[1]}`,
     (): IAutoMovieMotionHumanPerformance => {
-      coupling ??= HumanCarriedCoupling.couple(
+      coupling ??= AutoMovieMotionHumanCarryPerson.HumanCarriedCoupling.couple(
         bodies.a,
         bodies.b,
         AutoMovieMotionHumanCarryPerson.carryPerson.CARRIES[carry],
@@ -97,7 +94,7 @@ export function motionCoupledCarry(
             (overlay: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
               overlay.registered("bearing", {
                 carry,
-                seconds: 2,
+                hold: 2,
                 of: "b",
                 ...(extra.mass === undefined ? {} : { mass: extra.mass }),
               }),
@@ -105,15 +102,18 @@ export function motionCoupledCarry(
           .with(
             HumanChain.subject("b")
               .stand({ hold: 0.3 })
-              .registered("borne", { by: "a", carry, seconds: 2, ...extra }),
+              .registered("borne", { partner: "a", carry, hold: 2, ...extra }),
           ).node,
 
         // Schedule the pair's lean over the bearer's own trunk action.
         layers: {
           a: [
             {
-              layer: HumanCarriedLean.coupled(
-                HumanCarriedCouplingLoad.lean(bodies.a, coupling),
+              layer: AutoMovieMotionHumanCarryPerson.HumanCarriedLean.coupled(
+                AutoMovieMotionHumanCarryPerson.HumanCarriedCouplingLoad.lean(
+                  bodies.a,
+                  coupling,
+                ),
               ),
               from: 0.3,
               fade: AutoMovieMotionHumanCarryPerson.carryPerson.TAKE,

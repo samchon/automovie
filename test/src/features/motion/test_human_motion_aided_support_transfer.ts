@@ -26,8 +26,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanCarryPerson,
   AutoMovieMotionHumanGait,
-  HumanAssistedTransfer,
   HumanChain,
   HumanFoot,
   HumanObject,
@@ -352,9 +352,9 @@ function transfer(
       HumanObject.prop("chair", chair, chairAt),
       HumanObject.prop("bed", bed, bedAt),
     ],
-    laws: [HumanAssistedTransfer],
+    laws: [AutoMovieMotionHumanCarryPerson.HumanAssistedTransfer],
     composition: HumanChain.mutual(
-      HumanAssistedTransfer.mutual,
+      AutoMovieMotionHumanCarryPerson.HumanAssistedTransfer.mutual,
       {
         helper: HumanChain.subject("helper").stand({ hold: 0.25 }),
         helped: HumanChain.subject("recipient").sit({

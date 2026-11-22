@@ -12,11 +12,11 @@ import {
   AutoMovieMotionHumanTarget,
   HumanHand,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A fitted arm carries its palm to the same shoulder-relative landmark after the carrier translates and turns.
@@ -31,7 +31,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Runs the named public operation in memory and samples its observable outputs.
  * @evidence contracts/development/common.md#meaningful-documentation States the phase, coordinate frame and quantitative basis of the check.
  */
-export function test_motion_contact_primitive_arm_carry_carried(): void {
+export function test_motion_carry_person_primitive_arm_carry_carried(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   for (const yaw of [0, 90] as const) {
     const placement: IAutoMovieVector3 =

@@ -15,17 +15,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSleep,
   HumanChain,
   HumanColliders,
   HumanPerformance,
   HumanRefusal,
-  pullCover,
 } from "@automovie/motions";
 
-import { checkTakeClean } from "../internal/checkTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { softPanel } from "../internal/softPanel";
+import { checkTakeClean } from "../../internal/checkTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { softPanel } from "../../internal/softPanel";
 
 /** How far above the skin a gripping hand's socket rides, metres: the closed fist's half depth over a blanket's thickness, the law's own premise for where the hands go. */
 const OVER: number = 0.05;
@@ -67,7 +67,7 @@ const HOLD: number = 0.5;
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, the pull and the push, and the refused standing pull; lying down and the bed are their own specs'.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain with a soft prop.
  */
-export function test_human_motion_pull_cover(): void {
+export function test_motion_sleep_pull_cover(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const fit of ["m-average", "f-small"] as const)
     try {
@@ -106,7 +106,8 @@ function verify(checks: motionComplaints.IGatherer, fit: Fit): void {
     const [pull, push]: IAutoMovieMotionHumanSegment[] = film
       .segments("a")
       .filter(
-        (s: IAutoMovieMotionHumanSegment): boolean => s.name === pullCover.name,
+        (s: IAutoMovieMotionHumanSegment): boolean =>
+          s.name === AutoMovieMotionHumanSleep.pullCover.name,
       );
     const end = (segment: IAutoMovieMotionHumanSegment): number =>
       segment.start +
@@ -278,9 +279,12 @@ function bed(
     seed: "pull cover",
     performers: [performer],
     props: [cover],
-    laws: [pullCover],
+    laws: [AutoMovieMotionHumanSleep.pullCover],
     composition: start
-      .registered(pullCover.name, { prop: "cover" })
-      .registered(pullCover.name, { prop: "cover", off: true }).node,
+      .registered(AutoMovieMotionHumanSleep.pullCover.name, { prop: "cover" })
+      .registered(AutoMovieMotionHumanSleep.pullCover.name, {
+        prop: "cover",
+        off: true,
+      }).node,
   });
 }

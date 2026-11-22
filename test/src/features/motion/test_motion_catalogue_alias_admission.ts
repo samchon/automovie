@@ -4,7 +4,11 @@ import type {
   IAutoMovieMotionHumanWorkoutGym,
   IAutoMovieMotionHumanWorkoutKind,
 } from "@automovie/interface";
-import { HUMAN_LEXICON, HumanCoupled, WorkoutGym } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanCarryPerson,
+  AutoMovieMotionHumanWorkout,
+  HUMAN_LEXICON,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -132,7 +136,7 @@ type Binding = readonly [string, string, string, object];
 
 /** Check both helpers and the supported actor before a performance binds their bodies. */
 function checkSupportRoles(): void {
-  const law = HumanCoupled.supportWalk;
+  const law = AutoMovieMotionHumanCarryPerson.HumanCoupled.supportWalk;
   const cast = {
     helper: "left escort",
     second: "right escort",
@@ -190,7 +194,9 @@ function checkWorkoutRoutes(): void {
     );
     for (const performer of ["m-average", "f-small"] as const) {
       const steps: readonly IAutoMovieMotionHumanWorkoutKind.IStep[] =
-        WorkoutGym.KINDS[name].route(motionHumanBody(performer));
+        AutoMovieMotionHumanWorkout.WorkoutGym.KINDS[name].route(
+          motionHumanBody(performer),
+        );
       TestValidator.equals(name + " has two postures", steps.length, 2);
       const initial: number | undefined = steps[0]!.key.joints[joint]?.[axis];
       const final: number | undefined = steps[1]!.key.joints[joint]?.[axis];

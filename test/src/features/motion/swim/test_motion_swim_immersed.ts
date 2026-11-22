@@ -16,17 +16,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   poseBones,
-  swimImmersed,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
 
 /**
  * Passive immersion and one keyed stroke through the typed chain and displayed pose route.
@@ -49,7 +49,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Still and moving cases use the same supported medium. The insufficient medium cannot satisfy force balance, and the stroke is compared at two authored durations.
  * @evidence contracts/development/testing.md#execution-ownership Uses one canonical body and a small fixed set of display reads, with no viewer or solver process.
  */
-export function test_human_motion_swim_immersed(): void {
+export function test_motion_swim_immersed(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const model: IAutoMovieResolveCenterOfMass.IModel =
     resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
@@ -64,8 +64,10 @@ export function test_human_motion_swim_immersed(): void {
   const surface: number = 0;
   const seconds: number = 0.4;
   const Chain: IAutoMovieMotionHumanChain.IExtension<{
-    swimImmersed: typeof swimImmersed;
-  }> = HumanChain.extend({ swimImmersed });
+    swimImmersed: typeof AutoMovieMotionHumanSwim.swimImmersed;
+  }> = HumanChain.extend({
+    swimImmersed: AutoMovieMotionHumanSwim.swimImmersed,
+  });
 
   /** Place the same swimmer in each declared medium. */
   const stage = (
@@ -83,7 +85,7 @@ export function test_human_motion_swim_immersed(): void {
           proficiency: { level: "trained" },
         },
       ],
-      laws: [swimImmersed],
+      laws: [AutoMovieMotionHumanSwim.swimImmersed],
       composition: Chain.subject("swimmer").swimImmersed(input).node,
     });
 

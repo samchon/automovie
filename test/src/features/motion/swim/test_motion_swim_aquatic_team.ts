@@ -19,9 +19,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
-import { nclose } from "../internal/nclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
+import { nclose } from "../../internal/nclose";
 
 /**
  * A defended polo shot and an artistic figure exercise different support patterns.
@@ -40,7 +40,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers the two-handed goalkeeper, the attacker's release, the artistic figure and invalid flyer's bases. A full team lift and keeper interception need additional checks.
  * @evidence contracts/development/testing.md#execution-ownership Runs only in-memory public pose and prop sampling; no viewer or foreign motion implementation.
  */
-export function test_motion_exercise_aquatic_team(): void {
+export function test_motion_swim_aquatic_team(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const water: number = 0;
   const metres: number = 0.01;

@@ -16,10 +16,10 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
-import { nclose } from "../internal/nclose";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
 
 /**
  * A race in a bounded lane and a dive from a raised deck reach the declared surfaces.
@@ -39,7 +39,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases The same lane hosts both kinds. The high deck provides a separate flight. The wall and dive cases distinguish a valid support from an invalid placement.
  * @evidence contracts/development/testing.md#execution-ownership Runs in-memory public performance and FK at selected event times without a viewer or a rendered surface proxy.
  */
-export function test_motion_exercise_aquatic_pool(): void {
+export function test_motion_swim_aquatic_pool(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const block: ReturnType<typeof createPoolEdge> = createPoolEdge(
     { kind: "startingPlatform" },

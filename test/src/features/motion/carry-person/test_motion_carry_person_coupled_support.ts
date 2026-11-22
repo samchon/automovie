@@ -16,13 +16,12 @@ import type {
 import {
   AutoMovieMotionHumanCarryPerson,
   HumanChain,
-  HumanCoupled,
   HumanPerformance,
   HumanSignature,
 } from "@automovie/motions";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** A pair's helper and helped actor ids. */
 type HelpSubject = "a" | "b";
@@ -71,7 +70,7 @@ interface IHelperPlace {
  * @evidence contracts/development/testing.md#execution-ownership The discoverable in-memory test prepares polygon men and stages the helper from one lying pose. Each left-grip sample reads each body's displayed placement once and uses its palm bone. No viewer or external host runs.
  * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios, world contact and local slip in metres, and the order of support transfer.
  */
-export function test_motion_posture_coupled_support(): void {
+export function test_motion_carry_person_coupled_support(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   type Name = "m-large" | "f-small" | "m-average";
   const HELP_UPS: readonly (readonly [Name, Name, "left"?])[] = [
@@ -102,7 +101,7 @@ export function test_motion_posture_coupled_support(): void {
           proficiency: { level: "trained" as const },
         })),
         composition: HumanChain.mutual(
-          HumanCoupled.helpUp,
+          AutoMovieMotionHumanCarryPerson.HumanCoupled.helpUp,
           {
             helper: HumanChain.subject("a").stand({ hold: START }),
             helped: HumanChain.subject("b").lieDown(),
@@ -220,9 +219,9 @@ export function test_motion_posture_coupled_support(): void {
       .stand({ hold: 3 })
       .with(
         HumanChain.subject("b").registered("borne", {
-          by: "a",
+          partner: "a",
           carry: "piggyback",
-          seconds: 3,
+          hold: 3,
           lift: 0.5,
           setDown: 0.5,
         }),
