@@ -8,12 +8,10 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFirefight,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropDrive,
   IAutoMovieMotionPropHold,
   IAutoMovieQuaternion,
@@ -28,12 +26,10 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { heldDigits } from "../handling/heldDigits";
 import { workHeldPush } from "../handling/workHeldPush";
-import { writeWith } from "../handling/writeWith";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { hoseBackup } from "./hoseBackup";
 import { rotationBetween } from "./rotationBetween";
 
 /**
@@ -42,12 +38,6 @@ import { rotationBetween } from "./rotationBetween";
  * The flow and pressure are a common hand line's, provisional for a scene.
  */
 const REACTION: number = 0.0505 * 150 * Math.sqrt(100) * 4.448;
-
-/** The film rate the backup reads the line's grip at, frames per second. */
-const FRAME: number = 24;
-
-/** Both hands. */
-const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /** Gravity, metres per second squared. */
 const G: number = 9.81;
@@ -73,8 +63,9 @@ const SET: number = 0.6;
  * (`workHeldPush`), while the holding wrist turns the stream's `tip` onto
  * the target and sweeps it side to side, as `extinguish` sweeps its horn.
  * The backup member, behind, grips the line at their `grip` with both
- * hands without carrying it: the hands follow that grip where the
- * operator's hold puts the line at each second. The line bends at the
+ * hands without carrying it, each a power grip from above sharing the
+ * grip's length, the hand reaching across the body ahead: the hands follow
+ * that grip where the operator's hold puts the line at each second. The line bends at the
  * operator's hold (its `flex`) against the sweep, so the run behind the
  * nozzle stays put and the backup's grip barely moves. Both members lean into the
  * reaction: the stream pushes the line back with `REACTION` newtons, which
@@ -142,7 +133,7 @@ function plan(
   };
   return p.role === "nozzle"
     ? nozzle(context, p, clock, base, sweeps)
-    : backup(context, p, clock, base);
+    : hoseBackup(context, p, clock, base);
 }
 
 /** The operator: the bail open by the free hand, the stream swept by the holding wrist. */
@@ -345,145 +336,5 @@ function nozzle(
     ],
     holds: [...(composed.holds ?? []), { ...kept, from: 1 }],
     drives,
-  };
-}
-
-/** The backup: both hands on the line's grip without carrying it. */
-function backup(
-  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IHoseLine>,
-  p: IAutoMovieMotionHumanFirefight.IHoseLine,
-  clock: IAutoMovieMotionClock,
-  base: IAutoMovieMotionHumanActionPlan,
-): IAutoMovieMotionHumanActionPlan {
-  const sites: readonly IAutoMovieAffordance[] =
-    context.prop(p.prop).prop.affordances ?? [];
-  const grip: IAutoMovieAffordance | undefined = sites.find(
-    (a: IAutoMovieAffordance): boolean => a.id === p.grip,
-  );
-  if (grip === undefined)
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "grip",
-      value: p.grip,
-      feasible: null,
-      reason: `${p.prop} declares no grip called ${p.grip}`,
-      fix: "name the line's grip for this member",
-    });
-  const ready: number = clock.at("strokeStart");
-  const done: number = clock.at("strokeEnd");
-  // Where the line's grip is at a second of this action, as its carrier
-  // holds it: read once per film frame and interpolated between, since each
-  // read resolves the carrier's pose.
-  const sampled: Map<number, IAutoMovieVector3> = new Map();
-  const frameAt: (k: number) => IAutoMovieVector3 = (
-    k: number,
-  ): IAutoMovieVector3 => {
-    let found: IAutoMovieVector3 | undefined = sampled.get(k);
-    if (found === undefined) {
-      const at: number = context.start + Math.min(clock.duration, k / FRAME);
-      const reader: IAutoMovieMotionHumanPropReader = context.prop(p.prop);
-      const frame: IAutoMovieRigidTransform = reader.frame(at);
-      // The grip where the line's bends put it: through each joint it rides,
-      // the nearest first.
-      const state: Readonly<Record<string, number>> = reader.state?.(at) ?? {};
-      let local: IAutoMovieVector3 = grip.frame.translation;
-      let rides: string | undefined = grip.rides;
-      while (rides !== undefined) {
-        const joint: IAutoMovieAffordance = sites.find(
-          (a: IAutoMovieAffordance): boolean => a.id === rides,
-        )!;
-        local = heldDigits.posed(
-          joint,
-          { ...grip, frame: { ...grip.frame, translation: local } },
-          state[joint.id] ?? 0,
-        );
-        rides = joint.rides;
-      }
-      found = Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, local),
-      );
-      sampled.set(k, found);
-    }
-    return found;
-  };
-  const at: (seconds: number) => IAutoMovieVector3 = (
-    seconds: number,
-  ): IAutoMovieVector3 => {
-    const s: number = Math.min(clock.duration, Math.max(0, seconds)) * FRAME;
-    const k: number = Math.floor(s);
-    return Vector3.lerp(frameAt(k), frameAt(k + 1), s - k);
-  };
-  const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    poseBones(context.body, context.entry.pose);
-  const arms: IAutoMovieMotionHumanPrimitive[] = SIDES.map(
-    (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => {
-      const turn: IAutoMovieQuaternion = bones.get(
-        `${side}Hand`,
-      )!.worldRotation;
-      const offset: IAutoMovieVector3 = HumanHand.offset(
-        context.body,
-        side,
-        "grip",
-      ).point;
-      // The two hands a hand's width apart along the line.
-      const along: number = side === "left" ? 0.06 : -0.06;
-      writeWith.reach(
-        context,
-        side,
-        [Vector3.add(at(ready), { x: 0, y: 0, z: along })],
-        Quaternion.rotateVector(turn, offset),
-      );
-      return AutoMovieMotionHumanArm.carried({
-        body: context.body,
-        side,
-        from: 0,
-        to: clock.duration,
-        span: { start: 0, ready, relax: done, end: clock.duration },
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-        disc: 0,
-        weight: (seconds: number): number =>
-          clock.envelope(["start", "ready"], ["relax", "end"], seconds),
-        goal: (
-          _posture: IAutoMovieMotionHumanPosture,
-          seconds: number,
-        ): IAutoMovieHumanLimbGoal => ({
-          point: Vector3.subtract(
-            Vector3.add(at(seconds), { x: 0, y: 0, z: along }),
-            Quaternion.rotateVector(turn, offset),
-          ),
-          rotation: turn,
-          contact: offset,
-          bend: AutoMovieMotionHumanBend.hang(
-            context.body,
-            context.entry.posture,
-            side,
-          ),
-        }),
-      });
-    },
-  );
-  const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      primitives: arms,
-      contact: "strokeStart",
-    });
-  return {
-    ...composed,
-    hands: ["left", "right"],
-    contacts: [
-      ...composed.contacts,
-      ...SIDES.map(
-        (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
-          part: side === "left" ? "leftHand" : "rightHand",
-          kind: "grip",
-          from: ready / clock.duration,
-          to: done / clock.duration,
-          support: { kind: "prop", subject: p.prop, carries: false },
-        }),
-      ),
-    ],
   };
 }
