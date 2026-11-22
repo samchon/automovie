@@ -1,6 +1,10 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanTipHat } from "../dressing/IAutoMovieMotionHumanTipHat";
+import type { IAutoMovieMotionHumanWardrobe } from "../dressing/IAutoMovieMotionHumanWardrobe";
+import type { IAutoMovieMotionHumanDrawFromCarrier } from "../handling/IAutoMovieMotionHumanDrawFromCarrier";
+import type { IAutoMovieMotionHumanSheath } from "../handling/IAutoMovieMotionHumanSheath";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
@@ -29,6 +33,83 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDress.dress is provided by the chain that implements IAutoMovieMotionHumanDress.
    */
   dress(params: IAutoMovieMotionHumanDress.IDress, anchor?: string): Chain;
+
+  /**
+   * Dressing oneself with a staged garment: carrying a held open-front jacket on, threading or clearing one sleeve, moving its zip, or putting footwear on or taking it off one raised foot while seated.
+   *
+   * @param params The `kind`, `prop` and the mode's own `hand`, `side` or `held` of `IAutoMovieMotionHumanWardrobe`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDress.wardrobe is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDress.wardrobe is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDress.wardrobe is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanDress.wardrobe is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDress.wardrobe is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDress.wardrobe is provided by the chain that implements IAutoMovieMotionHumanDress.
+   */
+  wardrobe(
+    params: IAutoMovieMotionHumanDress.IWardrobe,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * A one-handed greeting that lifts and reseats a hat already worn on the performer's head.
+   *
+   * @param params The `prop` and `hand` of `IAutoMovieMotionHumanTipHat`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDress.tipHat is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDress.tipHat is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDress.tipHat is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanDress.tipHat is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDress.tipHat is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDress.tipHat is provided by the chain that implements IAutoMovieMotionHumanDress.
+   */
+  tipHat(params: IAutoMovieMotionHumanDress.ITipHat, anchor?: string): Chain;
+
+  /**
+   * Drawing a blade out of the carrier it is staged seated in: the hand grips the blade's handle, then draws it out along the carrier's guide from the seat to the entry, where the hand holds it. With `pull`, the other hand first takes the carrier's throat, for a blade longer than the arm draws alone.
+   *
+   * @param params The `sheath`, `hand` and `pull` of `IAutoMovieMotionHumanDress.IDrawFromCarrier`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the grip and the draw appended; the grip's `gripClosed` marks closure, and the draw's `unseated` and `drawn` mark the start and the end of the withdrawal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDress.drawFromCarrier is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDress.drawFromCarrier is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDress.drawFromCarrier is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanDress.drawFromCarrier is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDress.drawFromCarrier is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDress.drawFromCarrier is provided by the chain that implements IAutoMovieMotionHumanDress.
+   */
+  drawFromCarrier(
+    params: IAutoMovieMotionHumanDress.IDrawFromCarrier,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * Returning the held blade through the carrier's entry to its seat: the hand carries the blade to the entry, the carrier's guide takes it straight to the seat at the same attitude, and the hand opens as the blade mounts on the seat.
+   *
+   * @param params The `sheath` and `hand` of `IAutoMovieMotionHumanDress.IPutDownAperture`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the return appended; its `aperture`, `placed` and `release` events mark the entry, the seat and the opened hand.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDress.putDownAperture is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDress.putDownAperture is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDress.putDownAperture is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanDress.putDownAperture is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDress.putDownAperture is provided by the chain that implements IAutoMovieMotionHumanDress.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDress.putDownAperture is provided by the chain that implements IAutoMovieMotionHumanDress.
+   */
+  putDownAperture(
+    params: IAutoMovieMotionHumanDress.IPutDownAperture,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -44,6 +125,63 @@ export namespace IAutoMovieMotionHumanDress {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `dress` takes the type its law reads.
    */
   export type IDress = IAutoMovieMotionHumanDress.IParams;
+
+  /**
+   * The parameters of `wardrobe`: the law's own `IAutoMovieMotionHumanWardrobe`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWardrobe` owns the type; the alias serves this family's `wardrobe` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `wardrobe` takes the type its law reads.
+   */
+  export type IWardrobe = IAutoMovieMotionHumanWardrobe;
+
+  /**
+   * The parameters of `tipHat`: the law's own `IAutoMovieMotionHumanTipHat`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTipHat` owns the type; the alias serves this family's `tipHat` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `tipHat` takes the type its law reads.
+   */
+  export type ITipHat = IAutoMovieMotionHumanTipHat;
+
+  /**
+   * The parameters of `drawFromCarrier`: the staged pair, the drawing hand and the other hand's pull.
+   *
+   * The pair is `HumanSheath.of`'s staged record, which names the blade, the carrier and the sockets the draw runs between.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member, its default and what the staged pair holds.
+   * @evidence contracts/development/design.md#principled-representation The staged record and the draw's own pull type, so the method reads the identities the staging derived and states none of its own.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, the ones `HumanSheath.draw` reads besides the chain and the anchor.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: every member is optional or required as `HumanSheath.draw` takes it.
+   */
+  export interface IDrawFromCarrier {
+    /** The staged blade and carrier, as `HumanSheath.of` returns them. */
+    sheath: IAutoMovieMotionHumanSheath.IStaged;
+
+    /** The drawing hand; `right` when absent. */
+    hand?: AutoMovieHumanSide;
+
+    /** The other hand's pull on a worn carrier, for a blade longer than the arm draws alone; the carrier holds still when absent. */
+    pull?: IAutoMovieMotionHumanDrawFromCarrier.IPull;
+  }
+
+  /**
+   * The parameters of `putDownAperture`: the staged pair and the holding hand.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member and its default.
+   * @evidence contracts/development/design.md#principled-representation The staged record names the entry, the seat and the guide, so the return states no frame of its own.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, the ones `HumanSheath.sheathe` reads besides the chain and the anchor.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the hand is optional as `HumanSheath.sheathe` takes it.
+   */
+  export interface IPutDownAperture {
+    /** The staged blade and carrier, as `HumanSheath.of` returns them. */
+    sheath: IAutoMovieMotionHumanSheath.IStaged;
+
+    /** The holding hand; `right` when absent. */
+    hand?: AutoMovieHumanSide;
+  }
 }
 
 /**
