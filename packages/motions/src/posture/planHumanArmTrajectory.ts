@@ -136,17 +136,22 @@ export function planHumanArmTrajectory(
         fix: "give the action more time",
       });
   }
-  // A laid course that misses a site or a task point at a hold instant
-  // missed it with the limb fit's own search at that instant, against the
-  // same clearance: the optimiser has no configuration there the fit did
-  // not, only a long solve to the same refusal. It is refused at once,
-  // naming what holds the hand off, so an infeasible hold never costs
-  // minutes.
+  // A laid course that misses a site or a task point at an instant of a
+  // prescribed hold (its attitude given, riding no other arm) missed it with
+  // the limb fit's own search at that instant, against the same clearance:
+  // the arm's one freedom there is the swivel, which that search reads
+  // whole, so the optimiser has no configuration there the fit did not,
+  // only a long solve to the same refusal. It is refused at once, naming
+  // what holds the hand off, so an infeasible hold never costs minutes. A
+  // hold whose attitude is soft, or whose site rides another arm, leaves
+  // the optimiser freedoms the fit did not search, and goes on to it.
   const missed: M.IEvaluation["worst"] | undefined =
     course !== undefined &&
     warm === undefined &&
-    (course.refused === "site" || course.refused === "limit")
-      ? course.read.evaluation?.worst
+    (course.refused === "site" || course.refused === "limit") &&
+    course.read.evaluation !== undefined &&
+    prescribed(fine, course.read.evaluation.worst.at)
+      ? course.read.evaluation.worst
       : undefined;
   if (missed !== undefined && missed.value > M.TOLERANCE)
     throw new HumanRefusal({
