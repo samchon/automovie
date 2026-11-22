@@ -7,6 +7,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanProp,
@@ -54,8 +55,8 @@ const BEHIND: IAutoMovieQuaternion = { x: 0, y: 1, z: 0, w: 0 };
  *    through a walk and a turn, the bowl staying on it.
  * 3. A porter's tray load on the head stays on the crown through a walk,
  *    no hand on it.
- * 4. A child rides the shoulders: seat on the nape, the carrier's hands on
- *    the shins, lifted and set down with one coupled support throughout.
+ * 4. A child rides the shoulders: seat on the yoke behind the neck, which
+ *    faces up, the carrier's hands on the shins, lifted and set down with one coupled support throughout.
  * 5. A bag changes hands without being set down, both hands holding only
  *    briefly. A load over the carriage band is refused.
  * Every take passes the shipped verdicts, which include prop and body
@@ -435,16 +436,36 @@ function shoulders(
   ]);
   const borne: IAutoMovieMotionHumanSegment = named(take, "borne", "rider")[0]!;
   const middle: number = (borne.start + borne.end) / 2;
+  // The yoke region, read on the carrier standing before the ride: it faces
+  // up and lies behind the neck.
+  const yoke: (t: number) => IYoke = (t: number): IYoke => {
+    const region: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions.yoke;
+    const bone: IAutoMovieResolvedBone = take
+      .bones("actor", t)
+      .get(region.bone)!;
+    return {
+      point: Vector3.add(
+        bone.worldPosition,
+        Quaternion.rotateVector(bone.worldRotation, region.point),
+      ),
+      normal: Quaternion.rotateVector(bone.worldRotation, region.normal),
+    };
+  };
+  const rest: IYoke = yoke(0.1);
+  checks.check(
+    `${label}: the carrier's yoke faces up and lies behind the neck`,
+    rest.normal.y > Math.SQRT1_2 &&
+      rest.point.z < take.bones("actor", 0.1).get("neck")!.worldPosition.z,
+  );
   const seat: IAutoMovieVector3 = take
     .bones("rider", middle)
     .get("hips")!.worldPosition;
-  const nape: IAutoMovieVector3 = take
-    .bones("actor", middle)
-    .get("neck")!.worldPosition;
+  const on: IAutoMovieVector3 = yoke(middle).point;
   checks.check(
-    `${label}: the child's seat is on the carrier's shoulders`,
-    Vector3.distance({ ...seat, y: 0 }, { ...nape, y: 0 }) <= 0.15 &&
-      seat.y > nape.y,
+    `${label}: the child's seat is on the carrier's yoke`,
+    Vector3.distance({ ...seat, y: 0 }, { ...on, y: 0 }) <= 0.15 &&
+      seat.y > on.y,
   );
   for (const side of ["left", "right"] as const) {
     const hand: IAutoMovieVector3 = take
@@ -515,6 +536,15 @@ function changeHands(
       heavy !== undefined,
     );
   }
+}
+
+/** A body region's world point and outward normal. */
+interface IYoke {
+  /** World metres. */
+  point: IAutoMovieVector3;
+
+  /** Outward unit normal. */
+  normal: IAutoMovieVector3;
 }
 
 /** One scenario of the spec. */
