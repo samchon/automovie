@@ -8,6 +8,7 @@ import {
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
+  IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -27,6 +28,9 @@ const FACE: equineBankStage.IFace = { grade: -0.6, run: 4 };
 const FRICTION: number = 0.5;
 
 /** A sole on its surface: the hoof bar's lowest surface within this of the plane, metres. */
+
+/** The least turn of a hoof bar over a read interval that marks it rolling over its toe rather than sliding, radians: authored, one degree. */
+const ROLL: number = Math.PI / 180;
 const SURFACE: number = 0.005;
 
 /** The contact tolerance of the seated rider specs, metres. */
@@ -57,11 +61,11 @@ const slide = (friction: number): EquineBank.ISlide => ({
  * A horse slides down a steep bank sat on its haunches, its hinds sliding on the face and its fores stepping, carrying its rider.
  *
  * Scenarios:
- * 1. Through the sat interval each hind sole stays on the face (its lowest surface within 5 mm of the plane) and moves down it, while a fore sole on its surface through a 0.1 s interval (at each of its fifths) moves no more than 5 mm: the slide is on the hinds only. Before the slide no hind sole on its surface through such an interval moves.
+ * 1. Through the sat interval each hind sole stays on the face (its lowest surface within 5 mm of the plane) and moves down it, while a fore sole on its surface through a 0.1 s interval (at each of its fifths) moves no more than 5 mm without turning by a degree (a hoof rolling over its toe turns): the slide is on the hinds only. Before the slide no hind sole on its surface through such an interval moves.
  * 2. Sat, each hind limb flexes at least 5 degrees more at the stifle and at the hock than when standing at the start, and the trunk pitches at least 10 degrees nose-up against the face, read from the emitted bars.
  * 3. The ride's placement stays continuous onto the level foot, with no jump between reads 20 ms apart across the slide's end.
  * 4. A face steeper than the technique's bound, a face its friction holds, a slide without a run-out at its foot and one without authored footing are refused on the leg's `equineFootwork`.
- * 6. No hoof standing on its surface lands within its pastern's length of the face's concave foot, where the face meets the level ground below: the pastern bar's lower end stays that far from the edge.
+ * 6. No hoof standing on its surface lands within its pastern's length of the face's concave foot, where the face meets the level ground below: the pastern bar's lower end stays that far from the edge, less the 10 mm contact tolerance by which the sole lies inside the bar's end.
  * 5. A mounted rider in the descent seat keeps the seat socket within 10 mm of the saddle and the trunk within 10 degrees of upright in space through the slide, and the take passes the shipped take verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
@@ -89,12 +93,32 @@ export function test_archetype_equine_bank_slide(): void {
   // 1. The hinds slide on the face; the fores do not.
   const step: number = 0.1;
   /** A hoof on its surface through a read interval, at each of its fifths, that moves more than a sole's tolerance: a slide, not a liftoff or a touchdown. */
-  const slides = (at: number, limb: QuadrupedBody.Limb): boolean =>
-    [0, 0.25, 0.5, 0.75, 1].every(
-      (share: number): boolean =>
-        Math.abs(read.sole(at + share * step, limb)) <= SURFACE,
-    ) &&
-    Vector3.distance(read.hoof(at, limb), read.hoof(at + step, limb)) > SURFACE;
+  const slides = (at: number, limb: QuadrupedBody.Limb): boolean => {
+    if (
+      ![0, 0.25, 0.5, 0.75, 1].every(
+        (share: number): boolean =>
+          Math.abs(read.sole(at + share * step, limb)) <= SURFACE,
+      )
+    )
+      return false;
+    // A hoof rolling over its toe at breakover turns while its sole stays down; a slide carries it without turning.
+    const turn = (when: number): IAutoMovieQuaternion =>
+      ArchetypeFrame.compose(
+        ride.at(when).placement,
+        read.part(when, QuadrupedBody.BONES[limb][3]).transform!,
+      ).rotation;
+    const a: IAutoMovieQuaternion = turn(at);
+    const b: IAutoMovieQuaternion = turn(at + step);
+    const rolled: number =
+      2 *
+      Math.acos(
+        Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w)),
+      );
+    return (
+      rolled < ROLL &&
+      Vector3.distance(read.hoof(at, limb), read.hoof(at + step, limb)) > SURFACE
+    );
+  };
   for (let at: number = sat; at + step <= rise; at += step)
     for (const limb of QuadrupedBody.LIMBS) {
       const here: number = read.sole(at, limb);
@@ -121,7 +145,7 @@ export function test_archetype_equine_bank_slide(): void {
       );
       const reach: number = Vector3.distance(top, bottom);
       const z: number = ArchetypeFrame.point(ride.at(at).placement, bottom).z;
-      if (Math.abs(z - foot) < reach - SURFACE)
+      if (Math.abs(z - foot) < reach - TOLERANCE)
         issues.push(
           `${limb} ${at.toFixed(2)}: stands ${Math.abs(z - foot)} m from the concave foot, within its ${reach} m pastern`,
         );
