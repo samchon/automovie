@@ -30,15 +30,17 @@ type Goals = Partial<Record<`${AutoMovieHumanSide}Arm`, IAutoMovieHumanLimbGoal>
  * Scenarios:
  * 1. A right wrist goal in front of the shoulder, within the arm's reach, is
  *    clear, and the answer writes the coursed right arm's angles.
- * 2. Both wrists in front of the chest a hand's breadth apart, the two arms
+ * 2. The same goal reached from the quiet stance's arm over half a second
+ *    and returned over another, as an action's course lays it, is clear.
+ * 3. Both wrists in front of the chest a hand's breadth apart, the two arms
  *    laid together and excused at their grasp, are clear.
- * 3. A right wrist goal at the chest's own joint, inside the trunk, is
+ * 4. A right wrist goal at the chest's own joint, inside the trunk, is
  *    refused with a `HumanRefusal`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the verdict's two answers and the three goals.
  * @evidence contracts/development/testing.md#behavioral-verification Calls fitClearArmPose on a quiet stance's posture with each goal and reads the verdict and the coursed posture.
  * @evidence contracts/development/testing.md#independent-expectations Each goal's place follows from the body's own measures: within reach in front of the shoulder, or at the chest joint inside the trunk.
- * @evidence contracts/development/testing.md#distinguishing-cases The same arm and stance are admitted in front of the body and refused inside it; one arm and two grasping arms are each fitted.
+ * @evidence contracts/development/testing.md#distinguishing-cases The same arm and stance are admitted in front of the body and refused inside it; one arm and two grasping arms are each fitted, held from the first instant and reached.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory solves of one polygon man.
  */
 export function test_motion_compose_fit_clear_arm_pose(): void {
@@ -86,6 +88,21 @@ export function test_motion_compose_fit_clear_arm_pose(): void {
   TestValidator.predicate(
     "a wrist in front of the shoulder within reach is clear, with the right arm coursed",
     single.clear && single.posture.joints.rightUpperArm !== undefined,
+  );
+
+  const reached: fitClearArmPose.Verdict = fitClearArmPose({
+    body,
+    posture: {
+      ...stance,
+      limbs: { ...stance.limbs, rightArm: goal("right", ahead) },
+    },
+    side: "right",
+    reach: { entry, seconds: 0.5, back: 0.5 },
+  });
+  if (!reached.clear) throw reached.refusal;
+  TestValidator.predicate(
+    "the same wrist reached from the quiet stance's arm over half a second and returned is clear",
+    reached.posture.joints.rightUpperArm !== undefined,
   );
 
   const middle: IAutoMovieVector3 = Vector3.scale(
