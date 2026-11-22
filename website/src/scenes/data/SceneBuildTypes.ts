@@ -45,7 +45,7 @@ export namespace SceneBuildTypes {
     sport: { HumanSittingVolley: "sittingVolley" };
     support: {
       HumanAidWalk: "aidWalk";
-      HumanAssistedTransfer: "assistedTransfer";
+      HumanAssistedTransfer: "assistedTransferBody";
     };
     sword: {
       cut: "swordCut";
