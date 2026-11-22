@@ -26,11 +26,11 @@ import { HumanUnseatPose } from "./HumanUnseatPose";
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLanceCouch>;
 
-/** The couch's hand station from the right hip joint in the seat frame, metres: the grip at the hip, the shaft under the arm (provisional). */
-const COUCH: Readonly<IAutoMovieVector3> = { x: -0.1, y: 0.2, z: 0.15 };
+/** The carry's hand station from the right hip joint in the seat frame, metres: the grip at the lance's balance beside and ahead of the hip, a forearm's drop below the shoulder (provisional). */
+const COUCH: Readonly<IAutoMovieVector3> = { x: -0.15, y: 0.3, z: 0.2 };
 
-/** The couched shaft's direction in the seat frame: level along the travel, the point a little up (provisional). */
-const LEVEL: Readonly<IAutoMovieVector3> = { x: 0, y: 0.05, z: 1 };
+/** The carried shaft's direction in the seat frame: along the travel, the point a little down and in, so the butt behind the grip rises clear of the horse's croup and passes outside the rider's arm (provisional). */
+const LEVEL: Readonly<IAutoMovieVector3> = { x: 0.05, y: -0.2, z: 1 };
 
 /** The lowered hand's station from the right shoulder in the seat frame, metres: the arm down, out and forward beside the horse's shoulder, about 0.6 m, nine tenths of an average arm's reach (provisional). */
 const LOWERED: Readonly<IAutoMovieVector3> = { x: -0.18, y: -0.5, z: 0.27 };
@@ -99,7 +99,8 @@ export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
         context,
         "right",
         params.prop,
-        { tip: "tip", edge: "shaft" },
+        // A round shaft has no edge: the lance rolls freely about its axis in the hand.
+        { tip: "tip" },
       );
       const goal = StrikingHeld.prepareGoal(context, tool, tool.length);
       const m = context.body.measure;
@@ -236,8 +237,9 @@ export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
           const axis: IAutoMovieVector3 = Vector3.normalize(
             Vector3.lerp(level, toward, down),
           );
+          // The edge down, the palm inward, as a level blade is held at the engage.
           const edge: IAutoMovieVector3 = Vector3.normalize(
-            Vector3.cross(axis, { x: 1, y: 0, z: 0 }),
+            Vector3.cross({ x: 1, y: 0, z: 0 }, axis),
           );
           const now: IAutoMovieRigidTransform = carrier(film);
           const toWorld = (p: IAutoMovieVector3): IAutoMovieVector3 =>
