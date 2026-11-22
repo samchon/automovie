@@ -71,7 +71,7 @@ export function createMedal(
     kind: "handle",
     frame: ArchetypeFrame.facing(Vector3.create(0, -0.02, 0), Vector3.create(0, 0, 1), Vector3.create(0, 1, 0)),
     extent: null,
-    grip: "pinch",
+    grip: "lateral",
     aperture: 0.002,
   });
   builder.affordance({
