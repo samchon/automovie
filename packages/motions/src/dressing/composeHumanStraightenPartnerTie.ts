@@ -1,6 +1,6 @@
 import type {
-  AutoMovieHumanSide,
   IAutoMovieMotionHumanChainCore,
+  IAutoMovieMotionHumanGetDressed,
 } from "@automovie/interface";
 
 /**
@@ -12,8 +12,7 @@ import type {
  * stands when the touch starts, so the partner is placed first.
  *
  * @param chain The dresser's entry chain.
- * @param partner The performer whose tie is straightened.
- * @param side The smoothing hand.
+ * @param params The partner whose tie is straightened and the smoothing side.
  * @param anchor A stable cue id for the smoothing action.
  * @returns The same kind of chain with one touch appended.
  *
@@ -29,10 +28,10 @@ export function composeHumanStraightenPartnerTie<
   Chain extends IAutoMovieMotionHumanChainCore,
 >(
   chain: Chain,
-  partner: string,
-  side: AutoMovieHumanSide,
+  params: IAutoMovieMotionHumanGetDressed.IStraightenPartnerTie,
   anchor?: string,
 ): Chain {
+  const { partner, side } = params;
   return chain.act(
     "touch",
     {

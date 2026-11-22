@@ -2,7 +2,6 @@
 export { dress } from "../../dressing/dress";
 export { wardrobe } from "../../dressing/wardrobe";
 export { tipHat } from "../../dressing/tipHat";
-export { composeHumanAdjustCuff } from "../../dressing/composeHumanAdjustCuff";
 export { composeHumanStraightenTie } from "../../dressing/composeHumanStraightenTie";
 export { drawFromCarrier } from "../../handling/drawFromCarrier";
 export { HumanSheath } from "../../handling/HumanSheath";

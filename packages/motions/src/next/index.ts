@@ -24,6 +24,7 @@ export { AutoMovieMotionHumanFloor } from "./AutoMovieMotionHumanFloor";
 export { AutoMovieMotionHumanGait } from "./AutoMovieMotionHumanGait";
 export { AutoMovieMotionHumanGaze } from "./AutoMovieMotionHumanGaze";
 export { AutoMovieMotionHumanGesture } from "./AutoMovieMotionHumanGesture";
+export { AutoMovieMotionHumanGetDressed } from "./AutoMovieMotionHumanGetDressed";
 export { AutoMovieMotionHumanGrapple } from "./AutoMovieMotionHumanGrapple";
 export { AutoMovieMotionHumanHandover } from "./AutoMovieMotionHumanHandover";
 export { AutoMovieMotionHumanHandToBody } from "./AutoMovieMotionHumanHandToBody";
@@ -41,6 +42,8 @@ export { AutoMovieMotionHumanPrehension } from "./AutoMovieMotionHumanPrehension
 export { AutoMovieMotionHumanReaction } from "./AutoMovieMotionHumanReaction";
 export { AutoMovieMotionHumanRescue } from "./AutoMovieMotionHumanRescue";
 export { AutoMovieMotionHumanRide } from "./AutoMovieMotionHumanRide";
+export { AutoMovieMotionHumanRitual } from "./AutoMovieMotionHumanRitual";
+export { AutoMovieMotionHumanSearch } from "./AutoMovieMotionHumanSearch";
 export { AutoMovieMotionHumanSeat } from "./AutoMovieMotionHumanSeat";
 export { AutoMovieMotionHumanSittingVolley } from "./AutoMovieMotionHumanSittingVolley";
 export { AutoMovieMotionHumanSleep } from "./AutoMovieMotionHumanSleep";

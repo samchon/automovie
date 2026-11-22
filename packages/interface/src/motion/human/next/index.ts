@@ -25,6 +25,7 @@ export type { IAutoMovieMotionHumanGaitAided } from "./IAutoMovieMotionHumanGait
 export type { IAutoMovieMotionHumanGaitStyled } from "./IAutoMovieMotionHumanGaitStyled";
 export type { IAutoMovieMotionHumanGaze } from "./IAutoMovieMotionHumanGaze";
 export type { IAutoMovieMotionHumanGesture } from "./IAutoMovieMotionHumanGesture";
+export type { IAutoMovieMotionHumanGetDressed } from "./IAutoMovieMotionHumanGetDressed";
 export type { IAutoMovieMotionHumanGrapple } from "./IAutoMovieMotionHumanGrapple";
 export type { IAutoMovieMotionHumanHandover } from "./IAutoMovieMotionHumanHandover";
 export type { IAutoMovieMotionHumanHandToBody } from "./IAutoMovieMotionHumanHandToBody";
@@ -42,6 +43,8 @@ export type { IAutoMovieMotionHumanPrehension } from "./IAutoMovieMotionHumanPre
 export type { IAutoMovieMotionHumanReaction } from "./IAutoMovieMotionHumanReaction";
 export type { IAutoMovieMotionHumanRescue } from "./IAutoMovieMotionHumanRescue";
 export type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
+export type { IAutoMovieMotionHumanRitual } from "./IAutoMovieMotionHumanRitual";
+export type { IAutoMovieMotionHumanSearch } from "./IAutoMovieMotionHumanSearch";
 export type { IAutoMovieMotionHumanSeat } from "./IAutoMovieMotionHumanSeat";
 export type { IAutoMovieMotionHumanSittingVolley } from "./IAutoMovieMotionHumanSittingVolley";
 export type { IAutoMovieMotionHumanSleep } from "./IAutoMovieMotionHumanSleep";
