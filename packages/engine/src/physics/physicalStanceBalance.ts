@@ -193,6 +193,8 @@ export namespace physicalStanceBalance {
     reference: IAutoMovieVector3;
     /** The command. */
     pressure: IAutoMovieVector3;
+    /** Each bearing foot's vertical-moment bound about its bearing centroid, |M_y| <= limit F_y. */
+    yaw: { bone: string; center: IAutoMovieVector3; limit: number }[];
     /** Whether the command was clamped onto the bearing polygon. */
     clamped: boolean;
     /** The actual centre of mass and its velocity, world metres and metres per second. */
@@ -373,6 +375,39 @@ export namespace physicalStanceBalance {
       pressure,
       clamped:
         Math.hypot(pressure.x - command.x, pressure.z - command.z) > 1e-9,
+      yaw: bearing.map(({ limb, points: rows }) => {
+        const center: IAutoMovieVector3 = Vector3.scale(
+          rows.reduce(
+            (sum: IAutoMovieVector3, row: IAutoMovieVector3) =>
+              Vector3.add(sum, row),
+            { x: 0, y: 0, z: 0 },
+          ),
+          1 / rows.length,
+        );
+        const outline: IAutoMovieVector3[] = convexHull2D(rows);
+        let radius: number = outline.length >= 3 ? Infinity : 0;
+        for (
+          let i: number = 0;
+          outline.length >= 3 && i < outline.length;
+          i++
+        ) {
+          const a: IAutoMovieVector3 = outline[i]!;
+          const b: IAutoMovieVector3 = outline[(i + 1) % outline.length]!;
+          const ex: number = b.x - a.x;
+          const ez: number = b.z - a.z;
+          const length: number = Math.hypot(ex, ez);
+          if (length > 0)
+            radius = Math.min(
+              radius,
+              Math.abs((center.x - a.x) * ez - (center.z - a.z) * ex) / length,
+            );
+        }
+        return {
+          bone: limb.bone,
+          center,
+          limit: friction(limb) * (Number.isFinite(radius) ? radius : 0),
+        };
+      }),
       center,
       velocity,
       omega,
@@ -409,6 +444,8 @@ export namespace physicalStanceBalance {
     dt: number;
     frozen: boolean;
     reset: boolean;
+    /** The realized centre of pressure from the measured contacts, world metres; absent reads it from the pendulum. */
+    real?: IAutoMovieVector3;
   }): void {
     const { state, result, dt } = input;
     const share: number = Math.min(1, dt / LOAD_SECONDS);
@@ -427,6 +464,7 @@ export namespace physicalStanceBalance {
     const omega2: number = result.omega * result.omega;
     for (const axis of ["x", "z"] as const) {
       const real: number =
+        input.real?.[axis] ??
         result.center[axis] - state.acceleration[axis] / omega2;
       state.bias[axis] += INTEGRAL * share * (result.pressure[axis] - real);
     }
@@ -457,12 +495,17 @@ export namespace physicalStanceBalance {
     duration: number;
     /** The ankle's world unit axes. */
     axes: readonly IAutoMovieVector3[];
+    /** The shank the ankle hangs the foot from, whose inertia the impedance is sized with. */
+    shank: RigidBody;
+    /** The native substep, seconds. */
+    dt: number;
   }
 
   /**
-   * The world-frame hold of a stance foot: tau = K_p e - K_d omega_f about
-   * each ankle axis, with K_p = I_f omega_n^2 and K_d = 2 I_f omega_n
-   * (critical damping); the foot's own weight about the ankle is the joint's
+   * The world-frame impedance of a stance foot: tau = K_p e - K_d omega_f
+   * about each ankle axis, with K_p = I omega_n^2 and K_d = 2 I omega_n
+   * (critical damping), I the foot's and shank's inertia about the ankle,
+   * applied implicitly over the substep to the foot (backward Euler); the foot's own weight about the ankle is the joint's
    * gravity term, carried with every joint's (`trackPhysicalWorld`). I_f is the foot's inertia about the ankle axis
    * (parallel-axis theorem). It holds the sole flat in the world frame, as
    * SIMBICON holds the torso and swing hip (Yin, Loken and van de Panne 2007,
@@ -506,9 +549,12 @@ export namespace physicalStanceBalance {
     };
     const spin: IAutoMovieVector3 = physicalNativeVector(input.foot.angvel());
     let torque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (const axis of input.axes) {
+    const about = (
+      axis: IAutoMovieVector3,
+      bodies: readonly { rigid: RigidBody; arm: IAutoMovieVector3 }[],
+    ): number => {
       let inertia: number = 0;
-      for (const { rigid, arm } of arms) {
+      for (const { rigid, arm } of bodies) {
         const local: IAutoMovieVector3 = Quaternion.rotateVector(
           Quaternion.inverse(
             Quaternion.multiply(
@@ -528,12 +574,30 @@ export namespace physicalStanceBalance {
           principal.z * local.z * local.z +
           rigid.mass() * (Vector3.dot(arm, arm) - along * along);
       }
+      return inertia;
+    };
+    const sized: { rigid: RigidBody; arm: IAutoMovieVector3 }[] = [
+      ...arms,
+      {
+        rigid: input.shank,
+        arm: Vector3.subtract(
+          physicalNativeVector(input.shank.worldCom()),
+          input.ankle,
+        ),
+      },
+    ];
+    for (const axis of input.axes) {
+      const inertia: number = about(axis, sized);
+      const own: number = about(axis, arms);
+      const k: number = inertia * frequency * frequency;
+      const d: number = 2 * inertia * frequency;
       torque = Vector3.add(
         torque,
         Vector3.scale(
           axis,
-          inertia * frequency * frequency * Vector3.dot(error, axis) -
-            2 * inertia * frequency * Vector3.dot(spin, axis),
+          (k * Vector3.dot(error, axis) -
+            (d + k * input.dt) * Vector3.dot(spin, axis)) /
+            (1 + (d * input.dt + k * input.dt * input.dt) / own),
         ),
       );
     }

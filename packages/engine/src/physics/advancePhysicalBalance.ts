@@ -10,6 +10,7 @@ import type {
   IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSupportPatch,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalRecoveryGoal,
   IAutoMovieVector3,
@@ -246,6 +247,27 @@ export function advancePhysicalBalance(input: {
       anchor: {
         point: actual(limb.bone),
         rotation: { ...input.segments.get(limb.bone)!.rotation() },
+        // Each stance joint's relative rotation then: the reference its yaw
+        // PD holds through the stance.
+        joints: Object.fromEntries(
+          input.profile.joints
+            .filter((joint): boolean => limb.chain.includes(joint.child))
+            .map((joint): [string, IAutoMovieQuaternion] => [
+              joint.id,
+              Quaternion.multiply(
+                Quaternion.inverse(
+                  Quaternion.multiply(
+                    input.segments.get(joint.parent)!.rotation(),
+                    joint.parentFrame.rotation,
+                  ),
+                ),
+                Quaternion.multiply(
+                  input.segments.get(joint.child)!.rotation(),
+                  joint.childFrame.rotation,
+                ),
+              ),
+            ]),
+        ),
       },
     });
     // The sole's own relief is latched when its stance begins, so a curved

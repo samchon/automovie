@@ -60,7 +60,11 @@ export interface IAutoMoviePhysicalRecoveryState {
       load?: number;
       touching?: boolean;
       relief?: number;
-      anchor?: { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
+      anchor?: {
+        point: IAutoMovieVector3;
+        rotation: IAutoMovieQuaternion;
+        joints?: Record<string, IAutoMovieQuaternion>;
+      };
     }
   >;
   /** The centre-of-pressure integral: its bias, world metres, the low-passed horizontal centre-of-mass acceleration and the last velocity it was read from, and the limb swinging when last advanced. */ pressure?: {

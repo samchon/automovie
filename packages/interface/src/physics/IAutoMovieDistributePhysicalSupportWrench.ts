@@ -47,6 +47,11 @@ export namespace IAutoMovieDistributePhysicalSupportWrench {
       tangential: number;
     };
     /** Whether the total normal force must equal the request exactly whenever the bounds allow it. */ exactNormal?: boolean;
+    /** Each limb's bound on the vertical moment of its forces about a centre, as |M_y| <= limit * F_y, metres, by limb bone. */ yaw?: readonly {
+      bone: string;
+      center: IAutoMovieVector3;
+      limit: number;
+    }[];
     /** Actual contact points; at most 1024, with nonnegative combined friction. */ points: readonly {
       /** Carrier bone identity, copied into the corresponding allocation row. */
       bone: string;

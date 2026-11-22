@@ -12,6 +12,9 @@ import type {
   World,
 } from "@dimforge/rapier3d-compat";
 
+import { Quaternion } from "../math/Quaternion";
+import { Vector3 } from "../math/Vector3";
+import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { readPhysicalManifoldImpulses } from "./readPhysicalManifoldImpulses";
 import { visitPhysicalNative } from "./visitPhysicalNative";
@@ -50,6 +53,8 @@ export function collectPhysicalSupports(input: {
       const seen: Set<string> = new Set();
       let loaded: boolean = false;
       let impulse: number = 0;
+      let pressure: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+      let weighted: number = 0;
       for (const [handle, identity] of input.colliders)
         if (identity.body === input.body && patches.includes(identity.bone)) {
           visitPhysicalNative(
@@ -82,6 +87,24 @@ export function collectPhysicalSupports(input: {
                     if (manifold.contactDist(i) <= 0 && applied[i]! > 0) {
                       loaded = true;
                       impulse += applied[i]!;
+                      const local = flipped
+                        ? manifold.localContactPoint2(i)
+                        : manifold.localContactPoint1(i);
+                      const collider = input.world.getCollider(handle);
+                      if (local && collider) {
+                        const at: IAutoMovieVector3 = Vector3.add(
+                          physicalNativeVector(collider.translation()),
+                          Quaternion.rotateVector(
+                            collider.rotation(),
+                            physicalNativeVector(local),
+                          ),
+                        );
+                        pressure = Vector3.add(
+                          pressure,
+                          Vector3.scale(at, applied[i]!),
+                        );
+                        weighted += applied[i]!;
+                      }
                     }
                   for (
                     let i: number = 0;
@@ -175,6 +198,9 @@ export function collectPhysicalSupports(input: {
               samples,
               loaded,
               impulse,
+              ...(weighted > 0
+                ? { pressure: Vector3.scale(pressure, 1 / weighted) }
+                : {}),
             },
           ]
         : [];

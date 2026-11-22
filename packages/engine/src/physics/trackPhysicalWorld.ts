@@ -356,6 +356,9 @@ export function trackPhysicalWorld(
       floor: input.floor,
       tolerance: input.contactTolerance!,
     });
+    // The joints whose torques carry their stance chain's inverse dynamics,
+    // gravity included (`trackPhysicalRoot`).
+    const dynamics: Map<string, IAutoMovieVector3> = new Map();
     const ankleCaps: Map<
       string,
       Partial<Record<"x" | "y" | "z", { up: number; down: number }>>
@@ -407,6 +410,8 @@ export function trackPhysicalWorld(
       ),
       gravity: gravity.root,
       actuation,
+      supports,
+      dynamics,
       recoveryBone: recovery[body.id]?.swing?.bone,
       step,
       seconds,
@@ -489,9 +494,16 @@ export function trackPhysicalWorld(
             goals[joint.parent]!.pose.rotation,
             joint.parentFrame.rotation,
           );
+      // A planted foot is aimed at the rotation latched where it stood when
+      // its stance began, as its impedance is (`trackPhysicalRoot`), so its
+      // yaw PD and its impedance agree and the sole does not creep.
+      const latched: IAutoMovieRigidTransform["rotation"] | undefined = planted
+        ? assessment?.state.seating?.[joint.child]?.anchor?.rotation
+        : undefined;
       const desiredChild: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(
-          (planted ? authoredGoals : goals)[joint.child]!.pose.rotation,
+          latched ??
+            (planted ? authoredGoals : goals)[joint.child]!.pose.rotation,
           joint.childFrame.rotation,
         );
       const inv: IAutoMovieRigidTransform["rotation"] =
@@ -571,21 +583,42 @@ export function trackPhysicalWorld(
           native: bound.joints.get(`${body.id}/${joint.id}`)!,
           joint: driven,
           current: Quaternion.multiply(inv, childFrame),
-          target: Quaternion.multiply(
-            Quaternion.inverse(desiredParent),
-            desiredChild,
-          ),
+          // A stance joint holds its relative rotation latched when its
+          // stance began, so its yaw PD keeps the heading it touched down
+          // with (Coros, Beaudoin and van de Panne 2010, Section 3.5).
+          target:
+            (stanceChain
+              ? Object.values(assessment?.state.seating ?? {}).find(
+                  (seat) => seat.anchor?.joints?.[joint.id] !== undefined,
+                )?.anchor?.joints?.[joint.id]
+              : undefined) ??
+            Quaternion.multiply(
+              Quaternion.inverse(desiredParent),
+              desiredChild,
+            ),
           velocity: Quaternion.rotateVector(
             inv,
             Vector3.subtract(child.angvel(), parent.angvel()),
           ),
-          targetVelocity: desiredVelocity,
+          // A joint the stance solve drives aims at the velocity its solved
+          // acceleration reaches over the substep.
+          targetVelocity: dynamics.has(joint.id)
+            ? Vector3.add(
+                Quaternion.rotateVector(
+                  inv,
+                  Vector3.subtract(child.angvel(), parent.angvel()),
+                ),
+                dynamics.get(joint.id)!,
+              )
+            : desiredVelocity,
           strength,
           // Every joint, a stance chain's too, carries its own links' gravity,
           // the full N(q, q') of the inverse dynamics (Stephens 2011, Eq.
           // 5.18); the allocated contact wrench carries the body's weight.
           feedForward: Vector3.add(
-            gravity.joints.get(joint.id) ?? { x: 0, y: 0, z: 0 },
+            dynamics.has(joint.id)
+              ? { x: 0, y: 0, z: 0 }
+              : (gravity.joints.get(joint.id) ?? { x: 0, y: 0, z: 0 }),
             actuation?.get(joint.id) ?? { x: 0, y: 0, z: 0 },
           ),
         });

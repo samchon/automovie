@@ -151,6 +151,41 @@ export function distributePhysicalSupportWrench(
       upper: desired[index]!,
     });
 
+  // Each limb's vertical moment about its centre is bounded by what its
+  // friction can resist over its contact patch, |M_y| <= mu F_y d (a
+  // conservative bound inside the contact wrench cone, Caron et al. 2015).
+  for (const bound of input.yaw ?? []) {
+    const indices: number[] = [];
+    const twist: number[] = [];
+    const normal: number[] = [];
+    input.points.forEach(
+      (point: (typeof input.points)[number], index: number): void => {
+        if (point.bone !== bound.bone) return;
+        const dx: number = point.point.x - bound.center.x;
+        const dz: number = point.point.z - bound.center.z;
+        indices.push(3 * index, 3 * index + 1, 3 * index + 2);
+        twist.push(dz, 0, -dx);
+        normal.push(0, bound.limit, 0);
+      },
+    );
+    if (indices.length === 0) continue;
+    rows.push({
+      indices,
+      weights: twist.map(
+        (value: number, k: number): number => value - normal[k]!,
+      ),
+      lower: null,
+      upper: 0,
+    });
+    rows.push({
+      indices,
+      weights: twist.map(
+        (value: number, k: number): number => value + normal[k]!,
+      ),
+      lower: 0,
+      upper: null,
+    });
+  }
   // The total normal force is held to the request while the bounds allow it.
   if (input.exactNormal) {
     const capacity: number = Math.min(
