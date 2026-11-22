@@ -18,9 +18,9 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The platform's raise above the floor, metres, so a hanging body hangs clear. */
 const RAISE: number = 2.6;
@@ -58,7 +58,7 @@ interface IPair {
  * @evidence contracts/development/testing.md#distinguishing-cases Two caught pairs, a miss and both refusals.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public mutual chain.
  */
-export function test_human_motion_edge_rescue(): void {
+export function test_motion_rescue_edge_rescue(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const model = createRailPlatform({ id: "platform" });
   const edge: IAutoMovieAffordance = model.affordances.find(

@@ -47,6 +47,29 @@ export namespace IAutoMovieMotionHumanSupport {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ISupport = IAutoMovieMotionHumanSupport.IParams;
+
+  /**
+   * A support preset: the stances a row of `support` fixes, so a movement over one surface is data over the one planner. `AutoMovieMotionHumanSupport.SCRAMBLE` and `SLIDE_OFF` are its data.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, which presets use it and how the rows read it.
+   * @evidence contracts/development/design.md#principled-representation One required member with the planner's own stances, so a preset fixes exactly that key and the composition gives the rest.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; the scramble and slide-off rows read its data.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the key is named once here instead of an inline pick of the planner's parameters.
+   */
+  export interface IPreset {
+    /** The stances in order, as `IAutoMovieMotionHumanSupport.IParams.stances`. */
+    stances: readonly IAutoMovieMotionHumanSupport.IStance[];
+  }
+
+  /**
+   * The parameters a support row leaves to the composition: those of `support` without the stances its preset fixes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names what a row of `support` still takes.
+   * @evidence contracts/development/design.md#principled-representation The planner's parameters less the one key a preset fixes.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the support rows' parameter map.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a named derivation of `IParams`, written once.
+   */
+  export type IRow = Omit<IAutoMovieMotionHumanSupport.IParams, "stances">;
 }
 
 /**

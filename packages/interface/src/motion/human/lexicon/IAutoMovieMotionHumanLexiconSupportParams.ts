@@ -12,10 +12,10 @@ import type { IAutoMovieMotionHumanAssistedTransfer } from "./IAutoMovieMotionHu
  */
 export interface IAutoMovieMotionHumanLexiconSupportParams {
   /** Scramble up onto a ledge: the palms on its top, a knee up onto its edge, the other foot up, standing on it. */
-  scramble: Omit<IAutoMovieMotionHumanSupport.IParams, "stances">;
+  scramble: IAutoMovieMotionHumanSupport.IRow;
 
   /** Slide off a table's edge: seated upright on it with the hands beside the seat, the feet down to the floor, standing. */
-  slideOff: Omit<IAutoMovieMotionHumanSupport.IParams, "stances">;
+  slideOff: IAutoMovieMotionHumanSupport.IRow;
 
   /** Walk leaning on a held aid, a cane or a walker (`aidWalk`). */
   HumanAidWalk: IAutoMovieMotionHumanAidWalk;

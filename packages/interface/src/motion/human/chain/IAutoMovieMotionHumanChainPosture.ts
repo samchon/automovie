@@ -4,6 +4,7 @@ import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanRise } from "../everyday/IAutoMovieMotionHumanRise";
 import type { IAutoMovieMotionHumanShift } from "../everyday/IAutoMovieMotionHumanShift";
 import type { IAutoMovieMotionHumanSit } from "../everyday/IAutoMovieMotionHumanSit";
+import type { IAutoMovieMotionHumanWallClimb } from "../climbing/IAutoMovieMotionHumanWallClimb";
 import type { IAutoMovieMotionHumanGetUp } from "../floor/IAutoMovieMotionHumanGetUp";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanSupport } from "../next/IAutoMovieMotionHumanSupport";
@@ -174,4 +175,26 @@ export interface IAutoMovieMotionHumanChainPosture extends IAutoMovieMotionHuman
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainPosture.support is used through packages/motions/src/chain/HumanChainPosture.ts.
    */
   support(params: IAutoMovieMotionHumanSupport.IParams, anchor?: string): this;
+
+  /**
+   * Climb a wall on fixed holds: each stance of the route holds at least three
+   * limbs on distinct holds, built by `wallClimbSupport` and moved through by
+   * `support`.
+   *
+   * @param params The starting holds and the ordered one-limb changes.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainPosture.wallClimb: Climb a wall on fixed holds, each stance holding at least three limbs on distinct holds.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainPosture.wallClimb is used through packages/motions/src/chain/HumanChainPosture.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainPosture.wallClimb is used through packages/motions/src/chain/HumanChainPosture.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainPosture.wallClimb is used through packages/motions/src/chain/HumanChainPosture.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainPosture.wallClimb is used through packages/motions/src/chain/HumanChainPosture.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainPosture.wallClimb is used through packages/motions/src/chain/HumanChainPosture.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainPosture.wallClimb is used through packages/motions/src/chain/HumanChainPosture.ts.
+   */
+  wallClimb(
+    params: IAutoMovieMotionHumanWallClimb,
+    anchor?: string,
+  ): this;
 }

@@ -15,10 +15,10 @@ import {
   HumanPerformance,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanRefusal } from "../internal/motionHumanRefusal";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanRefusal } from "../../internal/motionHumanRefusal";
 
 /** How far from the wall's face a body in cover keeps its hips, metres: its depth and a hand's breadth. */
 const NEAR: number = 0.45;
@@ -62,7 +62,7 @@ interface IStage {
  * @evidence contracts/development/testing.md#distinguishing-cases Peek, sidle, window and breach, each with its refusal, on two bodies.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain.
  */
-export function test_human_motion_cover(): void {
+export function test_motion_cover_basic(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const wallModel = createWall({ kind: "full" });
   const face: IAutoMovieAffordance = wallModel.affordances.find(

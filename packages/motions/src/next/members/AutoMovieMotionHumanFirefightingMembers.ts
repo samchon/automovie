@@ -3,3 +3,4 @@ export { extinguish } from "../../tasks/extinguish";
 export { hoseLine } from "../../tasks/hoseLine";
 export { beatFlames } from "../../tasks/beatFlames";
 export { stopDropRoll } from "../../reaction/stopDropRoll";
+export { hoseTeam } from "../../tasks/hoseTeam";

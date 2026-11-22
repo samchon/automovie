@@ -1,5 +1,6 @@
 import type {
   IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanFirefighting,
   IAutoMovieMotionHumanHandoverAction,
   IAutoMovieMotionHumanHandshake,
   IAutoMovieMotionHumanHighFive,
@@ -13,6 +14,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChainStriking } from "./HumanChainStriking";
+
+/** The extinguisher's safety pin's pull, metres: `createFireExtinguisher`'s. */
+const PIN: number = 0.04;
 
 /**
  * The chain methods a person performs with a partner or on an object: the
@@ -184,5 +188,34 @@ export class HumanChainMutual extends HumanChainStriking {
     anchor?: string,
   ): this {
     return this.act("kickBall", params, anchor);
+  }
+
+  /**
+   * Take an extinguisher by its carrying handle, pull its pin with the free
+   * hand by its ring, then aim, squeeze and sweep (OSHA's PASS).
+   *
+   * @param params The extinguisher, the fire, the sweeps and the carrying hand.
+   * @param anchor An optional anchor id, set on the sweep.
+   * @returns The chain.
+   */
+  public pass(
+    params: IAutoMovieMotionHumanFirefighting.IPass,
+    anchor?: string,
+  ): this {
+    const { hand = "right", ...drill } = params;
+    return this.pickUp({
+      prop: params.prop,
+      handle: "handle",
+      hand,
+      lift: 0.1,
+    })
+      .registered("workHeld", {
+        prop: params.prop,
+        hand: hand,
+        drive: [{ articulation: "pin", to: PIN }],
+        push: "ring",
+        duration: 0.5,
+      })
+      .registered("extinguish", drill, anchor);
   }
 }

@@ -19,8 +19,8 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Join the floor and a raised landing over a fixed rung ladder, up and down.
@@ -41,7 +41,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Two canonical bodies, ascent, descent, ground, named rungs and inconsistent upper geometry.
  * @evidence contracts/development/testing.md#execution-ownership Runs complete HumanPerformance chains in memory.
  */
-export function test_human_motion_ladder_access(): void {
+export function test_motion_climb_ladder_access(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const ladder = createLadder({
     kind: "fixed",

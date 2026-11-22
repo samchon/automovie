@@ -19,10 +19,10 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanRefusal } from "../internal/motionHumanRefusal";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanRefusal } from "../../internal/motionHumanRefusal";
 
 /** A hand's or foot's largest gap from the surface it holds, metres. */
 const ON: number = 0.06;
@@ -69,7 +69,7 @@ interface ILimb {
  * @evidence contracts/development/testing.md#distinguishing-cases Climb, sit and descent on two bodies, the refusal and the unchanged branchless tree.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain.
  */
-export function test_human_motion_tree_climb(): void {
+export function test_motion_climb_tree_climb(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const oak = createTree({
     kind: "whiteOak",

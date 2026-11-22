@@ -7,13 +7,13 @@ import type {
   IAutoMovieMotionHumanWallClimb,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanHand, wallClimbSupport } from "@automovie/motions";
+import { AutoMovieMotionHumanClimb, HumanChain, HumanHand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { collectTakeClean } from "../internal/collectTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
-import { motionHumanStance } from "../internal/motionHumanStance";
+import { collectTakeClean } from "../../internal/collectTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
+import { motionHumanStance } from "../../internal/motionHumanStance";
 
 /** The 10 mm displayed hold tolerance in the wall-climb specification. */
 const CONTACT: number = 0.01;
@@ -35,7 +35,7 @@ const CONTACT: number = 0.01;
  * @evidence contracts/development/testing.md#distinguishing-cases A free route key is distinct from both assigned keys, and two consecutive releases are invalid even when each individual limb has a hold.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable in-memory unit runs one staged polygon-body performance and one rejected route.
  */
-export function test_motion_exercise_wall_release(): void {
+export function test_motion_climb_wall_release(): void {
   const failures: string[] = [];
   for (const key of BODIES)
     try {
@@ -125,7 +125,7 @@ function take(key: BodyKey, failures: string[]): void {
   const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
     "exercise-climb",
     [{ subject: "a", body }],
-    HumanChain.subject("a").support(wallClimbSupport(route)),
+    HumanChain.subject("a").support(AutoMovieMotionHumanClimb.wallClimbSupport(route)),
     [wall],
   );
   collectTakeClean(`${key} wall release`, film.performance, failures);
@@ -167,7 +167,7 @@ function take(key: BodyKey, failures: string[]): void {
   TestValidator.error(
     "releasing a second limb before acquisition is refused",
     (): void => {
-      wallClimbSupport({
+      AutoMovieMotionHumanClimb.wallClimbSupport({
         ...route,
         moves: [route.moves[0]!, { limb: "leftHand", to: null }],
       });

@@ -12,16 +12,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanClimb,
   HumanChain,
   HumanHand,
   HumanPerformance,
-  wallClimbSupport,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { collectTakeClean } from "../internal/collectTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanStance } from "../internal/motionHumanStance";
+import { collectTakeClean } from "../../internal/collectTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanStance } from "../../internal/motionHumanStance";
 
 /**
  * A climber moves their right foot from the base of a wall to a raised
@@ -45,7 +45,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes a positive starting plant from a contact attained at a single key, the released foot from the stationary one, and gripping hands from planted feet. The generic support-sequence spec covers unreachable targets.
  * @evidence contracts/development/testing.md#execution-ownership This named unit builds two performances with the shared polygon-man body and reads the displayed contact poses in memory.
  */
-export function test_human_motion_wall_climb_support(): void {
+export function test_motion_climb_wall_climb_support(): void {
   const failures: string[] = [];
   for (const key of BODIES)
     try {
@@ -133,7 +133,7 @@ function take(key: BodyKey, failures: string[]): void {
     },
     moves: [{ limb: "rightFoot", to: hold("ledge") }],
   };
-  const params: IAutoMovieMotionHumanSupport.IParams = wallClimbSupport(route);
+  const params: IAutoMovieMotionHumanSupport.IParams = AutoMovieMotionHumanClimb.wallClimbSupport(route);
   const first: IAutoMovieMotionHumanSupport.IStance = params.stances[0]!;
   for (const pause of [false, true]) {
     const performance: HumanPerformance = new HumanPerformance({

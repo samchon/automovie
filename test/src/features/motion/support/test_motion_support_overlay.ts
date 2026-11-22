@@ -10,10 +10,10 @@ import type {
 } from "@automovie/interface";
 import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { qclose } from "../internal/qclose";
-import { vclose } from "../internal/vclose";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { qclose } from "../../internal/qclose";
+import { vclose } from "../../internal/vclose";
 
 /**
  * A support sequence can carry an overlay on one arm while it bears on
@@ -36,7 +36,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Signals use opposite sides in the same support sequence. The carrier-change cases cover a contiguous join and a cut while the prior carrier can still hold the signal.
  * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this CPU-only spec, which reads two displayed poses and plans each signal through the public schedule.
  */
-export function test_human_motion_support_overlay(): void {
+export function test_motion_support_overlay(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const leftFoot: IAutoMovieMotionHumanSupport.IContact = {

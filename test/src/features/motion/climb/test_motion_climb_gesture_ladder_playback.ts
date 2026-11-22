@@ -7,9 +7,9 @@ import type {
 import { HumanPerformance } from "@automovie/motions";
 import { deepStrictEqual, ok } from "node:assert/strict";
 
-import { MOTION_HUMAN_LAW_STAGES_LOCOMOTION } from "../internal/MOTION_HUMAN_LAW_STAGES_LOCOMOTION";
-import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "../internal/MOTION_HUMAN_LAW_STAGES_POSTURE";
-import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
+import { MOTION_HUMAN_LAW_STAGES_LOCOMOTION } from "../../internal/MOTION_HUMAN_LAW_STAGES_LOCOMOTION";
+import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "../../internal/MOTION_HUMAN_LAW_STAGES_POSTURE";
+import { motionHumanLawSweep } from "../../internal/motionHumanLawSweep";
 
 /**
  * Gesture and ladder native phases preserve the displayed pose and authored
@@ -25,7 +25,7 @@ import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers the moving gesture arm, all ladder release and catch events, interior times, action endpoints and a repeated seek after reading unrelated seconds.
  * @evidence contracts/development/testing.md#execution-ownership Builds two independent real films per stage and changes only the reference film's exact callback identity.
  */
-export function test_motion_gesture_ladder_playback(): void {
+export function test_motion_climb_gesture_ladder_playback(): void {
   const stages: readonly motionHumanLawSweep.Stage[] = [
     MOTION_HUMAN_LAW_STAGES_POSTURE.gesture!,
     MOTION_HUMAN_LAW_STAGES_LOCOMOTION.climbLadder!,

@@ -16,17 +16,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanFirefighting,
   HUMAN_LEXICON,
   HumanChain,
-  HumanFirefight,
   HumanHand,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
 
-import { everydayTake } from "../internal/everydayTake";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** A held prop drifts at most this in its hand's frame, metres. */
 const HOLD: number = 0.005;
@@ -59,12 +59,12 @@ const FIRE: IAutoMovieVector3 = { x: 0, y: 0, z: 2.2 };
  * Every take passes the shipped verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each drill, the bodies and the refusals.
- * @evidence contracts/development/testing.md#behavioral-verification Composes HumanFirefight, beatFlames, kneel and lieDown and reads displayed props, articulations and bones.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes the chain's pass, hoseTeam, beatFlames, kneel and lieDown and reads displayed props, articulations and bones.
  * @evidence contracts/development/testing.md#independent-expectations The outlets and grips are the archetypes' contacts and the fire an authored point; tolerances are named.
  * @evidence contracts/development/testing.md#distinguishing-cases Pin in against pulled, nozzle against backup, beat bottom against top.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_firefight(): void {
+export function test_motion_firefighting_firefight(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
@@ -140,7 +140,7 @@ function pass(
     `firefight-${label}`,
     body,
     props,
-    HumanFirefight.pass(HumanChain.subject("actor").stand(), {
+    HumanChain.subject("actor").stand().pass({
       prop: "extinguisher",
       target: TARGET,
       sweeps: 1,
@@ -240,7 +240,7 @@ function hose(
   const props: IAutoMovieMotionHumanProp[] = [
     everydayTake.prop("hose", model, { x: run, y: height, z: tail }),
   ];
-  const [operator, second] = HumanFirefight.hoseTeam(
+  const [operator, second] = AutoMovieMotionHumanFirefighting.hoseTeam(
     { chain: HumanChain.subject("actor").stand(), at: { x: 0, y: 0, z: 0 } },
     {
       chain: HumanChain.subject("backup").stand(),

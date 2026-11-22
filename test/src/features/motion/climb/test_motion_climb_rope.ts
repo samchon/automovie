@@ -21,10 +21,10 @@ import {
   HumanPerformance,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanRefusal } from "../internal/motionHumanRefusal";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanRefusal } from "../../internal/motionHumanRefusal";
 
 /** A gripping or locked part's largest distance from the rope's axis, metres: the rope's radius and a palm's half thickness. */
 const ON_LINE: number = 0.06;
@@ -80,7 +80,7 @@ interface IStage {
  * @evidence contracts/development/testing.md#distinguishing-cases Climb, descend, both traverses and the swing, each with its refusal, on two bodies.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain.
  */
-export function test_human_motion_rope(): void {
+export function test_motion_climb_rope(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const hanging: IAutoMovieMotionHumanProp = HumanObject.prop(
     "rope",

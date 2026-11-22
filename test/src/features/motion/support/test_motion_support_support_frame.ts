@@ -21,9 +21,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
 
 /**
  * A standing support is retained through sitting, shifting and rising.
@@ -47,7 +47,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership Uses the existing prepared bodies and an in-memory cart, without a host or capture.
  * @evidence contracts/development/common.md#meaningful-documentation States both scenarios, the sampled instants and the numerical bounds.
  */
-export function test_motion_posture_support_frame(): void {
+export function test_motion_support_support_frame(): void {
   const frame = (seconds: number): IAutoMovieRigidTransform =>
     HumanObject.frame({
       at: { x: 2 * seconds, y: 0.3, z: 1 },

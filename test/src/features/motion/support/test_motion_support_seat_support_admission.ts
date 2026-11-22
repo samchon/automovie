@@ -13,8 +13,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /**
  * Boarding a moving support (#3491): stepping from the ground onto a prop
@@ -32,7 +32,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership Calls the public boarding guard on one standing entry and three analytic prop velocities.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the two numbered scenarios.
  */
-export function test_motion_posture_seat_support_admission(): void {
+export function test_motion_support_seat_support_admission(): void {
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const limit: number = Math.sqrt(

@@ -16,6 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanClimb,
   HumanChain,
   HumanColliders,
   HumanHand,
@@ -23,15 +24,14 @@ import {
   HumanObstacle,
   HumanPerformance,
   HumanRefusal,
-  wallClimbSupport,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { archetypeExtent } from "../internal/archetypeExtent";
-import { collectTakeClean } from "../internal/collectTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanStance } from "../internal/motionHumanStance";
-import { nclose } from "../internal/nclose";
+import { archetypeExtent } from "../../internal/archetypeExtent";
+import { collectTakeClean } from "../../internal/collectTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanStance } from "../../internal/motionHumanStance";
+import { nclose } from "../../internal/nclose";
 
 /** The existing displayed contact tolerance for wall stances, metres. */
 const CONTACT: number = 0.01;
@@ -59,7 +59,7 @@ type Limb = IAutoMovieMotionHumanWallClimb.IMove["limb"];
  * @evidence contracts/development/testing.md#distinguishing-cases Two body sizes, both hand and foot changes, a real transfer of one foothold between feet and two refusal causes.
  * @evidence contracts/development/testing.md#execution-ownership The test constructs real bodies, props and a wall through their SDK entry points without a viewer.
  */
-export function test_motion_exercise_wall_route(): void {
+export function test_motion_climb_wall_route(): void {
   const failures: string[] = [];
   /** Record every acceptance failure from the current playback. */
   const check = (condition: boolean, detail: string): void => {
@@ -269,7 +269,7 @@ function buildRoute(
           },
         ],
         composition: HumanChain.subject("climber").support(
-          wallClimbSupport(authored),
+          AutoMovieMotionHumanClimb.wallClimbSupport(authored),
         ).node,
       }),
   };
@@ -448,7 +448,7 @@ function verifyRefusals(
   const { route, size }: IFixture = fixture;
   let duplicate: unknown;
   try {
-    wallClimbSupport({
+    AutoMovieMotionHumanClimb.wallClimbSupport({
       ...route,
       moves: [{ limb: "leftFoot", to: route.start.rightFoot }],
     });

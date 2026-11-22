@@ -16,14 +16,14 @@ import {
   AutoMovieMotionHumanSupport,
   HumanFoot,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { qclose } from "../internal/qclose";
-import { supportTransferFixture } from "../internal/supportTransferFixture";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { qclose } from "../../internal/qclose";
+import { supportTransferFixture } from "../../internal/supportTransferFixture";
+import { vclose } from "../../internal/vclose";
 
 /**
  * A real sole transfers from one prop frame to another across a dock gap.
@@ -46,7 +46,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Both bodies and lead sides pass through split and moving support. The average body exercises velocity continuity and docking refusals.
  * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this in-memory unit using public planning and pose resolution with authored prop readers.
  */
-export function test_human_motion_support_transfer(): void {
+export function test_motion_support_transfer(): void {
   const start: number = 5;
   const seconds: number = 2;
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

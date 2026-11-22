@@ -9,6 +9,7 @@ import type { IAutoMovieMotionHumanRelease } from "../throwing/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMovieMotionHumanThrowObjectParams";
 import type { IAutoMovieMotionHumanHighFive } from "../touch/IAutoMovieMotionHumanHighFive";
 import type { IAutoMovieMotionHumanKiss } from "../touch/IAutoMovieMotionHumanKiss";
+import type { IAutoMovieMotionHumanFirefighting } from "../next/IAutoMovieMotionHumanFirefighting";
 import type { IAutoMovieMotionHumanChainStriking } from "./IAutoMovieMotionHumanChainStriking";
 
 /**
@@ -231,6 +232,27 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
    */
   kickBall(
     params: IAutoMovieMotionHumanKickBall.IParams,
+    anchor?: string,
+  ): this;
+
+  /**
+   * Take an extinguisher by its carrying handle, pull its pin with the free
+   * hand by its ring, then aim, squeeze and sweep (OSHA's PASS).
+   *
+   * @param params The extinguisher, the fire, the sweeps and the carrying hand.
+   * @param anchor An optional anchor id, set on the sweep.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.pass: Take an extinguisher by its handle, pull its pin, then aim, squeeze and sweep.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.pass is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.pass is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.pass is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.pass is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.pass is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.pass is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  pass(
+    params: IAutoMovieMotionHumanFirefighting.IPass,
     anchor?: string,
   ): this;
 }

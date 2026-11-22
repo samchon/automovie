@@ -72,7 +72,7 @@ const SET: number = 0.6;
  * the team shares, so each member's trunk tips forward by
  * `atan(REACTION / 2 / (m g))` over the feet, the lean that brings the
  * body's weight to balance its share. `advance` is walked by the team
- * before (`HumanFirefight.hoseTeam`); here the members stand. Events:
+ * before (`AutoMovieMotionHumanFirefighting.hoseTeam`); here the members stand. Events:
  * `strokeStart` as the stream opens, `strokeEnd` as it shuts.
  *
  * Refusals: an operator without a target or not holding the line, a line

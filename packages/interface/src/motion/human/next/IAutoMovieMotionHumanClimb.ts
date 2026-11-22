@@ -1,10 +1,11 @@
 import type { IAutoMovieMotionHumanClimbLadder } from "../climbing/IAutoMovieMotionHumanClimbLadder";
+import type { IAutoMovieMotionHumanWallClimb } from "../climbing/IAutoMovieMotionHumanWallClimb";
 import type { IAutoMovieMotionHumanRope } from "../lexicon/IAutoMovieMotionHumanRope";
 import type { IAutoMovieMotionHumanTreeClimb } from "../lexicon/IAutoMovieMotionHumanTreeClimb";
 import type { IAutoMovieMotionHumanClimbStairs } from "../terrain/IAutoMovieMotionHumanClimbStairs";
 
 /**
- * Climbing with the support law: the ladder, the stairs, the rope and the tree. One limb at a time takes the body's weight; a beat is 0.8 s on a ladder and 0.6 s on a rope or tree (provisional).
+ * Climbing with the support law: the ladder, the stairs, the rope, the tree and a wall on fixed holds. One limb at a time takes the body's weight; a beat is 0.8 s on a ladder and 0.6 s on a rope or tree (provisional).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -89,6 +90,26 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
     params: IAutoMovieMotionHumanClimb.ITreeClimb,
     anchor?: string,
   ): Chain;
+
+  /**
+   * Climbing a wall on fixed holds: the route's stances, each holding at least three of the four limbs on distinct holds, built by `wallClimbSupport` and moved through by `support`, so the support planner fits every contact and refuses a hold out of reach (Quaine and Martin 1999, DOI 10.1016/S0966-6362(99)00024-7).
+   *
+   * @param params The `start` holds and the `moves` of `IAutoMovieMotionHumanWallClimb`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanClimb.wallClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanClimb.wallClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanClimb.wallClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanClimb.wallClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanClimb.wallClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanClimb.wallClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   */
+  wallClimb(
+    params: IAutoMovieMotionHumanClimb.IWallClimb,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -134,4 +155,14 @@ export namespace IAutoMovieMotionHumanClimb {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `treeClimb` takes the type its law reads.
    */
   export type ITreeClimb = IAutoMovieMotionHumanTreeClimb.IParams;
+
+  /**
+   * The parameters of `wallClimb`: the route type `IAutoMovieMotionHumanWallClimb`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the route type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames and invariants are those the route type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWallClimb` owns the type; the alias serves this family's `wallClimb` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `wallClimb` takes the type its route reads.
+   */
+  export type IWallClimb = IAutoMovieMotionHumanWallClimb;
 }
