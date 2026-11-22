@@ -27,7 +27,7 @@ type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 /**
  * Planting a standing Human's collider soles at the physics handoff
  * (`fitHumanPhysicalStandingPose`): the turn that sets a foot's heel and
- * forefoot hulls on the floor, the drop that lets the legs reach the planted
+ * forefoot hulls on the floor, the roll that seats it on a third point, the drop that lets the legs reach the planted
  * ankles, and the shank swing that seeds the native fit.
  *
  * @evidence contracts/development/design.md#principled-representation Each reader takes the canonical profile's joints, world segment frames in metres and the foot's own hull vertices.
@@ -115,6 +115,82 @@ export namespace HumanPhysicalSolePlant {
       position: { ...placed.position, y: placed.position.y + lift },
       rotation: placed.rotation,
     };
+  }
+
+  /**
+   * The planted foot rolled about the line through its two bearing points,
+   * its lowest heel and forefoot hull points, toward the side its load comes
+   * down on (the ankle), until a third hull vertex off that line meets the
+   * floor. Planted on two points, a rigid sole has no area across that line
+   * and rolls under any load beside it; seated on three, it bears. Both
+   * bearing points keep their place. The planted pose is returned when no
+   * vertex meets the floor within the searched turn.
+   */
+  export function roll(
+    pose: IAutoMovieRigidTransform,
+    own: readonly IVertex[],
+    floor: number,
+    load: IAutoMovieVector3,
+    tolerance: number,
+  ): IAutoMovieRigidTransform | undefined {
+    const poses: Poses = { [own[0]!.bone]: pose };
+    const heel: IVertex | undefined = lowest(own, poses, "heel");
+    const forefoot: IVertex | undefined = lowest(own, poses, "forefoot");
+    if (!heel || !forefoot) return undefined;
+    const pivot: IAutoMovieVector3 = physicalSupportPoint(pose, heel.local);
+    const line: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(physicalSupportPoint(pose, forefoot.local), pivot),
+    );
+    const offset: IAutoMovieVector3 = Vector3.subtract(load, pivot);
+    const side: IAutoMovieVector3 = Vector3.subtract(
+      offset,
+      Vector3.scale(line, Vector3.dot(offset, line)),
+    );
+    // Turning about +line lowers the side s when (line x s) points down.
+    const axis: IAutoMovieVector3 =
+      Vector3.cross(line, side).y < 0 ? line : Vector3.scale(line, -1);
+    const off: IVertex[] = own.filter((vertex: IVertex): boolean => {
+      const relative: IAutoMovieVector3 = Vector3.subtract(
+        physicalSupportPoint(pose, vertex.local),
+        pivot,
+      );
+      return Vector3.length(Vector3.cross(relative, line)) > tolerance;
+    });
+    if (off.length === 0) return undefined;
+    const turned = (degrees: number): IAutoMovieRigidTransform => {
+      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        axis,
+        degrees,
+      );
+      return {
+        position: Vector3.add(
+          pivot,
+          Quaternion.rotateVector(turn, Vector3.subtract(pose.position, pivot)),
+        ),
+        rotation: Quaternion.multiply(turn, pose.rotation),
+      };
+    };
+    const gap = (degrees: number): number => {
+      const placed: IAutoMovieRigidTransform = turned(degrees);
+      return (
+        Math.min(
+          ...off.map(
+            (vertex: IVertex): number =>
+              physicalSupportPoint(placed, vertex.local).y,
+          ),
+        ) - floor
+      );
+    };
+    if (!(gap(0) > 0)) return pose;
+    if (gap(PLANT_RANGE) > 0) return pose;
+    let near: number = 0;
+    let far: number = PLANT_RANGE;
+    while (Math.abs(far - near) > PLANT_RESOLUTION) {
+      const middle: number = (near + far) / 2;
+      if (gap(middle) > 0) near = middle;
+      else far = middle;
+    }
+    return turned(near);
   }
 
   /**
