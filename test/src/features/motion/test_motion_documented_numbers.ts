@@ -39,6 +39,10 @@ const REFERENCE: number = 0.53 * 1.753;
  * 3. A lone punch's delivery and return by skill level, and the combination intervals.
  * 4. The proxemic gaps and the flinch and give sizes.
  *
+ * Not covered: the stretch's documented 30 s hold (`stretch.HOLD`), because
+ * `stretch` is not exported from `@automovie/motions` and the export is not
+ * widened for a test.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States each scenario, the documented literals compared and the precision.
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the shipped laws' constants and resolvers, not copies of them.
  * @evidence contracts/development/testing.md#independent-expectations The expected values are the numbers written in the JSDoc, typed here from the prose.
