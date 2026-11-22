@@ -32,6 +32,7 @@ import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { QuadrupedStridePlan } from "./QuadrupedStridePlan";
+import { QuadrupedTail } from "./QuadrupedTail";
 import type { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import { createQuadruped } from "./createQuadruped";
@@ -425,6 +426,9 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       } catch (error) {
         throw refuseQuadrupedReach(species.archetype, seconds, error);
       }
+      // A bank technique's steep face can meet the hanging tail, which then trails over it (`QuadrupedTail`).
+      if (ground !== undefined && footwork.bank.length + footwork.scramble.length > 0)
+        archetype = QuadrupedTail.carry(animal, species, archetype, placement, ground);
       if (!trial) ground?.verify(archetype, placement);
       return { archetype, placement: ArchetypeFrame.copy(placement) };
     };
