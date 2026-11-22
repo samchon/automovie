@@ -247,7 +247,7 @@ export function test_motion_exercise_campaign_catches(): void {
           })
           .sync({ of: "throw" }),
       ),
-    { x: seat.x, y: seat.y + 0.7, z: seat.z - 0.25 },
+    { x: seat.x, y: seat.y + 0.75, z: seat.z - 0.45 },
     [],
   );
 

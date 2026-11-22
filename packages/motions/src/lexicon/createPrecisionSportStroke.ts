@@ -32,6 +32,7 @@ import { StrikingQuality } from "../striking/StrikingQuality";
 import { PrecisionStrokeForms } from "./PrecisionStrokeForms";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
+import { holdPrecisionSwing } from "./holdPrecisionSwing";
 
 /** The shared authorship contract. Cue strokes also name a supporting surface. */
 type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
@@ -53,6 +54,12 @@ function implement(params: Stroke): string {
     fix: "name the held implement in tool",
   });
 }
+
+/**
+ * The share of a two-handed swing's arc the trunk coils back through at the
+ * top of the backswing, the rest taken by the arms (provisional).
+ */
+const COIL: number = 0.5;
 
 /** The cue's least lean over the bed while the bridge hand bears on it, degrees; provisional. */
 const BRIDGE_INCLINE: number = 27;
@@ -240,25 +247,10 @@ export function createPrecisionSportStroke<P extends Stroke>(
           PrecisionStrokeForms.reach(body) -
             Vector3.length(Vector3.subtract(path(progress).point, shoulder)),
         );
-      // The edge where the swing's arm meets the trunk's front or its reach,
-      // between a progress where it is clear and one where it is not.
-      const edge = (clear: number, blocked: number): number => {
-        for (let i: number = 0; i < 40; i++) {
-          const middle: number = (clear + blocked) / 2;
-          if (front(middle) > 0) clear = middle;
-          else blocked = middle;
-        }
-        return clear;
-      };
-      // The backswing is held the same way from its start (progress 0).
-      const cap: number =
-        form.sweep !== 0 && front(1) > 0 && !(front(2) > 0) ? edge(1, 2) : 2;
-      const floor: number =
-        form.sweep !== 0 && front(1) > 0 && !(front(0) > 0) ? edge(1, 0) : 0;
-      const swept = (
+      const swept: (
         progress: number,
-      ): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
-        path(Math.min(Math.max(progress, floor), cap));
+      ) => IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+        form.sweep === 0 ? path : holdPrecisionSwing(path, front);
 
       const plan: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
         context,
@@ -340,10 +332,22 @@ export function createPrecisionSportStroke<P extends Stroke>(
           projection,
         );
         if (influence <= 0) return planned;
-        const current: IAutoMovieMotionHumanPosture = address(
-          planned,
-          influence,
-        );
+        // Two hands on one implement coil the trunk away from the shot as
+        // the swing goes back and uncoil it into the contact, so the lead
+        // arm lies across the front of the chest at the top of the backswing
+        // instead of through it: the trunk turns back by `COIL` of the swing's
+        // arc at the backswing's top, none from the contact on.
+        const current: IAutoMovieMotionHumanPosture =
+          form.oneHand === true || held === undefined || form.sweep === 0
+            ? address(planned, influence)
+            : StrikingBlade.turned(
+                address(planned, influence),
+                -sign *
+                  COIL *
+                  form.sweep *
+                  clock.progress("start", "ready", t) *
+                  (1 - clock.progress("strokeStart", "stroke", t)),
+              );
         if (
           bridge === undefined ||
           bridgeEntry === undefined ||
