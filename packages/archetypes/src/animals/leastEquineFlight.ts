@@ -43,12 +43,14 @@ interface ILimit {
  * @param candidate The candidate's event phases.
  * @param parts The displayed model parts at the middle of a flight, where the trunk is level and the limbs tucked.
  * @param centre The body's rest centre of mass, model metres.
- * @returns Seconds from final hind liftoff to first fore landing, or undefined when a part that must rise is already over an obstacle at takeoff, the speed is not constant through the jump, or the landing falls past the leg.
+ * @param landed The unheld ride's displayed parts and placement at its first fore landing, read when the jump has a gap.
+ * @param shift Film seconds the approach's stride adjustment moves the takeoff and every later event, positive later.
+ * @returns Seconds from final hind liftoff to first fore landing, or undefined when the body is over an obstacle before the push-off begins, the speed is not constant through the jump, or the landing falls past the leg.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the posture read, the two stages and the cases without a flight.
- * @evidence contracts/development/implementation.md#principled-implementation With push-off P and landing stance A, the centre of mass, and with the trunk level the root, rises Y(τ) = v (P/2 + τ) − g τ²/2 a time τ after takeoff, where the takeoff velocity v = g T (T + A) / (2T + P + A) grows with the flight T. A part whose lowest point is y and whose extent along the path is [z⁻, z⁺] overlaps an obstacle [a, b] of top h while the root is in [a − z⁺, b − z⁻] and needs Y ≥ R = h + clearance − y there. Y is concave in τ, so each window end, reached τ = (e − s_T)/u after takeoff at ground speed u, needs v ≥ (R + g τ²/2)/(P/2 + τ); the largest such v gives the level bound T as the positive root of g T² + (g A − 2v) T − v (P + A) = 0. The trunk turns nose-down at `EquinePitch.TURN` about the centre, level at the flight's middle, which raises a point d ahead and e above the centre by e (cos φ − 1) + d sin φ; 40 halvings between the unheld flight and the level bound find the least flight whose parts clear at each window's ends and middle. A gap (a ditch) is crossed when the landing fore, read where the unheld ride lands it and moved on by the hold's distance, lands past its far edge by the clearance.
+ * @evidence contracts/development/implementation.md#principled-implementation With push-off P and landing stance A, the centre of mass, and with the trunk level the root, rises Y(τ) = v (P/2 + τ) − g τ²/2 a time τ after takeoff, where the takeoff velocity v = g T (T + A) / (2T + P + A) grows with the flight T. A part whose lowest point is y and whose extent along the path is [z⁻, z⁺] overlaps an obstacle [a, b] of top h while the root is in [a − z⁺, b − z⁻] and needs Y ≥ R = h + clearance − y there. Y is concave in τ, so each window end after takeoff, reached τ = (e − s_T)/u after it at ground speed u, needs v ≥ (R + g τ²/2)/(P/2 + τ); the largest such v gives the level bound T as the positive root of g T² + (g A − 2v) T − v (P + A) = 0. The trunk turns nose-down at `EquinePitch.TURN` about the centre, level at the flight's middle, which raises a point d ahead and e above the centre by e (cos φ − 1) + d sin φ; 40 halvings between the unheld flight and the level bound find the least flight whose parts clear at each window's ends and middle. A window may begin in the push-off, where the centre has risen v (P + τ)² / (2P) and the trunk turned up by the takeoff angle times ((P + τ)/P)², a lower bound of its Hermite turn. A gap (a ditch) is crossed when the landing fore, read where the unheld ride lands it and moved on by the shift's and the hold's distance, lands past its far edge by the clearance. A shift moves the takeoff and every later event at the same ground speed; the push-off and landing stance keep their seconds.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the contacts and windows, invert the level bound once, then halve.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A candidate with a part below an obstacle's top plus the clearance already over it at takeoff, or that lands past the leg, is discarded, never adjusted.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A candidate whose body is over an obstacle before the push-off, or that lands past the leg, is discarded, never adjusted; a part over it during the push-off must clear it there too.
  * @evidence contracts/development/implementation.md#efficient-algorithms O(P·O) for P parts and O obstacles, times 40 halvings.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The extents reuse the exact primitive floor reader.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
@@ -60,19 +62,20 @@ export function leastEquineFlight(
   candidate: EquineJump.ICandidate,
   parts: readonly IAutoMovieModelPart[],
   centre: IAutoMovieVector3,
+  landed: EquineObstacle.ISample | undefined,
+  shift: number,
 ): number | undefined {
   const at = (phase: number): number => unflown.strides.secondsAt(phase);
-  const lift: number = at(candidate.takeoff);
-  const touch: number = at(candidate.landing);
-  const push: number = lift - at(candidate.push);
-  const absorb: number = at(candidate.absorb) - touch;
+  const lift: number = at(candidate.takeoff) + shift;
+  const touch: number = at(candidate.landing) + shift;
+  const push: number = at(candidate.takeoff) - at(candidate.push);
+  const absorb: number = at(candidate.absorb) - at(candidate.landing);
   const state: ArchetypeCourse.IState = plan.at(lift);
   const u: number = state.speed;
   if (
     !(u > 0) ||
-    [candidate.approach, candidate.recovery].some(
-      (phase: number): boolean => plan.at(at(phase)).speed !== u,
-    )
+    plan.at(at(candidate.approach)).speed !== u ||
+    plan.at(at(candidate.recovery) + shift).speed !== u
   )
     return undefined;
   const g: number = AutoMovieGravity.STANDARD;
@@ -106,13 +109,10 @@ export function leastEquineFlight(
         obstacle.from + negatedForemost!,
         obstacle.to - rearmost!,
       ].map((end: number): number => (end - state.distance) / u);
-      // A part that must rise but is already over the obstacle at takeoff discards the candidate; one high enough, such as the trunk above a ditch, may be.
-      if (!ends.every((tau: number): boolean => tau > 0)) {
-        if (need > 0) return undefined;
-        continue;
-      }
+      // A part may already be over the obstacle while the hinds push, as a head held high over a fence is; over it before the push-off begins, the body has not jumped it.
+      if (!ends.every((tau: number): boolean => tau > -push)) return undefined;
       for (const tau of ends)
-        if (need > 0)
+        if (need > 0 && tau > 0)
           launch = Math.max(
             launch,
             (need + (g * tau * tau) / 2) / (push / 2 + tau),
@@ -137,10 +137,16 @@ export function leastEquineFlight(
     return limits.every((limit: ILimit): boolean =>
       [limit.first, (limit.first + limit.last) / 2, limit.last].every(
         (tau: number): boolean => {
-          const angle: number = EquinePitch.TURN * (flight / 2 - tau);
+          // In the push-off the centre rises at constant acceleration and the trunk turns up toward its takeoff angle; in the flight, the parabola and the constant turn.
+          const pushed: number = (push + tau) / push;
+          const angle: number =
+            tau < 0
+              ? EquinePitch.TURN * (flight / 2) * pushed * pushed
+              : EquinePitch.TURN * (flight / 2 - tau);
           return (
-            speed * (push / 2 + tau) -
-              (g * tau * tau) / 2 +
+            (tau < 0
+              ? (speed * push * pushed * pushed) / 2
+              : speed * (push / 2 + tau) - (g * tau * tau) / 2) +
               limit.up * (Math.cos(angle) - 1) +
               limit.ahead * Math.sin(angle) >=
             limit.need
@@ -163,8 +169,7 @@ export function leastEquineFlight(
   const gaps: readonly EquineObstacle.IObstacle[] = request.obstacles.filter(
     (obstacle: EquineObstacle.IObstacle): boolean => obstacle.top === 0,
   );
-  if (gaps.length > 0) {
-    const landed: EquineObstacle.ISample = unflown.sample(touch);
+  if (gaps.length > 0 && landed !== undefined) {
     const hoof: IAutoMovieModelPart = landed.parts.find(
       (part: IAutoMovieModelPart): boolean =>
         part.id === QuadrupedBody.BONES[candidate.moved[1]!.limb][3],
@@ -191,7 +196,8 @@ export function leastEquineFlight(
 
   // After the hold every later event moves on by the held seconds at the same speed.
   const recovery: number =
-    plan.at(at(candidate.recovery)).distance + u * (least - (touch - lift));
+    plan.at(at(candidate.recovery) + shift).distance +
+    u * (least - (touch - lift));
   return recovery <= request.end && plan.at(plan.when(recovery)).speed === u
     ? least
     : undefined;

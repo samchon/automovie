@@ -35,7 +35,7 @@ export namespace QuadrupedRideClock {
      * Remove elapsed stopped time from the film second.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines film-to-moving seconds and a held hoof clock throughout a stop.
-     * @evidence contracts/development/implementation.md#principled-implementation Subtract the portion of every elapsed stationary interval.
+     * @evidence contracts/development/implementation.md#principled-implementation Subtract the elapsed share of every hold's seconds, all of a stop's and the film-proportional part of a spread one's.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered pass of the admitted stops.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Running seconds and the requested path remain unchanged.
      * @evidence contracts/development/implementation.md#efficient-algorithms O(P) for P authored pauses, with constant work when none are authored.
@@ -47,7 +47,7 @@ export namespace QuadrupedRideClock {
      * Read the first film second at which the moving clock reaches a value.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines moving-to-film seconds, returning a stop's arrival at its held clock value.
-     * @evidence contracts/development/implementation.md#principled-implementation Add the full earlier pauses before mapping back to the authored timeline.
+     * @evidence contracts/development/implementation.md#principled-implementation Add the full earlier holds before mapping back to the authored timeline, and inside a spread hold its share at the hoof clock's changed rate.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered pass of the admitted stops.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A held clock value can emit one event at arrival and cannot emit a new event inside the pause.
      * @evidence contracts/development/implementation.md#efficient-algorithms O(P) for P authored pauses, with constant work when none are authored.
@@ -103,7 +103,7 @@ export namespace QuadrupedRideClock {
    * @param plan The already admitted path and actual clock interval.
    * @param tempo The animal's normalized declared timing-spread coordinate.
    * @param withers The animal's withers height, metres.
-   * @param holds Explicit hoof-clock holds, such as a jump's flight, merged with the route pauses.
+   * @param holds Explicit hoof-clock holds, such as a jump's flight and its approach's stride adjustment, merged with the route pauses.
    * @returns A prepared continuation reader; requested-speed admission is unchanged.
    * @throws {ArchetypeRefusal} Through strict timing when no declared continuation supports the actual speed, or timing inputs are malformed.
    *
@@ -156,20 +156,33 @@ export namespace QuadrupedRideClock {
         paused.push({
           start: arrival,
           duration: departure - arrival,
+          over: departure - arrival,
           moving: 0,
         });
       });
     }
     for (const hold of holds) {
+      const over: number = hold.over ?? hold.duration;
       if (
         !(
           Number.isFinite(hold.start) &&
-          hold.duration > 0 &&
-          Number.isFinite(hold.duration)
+          Number.isFinite(hold.duration) &&
+          Number.isFinite(over) &&
+          over > 0 &&
+          (hold.over === undefined
+            ? hold.duration > 0
+            : hold.duration !== 0 && hold.duration < over)
         )
       )
-        throw new RangeError("A hoof-clock hold needs a finite positive span");
-      paused.push({ start: hold.start, duration: hold.duration, moving: 0 });
+        throw new RangeError(
+          "A hoof-clock hold needs a finite positive span, and a spread hold a clock that still runs",
+        );
+      paused.push({
+        start: hold.start,
+        duration: hold.duration,
+        over,
+        moving: 0,
+      });
     }
     paused.sort((a: IPause, b: IPause): number => a.start - b.start);
     let held: number = 0;
@@ -208,7 +221,8 @@ export namespace QuadrupedRideClock {
         let elapsed: number = 0;
         for (const pause of paused) {
           if (second <= pause.start) break;
-          elapsed += Math.min(pause.duration, second - pause.start);
+          elapsed +=
+            pause.duration * Math.min(1, (second - pause.start) / pause.over);
         }
         return second - elapsed;
       },
@@ -216,6 +230,14 @@ export namespace QuadrupedRideClock {
         let elapsed: number = 0;
         for (const pause of paused) {
           if (second <= pause.moving) break;
+          // Inside a spread hold the hoof clock still runs, at (over ??duration) / over of the film's rate.
+          const running: number = pause.over - pause.duration;
+          if (second < pause.moving + running)
+            return (
+              second +
+              elapsed +
+              ((second - pause.moving) * pause.duration) / running
+            );
           elapsed += pause.duration;
         }
         return second + elapsed;
@@ -351,27 +373,32 @@ export namespace QuadrupedRideClock {
   }
 
   /**
-   * An explicit interval in which the hoof clock stands still while the course keeps moving, such as a jump's flight.
+   * An explicit interval in which the hoof clock stands still, or runs slower or faster, while the course keeps moving: a jump's flight, or an approach whose strides lengthen or shorten to meet its takeoff.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the film-second start and the positive duration.
-   * @evidence contracts/development/design.md#principled-representation A start and a span in film seconds, the same shape as a route pause.
+   * @evidence contracts/development/common.md#meaningful-documentation States the film-second start, the seconds the hoof clock falls behind and the optional spread.
+   * @evidence contracts/development/design.md#principled-representation A start and held seconds in film seconds, the same shape as a route pause, and the film seconds a spread hold covers.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by the ride's technique planners and merged with the route pauses here.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finiteness and positivity are admitted at `create`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finiteness, a positive stop and a still-running spread clock are admitted at `create`.
    */
   export interface IHold {
-    /** Film second the hoof clock stops. */
+    /** Film second the hoof clock stops, or starts to run at its changed rate. */
     start: number;
 
-    /** Seconds it stays stopped. */
+    /** Seconds the hoof clock falls behind the film over the hold; negative only with `over`, where it runs ahead. */
     duration: number;
+
+    /** Film seconds the hold is spread over, the hoof clock running at (over ??duration) / over of the film's rate; a full stop of `duration` when absent. */
+    over?: number;
   }
 
-  /** One admitted stationary hoof-clock window and its start on the moving clock. */
+  /** One admitted hoof-clock window and its start on the moving clock. */
   interface IPause {
     /** Film second the window starts. */
     start: number;
-    /** Film seconds it lasts. */
+    /** Seconds the hoof clock falls behind over it. */
     duration: number;
+    /** Film seconds it lasts. */
+    over: number;
     /** Its start on the moving clock. */
     moving: number;
   }

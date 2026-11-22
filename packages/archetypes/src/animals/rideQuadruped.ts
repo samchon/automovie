@@ -196,7 +196,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       plan,
       tempo,
       withers,
-      flight === undefined ? holds : [...holds, flight.hold],
+      flight === undefined ? holds : [...holds, ...EquineJump.holds(flight)],
     );
     const strides: QuadrupedStridePlan.IPlan = QuadrupedStridePlan.build(
       species,
