@@ -8,7 +8,6 @@ import type {
 
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
-import { AutoMovieMotionHumanShankClear } from "../compose/AutoMovieMotionHumanShankClear";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanMount } from "./HumanMount";
 import { HumanMountOnFrame } from "./HumanMountOnFrame";
@@ -20,8 +19,7 @@ import { HumanMountPush } from "./HumanMountPush";
  * ankle travels from where it leaves to its place (`HumanMount.between`),
  * kept a little short of the leg's straight reach, the knee bending toward
  * a pole that turns from where an unturned hip points it to the rest's own
- * (`HumanMountPush.pole`), rising clear of the seat's carrier and passing
- * beside the other leg's shank, and a pushing foot turning from its roll back to
+ * (`HumanMountPush.pole`), and a pushing foot turning from its roll back to
  * its rest's own turn. Its toes are not yet turned down (`HumanMountPush.tip`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the ankle's course, the reach bound, the pole and the pushing foot's turn.
@@ -30,9 +28,6 @@ import { HumanMountPush } from "./HumanMountPush";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's or `HumanMount`'s; every share is the flight's own.
  */
 export namespace HumanMountFlight {
-  /** How many equal shares of a swinging foot's course its rise is read at. */
-  const RISES: number = 8;
-
   /** What a leg's flight reads from the climb. */
   export interface IProps {
     /** The body. */
@@ -79,9 +74,6 @@ export namespace HumanMountFlight {
 
     /** The point the far foot crosses the seat over, world metres. */
     over: IAutoMovieVector3;
-
-    /** How far a point a swinging foot passes must rise to clear what carries the seat (`HumanMountClear`); none for a seat no prop carries. */
-    rise?: (point: IAutoMovieVector3) => number;
   }
 
   /** A swinging leg's goal at an instant, before its toes turn down. */
@@ -116,8 +108,7 @@ export namespace HumanMountFlight {
     const { body, hipsAt, places, push }: IProps = props;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const departed: Partial<Record<AutoMovieHumanSide, number>> = {};
-    const risen: Partial<Record<AutoMovieHumanSide, number[]>> = {};
-    const flown = (side: AutoMovieHumanSide, t: number): IFlown => {
+    return (side: AutoMovieHumanSide, t: number): IFlown => {
       const [leaves, arrives]: readonly [number, number] = props.flight[side];
       const share: number = minimumJerk.share(
         (t - leaves) / (arrives - leaves),
@@ -136,65 +127,13 @@ export namespace HumanMountFlight {
             yaw: props.yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
           }
         : props.starts[side];
-      const between = (along: number): HumanMount.IFoot =>
-        HumanMount.between(
-          from,
-          places[side].foot,
-          along,
-          walk.LIFT * m.hipHeight,
-          props.astride && side === push ? props.over : undefined,
-        );
-      // The course rises clear of what carries the seat (`HumanMountClear`):
-      // the rise read at evenly spaced shares of the course, nil at its two
-      // ends on the floor and the rest, and linear between.
-      const rises: number[] | undefined =
-        props.rise === undefined
-          ? undefined
-          : (risen[side] ??= Array.from(
-              { length: RISES + 1 },
-              (_: unknown, i: number): number =>
-                i === 0 || i === RISES
-                  ? 0
-                  : props.rise!(between(i / RISES).ankle),
-            ));
-      const ahead: HumanMount.IFoot = between(share);
-      const index: number = Math.min(RISES - 1, Math.floor(share * RISES));
-      const lifted: number =
-        rises === undefined
-          ? 0
-          : rises[index]! +
-            (rises[index + 1]! - rises[index]!) * (share * RISES - index);
-      // It passes beside the other leg's shank, never through it
-      // (`AutoMovieMotionHumanShankClear`): the pushing leg beside the other
-      // wherever that is, on the floor, on its way or on its rest, and the
-      // other beside the pushing leg while that still stands.
-      const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-      const stance: IAutoMovieVector3 | undefined =
-        props.onFloor[other] && t < props.flight[other][0]
-          ? other === push
-            ? props.left().goal.point
-            : props.floor[other]
-          : side !== push
-            ? undefined
-            : t >= props.flight[other][1]
-              ? places[other].foot.ankle
-              : flown(other, t).goal.point;
-      const raised: IAutoMovieVector3 = {
-        ...ahead.ankle,
-        y: ahead.ankle.y + lifted,
-      };
-      const course: HumanMount.IFoot = {
-        ...ahead,
-        ankle:
-          stance === undefined
-            ? raised
-            : AutoMovieMotionHumanShankClear(
-                body,
-                raised,
-                stance,
-                hipsAt(t)[other],
-              ),
-      };
+      const course: HumanMount.IFoot = HumanMount.between(
+        from,
+        places[side].foot,
+        share,
+        walk.LIFT * m.hipHeight,
+        props.astride && side === push ? props.over : undefined,
+      );
       // The swinging ankle keeps within the leg's reach of its hip, a
       // little short of straight: a course past it leaves the limb fit to
       // snap between the poses on its reach. A leg that left the floor
@@ -247,6 +186,5 @@ export namespace HumanMountFlight {
           : leg;
       return { share, hip, goal };
     };
-    return flown;
   }
 }
