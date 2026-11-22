@@ -16,6 +16,9 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
+import { HumanMountPush } from "../lexicon/HumanMountPush";
+import { hipJoints } from "../posture/hipJoints";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
@@ -72,6 +75,9 @@ const EASE: number = 0.1;
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
+/** The cosine between a footprint's length and an edge's normal past which the footprint crosses the edge more head-on than side-on: 45 degrees. */
+const HEAD_ON: number = Math.SQRT1_2;
+
 /**
  * A vertical translation of a plan.
  *
@@ -95,13 +101,16 @@ function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
  * surface holds the foot where it lands, and the entry's footprints on the
  * support left; a new footprint is slid along the surface, the least it
  * takes, to lie wholly on the moving support that bears it or wholly off
- * the one beside it, so no foot straddles an edge, and one on a fixed
+ * the one beside it, so no foot straddles an edge, along its own length
+ * where it crosses the edge head-on so it keeps its lane, and one on a fixed
  * landing bears at the height it stands at. A footprint on the support
  * arrived on is the point of it that the support brings to its aimed place
  * as the last foot lands: the foot meets it where it is at touchdown and
  * it carries the foot from then on, so the foot never slides on the moving
  * surface. A swinging foot moves on a minimum-jerk blend of the
- * supports of the plants it leaves and lands on, and the pelvis on the feet
+ * supports of the plants it leaves and lands on, its toes turned down
+ * rather than its ankle bent past a weightless ankle's reach
+ * (`HumanMountPush.tip`), and the pelvis on the feet
  * that bear it, easing between them; a support that turns about the vertical turns the
  * feet it bears and the body with them. The walk aims where the arrival point will be when
  * the last foot lands, so the rider compensates for the supports' travel.
@@ -114,7 +123,7 @@ function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
  * @evidence contracts/development/implementation.md#principled-implementation A planted foot keeps its material point on the support that bears it from touchdown; which support bears it is read from the supports' declared surfaces where it lands.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan the walk, aim it at the arrival point's landing place, assign each footprint its support, then carry each sample's goals.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No support speed is assumed: each support's own displayed frame carries its feet. The bearing tolerance is a named provisional value; a surface's edges are its declared extent.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two walk plans; each sample reads at most four support frames per carried point and scans the few plants.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two walk plans; each sample reads at most four support frames per carried point, scans the few plants and reads the two hips once.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the walk's footprints, timing and leg goals.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the walk plan and the plants for the action.
  */
@@ -265,7 +274,8 @@ export function HumanSupportStep(
   // holds the middle of the foot where it lands. A new footprint is slid
   // along the surface, the least it takes, to lie wholly on the moving
   // support that bears it, or wholly off the one beside it, so no foot
-  // straddles an edge.
+  // straddles an edge; one crossing the edge head-on slides along its own
+  // length, so it keeps its lane beside the other foot.
   const sole = (
     ankle: IAutoMovieVector3,
     yaw: number,
@@ -394,17 +404,29 @@ export function HumanSupportStep(
             );
             return ahead > 0 === plant.arrived ? forth : backward;
           };
+          // A footprint crossing the edge more head-on than side-on slides
+          // along its own length, shortening or lengthening its step, so it
+          // keeps its lane beside the other foot; one more side-on slides
+          // square to the edge.
+          const length: IAutoMovieVector3 = Vector3.normalize({
+            x: front.x - back.x,
+            y: 0,
+            z: front.z - back.z,
+          });
           const slide = (surface: ISurface, inside: boolean): void => {
             const along: number = fit(surface, inside);
-            if (along !== 0)
-              plant.shift = Vector3.add(
-                plant.shift,
-                Quaternion.rotateVector(surface.rotation, {
-                  x: 0,
-                  y: 0,
-                  z: along,
-                }),
-              );
+            if (along === 0) return;
+            const square: IAutoMovieVector3 = Quaternion.rotateVector(
+              surface.rotation,
+              { x: 0, y: 0, z: 1 },
+            );
+            const facing: number = Vector3.dot(length, square);
+            plant.shift = Vector3.add(
+              plant.shift,
+              Math.abs(facing) > HEAD_ON
+                ? Vector3.scale(length, along / facing)
+                : Vector3.scale(square, along),
+            );
           };
           const mid: IAutoMovieVector3 = placed(centre);
           if (bearing !== undefined) {
@@ -634,12 +656,34 @@ export function HumanSupportStep(
         };
       }
       // A turning support turns the feet it bears and the body with them.
-      return {
+      const out: Posture = {
         ...posture,
         root: body(at, posture.root),
         yaw: posture.yaw + (spin("left", at) + spin("right", at)) / 2,
         limbs,
       };
+      // A swinging foot, carried onto a support at another height or slid
+      // along it, turns its toes down rather than bend its ankle past what
+      // a weightless ankle reaches, easing in and out with its plants.
+      const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
+        context.body,
+        out.root,
+        resolveHumanPosture.heading(out),
+        out.joints.hips,
+      );
+      for (const side of SIDES) {
+        const leg: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
+        const free: number = 1 - bearing(side, at);
+        if (leg !== undefined && free > 0)
+          limbs[`${side}Leg`] = HumanMountPush.tip(
+            context.body,
+            side,
+            hips[side],
+            leg,
+            free,
+          );
+      }
+      return out;
     },
   };
 }

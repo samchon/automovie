@@ -43,6 +43,10 @@ const OPEN: number = 35;
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
+/** The bones of an arm and its hand, either side. */
+const ARM: RegExp =
+  /^(left|right)(Shoulder|UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/;
+
 /**
  * Leap off a moving swing seat: the pelvis leaves with the velocity of the
  * seat's point under it at the action's start and follows the projectile
@@ -175,6 +179,17 @@ export function HumanSwingLeap(
     left: entered.get("leftFoot")!.worldRotation,
     right: entered.get("rightFoot")!.worldRotation,
   };
+  // The arms and hands let go as the entry shows them: the ride held the
+  // chains by goals its posture's joints do not carry, so the leap unfolds
+  // them from the displayed angles, not from the posture's.
+  const released: Posture["joints"] = { ...start.joints };
+  for (const joint of context.entry.pose.joints)
+    if (ARM.test(joint.bone))
+      released[joint.bone] = [
+        joint.flexion ?? 0,
+        joint.abduction ?? 0,
+        joint.twist ?? 0,
+      ];
   const contacts: IAutoMovieMotionHumanContactWindow[] = (
     ["left", "right"] as const
   ).map(
@@ -198,7 +213,7 @@ export function HumanSwingLeap(
       const t: number = Math.max(0, Math.min(duration, at));
       const unfold: number = minimumJerk.share(t / flight);
       const joints: Posture["joints"] = {};
-      for (const [bone, angles] of Object.entries(start.joints)) {
+      for (const [bone, angles] of Object.entries(released)) {
         if (angles === undefined) continue;
         joints[bone as keyof Posture["joints"]] = [
           angles[0] * (1 - unfold),
