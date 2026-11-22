@@ -275,8 +275,9 @@ export namespace walkSteps {
     // In a step turn the turning foot moves first, then the other replaces
     // it at the new heading (Hase and Stein 1999). Adjacent flat footprints
     // differ by at most one hip's usable twist after both feet's toe-out,
-    // so a support need not spin to make the next step.
-    const turnStep: number = walkReach.TWIST - stand.TOE_OUT;
+    // so a support need not spin to make the next step; a gait that turns by
+    // shorter steps takes its share of that.
+    const turnStep: number = (walkReach.TWIST - stand.TOE_OUT) * (input.gait?.turn ?? 1);
     const n: number = inPlace
       ? Math.max(1, Math.ceil(Math.abs(ending - yaw0) / turnStep))
       : pace.steps + turning;

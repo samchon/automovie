@@ -49,6 +49,9 @@ export interface IAutoMovieMotionHumanWalkGait {
   /** The least clearance of a swinging foot's toe and heel at mid-swing, metres; `walkFoot.CLEARANCE` (15 mm) when absent. A shuffling gait clears less. */
   toeClearance?: number;
 
+  /** The share, in (0, 1], of a hip's usable twist one step of a turn in place takes; 1 when absent. A frail gait turns by shorter steps, so a half turn takes more of them. */
+  turn?: number;
+
   /** Shoulder swing amplitude, elbow flexion and its swing, degrees. */
   arms: {
     /** Shoulder swing amplitude in clinical degrees. */

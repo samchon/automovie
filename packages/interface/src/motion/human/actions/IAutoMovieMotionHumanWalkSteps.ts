@@ -103,8 +103,8 @@ export namespace IAutoMovieMotionHumanWalkSteps {
     /** Swing duration in step periods; 0.8 (a walk's 40 % of the stride) when absent, above 1 for a run's flight. */
     swing?: number;
 
-    /** What the plan reads of the gait beyond its timing: its vertical oscillation in hip heights (the mean drop and the amplitude, lowest at mid-stance; a walk's when absent) and how far it holds the heels off the floor, degrees (flat when absent), and its step width in hip heights (`walkSteps.WIDTH` when absent). */
-    gait?: Pick<IAutoMovieMotionHumanWalkGait, "bob" | "heels" | "stiff" | "width">;
+    /** What the plan reads of the gait beyond its timing: its vertical oscillation in hip heights (the mean drop and the amplitude, lowest at mid-stance; a walk's when absent) and how far it holds the heels off the floor, degrees (flat when absent), its step width in hip heights (`walkSteps.WIDTH` when absent), and the share of a hip's usable twist a step of a turn in place takes (1 when absent). */
+    gait?: Pick<IAutoMovieMotionHumanWalkGait, "bob" | "heels" | "stiff" | "turn" | "width">;
   }
 
   /**
