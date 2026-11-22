@@ -4,6 +4,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanJuggle,
   IAutoMovieMotionHumanProp,
@@ -25,6 +26,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The balls juggled: three tennis balls. */
 const BALLS: readonly string[] = ["b1", "b2", "b3"];
+/** Gravity, metres per second squared. */
+const GRAVITY: number = 9.81;
+/** The film rate the drop is read at, frames per second. */
+const FRAME: number = 24;
 
 /**
  * Juggle a three-ball cascade (#3997's juggling).
@@ -122,21 +127,27 @@ export function test_motion_exercise_juggle(): void {
     assertTakeClean(`${name} cascade`, film);
   }
 
-  // 4. A drop falls to the floor.
+  // 4. A drop falls to the floor. The juggler stands on after the pattern
+  // for as long as a ball takes to fall from the top of its head to the
+  // floor, sqrt(2 h / g), which bounds the dropped ball's fall from wherever
+  // it leaves the hand, so the take holds its landing.
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const dropped: HumanPerformance = take(body, {
-    pattern: "cascade",
-    balls: [...BALLS],
-    throws: 4,
-    drops: [4],
-  });
-  const lowest: number = Math.min(
-    ...BALLS.map(
-      (b: string): number => dropped.prop(b, dropped.duration).position.y,
-    ),
+  const dropped: HumanPerformance = take(
+    body,
+    {
+      pattern: "cascade",
+      balls: [...BALLS],
+      throws: 4,
+      drops: [4],
+    },
+    Math.sqrt((2 * body.measure.stature) / GRAVITY),
   );
+  let lowest: number = Infinity;
+  for (let t: number = 0; t <= dropped.duration; t += 1 / FRAME)
+    for (const b of BALLS)
+      lowest = Math.min(lowest, dropped.prop(b, t).position.y);
   TestValidator.predicate(
-    `a dropped ball lies on the floor (${lowest.toFixed(3)} m)`,
+    `a dropped ball falls to the floor (${lowest.toFixed(3)} m)`,
     lowest <= 0.05,
   );
 
@@ -152,7 +163,7 @@ export function test_motion_exercise_juggle(): void {
     "a pattern too low to catch is refused with the least height",
     refused?.axis === "height" &&
       refused.feasible?.kind === "range" &&
-      refused.feasible.minimum > 0.02,
+      (refused.feasible.minimum ?? 0) > 0.02,
   );
 }
 
@@ -160,7 +171,11 @@ export function test_motion_exercise_juggle(): void {
 function take(
   body: IAutoMovieMotionHumanBody,
   params: IAutoMovieMotionHumanJuggle.IParams,
+  after: number = 0,
 ): HumanPerformance {
+  const juggled: IAutoMovieMotionHumanChain = HumanChain.subject(
+    "a",
+  ).registered("juggling", params);
   const model: ReturnType<typeof createBall> = createBall({ kind: "tennis" });
   const radius: number = model.affordance("grip").frame.translation.y;
   const root: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -187,6 +202,9 @@ function take(
           yaw: 0,
         }),
     ),
-    composition: HumanChain.subject("a").registered("juggling", params).node,
+    composition: (after > 0
+      ? juggled.stand({ seconds: after, sway: 0 })
+      : juggled
+    ).node,
   });
 }

@@ -12,7 +12,6 @@ import {
 import type {
   IAutoMovieAffordance,
   IAutoMovieComposition,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGunCrew,
   IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanProp,

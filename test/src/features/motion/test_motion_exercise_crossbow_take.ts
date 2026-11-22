@@ -1,8 +1,4 @@
-import {
-  createBow,
-  createProjectile,
-  createTable,
-} from "@automovie/archetypes";
+import { createBow, createProjectile } from "@automovie/archetypes";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -128,7 +124,7 @@ export function test_motion_exercise_crossbow_take(): void {
             { prop: "crossbow", handle: "foreEnd", hand: "left", lift: 0 },
             "support",
           )
-          .act(
+          .registered(
             "presentCrossbow",
             {
               gun: "crossbow",
@@ -138,7 +134,7 @@ export function test_motion_exercise_crossbow_take(): void {
             },
             "present",
           )
-          .act(
+          .registered(
             "shootCrossbow",
             {
               continuation: {

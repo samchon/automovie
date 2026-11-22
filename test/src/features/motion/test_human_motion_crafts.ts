@@ -31,8 +31,6 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 const ON: number = 0.005;
 /** A held prop drifts at most this in its hand's frame, metres. */
 const HOLD: number = 0.005;
-/** A palm stays on the clay wall within this, metres. */
-const PALM: number = 0.03;
 /** The conducting tempo, beats per minute. */
 const BPM: number = 120;
 

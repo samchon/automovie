@@ -3,7 +3,6 @@ import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,

@@ -22,6 +22,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { collectTakeClean } from "../internal/collectTakeClean";
+import { fittedWheelchair } from "../internal/fittedWheelchair";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -71,8 +72,11 @@ type BodyKey = "m-average" | "f-small";
  */
 function take(key: BodyKey, failures: string[]): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
-  const chair: ReturnType<typeof createWheelchair> = createWheelchair(
-    { kind: "selfPropelled" },
+  // The chair fitted to the rider: the narrowest read seat that holds its
+  // hips, so the rims lie within its arms.
+  const chair: ReturnType<typeof createWheelchair> = fittedWheelchair(
+    body,
+    "selfPropelled",
     2,
   );
   const radius: number = 2;

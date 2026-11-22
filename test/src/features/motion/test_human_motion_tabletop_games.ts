@@ -298,8 +298,9 @@ function cards(
   ];
   // The deck's top card is the highest one: deal from the top down.
   const dealt: string[] = ["c3", "c2", "c1"];
-  const left: IAutoMovieVector3 = onTable(s, -0.12, 0.05);
-  const right: IAutoMovieVector3 = onTable(s, 0.12, 0.05);
+  // Each packet lies on its own hand's side (world +X is the player's left).
+  const left: IAutoMovieVector3 = onTable(s, 0.12, 0.05);
+  const right: IAutoMovieVector3 = onTable(s, -0.12, 0.05);
   const packets: IAutoMovieMotionHumanProp[] = [
     card("l0", 0, left),
     mounted(card("l1", 1, left), "l0"),

@@ -30,10 +30,6 @@ const ON: number = 0.005;
 const HOLD: number = 0.005;
 /** A palm stays on the clay wall within this, metres. */
 const PALM: number = 0.03;
-/** An ictus falls on its beat within this, seconds: a 24 Hz frame. */
-const ICTUS: number = 1 / 24;
-/** The conducting tempo, beats per minute. */
-const BPM: number = 120;
 
 /**
  * Seated crafts (#3996): knitting and throwing pottery; the standing ones

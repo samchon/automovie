@@ -2,7 +2,6 @@ import { AutoMovieComposition, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
   IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGroupDance,
   IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanSegment,

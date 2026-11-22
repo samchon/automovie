@@ -115,8 +115,8 @@ export function test_motion_exercise_archery_take(): void {
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "bow", handle: "grip", hand: "left" }, "bow")
-          .act("takeArrow", { prop: "arrow", hand: "right" }, "take")
-          .act(
+          .registered("takeArrow", { prop: "arrow", hand: "right" }, "take")
+          .registered(
             "nockArrow",
             {
               prop: "arrow",
@@ -125,7 +125,7 @@ export function test_motion_exercise_archery_take(): void {
             },
             "nock",
           )
-          .act(
+          .registered(
             "presentBow",
             // Brought up over two seconds, the right hand on the string riding
             // up with the bow from the nocking place.
@@ -137,7 +137,7 @@ export function test_motion_exercise_archery_take(): void {
             },
             "present",
           )
-          .act(
+          .registered(
             "drawBow",
             {
               mechanism: {
@@ -149,7 +149,7 @@ export function test_motion_exercise_archery_take(): void {
             },
             "draw",
           )
-          .act(
+          .registered(
             "loose",
             {
               continuation: {

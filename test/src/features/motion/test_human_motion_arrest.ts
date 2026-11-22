@@ -4,9 +4,9 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -22,6 +22,7 @@ import {
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { performanceAimFrame } from "../internal/performanceAimFrame";
 
 /** The regions a pat-down visits from behind, in order: the shoulder blades, then each shoulder; the hands clasped at the small of the back keep the pats above them. */
 const FRISK: readonly AutoMovieHumanoidRegion[] = [
@@ -94,7 +95,7 @@ export function test_human_motion_arrest(): void {
     // The subject keeps the hands clasped behind until the cuffs are on, and
     // walks off bound when the cuffing ends.
     const subjectChain: IAutoMovieMotionHumanChain = HumanChain.subject("s")
-      .act("paradeRest", { seconds: HELD })
+      .registered("paradeRest", { seconds: HELD })
       .walk({ to: { x: 0, y: 0, z: 1.5 } })
       .sync({ of: "cuff", event: "end" });
     const film: HumanPerformance = new HumanPerformance({
@@ -140,11 +141,10 @@ export function test_human_motion_arrest(): void {
         "flat",
       ).point;
       // The region's own surface point, as the pat aims at it.
-      const reader: IAutoMovieMotionHumanPosture = film.posture("o", at);
       const target: IAutoMovieVector3 = film.aim(
         { kind: "person", subject: "s", region },
         at,
-        { root: reader.root, yaw: reader.yaw },
+        performanceAimFrame(film, "o", officer, at),
       ).point;
       checks.check(
         `the pat reaches ${region} (${Vector3.distance(palm, target).toFixed(3)} m) in order`,
@@ -208,10 +208,7 @@ function cuffs(officer: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp {
     symmetry: "round",
     aperture: 0.02,
   };
-  const ring = (
-    id: string,
-    x: number,
-  ): IAutoMovieMotionHumanProp["shapes"][number] => ({
+  const ring = (id: string, x: number): IAutoMoviePhysicalShape => ({
     id,
     kind: "sphere",
     radius: 0.035,

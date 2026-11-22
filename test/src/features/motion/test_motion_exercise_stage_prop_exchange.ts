@@ -8,7 +8,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanProp,
-  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieScheduleCue,
   IAutoMovieScheduleEntry,
@@ -19,7 +18,6 @@ import {
   HumanHand,
   HumanObject,
   HumanPerformance,
-  HumanPropFrame,
   HumanRefusal,
   HumanStageProp,
 } from "@automovie/motions";

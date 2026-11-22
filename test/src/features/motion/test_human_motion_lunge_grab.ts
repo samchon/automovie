@@ -3,7 +3,6 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -13,14 +12,14 @@ import {
   HumanHand,
   HumanPerformance,
   HumanRefusal,
+  lungeGrab,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { performanceAimFrame } from "../internal/performanceAimFrame";
 
-/** The pair's separation for a lunge, metres: beyond the arms, inside a lunge. */
-const LUNGE: number = 0.95;
 /** The pair's separation no lunge covers, metres. */
 const FAR: number = 3;
 /** A palm closes on its region within this of the region's surface point, metres: a palm's half width. */
@@ -58,7 +57,14 @@ export function test_human_motion_lunge_grab(): void {
       label === "m-average" ? "f-small" : "m-average",
     );
     try {
-      const film: HumanPerformance = perform(body, victim, LUNGE);
+      // Beyond the arms, inside a lunge: an arm and a hand from the shoulder,
+      // then half the law's longest lunge (its hips' travel in hip heights).
+      const apart: number =
+        body.measure.upperArm +
+        body.measure.forearm +
+        body.measure.hand +
+        (lungeGrab.LONGEST * body.measure.hipHeight) / 2;
+      const film: HumanPerformance = perform(body, victim, apart);
       const grab: IAutoMovieScheduleEntry = film.schedule.entries.find(
         (e: IAutoMovieScheduleEntry): boolean => e.intent?.anchor === "lunge",
       )!;
@@ -71,11 +77,10 @@ export function test_human_motion_lunge_grab(): void {
           "palm",
           "flat",
         ).point;
-        const reader: IAutoMovieMotionHumanPosture = film.posture("a", at);
         const site: IAutoMovieVector3 = film.aim(
           { kind: "person", subject: "v", region },
           at,
-          { root: reader.root, yaw: reader.yaw },
+          performanceAimFrame(film, "a", body, at),
         ).point;
         const gap: number = Vector3.distance(palm, site);
         checks.check(
@@ -128,7 +133,7 @@ function perform(
     ],
     composition: HumanChain.subject("a")
       .stand({ seconds: 0.3, sway: 0 })
-      .act("lungeGrab", { partner: "v" }, "lunge")
+      .registered("lungeGrab", { partner: "v" }, "lunge")
       .with(HumanChain.subject("v").stand({ seconds: 4, sway: 0 })).node,
   });
 }

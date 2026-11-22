@@ -3,7 +3,6 @@ import {
   createPlyoBox,
   createSpringboard,
 } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
   IAutoMovieMotionHumanBody,
