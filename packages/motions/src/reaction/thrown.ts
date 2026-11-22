@@ -32,7 +32,8 @@ import { ReactionSource } from "./ReactionSource";
 /**
  * A struck body thrown clear of the floor by a blast or a jerk-back
  * (`IAutoMovieMotionHumanThrown`). The body takes its rig's shape over
- * `WINDUP`, the feet leave the floor at `takeoff`, and the root flies the
+ * `WINDUP` with the feet held flat where they stood, the feet leave the
+ * floor at `takeoff`, and the root flies the
  * ballistic path of the authored distance and height under standard gravity
  * until it reaches the height it lies at, `land`, turning over onto its
  * back meanwhile into the knockdown's supine lie (`KnockdownFloor`). The
@@ -363,6 +364,7 @@ export namespace thrown {
       ...ReactionFeet.hold(
         plan,
         context.entry,
+        body,
         takeoff,
         0.5 * body.measure.hipHeight,
       ),

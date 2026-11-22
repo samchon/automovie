@@ -322,7 +322,7 @@ export namespace knockdown {
     // The fold turns and pitches the body about its root; the feet stay
     // flat where they stood until the seat lands, so no heel skates.
     const out: IAutoMovieMotionHumanActionPlan = {
-      ...ReactionFeet.hold(plan, context.entry, SEATED, 0.5 * body.measure.hipHeight),
+      ...ReactionFeet.hold(plan, context.entry, body, SEATED, 0.5 * body.measure.hipHeight),
       ...(defaultSource && duration > DOWN
         ? { still: [DOWN, duration] as const }
         : {}),

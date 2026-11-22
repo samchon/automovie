@@ -282,6 +282,7 @@ export namespace collapse {
       ...ReactionFeet.hold(
         plan,
         context.entry,
+        context.body,
         kneel,
         0.5 * context.body.measure.hipHeight,
       ),

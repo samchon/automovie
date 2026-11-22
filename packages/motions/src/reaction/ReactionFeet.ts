@@ -1,13 +1,19 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * The feet of a body going down, held where they stood. A fall that pitches
@@ -18,6 +24,10 @@ import { mixHumanPosture } from "../posture/mixHumanPosture";
  * over `FADE`.
  */
 export namespace ReactionFeet {
+  /** The two feet's bones. */
+  const FEET_BONES: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]);
+
   /** The two feet's contact parts. */
   const FEET: readonly IAutoMovieMotionHumanContactWindow["part"][] = [
     "leftFoot",
@@ -29,12 +39,14 @@ export namespace ReactionFeet {
 
   /**
    * A plan whose feet stay planted until a second: its posture with both
-   * legs' goals at the entry feet, faded back to the plan's own legs over
-   * `FADE` after. Written over the composed posture, so the fall's own leg
-   * joints stay one movement and the planted goals take over from them.
+   * legs' goals at the entry feet; after it, over `FADE`, each goal travels
+   * to where the plan's own legs put the foot, so the legs return to the
+   * fall's shape without a jump. Written over the composed posture, so the
+   * fall's own leg joints stay one movement.
    *
    * @param plan The fall's plan.
    * @param entry The entry state, its feet.
+   * @param body The body, for the released feet's displayed frames.
    * @param until Seconds since the action's start the feet stay planted until.
    * @param knee How high above the ankle the knee's hint lies, metres; it leans ahead along the heading by four tenths of that.
    * @returns The plan with its feet held.
@@ -42,10 +54,19 @@ export namespace ReactionFeet {
   export function hold(
     plan: IAutoMovieMotionHumanActionPlan,
     entry: IAutoMovieMotionHumanEntryState,
+    body: IAutoMovieMotionHumanBody,
     until: number,
     knee: number,
   ): IAutoMovieMotionHumanActionPlan {
     const yaw: number = (entry.posture.yaw * Math.PI) / 180;
+    const ahead: IAutoMovieVector3 = {
+      x: 0.4 * knee * Math.sin(yaw),
+      y: knee,
+      z: 0.4 * knee * Math.cos(yaw),
+    };
+    // The feet's world rotations at rest, so a displayed foot's rotation can
+    // be stated from its rest as a goal states it.
+    let rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined;
     return {
       ...plan,
       posture: (
@@ -60,28 +81,64 @@ export namespace ReactionFeet {
           resolution,
           projection,
         );
-        const weight: number =
-          seconds <= until
-            ? 1
-            : 1 - minimumJerk.share(Math.min(1, (seconds - until) / FADE));
-        if (weight <= 0) return posture;
+        if (seconds >= until + FADE) return posture;
+        const s: number =
+          seconds <= until ? 0 : minimumJerk.share((seconds - until) / FADE);
+        // Released, each foot's goal travels from where it stood to where the
+        // fall's own legs put it, so the goal is the leg's own at the end.
+        let shown:
+          | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+          | undefined;
+        if (s > 0) {
+          rest ??= poseBones(
+            body,
+            resolveHumanPosture(body, {
+              root: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              pitch: 0,
+              roll: 0,
+              joints: {},
+              limbs: {},
+            }),
+            undefined,
+            FEET_BONES,
+          );
+          shown = poseBones(
+            body,
+            resolveHumanPosture(body, posture),
+            undefined,
+            FEET_BONES,
+          );
+        }
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...posture.limbs,
         };
         for (const side of ["left", "right"] as const) {
           const foot: IAutoMovieMotionHumanEntryState.IFoot = entry.feet[side];
+          const bone: AutoMovieHumanoidBone = `${side}Foot`;
+          const point: IAutoMovieVector3 =
+            shown === undefined
+              ? foot.ankle
+              : Vector3.lerp(foot.ankle, shown.get(bone)!.worldPosition, s);
+          const rotation: IAutoMovieQuaternion =
+            shown === undefined
+              ? foot.rotation
+              : Quaternion.slerp(
+                  foot.rotation,
+                  Quaternion.multiply(
+                    shown.get(bone)!.worldRotation,
+                    Quaternion.inverse(rest!.get(bone)!.worldRotation),
+                  ),
+                  s,
+                );
           limbs[`${side}Leg`] = {
-            point: foot.ankle,
-            rotation: foot.rotation,
-            bend: Vector3.add(foot.ankle, {
-              x: 0.4 * knee * Math.sin(yaw),
-              y: knee,
-              z: 0.4 * knee * Math.cos(yaw),
-            }),
-            planted: true,
+            point,
+            rotation,
+            bend: Vector3.add(point, ahead),
+            planted: s === 0,
           } satisfies IAutoMovieHumanLimbGoal;
         }
-        return mixHumanPosture(posture, { ...posture, limbs }, weight);
+        return { ...posture, limbs };
       },
     };
   }

@@ -24,6 +24,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { ReactionFeet } from "./ReactionFeet";
 
 /**
  * A wire flight along an authored path (`IAutoMovieMotionHumanWireFlight`).
@@ -212,7 +213,20 @@ export namespace wireFlight {
       });
     const touches: readonly IAutoMovieMotionHumanWireFlight.ITouch[] =
       context.params.touches ?? [];
-    if (touches.length === 0) return { ...plan, physicalWindow: null };
+    // The feet stay flat where they stood while the wire takes the weight,
+    // the flight's first `LIFT` share, then rise with the body.
+    const held: IAutoMovieMotionHumanActionPlan = ReactionFeet.hold(
+      {
+        ...plan,
+        contacts: [...plan.contacts, ...ReactionFeet.plants(LIFT)],
+        physicalWindow: null,
+      },
+      context.entry,
+      context.body,
+      LIFT * seconds,
+      0.5 * context.body.measure.hipHeight,
+    );
+    if (touches.length === 0) return held;
 
     // Each touch: the hand or the foot meets its surface around its share,
     // coming in and going out over `TOUCH` on either side.
@@ -275,7 +289,7 @@ export namespace wireFlight {
       },
     );
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      ...plan.contacts,
+      ...held.contacts,
       ...placed.flatMap((p: IPlaced): IAutoMovieMotionHumanContactWindow[] =>
         p.touch.target.kind === "prop"
           ? [
@@ -291,7 +305,7 @@ export namespace wireFlight {
       ),
     ];
     return {
-      ...plan,
+      ...held,
       contacts,
       physicalWindow: null,
       posture: (
@@ -300,7 +314,7 @@ export namespace wireFlight {
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
-        let posture: IAutoMovieMotionHumanPosture = plan.posture(
+        let posture: IAutoMovieMotionHumanPosture = held.posture(
           seconds_,
           channels,
           resolution,
@@ -339,6 +353,9 @@ export namespace wireFlight {
       },
     };
   }
+
+  /** The share of the flight the feet stay planted for while the wire takes the weight: authored. */
+  export const LIFT: number = 0.08;
 
   /** How long a touch comes in before its share and goes out after, seconds: authored. */
   export const TOUCH: number = 0.3;
@@ -410,10 +427,10 @@ export namespace wireFlight {
         rightUpperArm: [5, 20, 0],
         leftLowerArm: [15, 0, 0],
         rightLowerArm: [15, 0, 0],
-        leftUpperLeg: [10, 3, 0],
-        rightUpperLeg: [10, 3, 0],
-        leftLowerLeg: [20, 0, 0],
-        rightLowerLeg: [20, 0, 0],
+        leftUpperLeg: [3, 3, 0],
+        rightUpperLeg: [3, 3, 0],
+        leftLowerLeg: [15, 0, 0],
+        rightLowerLeg: [15, 0, 0],
       },
     },
     stride: {
