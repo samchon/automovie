@@ -396,7 +396,13 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
       const store: Map<string, IStanceFrame> = frames.get(bound) ?? new Map();
       frames.set(bound, store);
       let frame: IStanceFrame | undefined = store.get(body.id);
-      if (!frame || frame.step !== step) {
+      // A touchdown or lift-off is solved again at once, not at the next
+      // frame (Feng et al. 2013, Section II-E).
+      const pattern: string = [
+        ...legs.map(({ limb }) => (feet[limb.bone]!.bearing > 0 ? "1" : "0")),
+        recoveryBone ?? "",
+      ].join("");
+      if (!frame || frame.step !== step || frame.pattern !== pattern) {
         // TSID's contact gain: K_p = 10 per second squared, critically damped.
         const problem = legs.map(({ limb, joints }) => {
           const bearing: boolean = feet[limb.bone]!.bearing > 0;
@@ -558,6 +564,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         });
         frame = {
           step,
+          pattern,
           solution,
           legs: problem.map((entry) => ({
             bone: entry.limb.bone,
@@ -984,6 +991,8 @@ function rigidBody(rigid: RigidBody): physicalStanceDynamics.IBody {
 /** One body's joint solve, kept for the control frame it was solved in. */
 interface IStanceFrame {
   step: number;
+  /** The bearing feet and the swinging limb it was solved for. */
+  pattern: string;
   solution: physicalStanceDynamics.ISolution | undefined;
   legs: {
     bone: string;

@@ -811,14 +811,14 @@ export namespace physicalStanceDynamics {
       });
     }
     // Each point force is regularized toward its share of the weight, its
-    // tangential part ten times heavier (Righetti et al. 2013), and held near
+    // tangential part a thousand times heavier, TSID's ratio (contact-6d), and held near
     // the previous solve's (Feng et al. 2013, Table I); the held feet's contact
     // rows are near hard (TSID's infinite contact weight).
     const weight: number = Math.max(1, Math.abs(input.task.force.y));
     const share: number =
       flat.length > 0 ? input.task.force.y / flat.length : 0;
     const normalWeight: number = 1e-6;
-    const tangentialWeight: number = 1e-5;
+    const tangentialWeight: number = 1e-3;
     const changeWeight: number = 1e-6;
     const previous: number[] = input.legs.flatMap((leg: ILeg, index: number) =>
       leg.points.flatMap((_, k: number) => {
