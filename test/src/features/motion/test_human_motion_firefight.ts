@@ -36,6 +36,8 @@ const AIM: number = 15;
 const ON: number = 0.05;
 /** The lying victim's heading, degrees: across the way ahead. */
 const VICTIM_YAW: number = 90;
+/** Seconds the victim holds lying: past the helper's last beat, so the victim lies whenever the helper reads them. */
+const LIE: number = 20;
 /** The fire's base on the floor ahead, world metres. */
 const FIRE: IAutoMovieVector3 = { x: 0, y: 0, z: 2.2 };
 
@@ -378,7 +380,7 @@ function flames(
     ],
     laws: [],
     props: [],
-    composition: HumanChain.subject("victim").lieDown({}).node,
+    composition: HumanChain.subject("victim").lieDown({ hold: LIE }).node,
   });
   const down: IAutoMovieMotionHumanSegment = named(
     alone,
@@ -421,22 +423,31 @@ function flames(
       region: "sternum",
       count: 2,
     });
-  const take: HumanPerformance = everydayTake.perform(
-    `firefight-${label}`,
-    body,
-    props,
-    chain,
-    Object.values(HUMAN_LEXICON).flat(),
-    [
+  // The victim's chain comes first in the parallel group, so the victim
+  // already lies where the helper reads the region.
+  const take: HumanPerformance = new HumanPerformance({
+    seed: `firefight-${label}`,
+    performers: [
+      {
+        subject: "actor",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
       {
         subject: "victim",
         body,
         at: victim,
         yaw: VICTIM_YAW,
-        chain: HumanChain.subject("victim").lieDown({}),
+        proficiency: { level: "trained" },
       },
     ],
-  );
+    laws: Object.values(HUMAN_LEXICON).flat(),
+    props,
+    composition: HumanChain.subject("victim").lieDown({ hold: LIE }).with(chain)
+      .node,
+  });
   everydayTake.clean(label, take);
   const beat: IAutoMovieMotionHumanSegment = named(take, "beatFlames")[0]!;
   const face = (t: number): IAutoMovieVector3 =>
@@ -487,7 +498,7 @@ function flames(
               z: body.measure.upperArm + body.measure.forearm,
             },
             yaw: 90,
-            chain: HumanChain.subject("victim").lieDown({}),
+            chain: HumanChain.subject("victim").lieDown({ hold: LIE }),
           },
         ],
       ),
