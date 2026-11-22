@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
+  IAutoMovieFlexedAbduction,
   IAutoMovieJointConstraint,
 } from "@automovie/interface";
 
@@ -49,6 +50,16 @@ const ballConstraint = (
  * coordinate range and needs no swing-twist gate.
  */
 const KNUCKLE = constraint(range(-45, 90), range(-30, 30), null);
+
+/**
+ * A hip's abduction ceiling flexed: 45 degrees with the hip straight (the
+ * `abduction` interval's own) rising to 60 with the hip flexed 90, the upper
+ * AAOS 1965 norm for abduction with the hip and knee flexed 90 (45-60), as
+ * Cejudo, Sainz de Baranda, Santonja and Ayala tabulate it (2016, SporTK
+ * 5(1):35-46, Table 1); flexion slackens the ligaments that stop a straight
+ * hip's abduction (Kapandji, as they cite).
+ */
+const HIP_FLEXED_ABDUCTION: IAutoMovieFlexedAbduction = { flexion: 90, max: 60 };
 
 /** A finger's proximal interphalangeal joint: a hinge, flexion 0 to 115 (the same table's 100-115). */
 const MIDDLE_JOINT = constraint(range(0, 115), null, null);
@@ -209,18 +220,14 @@ export const DEFAULT_HUMANOID_ROM: Partial<
   rightHand: constraint(range(-80, 70), range(-30, 20), null),
 
   // ── legs ──
-  leftUpperLeg: ballConstraint(
-    range(-30, 120),
-    range(-30, 45),
-    range(-45, 45),
-    120,
-  ),
-  rightUpperLeg: ballConstraint(
-    range(-30, 120),
-    range(-30, 45),
-    range(-45, 45),
-    120,
-  ),
+  leftUpperLeg: {
+    ...ballConstraint(range(-30, 120), range(-30, 45), range(-45, 45), 120),
+    abductionFlexed: HIP_FLEXED_ABDUCTION,
+  },
+  rightUpperLeg: {
+    ...ballConstraint(range(-30, 120), range(-30, 45), range(-45, 45), 120),
+    abductionFlexed: HIP_FLEXED_ABDUCTION,
+  },
   leftLowerLeg: constraint(range(0, 150), null, null),
   rightLowerLeg: constraint(range(0, 150), null, null),
   // A foot's dorsiflexion reaches its loaded limit: a bearing foot is taken

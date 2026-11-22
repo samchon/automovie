@@ -25,6 +25,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { CloseStrikeLegs } from "./CloseStrikeLegs";
 import { FootStrikeForms } from "./FootStrikeForms";
 import { FootStrikeLeg } from "./FootStrikeLeg";
+import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
@@ -205,6 +206,9 @@ export namespace footStrike {
           hop,
           drop,
           free: side,
+          // The support rises onto its ball with the strike, as a round
+          // kick's does (`KickForm.PIVOT`).
+          raise: KickForm.PIVOT.raise,
         });
       const hipOf = (
         primitive: IAutoMovieMotionHumanPrimitive,
@@ -365,7 +369,8 @@ export namespace footStrike {
         lead: LEAD,
         meet: MEET,
       });
-      // The support foot is planted throughout, or around the jump's flight.
+      // The support foot stands on its ball throughout, or around the jump's
+      // flight.
       const flight: readonly [number, number] = [
         chamber / duration,
         (shown + 0.5 * JUMP[0]) / duration,
@@ -392,8 +397,9 @@ export namespace footStrike {
             to,
           ]: readonly number[]): IAutoMovieMotionHumanContactWindow => ({
             part: `${support}Foot`,
-            // A spin or a back kick turns the support foot on its ball.
-            kind: whole !== 0 || away !== 0 ? "pivot" : "plant",
+            // The support stands on its ball, risen with the strike, and a
+            // spin or a back kick turns it there.
+            kind: "pivot",
             from: from!,
             to: to!,
             support: { kind: "ground" },

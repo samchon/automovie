@@ -1,5 +1,6 @@
 import {
   IAutoMovieAngleRange,
+  IAutoMovieFlexedAbduction,
   IAutoMovieJointConstraint,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
@@ -53,6 +54,28 @@ export const validateJointConstraint: (
           `a swing-twist joint reads its swing from its flexion and abduction ranges, so ${axis} must not be null`,
           null,
         );
+  }
+
+  // A flexed abduction ceiling rises from a moving abduction's own ceiling
+  // at a positive flexion.
+  if (
+    constraint.abductionFlexed !== undefined &&
+    constraint.abductionFlexed !== null
+  ) {
+    const flexed: IAutoMovieFlexedAbduction = constraint.abductionFlexed;
+    if (
+      constraint.abduction === null ||
+      !Number.isFinite(flexed.flexion) ||
+      flexed.flexion <= 0 ||
+      !Number.isFinite(flexed.max) ||
+      flexed.max < constraint.abduction.max
+    )
+      collector.push(
+        "range",
+        `${path}.abductionFlexed`,
+        `a flexed abduction ceiling needs a moving abduction, a finite flexion above 0 and a ceiling at least the abduction's own max, but was flexion ${flexed.flexion}, max ${flexed.max}`,
+        flexed.max,
+      );
   }
 
   if (constraint.swingDeg !== undefined && constraint.swingDeg !== null) {

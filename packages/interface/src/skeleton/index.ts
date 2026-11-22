@@ -5,6 +5,7 @@ export type { AutoMovieHumanoidSocket } from "./AutoMovieHumanoidSocket";
 export type { AutoMovieJointRotationOrder } from "./AutoMovieJointRotationOrder";
 export type { AutoMovieJointTwistPlacement } from "./AutoMovieJointTwistPlacement";
 export type { IAutoMovieAngleRange } from "./IAutoMovieAngleRange";
+export type { IAutoMovieFlexedAbduction } from "./IAutoMovieFlexedAbduction";
 export type { IAutoMovieArticulatedRig } from "./IAutoMovieArticulatedRig";
 export type { IAutoMovieAttachment } from "./IAutoMovieAttachment";
 export type { IAutoMovieBodyMeasure } from "./IAutoMovieBodyMeasure";

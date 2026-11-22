@@ -8,6 +8,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
+import { abductionRange } from "./abductionRange";
 import { scanJointRom } from "./scanJointRom";
 
 /**
@@ -69,7 +70,10 @@ export const validateJointRom: (
         );
         return;
       }
-      const allowed: IAutoMovieAngleRange | null = constraint[part];
+      const allowed: IAutoMovieAngleRange | null =
+        part === "abduction"
+          ? abductionRange(constraint, joint.flexion)
+          : constraint[part];
       if (overshoot === undefined)
         collector.push(
           "range",

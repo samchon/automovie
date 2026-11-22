@@ -1,4 +1,5 @@
 import type { IAutoMovieAngleRange } from "./IAutoMovieAngleRange";
+import type { IAutoMovieFlexedAbduction } from "./IAutoMovieFlexedAbduction";
 import type { IAutoMovieSwingTwistLimit } from "./IAutoMovieSwingTwistLimit";
 
 /**
@@ -33,6 +34,11 @@ export interface IAutoMovieJointConstraint {
    * Frontal-plane range: abduction (+) / adduction (−). `null` for a pure hinge joint that does not abduct/adduct.
    */
   abduction: IAutoMovieAngleRange | null;
+
+  /**
+   * Optional rise of the abduction ceiling with flexion, for a joint that abducts further flexed (a hip); the `abduction` interval holds as given when absent or null. It applies to the three-angle gate only, not to a `swingTwist` gate.
+   */
+  abductionFlexed?: IAutoMovieFlexedAbduction | null;
 
   /**
    * Transverse-plane range: external (+) / internal (−) axial rotation. `null` if the joint does not twist.

@@ -28,7 +28,8 @@ import { punchFootwork } from "./punchFootwork";
  * turn with the heel raised, as a rear-hand punch does; a drop lowers the
  * hips for a low target; a jump lifts both feet and the root. The root is
  * lowered until both legs reach their feet (`resolveHumanPosture.lower`). A
- * leg another primitive writes (a kick's) is left out.
+ * kick's support may rise onto its ball with the share. A leg another
+ * primitive writes (a kick's) is left out.
  *
  * @param body The body.
  * @param entry The entry posture.
@@ -151,9 +152,14 @@ export function CloseStrikeLegs(
               },
               bump,
             );
-      const pivoted: IAutoMovieMotionHumanFoot.IPlacement = turnFoot(
-        feet[lead],
-      );
+      // A kick's support rises onto its ball with the strike's share, the
+      // ball held where the turn left it.
+      const raised: number =
+        motion.raise === undefined ? 0 : motion.raise * share;
+      const pivoted: IAutoMovieMotionHumanFoot.IPlacement =
+        raised === 0
+          ? turnFoot(feet[lead])
+          : StrikingTarget.pivot(body, lead, turnFoot(feet[lead]), 0, raised);
       const placed: Record<
         AutoMovieHumanSide,
         IAutoMovieMotionHumanFoot.IPlacement
@@ -195,6 +201,11 @@ export function CloseStrikeLegs(
                   ] as const,
                 }
               : {}),
+            // A support risen on its ball bends its toes by the same angle,
+            // so they lie on the floor (the forefoot rocker).
+            ...(raised === 0
+              ? {}
+              : { [`${lead}Toes`]: [raised, 0, 0] as const }),
           },
           limbs: {
             ...posture.limbs,
@@ -270,5 +281,8 @@ export namespace CloseStrikeLegs {
 
     /** The leg another primitive writes, left out of this one's channels and goals; none when absent. */
     free?: AutoMovieHumanSide;
+
+    /** The pivoting foot's heel raise onto its ball at full share, degrees, its toes bent as far; flat when absent. */
+    raise?: number;
   }
 }
