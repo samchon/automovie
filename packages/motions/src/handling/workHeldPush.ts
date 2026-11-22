@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHeldWork,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -22,6 +23,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { HumanGrasp } from "./HumanGrasp";
 import { heldDigits } from "./heldDigits";
 import { pickUp } from "./pickUp";
 
@@ -32,9 +34,10 @@ import { pickUp } from "./pickUp";
  * The holding hand does not move through the work, so the held prop keeps
  * its entry frame, and the contact's place at every second is the
  * articulation's travel there (`heldDigits.posed`) carried by that frame.
- * The free hand's grip lies on it with the hand's entry attitude, its
- * wrist the contact less the grip's offset turned by that attitude, so the
- * hand stays on the contact as it moves. The grip bears the part without
+ * The free hand closes round the contact's line from its shoulder's side,
+ * a power grip's attitude (`HumanGrasp.hand`), and its wrist moves with
+ * the contact in that attitude, so the hand stays on the contact as it
+ * moves. The grip bears the part without
  * carrying the prop. The contact must ride a driven articulation, and its
  * places at the work's start and end must lie within the free arm's reach.
  *
@@ -94,27 +97,55 @@ export function workHeldPush(
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(context.body, context.entry.pose);
   const hand: IAutoMovieResolvedBone = bones.get(`${other}Hand`)!;
-  const turn: IAutoMovieQuaternion = hand.worldRotation;
+  const start: number =
+    context.prop(subject).state?.(context.start)?.[joint.id] ?? 0;
+  // Where the contact is at a travel, world.
+  const place: (travel: number) => IAutoMovieVector3 = (
+    travel: number,
+  ): IAutoMovieVector3 =>
+    Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(
+        frame.rotation,
+        heldDigits.posed(joint, contact, travel),
+      ),
+    );
+  // The hand closes round the contact's line (its `+X`) from its shoulder's
+  // side, as a power grip takes any handle (`HumanGrasp.hand`), and keeps
+  // that attitude as the contact moves.
+  const line: IAutoMovieVector3 = Vector3.normalize(
+    Quaternion.rotateVector(
+      Quaternion.multiply(frame.rotation, contact.frame.rotation),
+      { x: 1, y: 0, z: 0 },
+    ),
+  );
+  const from: IAutoMovieVector3 = Vector3.subtract(
+    place(start),
+    bones.get(`${other}UpperArm`)!.worldPosition,
+  );
+  const grasped: IAutoMovieMotionHumanHand.IWrist = HumanGrasp.hand(
+    context.body,
+    other,
+    {
+      point: place(start),
+      approach: Vector3.normalize(
+        Vector3.subtract(from, Vector3.scale(line, Vector3.dot(from, line))),
+      ),
+      axis: line,
+      width: contact.aperture ?? 0,
+    },
+  );
+  const turn: IAutoMovieQuaternion = grasped.rotation;
   const grip: IAutoMovieVector3 = HumanHand.offset(
     context.body,
     other,
     "grip",
+    "flat",
   ).point;
   const wrist: (travel: number) => IAutoMovieVector3 = (
     travel: number,
   ): IAutoMovieVector3 =>
-    Vector3.subtract(
-      Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(
-          frame.rotation,
-          heldDigits.posed(joint, contact, travel),
-        ),
-      ),
-      Quaternion.rotateVector(turn, grip),
-    );
-  const start: number =
-    context.prop(subject).state?.(context.start)?.[joint.id] ?? 0;
+    Vector3.add(grasped.point, Vector3.subtract(place(travel), place(start)));
   const end: number = pushed.to;
   for (const travel of [start, end])
     pickUp.reachable(context, other, wrist(travel));

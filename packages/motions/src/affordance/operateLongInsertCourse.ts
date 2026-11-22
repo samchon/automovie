@@ -277,7 +277,29 @@ export function operateLongInsertCourse(
   if (props.withdraw && Math.abs(state.slide) > EPSILON) {
     const home: number = l - depth(state);
     const uB: number = Math.max(state.uB, home + props.gap);
-    const x: number | undefined = stanceFor(home, uB, state.x);
+    // A stance from which the hands reach both where they hold now, as they
+    // step there still holding, and where they go; failing one, B moves
+    // back first where it stands, then the body steps.
+    const meet: (
+      a: operateLongInsertCourse.IRange,
+      b: operateLongInsertCourse.IRange,
+    ) => number | undefined = (
+      a: operateLongInsertCourse.IRange,
+      b: operateLongInsertCourse.IRange,
+    ): number | undefined => {
+      const lo: number = Math.max(a.lo, b.lo);
+      const hi: number = Math.min(a.hi, b.hi);
+      return lo > hi ? undefined : Math.min(hi, Math.max(lo, state.x));
+    };
+    const target: operateLongInsertCourse.IRange = both(home, uB);
+    let x: number | undefined = meet(both(state.uA, state.uB), target);
+    if (x === undefined && uB > state.uB + EPSILON) {
+      const b: operateLongInsertCourse.IRange = chord("B", state.x);
+      if (uB <= b.hi) {
+        push("slideB", { ...state, uB });
+        x = meet(both(state.uA, state.uB), target);
+      }
+    }
     if (x === undefined)
       refuse(
         "no stance lets the carrying hand return to the place it took the staff by",

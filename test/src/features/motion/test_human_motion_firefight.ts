@@ -34,6 +34,8 @@ const HOLD: number = 0.005;
 const AIM: number = 15;
 /** A gripping hand stays on its grip within this, metres. */
 const ON: number = 0.05;
+/** The lying victim's heading, degrees: across the way ahead. */
+const VICTIM_YAW: number = 90;
 /** The fire's base on the floor ahead, world metres. */
 const FIRE: IAutoMovieVector3 = { x: 0, y: 0, z: 2.2 };
 
@@ -223,15 +225,16 @@ function hose(
   const tip = model.affordance("tip").frame;
   const height: number = body.measure.hipHeight + 0.1;
   // The line runs by the operator's right hand; the backup stands on its
-  // run, so it lies before the backup's middle for both hands, a forearm
-  // ahead of the chest at the backup's grip.
+  // run, so it lies before the backup's middle for both hands, the grip a
+  // forearm ahead, as the forearms reach forward with the elbows by the
+  // trunk.
   const run: number = -0.2;
   // The line's tail, its nozzle grip just ahead of the operator.
   const tail: number = 0.35 - 3;
   const behind: number =
     tail +
     model.affordance("backup").frame.translation.z -
-    (body.measure.chestDepth / 2 + body.measure.forearm);
+    body.measure.forearm;
   const props: IAutoMovieMotionHumanProp[] = [
     everydayTake.prop("hose", model, { x: run, y: height, z: tail }),
   ];
@@ -354,30 +357,42 @@ function flames(
   // middle of its own foot; the victim lies across before it, placed so the
   // sternum lies abreast of that knee, the flank a knee's breadth (two shank
   // radii) off it and the sternum half a chest's breadth beyond. Where the
-  // sternum lies in the victim's own lying pose is read off that pose.
+  // sternum lies is read off the victim lying alone, placed at the origin
+  // with the heading it has in the take, so the performance's own placement
+  // turns it; the victim is then moved by that offset.
   const knee: IAutoMovieVector3 = {
     x: -body.measure.hipHalfWidth,
     y: 0,
     z: body.measure.footLength / 2 - body.measure.heel,
   };
-  const alone: HumanPerformance = everydayTake.perform(
-    `firefight-${label}-lying`,
-    body,
-    [],
-    HumanChain.subject("actor").lieDown({}),
-  );
-  const down: IAutoMovieMotionHumanSegment = named(alone, "lieDown")[0]!;
+  const alone: HumanPerformance = new HumanPerformance({
+    seed: `firefight-${label}-lying`,
+    performers: [
+      {
+        subject: "victim",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: VICTIM_YAW,
+        proficiency: { level: "trained" },
+      },
+    ],
+    laws: [],
+    props: [],
+    composition: HumanChain.subject("victim").lieDown({}).node,
+  });
+  const down: IAutoMovieMotionHumanSegment = named(
+    alone,
+    "lieDown",
+    "victim",
+  )[0]!;
   const region: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.regions.sternum;
   const torso: IAutoMovieResolvedBone = alone
-    .bones("actor", down.end)
+    .bones("victim", down.end)
     .get(region.bone)!;
-  const own: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
-    Vector3.add(
-      torso.worldPosition,
-      Quaternion.rotateVector(torso.worldRotation, region.point),
-    ),
+  const own: IAutoMovieVector3 = Vector3.add(
+    torso.worldPosition,
+    Quaternion.rotateVector(torso.worldRotation, region.point),
   );
   const victim: IAutoMovieVector3 = {
     x: knee.x - own.x,
@@ -417,7 +432,7 @@ function flames(
         subject: "victim",
         body,
         at: victim,
-        yaw: 90,
+        yaw: VICTIM_YAW,
         chain: HumanChain.subject("victim").lieDown({}),
       },
     ],

@@ -31,6 +31,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { heldDigits } from "../handling/heldDigits";
 import { writeWith } from "../handling/writeWith";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { rotationBetween } from "./rotationBetween";
 
@@ -143,10 +144,20 @@ function plan(
       fix: "pull the pin first (`HumanFirefight.pass`)",
     });
 
-  // The wrist turns about itself so the nozzle's discharge meets the fire.
+  // The unit turns about the hand's grip on it, the grip staying where it
+  // took the handle, so the nozzle's discharge meets the fire.
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(context.body, context.entry.pose);
   const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+  const grip: IAutoMovieVector3 = HumanHand.offset(
+    context.body,
+    side,
+    "grip",
+  ).point;
+  const socket: IAutoMovieVector3 = Vector3.add(
+    hand.worldPosition,
+    Quaternion.rotateVector(hand.worldRotation, grip),
+  );
   const frame: IAutoMovieRigidTransform = context
     .prop(p.prop)
     .frame(context.entry.seconds);
@@ -250,8 +261,12 @@ function plan(
             _posture: IAutoMovieMotionHumanPosture,
             seconds: number,
           ): IAutoMovieHumanLimbGoal => ({
-            point: hand.worldPosition,
+            point: Vector3.subtract(
+              socket,
+              Quaternion.rotateVector(turn(seconds), grip),
+            ),
             rotation: turn(seconds),
+            contact: grip,
             bend,
           }),
         }),
