@@ -52,7 +52,7 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * Slip a ring onto a partner's finger (#4015). The partner's presented hand
  * is read where it is at the action's start, so the partner presents it
  * first (`presentHand`). The dresser's other hand goes palm up under the
- * partner's palm and holds it from `ready` to `relax`. The ring hand brings
+ * partner's palm, its fingers toward the partner's wrist, and holds it from `ready` to `relax`. The ring hand brings
  * the ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by
  * `ready`, then slides it along the axis to `SEAT` of the proximal phalanx
  * over the stroke: the ring's `wear` axis lies along the finger, from the
@@ -218,7 +218,8 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           bend(side),
         );
 
-      // The steadying palm under the partner's palm, its fingers along the partner's.
+      // The steadying palm under the partner's palm, its fingers toward the
+      // partner's wrist, cupping the presented fingers from below.
       const under: IAutoMovieMotionHumanArmTarget.ITarget =
         AutoMovieMotionHumanArmTarget.prepareTarget(
           body,
@@ -231,7 +232,7 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
             HumanHand.offset(body, steady, "palm", "flat"),
             {
               normal: Vector3.scale(palm.normal, -1),
-              forward: Vector3.normalize(Vector3.subtract(tip, palm.point)),
+              forward: Vector3.normalize(Vector3.subtract(palm.point, tip)),
             },
           ),
           bend: bend(steady),
@@ -295,6 +296,8 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
                   progress: number,
                 ): IAutoMovieMotionHumanArmTarget.ITarget => ringAt(progress),
               }),
+              // The holding hand keeps the fingers it holds the ring with.
+              channels: [`${side}Arm`],
               reads: ["root", `${side}Arm`, `${side}Hand`],
             },
             {

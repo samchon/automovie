@@ -63,6 +63,9 @@ const TILT: number = 40;
 /** The neck's two bones a resting head bends over. */
 type NeckBone = "neck" | "head";
 
+/** How far the body may sink on bent knees to bring the chin down, metres (provisional: a slight knee bend). */
+const SINK: number = 0.12;
+
 /** How far the head turns toward the shoulder, either way, degrees (provisional: inside a cervical rotation of about 70 to 80 degrees). */
 const TWIST: number = 60;
 
@@ -73,6 +76,9 @@ interface ISolved {
 
   /** The side lean from the hips, degrees. */
   roll: number;
+
+  /** How far the body sinks on bent knees, metres. */
+  sink: number;
 
   /** The head's turn, degrees. */
   twist: number;
@@ -91,7 +97,8 @@ interface ISolved {
  * Embrace a partner from behind (#4012). The lean from the hips is solved
  * first, the least forward pitch that lays the chest's sternum region on
  * the partner's upper back (the kiss's lean model, `kissBody`, on planted
- * feet); then the side lean (within the kiss's `ROLL`), the head's turn
+ * feet); then the knees' sink (up to `SINK`), the side lean (within the
+ * kiss's `ROLL`), the head's turn
  * (`TWIST`) and the neck's flexion and side bend that bring the chin nearest
  * the top of the partner's shoulder beside the neck (halfway between the
  * shoulder's region and the neck's side), by turns on coarse grids refined by
@@ -262,7 +269,12 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
                   body,
                   posture,
                   stance,
-                  { pitch: solved.pitch, roll: solved.roll, raise: 0 },
+                  {
+                    pitch: solved.pitch,
+                    roll: solved.roll,
+                    raise: 0,
+                    sink: solved.sink,
+                  },
                   share(seconds),
                   false,
                 ),
@@ -397,10 +409,21 @@ function solve(
   const chin: ReturnType<typeof HumanTrunk.preparePoint> =
     HumanTrunk.preparePoint(body, "chin");
   const posed = (s: ISolved): IAutoMovieMotionHumanPosture =>
-    neck(leaned({ pitch: s.pitch, roll: s.roll, flexion: 0, raise: 0 }), s, 1);
+    neck(
+      leaned({
+        pitch: s.pitch,
+        roll: s.roll,
+        flexion: 0,
+        raise: 0,
+        sink: s.sink,
+      }),
+      s,
+      1,
+    );
   const upright: ISolved = {
     pitch: 0,
     roll: 0,
+    sink: 0,
     twist: 0,
     flexion: 0,
     tilt: 0,
@@ -490,8 +513,13 @@ function solve(
       s,
     );
   let best: ISolved = scored({ ...upright, pitch });
+  const lowered = (s: ISolved): ISolved =>
+    least(
+      grid(0, SINK, 0.02).map((sink: number): ISolved => ({ ...s, sink })),
+      s,
+    );
   for (let round: number = 0; round < 2; ++round)
-    best = necked(sideways(best, 4, 2 * TILT), 5, 2 * TILT);
+    best = necked(sideways(lowered(best), 4, 2 * TILT), 5, 2 * TILT);
   best = necked(sideways(best, 1, 4), 1, 4);
   if (best.miss > NEAR)
     throw refusal(

@@ -301,6 +301,8 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
                     ? holding(path.at(progress))
                     : grasping(path.at(progress)),
               }),
+              // The holding hand keeps the fingers it holds the loop with.
+              ...(arm === side ? { channels: [`${arm}Arm`] } : {}),
               reads: ["root", `${arm}Arm`, `${arm}Hand`],
             }),
           ),
