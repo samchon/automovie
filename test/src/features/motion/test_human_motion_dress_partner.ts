@@ -5,6 +5,7 @@ import type {
   AutoMovieHumanoidRegion,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
@@ -17,6 +18,7 @@ import {
   HumanPerformance,
   HumanRefusal,
   dressPartner,
+  presentHand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,15 +36,24 @@ interface ICase {
   /** The partner's region. */
   region: AutoMovieHumanoidRegion;
 
-  /** Whether the partner kneels to receive it, as a crown is received. */
+  /** Whether the partner kneels to receive it, as a crown is received; otherwise the partner presents the left hand, as a wrist is dressed. */
   kneels: boolean;
 }
+
+/** How long the partner keeps the receiving pose, seconds: past the dresser's pick-up and carry. */
+const RECEIVE: number = 4;
+
+/** The partner's receiving action's anchor, which the dresser waits for. */
+const RECEIVING: string = "receiving";
 
 /**
  * A held wearable passes from the dresser's hand to the partner's body.
  *
- * Scenarios, for a hat on the partner's crown and a watch on the partner's
- * left wrist, with the average man dressing the small woman and the reverse:
+ * Scenarios, for a hat on the partner's kneeling crown and a watch on the
+ * partner's presented left wrist, with the average man dressing the small
+ * woman and the reverse; the dresser waits until the partner has knelt or
+ * presented the hand, since the dresser reads the region where it is as the
+ * dressing starts:
  * 1. The dresser's grip on the item ends at the arm phrase's stroke and the
  *    item is worn on the partner's bone under the region from then.
  * 2. The worn item keeps its offset on the partner's bone through the rest
@@ -143,9 +154,19 @@ function stage(
   item: ICase,
   partner: string,
 ): HumanPerformance {
+  // The dresser stands until the partner has knelt or presented the hand
+  // (the stand is cut there, its own length only an upper bound), then
+  // takes the item.
+  const Chain: IAutoMovieMotionHumanChain.IExtension<{
+    dressPartner: typeof dressPartner;
+  }> = HumanChain.extend({ dressPartner });
+  const dresser: ReturnType<typeof Chain.subject> = Chain.subject("a")
+    .stand({ seconds: 2 * RECEIVE })
+    .until({ of: RECEIVING, event: item.kneels ? "settled" : "ready" })
+    .pickUp({ prop: "item", handle: "hold", hand: "right", lift: 0.05 });
   return new HumanPerformance({
     seed: "dress-partner",
-    laws: [dressPartner],
+    laws: [dressPartner, presentHand],
     performers: [
       {
         subject: "a",
@@ -172,29 +193,36 @@ function stage(
     composition: (item.kneels
       ? // The partner kneels where they stand, the right knee coming down
         // under the right hip, not stepping back out of the dresser's reach.
-        HumanChain.subject("b").act("kneel", {
-          kind: "both",
-          hold: 4,
-          rise: true,
-          at: {
-            kind: "point",
-            frame: "world",
-            at: { x: -b.rest.get("rightFoot")!.x, y: 0, z: 0.55 },
+        HumanChain.subject("b").act(
+          "kneel",
+          {
+            kind: "both",
+            hold: RECEIVE,
+            rise: true,
+            at: {
+              kind: "point",
+              frame: "world",
+              at: { x: -b.rest.get("rightFoot")!.x, y: 0, z: 0.55 },
+            },
           },
-        })
-      : HumanChain.subject("b")
-          .stand({ seconds: 4 })
+          RECEIVING,
+        )
+      : // A hanging wrist lies about 0.7 m below the dresser's shoulder,
+        // beyond an arm; the partner holds it out, forearm level.
+        HumanChain.subject("b")
+          .registered(
+            presentHand.name,
+            { side: "left", seconds: RECEIVE },
+            RECEIVING,
+          )
           .walk({ to: { x: 0, y: 0, z: 0.55 }, face: 120 })
     ).with(
-      HumanChain.extend({ dressPartner })
-        .subject("a")
-        .pickUp({ prop: "item", handle: "hold", hand: "right", lift: 0.05 })
-        .dressPartner({
-          prop: "item",
-          partner,
-          region: item.region,
-          point: "wear",
-        }),
+      dresser.dressPartner({
+        prop: "item",
+        partner,
+        region: item.region,
+        point: "wear",
+      }),
     ).node,
   });
 }
