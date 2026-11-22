@@ -204,20 +204,20 @@ export function test_motion_equestrian_sabre(): void {
     .bones("rider", sloped)
     .get("rightUpperArm")!.worldPosition;
   const hilt: IAutoMovieVector3 = world("grip", sloped).position;
-  const blade: IAutoMovieVector3 = Vector3.subtract(
+  const sloping: IAutoMovieVector3 = Vector3.subtract(
     world("point", sloped).position,
     hilt,
   );
   const nearest: IAutoMovieVector3 = Vector3.add(
     hilt,
     Vector3.scale(
-      blade,
+      sloping,
       Math.max(
         0,
         Math.min(
           1,
-          Vector3.dot(Vector3.subtract(joint, hilt), blade) /
-            Vector3.dot(blade, blade),
+          Vector3.dot(Vector3.subtract(joint, hilt), sloping) /
+            Vector3.dot(sloping, sloping),
         ),
       ),
     ),
@@ -225,7 +225,7 @@ export function test_motion_equestrian_sabre(): void {
   const rest: number = Vector3.distance(nearest, joint);
   if (rest > body.measure.hand / 2)
     findings.push(
-      `slope: the blade passes ${rest.toFixed(3)} m from the right shoulder joint`,
+      `slope: the sloping passes ${rest.toFixed(3)} m from the right shoulder joint`,
     );
   if (
     Vector3.dot(
