@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -19,6 +20,7 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
@@ -47,6 +49,11 @@ const ANGLES: Readonly<Record<"carry" | "top" | "finish", number>> = {
 /** The most a rider leans out of the saddle, degrees (provisional). */
 const MOST: number = 45;
 
+/** The bone whose joint is the swing's centre: the right shoulder. */
+const SHOULDER: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+  "rightUpperArm",
+]);
+
 /** How far the rider rises in the stirrups, metres (provisional). */
 const RISE: number = 0.1;
 
@@ -69,10 +76,10 @@ export const HumanPolo: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPolo
      * Admit the stroke, lay the swing's plane at the contact, then sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: a non-seated entry, a bad lean, speed or contact time, a ball out of the mallet's reach from the leaned shoulder, and a swing whose head would pass through the horse.
-     * @evidence contracts/development/implementation.md#principled-implementation The shoulder is placed by the leaned posture's attitude in the carrier contact's frame; the swing radius is the shoulder's distance to the ball, the hand that far less the mallet's working length from the shoulder; the head's angle follows minimum-jerk pieces between the phase instants.
+     * @evidence contracts/development/implementation.md#principled-implementation The shoulder is the leaned posture's own right shoulder joint, resolved in the carrier contact's frame; the swing radius is the shoulder's distance to the ball, the hand that far less the mallet's working length from the shoulder; the head's angle follows minimum-jerk pieces between the phase instants.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the plane, the refusals, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable ball or a swing into the horse is refused, never bent.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One tool read and sixteen clearance samples per plan; a sample reads one carrier frame and fits one arm goal.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One tool read, at most twenty-six shoulder resolves restricted to the upper arm for the lean's bisection, and sixteen clearance samples per plan; a sample reads one carrier frame and fits one arm goal.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The plane and the tool are shared by every sample.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the plane, the tool and the carrier reader.
      */
@@ -143,17 +150,21 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     pitch: local.pitch + PITCH,
     roll: local.roll - sign * degrees,
   });
-  const shoulderAt = (degrees: number): IAutoMovieVector3 => {
-    const p: IAutoMovieMotionHumanPosture = posed(degrees);
-    return Vector3.add(
-      p.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(p), {
-        x: -m.shoulderHalfWidth,
-        y: m.shoulderHeight - m.hipHeight,
-        z: 0,
-      }),
-    );
-  };
+  // The right shoulder joint where the leaned trunk actually places it: the posture resolved for the upper arm alone, its arms' goals left out.
+  const shoulderAt = (degrees: number): IAutoMovieVector3 =>
+    poseBones(
+      context.body,
+      resolveHumanPosture.seeded(
+        context.body,
+        { ...posed(degrees), limbs: {} },
+        undefined,
+        {},
+        undefined,
+        SHOULDER,
+      ).pose,
+      undefined,
+      SHOULDER,
+    ).get("rightUpperArm")!.worldPosition;
   // The shoulder's reach out over the side grows with the lean: bisect for the lean whose shoulder meets the ball's line.
   let low: number = 0;
   let high: number = lean;
@@ -191,7 +202,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       ),
     );
   };
-  // The hand holds the mallet's working length behind its head, toward the circle's centre; every hand station of the swing lies within the arm's reach of the leaned shoulder.
+  // The hand holds the mallet's working length behind its head, toward the circle's centre: every hand station of the swing, the carry's too, lies on the radius, the radius less the mallet from the leaned shoulder.
   const hand = (theta: number): IAutoMovieVector3 => {
     const at: IAutoMovieVector3 = head(theta);
     return Vector3.subtract(
@@ -202,22 +213,14 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       ),
     );
   };
-  let farthest: number = 0;
-  for (let k: number = 0; k <= 16; ++k)
-    farthest = Math.max(
-      farthest,
-      Vector3.distance(
-        hand(ANGLES.top + ((ANGLES.finish - ANGLES.top) * k) / 16),
-        shoulder,
-      ),
-    );
-  if (radius < tool.length || farthest > arm)
+  const station: number = radius - tool.length;
+  if (station < 0 || station > arm)
     throw new HumanRefusal({
       kind: "reach",
       axis: "ball",
-      value: farthest,
+      value: station,
       feasible: { kind: "range", minimum: 0, maximum: arm, unit: "m" },
-      reason: `the swing through the ball takes the hand ${farthest.toFixed(3)} m from the leaned shoulder, beyond the arm's ${arm.toFixed(3)} m`,
+      reason: `the swing through the ball holds the hand ${station.toFixed(3)} m from the leaned shoulder, outside the arm's 0 to ${arm.toFixed(3)} m`,
       fix: "ride the horse closer to the ball, or lean further out",
     });
   // The swing's head must stay clear of the horse: outside the straddle's half width wherever it is below the seat.
