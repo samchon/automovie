@@ -227,7 +227,13 @@ function plan(
     ...opened,
     position: Vector3.subtract(opened.position, Vector3.scale(direction, back)),
   };
-  pickUp.reachable(context, side, end.position);
+  // The drawn wrist is reached by the body as the draw leaves it: a long
+  // draw's trunk has turned away from the drawing side by then.
+  const turnedAway: IAutoMovieMotionHumanPosture =
+    pulled === null || context.carrier !== undefined
+      ? context.entry.posture
+      : StrikingBlade.turned(context.entry.posture, pulled.turn);
+  pickUp.reachable(context, side, end.position, turnedAway);
 
   // One loaded, aligned movement along the line; a pulled carrier retreats
   // along it on the same clock, so the hands part by the line's length.
@@ -263,6 +269,7 @@ function plan(
       context,
       pulled.side,
       Vector3.subtract(pulled.wrist.position, Vector3.scale(direction, back)),
+      turnedAway,
     );
   const duration: number = transport.duration;
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
