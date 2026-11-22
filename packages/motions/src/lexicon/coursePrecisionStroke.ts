@@ -22,8 +22,8 @@ const GRASP: NonNullable<IAutoMovieMotionHumanArmCarry.ICarry["grasp"]> = [
 /**
  * A precision stroke's arms laid as one course on the stroke's own goals
  * (`courseArmGoal`), instead of a fit per instant: the striking arm reaches
- * its backswing by `ready`, holds the stroke's goal through the delivery and
- * follow-through to `relax` and returns by `end`, admitted against the
+ * through its backswing to halfway down the downswing, holds the stroke's goal
+ * through the contact and follow-through to `relax` and returns by `end`, admitted against the
  * stroke's own speed, the hand goal's peak along its whole path
  * (`precisionStrokePeak`). A second hand on the same implement (a putter, a
  * club, a stick, a bat) is laid in the same course, the two hands' closing
@@ -57,10 +57,10 @@ export function coursePrecisionStroke(
   second?: AutoMovieHumanSide,
 ): IAutoMovieMotionHumanActionPlan {
   let fastest: number | undefined;
-  // Two hands already closed on the implement hold its goals from the first
-  // instant, seeded on the rest, with no reach to close them; one hand
-  // reaches to its backswing first.
-  const ready: number = second === undefined ? clock.at("ready") : 0;
+  // The tool's attitude must hold only into the contact: the hold starts
+  // halfway through the downswing, and the backswing before it is the arm's
+  // reach, free to find an attitude it reaches clear of the body.
+  const ready: number = (clock.at("strokeStart") + clock.at("stroke")) / 2;
   return courseArmGoal({
     body,
     side,
