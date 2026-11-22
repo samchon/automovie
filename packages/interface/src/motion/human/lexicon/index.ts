@@ -74,6 +74,7 @@ export type { IAutoMovieMotionHumanLexiconWeaponMeleeParams } from "./IAutoMovie
 export type { IAutoMovieMotionHumanMountRider } from "./IAutoMovieMotionHumanMountRider";
 export type { IAutoMovieMotionHumanPursuit } from "./IAutoMovieMotionHumanPursuit";
 export type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
+export type { IAutoMovieMotionHumanLunge } from "./IAutoMovieMotionHumanLunge";
 export type { IAutoMovieMotionHumanHoldHandles } from "./IAutoMovieMotionHumanHoldHandles";
 export type { IAutoMovieMotionHumanFloatBeside } from "./IAutoMovieMotionHumanFloatBeside";
 export type { IAutoMovieMotionHumanTendHorse } from "./IAutoMovieMotionHumanTendHorse";

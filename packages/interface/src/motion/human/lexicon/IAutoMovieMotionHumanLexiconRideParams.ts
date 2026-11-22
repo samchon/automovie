@@ -5,6 +5,7 @@ import type { IAutoMovieMotionHumanFloatBeside } from "./IAutoMovieMotionHumanFl
 import type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHumanHandrimStroke";
 import type { IAutoMovieMotionHumanHoldHandles } from "./IAutoMovieMotionHumanHoldHandles";
 import type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
+import type { IAutoMovieMotionHumanLunge } from "./IAutoMovieMotionHumanLunge";
 import type { IAutoMovieMotionHumanMounted } from "./IAutoMovieMotionHumanMounted";
 import type { IAutoMovieMotionHumanUnseat } from "./IAutoMovieMotionHumanUnseat";
 import type { IAutoMovieMotionHumanPolo } from "./IAutoMovieMotionHumanPolo";
@@ -45,6 +46,9 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
   HumanBikeGuide: IAutoMovieMotionHumanBikeGuide;
   /** Hold a horse's moving lead rope in one hand over an authored walk. */
   HumanLeadHorse: IAutoMovieMotionHumanLeadHorse;
+
+  /** Lunge a horse from the circle's centre, turning on the spot with the line in one hand and the whip in the other, changing hands at a change of rein. */
+  HumanLunge: IAutoMovieMotionHumanLunge;
 
   /** Walk behind a drawn implement holding its two handles, as a ploughman does. */
   HumanHoldHandles: IAutoMovieMotionHumanHoldHandles;

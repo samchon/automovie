@@ -28,6 +28,7 @@ export namespace SceneBuildTypes {
       HumanBikeTransfer: "bikeTransfer";
       HumanBikeGuide: "bikeGuide";
       HumanLeadHorse: "leadHorse";
+      HumanLunge: "lungeHorse";
       HumanHoldHandles: "holdHandles";
       HumanFloatBeside: "floatBeside";
       HumanMounted: "mounted";

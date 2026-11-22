@@ -513,6 +513,31 @@
         }
       }
     },
+    "lungeHorse": {
+      "properties": {
+        "change": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "transition": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "mounted": {},
     "unseat": {},
     "polo": {},
