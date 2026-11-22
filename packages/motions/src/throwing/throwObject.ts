@@ -38,6 +38,7 @@ import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 import { precisionThrow } from "./precisionThrow";
 import { throwObjectAim } from "./throwObjectAim";
+import { throwObjectBalance } from "./throwObjectBalance";
 import { throwObjectCurve } from "./throwObjectCurve";
 import { throwObjectForm } from "./throwObjectForm";
 import { throwObjectLaunch } from "./throwObjectLaunch";
@@ -450,7 +451,7 @@ export namespace throwObject {
         base,
         clock,
         contact: "release",
-        primitives: [trunk, throwing],
+        primitives: [trunk, throwing, ...throwObjectBalance.of(context, clock)],
       });
     return {
       ...composed,
