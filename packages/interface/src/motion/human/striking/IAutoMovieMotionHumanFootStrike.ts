@@ -75,7 +75,7 @@ export namespace IAutoMovieMotionHumanFootStrike {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
-    /** The foot strike. */
+    /** The foot strike. Launch to contact: `side` 0.77 s (the middle of 0.70 to 0.84 s, Pieter and Pieter); every other technique 0.33 s, the round kick's ({@link IAutoMovieMotionHumanKick}); times 1.06 at novice to 1.0 at elite ({@link footStrike.SIDE}, {@link footStrike.KICK}). The recoil is 0.65 s. */
     technique: IAutoMovieMotionHumanFootStrike.Technique;
 
     /** What it strikes. */
@@ -84,10 +84,10 @@ export namespace IAutoMovieMotionHumanFootStrike {
     /** The kicking leg; rear when absent. */
     leg?: IAutoMovieMotionHumanFootStrike.Leg;
 
-    /** A whole turn on the support ball before the strike; none when absent. */
+    /** A whole turn on the support ball before the strike, adding 0.33 s before the contact ({@link footStrike.KICK}); none when absent. */
     spin?: boolean;
 
-    /** Off the floor with both feet at the contact; planted when absent. */
+    /** Off the floor with both feet at the contact, adding 0.15 s before it and lifting 0.25 of the leg ({@link footStrike.JUMP}, provisional); planted when absent. */
     jump?: boolean;
   }
 }

@@ -46,13 +46,13 @@ export namespace IAutoMovieMotionHumanGuard {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
-    /** How long, seconds; 1 when absent and at least the 0.6 s the stance takes to set. */
+    /** How long the guard is held, seconds; 1 when absent and never under the 0.6 s the stance takes to set ({@link guard.SET}). */
     seconds?: number;
 
     /** Which side leads; the entry's leading side when absent. */
     stance?: "orthodox" | "southpaw";
 
-    /** Sport's glove carriage. The original open guard when absent. */
+    /** Sport's glove carriage: `boxing` close to the jaw, `kickboxing` the more open guard, both described on the stance ({@link IAutoMovieMotionHumanStrikingStance}). The open guard when absent. */
     style?: Style;
 
     /** What to face; the entry's line when absent. */

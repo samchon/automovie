@@ -38,10 +38,10 @@ export namespace IAutoMovieMotionHumanKuzushi {
     /** The partner who breaks the base, for the mutual join; unread by the tip. */
     partner?: string;
 
-    /** How far forward the body tips about the ankles, degrees in (0, 30]; `DEPTH` when absent. */
+    /** How far forward the body tips about the ankles, degrees in (0, 30]; 15 degrees when absent ({@link kuzushi.DEPTH}, provisional: past the toes for an adult). The tip takes 0.5 s each way ({@link kuzushi.TIP}, provisional). */
     depth?: number;
 
-    /** Seconds the tip is held; 1 when absent. */
+    /** Seconds the tip is held at its depth; 1 when absent. The action lasts the tip's 0.5 s each way and this. */
     hold?: number;
   }
 }

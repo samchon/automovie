@@ -37,7 +37,7 @@ export namespace IAutoMovieMotionHumanStep {
     /** The direction in the stance's own frame. */
     direction: "forward" | "back" | "left" | "right";
 
-    /** How many steps; 1 when absent.
+    /** How many steps; 1 when absent. Each step takes the body's step period, 0.35 s at the reference hip and shorter on a shorter leg (`step.PERIOD`, about three steps a second, provisional), so the phrase lasts about `steps` times that.
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     steps?: number;
@@ -45,7 +45,8 @@ export namespace IAutoMovieMotionHumanStep {
     /**
      * Each step's length, metres. A turning or lead-changing phrase may be
      * in place (zero). When absent, turns and lead changes stay in place
-     * and straight steps travel half a stance length.
+     * and straight steps travel half a stance length (`step.STEP_SHARE`,
+     * 1.2 shoulder widths long: {@link IAutoMovieMotionHumanStrikingStance}).
      */
     length?: number;
 

@@ -74,7 +74,7 @@ export namespace IAutoMovieMotionHumanDefend {
     /** The anchor of the strike it answers. */
     against: string;
 
-    /** The forced outcome; drawn from the defender's skill when absent. */
+    /** The forced outcome; drawn from the defender's skill when absent. The defender starts after a reaction time drawn around 0.335 s at novice to 0.29 s at elite (the ex-Gaussian mu, Liu et al. 2018, {@link StrikingSkill.reaction}), less the anticipation the strike's preparation shows, and its limb or head takes 0.30 s at novice to 0.20 s at elite to move ({@link StrikingSkill.defence}, provisional). `inTime`: in place at the contact, the strike lands on the glove; `late`: caught half-made within half the movement time, the strike lands through the guard; `fail`: the strike lands as if undefended. A forced outcome is refused when no plausible timing reaches it. Against a kick or a fast strike a reactive defence is late: only anticipation, which skill buys, makes it in time. */
     outcome?: IAutoMovieMotionHumanDefenceOutcome.Outcome;
   }
 }

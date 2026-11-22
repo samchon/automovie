@@ -39,10 +39,10 @@ export namespace IAutoMovieMotionHumanHostageHold {
     /** The hostage's region the weapon is presented at; `templeRight` when absent. */
     region?: AutoMovieHumanoidRegion;
 
-    /** How far the pair walks backward, metres; 0 when absent. */
+    /** How far the pair walks backward, metres; 0 when absent, the pair standing still. The speed is this over `seconds`. */
     back?: number;
 
-    /** How long the hold lasts, seconds; 3 when absent. */
+    /** How long the hold lasts, seconds; 3 when absent (authored). */
     seconds?: number;
   }
 

@@ -44,7 +44,7 @@ export namespace IAutoMovieMotionHumanDisarm {
     /** The defender's hand that takes the weapon by its grip; the right when absent. */
     hand?: AutoMovieHumanSide;
 
-    /** How long the lever turns the armed hand before its grip opens, seconds; 0.5 when absent. */
+    /** How long the lever turns the armed hand before its grip opens, seconds; 0.5 s when absent ({@link disarm.LEVER}, authored, no study). The defender then holds the weapon 0.4 s ({@link disarm.AFTER}). A longer lever fits a resisting partner. */
     lever?: number;
   }
 

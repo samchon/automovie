@@ -57,7 +57,7 @@ export namespace IAutoMovieMotionHumanKnee {
     /** What it strikes. */
     at: IAutoMovieMotionTarget;
 
-    /** Which leg: lead or rear; rear when absent. */
+    /** Which leg: lead or rear; rear when absent. A knee is the kick's chamber alone: contact 0.22 s after the start at elite skill (0.074 s plus the 0.14 s chamber) and 0.65 s of recoil, the chamber and recoil 1.4 times at novice ({@link IAutoMovieMotionHumanKick}). */
     leg?: "lead" | "rear";
   }
 }
