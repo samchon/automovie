@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanEffort } from "@automovie/interface";
-import { HumanEffort, HumanProxemics } from "@automovie/motions";
+import { AutoMovieMotionHumanGait, HumanEffort } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -21,19 +21,24 @@ import { throwsError } from "../internal/throwsError";
 export function test_motion_catalogue_interpersonal_gap(): void {
   const start = { x: 0, y: 0, z: 0 };
   const chest = 0.125;
-  const gap = HumanProxemics.GAPS.personal;
+  const gap = AutoMovieMotionHumanGait.HumanProxemics.GAPS.personal;
   TestValidator.equals("personal spacing in metres", gap, 1);
   for (const side of [-1, 1]) {
     const target = { x: side * 3, y: 1, z: 0 };
-    const stop = HumanProxemics.stop(start, target, gap, chest);
+    const stop = AutoMovieMotionHumanGait.HumanProxemics.stop(
+      start,
+      target,
+      gap,
+      chest,
+    );
     TestValidator.equals(
       "floor stop and heading",
       [stop.at.x, stop.at.y, stop.at.z, stop.yaw],
       [target.x - side * (gap + chest), 0, 0, side * 90],
     );
   }
-  const gaps = HumanProxemics.GAPS;
-  const zones = HumanProxemics.ZONES;
+  const gaps = AutoMovieMotionHumanGait.HumanProxemics.GAPS;
+  const zones = AutoMovieMotionHumanGait.HumanProxemics.ZONES;
   for (const [distance, interval] of [
     [gaps.intimate, zones.intimate],
     [gaps.faceToFace, zones.personal],
@@ -46,12 +51,19 @@ export function test_motion_catalogue_interpersonal_gap(): void {
   TestValidator.predicate(
     "coincident floor positions have no bearing",
     throwsError(() =>
-      HumanProxemics.stop(start, { ...start, y: 1 }, gap, chest),
+      AutoMovieMotionHumanGait.HumanProxemics.stop(
+        start,
+        { ...start, y: 1 },
+        gap,
+        chest,
+      ),
     ),
   );
   TestValidator.predicate(
     "spacing must be positive",
-    throwsError(() => HumanProxemics.gap(0, undefined as never)),
+    throwsError(() =>
+      AutoMovieMotionHumanGait.HumanProxemics.gap(0, undefined as never),
+    ),
   );
   const neutral = HumanEffort.modifiers();
   TestValidator.predicate(

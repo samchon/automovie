@@ -6,11 +6,11 @@ import type {
 import {
   AutoMovieMotionHumanGait,
   AutoMovieMotionHumanReaction,
+  AutoMovieMotionHumanStrike,
   AutoMovieMotionManner,
   HumanEffort,
-  HumanSkill,
-  StrikingSkill,
 } from "@automovie/motions";
+import { HumanSkill } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /** The reference hip the documentation states, metres. */
@@ -178,23 +178,43 @@ export function test_motion_documented_numbers(): void {
     [number, number, number],
   ][]) {
     const at: IAutoMovieMotionHumanSkill = HumanSkill.resolve({ level }, "s");
-    near(`${level} strike factor`, StrikingSkill.strike(at), strike, 0.005);
+    near(
+      `${level} strike factor`,
+      AutoMovieMotionHumanStrike.StrikingSkill.strike(at),
+      strike,
+      0.005,
+    );
     near(
       `${level} lone rear straight`,
-      StrikingSkill.lone(1, 1, at),
+      AutoMovieMotionHumanStrike.StrikingSkill.lone(1, 1, at),
       lone,
       0.005,
     );
     near(
       `${level} recovery factor`,
-      StrikingSkill.recovery(at),
+      AutoMovieMotionHumanStrike.StrikingSkill.recovery(at),
       recovery,
       0.005,
     );
   }
-  near("elite cross", StrikingSkill.CROSS_DELIVERY, 0.31, 0);
-  near("alternating interval", StrikingSkill.ALTERNATING_INTERVAL, 0.35, 1e-9);
-  near("same-hand interval", StrikingSkill.SAME_HAND_INTERVAL, 0.45, 1e-9);
+  near(
+    "elite cross",
+    AutoMovieMotionHumanStrike.StrikingSkill.CROSS_DELIVERY,
+    0.31,
+    0,
+  );
+  near(
+    "alternating interval",
+    AutoMovieMotionHumanStrike.StrikingSkill.ALTERNATING_INTERVAL,
+    0.35,
+    1e-9,
+  );
+  near(
+    "same-hand interval",
+    AutoMovieMotionHumanStrike.StrikingSkill.SAME_HAND_INTERVAL,
+    0.45,
+    1e-9,
+  );
   const novice: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { level: "novice" },
     "s",
@@ -205,32 +225,52 @@ export function test_motion_documented_numbers(): void {
   );
   near(
     "novice alternating interval",
-    StrikingSkill.interval(novice, false),
+    AutoMovieMotionHumanStrike.StrikingSkill.interval(novice, false),
     0.37,
     0.005,
   );
   near(
     "novice same-hand interval",
-    StrikingSkill.interval(novice, true),
+    AutoMovieMotionHumanStrike.StrikingSkill.interval(novice, true),
     0.48,
     0.005,
   );
   near(
     "elite alternating interval",
-    StrikingSkill.interval(elite, false),
+    AutoMovieMotionHumanStrike.StrikingSkill.interval(elite, false),
     0.35,
     1e-9,
   );
   near(
     "elite same-hand interval",
-    StrikingSkill.interval(elite, true),
+    AutoMovieMotionHumanStrike.StrikingSkill.interval(elite, true),
     0.45,
     1e-9,
   );
-  near("hand return", StrikingSkill.HAND_RECOVERY, 0.35, 1e-9);
-  near("punch peak novice", StrikingSkill.PUNCH_PEAK_SPEED[0], 3.2, 0.05);
-  near("punch peak elite", StrikingSkill.PUNCH_PEAK_SPEED[1], 7.16, 0);
-  near("punch impact share", StrikingSkill.IMPACT_SPEED_SHARE.punch, 0.78, 0);
+  near(
+    "hand return",
+    AutoMovieMotionHumanStrike.StrikingSkill.HAND_RECOVERY,
+    0.35,
+    1e-9,
+  );
+  near(
+    "punch peak novice",
+    AutoMovieMotionHumanStrike.StrikingSkill.PUNCH_PEAK_SPEED[0],
+    3.2,
+    0.05,
+  );
+  near(
+    "punch peak elite",
+    AutoMovieMotionHumanStrike.StrikingSkill.PUNCH_PEAK_SPEED[1],
+    7.16,
+    0,
+  );
+  near(
+    "punch impact share",
+    AutoMovieMotionHumanStrike.StrikingSkill.IMPACT_SPEED_SHARE.punch,
+    0.78,
+    0,
+  );
 
   // 4. Proxemic gaps and reaction sizes.
   const proxemics = AutoMovieMotionHumanGait.HumanProxemics;

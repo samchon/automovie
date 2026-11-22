@@ -16,7 +16,7 @@ import {
   type IAutoMovieStagedSet,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HUMANOID_GAITS } from "@automovie/motions";
+import { AutoMovieMotionHumanGait } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -64,8 +64,8 @@ const gaitBones: (gait: IAutoMovieGait) => AutoMovieHumanoidBone[] = (
  * A custom gait that genuinely authors legs only.
  */
 const LEG_ONLY_GAIT: IAutoMovieGait = {
-  ...HUMANOID_GAITS.walk,
-  limbs: HUMANOID_GAITS.walk.limbs.filter(
+  ...AutoMovieMotionHumanGait.HUMANOID_GAITS.walk,
+  limbs: AutoMovieMotionHumanGait.HUMANOID_GAITS.walk.limbs.filter(
     (limb: IAutoMovieGait["limbs"][number]): boolean =>
       !limb.bone.endsWith("UpperArm"),
   ),
@@ -139,7 +139,7 @@ export function test_motion_gait_authored_region(): void {
       skeleton: (): null => null,
     });
 
-  for (const gait of Object.values(HUMANOID_GAITS)) {
+  for (const gait of Object.values(AutoMovieMotionHumanGait.HUMANOID_GAITS)) {
     const result = perform([{ ...walk(), gait: gait.name }, frame], gait);
     if (!result.success) throw new Error(gait.name + " failed to perform.");
     const bones = new Set(
@@ -169,13 +169,17 @@ export function test_motion_gait_authored_region(): void {
   };
   TestValidator.predicate(
     "gaze and unmasked gait do not intersect",
-    perform([walk(), gaze, frame], HUMANOID_GAITS.walk).success,
+    perform([walk(), gaze, frame], AutoMovieMotionHumanGait.HUMANOID_GAITS.walk)
+      .success,
   );
   TestValidator.predicate(
     "leg-only gait leaves wave free",
     perform([walk(), wave, frame], LEG_ONLY_GAIT).success,
   );
-  const overlap = perform([walk(), wave, frame], HUMANOID_GAITS.walk);
+  const overlap = perform(
+    [walk(), wave, frame],
+    AutoMovieMotionHumanGait.HUMANOID_GAITS.walk,
+  );
   TestValidator.predicate(
     "overlap reports the occupied arm",
     !overlap.success &&
@@ -185,7 +189,10 @@ export function test_motion_gait_authored_region(): void {
           v.expected.includes("rightUpperArm"),
       ),
   );
-  const narrow = perform([walk("lowerBody"), frame], HUMANOID_GAITS.walk);
+  const narrow = perform(
+    [walk("lowerBody"), frame],
+    AutoMovieMotionHumanGait.HUMANOID_GAITS.walk,
+  );
   TestValidator.predicate(
     "explicit mask reports both discarded arms",
     !narrow.success &&
