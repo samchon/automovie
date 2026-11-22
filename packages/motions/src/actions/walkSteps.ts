@@ -360,13 +360,16 @@ export namespace walkSteps {
           ? rest(side)
           : half + (rest(side) - half) * aside);
       const toward: number = towardAt(j);
-      // A walk facing off its way closes a foot up rather than cross it; the closing pair already stands apart at the arrival.
+      // A walk facing off its way closes a foot up rather than cross it. The
+      // first footprint of the closing pair is kept from the other foot's
+      // last one as well, which still stands when it lands; the last
+      // footprint already stands apart from it at the arrival.
       const laid: IAutoMovieVector3 = HumanFrame.point(
         { origin: path.at(distance), yaw: toward },
         { x: lateral, y: m.ankleHeight, z: 0 },
       );
       const point: IAutoMovieVector3 =
-        facing === undefined || j >= n
+        facing === undefined || j > n
           ? laid
           : walkHeading.separated(laid, lastOf[side === "left" ? "right" : "left"], toward, side, lateral);
       lastOf[side] = { point, lateral };
