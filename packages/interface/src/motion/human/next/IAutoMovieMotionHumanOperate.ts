@@ -3,13 +3,19 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanOperateInsert } from "../affordance/IAutoMovieMotionHumanOperateInsert";
 import type { IAutoMovieMotionHumanPour } from "../affordance/IAutoMovieMotionHumanPour";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanSwipeTouchscreen } from "../everyday/IAutoMovieMotionHumanSwipeTouchscreen";
 import type { IAutoMovieMotionHumanTypeText } from "../everyday/IAutoMovieMotionHumanTypeText";
+import type { IAutoMovieMotionHumanButton } from "../handling/IAutoMovieMotionHumanButton";
 import type { IAutoMovieMotionHumanHeldWork } from "../handling/IAutoMovieMotionHumanHeldWork";
 import type { IAutoMovieMotionHumanManipulate } from "../handling/IAutoMovieMotionHumanManipulate";
 import type { IAutoMovieMotionHumanPushPull } from "../handling/IAutoMovieMotionHumanPushPull";
 import type { IAutoMovieMotionHumanPushSled } from "../handling/IAutoMovieMotionHumanPushSled";
 import type { IAutoMovieMotionHumanThrowPottery } from "../handling/IAutoMovieMotionHumanThrowPottery";
+import type { IAutoMovieMotionHumanWrite } from "../handling/IAutoMovieMotionHumanWrite";
+import type { IAutoMovieMotionHumanZip } from "../handling/IAutoMovieMotionHumanZip";
 import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
+import type { IAutoMovieMotionHumanHoldHandles } from "../lexicon/IAutoMovieMotionHumanHoldHandles";
+import type { IAutoMovieMotionHumanHookSet } from "../tasks/IAutoMovieMotionHumanHookSet";
 import type { IAutoMovieMotionHumanLongTool } from "../tasks/IAutoMovieMotionHumanLongTool";
 import type { IAutoMovieMotionHumanUseTool } from "../tasks/IAutoMovieMotionHumanUseTool";
 import type { IAutoMovieMotionHumanWipe } from "../tasks/IAutoMovieMotionHumanWipe";
@@ -237,6 +243,117 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
     params: IAutoMovieMotionHumanOperate.IThrowPottery,
     anchor?: string,
   ): Chain;
+
+  /**
+   * A one-finger swipe along the local X axis of a stationary screen, centred in its depth.
+   *
+   * @param params The `prop`, `screen`, `from`, `to`, `hand` and `duration` of `IAutoMovieMotionHumanSwipeTouchscreen`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.swipeTouchscreen is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.swipeTouchscreen is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.swipeTouchscreen is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanOperate.swipeTouchscreen is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.swipeTouchscreen is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.swipeTouchscreen is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   */
+  swipeTouchscreen(
+    params: IAutoMovieMotionHumanOperate.ISwipeTouchscreen,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * One stroke by a tool the performer already holds, traced on a fixed prop's surface through authored planar points.
+   *
+   * @param params The `tool`, `tip`, `on`, `surface`, `stroke`, `duration`, `hand`, `steady`, `drive`, `take`, `leave` and `release` of `IAutoMovieMotionHumanWrite`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.write is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.write is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.write is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanOperate.write is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.write is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.write is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   */
+  write(params: IAutoMovieMotionHumanOperate.IWrite, anchor?: string): Chain;
+
+  /**
+   * Pushing a button through the rectangular clear opening of a fixed garment prop, on a rigid straight slider.
+   *
+   * @param params The `garment`, `opening`, `rim`, `button`, `contact`, `travel`, `radius`, `thickness`, `duration` and `hand` of `IAutoMovieMotionHumanButton`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.button is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.button is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.button is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanOperate.button is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.button is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.button is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   */
+  button(params: IAutoMovieMotionHumanOperate.IButton, anchor?: string): Chain;
+
+  /**
+   * Opening or closing a straight closed-end zipper on a supported stationary pouch.
+   *
+   * @param params The `pouch`, `thumb`, `index`, `brace`, `travel`, `duration` and `hand` of `IAutoMovieMotionHumanZip`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.zip is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.zip is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.zip is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanOperate.zip is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.zip is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.zip is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   */
+  zip(params: IAutoMovieMotionHumanOperate.IZip, anchor?: string): Chain;
+
+  /**
+   * Setting the hook: the hand holding a fishing rod lifts its tip sharply by an angle in a set time, turning the rod about the grip.
+   *
+   * @param params The `rod`, `angle`, `duration` and `hand` of `IAutoMovieMotionHumanHookSet`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.hookSet is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.hookSet is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.hookSet is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanOperate.hookSet is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.hookSet is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.hookSet is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   */
+  hookSet(
+    params: IAutoMovieMotionHumanOperate.IHookSet,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * Walking behind an implement with both hands on its two handles, as a ploughman holds a walking plough, as an arms overlay over an authored walk.
+   *
+   * @param params The implement `on`, its `left` and `right` handles, `duration` and `transition` of `IAutoMovieMotionHumanHoldHandles`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperate.holdHandles is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperate.holdHandles is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperate.holdHandles is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanOperate.holdHandles is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.holdHandles is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.holdHandles is provided by the chain that implements IAutoMovieMotionHumanOperate.
+   */
+  holdHandles(
+    params: IAutoMovieMotionHumanOperate.IHoldHandles,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -352,6 +469,66 @@ export namespace IAutoMovieMotionHumanOperate {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IThrowPottery = IAutoMovieMotionHumanThrowPottery.IParams;
+
+  /**
+   * The parameters of `swipeTouchscreen`: `IAutoMovieMotionHumanSwipeTouchscreen`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanSwipeTouchscreen`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSwipeTouchscreen` owns the shape; the alias serves `swipeTouchscreen` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type ISwipeTouchscreen = IAutoMovieMotionHumanSwipeTouchscreen;
+
+  /**
+   * The parameters of `write`: `IAutoMovieMotionHumanWrite`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanWrite`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWrite` owns the shape; the alias serves `write` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type IWrite = IAutoMovieMotionHumanWrite;
+
+  /**
+   * The parameters of `button`: `IAutoMovieMotionHumanButton`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanButton`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanButton` owns the shape; the alias serves `button` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type IButton = IAutoMovieMotionHumanButton;
+
+  /**
+   * The parameters of `zip`: `IAutoMovieMotionHumanZip`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanZip`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanZip` owns the shape; the alias serves `zip` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type IZip = IAutoMovieMotionHumanZip;
+
+  /**
+   * The parameters of `hookSet`: `IAutoMovieMotionHumanHookSet`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHookSet`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHookSet` owns the shape; the alias serves `hookSet` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type IHookSet = IAutoMovieMotionHumanHookSet;
+
+  /**
+   * The parameters of `holdHandles`: `IAutoMovieMotionHumanHoldHandles`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHoldHandles`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHoldHandles` owns the shape; the alias serves `holdHandles` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type IHoldHandles = IAutoMovieMotionHumanHoldHandles;
 }
 
 /**
