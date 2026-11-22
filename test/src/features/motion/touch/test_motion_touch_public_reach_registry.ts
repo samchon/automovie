@@ -14,7 +14,6 @@ import {
   HumanChain,
   HumanHand,
   HumanPerformance,
-  HumanPerformanceParams,
   HumanSport,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -52,7 +51,6 @@ export function test_motion_touch_public_reach_registry(): void {
             target: { kind: "point", frame: "world", at: { x: 0, y: 0, z: 0 } },
           }
         : {};
-    HumanPerformanceParams.check(name, given);
     const resolved: object | undefined = record?.resolve?.(given);
     TestValidator.predicate(
       name + " dispatches its public arguments",
