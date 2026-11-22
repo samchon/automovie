@@ -173,7 +173,8 @@ export function test_motion_documented_numbers(): void {
   near("novice alternating interval", StrikingSkill.interval(novice, false), 0.37, 0.005);
   near("novice same-hand interval", StrikingSkill.interval(novice, true), 0.48, 0.005);
   near("elite alternating interval", StrikingSkill.interval(elite, false), 0.35, 1e-9);
-  near("elite same-hand interval", StrikingSkill.interval(elite, true), 0.45, 1e-9);  near("hand return", StrikingSkill.HAND_RECOVERY, 0.35, 1e-9);
+  near("elite same-hand interval", StrikingSkill.interval(elite, true), 0.45, 1e-9);
+  near("hand return", StrikingSkill.HAND_RECOVERY, 0.35, 1e-9);
   near("punch peak novice", StrikingSkill.PUNCH_PEAK_SPEED[0], 3.2, 0.05);
   near("punch peak elite", StrikingSkill.PUNCH_PEAK_SPEED[1], 7.16, 0);
   near("punch impact share", StrikingSkill.IMPACT_SPEED_SHARE.punch, 0.78, 0);
