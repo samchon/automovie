@@ -1,0 +1,48 @@
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
+
+import { lookPrimitive } from "./lookPrimitive";
+
+/**
+ * A glance: the gaze goes to a target and comes back, its weight rising
+ * over one window and falling over another on the clock's envelope, and the
+ * head is written from the first instant to the last. Re-exported as
+ * `AutoMovieMotionHumanGaze.glance`.
+ *
+ * @param body The body.
+ * @param clock The action's clock.
+ * @param rise The instants the gaze leaves and arrives at.
+ * @param fall The instants the gaze starts returning and is back at.
+ * @param target What is looked at.
+ * @param recruit Which segments may join; the head too by default.
+ * @returns The primitive.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the two windows, the span written and the default recruitment.
+ * @evidence contracts/development/implementation.md#principled-implementation A gaze that goes and returns is the clock's envelope over a rise and a fall, which leaves and rejoins the base without a jump.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `lookPrimitive` with the envelope as the weight.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The windows are named instants of the clock, so no time is written twice.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `lookPrimitive` and the clock.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
+ */
+export function glance(
+  body: IAutoMovieMotionHumanBody,
+  clock: IAutoMovieMotionClock,
+  rise: readonly [string, string],
+  fall: readonly [string, string],
+  target: IAutoMovieMotionHumanGaze.Frame,
+  recruit: IAutoMovieMotionHumanGaze.HeadRecruit = "head",
+): IAutoMovieMotionHumanPrimitive {
+  return lookPrimitive({
+    body,
+    recruit,
+    from: clock.at(rise[0]),
+    to: clock.at(fall[1]),
+    target,
+    weight: (seconds: number): number => clock.envelope(rise, fall, seconds),
+  });
+}

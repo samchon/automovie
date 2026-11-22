@@ -1,9 +1,10 @@
 import type {
   IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanHandToFace,
+  IAutoMovieMotionHumanHandToBody,
 } from "@automovie/interface";
 
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_HAND_TO_BODY_COVER_FACE } from "../next/presets/HUMAN_HAND_TO_BODY_COVER_FACE";
 import { handToFace } from "./handToFace";
 
 /**
@@ -21,24 +22,5 @@ import { handToFace } from "./handToFace";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Fixes the gesture and exposes only hold duration and manner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing planner and canonical cheek regions with fixed bare-hand contact.
  */
-export const coverFace: IAutoMovieMotionHumanActionLaw<
-  Pick<IAutoMovieMotionHumanHandToFace.IParams, "hold" | "manner">
-> = HumanActionRow.of("coverFace", handToFace, {
-  hand: "right",
-  count: 1,
-  prop: undefined,
-  point: undefined,
-  grasp: undefined,
-  other: undefined,
-  kind: {
-    region: "cheekRight",
-    other: "cheekLeft",
-    effector: { surface: "palm", shape: "flat" },
-    kind: "hold",
-    count: 1,
-    hold: 1.2,
-    tangent: "up",
-    head: 15,
-    at: "atFace",
-  },
-});
+export const coverFace: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandToBody.ICoverFace> =
+  HumanActionRow.of("coverFace", handToFace, HUMAN_HAND_TO_BODY_COVER_FACE);
