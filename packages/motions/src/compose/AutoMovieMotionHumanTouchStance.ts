@@ -13,6 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanLeanInto } from "./AutoMovieMotionHumanLeanInto";
@@ -34,7 +35,12 @@ import { AutoMovieMotionHumanRise } from "./AutoMovieMotionHumanRise";
  * moves by the least angle that brings the wrist within the kept share of
  * the arm, and no further than the shoulder needs to come level with the
  * wrist or than its limit (`GIRDLE`, `RAISE`). What remains is leaned into
- * (`AutoMovieMotionHumanLeanInto`), which refuses a region still out of
+ * (`AutoMovieMotionHumanLeanInto`). A region off to the side that the forward
+ * lean leaves out of reach is turned toward first: the trunk twists about
+ * its long axis by the heading's angle to the line from the shoulder to the
+ * wrist, shared by the lumbar and thoracic spine within their twist ranges,
+ * as a person turns the chest toward a hand reaching across the body. The
+ * lean, solved again on the turned trunk, refuses a region still out of
  * reach at its limit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two movements, their order, why the rise comes first, what bounds each and who refuses.
@@ -110,6 +116,64 @@ export namespace AutoMovieMotionHumanTouchStance {
       };
     };
 
+    // The trunk turned about its long axis, the lumbar and the thoracic spine
+    // each taking the share of the turn their own twist range holds.
+    const twisted = (
+      posture: IAutoMovieMotionHumanPosture,
+      degrees: number,
+    ): IAutoMovieMotionHumanPosture => {
+      if (degrees === 0) return posture;
+      const motion: IAutoMovieMotionHumanRange.Motion =
+        degrees > 0 ? "external" : "internal";
+      const spans: readonly number[] = TWISTED.map(
+        (bone: TwistedBone): number =>
+          AutoMovieMotionHumanRange.degrees(bone, motion, "full"),
+      );
+      const total: number = spans.reduce(
+        (sum: number, span: number): number => sum + span,
+        0,
+      );
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...posture.joints,
+      };
+      TWISTED.forEach((bone: TwistedBone, k: number): void => {
+        const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+        joints[bone] = [was[0], was[1], was[2] + (degrees * spans[k]!) / total];
+      });
+      return { ...posture, joints };
+    };
+
+    // The turn toward a wrist off to the side: the heading's angle to the
+    // line from the shoulder to the wrist across the floor, positive toward
+    // the left as the spine's twist is, within the two bones' whole range.
+    const toward = (posture: IAutoMovieMotionHumanPosture): number => {
+      const wrist: IAutoMovieVector3 = props.wrist(posture, 0);
+      const from: IAutoMovieVector3 = checkReach(
+        posture,
+        wrist,
+        prepareHumanPoseResolution(),
+      ).root;
+      const yaw: number = (posture.yaw * Math.PI) / 180;
+      const dx: number = wrist.x - from.x;
+      const dz: number = wrist.z - from.z;
+      const left: number = dx * Math.cos(yaw) - dz * Math.sin(yaw);
+      const ahead: number = dx * Math.sin(yaw) + dz * Math.cos(yaw);
+      const angle: number = (Math.atan2(left, ahead) * 180) / Math.PI;
+      const range: number = TWISTED.reduce(
+        (sum: number, bone: TwistedBone): number =>
+          sum +
+          Math.abs(
+            AutoMovieMotionHumanRange.degrees(
+              bone,
+              angle > 0 ? "external" : "internal",
+              "full",
+            ),
+          ),
+        0,
+      );
+      return Math.max(-range, Math.min(range, angle));
+    };
+
     // The worst of the stroke's start, middle and end on a posture: how far
     // the wrist lies beyond the kept share, and how far above the shoulder.
     const probes: readonly number[] = props.fixed === true ? [0] : [0, 0.5, 1];
@@ -147,11 +211,13 @@ export namespace AutoMovieMotionHumanTouchStance {
               reach(moved(standing, girdle, degrees)),
           );
 
-    const risen: IAutoMovieMotionHumanPosture = moved(standing, girdle, raise);
-    const lean: IAutoMovieMotionHumanLeanInto.ILean =
+    const upright: IAutoMovieMotionHumanPosture = moved(standing, girdle, raise);
+    const leanOn = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanLeanInto.ILean =>
       AutoMovieMotionHumanLeanInto.solve({
         body,
-        standing: risen,
+        standing: posture,
         ...(props.balance === true ? { balance: true } : {}),
         side: props.side,
         share: props.share,
@@ -159,7 +225,29 @@ export namespace AutoMovieMotionHumanTouchStance {
         ...(props.arm === undefined ? {} : { arm: props.arm }),
         refuse: props.refuse,
       });
-    const arrival: number = lean.pitch(risen, 0);
+
+    // The forward lean first; a wrist it leaves out of reach to the side is
+    // turned toward by the trunk, by the heading's angle to the line from
+    // the shoulder to the wrist (`turn`), and the lean is solved again on the
+    // turned trunk, which refuses what is still out of reach.
+    let turn: number = 0;
+    let lean: IAutoMovieMotionHumanLeanInto.ILean = leanOn(upright);
+    let arrival: number;
+    try {
+      arrival = lean.pitch(upright, 0);
+    } catch (error) {
+      turn = toward(upright);
+      if (
+        turn === 0 ||
+        !(error instanceof HumanRefusal) ||
+        error.kind !== "reach" ||
+        error.axis !== "target"
+      )
+        throw error;
+      lean = leanOn(twisted(upright, turn));
+      arrival = lean.pitch(twisted(upright, turn), 0);
+    }
+    const risen: IAutoMovieMotionHumanPosture = twisted(upright, turn);
     const leaning: boolean =
       arrival > 0 ||
       probes
@@ -179,9 +267,9 @@ export namespace AutoMovieMotionHumanTouchStance {
         clock: IAutoMovieMotionClock,
         correction?: IAutoMovieMotionHumanTouchStance.ICorrection,
       ): IAutoMovieMotionHumanPrimitive[] => {
-        if (props.girdles === undefined && girdle === 0 && raise === 0 && props.fixed !== true && correction === undefined)
+        if (props.girdles === undefined && girdle === 0 && raise === 0 && turn === 0 && props.fixed !== true && correction === undefined)
           return leaning ? [lean.primitive(clock)] : [];
-        if (props.girdles === undefined && girdle === 0 && raise === 0 && !leaning) return correction === undefined
+        if (props.girdles === undefined && girdle === 0 && raise === 0 && turn === 0 && !leaning) return correction === undefined
           ? [] : [{ channels: [correction.channel], from: 0, to: clock.duration, write: correction.write }];
         const share: (seconds: number) => number = (seconds: number): number =>
           clock.envelope(["start", "ready"], ["relax", "end"], seconds);
@@ -206,12 +294,9 @@ export namespace AutoMovieMotionHumanTouchStance {
               const degrees: number = raise * (props.heels?.(clock, seconds) ?? k);
               const ankles: IAutoMovieMotionHumanRise.Stance | undefined =
                 degrees === 0 ? undefined : props.placements?.(posture) ?? feet;
-              const up: IAutoMovieMotionHumanPosture = moved(
-                posture,
-                girdle * k,
-                degrees,
-                ankles,
-                k,
+              const up: IAutoMovieMotionHumanPosture = twisted(
+                moved(posture, girdle * k, degrees, ankles, k),
+                turn * k,
               );
 
               // The lean is read at the full rise, so its angle does not
@@ -223,7 +308,7 @@ export namespace AutoMovieMotionHumanTouchStance {
                       (props.fixed === true
                         ? arrival
                         : lean.pitch(
-                            moved(posture, girdle, raise, ankles),
+                            twisted(moved(posture, girdle, raise, ankles), turn),
                             clock.progress("strokeStart", "strokeEnd", seconds),
                             resolution,
                           )),
@@ -272,6 +357,12 @@ export namespace AutoMovieMotionHumanTouchStance {
     }
   }
 }
+
+/** The spine's bones a turn of the trunk toward a wrist off to the side twists: the lumbar and the thoracic spine. */
+const TWISTED: readonly TwistedBone[] = ["spine", "chest"];
+
+/** A spine bone the trunk's turn twists. */
+type TwistedBone = "spine" | "chest";
 
 /** A wrist's place against the arm on a posture, metres: beyond the kept share of the arm's length, and above the shoulder joint. */
 interface IReach {
