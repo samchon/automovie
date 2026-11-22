@@ -348,7 +348,6 @@ export function rideQuadruped<Affordance extends string, D extends string>(
             carry,
             rest[0]!.z + rest[4]!.z - rest[3]!.z,
             terrain.clear[limb],
-              ),
           ),
           lift: (going * height + (ground?.swingLift ?? 0)) * step.rise,
           fold: going * which.fold[end] * step.rise,
