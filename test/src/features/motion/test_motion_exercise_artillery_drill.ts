@@ -71,6 +71,15 @@ const LOADER_YAW: number = 90;
 /** No. 5 beside No. 2, metres in No. 2's frame at the muzzle: the offset the original stations had (0.7 m to his right, 0.5 m behind), turned with him. */
 const BRINGER: IAutoMovieVector3 = { x: -0.5, y: 0, z: 0.7 };
 
+/** Where No. 1 sponges and rams from, metres from the middle of the rammer grip's travel along the bore: to the gun's right (`+x`), a forearm's reach from the staff, and back along the bore by the shoulder's half width, so his right hand works the staff abeam of his shoulder. */
+const RAMMER_AT: IAutoMovieVector3 = { x: 0.45, y: 0, z: 0.17 };
+
+/** No. 1's heading beside the staff, degrees: facing the gun's axis (`-x`). */
+const RAMMER_YAW: number = -90;
+
+/** The rammer's start in No. 1's frame turned with him, metres: the original stations' 0.2 m to his right, 0.35 m ahead and 0.95 m up. */
+const RAMMER_REST: IAutoMovieVector3 = { x: -0.35, y: 0.95, z: -0.2 };
+
 /** The drill's duties in their order, by anchor. */
 const ORDER: readonly string[] = [
   "coverVent",
@@ -137,24 +146,48 @@ export function test_motion_exercise_artillery_drill(): void {
       y: 0,
       z: muzzle.z + LOADER.z,
     };
+    // No. 1 works the staff beside the middle of its grip's travel: the
+    // grip starts the staff's reach (its shaft grip to its sponge) out of
+    // the muzzle along the bore and goes the bore's depth in.
+    const staff: ReturnType<typeof createLongTool> = createLongTool({
+      kind: "spongeRammer",
+    });
+    const along: number = Vector3.distance(
+      staff.affordance("shaft").frame.translation,
+      staff.affordance("sponge").frame.translation,
+    );
+    const out: IAutoMovieVector3 = Quaternion.rotateVector(
+      gun.affordance("muzzle").frame.rotation,
+      { x: 0, y: 1, z: 0 },
+    );
+    const travelled: IAutoMovieVector3 = Vector3.add(
+      muzzle,
+      Vector3.scale(out, along - scene.bore / 2),
+    );
+    const rammerAt: IAutoMovieVector3 = {
+      x: travelled.x + RAMMER_AT.x,
+      y: 0,
+      z: travelled.z + RAMMER_AT.z,
+    };
     const stations: Record<
       keyof IAutoMovieMotionHumanGunCrew.IRoles,
       IAutoMovieVector3
     > = {
       ...STATIONS,
+      n1: rammerAt,
       n2: loader,
       n5: Vector3.add(loader, BRINGER),
     };
     const yaws: Partial<
       Record<keyof IAutoMovieMotionHumanGunCrew.IRoles, number>
-    > = { n2: LOADER_YAW, n5: LOADER_YAW };
+    > = { n1: RAMMER_YAW, n2: LOADER_YAW, n5: LOADER_YAW };
     const props: IAutoMovieMotionHumanProp[] = [
       HumanObject.prop("gun", gun, {
         at: { x: 0, y: 0, z: 0 },
         yaw: 0,
         fixed: true,
       }),
-      rammer(Vector3.add(STATIONS.n1, { x: -0.2, y: 0.95, z: 0.35 })),
+      rammer(Vector3.add(rammerAt, RAMMER_REST)),
       HumanObject.prop("charge", createProjectile({ kind: "roundShot" }), {
         // At No. 5's right front, as he faces with No. 2.
         at: Vector3.add(stations.n5, { x: 0.35, y: 0.85, z: 0.22 }),
