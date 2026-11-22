@@ -58,6 +58,9 @@ export namespace IAutoMovieMotionHumanWardrobe {
 
     /** The arm in the sleeve, or the hand on the slider. */
     side: AutoMovieHumanSide;
+
+    /** Whether another performer holds the jacket open at this performer's collar, as `coatPartner` does: the sleeve is threaded where that hold puts the jacket. The jacket already worn when absent. */
+    held?: boolean;
   }
 
   /**

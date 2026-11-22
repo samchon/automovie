@@ -236,11 +236,13 @@ function stage(
         wardrobeFilm.placement(0.1 * sign + 0.25 * sign, 1.06, -0.25),
       ),
     ],
-    // The partner is placed first, so the dresser reads where the partner stands.
+    // The partner is placed first, so the dresser reads where the partner
+    // stands; the partner threads the jacket where the dresser holds it, at
+    // the partner's own collar, without reading the dresser.
     composition: HumanChain.subject("b")
       .stand({ seconds: WAIT })
-      .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: "left" })
-      .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: "right" })
+      .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: "left", held: true })
+      .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: "right", held: true })
       .stand({ seconds: 2 })
       .walk({ to: { x: 0.3, y: 0, z: 0.8 }, face: 60 })
       .with(

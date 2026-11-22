@@ -241,17 +241,23 @@ function thread(
       "clear the selected hand before threading the sleeve",
     );
   const reader: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
-  const model: IAutoMovieRigidTransform = reader.frame(context.start - 1e-6);
   const wear: IAutoMovieAffordance = wardrobeHands.site(
     reader.prop,
     "wear",
     "socket",
   );
+  // A jacket another performer holds open at this performer's collar is
+  // where that hold puts it, its wear socket on the collar, so the wearer
+  // threads without reading the holder, who reads the wearer (`coatPartner`).
+  const held: boolean = "held" in params && params.held === true;
+  const model: IAutoMovieRigidTransform = held
+    ? HumanPropFrame.parent(collar(context), wardrobeHands.frame(wear))
+    : reader.frame(context.start - 1e-6);
   const mounted: IAutoMovieRigidTransform = HumanPropFrame.compose(
     model,
     wardrobeHands.frame(wear),
   );
-  if (Vector3.distance(mounted.position, collar(context).position) > 0.12)
+  if (!held && Vector3.distance(mounted.position, collar(context).position) > 0.12)
     throw wardrobeHands.refusal(
       "prop",
       params.prop,
