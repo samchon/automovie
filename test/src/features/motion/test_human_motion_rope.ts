@@ -154,7 +154,7 @@ export function test_human_motion_rope(): void {
       });
     const rope = (
       p: IAutoMovieMotionHumanRope.IParams,
-    ): IAutoMovieMotionHumanChain => HumanChain.subject("a").act("rope", p);
+    ): IAutoMovieMotionHumanChain => HumanChain.subject("a").registered("rope", p);
 
     // 1-2. Climb, then descend at the bound.
     try {
@@ -166,7 +166,7 @@ export function test_human_motion_rope(): void {
           rope: "rope",
           line: "line",
           rise: RISE,
-        }).act("rope", {
+        }).registered("rope", {
           kind: "descend",
           rope: "rope",
           line: "line",

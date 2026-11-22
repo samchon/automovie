@@ -137,7 +137,7 @@ export function test_human_motion_tree_climb(): void {
         laws: [HumanTreeClimb.climbTree],
         composition: chain.node,
       });
-    const climb: IAutoMovieMotionHumanChain = HumanChain.subject("a").act(
+    const climb: IAutoMovieMotionHumanChain = HumanChain.subject("a").registered(
       "climbTree",
       { kind: "climb", tree: "tree", branch: 1 },
     );
@@ -193,8 +193,8 @@ export function test_human_motion_tree_climb(): void {
     try {
       const take: HumanPerformance = perform(
         HumanChain.subject("a")
-          .act("climbTree", { kind: "climb", tree: "tree", branch: 0 })
-          .act("climbTree", { kind: "sit", tree: "tree", branch: 0 }),
+          .registered("climbTree", { kind: "climb", tree: "tree", branch: 0 })
+          .registered("climbTree", { kind: "sit", tree: "tree", branch: 0 }),
       );
       assertTakeClean(`${fit} sit astride`, take);
       const end = take.bones("a", take.duration);
@@ -226,7 +226,7 @@ export function test_human_motion_tree_climb(): void {
     // 3. Down by the drop.
     try {
       const take: HumanPerformance = perform(
-        climb.act("climbTree", { kind: "descend", tree: "tree", branch: 1 }),
+        climb.registered("climbTree", { kind: "descend", tree: "tree", branch: 1 }),
       );
       assertTakeClean(`${fit} climb down and drop`, take);
       const down: IAutoMovieMotionHumanSegment = take
@@ -268,7 +268,7 @@ export function test_human_motion_tree_climb(): void {
       motionHumanRefusal(
         () =>
           perform(
-            HumanChain.subject("a").act("climbTree", {
+            HumanChain.subject("a").registered("climbTree", {
               kind: "climb",
               tree: "tall",
               branch: 0,

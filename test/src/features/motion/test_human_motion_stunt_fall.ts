@@ -111,7 +111,7 @@ export function test_human_motion_stunt_fall(): void {
         ],
         props,
         laws: [HumanStuntFall.stuntFall],
-        composition: HumanChain.subject("a").act("stuntFall", p).node,
+        composition: HumanChain.subject("a").registered("stuntFall", p).node,
       });
     const onTread = (k: number): IStand => ({
       at: { ...steps[k]!.frame.translation },

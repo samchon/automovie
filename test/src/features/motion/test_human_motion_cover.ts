@@ -110,7 +110,7 @@ export function test_human_motion_cover(): void {
         ],
         props,
         laws: [HumanCover.moveInCover],
-        composition: HumanChain.subject("a").act("moveInCover", stage.move)
+        composition: HumanChain.subject("a").registered("moveInCover", stage.move)
           .node,
       });
     const covered = (take: HumanPerformance): IAutoMovieMotionHumanSegment =>

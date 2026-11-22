@@ -38,6 +38,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { climbStairsCarry } from "./climbStairsCarry";
 import { climbStairsFeet } from "./climbStairsFeet";
 import { climbStairsFlight } from "./climbStairsFlight";
 import { climbStairsPelvis } from "./climbStairsPelvis";
@@ -475,10 +476,17 @@ export namespace climbStairs {
     const railed: IAutoMovieMotionHumanActionPlan =
       p.rail === undefined ? plan : climbStairsRail(context, plan, p.rail);
 
-    // A flight on a moving prop, such as an escalator's inclined steps, is planned where it stood at the start and carried by the prop, as a walk on a moving support is.
-    return p.on !== undefined && context.prop(p.on).prop.motion !== undefined
+    // A flight on a moving prop is planned where it stood at the start and
+    // carried by the prop. A rider already on it (an escalator's inclined
+    // steps) is carried whole from the start, as a walk on a moving support
+    // is; one boarding it from the floor (a turning disc's raised deck) is
+    // carried footprint by footprint, a floor print staying in the world and
+    // a tread print riding from its touchdown (`climbStairsCarry`).
+    if (p.on === undefined || context.prop(p.on).prop.motion === undefined)
+      return railed;
+    return climbStairsCarry.boarded(context)
       ? HumanSupportCarry.on(context, railed, p.on)
-      : railed;
+      : climbStairsCarry(context, railed, p.on);
   }
 
   /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */

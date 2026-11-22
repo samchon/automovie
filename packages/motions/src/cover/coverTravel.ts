@@ -82,16 +82,14 @@ export namespace coverTravel {
           Vector3.scale(face.normal, gap),
         ),
       );
-    const here: number = Vector3.dot(
-      Vector3.subtract(context.entry.posture.root, face.center),
-      face.axis,
-    );
+    // The walk sidles straight from where the body stands to the stop on
+    // the lane: a leg onto the lane first would be a step of a few
+    // centimetres, too short to step.
     const away: number = yawOf(face.normal);
     return walk.plan({
       ...context,
       params: {
         to: lane(p.along),
-        via: [lane(Math.max(-face.half, Math.min(face.half, here)))],
         facing: { yaw: (p.against ?? "back") === "back" ? away : away + 180 },
         pace: "slow",
       },

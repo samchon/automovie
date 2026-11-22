@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieResolvedBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -321,11 +322,21 @@ export function edgeRescueRescuer(
     if (!scene.holds || seconds < scene.caught || seconds > scene.kneel)
       return shown;
     const point: IAutoMovieVector3 = scene.gripAt(seconds);
+    // The support's own arm goal carried onto the shared grip, its bend moved
+    // with it, so the elbow keeps the side the support's course gave it.
+    const own: IAutoMovieHumanLimbGoal | undefined = shown.limbs.rightArm;
     return {
       ...shown,
       limbs: {
         ...shown.limbs,
-        rightArm: { point, bend: Vector3.add(point, elbow) },
+        rightArm:
+          own === undefined || own.on !== undefined
+            ? { point, bend: Vector3.add(point, elbow) }
+            : {
+                ...own,
+                point,
+                bend: Vector3.add(own.bend, Vector3.subtract(point, own.point)),
+              },
       },
     };
   };

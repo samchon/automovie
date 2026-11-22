@@ -93,7 +93,7 @@ export function test_human_motion_skydive(): void {
         ],
         props: [exit],
         laws: [HumanSkydive.skydive],
-        composition: HumanChain.subject("a").act("skydive", {
+        composition: HumanChain.subject("a").registered("skydive", {
           from: "roof",
           edge: "top",
           deploy: DEPLOY,

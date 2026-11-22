@@ -89,8 +89,8 @@ interface ICourse {
 export function test_human_motion_vehicle_hit(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const sedan: ReturnType<typeof createCar> = createCar({ kind: "sedan" }, 3);
-  const length: number = sedan.dimensions.length;
-  const width: number = sedan.dimensions.width;
+  const length: number = sedan.dimensions.length!;
+  const width: number = sedan.dimensions.width!;
   // The top of the sedan's front: its colliders reaching within a bumper's
   // depth of the foremost, read in its own frame.
   const still: IAutoMovieRigidTransform = {
@@ -188,7 +188,7 @@ export function test_human_motion_vehicle_hit(): void {
         ],
         props: [prop],
         laws: [HumanVehicleHit.vehicleHit, HumanVehicleHit.vehicleDive],
-        composition: HumanChain.subject("a").act(act, { vehicle: "car" }).node,
+        composition: HumanChain.subject("a").registered(act, { vehicle: "car" }).node,
       });
     const segment: (take: HumanPerformance) => IAutoMovieMotionHumanSegment = (
       take: HumanPerformance,

@@ -90,7 +90,7 @@ export function test_human_motion_wall_run(): void {
         ],
         props,
         laws: [HumanWallRun.wallRun],
-        composition: HumanChain.subject("a").act("wallRun", p).node,
+        composition: HumanChain.subject("a").registered("wallRun", p).node,
       });
     const run = (take: HumanPerformance): IAutoMovieMotionHumanSegment =>
       take
