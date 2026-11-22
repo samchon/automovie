@@ -341,6 +341,7 @@ export namespace sit {
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return sitHands(
+          body,
           seatedKey !== undefined && settled(t) &&
           resolution !== undefined && prepareHumanPoseResolution.isNativeSource(resolution)
             ? structuredClone(seatedKey)
