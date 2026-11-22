@@ -205,7 +205,8 @@ export function test_motion_exercise_campaign_catches(): void {
         glove: "crosse",
       })
       .sync({ of: "throw" }),
-    { x: -0.35, y: 1.7, z: receiverAt.z - 0.4 },
+    // On the receiver's right (+X as they face -Z), the crosse's side.
+    { x: 0.35, y: 1.8, z: receiverAt.z - 0.4 },
     [],
   );
   // 2. #3898: a two-hand catch by a player seated in a wheelchair.
@@ -246,7 +247,7 @@ export function test_motion_exercise_campaign_catches(): void {
           })
           .sync({ of: "throw" }),
       ),
-    { x: seat.x, y: seat.y + 0.45, z: seat.z - 0.4 },
+    { x: seat.x, y: seat.y + 0.7, z: seat.z - 0.25 },
     [],
   );
 
