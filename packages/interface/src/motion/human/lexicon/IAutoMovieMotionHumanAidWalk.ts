@@ -1,4 +1,5 @@
 import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 
@@ -43,6 +44,15 @@ export namespace IAutoMovieMotionHumanAidWalk {
 
     /** Consecutive floor stations of the body, from the held standing pose. */
     stations: readonly IStation[];
+
+    /**
+     * The entry station's world floor point, metres: where the body stands at
+     * entry, from which every station's `x` and `z` are measured and about
+     * which its `turn` carries the body, its feet and its aid as one rigid
+     * whole. Absent, the feet turn about their own midpoint and the aid about
+     * its own staged frame, which matches only a walk that never turns.
+     */
+    origin?: IAutoMovieVector3;
   }
 
   /**
@@ -87,7 +97,7 @@ export namespace IAutoMovieMotionHumanAidWalk {
      * From the aid's staged floor frame, the walk's parameters and the walk's first film second (zero when absent), the aid's world frame in metres at each film second.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the start's default, the reader's timebase and the result's frame and unit.
-     * @evidence contracts/development/implementation.md#principled-implementation HumanAidWalk builds the aid's moves between stations from the same `course` its plan uses, and each read holds the aid still between moves and blends one move by minimum jerk with a lift.
+     * @evidence contracts/development/implementation.md#principled-implementation HumanAidWalk builds the aid's moves between stations from the same `course` its plan uses, each station frame the staged frame displaced by the station's `x` and `z` and turned by its `turn` about the walk's `origin` (about the aid's own staged frame when no origin is given), and each read holds the aid still between moves and blends one move by minimum jerk with a lift.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure The law owns the aid's course; the scene's prop only reads frames from the returned reader.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every frame derives from the stations the law plans, with no separately authored prop path.
      * @evidence contracts/development/implementation.md#efficient-algorithms The course is built once per call, linear in the stations; each read scans the moves up to the current one, linear in the station count.

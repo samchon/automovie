@@ -1,4 +1,5 @@
 import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanAidWalk } from "./IAutoMovieMotionHumanAidWalk";
@@ -34,6 +35,15 @@ export interface IAutoMovieMotionHumanCrutchWalk {
   /** Consecutive floor stations of the body, from its standing pose between the crutches. */
   stations: readonly IAutoMovieMotionHumanAidWalk.IStation[];
 
+  /**
+   * The entry station's world floor point, metres: where the body stands at
+   * entry, from which every station's `x` and `z` are measured and about
+   * which its `turn` carries the body, its feet and both crutches as one
+   * rigid whole. Absent, the feet turn about the crutch tips' midpoint and
+   * each crutch about its own tip, which matches only a walk that never turns.
+   */
+  origin?: IAutoMovieVector3;
+
   /** The crutch gait; `threePoint` when absent. */
   pattern?: IAutoMovieMotionHumanCrutchWalk.Pattern;
 
@@ -65,9 +75,9 @@ export namespace IAutoMovieMotionHumanCrutchWalk {
      * From one crutch's staged floor frame, the walk's parameters, the crutch's side and the walk's first film second (zero when absent), the crutch's world frame at each film second.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the start's default, the reader's timebase and the result's frame.
-     * @evidence contracts/development/implementation.md#principled-implementation HumanCrutchWalk carries each crutch by the stations' displacement, turning about its own tip as the body's centre carries it to first order, and blends each advance by minimum jerk with a lift. The current implementation ignores `side`, so both crutches follow the same displacement from their own start frames.
+     * @evidence contracts/development/implementation.md#principled-implementation HumanCrutchWalk carries each crutch rigidly with the walker: at a station its frame is the staged frame displaced by the station's `x` and `z` and turned by its `turn` about the walk's `origin` (tip' = tip + d + (R - I)(tip - origin)), or about its own tip when no origin is given; each advance blends by minimum jerk with a lift. Both crutches advance on the same clock, so `side` selects no phase of its own and the frame depends on the crutch only through its staged frame.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure The law owns the stations' clock and advances; the scene's two crutch props only read frames from the returned reader.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every crutch frame derives from the stations the law plans, with no separately authored prop path; the first-order turn about the tip is stated, not hidden.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every crutch frame derives from the stations the law plans, with no separately authored prop path; the turn about the crutch's own tip without an origin is stated, not hidden.
      * @evidence contracts/development/implementation.md#efficient-algorithms The advances are built once per call, linear in the stations; each read scans them up to the current one, linear in the station count.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned reader reuses its one list of advances for every film second; the plan builds its own from the same clock.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the start frame and one advance per station for as long as the scene holds it.

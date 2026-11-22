@@ -176,10 +176,27 @@ export namespace support {
       limbs: {},
     };
 
-    // Each contact's target, read once at the start.
-    const at: Place = (c: IAutoMovieMotionHumanSupport.IContact): Point => {
+    // Each stance's key second: the end of its move, the instant its key is
+    // solved at.
+    const ends: number[] = [];
+    for (const stance of stances)
+      ends.push((ends.at(-1) ?? 0) + (stance.seconds ?? SECONDS));
+
+    // Each contact's target. A prop moves on its own track, which the scene
+    // knows at every second, so a contact on a prop is read where the prop
+    // stands at the key that places it (a hand on a crutch the walk carries
+    // forward); every other target is read once at the start, a partner's
+    // pose being unsettled while the schedule is still being placed.
+    const at = (
+      c: IAutoMovieMotionHumanSupport.IContact,
+      seconds: number = 0,
+    ): Point => {
       if (c.target === undefined) return null;
-      if (c.target !== "on") return context.aim(c.target, context.start).point;
+      if (c.target !== "on")
+        return context.aim(
+          c.target,
+          context.start + (c.target.kind === "prop" ? seconds : 0),
+        ).point;
       const on: IAutoMovieMotionTarget | undefined = context.params.on;
       if (on === undefined)
         throw new HumanRefusal({
@@ -192,7 +209,8 @@ export namespace support {
       return supportContact.onSurface(
         body,
         c,
-        context.aim(on, context.start).point,
+        context.aim(on, context.start + (on.kind === "prop" ? seconds : 0))
+          .point,
         entry.yaw,
       );
     };
@@ -207,10 +225,13 @@ export namespace support {
         paired?.(c, 0) ?? at(c),
       context,
     );
-    const locate: (phase: number) => Place =
-      (phase: number): Place =>
+    const locate: (phase: number, seconds: number) => Place =
+      (phase: number, seconds: number): Place =>
       (c: IAutoMovieMotionHumanSupport.IContact): Point =>
-        paired?.(c, phase) ?? at(c) ?? laid.get(supportContact.id(c)) ?? null;
+        paired?.(c, phase) ??
+        at(c, seconds) ??
+        laid.get(supportContact.id(c)) ??
+        null;
 
     // Root translation may differ at the bridge and its following stance.
     // Both place the same authored angular configuration and floor shape.
@@ -240,7 +261,7 @@ export namespace support {
         seconds: 0,
         name: "start",
         contacts: inherited,
-        place: locate(0),
+        place: locate(0, 0),
       },
     ];
     const push: (key: supportPlan.IKey) => void = (
@@ -255,7 +276,7 @@ export namespace support {
     stances.forEach(
       (stance: IAutoMovieMotionHumanSupport.IStance, i: number): void => {
         const move: number = stance.seconds ?? SECONDS;
-        const place: Place = locate(i);
+        const place: Place = locate(i, ends[i]!);
         const before: IAutoMovieMotionHumanPosture =
           keys[keys.length - 1]!.posture;
         // A part the stance lets go free bears no more from its start: it is
@@ -349,7 +370,9 @@ export namespace support {
           // The helped performer sets the feet down halfway from take to seat.
           // The helper needs the same grip key to follow the same timed course.
           const midway: Place =
-            paired !== undefined && i === 1 ? locate(i - 0.5) : place;
+            paired !== undefined && i === 1
+              ? locate(i - 0.5, (ends[i - 1]! + ends[i]!) / 2)
+              : place;
           seconds += move / 2;
           push({
             posture: supportKey.solved(

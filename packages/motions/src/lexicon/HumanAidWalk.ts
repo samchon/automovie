@@ -122,16 +122,20 @@ function course(
           "the station coordinates and heading must be finite and its time positive",
         );
       const phase: number = station.seconds / (walker ? 3 : 2);
+      // The aid moves rigidly with the walker: displaced by the station and
+      // turned about the entry station (`origin`), or about its own staged
+      // frame when none is given: p' = p + d + (R - I)(p - origin).
+      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, heading);
+      const pivot: IAutoMovieVector3 = props.origin ?? start.position;
       const pose: IAutoMovieRigidTransform = {
-        position: Vector3.add(start.position, {
-          x: station.x,
-          y: 0,
-          z: station.z,
-        }),
-        rotation: Quaternion.multiply(
-          Quaternion.fromAxisAngle(UP, heading),
-          start.rotation,
+        position: Vector3.add(
+          Vector3.add(pivot, { x: station.x, y: 0, z: station.z }),
+          Quaternion.rotateVector(
+            turn,
+            Vector3.subtract(start.position, pivot),
+          ),
         ),
+        rotation: Quaternion.multiply(turn, start.rotation),
       };
       const move: IAdvance = {
         from: clock,
@@ -247,11 +251,10 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
       entry,
       [`${lead}Foot`, `${trail}Foot`],
     );
-    const center: IAutoMovieVector3 = Vector3.lerp(
-      initial[0]!,
-      initial[1]!,
-      0.5,
-    );
+    // The feet turn with the aid about the entry station, or about their own
+    // midpoint when the walk gives none.
+    const center: IAutoMovieVector3 =
+      params.origin ?? Vector3.lerp(initial[0]!, initial[1]!, 0.5);
     const prefer: IAutoMovieMotionHumanSupport.IStance["prefer"] =
       getUp.quiet(body);
     let leading: IAutoMovieMotionHumanSupport.IContact = foot(
