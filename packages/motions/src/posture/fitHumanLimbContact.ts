@@ -28,8 +28,7 @@ import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
  */
 export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFit>, goal: IAutoMovieHumanLimbGoal,
   side: AutoMovieHumanSide, leg: boolean,
-  fit: (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear, capture?: fitHumanLimbContact.ICapture) => IAutoMovieSeededChainFit,
-  rocker?: IAutoMovieVector3): IAutoMovieSeededChainFit {
+  fit: (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear, capture?: fitHumanLimbContact.ICapture) => IAutoMovieSeededChainFit): IAutoMovieSeededChainFit {
   if (goal.contact === undefined || goal.rotation === undefined) return fit(goal.point);
   let frame: IContactPrefix | undefined;
   let chosen: IContactPrefix | undefined;
@@ -112,13 +111,6 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
   const toes: number = Math.max(0, HumanFoot.pitch(goal.rotation) - HumanFoot.pitch(nearestRotation));
   if (toes === 0) return fitted;
 
-  // Past the ankle's dorsiflexion the forefoot rocks about the toes' joint
-  // (`mtp`), the joint the toes then take their pitch back about: re-aimed
-  // about that joint, the toes lie still on the floor as the heel rises.
-  // Re-aimed about the ball's floor point below it, the toe tip slid by the
-  // joint's height times the sine of the pitch.
-  if (rocker !== undefined)
-    return fitHumanLimbContact(fitter, { ...goal, contact: rocker }, side, leg, fit);
   const bone: AutoMovieHumanoidBone = `${side}Toes`;
   return {
     pose: { ...fitted.pose, joints: fitted.pose.joints.map((joint: IAutoMovieJointPose): IAutoMovieJointPose =>

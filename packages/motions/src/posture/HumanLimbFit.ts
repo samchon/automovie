@@ -19,7 +19,6 @@ import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanLimbAt } from "./HumanLimbAt";
 import { HumanLimbMirror } from "./HumanLimbMirror";
-import { HumanFoot } from "./HumanFoot";
 import { fitHumanLimbContact } from "./fitHumanLimbContact";
 import { poseBones } from "./poseBones";
 import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
@@ -369,11 +368,7 @@ export namespace HumanLimbFit {
     );
     return fitHumanLimbContact(fitter, goal, side, limb.endsWith("Leg"),
       (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear, capture?: fitHumanLimbContact.ICapture): IAutoMovieSeededChainFit =>
-        read(fitter, point, near, continued, incumbent, capture),
-      // A foot's forefoot rocks about the toes' joint (`fitHumanLimbContact`).
-      limb.endsWith("Leg") && goal.contact !== undefined
-        ? HumanFoot.offset(body, side, "mtp")
-        : undefined);
+        read(fitter, point, near, continued, incumbent, capture));
   }
 
   /**
