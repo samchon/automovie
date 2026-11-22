@@ -72,6 +72,10 @@ export function admitPhysicalPlaybackMetadata(
       !segments.has(key) ||
       !time(entry.seconds) ||
       !["dynamic", "return", "authored"].includes(entry.kind) ||
+      (entry.stabilization !== undefined &&
+        (entry.kind !== "return" ||
+          !Number.isFinite(entry.stabilization) ||
+          entry.stabilization < 0)) ||
       (!previous && (entry.seconds !== 0 || entry.kind === "return")) ||
       (previous &&
         (entry.seconds < previous.seconds ||

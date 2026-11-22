@@ -7,6 +7,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceState,
@@ -34,6 +35,7 @@ import { planHumanSimulationBody } from "./planHumanSimulationBody";
 import { reachHumanSimulation } from "./reachHumanSimulation";
 import { readHumanSimulatedPose } from "./readHumanSimulatedPose";
 import { sampleHumanSimulationTargets } from "./sampleHumanSimulationTargets";
+import { weldHumanSimulationProfile } from "./weldHumanSimulationProfile";
 
 /**
  * The simulated tier (#3434, #3441): a window of a performance baked once
@@ -89,6 +91,9 @@ export namespace HumanPerformanceSimulation {
 
     /** The body's rig codec, with its joint axes and the humanoid rest frames. */
     codec: IAutoMoviePoseJointCodec.ICodec;
+
+    /** Each welded hand's finger joints as displayed at the window's start, the shape the solver gave the hand. */
+    held: ReadonlyMap<string, readonly IAutoMovieJointPose[]>;
   }
 
   /**
@@ -346,6 +351,11 @@ export namespace HumanPerformanceSimulation {
           {
             body: bodies.get(subject)!,
             profile: profiles.get(subject)!,
+            held: weldHumanSimulationProfile.held(
+              bodies.get(subject)!,
+              profiles.get(subject)!,
+              performance.pose(subject, window.from),
+            ),
             codec: poseJointCodec({
               skeleton: bodies.get(subject)!.skeleton,
               jointAxes: HUMANOID_JOINT_AXES,
@@ -427,9 +437,11 @@ export namespace HumanPerformanceSimulation {
     return readHumanSimulatedPose(
       performer.body,
       performer.codec,
+      performer.profile,
       kinematic,
       cache.at(local).bodies[subject]!,
       owned,
+      performer.held,
     );
   }
 

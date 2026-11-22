@@ -33,6 +33,11 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 30
+    # PowerShell on this runner did not recognize the pnpm launcher that
+    # pnpm/action-setup puts on PATH; the runner's bash runs it.
+    defaults:
+      run:
+        shell: bash
     outputs:
       digest: ${{ steps.bake.outputs.digest }}
     steps:

@@ -19,12 +19,16 @@ import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalSupportPoint } from "./physicalSupportPoint";
+import { stabilizePhysicalJointReturn } from "./stabilizePhysicalJointReturn";
 
 /**
  * Switch native ownership at declared subtree boundaries. Activation retains
  * the actual transform and explicitly carries the native kinematic COM and
  * angular velocities. Return uses cubic Hermite corrections in parent-local
  * transforms; SO(3)'s left Jacobian preserves the initial angular derivative.
+ * A return starts from the solved joint rotation post-stabilized onto the
+ * joint's limit box (Cline and Pai 2003), removing the drift finite solver
+ * iterations leave, and records that projection's angle on its event.
  * Both colliders and cache readers follow these same native placements. This
  * never blends a rendered skeleton over a different physical body.
  *
@@ -186,10 +190,16 @@ export function advancePhysicalOwnership(input: {
     const parent: string | undefined = joint?.parent;
     writable(bone);
     if (rigid.isDynamic()) {
-      const solved: IAutoMovieSamplePhysicalTarget.IResult = relative(
+      const drifted: IAutoMovieSamplePhysicalTarget.IResult = relative(
         actual[bone]!,
         parent ? actual[parent]! : undefined,
       );
+
+      // The return starts from the solved state post-stabilized onto the
+      // joint's limits, and the projection's angle is recorded on its event.
+      const stabilized: stabilizePhysicalJointReturn.IResult =
+        stabilizePhysicalJointReturn(drifted, joint);
+      const solved: IAutoMovieSamplePhysicalTarget.IResult = stabilized.result;
       const intended: IAutoMovieSamplePhysicalTarget.IResult = relative(
         before[bone]!,
         parent ? before[parent]! : undefined,
@@ -244,6 +254,7 @@ export function advancePhysicalOwnership(input: {
         bone,
         seconds: previousSeconds,
         kind: "return",
+        ...(joint === undefined ? {} : { stabilization: stabilized.angle }),
       });
     }
     if (transitions[bone]?.completed) delete transitions[bone];

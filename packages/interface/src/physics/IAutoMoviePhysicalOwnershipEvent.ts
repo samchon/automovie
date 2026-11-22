@@ -20,4 +20,7 @@ export interface IAutoMoviePhysicalOwnershipEvent {
 
   /** Return is a C1 kinematic reconciliation, not a dynamic force response. */
   kind: "dynamic" | "return" | "authored";
+
+  /** On a return of a jointed segment only: radians the return's post-stabilization moved the solved joint rotation onto the joint's limits (`advancePhysicalOwnership`); zero when the solver left it within them. */
+  stabilization?: number;
 }

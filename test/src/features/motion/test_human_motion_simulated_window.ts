@@ -28,6 +28,7 @@ import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { simulatedShoveTake } from "../internal/simulatedShoveTake";
+import { simulationResiduals } from "../internal/simulationResiduals";
 
 /** A segment's solved world state. */
 type IPose = IAutoMoviePhysicalFrame["bodies"][string][string];
@@ -46,29 +47,47 @@ const SUPERSEDED: readonly string[] = [
   "unloaded",
 ];
 
-/** A table in front of the body: a 1.2 m by 0.5 m top 0.75 m high, its front edge 0.3 m ahead of the feet. */
-const TABLE: IAutoMovieMotionHumanProp = {
-  subject: "table",
-  frame: {
-    position: { x: 0, y: 0.375, z: 0.55 },
-    rotation: { x: 0, y: 0, z: 0, w: 1 },
-  },
-  points: {},
-  fixed: true,
-  shapes: [
-    {
-      id: "solid",
-      material: "table",
-      kind: "box",
-      halfExtents: { x: 0.6, y: 0.375, z: 0.25 },
-      transform: {
-        position: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-      },
-    },
-  ],
-};
+/** The fall's push: the impulse that changes the whole body's speed by this, m/s. */
+const PUSH: number = 3;
 
+/** A desk-height table top, metres. */
+const DESK: number = 0.75;
+
+/** Half the table's depth along the push, metres. */
+const DEPTH: number = 0.2;
+
+/**
+ * A table where the push carries the body: centred where the body's centre
+ * of mass, leaving its standing height at the push's speed, falls to the
+ * table top, `d = v sqrt(2 (h - top) / g)`, the drag-free projectile of a
+ * body whose feet no longer hold it.
+ */
+function table(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp {
+  const drop: number = Math.max(0, body.profile.centerOfMass.y - DESK);
+  const reach: number =
+    PUSH * Math.sqrt((2 * drop) / AutoMovieGravity.STANDARD);
+  return {
+    subject: "table",
+    frame: {
+      position: { x: 0, y: DESK / 2, z: reach },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    },
+    points: {},
+    fixed: true,
+    shapes: [
+      {
+        id: "solid",
+        material: "table",
+        kind: "box",
+        halfExtents: { x: 0.6, y: DESK / 2, z: DEPTH },
+        transform: {
+          position: { x: 0, y: 0, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+        },
+      },
+    ],
+  };
+}
 /**
  * A window of a performance baked through the engine's solver (#3434), on
  * the average man and the smallest woman.
@@ -78,8 +97,9 @@ const TABLE: IAutoMovieMotionHumanProp = {
  * 2. Determinism: two simulated bakes of the shove give the same input identity and the same solved frames.
  * 3. Response and hand-back: the solved head turns away from the kinematic one inside the window, and at the window's end every joint centre is back on the kinematic motion, with no step in position and none in velocity beyond what gravity gives in one interval.
  * 4. A fall-sized push from behind ends with the released body lying on the floor: its lowest collider touching it, none below it beyond the solver's documented resting error, and its hips and head lower than its knees stand.
- * 5. The same push with a table ahead: the falling body never enters the table deeper than skin gives and comes to rest touching it within the same resting error.
+ * 5. The same push with a table placed where it carries the body (the centre of mass's drag-free fall from standing height to the desk top at the push's speed): the falling body never enters the table deeper than skin gives and comes to rest touching it within the same resting error.
  * 6. Verdicts in a solved window: the released fall's report holds none of the plant, balance and unloaded checks the solver's contacts supersede, while every check of the displayed bones still reads it.
+ * 7. Joint residuals: every hand-back's post-stabilization and every fewer-axis joint's distance from its own limit box stay within the 0.1 degree provisional guard (`simulationResiduals`), so a solver that fails to hold a joint fails the spec.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Bakes windows through `HumanPerformance.simulate` and reads the displayed poses and bones, the engine's solved frames and the shipped verdict report; catches a kinematic mode that departs from the authored motion, a bake that differs between runs, a window with no response, a hand-back with a step, a fall that floats or sinks, a body that passes through a scene solid, and a report that still judges a solved body by its kinematic plan.
  * @evidence contracts/development/testing.md#independent-expectations Equality for the mode contract and determinism. Resting contact is bounded by Rapier's documented contact model under the engine's configured parameters: penetration below `normalized_allowed_linear_error` (the engine's `contactTolerance`) is left uncorrected, and the excess is corrected by the soft contact spring of natural frequency `contact_natural_frequency` (the engine's `contactFrequency`), so a segment bearing a load of `n` times its weight rests up to `tolerance + n g / ?²` deep, `? = 2? f` (rapier.rs IntegrationParameters documentation); `n` is at most the body's mass over the segment's. Lying is measured against the body's own rest knee height; the response must exceed the range tolerance displayed poses are held to; the velocity bound is gravity's change over one cache interval; a body may enter a solid only as deep as the verdicts' skin (`HumanVerdicts.SKIN`).
@@ -168,6 +188,8 @@ async function shove(
       JSON.stringify(first.simulation.cache.frames),
   );
 
+  simulationResiduals(all, `${name}: simulated shove`, first, ["a"]);
+
   // 3. The head turns inside the window and the body hands back.
   let turn: number = 0;
   for (let step: number = 1; step < RATE; step++) {
@@ -240,14 +262,15 @@ async function fall(
   all: motionComplaints.IGatherer,
   name: string,
   body: IAutoMovieMotionHumanBody,
-  table: boolean,
+  onto: boolean,
 ): Promise<void> {
+  const desk: IAutoMovieMotionHumanProp = table(body);
   const take: HumanPerformance = simulatedShoveTake(
     body,
     { bone: "chest", point: { x: 0, y: 0, z: 0 } },
-    { x: 0, y: 0, z: 3 * body.profile.mass },
+    { x: 0, y: 0, z: PUSH * body.profile.mass },
     "fall",
-    table ? [TABLE] : [],
+    onto ? [desk] : [],
   );
 
   // The window runs to the film's end, so the fallen body hands back to
@@ -277,7 +300,8 @@ async function fall(
     tolerance +
     (Vector3.length(input.gravity) * (profile.mass / segment.mass)) /
       omega ** 2;
-  const label: string = `${name}${table ? " onto the table" : ""}`;
+  const label: string = `${name}${onto ? " onto the table" : ""}`;
+  simulationResiduals(all, label, record, ["a"]);
   all.equals(
     `${label}: the push releases the body`,
     record.simulation.cache.ownershipAt("a", "hips", last.seconds),
@@ -302,7 +326,7 @@ async function fall(
     `${label}: nothing ends under the floor beyond its resting depth; least margin ${sunk} m`,
     sunk >= 0,
   );
-  if (table) {
+  if (onto) {
     let deepest: number = 0;
     for (const frame of frames)
       deepest = Math.max(
@@ -315,8 +339,8 @@ async function fall(
               physicalShapePairDistance(
                 pose,
                 shape,
-                TABLE.frame,
-                TABLE.shapes![0]!,
+                desk.frame,
+                desk.shapes![0]!,
               ),
           ),
         ),
@@ -329,7 +353,7 @@ async function fall(
       profile,
       last,
       (pose: IPose, shape: IAutoMoviePhysicalShape): number =>
-        physicalShapePairDistance(pose, shape, TABLE.frame, TABLE.shapes![0]!),
+        physicalShapePairDistance(pose, shape, desk.frame, desk.shapes![0]!),
     );
     const pressed: number = Math.min(
       ...shapes(
@@ -341,12 +365,8 @@ async function fall(
           _material: IAutoMoviePhysicalMaterial,
           segment: IAutoMoviePhysicalSegment,
         ): number =>
-          physicalShapePairDistance(
-            pose,
-            shape,
-            TABLE.frame,
-            TABLE.shapes![0]!,
-          ) + resting(segment),
+          physicalShapePairDistance(pose, shape, desk.frame, desk.shapes![0]!) +
+          resting(segment),
       ),
     );
     all.check(

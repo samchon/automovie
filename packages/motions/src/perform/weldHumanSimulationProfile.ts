@@ -4,11 +4,15 @@ import {
   combinePhysicalMassProperties,
 } from "@automovie/engine";
 import type {
+  IAutoMovieBone,
   IAutoMovieCombinePhysicalMassProperties,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -194,6 +198,47 @@ export function weldHumanSimulationProfile(
     collisionExclusions: exclusions,
     provenance: `${profile.provenance} Fingers welded to their hands at a simulated window's first pose.`,
   };
+}
+
+/** Companion readers of {@link weldHumanSimulationProfile}. */
+export namespace weldHumanSimulationProfile {
+  /**
+   * Each welded hand's finger joints in a pose: the joints of the body's
+   * segments the solved profile folds into a hand, by that hand. A window
+   * holds the displayed fingers at these, the shape the hand was welded in.
+   *
+   * @param body The performer's body.
+   * @param profile The welded profile.
+   * @param pose The pose at the window's start.
+   * @returns The finger joints by hand bone.
+   */
+  export function held(
+    body: IAutoMovieMotionHumanBody,
+    profile: IAutoMoviePhysicalProfile,
+    pose: IAutoMoviePose,
+  ): Map<string, IAutoMovieJointPose[]> {
+    const solved: ReadonlySet<string> = new Set(
+      profile.segments.map(
+        (segment: IAutoMoviePhysicalSegment): string => segment.bone,
+      ),
+    );
+    const out: Map<string, IAutoMovieJointPose[]> = new Map();
+    for (const joint of pose.joints) {
+      if (
+        solved.has(joint.bone) ||
+        !body.profile.segments.some(
+          (segment: IAutoMoviePhysicalSegment): boolean =>
+            segment.bone === joint.bone,
+        )
+      )
+        continue;
+      let at: IAutoMovieBone = body.bones.get(joint.bone)!;
+      while (!solved.has(at.bone) && at.parent !== null)
+        at = body.bones.get(at.parent)!;
+      out.set(at.bone, [...(out.get(at.bone) ?? []), joint]);
+    }
+    return out;
+  }
 }
 
 /** The canonical rig's hand bones, the bodies the fingers weld to. */

@@ -215,18 +215,50 @@ export namespace HumanVerdicts {
       for (const finding of report.findings)
         measured(who, who, finding.check, finding, finding.limit);
       if (!airborne) {
-        const contact: IAutoMovieMotionHumanAuditContact.IResult =
-          AutoMovieMotionHumanAuditContact.measure(motion, who, person.body);
-        for (const check of ["skate", "loose", "afloat"] as const)
-          measured(
-            who,
-            who,
-            check,
-            contact[check],
-            check === "afloat"
-              ? AutoMovieMotionHumanAuditContact.HEIGHT
-              : AutoMovieMotionHumanAuditContact.SPEED,
+        // A foot the solver owns is judged by the solver's contacts: the
+        // plant, skate and unloaded readings run outside those spans only.
+        for (const [a, b] of solvedHumanAuditSpans.unsolved(
+          performance.simulations?.() ?? [],
+          who,
+          solvedHumanAuditSpans.FEET,
+          from,
+          to,
+        )) {
+          const piece: IAutoMovieMotionHumanAuditMotion = shifted(
+            remembered,
+            a,
+            b,
           );
+          const contact: IAutoMovieMotionHumanAuditContact.IResult =
+            AutoMovieMotionHumanAuditContact.measure(piece, who, person.body);
+          const pose: IAutoMovieMotionHumanAuditRange.IPosed["pose"] = (
+            subject: string,
+            seconds: number,
+          ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> =>
+            posed.pose(subject, a - from + seconds);
+          for (const [check, reading, limit] of [
+            ["skate", contact.skate, AutoMovieMotionHumanAuditContact.SPEED],
+            ["loose", contact.loose, AutoMovieMotionHumanAuditContact.SPEED],
+            ["afloat", contact.afloat, AutoMovieMotionHumanAuditContact.HEIGHT],
+            [
+              "unloaded",
+              AutoMovieMotionHumanAuditRange.unloaded(
+                piece,
+                { duration: b - a, pose },
+                who,
+                rate,
+              ).overshoot,
+              ROM_TOLERANCE,
+            ],
+          ] as const)
+            measured(
+              who,
+              who,
+              check,
+              { ...reading, seconds: a - from + reading.seconds },
+              limit,
+            );
+        }
         measured(
           who,
           who,
@@ -239,34 +271,6 @@ export namespace HumanVerdicts {
           ),
           AutoMovieMotionHumanAuditStatics.SHARE * person.body.measure.stature,
         );
-        // A foot the solver owns is passive, its range the solver's joint
-        // limit; the unloaded bound is read outside those spans only.
-        for (const [a, b] of solvedHumanAuditSpans.unsolved(
-          performance.simulations?.() ?? [],
-          who,
-          solvedHumanAuditSpans.FEET,
-          from,
-          to,
-        ))
-          measured(
-            who,
-            who,
-            "unloaded",
-            AutoMovieMotionHumanAuditRange.unloaded(
-              shifted(remembered, a, b),
-              {
-                duration: b - a,
-                pose: (
-                  subject: string,
-                  seconds: number,
-                ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> =>
-                  posed.pose(subject, a - from + seconds),
-              },
-              who,
-              rate,
-            ).overshoot,
-            ROM_TOLERANCE,
-          );
       }
       measured(
         who,
