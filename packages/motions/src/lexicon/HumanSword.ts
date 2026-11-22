@@ -54,7 +54,7 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the effector, how the blade is given, the vocabulary with its source, how a parried attack is declared and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One law record over the stroke planner; the lines a cut comes from are a closed union with a table of directions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The cut, the attack's parameters, aim and clock the thrust shares, the tables and constants, and the setup every blade law shares.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The cut and the cut at a row's own speed, the attack's parameters, aim and clock the thrust shares, the tables and constants, and the setup every blade law shares.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sword kind is named; lengths are shares of the arm and the blade's own length.
  */
 export namespace HumanSword {
@@ -110,7 +110,9 @@ export namespace HumanSword {
    * elite: 2.6 and 3.2 in the lunge (Chen et al. 2017, PLoS ONE, a scoping
    * review of fencing biomechanics, as #3202 records it). A cut's edge speed
    * is provisional: 6 and 10, under the 9.89 m/s 95th percentile of a knife
-   * slash (Bleetman, Watson and Horsfall 2003, as #3348 records it).
+   * slash (Bleetman, Watson and Horsfall 2003, as #3348 records it). A row
+   * whose implement has a measured speed of its own cuts at that instead
+   * (`cutAt`).
    */
   export const SPEED: Readonly<
     Record<"thrust" | "cut", readonly [number, number]>
@@ -312,18 +314,23 @@ export namespace HumanSword {
     "name an advance (a step or a lunge), stand closer, or aim at a nearer target";
 
   /**
-   * Cut along one of the eight lines: the blade's landing part passes through the target at the decisive instant (`stroke`), edge leading. A target beyond the arm with the chosen advance is refused on `target`.
+   * Cut along one of the eight lines at a given speed of the striking part: the landing part passes through the target at the decisive instant (`stroke`), edge leading, at that speed. A target beyond the arm with the chosen advance is refused on `target`.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, what lands and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact pose puts the landing part (`LANDS.cut` along the held thing's edge, or its working point when it declares no edge) on the target with the edge along the travel, the blade's lean back and its turn about the travel chosen by the arm's fit (`HumanSwordLanding`); the stroke is that pose turned back by `SWING` about the axis square to blade and travel, the hilt going from a chamber by the shoulder to the contact on one progress, so the edge leads through the whole arc. A cut is not arrested: the edge passes the target at the peak speed of one minimum-jerk unit, its middle (Flash and Hogan 1985), so the follow-through lasts as long as the attack and carries the edge past the target as far and through as wide a turn as it came.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the contact pose, the chamber and the path, then the shared stroke planner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SWING` and the leans and turns of the blade at contact are provisional values named in code and documentation, the chamber is the arm's own segments; an unreachable target is refused, never shortened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The landing's fits (`HumanSwordLanding`), ending at the first the arm holds exactly; each posture costs the stroke planner's two elbow searches.
+   * @param speed The striking part's peak speed at contact, metres a second, at novice and at elite skill, read on the performer's `speed` skill: `SPEED.cut` for a blade, or a row's own measured band for an implement (`HumanSportSwing.BAT_SPEED` and its siblings).
+   * @returns The cut's law, named `swordCut` at every speed, so a row of it is of the cut's family.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, what lands, the speed it passes the target at, the refusal and the returned law.
+   * @evidence contracts/development/implementation.md#principled-implementation The contact pose puts the landing part (`LANDS.cut` along the held thing's edge, or its working point when it declares no edge) on the target with the edge along the travel, the blade's lean back and its turn about the travel chosen by the arm's fit (`HumanSwordLanding`); the stroke is that pose turned back by `SWING` about the axis square to blade and travel, the hilt going from a chamber by the shoulder to the contact on one progress, so the edge leads through the whole arc. A cut is not arrested: the edge passes the target at the peak speed of one minimum-jerk unit, its middle (Flash and Hogan 1985), so the follow-through lasts as long as the attack and carries the edge past the target as far and through as wide a turn as it came. The unit is timed on the landing part's velocity per unit of progress at contact, in closed form: the hand's chord plus `SWING` in radians times the swing axis crossed with the arm from the grip to the landing part. Its peak at the unit's middle is then the given speed, the quantity the cited swing studies measure at contact.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the contact pose, the chamber and the path, then the shared stroke planner; the speed is the one input a row's measured implement changes, so it is the factory's argument and never a parameter of the composition.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SWING` and the leans and turns of the blade at contact are provisional values named in code and documentation, the chamber is the arm's own segments; the speed is the caller's named band with its source; an unreachable target is refused, never shortened.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The landing's fits (`HumanSwordLanding`), ending at the first the arm holds exactly; each posture costs the stroke planner's two elbow searches; the timing's length is one closed-form vector sum.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The law holds its speed band for as long as the row holds the law; each plan closes over its constants and the entry state, released with the plan.
    */
-  export const cut: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.ICut> =
-    {
+  export function cutAt(
+    speed: readonly [number, number],
+  ): IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.ICut> {
+    return {
       name: "swordCut",
       interrupts: StrikingHeld.follows("strokeEnd"),
       plan: (
@@ -404,11 +411,26 @@ export namespace HumanSword {
           context,
           s.tool.side,
         );
+        // The landing part passes the target at the speed: its velocity per
+        // unit of progress at contact, the hand's chord plus the turn's
+        // `SWING` (radians) about `about` of the arm from the grip to the
+        // landing part, is the length the unit is timed on.
+        const arm: IAutoMovieVector3 = Quaternion.rotateVector(
+          landed.rotation,
+          Vector3.subtract(s.tool.tip, Vector3.scale(s.tool.axis, back)),
+        );
         const clock: IAutoMovieMotionClock = timed(
           context,
-          ((SWING * Math.PI) / 180) * (s.tool.length - back) +
-            Vector3.length(Vector3.subtract(landed.point, chamber)),
-          s.skill(SPEED.cut),
+          Vector3.length(
+            Vector3.add(
+              Vector3.subtract(landed.point, chamber),
+              Vector3.scale(
+                Vector3.cross(about, arm),
+                (SWING * Math.PI) / 180,
+              ),
+            ),
+          ),
+          s.skill(speed),
           1,
           0,
           HumanSwordTiming.travel(s.tool, entered, path(0)),
@@ -450,4 +472,9 @@ export namespace HumanSword {
         return planned;
       },
     };
+  }
+
+  /** The cut at a blade's edge speed, 6 m/s at novice to 10 m/s at elite (`SPEED.cut`, provisional): `cutAt` of that band. */
+  export const cut: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.ICut> =
+    cutAt(SPEED.cut);
 }

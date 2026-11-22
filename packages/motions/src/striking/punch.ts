@@ -68,9 +68,11 @@ import { punchLaunch } from "./punchLaunch";
  * Timing: a lone punch takes the single maximal jab's 0.405 s (Stanley et al.
  * 2018); a punch that follows another punch's contact keeps the measured
  * combination intervals, 0.35 s between alternating hands and 0.45 s for the
- * same hand (Piorkowski et al. 2011), counted from that contact. The return
- * to the guard takes one alternating interval. Skill scales them
- * ({@link StrikingSkill}), and a seeded guard drop may hold the returning
+ * same hand at elite skill (Piorkowski et al. 2011), counted from that
+ * contact. The return to the guard takes one alternating interval. Skill
+ * scales them ({@link StrikingSkill}): the delivery and both intervals by the
+ * strike phase's factor, the intervals' scaling derived and provisional
+ * (`StrikingSkill.interval`), and a seeded guard drop may hold the returning
  * glove low before it reaches the guard. A feint shows a share of the
  * delivery without contact and returns in the same time.
  *
@@ -141,9 +143,10 @@ export namespace punch {
       which === "lead" ? lead : StrikingStance.rear({ lead });
 
     // Delivery: from the previous punch's contact at the combination
-    // interval, or a lone punch's measured delivery.
+    // interval, or a lone punch's measured delivery, each at the skill.
     const from = context.entry.from;
-    let delivery: number = StrikingSkill.JAB_DELIVERY;
+    let delivery: number =
+      StrikingSkill.JAB_DELIVERY * StrikingSkill.strike(context.skill);
     if (
       from !== undefined &&
       from.family === "punch" &&
@@ -154,15 +157,13 @@ export namespace punch {
       const same: boolean = hand(from.params as IAutoMovieMotionHumanPunch.IParams) === which;
       delivery = Math.max(
         0.12,
-        (same
-          ? StrikingSkill.SAME_HAND_INTERVAL
-          : StrikingSkill.ALTERNATING_INTERVAL) - Math.max(0, elapsed),
+        StrikingSkill.interval(context.skill, same) - Math.max(0, elapsed),
       );
     }
     delivery = HumanSkill.jitter(
       context.skill,
       context.random("delivery"),
-      delivery * StrikingSkill.strike(context.skill),
+      delivery,
     );
     const shown: number = p.feint === undefined ? delivery : p.feint * delivery;
     const drop: IAutoMovieMotionHumanStrikingSkill.IGuardDrop =

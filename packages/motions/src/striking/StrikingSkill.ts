@@ -37,10 +37,10 @@ export namespace StrikingSkill {
   /** Single maximal jab, movement onset to contact, seconds (Stanley, Thomson, Smith and Lamb 2018, Int J Perf Anal Sport 18:835, abstract; fifteen amateur boxers). */
   export const JAB_DELIVERY: number = 0.405;
 
-  /** Contact-to-contact interval of alternating hands in a combination, seconds (Piorkowski, Lees and Barton 2011, Sports Biomech 10:1: 1.05 s over three intervals). */
+  /** Contact-to-contact interval of alternating hands in a combination at elite skill, seconds (Piorkowski, Lees and Barton 2011, Sports Biomech 10:1: 1.05 s over three intervals); {@link interval} scales it by skill. */
   export const ALTERNATING_INTERVAL: number = 1.05 / 3;
 
-  /** Contact-to-contact interval of two punches of the same hand, seconds (Piorkowski et al. 2011: 1.35 s over three intervals). */
+  /** Contact-to-contact interval of two punches of the same hand at elite skill, seconds (Piorkowski et al. 2011: 1.35 s over three intervals); {@link interval} scales it by skill. */
   export const SAME_HAND_INTERVAL: number = 1.35 / 3;
 
   /** A punching hand's return to the guard after contact: the rest of one alternating interval, seconds (Piorkowski et al. 2011). */
@@ -140,6 +140,33 @@ export namespace StrikingSkill {
    */
   export function strike(skill: IAutoMovieMotionHumanSkill): number {
     return HumanSkill.quantity(skill, "speed", 1.06, 1);
+  }
+
+  /**
+   * Contact-to-contact interval of a combination at a skill: the measured
+   * interval of alternating hands or of the same hand (`ALTERNATING_INTERVAL`,
+   * `SAME_HAND_INTERVAL`) times the strike phase's factor ({@link strike}),
+   * so 0.35 and 0.45 s at elite and 0.37 and 0.48 s at novice. Derived and
+   * provisional: Piorkowski et al. 2011 split no skill levels, so the
+   * intervals take the delivery's own skill scaling.
+   *
+   * @param skill The skill.
+   * @param same Whether the punch follows a punch of the same hand.
+   * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two intervals, the factor, the values at both ends and that the scaling is derived and provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation The measured interval times the delivery's skill factor, the one skill scaling the punch's delivery has, since no study timed combinations by skill level.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One choice of interval and one factor, the value every reader of a combination interval takes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scaling is named derived and provisional, with the missing skill-split study stated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function interval(
+    skill: IAutoMovieMotionHumanSkill,
+    same: boolean,
+  ): number {
+    return (same ? SAME_HAND_INTERVAL : ALTERNATING_INTERVAL) * strike(skill);
   }
 
   /**

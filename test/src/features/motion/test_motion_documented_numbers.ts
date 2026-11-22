@@ -36,7 +36,7 @@ const REFERENCE: number = 0.53 * 1.753;
  * Scenarios:
  * 1. Walk and run speeds and steps a minute at the reference hip.
  * 2. The manner's factors, the Effort factors and the `pace: 1.5` result.
- * 3. A lone punch's delivery and return by skill level, and the combination intervals.
+ * 3. A lone punch's delivery and return by skill level, and the combination intervals at elite and novice skill.
  * 4. The proxemic gaps and the flinch and give sizes.
  *
  * Not covered: the stretch's documented 30 s hold (`stretch.HOLD`), because
@@ -168,7 +168,12 @@ export function test_motion_documented_numbers(): void {
   near("lone punch", StrikingSkill.JAB_DELIVERY, 0.405, 0);
   near("alternating interval", StrikingSkill.ALTERNATING_INTERVAL, 0.35, 1e-9);
   near("same-hand interval", StrikingSkill.SAME_HAND_INTERVAL, 0.45, 1e-9);
-  near("hand return", StrikingSkill.HAND_RECOVERY, 0.35, 1e-9);
+  const novice: IAutoMovieMotionHumanSkill = HumanSkill.resolve({ level: "novice" }, "s");
+  const elite: IAutoMovieMotionHumanSkill = HumanSkill.resolve({ level: "elite" }, "s");
+  near("novice alternating interval", StrikingSkill.interval(novice, false), 0.37, 0.005);
+  near("novice same-hand interval", StrikingSkill.interval(novice, true), 0.48, 0.005);
+  near("elite alternating interval", StrikingSkill.interval(elite, false), 0.35, 1e-9);
+  near("elite same-hand interval", StrikingSkill.interval(elite, true), 0.45, 1e-9);  near("hand return", StrikingSkill.HAND_RECOVERY, 0.35, 1e-9);
   near("punch peak novice", StrikingSkill.PUNCH_PEAK_SPEED[0], 3.2, 0.05);
   near("punch peak elite", StrikingSkill.PUNCH_PEAK_SPEED[1], 7.16, 0);
   near("punch impact share", StrikingSkill.IMPACT_SPEED_SHARE.punch, 0.78, 0);
