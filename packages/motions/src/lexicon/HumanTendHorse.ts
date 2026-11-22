@@ -19,6 +19,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { courseArmGoal } from "../compose/courseArmGoal";
+import { HumanGrip } from "../handling/HumanGrip";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -124,6 +125,14 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
         context.params.tool === undefined
           ? undefined
           : heldTool(context, side, palm, context.params.tool);
+      // A hand that holds a tool keeps the fingers it closed on the tool for
+      // the whole action: the tool, not the horse's contact, is what they
+      // grip, and opening them from the carrier's stance would drop the
+      // grip's shape at the action's first instant.
+      const gripped: IAutoMovieMotionHumanPosture["joints"] | undefined =
+        context.params.tool === undefined
+          ? undefined
+          : HumanGrip.fingers(context.entry.pose, side);
       const onShare: number = transition / seconds;
       const toolGrip: IAutoMovieMotionHumanContactWindow[] =
         context.params.tool === undefined
@@ -234,8 +243,12 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
               resolution,
               projection,
             );
-          const fingers: IAutoMovieMotionHumanPosture["joints"] = {};
-          for (const [bone, closed] of Object.entries(hand.fingers)) {
+          const fingers: IAutoMovieMotionHumanPosture["joints"] = {
+            ...gripped,
+          };
+          for (const [bone, closed] of gripped === undefined
+            ? Object.entries(hand.fingers)
+            : []) {
             if (closed === undefined) continue;
             const open: readonly [number, number, number] = stance.joints[
               bone as AutoMovieHumanoidBone
