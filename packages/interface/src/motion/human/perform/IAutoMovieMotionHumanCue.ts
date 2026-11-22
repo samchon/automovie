@@ -49,7 +49,7 @@ export namespace IAutoMovieMotionHumanCue {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanCue.beats.
    */
   export interface IBeats {
-    /** Tempo, beats per minute. A walk that keeps step takes one step a beat: 120 is the drill's quick time and 180 its double time ({@link HumanGait.MARCH}, {@link HumanGait.DOUBLE}). */
+    /** Tempo, beats per minute. A walk that keeps step takes one step a beat: 120 is the drill's quick time and 180 its double time (`HumanGait.MARCH`, `HumanGait.DOUBLE`). */
     bpm: number;
 
     /** Film second of the first beat, which is a downbeat; 0 when absent. */

@@ -26,7 +26,7 @@ export interface IAutoMovieMotionHumanFrailWalk {
    * How frail the walk is, from 0, the ordinary walk (about 1.5 m/s at the
    * reference hip), to 1, a shuffle (0.6 m/s, the speed below which an older
    * adult is frail, Studenski et al. 2011); about 1.1 m/s and 0.5 when absent.
-   * Each feature runs linearly between the two ends ({@link HumanFrailWalk}):
+   * Each feature runs linearly between the two ends (`HumanFrailWalk`):
    * 0 fits a healthy older adult, about 0.5 a tiring or unsteady one, 1 a
    * weak one who shuffles.
    * Unit: "1". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.

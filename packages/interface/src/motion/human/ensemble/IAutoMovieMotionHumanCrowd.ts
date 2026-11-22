@@ -53,7 +53,7 @@ export namespace IAutoMovieMotionHumanCrowd {
       member: IAutoMovieMotionHumanEnsemble.IMember,
     ) => IAutoMovieVector3 | readonly IAutoMovieVector3[];
 
-    /** Its gait: `walk` at the walk's normal pace, about 1.5 m/s at the reference hip, or `run` at the run pace, about 3.4 m/s ({@link walk.FROUDE}, {@link run.GAITS}; the speed model is {@link IAutoMovieMotionHumanGait}). Each member's speed is that scaled by its own leg length, a normal draw of 19 % ({@link HumanCrowd.SPREAD}), fatigue and, in flight, morale. `walk` fits a plaza or a queue, `run` a stampede or an evacuation. */
+    /** Its gait: `walk` at the walk's normal pace, about 1.5 m/s at the reference hip, or `run` at the run pace, about 3.4 m/s (`walk.FROUDE`, `run.GAITS`; the speed model is {@link IAutoMovieMotionHumanGait}). Each member's speed is that scaled by its own leg length, a normal draw of 19 % (`HumanCrowd.SPREAD`), fatigue and, in flight, morale. `walk` fits a plaza or a queue, `run` a stampede or an evacuation. */
     gait: "walk" | "run";
 
     /** The film second of the cue they set off on. */
@@ -65,7 +65,7 @@ export namespace IAutoMovieMotionHumanCrowd {
     /** Each member's delay after the cue; none when absent. */
     latency?: IAutoMovieMotionHumanResponse.Latency;
 
-    /** Whether they flee: morale then raises the desired speed and the herding share. Steady morale (1) leaves the speed; broken morale (0) multiplies it by 1.5 and the herding share to 0.4, and widens the draw's spread to twice ({@link HUMAN_ATTRIBUTE_EFFECTS}: Helbing, Farkas and Vicsek 2000; the herding and fluctuation values provisional). A panic is `run` with `flight` on a crowd of low morale. Not when absent. */
+    /** Whether they flee: morale then raises the desired speed and the herding share. Steady morale (1) leaves the speed; broken morale (0) multiplies it by 1.5 and the herding share to 0.4, and widens the draw's spread to twice (`HUMAN_ATTRIBUTE_EFFECTS`: Helbing, Farkas and Vicsek 2000; the herding and fluctuation values provisional). A panic is `run` with `flight` on a crowd of low morale. Not when absent. */
     flight?: boolean;
 
     /** What they steer round. */
@@ -100,7 +100,7 @@ export namespace IAutoMovieMotionHumanCrowd {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanCrowd.desired.
    */
   export interface IDesired {
-    /** The desired speed, metres per second: the request's gait speed at the member's leg length, the draw, fatigue and, in flight, morale ({@link IRequest.gait}, {@link IRequest.flight}). Fatigue 1 lowers it to the `weary` preset's 0.8. */
+    /** The desired speed, metres per second: the request's gait speed at the member's leg length, the draw, fatigue and, in flight, morale (`IRequest.gait`, `IRequest.flight`). Fatigue 1 lowers it to the `weary` preset's 0.8. */
     speed: number;
 
     /** The delay after the cue, seconds. */

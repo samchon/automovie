@@ -2,7 +2,7 @@
  * Quiet standing: both feet planted where they are (or under the hips when
  * entered from the air), the pelvis settling over them, the column upright on
  * the plumb line and inclined slightly forward at the ankles
- * ({@link standUpright}), arms hanging relaxed, and the body swaying slightly.
+ * (`standUpright`), arms hanging relaxed, and the body swaying slightly.
  *
  * The feet keep their entry plants so a stop never slides them; a foot that
  * was not planted lands at its rest place beside the other. The root moves
@@ -41,7 +41,7 @@ export namespace IAutoMovieMotionHumanStand {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in stand.plan.
    */
   export interface IParams {
-    /** How long to stand, seconds; 1.5 when absent (provisional, {@link stand.SECONDS}): a beat between actions, not a held pose.
+    /** How long to stand, seconds; 1.5 when absent (provisional, `stand.SECONDS`): a beat between actions, not a held pose.
      * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     seconds?: number;

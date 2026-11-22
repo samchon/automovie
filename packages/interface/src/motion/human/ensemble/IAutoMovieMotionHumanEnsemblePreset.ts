@@ -44,6 +44,6 @@ export namespace IAutoMovieMotionHumanEnsemblePreset {
     | "militia"
     /** A rabble: proficiency 0.25, discipline 0.1, morale 0.35, the most varied; a mob. */
     | "rabble"
-    /** Civilians: proficiency 0.4, discipline 0.2, morale 0.7, undrilled but calm; a street crowd. Every value is provisional ({@link HUMAN_ENSEMBLE_PRESETS}). */
+    /** Civilians: proficiency 0.4, discipline 0.2, morale 0.7, undrilled but calm; a street crowd. Every value is provisional (`HUMAN_ENSEMBLE_PRESETS`). */
     | "civilians";
 }

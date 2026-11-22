@@ -19,8 +19,8 @@
  * at 0, 0.26, 0.74 and 1 of the way (`HumanSkill.quantity`). Each action
  * family owns its endpoints and states them on its own type: the strikes'
  * delivery, recovery, peak speed, range share, guard drop and reaction
- * ({@link IAutoMovieMotionHumanPunch}, {@link StrikingSkill}). Three effects
- * hold across every timed action ({@link HumanSkill}): the timing variability
+ * ({@link IAutoMovieMotionHumanPunch}, `StrikingSkill`). Three effects
+ * hold across every timed action (`HumanSkill`): the timing variability
  * of an interval, 7 % of it plus 25 ms at novice to 2.5 % plus 10 ms at
  * elite (`timing`); the endpoint scatter of a reach, its standard deviation
  * the distance over the time times 0.012 s at novice to 0.004 s at elite
