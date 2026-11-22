@@ -10,6 +10,7 @@ import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmTrajectory } from "./HumanArmTrajectory";
 import { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
+import { HumanArmTrajectoryContactCircle } from "./HumanArmTrajectoryContactCircle";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
@@ -20,8 +21,12 @@ import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 /**
  * The work of `HumanArmTrajectory.solve`: site refinement, the optimisation
  * on the knots and the admit-split-continue loop on the frame grid, as that
- * function documents. It records in `told` whether it reads the mirror
- * image, so `solve` can tell a refusal in the author's names.
+ * function documents. A refused course's hold whose hand pose its law
+ * prescribes is first tracked frame by frame on the swivel, the arm's one
+ * freedom there (Tolani, Goswami and Badler 2000, section 3.2), and only
+ * what that leaves failing is optimised. It records in `told` whether it
+ * reads the mirror image, so `solve` can tell a refusal in the author's
+ * names.
  *
  * @param read The problem on given waypoints' seconds.
  * @param times The first knots' seconds, ascending, on the frame grid.
@@ -35,7 +40,7 @@ import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
  * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the mirror record and the refusal; HumanArmTrajectory.solve documents the method.
  * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's few knots with a continuous reading between them, refined where the frame-grid admission fails, as HumanArmTrajectory.solve states.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The site refinement, one optimisation, then the admit-split-continue loop; solve keeps only the mirror-name translation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading admits it; otherwise the refusal stands.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading admits it; otherwise the refusal stands. A prescribed hold's frame is refused only where no swivel clears it, which no path at that pose can.
  * @evidence contracts/development/implementation.md#efficient-algorithms The optimiser's variables and its rounds' readings are the knots'; refinement splits only failing intervals.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A warm solution and a laid course's reading are reused only for this action's span.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers retain only the setups, final times and solution state.
@@ -250,6 +255,83 @@ export function planHumanArmTrajectory(
   const met = (solved: Solved): boolean =>
     solved.played.evaluation.worst.value <= M.TOLERANCE;
 
+  // A hold whose law prescribes the hand's pose at every instant (its site
+  // and its asked attitude) leaves the arm one freedom an instant, the
+  // elbow's swivel about the shoulder-wrist axis (Tolani, Goswami and
+  // Badler 2000, section 3.2), so it is tracked, not optimised: the
+  // analytic fit at each frame, its swivel the clear one nearest the frame
+  // before (`HumanArmTrajectoryContactCircle`), as an animation system
+  // tracks a prescribed effector path. The course's hold is that fit
+  // already; from the first frame of a prescribed hold the course fails at,
+  // the rest of that hold is tracked again. A frame no swivel clears is
+  // refused at once: the pose is the law's, so no path holds it there. A
+  // swivel blocked only by its step from the frame before leaves the course
+  // as it was laid, to the repair.
+  const tracked = (
+    laid: HumanArmTrajectory.IAdmitted,
+    verdict: M.IEvaluation,
+  ): HumanArmTrajectory.IAdmitted => {
+    if (fine.still) return laid;
+    const x: number[][][] = laid.read.x.map((arm: number[][]): number[][] => [
+      ...arm,
+    ]);
+    const changed: boolean[] = new Array<boolean>(fine.n).fill(false);
+    for (let g: number = 1; g < fine.n; ++g) {
+      if (!verdict.failing[g] || !prescribed(fine, g)) continue;
+      // The tracking leaves the hold's frame before; at the hold's first
+      // frame, the clear swivel nearest the course's own.
+      let k: number = g;
+      if (!prescribed(fine, g - 1)) {
+        for (let a: number = 0; a < x.length; ++a)
+          x[a]![k] = entered(fine, a, k, x, problem.arms[a]!.side);
+        changed[k++] = true;
+      }
+      for (; k < fine.n && prescribed(fine, k); ++k) {
+        for (let a: number = 0; a < x.length; ++a) {
+          const next: number[] | undefined = HumanArmTrajectoryContactCircle(
+            fine,
+            a,
+            k,
+            x[a]![k - 1]!,
+            k - 1,
+          )[0];
+          if (next === undefined) {
+            // No swivel clear of the body at all is the law's pose refused;
+            // one blocked only by its step from the frame before is the
+            // repair's to rejoin.
+            if (
+              HumanArmTrajectoryContactCircle(fine, a, k, x[a]![k - 1]!)
+                .length === 0
+            )
+              throw unswivelled(fine, k, x, a, problem.arms[a]!.side);
+            return laid;
+          }
+          x[a]![k] = next;
+        }
+        changed[k] = true;
+      }
+      g = k;
+    }
+    if (!changed.some((c: boolean): boolean => c)) return laid;
+    const evaluation: M.IEvaluation = M.evaluate(fine, x, {
+      reading: verdict,
+      laid: changed,
+    });
+    return {
+      trajectories: problem.arms.map(
+        (
+          _: HumanArmTrajectory.IArm,
+          a: number,
+        ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
+          HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a),
+      ),
+      admitted: evaluation.worst.value <= M.TOLERANCE,
+      refused:
+        evaluation.worst.value <= M.TOLERANCE ? "" : evaluation.worst.term,
+      read: { ...laid.read, x, evaluation },
+    };
+  };
+
   // The closed form first: a laid course is kept wherever the model admits
   // it, and only the stretches it fails on are optimised, each between two
   // instants of the course held fixed, the rest of the course played as it
@@ -416,12 +498,8 @@ export function planHumanArmTrajectory(
 
   // An earlier plan's solution of this action is tried first: on its own
   // knots as it stands, returned where the model admits it at them and on
-  // the frame grid, and continued from at its penalty where not. It is the
-  // earlier plan's own solve of this action from its course, continued, so
-  // where it ends unadmitted the course is not solved cold again: the
-  // planner's seed, the other initialisation, follows (`warmed`).
+  // the frame grid, and continued from at its penalty where not.
   let solved: Solved | undefined;
-  let warmed: boolean = false;
   if (warm !== undefined && warm.x.length === initial.arms.length) {
     knots = snap(warm.times);
     problem = reading(seconds(knots));
@@ -450,26 +528,30 @@ export function planHumanArmTrajectory(
     solved = met(kept) ? kept : optimised(seed, warm.penalty);
     if (!met(solved)) {
       solved = undefined;
-      warmed = true;
       knots = snapped;
       problem = initial;
       context = contextOf(problem, fine);
     }
   }
-  if (
-    solved === undefined &&
-    !warmed &&
-    course?.read.evaluation !== undefined
-  ) {
+  if (solved === undefined && course?.read.evaluation !== undefined) {
+    // A hold whose hand pose its law prescribes is tracked frame by frame
+    // before anything is optimised (`tracked`); only what it leaves failing,
+    // the reach and the return about it, goes on to the repair.
+    course = tracked(course, course.read.evaluation);
+    if (course.admitted)
+      return {
+        trajectories: course.trajectories,
+        state: { times: [...fine.times], x: course.read.x, penalty: 0 },
+      };
     const repaired: HumanArmTrajectory.ISolved | undefined = repair(
       course,
-      course.read.evaluation,
+      course.read.evaluation!,
     );
     if (repaired !== undefined) return repaired;
   }
   if (solved === undefined) {
     const laid: number[][][] | undefined =
-      course === undefined || warmed
+      course === undefined
         ? undefined
         : Pace.coursed(context, course.trajectories);
 
@@ -484,11 +566,7 @@ export function planHumanArmTrajectory(
     solved = optimised(laid ?? HumanArmSeed.seed(problem, context));
     // A stretch cut from a course is solved from that course alone: its
     // refusal leaves the whole span to the optimiser.
-    if (
-      laid !== undefined &&
-      course?.read.evaluation !== undefined &&
-      !met(solved)
-    ) {
+    if (course?.read.evaluation !== undefined && !met(solved)) {
       knots = snapped;
       problem = initial;
       context = contextOf(problem, fine);
@@ -551,4 +629,65 @@ export function planHumanArmTrajectory(
     ),
     state: { times: [...at], x: last.x, penalty: last.penalty },
   };
+}
+
+/** Whether every arm's site at a frame prescribes the hand's pose: a site with its asked attitude, on nothing that moves with another arm. */
+function prescribed(c: M.IContext, g: number): boolean {
+  return (
+    g >= 0 &&
+    c.sites.every((sites: readonly (M.ISite | undefined)[]): boolean => {
+      const site: M.ISite | undefined = sites[g];
+      return (
+        site !== undefined &&
+        site.rotation !== undefined &&
+        site.on === undefined
+      );
+    })
+  );
+}
+
+/** An arm's configuration at a prescribed hold's first frame: of the clear swivels there, the one nearest the course's own. */
+function entered(
+  c: M.IContext,
+  a: number,
+  k: number,
+  x: readonly (readonly number[][])[],
+  side: string,
+): number[] {
+  const own: readonly number[] = x[a]![k]!;
+  let best: number[] | undefined;
+  let least: number = Infinity;
+  for (const q of HumanArmTrajectoryContactCircle(c, a, k, own)) {
+    let d: number = 0;
+    for (let i: number = 0; i < q.length; ++i) d += (q[i]! - own[i]!) ** 2;
+    if (d < least) {
+      least = d;
+      best = q;
+    }
+  }
+  if (best === undefined) throw unswivelled(c, k, x, a, side);
+  return best;
+}
+
+/** The refusal of a prescribed hold's frame no swivel of the arm clears, naming what holds the course's arm there. */
+function unswivelled(
+  c: M.IContext,
+  k: number,
+  x: readonly (readonly number[][])[],
+  a: number,
+  side: string,
+): HumanRefusal {
+  const blocked: ReturnType<typeof M.invalid> = M.invalid(
+    c,
+    k,
+    x.map((arm: readonly number[][]): number[] => arm[k]!),
+  );
+  return new HumanRefusal({
+    kind: "reach",
+    axis: "region",
+    value: Math.max(0, blocked.value),
+    feasible: null,
+    reason: `no swivel of the ${side} arm keeps the hand on its site in its asked attitude with the arm clear at ${c.times[k]!.toFixed(3)} s: ${blocked.what}`,
+    fix: "put the hand on a site its arm reaches with the body clear",
+  });
 }

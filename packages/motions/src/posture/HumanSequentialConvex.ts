@@ -67,6 +67,10 @@ export namespace HumanSequentialConvex {
     let collapsed: boolean = false;
     let failed: boolean = false;
     let reason: IAutoMovieMotionHumanSequentialConvex.Reason = "rounds";
+    // A steered solve's rounds are one budget across its raised penalties,
+    // so the outer loop below re-prices the rounds left and never restarts
+    // them; a ladder's penalties each take their own.
+    let spent: number = 0;
 
     // A steered solve starts at the continued penalty when there is one, the first otherwise.
     const first: number =
@@ -80,7 +84,12 @@ export namespace HumanSequentialConvex {
         continue;
       let mu: number = ladder;
       penalty = mu;
-      for (let round: number = 0; round < options.rounds; ++round) {
+      for (
+        let round: number = 0;
+        round < options.rounds && !(steer && spent >= options.rounds);
+        ++round
+      ) {
+        ++spent;
         let model: IAutoMovieMotionHumanSequentialConvex.IModel<X> =
           problem.convexify(x, current, mu, radius, true);
         let pending: IAutoMovieMotionHumanSequentialConvex.IStep<X> | undefined;
@@ -249,10 +258,13 @@ export namespace HumanSequentialConvex {
       // not left there by a model too flat to tell the hair at the lower
       // penalty. A solve without a ceiling has no bound on this growth and
       // ends as before, as does a stationary point of the violation
-      // (`infeasible`) or spent rounds (sco's iteration limit).
+      // (`infeasible`) or spent rounds (sco's iteration limit). The rounds
+      // are counted across the raised penalties (`spent`), so the outer loop
+      // adds none to `IOptions.rounds`.
       if (
         steer &&
         options.ceiling !== undefined &&
+        spent < options.rounds &&
         (reason === "model" || reason === "step" || reason === "collapsed") &&
         mu * STEERING.increase <= options.ceiling
       )
