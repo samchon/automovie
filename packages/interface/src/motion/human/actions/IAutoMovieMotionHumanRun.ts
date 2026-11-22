@@ -1,5 +1,6 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMovieMotionHumanWalkParams } from "./IAutoMovieMotionHumanWalkParams";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGait";
 
 /**
  * Running to a floor point, at a jog, a run or a sprint: the walk's
@@ -11,7 +12,7 @@ import type { IAutoMovieMotionHumanWalkParams } from "./IAutoMovieMotionHumanWal
  * 1998, "The biomechanics of running", Gait & Posture 7): 0.4 at a jog, 0.35
  * at a run and 0.25 at a sprint, so the swing lasts `2 (1 - duty)` step
  * periods. The speed comes from the Froude number, `v = sqrt(Fr g l)`, at
- * 0.6, 1.3 and 5 (about 2.4, 3.5 and 6.8 m/s at a 0.93 m hip). The step
+ * 0.6, 1.3 and 5 (about 2.3, 3.4 and 6.8 m/s at a 0.93 m hip). The step
  * frequency is the measured quantity: nearly constant over endurance speeds
  * and rising toward a sprint (Cavagna, Franzetti, Heglund and Willems 1988,
  * J Physiol 399:81), about 172 steps a minute at a recreational runner's
@@ -35,18 +36,16 @@ import type { IAutoMovieMotionHumanWalkParams } from "./IAutoMovieMotionHumanWal
  * @evidence contracts/development/common.md#meaningful-documentation to: The floor point to stop at, world metres. pace: The gait, which fixes the speed; `run` when absent. via: Floor points passed in order before `to`, world metres.
  * @evidence contracts/development/design.md#principled-representation to: The floor point to stop at, world metres. pace: The gait, which fixes the speed; `run` when absent. via: Floor points passed in order before `to`, world metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/run.ts (run.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.run, params); actions/run.ts (run.GAITS).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanWalkParams identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanGait.RunPace and IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanRun {
   /**
    * Parameters.
    *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation to: The floor point to stop at, world metres. pace: The gait, which fixes the speed; `run` when absent. via: Floor points passed in order before `to`, world metres.
    * @evidence contracts/development/design.md#principled-representation to: The floor point to stop at, world metres. pace: The gait, which fixes the speed; `run` when absent. via: Floor points passed in order before `to`, world metres.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/run.ts (run.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.run, params); actions/run.ts (run.GAITS).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanWalkParams identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanGait.RunPace and IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The floor point to stop at, world metres. */
@@ -66,7 +65,7 @@ export namespace IAutoMovieMotionHumanRun {
      * `run` when absent. The Froude numbers and duty factors are sourced; the
      * trunk lean and arm swing are provisional (see the namespace).
      */
-    pace?: "jog" | "run" | "sprint";
+    pace?: IAutoMovieMotionHumanGait.RunPace;
 
     /** Floor points passed in order before `to`, world metres. */
     via?: IAutoMovieVector3[];
@@ -84,6 +83,6 @@ export namespace IAutoMovieMotionHumanRun {
     elbows?: number;
 
     /** How the run is performed, read as a walk reads it (`IAutoMovieMotionHumanWalkParams.manner`): `pace: 1.5` multiplies the speed by 1.5; neutral when absent. */
-    manner?: IAutoMovieMotionHumanWalkParams["manner"];
+    manner?: IAutoMovieMotionManner;
   }
 }

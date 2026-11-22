@@ -2,35 +2,20 @@ import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotio
 import type { IAutoMovieMotionHumanDrillRegulation } from "./IAutoMovieMotionHumanDrillRegulation";
 
 /**
- * Named ways of going somewhere on foot; the composition gives the
- * destination. Register the ones a film uses.
+ * The parameters of the styled gaits: named ways of going somewhere on foot,
+ * whose destination the composition gives. The speed model and the walk
+ * presets (`stroll`, `hurry`, `trudge`, `swagger`) are on the Gait family
+ * (`IAutoMovieMotionHumanNext.IAutoMovieMotionHumanGait`).
  *
- * The speed model of every gait. A pace is a Froude number `Fr` and the
- * speed is `v = sqrt(Fr g l)` for the hip height `l` (`walk.FROUDE`,
- * `run.GAITS`): a body with a longer leg is faster by the square root of
- * `l`, its step is longer by `l` and its steps a minute fall by the square
- * root of `l`. Every speed and steps a minute stated in these types is at the
- * reference hip, 0.93 m (`walkRoot.REFERENCE_HIP`). `stride` changes
- * the step and the steps a minute inversely and leaves the speed;
- * `manner.pace` multiplies the speed ({@link IAutoMovieMotionManner.pace}).
+ * A styled gait has a speed no pace has. It runs the walk's stepping plan in
+ * a gait of its own, as the run does, and counts as a walk wherever actions
+ * are told apart by kind:
  *
- * A style whose speed is one of the walk's or the run's paces is a row of
- * that action with its pace, stride and arm carriage fixed: `stroll`,
- * `hurry`, `trudge`, `swagger`, `jog`, `sprint`. Their scales are
- * provisional until each style's study is read (the manner presets' issue
- * lists them).
- *
- * A style whose speed no pace has runs the walk's stepping plan in a gait
- * of its own, as the run does, and counts as a walk wherever actions are
- * told apart by kind:
- *
- * - `march` keeps the drill's cadence, 120 steps a minute, and its step,
- *   30 inches (0.76 m) for a soldier whose hip stands 0.93 m high, scaled by
- *   the body's hip height (US Army TC 3-21.5, quick time; the scaling and
- *   the reference hip height are provisional). The cadence governs: the way
- *   is covered in the whole number of steps nearest it in drill steps, so
- *   over a way that is not a whole number of them the step gives and the
- *   cadence stays.
+ * - `march` keeps the drill regulation's cadence and step, 120 steps a
+ *   minute and 30 inches (0.762 m) in quick time, the same step for every
+ *   marcher (US Army TC 3-21.5). The cadence governs: the way is covered in
+ *   the whole number of steps nearest it in drill steps, so over a way that
+ *   is not a whole number of them the step gives and the cadence stays.
  * - `doubleTime` keeps 180 steps a minute on the same step, which is a
  *   jog's speed, so it is run in the jog's gait with the count kept.
  * - `prowl` is the sneak on deeply bent knees; `sad` and `proud` carry a

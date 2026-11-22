@@ -19,6 +19,10 @@ import { walkStation } from "../actions/walkStation";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HUMAN_GAIT_HURRY } from "../next/presets/HUMAN_GAIT_HURRY";
+import { HUMAN_GAIT_STROLL } from "../next/presets/HUMAN_GAIT_STROLL";
+import { HUMAN_GAIT_SWAGGER } from "../next/presets/HUMAN_GAIT_SWAGGER";
+import { HUMAN_GAIT_TRUDGE } from "../next/presets/HUMAN_GAIT_TRUDGE";
 import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
 
 /**
@@ -26,10 +30,10 @@ import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
  * destination. Register the ones a film uses.
  *
  * A style whose speed is one of the walk's or the run's paces is a row of
- * that action with its pace, stride and arm carriage fixed: `stroll`,
- * `hurry`, `trudge`, `swagger`, `jog`, `sprint`. Their scales are
- * provisional until each style's study is read (the manner presets' issue
- * lists them).
+ * that action: `stroll`, `hurry`, `trudge` and `swagger` fix the walk
+ * presets of the same names (`AutoMovieMotionHumanGait.STROLL` and the
+ * others, provisional until each style's study is read), and `jog` and
+ * `sprint` fix the run's pace alone.
  *
  * A style whose speed no pace has runs the walk's stepping plan in a gait
  * of its own, as the run does, and counts as a walk wherever actions are
@@ -58,41 +62,25 @@ import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No entry writes steps of its own: every one is planned by `walk.locomote`.
  */
 export namespace HumanGait {
-  /** A stroll: the `slow` walk (about 0.82 m/s) on steps 0.9 times the pace's, about 94 steps a minute, the arms swung 0.8; leisure, waiting about, a quiet street ({@link IAutoMovieMotionHumanWalkParams.pace}). */
+  /** The stroll: the walk with the stroll preset's pace, step and arm swing fixed (`HUMAN_GAIT_STROLL`, `AutoMovieMotionHumanGait.STROLL`). */
   export const stroll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["stroll"]
-  > = HumanActionRow.of("stroll", walk, {
-    pace: "slow",
-    stride: 0.9,
-    armSwing: 0.8,
-  });
+  > = HumanActionRow.of("stroll", walk, HUMAN_GAIT_STROLL);
 
-  /** A hurry: the `fast` walk (about 1.72 m/s) on steps 1.1 times the pace's, about 125 steps a minute, the arms swung 1.3; late for something, a purposeful errand that is not a run ({@link IAutoMovieMotionHumanWalkParams.pace}). */
+  /** The hurry: the walk with the hurry preset's pace, step and arm swing fixed (`HUMAN_GAIT_HURRY`, `AutoMovieMotionHumanGait.HURRY`). */
   export const hurry: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["hurry"]
-  > = HumanActionRow.of("hurry", walk, {
-    pace: "fast",
-    stride: 1.1,
-    armSwing: 1.3,
-  });
+  > = HumanActionRow.of("hurry", walk, HUMAN_GAIT_HURRY);
 
-  /** A weary trudge: the `slow` walk (about 0.82 m/s) on steps 0.8 times the pace's, about 106 steps a minute, the arms swung 0.4; exhaustion, defeat, a long march home ({@link IAutoMovieMotionHumanWalkParams.pace}). */
+  /** The weary trudge: the walk with the trudge preset's pace, step and arm swing fixed (`HUMAN_GAIT_TRUDGE`, `AutoMovieMotionHumanGait.TRUDGE`). */
   export const trudge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["trudge"]
-  > = HumanActionRow.of("trudge", walk, {
-    pace: "slow",
-    stride: 0.8,
-    armSwing: 0.4,
-  });
+  > = HumanActionRow.of("trudge", walk, HUMAN_GAIT_TRUDGE);
 
-  /** A swagger: the `normal` walk (about 1.5 m/s), the arms swung 1.5 and the elbows 20 degrees out; confidence, a challenge, showing off ({@link IAutoMovieMotionHumanWalkParams.pace}). */
+  /** The swagger: the walk with the swagger preset's pace, arm swing and elbows fixed (`HUMAN_GAIT_SWAGGER`, `AutoMovieMotionHumanGait.SWAGGER`). */
   export const swagger: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["swagger"]
-  > = HumanActionRow.of("swagger", walk, {
-    pace: "normal",
-    armSwing: 1.5,
-    elbows: 20,
-  });
+  > = HumanActionRow.of("swagger", walk, HUMAN_GAIT_SWAGGER);
 
   /** A jog: the `jog` run (about 2.3 m/s, about 165 steps a minute); exercise, an easy pace held for a long way ({@link IAutoMovieMotionHumanRun.IParams.pace}). */
   export const jog: IAutoMovieMotionHumanActionLaw<

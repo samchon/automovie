@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
-import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGait";
 
 /**
  * Walking to a floor point while carrying a load or pushing a wheeled one:
@@ -41,7 +42,7 @@ import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotio
  * @evidence contracts/development/common.md#meaningful-documentation to: The floor point walked to, world metres. side: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation to: The floor point walked to, world metres. side: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: carrying/carry.ts (carry.place, how); carrying/carry.ts (carry.place, return); carrying/carry.ts (carry.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.carry, params); carrying/carry.ts (carry.tilt); carrying/carry.ts (carry.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanSide, IAutoMovieMotionHumanWalkParams identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanSide, IAutoMovieMotionHumanGait.WalkPace and IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCarry {
   /**
@@ -51,8 +52,6 @@ export namespace IAutoMovieMotionHumanCarry {
    * @evidence contracts/development/design.md#principled-representation The walk's destination, pace and manner, the way of carrying, the side and the load's mass share.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Six members read by `plan`; the manner's type is the walk's.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The floor point walked to, world metres. */
@@ -64,22 +63,20 @@ export namespace IAutoMovieMotionHumanCarry {
     /** The loaded side for `oneHand` and `hip`; `right` when absent. */
     side?: AutoMovieHumanSide;
 
-    /** The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent.
-     * Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. */
     load?: number;
 
-    /** The walk's pace ({@link IAutoMovieMotionHumanWalkParams.pace} gives the speeds); `normal` when absent. The load leans the trunk and does not change the speed. */
-    pace?: "slow" | "normal" | "fast";
+    /** The walk's pace (`IAutoMovieMotionHumanWalkParams.pace` gives the speeds); `normal` when absent. The load leans the trunk and does not change the speed. */
+    pace?: IAutoMovieMotionHumanGait.WalkPace;
 
-    /** How the walk is performed (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent. */
-    manner?: IAutoMovieMotionHumanWalkParams["manner"];
+    /** How the walk is performed, read as the walk reads it (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent. */
+    manner?: IAutoMovieMotionManner;
   }
 
   /**
-   * A hand's hold place in the performer's moving floor frame. How the load is held.
+   * How the load is held: in one hand, in both hands, on the hip, or pushed on wheels.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation A hand's hold place in the performer's moving floor frame. How the load is held.
+   * @evidence contracts/development/common.md#meaningful-documentation States the four ways a load is held.
    * @evidence contracts/development/design.md#principled-representation Closed choices "oneHand", "twoHands", "hip", "push" distinguish the admitted cases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: carrying/carry.ts (carry.place, how); carrying/carry.ts (carry.tilt); carrying/carry.ts (carry.plan).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in carry.place.

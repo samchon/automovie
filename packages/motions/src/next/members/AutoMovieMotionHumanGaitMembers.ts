@@ -14,3 +14,7 @@ export { HumanGait } from "../../lexicon/HumanGait";
 export { HumanPursuit } from "../../lexicon/HumanPursuit";
 export { HumanTravelDoor } from "../../lexicon/HumanTravelDoor";
 export { HumanFrailWalk } from "../../lexicon/HumanFrailWalk";
+export { HUMAN_GAIT_STROLL as STROLL } from "../presets/HUMAN_GAIT_STROLL";
+export { HUMAN_GAIT_HURRY as HURRY } from "../presets/HUMAN_GAIT_HURRY";
+export { HUMAN_GAIT_TRUDGE as TRUDGE } from "../presets/HUMAN_GAIT_TRUDGE";
+export { HUMAN_GAIT_SWAGGER as SWAGGER } from "../presets/HUMAN_GAIT_SWAGGER";

@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanFormation } from "../ensemble/IAutoMovieMotionHumanFormation";
+import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanWalkCadence } from "./IAutoMovieMotionHumanWalkCadence";
 import type { IAutoMovieMotionHumanWalkFacing } from "./IAutoMovieMotionHumanWalkFacing";
 
@@ -13,8 +14,6 @@ import type { IAutoMovieMotionHumanWalkFacing } from "./IAutoMovieMotionHumanWal
  * @evidence contracts/development/design.md#principled-representation World metres and degrees about +Y; bounded scales as `HumanUnit.Bounded`; a station, a cadence and a support as their owners' records.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What `walk.locomote`, the styled gaits and the rows read, split from `walk` so the law's file holds its planning.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No member names one gait: every walk-family law reads the same record.
- *
- * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
  */
 export interface IAutoMovieMotionHumanWalkParams {
   /** The floor point to stop at, world metres. */
@@ -36,7 +35,7 @@ export interface IAutoMovieMotionHumanWalkParams {
    * outdoor paces of healthy adults at the reference hip (Murtagh, Mair,
    * Aguiar, Tudor-Locke and Murphy 2021, Sports Med 51:125).
    */
-  pace?: "slow" | "normal" | "fast";
+  pace?: IAutoMovieMotionHumanGait.WalkPace;
 
   /** Floor points passed in order before `to`, world metres. */
   via?: IAutoMovieVector3[];
@@ -47,19 +46,13 @@ export interface IAutoMovieMotionHumanWalkParams {
   /** Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent. */
   facing?: IAutoMovieMotionHumanWalkFacing.IFacing;
 
-  /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.
-   * Inclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   */
+  /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed. */
   stride?: number;
 
-  /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).
-   * Inclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   */
+  /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way). */
   armSwing?: number;
 
-  /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.
-   * Inclusive range [0, 30]; schema default 0; unit "degrees". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   */
+  /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent. */
   elbows?: number;
 
   /**

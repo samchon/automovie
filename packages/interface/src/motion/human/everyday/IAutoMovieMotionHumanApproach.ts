@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
-import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanEffort } from "./IAutoMovieMotionHumanEffort";
 import type { IAutoMovieMotionHumanProxemics } from "./IAutoMovieMotionHumanProxemics";
 
@@ -58,7 +59,7 @@ import type { IAutoMovieMotionHumanProxemics } from "./IAutoMovieMotionHumanProx
  * @evidence contracts/development/common.md#meaningful-documentation at: The gap: a named band or metres; `personal` when absent. side: Where around a person target to stop, in that person's own frame: `front`, `left`, `right` or `behind`; along the line from the start when absent (and always for a prop or point). pace: The pace; `normal` when absent.
  * @evidence contracts/development/design.md#principled-representation at: The gap: a named band or metres; `personal` when absent. side: Where around a person target to stop, in that person's own frame: `front`, `left`, `right` or `behind`; along the line from the start when absent (and always for a prop or point). pace: The pace; `normal` when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainTravel.ts (HumanChainTravel.approach, params); everyday/approach.ts (approach.plan, context); everyday/approach.ts (approach.to, context); everyday/approach.ts (approach.to, aimed); everyday/approach.ts (approach.to); everyday/approach.ts (approach.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanProxemics.Band, IAutoMovieMotionHumanWalkParams, IAutoMovieMotionHumanEffort.IEffort, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanProxemics.Band, IAutoMovieMotionHumanGait.WalkPace, IAutoMovieMotionManner, IAutoMovieMotionHumanEffort.IEffort, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanApproach {
   /**
@@ -71,8 +72,6 @@ export namespace IAutoMovieMotionHumanApproach {
    * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union; the gap is a named proxemic band or metres; the side is a closed union in the person's own frame; invalid metres and a side on a non-person target are refused at plan time.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the band, pace, manner and Effort types are imported from their owners (HumanProxemics, walk, HumanEffort).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names one scene or body; `side` and `avoid` combine freely, and the one meaningless combination, a side of a prop or point, is refused rather than encoded.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** What to approach. */
@@ -88,14 +87,14 @@ export namespace IAutoMovieMotionHumanApproach {
      */
     side?: "front" | "left" | "right" | "behind";
 
-    /** The walk's pace ({@link IAutoMovieMotionHumanWalkParams.pace} gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`. */
-    pace?: IAutoMovieMotionHumanWalkParams["pace"];
+    /** The walk's pace (`IAutoMovieMotionHumanWalkParams.pace` gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`. */
+    pace?: IAutoMovieMotionHumanGait.WalkPace;
 
     /** Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in (`HumanEffort.modifiers`); its `time` factor is not read. */
     effort?: IAutoMovieMotionHumanEffort.IEffort;
 
     /** How the walk there is performed (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent. */
-    manner?: IAutoMovieMotionHumanWalkParams["manner"];
+    manner?: IAutoMovieMotionManner;
 
     /** People to walk round on the way, by subject id. */
     avoid?: string[];
