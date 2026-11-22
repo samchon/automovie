@@ -30,6 +30,7 @@ import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingQuality } from "../striking/StrikingQuality";
 import { PrecisionStrokeForms } from "./PrecisionStrokeForms";
+import { PrecisionStrokeKeys } from "./PrecisionStrokeKeys";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
 import { holdPrecisionSwing } from "./holdPrecisionSwing";
@@ -54,12 +55,6 @@ function implement(params: Stroke): string {
     fix: "name the held implement in tool",
   });
 }
-
-/**
- * The share of a two-handed swing's arc the trunk coils back through at the
- * top of the backswing, the rest taken by the arms (provisional).
- */
-const COIL: number = 0.5;
 
 /** The cue's least lean over the bed while the bridge hand bears on it, degrees; provisional. */
 const BRIDGE_INCLINE: number = 27;
@@ -332,25 +327,30 @@ export function createPrecisionSportStroke<P extends Stroke>(
           projection,
         );
         if (influence <= 0) return planned;
-        // Two hands on one implement coil the trunk away from the shot as
-        // the swing goes back, uncoil it into the contact and turn it on
-        // toward the shot through the follow-through, so the arms stay across
-        // the front of the chest instead of through it: the trunk turns back
-        // by `COIL` of the swing's arc at the backswing's top, square at the
-        // contact and on by the whole arc at the follow-through's end, where
-        // the arms have wrapped round to the lead side.
-        const current: IAutoMovieMotionHumanPosture =
+        // The swing's key poses (address, top, contact, finish): two hands
+        // on one implement coil the trunk away from the shot to the top of
+        // the backswing, uncoil it square into the contact and turn it on
+        // toward the shot to the finish, so the arms stay across the front of
+        // the chest instead of through it (`PrecisionStrokeKeys`).
+        const keyed: IAutoMovieMotionHumanPosture =
           form.oneHand === true || held === undefined || form.sweep === 0
             ? address(planned, influence)
             : StrikingBlade.turned(
                 address(planned, influence),
                 sign *
-                  form.sweep *
-                  (clock.progress("stroke", "strokeEnd", t) -
-                    COIL *
+                  (PrecisionStrokeKeys.FINISH *
+                    clock.progress("stroke", "strokeEnd", t) -
+                    PrecisionStrokeKeys.COIL *
                       clock.progress("start", "ready", t) *
                       (1 - clock.progress("strokeStart", "stroke", t))),
               );
+        // The tool's attitude is the one hard constraint, at the contact:
+        // away from it the hands' goals carry their places only, and the arm
+        // turns the implement as its course finds clear.
+        const current: IAutoMovieMotionHumanPosture =
+          Math.abs(t - clock.at("stroke")) <= PrecisionStrokeKeys.CONTACT
+            ? keyed
+            : { ...keyed, limbs: PrecisionStrokeKeys.places(keyed.limbs) };
         if (
           bridge === undefined ||
           bridgeEntry === undefined ||
