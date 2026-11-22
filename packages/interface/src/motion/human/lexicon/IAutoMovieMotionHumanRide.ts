@@ -55,7 +55,7 @@ export namespace IAutoMovieMotionHumanRide {
      * the performance that holds its strides (the footfalls of one
      * diagonal, as the mount's own ride publishes them). The rider stands
      * in the stirrups and sits again once a stride, the seat rising `POST`
-     * thigh lengths off the saddle, so both feet must rest on the support.
+     * thigh lengths (`HumanRide.POST`, 0.25, provisional) off the saddle; a trot's stride time is on {@link IAutoMovieMotionHumanMounted.stride}, so both feet must rest on the support.
      * On a cue track the seat is down at each of its instants and seated
      * before the first and after the last. Seated throughout when absent.
      

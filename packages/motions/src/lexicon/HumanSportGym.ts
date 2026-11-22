@@ -145,7 +145,7 @@ export namespace HumanSportGym {
     kind: "snatch",
   });
 
-  /** Pike push-ups. */
+  /** Pike push-ups. Default 5 repetitions of 2.2 s after a 2 s entry; provisional ({@link WorkoutBodyweight.KINDS}). */
   export const pikePushUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["pikePushUp"]
   > = HumanActionRow.of("pikePushUp", workout, {
@@ -159,7 +159,7 @@ export namespace HumanSportGym {
     kind: "superman",
   });
 
-  /** Bird dogs. */
+  /** Bird dogs. Default 6 repetitions of 3 s after a 2.4 s entry; provisional ({@link WorkoutBodyweight.KINDS}). */
   export const birdDog: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["birdDog"]
   > = HumanActionRow.of("birdDog", workout, {
@@ -194,35 +194,35 @@ export namespace HumanSportGym {
     kind: "deadBug",
   });
 
-  /** Step-ups onto the box the composition names (`on`); an imagined one when none is named. */
+  /** Step-ups onto the box the composition names (`on`); an imagined one when none is named. Default 5 repetitions of 2.3 s after a 1 s entry; provisional ({@link WorkoutEquipment.KINDS}). */
   export const stepUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["stepUp"]
   > = HumanActionRow.of("stepUp", workout, {
     kind: "stepUp",
   });
 
-  /** Hip thrusts, the upper back on the bench's edge the composition names (`on`), the performer standing with the back to it. */
+  /** Hip thrusts, the upper back on the bench's edge the composition names (`on`), the performer standing with the back to it. Default 5 repetitions of 2.5 s after a 2.4 s entry; provisional ({@link WorkoutEquipment.KINDS}). */
   export const hipThrust: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["hipThrust"]
   > = HumanActionRow.of("hipThrust", workout, {
     kind: "hipThrust",
   });
 
-  /** Incline push-ups, the hands on the bench the composition names (`on`). */
+  /** Incline push-ups, the hands on the bench the composition names (`on`). Default 5 repetitions of 2 s after a 1.5 s entry; provisional ({@link WorkoutEquipment.KINDS}). */
   export const inclinePushUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["inclinePushUp"]
   > = HumanActionRow.of("inclinePushUp", workout, {
     kind: "inclinePushUp",
   });
 
-  /** Decline push-ups, the toes on the bench the composition names (`on`). */
+  /** Decline push-ups, the toes on the bench the composition names (`on`). Default 5 repetitions of 2 s after a 1.5 s entry; provisional ({@link WorkoutEquipment.KINDS}). */
   export const declinePushUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["declinePushUp"]
   > = HumanActionRow.of("declinePushUp", workout, {
     kind: "declinePushUp",
   });
 
-  /** Dips, the bars not shown. */
+  /** Dips, the bars not shown. Default 5 repetitions of 2.3 s after a 1 s entry; provisional ({@link WorkoutBodyweight.KINDS}). */
   export const dip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["dip"]
   > = HumanActionRow.of("dip", workout, {

@@ -37,7 +37,12 @@ export interface IAutoMovieMotionHumanMounted {
    * decoupling a jockey's crouch gives (Pfau et al. 2009, Science 325:289),
    * and a hand ride pushes the hands along the reins once a stride. Without
    * it every figure is carried rigidly with the contact and a hand ride is
-   * refused.
+   * refused. Nothing is read from a gait name: give the carrier's own stride
+   * time. A horse of 1.4 m at the withers measured about 0.9 s at a walk
+   * (1.5 m/s), 0.64 s at a trot (3 m/s), 0.5 s at a canter (5 m/s) and 0.4 s
+   * at a gallop (8 m/s) (`HorseGait.TABLE`, Robilliard et al. 2007);
+   * warmbloods are about 15 % slower, and the table's scaling to other
+   * heights is provisional.
    */
   stride?: number;
 
@@ -73,7 +78,7 @@ export namespace IAutoMovieMotionHumanMounted {
     /** The seat kind of the figure. */
     seat: Seat;
 
-    /** Seconds the transfer from the previous figure, or from the entry for the first, takes; more than none. */
+    /** Seconds the transfer from the previous figure, or from the entry for the first, takes; more than none. The time is the author's: no source for a mounting time was read (missing). */
     transfer: number;
 
     /** Seconds the figure is held after its transfer; none or more. */

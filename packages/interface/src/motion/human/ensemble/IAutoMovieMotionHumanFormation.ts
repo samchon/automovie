@@ -181,7 +181,7 @@ export namespace IAutoMovieMotionHumanFormation {
     /** The film second it starts moving; 0 when absent. */
     start?: number;
 
-    /** Its cruising speed, metres per second, stopping at the path's end; or speed marks, each the speed it changes to from a film second on, the last held until it brakes to a stop at the end. */
+    /** Its cruising speed, metres per second, stopping at the path's end ({@link IAutoMovieMotionHumanGait} gives a walking crowd's: 1.5 m/s, a run 3.4 m/s); or speed marks, each the speed it changes to from a film second on, the last held until it brakes to a stop at the end. */
     speed:
       | number
       | {
@@ -189,10 +189,10 @@ export namespace IAutoMovieMotionHumanFormation {
           marks: readonly IAutoMovieMotionHumanFormation.IMark[];
         };
 
-    /** Its acceleration and braking, metres per second squared; `HumanFormation.ACCELERATION` when absent. */
+    /** Its acceleration and braking, metres per second squared; `HumanFormation.ACCELERATION` when absent (2.68, a pedestrian's 1.34 m/s over 0.5 s, Helbing and Molnar 1995), so a walk's speed is reached in half a second. */
     acceleration?: number;
 
-    /** Metres of path over which its heading turns at each corner, half before and half after; `HumanFormation.TURN` when absent. */
+    /** Metres of path over which its heading turns at each corner, half before and half after; `HumanFormation.TURN` when absent (1.5 m, about two marching steps, provisional). */
     turn?: number;
   }
 
