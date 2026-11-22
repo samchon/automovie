@@ -46,6 +46,7 @@ import { poseBones } from "../posture/poseBones";
 import { operateDrive } from "./operateDrive";
 import { operateHand } from "./operateHand";
 import { operateInsert } from "./operateInsert";
+import { operateInsertRoute } from "./operateInsertRoute";
 import { operateState } from "./operateState";
 
 /**
@@ -66,10 +67,11 @@ import { operateState } from "./operateState";
  * the axis, and the hand rolls with the knob as it turns, the forearm's
  * pronation and supination (Magermans et al. 2005, Clin Biomech 20:591, give
  * the ranges daily tasks use), the grip starting half the turn before the
- * forearm's neutral so the turn is centred in that range. A lid's knob, its
- * axis nearer the vertical than `UPRIGHT`, takes the palm from above. Each
- * part's place is a target, so it can be a
- * prop's point; the part's outward normal is its axis. A part beyond the
+ * forearm's neutral so the turn is centred in that range; a crank's knob
+ * spins free on its pin, so the hand keeps its attitude and only orbits. A
+ * lid's knob, its axis nearer the vertical than `UPRIGHT`, takes the palm
+ * from above. Each part's place is a target, so it can be a prop's point;
+ * the part's outward normal is its axis. A part beyond the
  * standing arm is leaned into (`AutoMovieMotionHumanLeanInto`): the trunk
  * tips about the hips by the least pitch that keeps the wrist within `REACH`
  * of the arm's length and straightens as the part comes nearer (a drawer
@@ -92,13 +94,12 @@ import { operateState } from "./operateState";
  * plan drives the articulation by the same function (`operateDrive`,
  * `IHumanActionPlan.drives`), so the door stays open after the hand lets go
  * and the hand cannot drift off the handle. The `insert` mechanism moves a
- * held prop's working point along a socket's axis instead
- * (`operateInsert`).
+ * held prop's working point along a socket's axis instead (`operateInsert`),
+ * hand over hand when deeper than its grip reaches (`operateLongInsert`).
  *
  * Not yet: the A8 affordance kinds (`hinge`, `slider`, `knob`, `button`) in
  * the interface, which the core owns, so the mechanism is stated here; the
- * body stepping round a door and walking through it; two-handed or power
- * grips; pouring from a held container about its lip.
+ * body stepping round a door and through it; power grips; pouring about a lip.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the four mechanisms, the hand on each, the phrase and its timing, the events and what is missing, with sources and provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of one arm phrase over a standing base; the mechanism is a closed union.
@@ -175,7 +176,7 @@ export namespace operate {
   /**
    * Plan an operation.
    *
-   * @param context The action's context.
+   * @param entered The action's context.
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the operation's world effector goal, original reach/stroke clock, articulation drive and standing/carrier overlay; operateHand documents the full-target versus wrist-only consumers.
@@ -187,8 +188,15 @@ export namespace operate {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed mechanism/clock/hand metadata and the original bounded lean-shift table until release. Current frames, targets and wrist observations remain query-local with no new time/pose/fit history or borrowed solver reader retained.
    */
   export function plan(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
+    entered: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
+    const routed: operateInsertRoute.IRouted = operateInsertRoute(entered, {
+      reach: REACH,
+      pace: PACE.slide,
+      width: WIDTH.insert,
+    });
+    if (routed.plan !== undefined) return routed.plan;
+    const context: typeof entered = routed.context;
     const body: IAutoMovieMotionHumanBody = context.body;
     const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
       context.params.mechanism;

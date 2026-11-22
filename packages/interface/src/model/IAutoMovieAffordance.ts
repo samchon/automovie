@@ -43,7 +43,7 @@ export interface IAutoMovieAffordance {
    */
   aperture?: number;
 
-  /** A `seat`'s depth from its front edge back along `-Z`, or a `surface`'s or `pedal`'s extent along `+Z` centred on the frame, metres, positive; other kinds ignore it. */
+  /** A `seat`'s depth from its front edge back along `-Z`, a `surface`'s or `pedal`'s extent along `+Z` centred on the frame, or a `socket`'s depth from its mouth inward against its `+Y` (a bore's length, a scabbard's), metres, positive; other kinds ignore it. */
   depth?: number;
 
   /** A `seat`'s backrest height above the sitting surface, metres, positive; absent for a backless seat. Other kinds ignore it. */
