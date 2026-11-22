@@ -328,11 +328,8 @@ export function createPrecisionSportStroke<P extends Stroke>(
           projection,
         );
         if (influence <= 0) return planned;
-        // The swing's key poses (address, top, contact, finish): two hands
-        // on one implement coil the trunk away from the shot to the top of
-        // the backswing, uncoil it square into the contact and turn it on
-        // toward the shot to the finish, so the arms stay across the front of
-        // the chest instead of through it (`PrecisionStrokeKeys`).
+        // Two hands on one implement coil the trunk back to the top, square it
+        // into the contact and turn it on to the finish (`PrecisionStrokeKeys`).
         const keyed: IAutoMovieMotionHumanPosture =
           form.oneHand === true || held === undefined || form.sweep === 0
             ? address(planned, influence)
@@ -345,9 +342,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
                       clock.progress("start", "ready", t) *
                       (1 - clock.progress("strokeStart", "stroke", t))),
               );
-        // A bare hand that struck open relaxes back into the hand it entered
-        // with as the arm returns, so its extended digits do not reach into
-        // the thigh the hanging hand rests beside.
+        // A bare hand that struck open relaxes home as the arm returns.
         const current: IAutoMovieMotionHumanPosture =
           held === undefined && t > clock.at("relax")
             ? relaxedHand(
