@@ -54,7 +54,9 @@ const LEVEL: number = 10;
  * asked), and the prop may take another prop onto one of its sockets at
  * the end (a morsel pinched between chopstick tips). The free hand may push
  * a part the drive moves while the holding hand keeps still (an umbrella's
- * runner pushed up its shaft, workHeldPush). Register as
+ * runner pushed up its shaft), the holder first bringing the prop before the
+ * body when the free arm cannot reach the part (an extinguisher's pin
+ * pulled, workHeldPush). Register as
  * `workHeld`.
  *
  * The grip never opens, so the prop rides the palm's frame throughout and
@@ -170,7 +172,9 @@ function plan(
   );
   const primitives: IAutoMovieMotionHumanPrimitive[] = [
     ...(goal === undefined ? [] : [arm(context, side, clock, ready, goal)]),
-    ...(push === undefined ? [] : [push.arm(clock, toolDrives)]),
+    ...(push === undefined
+      ? []
+      : [push.arm(clock, toolDrives), ...push.holder(clock)]),
   ];
   const digits: (
     seconds: number,
