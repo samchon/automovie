@@ -1,8 +1,14 @@
-import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
+import {
+  DEFAULT_HUMANOID_ROM,
+  Quaternion,
+  Vector3,
+  physicalShapeSpan,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieAngleRange,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -457,12 +463,28 @@ export namespace seatedHands {
         thigh.worldRotation,
         frame.normal,
       );
+      // The palm lies on the thigh at any heading about its normal: the
+      // fingers point along the thigh where the arm's own line from the
+      // shoulder to the contact allows it, and within the wrist's deviation
+      // of that line otherwise (`heading`). Along an astride rider's splayed
+      // thigh the fingers asked the forearm for a twist beyond its range,
+      // which the fit met at the range's end with the forearm folded into
+      // the trunk.
       const along: IAutoMovieVector3 = Vector3.subtract(
         bones.get(`${side}LowerLeg`)!.worldPosition,
         thigh.worldPosition,
       );
+      const reach: IAutoMovieVector3 = Vector3.subtract(
+        point,
+        bones.get(`${side}UpperArm`)!.worldPosition,
+      );
+      const laidReach: IAutoMovieVector3 = Vector3.addScaled(
+        reach,
+        normal,
+        -Vector3.dot(reach, normal),
+      );
       const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
-        fingers: along,
+        fingers: heading(side, along, laidReach, normal),
         palm: Vector3.scale(normal, -1),
       });
       limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(body, side, {
@@ -572,6 +594,7 @@ export namespace seatedHands {
           .bone,
       );
       requested.add(`${side}LowerLeg`);
+      requested.add(`${side}UpperArm`);
       if (wrists) requested.add(`${side}Hand`);
     }
     return requested;
@@ -579,4 +602,41 @@ export namespace seatedHands {
 
   /** The body's fixed bilateral ordering, shared by every placement. */
   const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+}
+
+/**
+ * The fingers' direction for a palm laid on a surface: the surface's own
+ * direction (along the thigh) where it lies within the wrist's deviation of
+ * the arm's line laid into the surface, else that line turned by the
+ * deviation toward it. The deviation is the narrower side of the rig's
+ * wrist deviation range (`DEFAULT_HUMANOID_ROM`, the hand's abduction), so
+ * the hand stays where the wrist reaches on either side.
+ */
+function heading(
+  side: AutoMovieHumanSide,
+  along: IAutoMovieVector3,
+  reach: IAutoMovieVector3,
+  normal: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  const laid: IAutoMovieVector3 = Vector3.addScaled(
+    along,
+    normal,
+    -Vector3.dot(along, normal),
+  );
+  if (Vector3.length(reach) <= 1e-9 || Vector3.length(laid) <= 1e-9)
+    return along;
+  const range: IAutoMovieAngleRange =
+    DEFAULT_HUMANOID_ROM[`${side}Hand`]!.abduction!;
+  const deviation: number = Math.min(Math.abs(range.min), Math.abs(range.max));
+  const n: IAutoMovieVector3 = Vector3.normalize(normal);
+  const r: IAutoMovieVector3 = Vector3.normalize(reach);
+  const a: IAutoMovieVector3 = Vector3.normalize(laid);
+  const turn: number =
+    (Math.atan2(Vector3.dot(Vector3.cross(r, a), n), Vector3.dot(r, a)) * 180) /
+    Math.PI;
+  if (Math.abs(turn) <= deviation) return along;
+  return Quaternion.rotateVector(
+    Quaternion.fromAxisAngle(n, Math.sign(turn) * deviation),
+    r,
+  );
 }
