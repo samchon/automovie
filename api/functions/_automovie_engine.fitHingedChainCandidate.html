@@ -1,0 +1,131 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>fitHingedChainCandidate | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">fitHingedChainCandidate</a></li></ul>
+<h1>Function fitHingedChainCandidate</h1></div>
+<section class="tsd-panel">
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="fithingedchaincandidate"><span class="tsd-kind-call-signature">fitHingedChainCandidate</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieFitChainToTargetProps.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieFitChainToTargetProps</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">prepared</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMoviePreparedChainPlant.html" class="tsd-signature-type tsd-kind-interface">IAutoMoviePreparedChainPlant</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">axes</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointAxes.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointAxes</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">rotation</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">rig</span><span class="tsd-signature-symbol">?:</span> <a href="../modules/_automovie_interface.IAutoMoviePrepareChainFit.html" class="tsd-signature-type tsd-kind-namespace">IAutoMoviePrepareChainFit</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMoviePrepareChainFit.IRig.html" class="tsd-signature-type tsd-kind-interface">IRig</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieSolvedChainPlant.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSolvedChainPlant</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><a href="#fithingedchaincandidate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>The hinged chain's candidate: <code>hingedArmArticulation</code>'s swivel sweep with
+each candidate decomposed through the prepared clinical domains, scored
+first by the rig's ROM overshoot plus the request's <code>obstruction</code> of the
+candidate's mid and end joints, and then by one continuous cost: the
+requested effector rotation's error in degrees (when one is requested),
+plus two degrees per unit of the mid joint's swing away from the bend
+hint's side of the root-to-target axis (<code>1 - cos</code>; without a hint, the side
+the posed hinge already bends toward, see <code>posedHingeSwing</code>), plus, when the
+request carries a
+<code>referencePose</code> (a grid-free reference such as the solution at a contact
+event, never the previous frame, so a pose stays a pure function of time),
+the degrees the root and mid joints turn away from it, with the clinical
+effort as a vanishing tie-break. The cost is continuous in the target, so
+the chosen swivel moves continuously as a target moves and jumps only where
+two separate minima tie exactly; the reference term then decides the tie
+toward the reference's side. The weights are provisional, as no source
+fixes them. Under this continuous cost the cold fit starts in closed form:
+without a requested rotation at the side term's peak, the pole of two-bone
+IK (<code>hingedChainSide.peak</code>), which alone answers when no reference or
+obstruction is asked; with one, at the swivel needing the least end-joint
+articulation (<code>hingedRotationStart</code>, or <code>hingedTwistStart</code> on a limb whose
+mid segment twists distally). It searches locally and keeps a legal result
+whose rotation is met; the full sweep runs otherwise and when the limb has
+no side. Before either, a requested rotation on a limb without distal
+twist whose end joint has one immobile axis (an ankle) is answered with no
+search: such a joint takes the rotation only where the rotation demanded
+of it reads that axis neutral, at most two swivels a bend branch in closed
+form (<code>immobileAxisSwivels</code>), and the best of them under the same score
+is the fit when it is legal and the rotation is met. A limb whose mid
+segment twists distally (an arm) offers one candidate the same way: the
+swivel nearest the hint's pole that its end joint's box
+(<code>distalEndSwivelArcs</code>) and its mid segment's twist range
+(<code>distalTwistSwivelRange</code>) both admit, an interval end in closed form
+(<code>distalEndSwivelNearest</code>); with a reference pose, the box's alone, since
+the reference's turn then ranks beside the hint. Where that candidate does not answer, the sweep is bounded
+from below by the least the end joint must miss the rotation by at each
+swivel (<code>distalEndSwivelMiss</code>) or, when greater, the least the mid
+segment's twist range must (<code>distalTwistSwivelRange</code>'s miss), besides the
+hint's side, so a rotation no
+swivel lets the wrist take is fitted by scoring only the swivels near the
+least miss, with the full sweep's choice.
+One degree of joint turn from the reference counts as much as
+one degree of effector error (times the request's <code>referenceWeight</code>, 1
+when omitted), so the reference's side is kept unless a
+turn buys at least as much accuracy; and the
+hint's side is worth 2 degrees per unit of <code>1 - cos</code> (4 degrees for the
+opposite side), enough to decide between otherwise equal swivels while
+never outweighing a visible effector error. A request continuing a nearby
+fit (<code>near</code>) refines that fit's seed instead of sweeping, and the candidate
+carries the seed it was chosen at. A request whose bend is the place a
+completed elbow search chose (<code>placed</code>) searches locally from that
+place's pole and answers there when legal, sweeping only where it is not. A request with a <code>strain</code> ranks the
+swivels by task priority instead (Siciliano and Slotine 1991): legality,
+then the hand's rotation error, two errors in one bucket of the joints'
+tolerance (<code>ROM_TOLERANCE</code>) being one (a quantisation, so the ranking is
+transitive and its choice independent of the order candidates are met in;
+the rotation's certified miss bounds that first key, so swivels whose miss
+lies in a later bucket are not scored), then the turn from a <code>referencePose</code> when one
+is given (which keeps a stroke's side), else the strain, with no bend
+hint; the
+candidate carries the value it was chosen by, so a caller ranking keys by
+their fits reads one continuous value (Berge's maximum theorem) instead
+of a measure taken at another search's argmin. Under that ranking a
+candidate at a swivel where the closed form shows the rotation met (inside
+the end joint's box arcs, its mid segment's twist inside its range) is
+ranked in the first bucket without its error being measured; the chosen
+candidate's error is measured for the value, and a choice whose measured
+bucket differs from the one it was ranked by is searched again with every
+error measured. A continued fit tries the closed-form candidates lying by
+its seed before refining it (<code>hingedSwivelNear</code>), and a cold fit whose
+rotation's certified miss exceeds the tolerance at every swivel skips the
+pole start that could not be accepted.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">props</span>: <a href="../interfaces/_automovie_interface.IAutoMovieFitChainToTargetProps.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieFitChainToTargetProps</a></span>
+<div class="tsd-comment tsd-typography"><p>The fit request, with merged axes.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">prepared</span>: <a href="../interfaces/_automovie_interface.IAutoMoviePreparedChainPlant.html" class="tsd-signature-type tsd-kind-interface">IAutoMoviePreparedChainPlant</a></span>
+<div class="tsd-comment tsd-typography"><p>The chain's preparation.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">axes</span>: <a href="../interfaces/_automovie_interface.IAutoMovieJointAxes.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointAxes</a></span>
+<div class="tsd-comment tsd-typography"><p>The mid bone's axes; its flexion is the hinge.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">rotation</span>: <a href="../interfaces/_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a></span>
+<div class="tsd-comment tsd-typography"><p>A requested effector rotation, ranked before the hint's side when given.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">rig</span>: <a href="../modules/_automovie_interface.IAutoMoviePrepareChainFit.html" class="tsd-signature-type tsd-kind-namespace">IAutoMoviePrepareChainFit</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMoviePrepareChainFit.IRig.html" class="tsd-signature-type tsd-kind-interface">IRig</a></span>
+<div class="tsd-comment tsd-typography"><p>Optional lazy rig of the same unchanged source workspace; source-only basis, reference, hinge range and posed swing may be shared, while every candidate score and callback remains target-local.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_interface.IAutoMovieSolvedChainPlant.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSolvedChainPlant</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></h4><p>The candidate, or null for a degenerate chain.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/motion/fitHingedChainCandidate.ts#L140">packages/engine/src/motion/fitHingedChainCandidate.ts:140</a></li></ul></aside></div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

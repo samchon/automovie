@@ -1,0 +1,345 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieHumanBodyIdentity | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieHumanBodyIdentity</a></li></ul>
+<h1>Interface IAutoMovieHumanBodyIdentity</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Body heights, breadths and circumferences, with one record per limb.</p>
+<p>Heights are measured from the standing surface. Surface landmarks, mechanical joint centres and support-to-support chord lengths have distinct measurement protocols. Measurements taken at different respiratory states or tissue pressures remain independent observations.</p>
+<p>Every measure the public input also carries takes its declaration, definition and range from <code>IAutoMovieHumanBodyAnatomy</code>, so no measure has two ranges; this record requires each of them and adds the measures the anatomy record does not carry.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IAutoMovieHumanBodyIdentity</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#acromialheight">acromialHeight</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#armpair">armPair</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanPair.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanPair</a><span class="tsd-signature-symbol">&lt;</span><a href="_automovie_interface.IAutoMovieHumanArmIdentity.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanArmIdentity</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#biacromialbreadth">biacromialBreadth</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#bicristalbreadth">bicristalBreadth</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#bideltoidbreadth">bideltoidBreadth</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#buttockdepth">buttockDepth</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#cervicaleheight">cervicaleHeight</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#chestbreadth">chestBreadth</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#chestcircumference">chestCircumference</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#chestdepth">chestDepth</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#hipbreadth">hipBreadth</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#hipcircumference">hipCircumference</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#hipjointcentrebreadth">hipJointCentreBreadth</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#legpair">legPair</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanPair.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanPair</a><span class="tsd-signature-symbol">&lt;</span><a href="_automovie_interface.IAutoMovieHumanLegIdentity.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanLegIdentity</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#neckcircumference">neckCircumference</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#posture">posture</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanPosture.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanPosture</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#sittingheight">sittingHeight</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#span">span</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#stature">stature</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#suprasternaleheight">suprasternaleHeight</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#thyroidangle">thyroidAngle</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#underbustcircumference">underbustCircumference</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#waistbreadth">waistBreadth</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#waistcircumference">waistCircumference</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#waistdepth">waistDepth</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#waistheight">waistHeight</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div>
+<section class="tsd-panel tsd-hierarchy" data-refl="130620">
+<h4>Hierarchy</h4>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><span class="tsd-signature-type">Required</span><span class="tsd-signature-symbol">&lt;</span><br/>    <span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><br/>        <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanBodyAnatomy</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;stature&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;cervicaleHeight&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;suprasternaleHeight&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;acromialHeight&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;biacromialBreadth&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;bideltoidBreadth&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;bicristalBreadth&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;hipBreadth&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;neckCircumference&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;chestCircumference&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;chestBreadth&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;chestDepth&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;underbustCircumference&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;waistCircumference&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;waistHeight&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;waistBreadth&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;waistDepth&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;hipCircumference&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;buttockDepth&quot;</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">&gt;</span>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><span class="tsd-hierarchy-target">IAutoMovieHumanBodyIdentity</span></li></ul></li></ul></section><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts#L20">packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts:20</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#acromialheight" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>acromial<wbr/>Height</span></a>
+<a href="#armpair" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>arm<wbr/>Pair</span></a>
+<a href="#biacromialbreadth" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>biacromial<wbr/>Breadth</span></a>
+<a href="#bicristalbreadth" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>bicristal<wbr/>Breadth</span></a>
+<a href="#bideltoidbreadth" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>bideltoid<wbr/>Breadth</span></a>
+<a href="#buttockdepth" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>buttock<wbr/>Depth</span></a>
+<a href="#cervicaleheight" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>cervicale<wbr/>Height</span></a>
+<a href="#chestbreadth" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>chest<wbr/>Breadth</span></a>
+<a href="#chestcircumference" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>chest<wbr/>Circumference</span></a>
+<a href="#chestdepth" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>chest<wbr/>Depth</span></a>
+<a href="#hipbreadth" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>hip<wbr/>Breadth</span></a>
+<a href="#hipcircumference" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>hip<wbr/>Circumference</span></a>
+<a href="#hipjointcentrebreadth" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>hip<wbr/>Joint<wbr/>Centre<wbr/>Breadth?</span></a>
+<a href="#legpair" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>leg<wbr/>Pair</span></a>
+<a href="#neckcircumference" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>neck<wbr/>Circumference</span></a>
+<a href="#posture" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>posture</span></a>
+<a href="#sittingheight" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sitting<wbr/>Height</span></a>
+<a href="#span" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>span</span></a>
+<a href="#stature" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>stature</span></a>
+<a href="#suprasternaleheight" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>suprasternale<wbr/>Height</span></a>
+<a href="#thyroidangle" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>thyroid<wbr/>Angle</span></a>
+<a href="#underbustcircumference" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>underbust<wbr/>Circumference</span></a>
+<a href="#waistbreadth" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>waist<wbr/>Breadth</span></a>
+<a href="#waistcircumference" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>waist<wbr/>Circumference</span></a>
+<a href="#waistdepth" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>waist<wbr/>Depth</span></a>
+<a href="#waistheight" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>waist<wbr/>Height</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="acromialheight"><span>acromial<wbr/>Height</span><a href="#acromialheight" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">acromialHeight</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Acromial height: the right acromion above the standing surface (ISO
+7250-1 6.1.4 shoulder height; ANSUR II acromial height). ANSUR II:
+1335.1 (58.1) and 1440.7 (63.3). Schema constraints: Minimum: 600; Maximum: 1900; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#acromialheight">acromialHeight</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L149">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:149</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="armpair"><span>arm<wbr/>Pair</span><a href="#armpair" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">armPair</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanPair.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanPair</a><span class="tsd-signature-symbol">&lt;</span><a href="_automovie_interface.IAutoMovieHumanArmIdentity.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanArmIdentity</a><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>Independent arm measurements.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts#L64">packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts:64</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="biacromialbreadth"><span>biacromial<wbr/>Breadth</span><a href="#biacromialbreadth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">biacromialBreadth</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Biacromial breadth: acromion to acromion, the lateral edges of the
+acromial processes, a bony breadth by caliper (ISO 7250-1 6.2.7; ANSUR II
+biacromial breadth). It fixes the shoulder tip, the point the ISO 8559-1
+5.4.3 across back shoulder width projects to the skin. ANSUR 1988:
+362.6 (17.4) and 397.0 (18.0). Schema constraints: Minimum: 200; Maximum: 550; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#biacromialbreadth">biacromialBreadth</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L143">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:143</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="bicristalbreadth"><span>bicristal<wbr/>Breadth</span><a href="#bicristalbreadth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">bicristalBreadth</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Bicristal breadth: between the highest palpable points of the two iliac
+crests, tissue firmly compressed, a bony breadth by caliper (ANSUR II
+bicristal breadth; ANSUR 1988 takes none). It places the iliac crests in
+the skeleton and is not a knot of the skin's outline. ANSUR II: 273.3
+(22.3) and 275.4 (17.5). Schema constraints: Minimum: 50; Maximum: 500; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#bicristalbreadth">bicristalBreadth</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L258">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:258</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="bideltoidbreadth"><span>bideltoid<wbr/>Breadth</span><a href="#bideltoidbreadth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">bideltoidBreadth</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Bideltoid breadth: the maximum horizontal breadth across the deltoid
+muscles, upper arms hanging against the sides, a soft-tissue breadth
+(ISO 7250-1 6.2.8; ANSUR 1988 and ANSUR II bideltoid breadth, seated). It
+is the arms' lateral outline at the deltoids, the shoulder width the front
+view shows; bideltoid over hip breadth is 1.28 in ANSUR II women and 1.48
+in men, the outline's V-taper. ANSUR 1988: 432.6 (22.6) and 491.8
+(25.9); ANSUR II: 450.3 (28.7) and 510.4 (32.5). Schema constraints: Minimum: 90; Maximum: 900; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#bideltoidbreadth">bideltoidBreadth</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L250">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:250</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="buttockdepth"><span>buttock<wbr/>Depth</span><a href="#buttockdepth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">buttockDepth</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Buttock depth: horizontal, from the abdomen to the buttocks' maximum
+posterior protrusion, at the buttock circumference's level, standing
+(ANSUR 1988 and ANSUR II buttock depth). It is the side outline's knot at
+that level. ANSUR 1988: 227.1 (21.0) and 248.6 (20.7); ANSUR II: 232.9
+(24.3) and 245.8 (26.5). Schema constraints: Minimum: 30; Maximum: 800; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#buttockdepth">buttockDepth</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L240">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:240</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="cervicaleheight"><span>cervicale<wbr/>Height</span><a href="#cervicaleheight" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">cervicaleHeight</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Cervicale height: the tip of the seventh cervical vertebra's spinous
+process above the standing surface (ANSUR II cervicale height). With stature and head height it fixes the neck's span. ANSUR II:
+1395.7 (59.5) and 1517.3 (63.3). Schema constraints: Minimum: 650; Maximum: 2000; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#cervicaleheight">cervicaleHeight</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L155">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:155</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="chestbreadth"><span>chest<wbr/>Breadth</span><a href="#chestbreadth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">chestBreadth</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Chest breadth: across the rib cage under the arms at the chest
+circumference's level, by beam caliper at the maximum point of quiet
+respiration (ANSUR 1988 chest breadth), the front outline's knot there.
+ANSUR 1988: 279.6 (19.7) and 321.5 (25.5). ANSUR II takes its chest
+breadth at maximum inspiration with tissue compressed, a different
+measure: 577 of its 4,082 men have a chest girth above the box of that
+breadth and their chest depth, against none in ANSUR 1988
+(<code>test_human_survey_box_consistency</code>). Schema constraints: Minimum: 150; Maximum: 500; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#chestbreadth">chestBreadth</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L186">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:186</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="chestcircumference"><span>chest<wbr/>Circumference</span><a href="#chestcircumference" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">chestCircumference</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Bust (chest) girth: horizontal at the bust point, the most anterior point of the bust or chest (ISO 8559-1 5.3.4). ANSUR 1988: 907.1 (63.5) and 991.4 (69.1). Schema constraints: Minimum: 180; Maximum: 2000; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#chestcircumference">chestCircumference</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L38">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:38</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="chestdepth"><span>chest<wbr/>Depth</span><a href="#chestdepth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">chestDepth</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Chest depth: horizontal, from the most anterior point of the chest, the
+bust in women, to the back, at the chest circumference's level, standing
+(ANSUR 1988 and ANSUR II chest depth). With the chest breadth it is the
+chest's box, the side outline's knot at that level. ANSUR 1988: 239.4
+(21.1) and 243.2 (21.5); ANSUR II: 247.4 and
+253.8 (means). Schema constraints: Minimum: 30; Maximum: 700; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#chestdepth">chestDepth</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L195">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:195</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="hipbreadth"><span>hip<wbr/>Breadth</span><a href="#hipbreadth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">hipBreadth</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Hip breadth: the maximum horizontal breadth across the hips, between the
+most lateral points of the buttocks, standing, soft tissue included (ISO
+7250-1 6.1.12 hip breadth, standing; ANSUR 1988 and ANSUR II hip breadth).
+It is the front outline's knot at its own widest level. ANSUR 1988:
+342.7 (22.4) and 341.8 (20.3); ANSUR II: 353.8
+(26.7) and 345.7 (24.2). Schema constraints: Minimum: 80; Maximum: 800; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#hipbreadth">hipBreadth</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L232">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:232</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="hipcircumference"><span>hip<wbr/>Circumference</span><a href="#hipcircumference" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">hipCircumference</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Hip girth: horizontal at the buttocks' greatest posterior projection (ISO 8559-1 5.3.13; ANSUR 1988 buttock circumference). ANSUR 1988: 966.9 (60.2) and 983.7 (62.2). Schema constraints: Minimum: 200; Maximum: 2200; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#hipcircumference">hipCircumference</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L50">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:50</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="hipjointcentrebreadth"><code class="tsd-tag">Optional</code><span>hip<wbr/>Joint<wbr/>Centre<wbr/>Breadth</span><a href="#hipjointcentrebreadth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">hipJointCentreBreadth</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Horizontal distance between the two hip joint centres in the common rest frame, millimetres. This mechanical breadth is distinct from the palpable iliac-crest breadth and soft-tissue hip breadth. A supplied value remains independent of leg lengths. Schema constraints: ExclusiveMinimum: 0; Maximum: 800; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts#L54">packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts:54</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="legpair"><span>leg<wbr/>Pair</span><a href="#legpair" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">legPair</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanPair.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanPair</a><span class="tsd-signature-symbol">&lt;</span><a href="_automovie_interface.IAutoMovieHumanLegIdentity.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanLegIdentity</a><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>Independent leg measurements.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts#L67">packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts:67</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="neckcircumference"><span>neck<wbr/>Circumference</span><a href="#neckcircumference" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">neckCircumference</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Neck girth: just below the thyroid cartilage, perpendicular to the neck's axis (ISO 8559-1 5.3.2; ANSUR II). ANSUR II: 329.8 (19.2) and 397.6 (25.8). Schema constraints: Minimum: 100; Maximum: 700; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#neckcircumference">neckCircumference</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L56">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:56</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="posture"><span>posture</span><a href="#posture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">posture</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieHumanPosture.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieHumanPosture</a></div>
+<div class="tsd-comment tsd-typography"><p>How the spine, pelvis and head stand in the side view.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts#L61">packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts:61</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="sittingheight"><span>sitting<wbr/>Height</span><a href="#sittingheight" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">sittingHeight</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Sitting height: vertex to the sitting surface, sitting erect, millimetres. Sitting height and standing stature retain their respective postures. Schema constraints: Minimum: 200; Maximum: 1400; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts#L46">packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts:46</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="span"><span>span</span><a href="#span" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">span</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Span: the horizontal distance between the tips of the middle fingers with both arms outstretched sideways at shoulder level, millimetres, as ANSUR II measures it: standing with the back and both arms pressed flat against a wall, palms forward (Hotzman et al. 2011, NATICK/TR-11/017, 6.4.75). Schema constraints: Minimum: 300; Maximum: 2800; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts#L50">packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts:50</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="stature"><span>stature</span><a href="#stature" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">stature</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Stature: the vertex above the standing surface, standing erect (ISO 7250-1 6.1.2; ANSUR II). ANSUR II: 1628.5 (64.2) and 1756.2 (68.6). Schema constraints: Minimum: 400; Maximum: 2500; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#stature">stature</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L35">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:35</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="suprasternaleheight"><span>suprasternale<wbr/>Height</span><a href="#suprasternaleheight" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">suprasternaleHeight</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Suprasternale height: the jugular notch, ISO 8559-1's front neck point,
+above the standing surface (ANSUR 1988 and ANSUR II suprasternale height).
+ANSUR 1988: 1330.3 (56.0) and 1438.4 (59.3). Schema constraints: Minimum: 600; Maximum: 1900; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#suprasternaleheight">suprasternaleHeight</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L169">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:169</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="thyroidangle"><span>thyroid<wbr/>Angle</span><a href="#thyroidangle" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">thyroidAngle</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Thyroid angle: the internal angle between the two laminae of the thyroid cartilage at the level of the vocal folds, degrees. The narrower the angle, the further the laryngeal prominence, the Adam's apple, projects in front of the neck. On computed tomography of 283 people aged 8 to 20 the female mean stayed between 91 and 97 degrees at every age while the male mean fell from 92 to 67, most steeply at 14 to 15 years (Glikson et al. 2017, Laryngoscope 127(10):E354-E358); adult cadaver larynges measure 74.4 in men and 92.4 in women (Rawal et al. 2014, Natl J Integr Res Med 5(3)). Schema constraints: Minimum: 40; Maximum: 140; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts#L58">packages/interface/src/human/body/IAutoMovieHumanBodyIdentity.ts:58</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="underbustcircumference"><span>underbust<wbr/>Circumference</span><a href="#underbustcircumference" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">underbustCircumference</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Under bust girth: horizontal at the inframammary fold (ISO 8559-1 5.3.8; ANSUR 1988 chest circumference below the bust). ANSUR 1988: 769.7 (51.0) and 926.1 (65.5). Schema constraints: Minimum: 150; Maximum: 2000; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#underbustcircumference">underbustCircumference</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L41">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:41</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="waistbreadth"><span>waist<wbr/>Breadth</span><a href="#waistbreadth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">waistBreadth</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Waist breadth: the torso's horizontal breadth at the natural waist, the
+waist circumference's level, standing, tissue uncompressed; the front
+outline's knot there. No survey takes it at this level: ANSUR 1988 and
+ANSUR II take the waist breadth at the navel (ANSUR II: 299.9 and 326.4,
+means), so the default is a derivation: the navel section's
+breadth-on-girth law (ANSUR 1988) at the natural waist girth, 268.0 (20.6)
+and 302.1 (23.6) at the surveyed natural girths. Schema constraints: Minimum: 40; Maximum: 800; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#waistbreadth">waistBreadth</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L214">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:214</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="waistcircumference"><span>waist<wbr/>Circumference</span><a href="#waistcircumference" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">waistCircumference</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Natural waist girth: horizontal at the torso's least girth between the lowest rib and the iliac crest (ANSUR 1988 natural waist circumference). ANSUR 1988: 725.5 (63.0) and 839.9 (74.0). Schema constraints: Minimum: 180; Maximum: 2200; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#waistcircumference">waistCircumference</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L44">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:44</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="waistdepth"><span>waist<wbr/>Depth</span><a href="#waistdepth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">waistDepth</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Waist depth: horizontal, abdomen to back, at the natural waist, the waist
+circumference's level, standing; the side outline's knot there. No survey
+takes it at this level (ANSUR II at the navel: 213.0 and 237.8, means), so
+the default is the navel section's depth-on-girth law (ANSUR 1988) at the
+natural waist girth, 185.6 (17.5) and 220.0 (20.5) at the surveyed natural
+girths. Schema constraints: Minimum: 30; Maximum: 800; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#waistdepth">waistDepth</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L223">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:223</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="waistheight"><span>waist<wbr/>Height</span><a href="#waistheight" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">waistHeight</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Natural waist height: the level of the waist circumference above the
+standing surface (ANSUR 1988 waist height, natural indentation: the
+torso's greatest lateral indentation, or midway between the tenth rib and
+iliocristale where none is clear). The waist breadth and depth are taken
+at this level. ANSUR 1988: 1056.5 (51.7) and 1127.1 (52.0), at or just
+above the tenth rib (1044 and 1121) and 74 and 68 mm above the navel. Schema constraints: Minimum: 150; Maximum: 1600; retained by Human's schema refinement.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html">IAutoMovieHumanBodyAnatomy</a>.<a href="_automovie_interface.IAutoMovieHumanBodyAnatomy.html#waistheight">waistHeight</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts#L204">packages/interface/src/human/body/IAutoMovieHumanBodyAnatomy.ts:204</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#acromialheight" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>acromial<wbr/>Height</span></a><a href="#armpair"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>arm<wbr/>Pair</span></a><a href="#biacromialbreadth" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>biacromial<wbr/>Breadth</span></a><a href="#bicristalbreadth" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>bicristal<wbr/>Breadth</span></a><a href="#bideltoidbreadth" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>bideltoid<wbr/>Breadth</span></a><a href="#buttockdepth" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>buttock<wbr/>Depth</span></a><a href="#cervicaleheight" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>cervicale<wbr/>Height</span></a><a href="#chestbreadth" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>chest<wbr/>Breadth</span></a><a href="#chestcircumference" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>chest<wbr/>Circumference</span></a><a href="#chestdepth" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>chest<wbr/>Depth</span></a><a href="#hipbreadth" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>hip<wbr/>Breadth</span></a><a href="#hipcircumference" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>hip<wbr/>Circumference</span></a><a href="#hipjointcentrebreadth"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>hip<wbr/>Joint<wbr/>Centre<wbr/>Breadth</span></a><a href="#legpair"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>leg<wbr/>Pair</span></a><a href="#neckcircumference" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>neck<wbr/>Circumference</span></a><a href="#posture"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>posture</span></a><a href="#sittingheight"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sitting<wbr/>Height</span></a><a href="#span"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>span</span></a><a href="#stature" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>stature</span></a><a href="#suprasternaleheight" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>suprasternale<wbr/>Height</span></a><a href="#thyroidangle"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>thyroid<wbr/>Angle</span></a><a href="#underbustcircumference" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>underbust<wbr/>Circumference</span></a><a href="#waistbreadth" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>waist<wbr/>Breadth</span></a><a href="#waistcircumference" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>waist<wbr/>Circumference</span></a><a href="#waistdepth" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>waist<wbr/>Depth</span></a><a href="#waistheight" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>waist<wbr/>Height</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

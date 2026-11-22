@@ -1,0 +1,212 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>revolveAutoMovieProfile | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">revolveAutoMovieProfile</a></li></ul>
+<h1>Variable revolveAutoMovieProfile<code class="tsd-tag">Const</code></h1></div>
+<div class="tsd-signature"><span class="tsd-kind-variable">revolveAutoMovieProfile</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieRevolveProfile.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieRevolveProfile</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieRevolveProfile.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_interface.IAutoMovieMesh.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMesh</a><span class="tsd-signature-symbol"> = ...</span></div>
+<div class="tsd-comment tsd-typography"><p>Revolve a radius/height profile around local Y into a closed surface.</p>
+<p>Each profile point is <code>x</code> = radius and <code>y</code> = height, in metres. Unlike
+extrusion and sweep, the meridian is taken as authored rather than hulled, so
+an arbitrary silhouette polyline is allowed here; only its radii must be
+non-negative. Profile order owns the surface orientation, and every output
+buffer is new.</p>
+<p>Closure follows the meridian and is the caller's to declare: a meridian that
+starts and ends on the axis closes into a solid whose pole rings collapse to
+zero-area triangles, and one that does not is an open tube with a rim at each
+end. Neither is repaired.</p>
+<p>The surface carries a metric atlas measured the way its siblings measure
+theirs: distance travelled around the section against distance travelled
+along the path. Around is the arc the vertex actually sits on, <code>theta</code> times
+its own radius, so a baluster turned to a 0.3 m radius shows 1.88 m of grain
+around it rather than one turn of an image stretched to fit it. Along is the
+meridian's own polyline length, which is slant distance on a cone and
+developed height on a cylinder rather than the shortcut through the axis.</p>
+<p>Around runs against the direction the lattice is built in, and that is the
+whole reason it is written <code>2 * pi - theta</code> rather than <code>theta</code>. The outward
+normal this winding produces, the meridian running up, and <code>theta</code> running
+round form a left-handed triple, so an atlas keyed on <code>theta</code> directly comes
+out mirrored against every other builder here: a letter reads backwards, and
+a normal map's tangent basis is handed the wrong way, which tilts the
+lighting rather than merely the image. Reversing the axis that closes on
+itself costs nothing an author can name, because which way round a surface of
+revolution is traversed carries no authored meaning, while reversing the
+meridian instead would put <code>v = 0</code> at whichever end of the profile was typed
+last.</p>
+<p>The lattice carries a duplicate ring at <code>theta = 2 * pi</code>, which is what makes
+the seam an honest cut: one edge of the seam reads zero and the other reads
+the full circumference at that radius, so the closing quad never
+interpolates backwards through the atlas. Those two phases coincide only
+when the declared texture repeat divides that circumference; the kernel does
+not stretch a finish to hide a mismatched seam. A changing radius also makes
+the surface non-developable in general. Scaling by radius preserves local
+circumference scale on every parallel and therefore shears the flat atlas
+between unequal parallels instead of pretending one global isometry exists.
+A meridian point on the axis is a pole, and its whole ring reads zero around,
+because a circle of no radius has no arc to travel. Its collapsed triangles
+remain the topology this operator declares; their UVs stay finite, and they
+are the one place the atlas has no handedness to report. The duplicate seam
+vertices share their accumulated face normals before normalization, and every
+duplicate of an axis pole shares that pole's normal as well, so the UV cut
+does not introduce a lighting discontinuity.</p>
+<p>How far that shear goes decides what finish the surface can carry. The map
+is exactly equiareal, its Jacobian determinant one everywhere, so the whole
+distortion is pure shear of <code>2 * pi - theta</code> times <code>dr / ds</code>. Worst
+anisotropy over a full turn is therefore
+<code>(sqrt(k * k + 4) + k) / (sqrt(k * k + 4) - k)</code> at <code>k = 2 * pi * |dr / ds|</code>:
+1.0 on a cylinder, 2.0 at 6.5 degrees off the axis, 4.0 at 13.8 degrees, 21.5
+on a 45-degree cone, and 41 where the meridian runs level, which is what a
+dome's pole and a cone's tip approach. A tile that reads square beside the
+seam is drawn into a ribbon a quarter turn away, and the curve of constant
+<code>u</code> spirals instead of following a meridian.</p>
+<p>That is the price of the metric statement rather than a defect awaiting
+repair. Measuring true arc around forces <code>u</code> to be <code>theta * r</code> plus some
+<code>c(s)</code>, whose derivative would have to be <code>-theta * dr / ds</code> to cancel the
+shear, and no function of <code>s</code> alone does that at every <code>theta</code>. Choosing
+<code>c(s)</code> only moves where the shear vanishes, which is why it sits at the seam
+here; centring it would halve the worst case to 11.8 at a pole, still far
+past readable. The pole is not a second fault: cut the tip off a cone and the
+frustum that remains shears exactly as hard, so the collapsed pole triangles
+above are a topology note rather than the cause.</p>
+<p>A directional finish therefore wants a meridian within a few degrees of the
+axis, which is a drum, a shaft, a turret barrel. A sloped or domed form that
+must carry one is authored as flat faces through
+<a href="../functions/_automovie_engine.buildAutoMoviePolyhedron.html" class="tsd-kind-function">buildAutoMoviePolyhedron</a>, whose per-face frame is isometric, or as a
+flat cap through <a href="../functions/_automovie_engine.extrudeAutoMovieRegion.html" class="tsd-kind-function">extrudeAutoMovieRegion</a>, and a spire built as facets
+is how a spire is built anyway. <a href="_automovie_engine.meshAutoMovieSweep.html" class="tsd-kind-variable">meshAutoMovieSweep</a> is not the
+escape here that it is for the coordinate-less builders. It measures this
+same pair, a tapered loft shears the same way, and it gives up something this
+one keeps: the map here is exactly equiareal, while a loft's <code>v</code> is path
+distance rather than surface distance, so a taper or a bend costs it texel
+density on top of the angle. Where the form has to stay a true surface of
+revolution, the finish on it stays non-directional.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="__type"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieRevolveProfile.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieRevolveProfile</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieRevolveProfile.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieMesh.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMesh</a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">props</span>: <a href="../modules/_automovie_interface.IAutoMovieRevolveProfile.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieRevolveProfile</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieRevolveProfile.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a></span>
+<div class="tsd-comment tsd-typography"><p>A radius/height meridian for an authored lateral surface around local Y.</p>
+<p>Each profile point is <code>x</code> = radius and <code>y</code> = height, in metres. Unlike
+extrusion and sweep, the meridian is taken as authored rather than hulled, so
+an arbitrary silhouette polyline is allowed here; only its radii must be
+non-negative. Profile order owns the surface orientation, and every output
+buffer is new.</p>
+<p>Closure follows the meridian and is the caller's to declare: a meridian that
+starts and ends on the axis closes into a solid whose pole rings collapse to
+zero-area triangles, and one that does not is an open tube with a rim at each
+end. Neither is repaired.</p>
+<p>The surface carries a metric atlas measured the way its siblings measure
+theirs: distance travelled around the section against distance travelled
+along the path. Around is the arc the vertex actually sits on, <code>theta</code> times
+its own radius, so a baluster turned to a 0.3 m radius shows 1.88 m of grain
+around it rather than one turn of an image stretched to fit it. Along is the
+meridian's own polyline length, which is slant distance on a cone and
+developed height on a cylinder rather than the shortcut through the axis.</p>
+<p>Around runs against the direction the lattice is built in, and that is the
+whole reason it is written <code>2 * pi - theta</code> rather than <code>theta</code>. The outward
+normal this winding produces, the meridian running up, and <code>theta</code> running
+round form a left-handed triple, so an atlas keyed on <code>theta</code> directly comes
+out mirrored against every other builder here: a letter reads backwards, and
+a normal map's tangent basis is handed the wrong way, which tilts the
+lighting rather than merely the image. Reversing the axis that closes on
+itself costs nothing an author can name, because which way round a surface of
+revolution is traversed carries no authored meaning, while reversing the
+meridian instead would put <code>v = 0</code> at whichever end of the profile was typed
+last.</p>
+<p>The lattice carries a duplicate ring at <code>theta = 2 * pi</code>, which is what makes
+the seam an honest cut: one edge of the seam reads zero and the other reads
+the full circumference at that radius, so the closing quad never
+interpolates backwards through the atlas. Those two phases coincide only
+when the declared texture repeat divides that circumference; the kernel does
+not stretch a finish to hide a mismatched seam. A changing radius also makes
+the surface non-developable in general. Scaling by radius preserves local
+circumference scale on every parallel and therefore shears the flat atlas
+between unequal parallels instead of pretending one global isometry exists.
+A meridian point on the axis is a pole, and its whole ring reads zero around,
+because a circle of no radius has no arc to travel. Its collapsed triangles
+remain the topology this operator declares; their UVs stay finite, and they
+are the one place the atlas has no handedness to report. The duplicate seam
+vertices share their accumulated face normals before normalization, and every
+duplicate of an axis pole shares that pole's normal as well, so the UV cut
+does not introduce a lighting discontinuity.</p>
+<p>How far that shear goes decides what finish the surface can carry. The map
+is exactly equiareal, its Jacobian determinant one everywhere, so the whole
+distortion is pure shear of <code>2 * pi - theta</code> times <code>dr / ds</code>. Worst
+anisotropy over a full turn is therefore
+<code>(sqrt(k * k + 4) + k) / (sqrt(k * k + 4) - k)</code> at <code>k = 2 * pi * |dr / ds|</code>:
+1.0 on a cylinder, 2.0 at 6.5 degrees off the axis, 4.0 at 13.8 degrees, 21.5
+on a 45-degree cone, and 41 where the meridian runs level, which is what a
+dome's pole and a cone's tip approach. A tile that reads square beside the
+seam is drawn into a ribbon a quarter turn away, and the curve of constant
+<code>u</code> spirals instead of following a meridian.</p>
+<p>That is the price of the metric statement rather than a defect awaiting
+repair. Measuring true arc around forces <code>u</code> to be <code>theta * r</code> plus some
+<code>c(s)</code>, whose derivative would have to be <code>-theta * dr / ds</code> to cancel the
+shear, and no function of <code>s</code> alone does that at every <code>theta</code>. Choosing
+<code>c(s)</code> only moves where the shear vanishes, which is why it sits at the seam
+here; centring it would halve the worst case to 11.8 at a pole, still far
+past readable. The pole is not a second fault: cut the tip off a cone and the
+frustum that remains shears exactly as hard, so the collapsed pole triangles
+above are a topology note rather than the cause.</p>
+<p>A directional finish therefore wants a meridian within a few degrees of the
+axis, which is a drum, a shaft, a turret barrel. A sloped or domed form that
+must carry one is authored as flat faces through
+<code>buildAutoMoviePolyhedron</code>, whose per-face frame is isometric, or as a
+flat cap through <code>extrudeAutoMovieRegion</code>, and a spire built as facets
+is how a spire is built anyway. <code>meshAutoMovieSweep</code> is not the
+escape here that it is for the coordinate-less builders. It measures this
+same pair, a tapered loft shears the same way, and it gives up something this
+one keeps: the map here is exactly equiareal, while a loft's <code>v</code> is path
+distance rather than surface distance, so a taper or a bend costs it texel
+density on top of the angle. Where the form has to stay a true surface of
+revolution, the finish on it stays non-directional.</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5 id="profile"><span class="tsd-kind-property">profile</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMovieProfilePoint.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieProfilePoint</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Borrowed ordered meridian with at least two finite radius/height points in metres; radius x is nonnegative. Authored order sets winding; ends off the axis remain open rims.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="segments"><span class="tsd-kind-property">segments</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Safe integer of at least three angular intervals over 2 pi; checked before allocation. One extra duplicate ring carries the UV seam.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_interface.IAutoMovieMesh.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMesh</a></h4><p>A new unskinned mesh of <code>(segments + 1) * profile.length</code> vertices and <code>2 * segments * (profile.length - 1)</code> triangles, with smooth normals and the metric atlas above.</p>
+</li></ul></li></ul></div>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-throws">
+<h4 class="tsd-anchor-link" id="throws">Throws<a href="#throws" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>Error when the profile has fewer than two points, a coordinate is not finite, a radius is negative, or <code>segments</code> is not a safe integer of at least 3.</p>
+</div></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/geometry/revolveAutoMovieProfile.ts#L109">packages/engine/src/geometry/revolveAutoMovieProfile.ts:109</a></li></ul></aside></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

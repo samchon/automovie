@@ -1,0 +1,269 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieRenderTextureSource | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieRenderTextureSource</a></li></ul>
+<h1>Interface IAutoMovieRenderTextureSource</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>One texture asset's decoded upload facts, supplied by its capture host.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IAutoMovieRenderTextureSource</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#allocationstateknown">allocationStateKnown</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#asset">asset</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#colorspace">colorSpace</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;srgb&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linear-environment&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#environmentbackgroundformat">environmentBackgroundFormat</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;rgba8&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rgba16f&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rgba32f&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#environmentcolorspace">environmentColorSpace</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;srgb&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linear-environment&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#environmentsampler">environmentSampler</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">magFilter</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">minFilter</span><span class="tsd-signature-symbol">:</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linear&quot;</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearestMipmapLinear&quot;</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linearMipmapLinear&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">wrapS</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">wrapT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#environmentsamplerstate">environmentSamplerState</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#explicitmipmaps">explicitMipmaps</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#format">format</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;rgba8&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rgba16f&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rgba32f&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;r16f&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rg16f&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#generatemipmaps">generateMipmaps</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#height">height</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#mipmapped">mipmapped</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#sampler">sampler</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">magFilter</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">minFilter</span><span class="tsd-signature-symbol">:</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linear&quot;</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearestMipmapLinear&quot;</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linearMipmapLinear&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">wrapS</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">wrapT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#samplerstate">samplerState</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#sourceidentity">sourceIdentity</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#textureidentity">textureIdentity</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#uploadstate">uploadState</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#width">width</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L12">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:12</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#allocationstateknown" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>allocation<wbr/>State<wbr/>Known?</span></a>
+<a href="#asset" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>asset</span></a>
+<a href="#colorspace" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>color<wbr/>Space?</span></a>
+<a href="#environmentbackgroundformat" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>environment<wbr/>Background<wbr/>Format?</span></a>
+<a href="#environmentcolorspace" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>environment<wbr/>Color<wbr/>Space?</span></a>
+<a href="#environmentsampler" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>environment<wbr/>Sampler?</span></a>
+<a href="#environmentsamplerstate" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>environment<wbr/>Sampler<wbr/>State?</span></a>
+<a href="#explicitmipmaps" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>explicit<wbr/>Mipmaps?</span></a>
+<a href="#format" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>format?</span></a>
+<a href="#generatemipmaps" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>generate<wbr/>Mipmaps?</span></a>
+<a href="#height" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>height</span></a>
+<a href="#mipmapped" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>mipmapped</span></a>
+<a href="#sampler" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sampler?</span></a>
+<a href="#samplerstate" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sampler<wbr/>State?</span></a>
+<a href="#sourceidentity" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>source<wbr/>Identity?</span></a>
+<a href="#textureidentity" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>texture<wbr/>Identity?</span></a>
+<a href="#uploadstate" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>upload<wbr/>State?</span></a>
+<a href="#width" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>width</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="allocationstateknown"><code class="tsd-tag">Optional</code><span>allocation<wbr/>State<wbr/>Known</span><a href="#allocationstateknown" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">allocationStateKnown</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>Whether reported current fields can certify native allocation state.
+False leaves storage and sharing/cardinality unknown. Omission preserves
+legacy fresh-context facts; this never replaces missing sampler or identity
+authority. Metadata-only manual layouts cannot certify cached native keys
+after the SDK mutates their generation flag during upload.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L20">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:20</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="asset"><span>asset</span><a href="#asset" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">asset</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Project asset id, as a material binding cites it.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L116">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:116</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="colorspace"><code class="tsd-tag">Optional</code><span>color<wbr/>Space</span><a href="#colorspace" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">colorSpace</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;srgb&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linear-environment&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>Actual inherited upload decoding. Linear material data uses NoColorSpace;
+linear image lighting uses LinearSRGBColorSpace, a distinct native key.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L26">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:26</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="environmentbackgroundformat"><code class="tsd-tag">Optional</code><span>environment<wbr/>Background<wbr/>Format</span><a href="#environmentbackgroundformat" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">environmentBackgroundFormat</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;rgba8&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rgba16f&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rgba32f&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>Owned sharp-background cube color storage, observed from the source's
+component type and the renderer's RGBA cube factory. The factory inherits
+component type but does not inherit raw channel count or internal format.
+Existing cached conversions require an unchanged owned creation tuple;
+current mutable source properties alone cannot certify those allocations.
+Changed or unsuccessfully retired conversions set allocationStateKnown
+false even when this prospective factory format remains reportable.
+Missing or unsupported output facts leave required cube bytes unknown.
+This is a host runtime fact, never an author-entered byte estimate.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L45">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:45</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="environmentcolorspace"><code class="tsd-tag">Optional</code><span>environment<wbr/>Color<wbr/>Space</span><a href="#environmentcolorspace" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">environmentColorSpace</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;srgb&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linear-environment&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>Scene image-lighting decoding selected from the actual component type.
+Explicit internal storage width does not override that decoding decision.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L32">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:32</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="environmentsampler"><code class="tsd-tag">Optional</code><span>environment<wbr/>Sampler</span><a href="#environmentsampler" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">environmentSampler</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">magFilter</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">minFilter</span><span class="tsd-signature-symbol">:</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linear&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearestMipmapLinear&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linearMipmapLinear&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">wrapS</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">wrapT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-comment tsd-typography"><p>Sampling intent of the host's sharp-background conversion. The native
+factory may first upload a configured mip-linear image with a linear
+filter, then restore the property without changing its cached upload key.
+Closure retains configured and factory choices as a conservative union;
+this does not claim either choice is the currently allocated native key.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">magFilter</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Filtering when source texels are enlarged.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">minFilter</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearestMipmapLinear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linearMipmapLinear&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Filtering when the image occupies fewer pixels than its source.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">wrapS</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Addressing beyond the horizontal unit interval.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">wrapT</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Addressing beyond the vertical unit interval.</p>
+</div></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L54">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:54</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="environmentsamplerstate"><code class="tsd-tag">Optional</code><span>environment<wbr/>Sampler<wbr/>State</span><a href="#environmentsamplerstate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">environmentSamplerState</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Native factory sampling key for choices outside the authorable sampler
+union. Null explicitly leaves that intent uncertified. Missing factory
+facts cannot certify an inherited or mip-linear environment sampler;
+known legacy non-mip-linear sampling needs no alternate conversion key.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L62">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:62</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="explicitmipmaps"><code class="tsd-tag">Optional</code><span>explicit<wbr/>Mipmaps</span><a href="#explicitmipmaps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">explicitMipmaps</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>More than one explicit decoded mip level is already present on the source.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L113">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:113</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="format"><code class="tsd-tag">Optional</code><span>format</span><a href="#format" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">format</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">&quot;rgba8&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rgba16f&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rgba32f&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;r16f&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;rg16f&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>Actual supported uncompressed R16F, RG16F or RGBA layout from the decode host.
+Omission leaves device bytes unknown; dimensions alone do not identify HDR
+component storage. Authors do not supply this as a material parameter.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L88">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:88</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="generatemipmaps"><code class="tsd-tag">Optional</code><span>generate<wbr/>Mipmaps</span><a href="#generatemipmaps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">generateMipmaps</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>The source object's generation flag, when the host reports it. Native
+generation retains a chain even when a binding samples only its base.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L108">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:108</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="height"><span>height</span><a href="#height" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Decoded height in pixels, a positive integer.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L122">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:122</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="mipmapped"><span>mipmapped</span><a href="#mipmapped" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">mipmapped</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>Whether the renderer uploads a full mip chain. A mipmapped 2D texture costs
+integer-halved levels down to one texel on each axis. Non-square and
+non-power-of-two chains are counted from those extents, not a multiplier.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L129">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:129</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="sampler"><code class="tsd-tag">Optional</code><span>sampler</span><a href="#sampler" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">sampler</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">magFilter</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">minFilter</span><span class="tsd-signature-symbol">:</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linear&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearestMipmapLinear&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linearMipmapLinear&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">wrapS</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">wrapT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-comment tsd-typography"><p>The decoded source's inherited sampler, reported by its host when known.
+Binding samplers replace it; UV transforms do not replace upload state.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">magFilter</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Filtering when source texels are enlarged.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">minFilter</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearestMipmapLinear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linearMipmapLinear&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Filtering when the image occupies fewer pixels than its source.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">wrapS</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Addressing beyond the horizontal unit interval.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">wrapT</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Addressing beyond the vertical unit interval.</p>
+</div></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L94">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:94</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="samplerstate"><code class="tsd-tag">Optional</code><span>sampler<wbr/>State</span><a href="#samplerstate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">samplerState</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Actual native sampler key when the host observed it. A null value means
+unsupported native sampling; omission retains legacy unreported facts.
+The key preserves supported renderer filters absent from the authorable
+sampler union. A fully declared binding sampler replaces inherited state.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L102">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:102</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="sourceidentity"><code class="tsd-tag">Optional</code><span>source<wbr/>Identity</span><a href="#sourceidentity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">sourceIdentity</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Opaque equality token for the host's actual decoded Source object. Tokens
+have no persistent meaning; target identity records their sharing relation
+rather than their random spelling. Multiple live scopes require this fact.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L69">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:69</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="textureidentity"><code class="tsd-tag">Optional</code><span>texture<wbr/>Identity</span><a href="#textureidentity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">textureIdentity</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Opaque equality token for the actual Texture object. Environment derivatives
+are cached by this object, including independently configured clones.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L75">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:75</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="uploadstate"><code class="tsd-tag">Optional</code><span>upload<wbr/>State</span><a href="#uploadstate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">uploadState</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Canonical inherited upload flags reported by the host. Binding-controlled
+sampling and color decoding are accounted separately; UVs are excluded.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L81">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:81</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="width"><span>width</span><a href="#width" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Decoded width in pixels, a positive integer.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/render/IAutoMovieRenderTextureSource.ts#L119">packages/interface/src/render/IAutoMovieRenderTextureSource.ts:119</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#allocationstateknown"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>allocation<wbr/>State<wbr/>Known</span></a><a href="#asset"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>asset</span></a><a href="#colorspace"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>color<wbr/>Space</span></a><a href="#environmentbackgroundformat"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>environment<wbr/>Background<wbr/>Format</span></a><a href="#environmentcolorspace"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>environment<wbr/>Color<wbr/>Space</span></a><a href="#environmentsampler"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>environment<wbr/>Sampler</span></a><a href="#environmentsamplerstate"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>environment<wbr/>Sampler<wbr/>State</span></a><a href="#explicitmipmaps"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>explicit<wbr/>Mipmaps</span></a><a href="#format"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>format</span></a><a href="#generatemipmaps"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>generate<wbr/>Mipmaps</span></a><a href="#height"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>height</span></a><a href="#mipmapped"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>mipmapped</span></a><a href="#sampler"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sampler</span></a><a href="#samplerstate"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sampler<wbr/>State</span></a><a href="#sourceidentity"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>source<wbr/>Identity</span></a><a href="#textureidentity"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>texture<wbr/>Identity</span></a><a href="#uploadstate"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>upload<wbr/>State</span></a><a href="#width"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>width</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

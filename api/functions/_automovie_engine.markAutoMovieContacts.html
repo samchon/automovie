@@ -1,0 +1,77 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>markAutoMovieContacts | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">markAutoMovieContacts</a></li></ul>
+<h1>Function markAutoMovieContacts</h1></div>
+<section class="tsd-panel">
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="markautomoviecontacts"><span class="tsd-kind-call-signature">markAutoMovieContacts</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMarkContacts.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMarkContacts</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieMarkContacts.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieMark.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMark</a><span class="tsd-signature-symbol">[]</span><a href="#markautomoviecontacts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Turn the solved contacts acting at one second into inspection marks: for each contact, one arrow per collider at the contact point, along the force that collider receives, as long as the mean force times a stated scale.</p>
+<p>A receipt acts at <code>seconds</code> when the solver measured it: its latest completed step at or before <code>seconds</code>, within that step's duration, has a positive finite impulse and no positive separation. Both arrows start at that step's point and are <code>metresPerNewton</code> times the step's mean force, its impulse over its duration, long. The first collider's arrow points against the step's normal and the second collider's along it, because the normal runs from the first toward the second and each is pushed away from the other. Geometric receipts, which assert no impulse, draw nothing.</p>
+<p>Each mark has kind <code>contact</code>, label <code>contact force</code>, colour teal <code>00c2a8</code> and the path <code>&lt;body&gt;/&lt;bone&gt;/contact/&lt;receipt id&gt;</code> of the collider it acts on, first collider first, in world metres and unanchored, so selecting a body selects the force it received whatever order the receipt names the pair in. A collider's mark is flagged when <code>ownership</code> shows its segment dynamic at the step, its segment's latest event at or before the step being <code>dynamic</code>, and the step states that it received none of the solved impulse, as when an exaggerated mode's response rounds the impulse to zero: the solver measured a force that body never felt. The compliant solver gives a static or kinematic side no impulse by design and states zero for it, so such a side, including a segment without history such as the floor, is never flagged; a step without the statement is a direct native measurement and is not flagged; without <code>ownership</code> no mark is flagged, because a stated zero alone cannot tell a rounded dynamic body from a static one.</p>
+<p>A rigid impact arrests a body within one step, so its mean force can be tens of times its resting weight and no single scale draws both inside a frame. With <code>maximumLength</code>, an arrow that would be longer keeps its direction and is drawn at that length under kind <code>contact/clamped</code>, colour dark teal <code>007a6a</code> and label <code>contact force clamped at &lt;length&gt; m (at least &lt;length / metresPerNewton&gt; N)</code>, so a clamped arrow is never read at its drawn length; <code>marks=contact</code> still selects it, because the kind lies beneath <code>contact</code>. Clamping is not an anomaly and leaves the flag to the transfer rule.</p>
+<p>It throws for a scale or a maximum length that is not positive and finite and for an acting step without a positive duration.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">props</span>: <a href="../modules/_automovie_interface.IAutoMovieMarkContacts.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMarkContacts</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieMarkContacts.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a></span>
+<div class="tsd-comment tsd-typography"><p>Turn the solved contacts acting at one second into inspection marks: for each contact, one arrow per collider at the contact point, along the force that collider receives, as long as the mean force times a stated scale.</p>
+<p>A receipt acts at <code>seconds</code> when the solver measured it: its latest completed step at or before <code>seconds</code>, within that step's duration, has a positive finite impulse and no positive separation. Both arrows start at that step's point and are <code>metresPerNewton</code> times the step's mean force, its impulse over its duration, long; the first collider's points against the normal and the second's along it. Geometric receipts, which assert no impulse, draw nothing.</p>
+<p>Each mark has kind <code>contact</code>, label <code>contact force</code>, colour teal <code>00c2a8</code> and the path <code>&lt;body&gt;/&lt;bone&gt;/contact/&lt;receipt id&gt;</code> of the collider it acts on, first collider first, in world metres and unanchored. A collider's mark is flagged when <code>ownership</code> shows its segment dynamic at the step and the step states that it received none of the solved impulse, as when an exaggerated mode's response rounds it to zero. A static or kinematic side never receives a compliant impulse, so its stated zero is not flagged; without <code>ownership</code> no mark is flagged.</p>
+<p>With <code>maximumLength</code>, an arrow that would be longer keeps its direction, is drawn at that length, and takes kind <code>contact/clamped</code>, colour dark teal <code>007a6a</code> and a label stating the length and the least force it stands for, so a clamped arrow is never read at its drawn length; <code>marks=contact</code> still selects it.</p>
+<p>It throws for a scale or a maximum length that is not positive and finite and for an acting step without a positive duration.</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5 id="maximumlength"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">maximumLength</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Longest drawn arrow, metres; a longer arrow is drawn at this length as <code>contact/clamped</code>. Absent, every arrow keeps its scaled length. markAutoMovieContacts rejects nonfinite or nonpositive values.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="metrespernewton"><span class="tsd-kind-property">metresPerNewton</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Arrow length per newton of mean force, metres/newton; markAutoMovieContacts rejects nonfinite or nonpositive values.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="ownership"><code class="tsd-tag">Optional</code><span class="tsd-kind-property">ownership</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMoviePhysicalOwnershipEvent.html" class="tsd-signature-type tsd-kind-interface">IAutoMoviePhysicalOwnershipEvent</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Borrowed ownership history of the same cache or playback, in producer order; a side is dynamic at a step when its segment's latest event at or before the step (with 1e-9-second tolerance) is <code>dynamic</code>. A segment without history, such as the floor, is static. Absent, no mark is flagged.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="receipts"><span class="tsd-kind-property">receipts</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMovieContactReceipt.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieContactReceipt</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Borrowed receipts; only solver receipts with samples are drawn. Samples must be ordered by time because lookup scans backwards. Empty input returns no marks.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="seconds"><span class="tsd-kind-property">seconds</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Sample time in seconds on the receipts' clock. A step applies from its timestamp (with 1e-9-second lookup tolerance) until, but not including, timestamp plus duration.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_interface.IAutoMovieMark.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMark</a><span class="tsd-signature-symbol">[]</span></h4><p>Two marks per acting contact, in the receipts' order.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/composition/markAutoMovieContacts.ts#L34">packages/engine/src/composition/markAutoMovieContacts.ts:34</a></li></ul></aside></div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

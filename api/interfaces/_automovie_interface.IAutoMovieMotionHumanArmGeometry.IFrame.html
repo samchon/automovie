@@ -1,0 +1,215 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IFrame | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="../modules/_automovie_interface.IAutoMovieMotionHumanArmGeometry.html">IAutoMovieMotionHumanArmGeometry</a></li>
+<li><a href="" aria-current="page">IFrame</a></li></ul>
+<h1>Interface IFrame</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>What the arm is read against at one instant (HumanArmFrame.of).
+The frame is memoised by base-object identity, upper-arm bone and alone flag.
+Mutating the base or body does not invalidate that cache: producers and consumers
+must keep the borrowed input geometry and returned arrays stable during reuse.
+surface, owners, segments and corners have equal lengths and correspond by index.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IFrame</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#body">body</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">bone</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">corner</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">part</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">point</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#bounds">bounds</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><br/>        <span class="tsd-signature-type">&quot;upper&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;lower&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;hand&quot;</span><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">centre</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">radius</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#colliders">colliders</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">bone</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">owner</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;upper&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;lower&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;hand&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">part</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">pose</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieRigidTransform.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRigidTransform</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">shapes</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-keyword">readonly</span> <a href="../types/_automovie_interface.IAutoMoviePhysicalShape.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMoviePhysicalShape</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#corners">corners</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#owners">owners</a><span class="tsd-signature-symbol">:</span> (<span class="tsd-signature-type">&quot;upper&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;lower&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;hand&quot;</span>)<span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#parent">parent</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">rotation</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#related">related</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#resting">resting</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ReadonlySet</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#segments">segments</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#shapes">shapes</a><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanArmGeometry.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanArmGeometry</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanArmGeometry.IShape.html" class="tsd-signature-type tsd-kind-interface">IShape</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#shoulder">shoulder</a><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#surface">surface</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#tip">tip</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L112">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:112</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#body" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>body</span></a>
+<a href="#bounds" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>bounds</span></a>
+<a href="#colliders" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>colliders</span></a>
+<a href="#corners" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>corners</span></a>
+<a href="#owners" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>owners</span></a>
+<a href="#parent" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>parent</span></a>
+<a href="#related" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>related</span></a>
+<a href="#resting" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>resting</span></a>
+<a href="#segments" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>segments</span></a>
+<a href="#shapes" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>shapes</span></a>
+<a href="#shoulder" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>shoulder?</span></a>
+<a href="#surface" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>surface</span></a>
+<a href="#tip" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>tip</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="body"><span>body</span><a href="#body" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">body</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">bone</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">corner</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">part</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">point</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>World collider corners outside the moving arms, including external bodies.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">bone</span><span class="tsd-signature-symbol">: </span><a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a></h5>
+<div class="tsd-comment tsd-typography"><p>Bone carrying the obstacle collider probe.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">corner</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Zero-based probe index within that collider part.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">part</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Zero-based collider-part index in the combined own-body then external-body audit table.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">point</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></h5>
+<div class="tsd-comment tsd-typography"><p>Obstacle probe position in world metres.</p>
+</div></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L164">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:164</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="bounds"><span>bounds</span><a href="#bounds" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">bounds</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><br/>    <span class="tsd-signature-type">&quot;upper&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;lower&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;hand&quot;</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">centre</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">radius</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>Broad-phase spheres about each segment's local surface probes.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L130">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:130</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="colliders"><span>colliders</span><a href="#colliders" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">colliders</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">bone</span><span class="tsd-signature-symbol">:</span> <a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">owner</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;upper&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;lower&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;hand&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">part</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">pose</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieRigidTransform.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRigidTransform</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">shapes</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-keyword">readonly</span> <a href="../types/_automovie_interface.IAutoMoviePhysicalShape.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMoviePhysicalShape</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Actual arm colliders in their carrying arm segment's local frame.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">bone</span><span class="tsd-signature-symbol">: </span><a href="../types/_automovie_interface.AutoMovieHumanoidBone.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieHumanoidBone</a></h5>
+<div class="tsd-comment tsd-typography"><p>Its rig bone.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">owner</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;upper&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;lower&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;hand&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The segment carrying this collider.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">part</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Its own-body audit part.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">pose</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.IAutoMovieRigidTransform.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRigidTransform</a></h5>
+<div class="tsd-comment tsd-typography"><p>Its pose relative to the carrying arm segment.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">shapes</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-keyword">readonly</span> <a href="../types/_automovie_interface.IAutoMoviePhysicalShape.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMoviePhysicalShape</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Its borrowed physical shapes.</p>
+</div></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L149">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:149</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="corners"><span>corners</span><a href="#corners" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">corners</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Each surface probe's corner index within that part.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L142">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:142</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="owners"><span>owners</span><a href="#owners" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">owners</span><span class="tsd-signature-symbol">:</span> (<span class="tsd-signature-type">&quot;upper&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;lower&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;hand&quot;</span>)<span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>The segment carrying each corresponding surface probe.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L128">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:128</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="parent"><span>parent</span><a href="#parent" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">parent</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">rotation</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a> <span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-comment tsd-typography"><p>The shoulder parent's unit world rotation and world position, metres.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></h5>
+<div class="tsd-comment tsd-typography"><p>Its world position, metres.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">rotation</span><span class="tsd-signature-symbol">: </span><a href="_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a></h5>
+<div class="tsd-comment tsd-typography"><p>Its unit world rotation.</p>
+</div></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L114">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:114</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="related"><span>related</span><a href="#related" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">related</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Own-body part pairs that share a joint or are the same part.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L144">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:144</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="resting"><span>resting</span><a href="#resting" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">resting</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ReadonlySet</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+<div class="tsd-comment tsd-typography"><p>The external parts the hand rests on in this frame (the base's <code>rests</code>, by frame part index): their pairs with the hand are its contact, not a collision.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L147">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:147</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="segments"><span>segments</span><a href="#segments" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">segments</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Each surface probe's own-body audit part index.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L140">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:140</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="shapes"><span>shapes</span><a href="#shapes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">shapes</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieMotionHumanArmGeometry.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieMotionHumanArmGeometry</a><span class="tsd-signature-symbol">.</span><a href="_automovie_interface.IAutoMovieMotionHumanArmGeometry.IShape.html" class="tsd-signature-type tsd-kind-interface">IShape</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Posed obstruction shapes in the world.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L162">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:162</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="shoulder"><code class="tsd-tag">Optional</code><span>shoulder</span><a href="#shoulder" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">shoulder</span><span class="tsd-signature-symbol">?:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></div>
+<div class="tsd-comment tsd-typography"><p>Actual full-FK shoulder position for this same parent/rest frame, when already available; otherwise chain placement computes it.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L122">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:122</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="surface"><span>surface</span><a href="#surface" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">surface</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Collider probes in the frame of their owning arm segment, metres.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L126">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:126</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="tip"><span>tip</span><a href="#tip" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">tip</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieVector3.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieVector3</a></div>
+<div class="tsd-comment tsd-typography"><p>Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts#L124">packages/interface/src/motion/human/posture/IAutoMovieMotionHumanArmGeometry.ts:124</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#body"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>body</span></a><a href="#bounds"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>bounds</span></a><a href="#colliders"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>colliders</span></a><a href="#corners"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>corners</span></a><a href="#owners"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>owners</span></a><a href="#parent"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>parent</span></a><a href="#related"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>related</span></a><a href="#resting"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>resting</span></a><a href="#segments"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>segments</span></a><a href="#shapes"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>shapes</span></a><a href="#shoulder"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>shoulder</span></a><a href="#surface"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>surface</span></a><a href="#tip"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>tip</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

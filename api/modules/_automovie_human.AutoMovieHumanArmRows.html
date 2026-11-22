@@ -1,0 +1,66 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>AutoMovieHumanArmRows | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="_automovie_human.html">@automovie/human</a></li>
+<li><a href="" aria-current="page">AutoMovieHumanArmRows</a></li></ul>
+<h1>Namespace AutoMovieHumanArmRows</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>A span's shape row at a landmark station, from one table of the columns
+that own its numbers, in the order <a href="../interfaces/_automovie_human.IAutoMovieHumanArmPiece.IRow.html" class="tsd-kind-interface">IAutoMovieHumanArmPiece.IRow</a>
+states: the four guide lines (anterior, lateral, posterior, medial), each
+the radius of the section there and its first and second derivative in the
+section angle, and the four sectors between them (anterolateral,
+posterolateral, posteromedial, anteromedial), each the fullness of the
+sector's curve beyond the quintic Hermite of its two bounding lines
+(<code>AutoMoviePolarSector</code>), all in units of the section's girth over
+2 pi. A line is the sector rule's guide: the sectors on either side meet it
+with its own point, tangent and curvature. Values are the medians of the
+four references f1, f2, m1 and m2, read on each skin square to its own bone
+(the centroid line of its sections), the derivatives by least squares over
++-12 degrees about the angle; they are fitted, not derived. The columns
+(Gray 1918):</p>
+<ul>
+<li>the anterior line: the guide at the section's forward angle (0), the longitudinal line that runs on the biceps crest in the upper arm, through the cubital fossa at the elbow, on the radial border (the brachioradialis ridge) in the forearm and to the radial styloid at the wrist (Gray 1918).</li>
+<li>the lateral line: the guide at the section's lateral angle (a quarter turn), the longitudinal line that runs on the lateral intermuscular septum in the upper arm, the lateral epicondyle (with the radial head's dimple below it) at the elbow, the extensor mass in the forearm and the dorsal side of the wrist (Gray 1918).</li>
+<li>the posterior line: the guide at the section's back angle (a half turn), the longitudinal line that runs on the triceps in the upper arm, the olecranon at the elbow, the subcutaneous ulnar border in the forearm (a nearly flat stretch, its curvature near zero) and the ulnar styloid at the wrist (Gray 1918).</li>
+<li>the medial line: the guide at the section's medial angle (three quarters of a turn), the longitudinal line that runs on the medial intermuscular septum and the neurovascular groove in the upper arm, the medial epicondyle (the more prominent) at the elbow, the flexor mass in the forearm and the palmar side of the wrist (Gray 1918).</li>
+<li>the anterolateral sector: the skin between the anterior line (angle 0) and the lateral line (a quarter turn), the lateral half of the anterior compartment. In the upper arm it is the biceps' lateral head and the brachialis; at the elbow the mobile wad's origin; in the forearm the brachioradialis and the radial extensors (Gray 1918).</li>
+<li>the posterolateral sector: the skin between the lateral line (a quarter turn) and the posterior line (a half turn), the lateral half of the posterior compartment. In the upper arm it is the triceps' lateral head; at the elbow the lateral epicondyle's back and the anconeus; in the forearm the extensor mass (Gray 1918).</li>
+<li>the posteromedial sector: the skin between the posterior line (a half turn) and the medial line (three quarters of a turn), the medial half of the posterior compartment. In the upper arm it is the triceps' medial head and the ulnar nerve's course; at the elbow the olecranon's medial slope and the ulnar groove (concave); in the forearm the flexor carpi ulnaris over the ulnar border (Gray 1918).</li>
+<li>the anteromedial sector: the skin between the medial line (three quarters of a turn) and the anterior line (a full turn), the medial half of the anterior compartment. In the upper arm it is the biceps' medial belly and the neurovascular bundle's furrow; at the elbow the cubital fossa's medial wall; in the forearm the pronator-flexor mass (Gray 1918).</li>
+</ul>
+<p>A span owns where its rows stand (the walk length of every landmark); this
+table owns what the rows say.</p>
+</div></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="functions">Functions<a href="#functions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary" id="row"><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><a href="../functions/_automovie_human.AutoMovieHumanArmRows.row.html">row</a><a href="#row" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Functions"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Functions</summary>
+<div><a href="#row"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Function"><use href="../assets/icons.svg#icon-64"></use></svg><span>row</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

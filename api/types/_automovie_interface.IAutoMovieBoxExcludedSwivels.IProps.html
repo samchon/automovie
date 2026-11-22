@@ -1,0 +1,128 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IProps | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="../modules/_automovie_interface.IAutoMovieBoxExcludedSwivels.html">IAutoMovieBoxExcludedSwivels</a></li>
+<li><a href="" aria-current="page">IProps</a></li></ul>
+<h1>Type Alias IProps</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The swivels a joint's three-angle box provably refuses: for a joint whose
+bone-local rotation is a fixed rotation turned about a fixed axis by the
+swivel (the chain root of <code>hingedArmSwivel.pose</code>), a test of whether every
+swivel from <code>low</code> to <code>high</code> degrees reads past the joint's box in both of
+the charts <code>decomposeJointRotationOnBasis</code> chooses between, so that
+<code>jointRomOvershoot</code> scores each of them above zero.</p>
+<p>A rotation turned about a fixed axis by <code>ψ</code> has a matrix whose every entry
+is <code>a + b cos ψ + c sin ψ</code> (Rodrigues' formula between two fixed
+rotations), so every entry the decomposition reads is such a sinusoid,
+fitted exactly from the rotation at 0, 90 and 180 degrees. Each clinical
+bound is then a sinusoid's sign. The middle angle of the composition
+(<code>atan2(s, cos)</code> with a non-negative cosine, so <code>asin(s)</code>) lies past a
+bound <code>q</code> where <code>s - sin q</code> is positive; an outer angle <code>atan2(y, x)</code> lies
+past the upper end <code>β</code> of an interval no wider than a half turn where
+<code>y cos β - x sin β</code> (the vector's length times <code>sin(δ - β)</code>) is positive,
+and past the lower end <code>α</code> where <code>x sin α - y cos α</code> is. The alternate
+chart (<code>alternateRigJointAngles</code>) turns each outer angle by a half turn,
+negating its vector, and reflects the middle angle about its right angle.
+Where one such sinusoid exceeds <code>MARGIN</code>, its exact roots bound an arc of
+swivels (<code>φ ± acos((MARGIN - a) / R)</code>), and a reading is refused on the
+union of its axes' arcs.</p>
+<p>Every refusal is certain. A sinusoid above <code>MARGIN</code> puts its angle past
+the bound by more than <code>MARGIN</code> radians, the joints' tolerance
+(<code>ROM_TOLERANCE</code>, about 1.7e-4), far beyond the rounding of the fit, of
+the arc's ends and of the decomposition itself (near 1e-15); and an outer
+angle's vector is then longer than <code>MARGIN</code>, past the gimbal band
+(<code>sqrt(ε)</code>, 1.5e-8) inside which the decomposition pins that angle
+instead. A joint gated by swing and twist, which the box does not score,
+is read by its range instead (<code>swingTwistExcludedSwivels</code>) when the frame
+the overshoot reads it in is given, and refuses nothing otherwise; an
+axis without an interval, an outer interval wider than a half turn
+(whose refusal is an intersection, not a union, of two arcs) and a middle
+interval met twice by the half turn the middle angle covers refuse
+nothing, so the test only ever says less than the box would.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">type</span> <span class="tsd-kind-type-alias">IProps</span> <span class="tsd-signature-symbol">=</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#basis">basis</a><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointAxes.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointAxes</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#constraint">constraint</a><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointConstraint.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointConstraint</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#frame">frame</a><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieRestFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRestFrame</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#joint">joint</a><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointRotationFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointRotationFrame</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#rotation">rotation</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">swivel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts#L59">packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts:59</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#basis" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>basis</span></a>
+<a href="#constraint" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>constraint</span></a>
+<a href="#frame" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>frame?</span></a>
+<a href="#joint" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>joint?</span></a>
+<a href="#rotation" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rotation</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="basis"><span>basis</span><a href="#basis" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">basis</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointAxes.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointAxes</a></div>
+<div class="tsd-comment tsd-typography"><p>The joint's clinical basis, admitted and normalized (<code>normalizeJointAxes</code>).</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts#L61">packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts:61</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="constraint"><span>constraint</span><a href="#constraint" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">constraint</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointConstraint.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointConstraint</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>The joint's resolved range of motion, as the decomposition's domain and the overshoot read it; <code>null</code> refuses nothing.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts#L67">packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts:67</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="frame"><code class="tsd-tag">Optional</code><span>frame</span><a href="#frame" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">frame</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieRestFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRestFrame</a></div>
+<div class="tsd-comment tsd-typography"><p>The rest frame lifting the joint's rest-relative angles to clinical ones; omitted, they are clinical.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts#L64">packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts:64</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="joint"><code class="tsd-tag">Optional</code><span>joint</span><a href="#joint" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">joint</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/_automovie_interface.IAutoMovieJointRotationFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieJointRotationFrame</a></div>
+<div class="tsd-comment tsd-typography"><p>The frame a swing-twist gate is read in, as the overshoot reads it (<code>scanJointRom</code>); omitted, a gated joint refuses nothing.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts#L70">packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts:70</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="rotation"><span>rotation</span><a href="#rotation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">rotation</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">swivel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a></div>
+<div class="tsd-comment tsd-typography"><p>The joint's bone-local rotation at a swivel, degrees: a fixed rotation turned about a fixed axis by the swivel.</p>
+<p>Return the bone-local unit rotation for swivel degrees, following one fixed-axis rotation of a fixed base pose. Sampling is synchronous; equal angles must return equivalent rotations without mutating shared inputs. The returned exclusion predicate retains sampled coefficients, not this callback.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts#L85">packages/interface/src/pose/IAutoMovieBoxExcludedSwivels.ts:85</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#basis"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>basis</span></a><a href="#constraint"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>constraint</span></a><a href="#frame"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>frame</span></a><a href="#joint"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>joint</span></a><a href="#rotation"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>rotation</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

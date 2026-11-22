@@ -1,0 +1,288 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieRecoveryCameraMapEstimate | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_recovery.html">@automovie/recovery</a></li>
+<li><a href="" aria-current="page">IAutoMovieRecoveryCameraMapEstimate</a></li></ul>
+<h1>Interface IAutoMovieRecoveryCameraMapEstimate</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Conditional three-camera map and sparse fitting evidence in one seed gauge.
+Only seed-supported landmarks are triangulated in this version; other linked
+tracks remain explicitly untriangulated. A completed operation is partial with
+respect to an editable surface, metric scale and unobserved scene geometry.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IAutoMovieRecoveryCameraMapEstimate</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#budget">budget</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieRecoveryCameraMapBudget.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryCameraMapBudget</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#cohort">cohort</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;analytic&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;photograph&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;inconsistent-stress&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#conflictingtracks">conflictingTracks</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#descriptorcomparisons">descriptorComparisons</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#featurecounts">featureCounts</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#gauge">gauge</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;first-camera-unit-seed-baseline&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#intersectionmatches">intersectionMatches</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#joint">joint</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_recovery.IAutoMovieRecoveryMapJointFit.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryMapJointFit</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#landmarks">landmarks</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_recovery.IAutoMovieRecoveryMapLandmark.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryMapLandmark</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#linkedobservations">linkedObservations</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#linkedtracks">linkedTracks</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#lowparallaxseedpoints">lowParallaxSeedPoints</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#maximumreprojectionerrorpx">maximumReprojectionErrorPx</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#metricscale">metricScale</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;unknown&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#minimumpointparallaxdegrees">minimumPointParallaxDegrees</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#nonpositiveseedpoints">nonpositiveSeedPoints</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#objectid">objectId</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#policy">policy</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieRecoveryCameraMapPolicy.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryCameraMapPolicy</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#poses">poses</a><span class="tsd-signature-symbol">:</span> (<a href="_automovie_recovery.IAutoMovieRecoveryMapPose.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryMapPose</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span>)<span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#refusalreasons">refusalReasons</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#refusedseedpoints">refusedSeedPoints</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#reprojectionrefusedseedpoints">reprojectionRefusedSeedPoints</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#resection">resection</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_recovery.IAutoMovieRecoveryMapResection.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryMapResection</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#schema">schema</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;automovie-recovery-camera-map-estimate-v1&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#seed">seed</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_recovery.IAutoMovieRecoveryCameraPairEstimate.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryCameraPairEstimate</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#sources">sources</a><span class="tsd-signature-symbol">:</span> <a href="_automovie_recovery.IAutoMovieRecoveryCameraSource.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryCameraSource</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#status">status</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;refused&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;accepted-sparse-map&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;seed-only&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#unresolvedseedpoints">unresolvedSeedPoints</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#untriangulatedtracks">untriangulatedTracks</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L21">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:21</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#budget" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>budget</span></a>
+<a href="#cohort" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>cohort</span></a>
+<a href="#conflictingtracks" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>conflicting<wbr/>Tracks</span></a>
+<a href="#descriptorcomparisons" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>descriptor<wbr/>Comparisons</span></a>
+<a href="#featurecounts" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>feature<wbr/>Counts</span></a>
+<a href="#gauge" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>gauge</span></a>
+<a href="#intersectionmatches" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>intersection<wbr/>Matches</span></a>
+<a href="#joint" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>joint</span></a>
+<a href="#landmarks" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>landmarks</span></a>
+<a href="#linkedobservations" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>linked<wbr/>Observations</span></a>
+<a href="#linkedtracks" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>linked<wbr/>Tracks</span></a>
+<a href="#lowparallaxseedpoints" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>low<wbr/>Parallax<wbr/>Seed<wbr/>Points</span></a>
+<a href="#maximumreprojectionerrorpx" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>maximum<wbr/>Reprojection<wbr/>Error<wbr/>Px</span></a>
+<a href="#metricscale" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>metric<wbr/>Scale</span></a>
+<a href="#minimumpointparallaxdegrees" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>minimum<wbr/>Point<wbr/>Parallax<wbr/>Degrees</span></a>
+<a href="#nonpositiveseedpoints" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>nonpositive<wbr/>Seed<wbr/>Points</span></a>
+<a href="#objectid" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>object<wbr/>Id</span></a>
+<a href="#policy" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>policy</span></a>
+<a href="#poses" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>poses</span></a>
+<a href="#refusalreasons" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>refusal<wbr/>Reasons</span></a>
+<a href="#refusedseedpoints" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>refused<wbr/>Seed<wbr/>Points</span></a>
+<a href="#reprojectionrefusedseedpoints" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>reprojection<wbr/>Refused<wbr/>Seed<wbr/>Points</span></a>
+<a href="#resection" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>resection</span></a>
+<a href="#schema" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>schema</span></a>
+<a href="#seed" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>seed</span></a>
+<a href="#sources" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sources</span></a>
+<a href="#status" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>status</span></a>
+<a href="#unresolvedseedpoints" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>unresolved<wbr/>Seed<wbr/>Points</span></a>
+<a href="#untriangulatedtracks" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>untriangulated<wbr/>Tracks</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="budget"><span>budget</span><a href="#budget" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">budget</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieRecoveryCameraMapBudget.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryCameraMapBudget</a></div>
+<div class="tsd-comment tsd-typography"><p>Complete aggregate/new numerical work ceilings.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L47">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:47</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="cohort"><span>cohort</span><a href="#cohort" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">cohort</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;analytic&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;photograph&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;inconsistent-stress&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>Distinguishes analytic, photographic and inconsistent-control populations.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L29">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:29</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="conflictingtracks"><span>conflicting<wbr/>Tracks</span><a href="#conflictingtracks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">conflictingTracks</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Components containing distinct feature indices in one image; withheld, not labelled as false material matches.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L77">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:77</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="descriptorcomparisons"><span>descriptor<wbr/>Comparisons</span><a href="#descriptorcomparisons" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">descriptorComparisons</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Actual oriented descriptor pairs compared over six forward/reverse matching calls.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L65">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:65</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="featurecounts"><span>feature<wbr/>Counts</span><a href="#featurecounts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">featureCounts</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Once-observed feature counts in source order.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L62">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:62</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="gauge"><span>gauge</span><a href="#gauge" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">gauge</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;first-camera-unit-seed-baseline&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>First-camera coordinates; one fixed first pose and one fixed seed translation norm remove seven similarity freedoms.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L50">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:50</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="intersectionmatches"><span>intersection<wbr/>Matches</span><a href="#intersectionmatches" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">intersectionMatches</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Bidirectional appearance index-pairs before transitive linking.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L68">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:68</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="joint"><span>joint</span><a href="#joint" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">joint</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_recovery.IAutoMovieRecoveryMapJointFit.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryMapJointFit</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Null before joint refinement; a nonconverged report does not expose a final triad.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L101">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:101</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="landmarks"><span>landmarks</span><a href="#landmarks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">landmarks</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_recovery.IAutoMovieRecoveryMapLandmark.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryMapLandmark</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Seed-supported finite fitting points and their retained measurements; no source mesh or editable surface is contained here.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L59">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:59</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="linkedobservations"><span>linked<wbr/>Observations</span><a href="#linkedobservations" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">linkedObservations</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Linked (view, feature) nodes, excluding isolated features.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L71">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:71</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="linkedtracks"><span>linked<wbr/>Tracks</span><a href="#linkedtracks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">linkedTracks</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>All linked components before duplicate-view or point filtering.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L74">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:74</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="lowparallaxseedpoints"><span>low<wbr/>Parallax<wbr/>Seed<wbr/>Points</span><a href="#lowparallaxseedpoints" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">lowParallaxSeedPoints</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Resolved seed points below the acute viewing-ray angle requirement.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L92">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:92</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="maximumreprojectionerrorpx"><span>maximum<wbr/>Reprojection<wbr/>Error<wbr/>Px</span><a href="#maximumreprojectionerrorpx" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">maximumReprojectionErrorPx</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Maximum final retained-observation reprojection distance in pixels; null before completed joint qualification.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L104">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:104</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="metricscale"><span>metric<wbr/>Scale</span><a href="#metricscale" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">metricScale</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;unknown&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>Physical length is unobserved even when all three cameras qualify.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L53">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:53</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="minimumpointparallaxdegrees"><span>minimum<wbr/>Point<wbr/>Parallax<wbr/>Degrees</span><a href="#minimumpointparallaxdegrees" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">minimumPointParallaxDegrees</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Minimum final seed point's acute viewing-ray angle in degrees; null before completed joint qualification.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L107">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:107</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="nonpositiveseedpoints"><span>nonpositive<wbr/>Seed<wbr/>Points</span><a href="#nonpositiveseedpoints" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">nonpositiveSeedPoints</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Resolved seed points nonpositive in either seed image; gate counts can overlap.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L89">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:89</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="objectid"><span>object<wbr/>Id</span><a href="#objectid" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">objectId</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Caller-asserted scene identity.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L26">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:26</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="policy"><span>policy</span><a href="#policy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">policy</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_interface.IAutoMovieRecoveryCameraMapPolicy.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryCameraMapPolicy</a></div>
+<div class="tsd-comment tsd-typography"><p>Complete separate Euclidean reprojection and point policy.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L44">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:44</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="poses"><span>poses</span><a href="#poses" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">poses</span><span class="tsd-signature-symbol">:</span> (<a href="_automovie_recovery.IAutoMovieRecoveryMapPose.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryMapPose</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span>)<span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Three source-order poses. All are null after seed refusal; only the first two are present for seed-only evidence.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L56">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:56</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="refusalreasons"><span>refusal<wbr/>Reasons</span><a href="#refusalreasons" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">refusalReasons</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Every available failed map qualification.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L35">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:35</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="refusedseedpoints"><span>refused<wbr/>Seed<wbr/>Points</span><a href="#refusedseedpoints" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">refusedSeedPoints</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Seed-supported components refusing finite point, pointwise depth, acute ray angle or pixel reprojection.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L83">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:83</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="reprojectionrefusedseedpoints"><span>reprojection<wbr/>Refused<wbr/>Seed<wbr/>Points</span><a href="#reprojectionrefusedseedpoints" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">reprojectionRefusedSeedPoints</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Resolved seed points exceeding the per-observation Euclidean pixel limit.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L95">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:95</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="resection"><span>resection</span><a href="#resection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">resection</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_recovery.IAutoMovieRecoveryMapResection.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryMapResection</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">null</span></div>
+<div class="tsd-comment tsd-typography"><p>Null before a seed-supported third-view resection can be attempted.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L98">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:98</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="schema"><span>schema</span><a href="#schema" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">schema</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;automovie-recovery-camera-map-estimate-v1&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>Versioned three-view map evidence artifact.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L23">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:23</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="seed"><span>seed</span><a href="#seed" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">seed</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_recovery.IAutoMovieRecoveryCameraPairEstimate.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryCameraPairEstimate</a></div>
+<div class="tsd-comment tsd-typography"><p>Unchanged pair evidence, including the seed policy/budget and tentative pixel matches.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L41">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:41</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="sources"><span>sources</span><a href="#sources" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">sources</span><span class="tsd-signature-symbol">:</span> <a href="_automovie_recovery.IAutoMovieRecoveryCameraSource.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRecoveryCameraSource</a><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Source order fixes seed views zero/one and resection view two.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L38">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:38</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="status"><span>status</span><a href="#status" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">status</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;refused&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;accepted-sparse-map&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;seed-only&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>Independent map qualification; seed-only does not expose a final third pose.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L32">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:32</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="unresolvedseedpoints"><span>unresolved<wbr/>Seed<wbr/>Points</span><a href="#unresolvedseedpoints" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">unresolvedSeedPoints</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Seed-supported pairs without a resolved finite DLT point.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L86">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:86</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="untriangulatedtracks"><span>untriangulated<wbr/>Tracks</span><a href="#untriangulatedtracks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">untriangulatedTracks</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Nonconflicting tracks without a direct accepted epipolar seed pair; not triangulated in this version.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts#L80">packages/interface/src/recovery/image/IAutoMovieRecoveryCameraMapEstimate.ts:80</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#budget"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>budget</span></a><a href="#cohort"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>cohort</span></a><a href="#conflictingtracks"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>conflicting<wbr/>Tracks</span></a><a href="#descriptorcomparisons"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>descriptor<wbr/>Comparisons</span></a><a href="#featurecounts"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>feature<wbr/>Counts</span></a><a href="#gauge"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>gauge</span></a><a href="#intersectionmatches"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>intersection<wbr/>Matches</span></a><a href="#joint"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>joint</span></a><a href="#landmarks"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>landmarks</span></a><a href="#linkedobservations"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>linked<wbr/>Observations</span></a><a href="#linkedtracks"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>linked<wbr/>Tracks</span></a><a href="#lowparallaxseedpoints"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>low<wbr/>Parallax<wbr/>Seed<wbr/>Points</span></a><a href="#maximumreprojectionerrorpx"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>maximum<wbr/>Reprojection<wbr/>Error<wbr/>Px</span></a><a href="#metricscale"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>metric<wbr/>Scale</span></a><a href="#minimumpointparallaxdegrees"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>minimum<wbr/>Point<wbr/>Parallax<wbr/>Degrees</span></a><a href="#nonpositiveseedpoints"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>nonpositive<wbr/>Seed<wbr/>Points</span></a><a href="#objectid"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>object<wbr/>Id</span></a><a href="#policy"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>policy</span></a><a href="#poses"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>poses</span></a><a href="#refusalreasons"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>refusal<wbr/>Reasons</span></a><a href="#refusedseedpoints"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>refused<wbr/>Seed<wbr/>Points</span></a><a href="#reprojectionrefusedseedpoints"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>reprojection<wbr/>Refused<wbr/>Seed<wbr/>Points</span></a><a href="#resection"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>resection</span></a><a href="#schema"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>schema</span></a><a href="#seed"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>seed</span></a><a href="#sources"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sources</span></a><a href="#status"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>status</span></a><a href="#unresolvedseedpoints"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>unresolved<wbr/>Seed<wbr/>Points</span></a><a href="#untriangulatedtracks"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>untriangulated<wbr/>Tracks</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

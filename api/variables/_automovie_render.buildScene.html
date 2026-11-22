@@ -1,0 +1,76 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>buildScene | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_render.html">@automovie/render</a></li>
+<li><a href="" aria-current="page">buildScene</a></li></ul>
+<h1>Variable buildScene<code class="tsd-tag">Const</code></h1></div>
+<div class="tsd-signature"><span class="tsd-kind-variable">buildScene</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">scene</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieScene.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieScene</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">getModelObject</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">modelId</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_render.IAutoMovieModelObject.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieModelObject</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">environmentTexture</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">THREE.Texture</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">softFrame</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMovieRenderSoftPropFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRenderSoftPropFrame</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_render.IAutoMovieSceneObject.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSceneObject</a><span class="tsd-signature-symbol"> = ...</span></div>
+<div class="tsd-comment tsd-typography"><p>Build a <code>three.js</code> scene from an <a href="../interfaces/_automovie_interface.IAutoMovieScene.html" class="tsd-kind-interface">IAutoMovieScene</a>.</p>
+<p><code>getModelObject</code> resolves a node's <code>model</code> id to a built
+<a href="../interfaces/_automovie_render.IAutoMovieModelObject.html" class="tsd-kind-interface">IAutoMovieModelObject</a>. If the same model id appears in multiple nodes
+it should return a distinct object each call (a <code>three.js</code> object can live in
+one place only). Each node is wrapped in a group placed at its world
+transform, so node placement and a pose's own root transform compose
+cleanly.</p>
+<p>Cameras and the four light kinds (point, area, directional and spot) map onto their <code>three.js</code> equivalents.</p>
+<p><strong>The first <code>scene.nodes.length</code> top-level children ARE the designed nodes,
+in design order.</strong> Both mask passes read that: the legacy ramp colours the
+Nth child with the Nth colour, and the stable semantic palette resolves a
+designed node to <code>root.children[index]</code> (see
+<a href="_automovie_render.applyAutoMovieSemanticMask.html" class="tsd-kind-variable">applyAutoMovieSemanticMask</a>). Anything this function adds of its own
+goes after them, and a host that prepends a child of its own breaks the
+second one exactly as it always broke the first.</p>
+<p>A scene carrying a <code>space</code> also gets its structural ground (#1173): the
+standable surfaces become real meshes under one <code>SPACE_GROUP_NAME</code> group (see
+<a href="_automovie_render.buildSpaceObject.html" class="tsd-kind-variable">buildSpaceObject</a>), so guide passes describe a world instead of actors
+floating in a void. Their ordinary material writes no beauty colour or depth,
+because a semantic support declaration is not evidence that physical floor
+geometry exists. The group follows the nodes and lights so the whole
+ground reads as one mask colour rather than one per surface.</p>
+<p>An optional frame of soft props follows the designed scene objects.
+Its returned handle updates plain surfaces at later times and releases
+the meshes. Pass an empty frame to opt in before the first prop appears.</p>
+<p>The cited refusal contribution covers the supplied shadow profile and unresolved node model. Complete hierarchy, material and numeric admission, lowering receipts and structured safe-retry policy remain with their corresponding owners.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="__type"><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">scene</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieScene.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieScene</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">getModelObject</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">modelId</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_render.IAutoMovieModelObject.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieModelObject</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">environmentTexture</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">THREE.Texture</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">softFrame</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMovieRenderSoftPropFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRenderSoftPropFrame</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_render.IAutoMovieSceneObject.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSceneObject</a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">scene</span>: <a href="../interfaces/_automovie_interface.IAutoMovieScene.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieScene</a></span></li>
+<li><span><span class="tsd-kind-parameter">getModelObject</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">modelId</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_render.IAutoMovieModelObject.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieModelObject</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span></span></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">environmentTexture</span>: <span class="tsd-signature-type">THREE.Texture</span></span></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">softFrame</span>: <span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMovieRenderSoftPropFrame.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieRenderSoftPropFrame</a><span class="tsd-signature-symbol">[]</span></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_render.IAutoMovieSceneObject.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieSceneObject</a></h4></li></ul></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/render/src/scene/buildScene.ts#L64">packages/render/src/scene/buildScene.ts:64</a></li></ul></aside></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

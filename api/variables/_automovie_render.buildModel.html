@@ -1,0 +1,93 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>buildModel | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_render.html">@automovie/render</a></li>
+<li><a href="" aria-current="page">buildModel</a></li></ul>
+<h1>Variable buildModel<code class="tsd-tag">Const</code></h1></div>
+<div class="tsd-signature"><span class="tsd-kind-variable">buildModel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">model</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieModel.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieModel</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">resolveTexture</span><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_render.IAutoMovieTextureResolver.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieTextureResolver</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../interfaces/_automovie_render.IAutoMovieModelObject.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieModelObject</a><span class="tsd-signature-symbol"> = ...</span></div>
+<div class="tsd-comment tsd-typography"><p>Build a renderable <code>three.js</code> object from an <a href="../interfaces/_automovie_interface.IAutoMovieModel.html" class="tsd-kind-interface">IAutoMovieModel</a>.</p>
+<p>Constructs the bone hierarchy, then attaches each part. A rigid part is
+parented to its <code>attachedBone</code> and rides that bone. A mesh with skin data and
+no rigid attachment becomes a <code>THREE.SkinnedMesh</code> bound to the skeleton. If
+both signals are present, <code>attachedBone</code> wins: the part is treated as a rigid
+prop and its skin payload is ignored by the viewer. An <code>attachedBone</code> the
+skeleton does not carry throws, the same class as a skin referencing a
+missing bone (#1106): a silently root-parented prop renders frozen at the
+origin while everything else looks right.</p>
+<p>A skin whose <code>method</code> is <code>&quot;dual-quaternion&quot;</code> takes a material variant with
+the dual quaternion vertex patch, and its mesh casts shadows through its own
+patched depth and distance materials, so the shadow deforms like the surface;
+the mesh is flagged so guide passes patch the materials they swap in. Every
+skinned part is an <a href="../classes/_automovie_render.AutoMovieSkinnedMesh.html" class="tsd-kind-class">AutoMovieSkinnedMesh</a> of its skin's method, so
+bounds, culling, raycasts and vertex queries read the blend the shader draws.
+Parts with the same ordered joint slots share one skeleton and bone texture
+within this model; each mesh retains its own bind matrix and blend method.
+Separate model builds own independent skeletons and pose state.</p>
+<p>A mesh's morph targets reach <code>morphTargetDictionary</code> by name, so
+<a href="_automovie_render.applyExpression.html" class="tsd-kind-variable">applyExpression</a> drives them, and its driven targets are recorded on
+the mesh for <a href="_automovie_render.applyPose.html" class="tsd-kind-variable">applyPose</a>.</p>
+<p>The returned <code>bones</code> map is what <a href="_automovie_render.applyPose.html" class="tsd-kind-variable">applyPose</a> drives, and the model's
+<code>lookAt</code> rides along so <a href="../classes/_automovie_render.AutoMoviePlayer.html" class="tsd-kind-class">AutoMoviePlayer</a> can turn its eye bones.</p>
+<p><code>resolveTexture</code> is how a declared PBR finish gets its pixels, and it is the
+host's to supply because this package performs no I/O: the caller decodes the
+model's bindings first (an <code>AutoMovieTextureCache</code> primes them in one pass)
+and hands over an <a href="../types/_automovie_render.IAutoMovieTextureResolver.html" class="tsd-kind-type-alias">IAutoMovieTextureResolver</a> that answers
+synchronously. Omitting it builds every material with its scalar coefficients
+and no maps, which is exactly what a model declaring no texture renders and
+what every pre-texture production still renders. The resolver must answer
+with a texture object PER BINDING, because <a href="_automovie_render.buildMaterial.html" class="tsd-kind-variable">buildMaterial</a> writes that
+binding's color space, UV transform and sampler onto whatever it is given,
+and two slots sharing one object would fight over one repeat.
+Every returned geometry and material is registered as soon as it is acquired,
+before a later part, binding or attachment can fail. Failure independently
+retires those owned objects, including objects not yet attached to the group;
+successful return transfers them to the caller. Texture wrappers stay with
+the resolver's owner. A nested producer retires its own failed allocation.
+An anisotropic rigid mesh without morph targets or normal maps receives
+native computed tangents when its indexed normal/UV geometry supports them.
+Mapped and deforming meshes retain their derivative frame: a rest tangent
+cannot follow a morph or replace a transformed normal-map frame. This
+changes no source arrays or material coefficients, is not a MikkTSpace bake
+guarantee and leaves degenerate UVs on their existing fallback.
+Fully transparent, non-transmissive parts stay hidden when a guide swaps materials.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="__type"><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">model</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieModel.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieModel</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">resolveTexture</span><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_render.IAutoMovieTextureResolver.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieTextureResolver</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_render.IAutoMovieModelObject.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieModelObject</a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">model</span>: <a href="../interfaces/_automovie_interface.IAutoMovieModel.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieModel</a></span></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">resolveTexture</span>: <a href="../types/_automovie_render.IAutoMovieTextureResolver.html" class="tsd-signature-type tsd-kind-type-alias">IAutoMovieTextureResolver</a></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/_automovie_render.IAutoMovieModelObject.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieModelObject</a></h4></li></ul></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/render/src/scene/buildModel.ts#L82">packages/render/src/scene/buildModel.ts:82</a></li></ul></aside></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

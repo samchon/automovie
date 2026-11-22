@@ -1,0 +1,98 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>compilePerformShotCameras | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">compilePerformShotCameras</a></li></ul>
+<h1>Function compilePerformShotCameras</h1></div>
+<section class="tsd-panel">
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="compileperformshotcameras"><span class="tsd-kind-call-signature">compilePerformShotCameras</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">context</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/_automovie_interface.IAutoMovieEnginePerformShotGateContext.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieEnginePerformShotGateContext</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieCompilePerformShotCameras.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieCompilePerformShotCameras</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieCompilePerformShotCameras.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><br/>    <a href="../interfaces/_automovie_interface.IAutoMovieShot.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieShot</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-type">&quot;cameraMotion&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;cameraIntent&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;coverage&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;cameraClearance&quot;</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">&gt;</span><a href="#compileperformshotcameras" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Compile the camera fields of a performed shot: the live camera's move, its per-span intent, one alternate take per coverage job, and the clearance reports.</p>
+<p>The live camera's <code>frame</code> moves, already sorted by start, compile through <a href="_automovie_engine.compileCameraMove.html" class="tsd-kind-function">compileCameraMove</a> into the clip <code>cam:&lt;scope&gt;</code>; with no move the camera is locked off and the clip is null. Each move's intent carries its framing, move, focal length and focus, ordinary focus resolved to the opening point the input gate accepted. An authored focus pull resolves two lens marks after actor and object motion are compiled. A downstream host reads the intent independently of the camera path. Each coverage job plays its one framing across the whole beat from its own staged camera, as the clip <code>cam:&lt;scope&gt;:&lt;camera&gt;</code>, so a host can cut to the angle at any instant, with no focus or focal length invented for it. Every subject is measured by one <a href="_automovie_engine.createPerformShotSubjectFramer.html" class="tsd-kind-function">createPerformShotSubjectFramer</a>, so hero and coverage frame the same subject. <a href="_automovie_engine.compileCameraClearanceReports.html" class="tsd-kind-function">compileCameraClearanceReports</a> then reports any take whose physical envelope is obstructed into the context's collector.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">context</span>: <a href="../interfaces/_automovie_interface.IAutoMovieEnginePerformShotGateContext.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieEnginePerformShotGateContext</a></span>
+<div class="tsd-comment tsd-typography"><p>The shot's staged tables and collector.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">props</span>: <a href="../modules/_automovie_interface.IAutoMovieCompilePerformShotCameras.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieCompilePerformShotCameras</a><span class="tsd-signature-symbol">.</span><a href="../types/_automovie_interface.IAutoMovieCompilePerformShotCameras.IProps.html" class="tsd-signature-type tsd-kind-type-alias">IProps</a></span>
+<div class="tsd-comment tsd-typography"><p>Finalized shot data borrowed by compilePerformShotCameras to produce hero movement, lens intent, alternate takes and clearance reports.</p>
+<p>The live camera's <code>frame</code> moves, already sorted by start, compile through compileCameraMove into the clip <code>cam:&lt;scope&gt;</code>; with no move the camera is locked off and the clip is null. Each move's intent carries its framing, move, focal length and focus, the focus resolved to the world point the input gate accepted; the solve never reads the intent, a render host does. Each coverage job plays its one framing across the whole beat from its own staged camera, as the clip <code>cam:&lt;scope&gt;:&lt;camera&gt;</code>, so a host can cut to the angle at any instant, with no focus or focal length invented for it. Every subject is measured by one createPerformShotSubjectFramer, so hero and coverage frame the same subject. compileCameraClearanceReports then reports any take whose physical envelope is obstructed into the context's collector.</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5 id="aspect"><span class="tsd-kind-property">aspect</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span></h5>
+<div class="tsd-comment tsd-typography"><p>Delivered width/height ratio; undefined uses the camera compiler's square fit, as do non-positive/non-finite values at that lower layer.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="coveragejobs"><span class="tsd-kind-property">coverageJobs</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMoviePerformShotCoverageJob.html" class="tsd-signature-type tsd-kind-interface">IAutoMoviePerformShotCoverageJob</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Admitted alternate camera jobs in authored order, each covering the entire shot. Empty requests no alternate takes.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="formationmotions"><span class="tsd-kind-property">formationMotions</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMovieFormationMotion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieFormationMotion</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Compact formation cues on the shot clock, used when measuring and following group subjects; empty keeps groups at their opening placement.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="frames"><span class="tsd-kind-property">frames</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMoviePerformShotFrameJob.html" class="tsd-signature-type tsd-kind-interface">IAutoMoviePerformShotFrameJob</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Admitted hero moves sorted by action.start in shot-local seconds; empty leaves the camera locked off and intent empty.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="livecamera"><span class="tsd-kind-property">liveCamera</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>Id of the staged camera elected by gatePerformShotCamera; this compiler assumes the lookup succeeds.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="models"><span class="tsd-kind-property">models</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMovieModel.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieModel</a><span class="tsd-signature-symbol">[]</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span></h5>
+<div class="tsd-comment tsd-typography"><p>Portable staged model catalogue. Undefined behaves as an empty catalogue: framing may use rig/default bounds, while envelope clearance refuses unmeasurable staged obstacles.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="motions"><span class="tsd-kind-property">motions</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <a href="../interfaces/_automovie_interface.IAutoMovieMotion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieMotion</a><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Final actor motions by node id, read without mutation after coupling; absent entries contribute no actor motion.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="objectmotions"><span class="tsd-kind-property">objectMotions</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-keyword">readonly</span> <a href="../interfaces/_automovie_interface.IAutoMovieClip.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieClip</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Final object clips in producer/channel-authority order, sampled on the shot clock for framing and clearance.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="rotations"><span class="tsd-kind-property">rotations</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ReadonlyMap</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <a href="../interfaces/_automovie_interface.IAutoMovieQuaternion.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieQuaternion</a><span class="tsd-signature-symbol">&gt;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Staged node world-facing quaternions, used to place actor root movement; a missing facing prevents the actor-motion following branch.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="runtime"><span class="tsd-kind-property">runtime</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_automovie_interface.IAutoMovieCameraClearanceRuntime.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieCameraClearanceRuntime</a> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span></h5>
+<div class="tsd-comment tsd-typography"><p>Builder-owned geometry revision and clearance clock; required only when a selected camera declares an envelope.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5 id="scope"><span class="tsd-kind-property">scope</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>Clip-id suffix, normally the shot id or otherwise beat id; used verbatim in cam:<scope> and coverage ids.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><br/>    <a href="../interfaces/_automovie_interface.IAutoMovieShot.html" class="tsd-signature-type tsd-kind-interface">IAutoMovieShot</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-type">&quot;cameraMotion&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;cameraIntent&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;coverage&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;cameraClearance&quot;</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">&gt;</span></h4><p>The shot's camera fields.</p>
+<aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/film/compilePerformShotCameras.ts#L50">packages/engine/src/film/compilePerformShotCameras.ts:50</a></li></ul></aside></div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

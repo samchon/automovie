@@ -1,0 +1,91 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>curlChainUntilContact | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_engine.html">@automovie/engine</a></li>
+<li><a href="" aria-current="page">curlChainUntilContact</a></li></ul>
+<h1>Function curlChainUntilContact</h1></div>
+<section class="tsd-panel">
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="curlchainuntilcontact"><span class="tsd-kind-call-signature">curlChainUntilContact</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">input</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieCurlChainUntilContact.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieCurlChainUntilContact</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieCurlChainUntilContact.IInput.html" class="tsd-signature-type tsd-kind-interface">IInput</a><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../modules/_automovie_interface.IAutoMovieCurlChainUntilContact.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieCurlChainUntilContact</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieCurlChainUntilContact.IResult.html" class="tsd-signature-type tsd-kind-interface">IResult</a><a href="#curlchainuntilcontact" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Close articulated chains (fingers and thumb) around an object: each
+joint, proximal first, flexes until a capsule of its chain first touches
+the object's colliders or its flexion reaches the rig's range of motion,
+and the next joint then continues from there.</p>
+<p>This is the closing rule of kinematic grasp execution in grasp planners and
+game engines: GraspIt!'s auto-grasp closes every joint of a hand at a set
+rate and stops the joints proximal to a link once that link touches the
+object, while the distal ones keep closing (Miller and Allen 2004, IEEE
+Robot. Autom. Mag. 11(4):110); Unity and Unreal hand interaction systems
+rotate each finger bone until a sweep against the held object hits. Here
+the joints of a chain close one at a time, proximal to distal, which is the
+same stopping rule evaluated sequentially: joint <code>k</code> turns its phalanx and
+every phalanx after it as a rigid unit, so it stops at the first contact of
+any of them, and the joints after it close from that state.</p>
+<p>Each phalanx is a capsule of the chain's <code>radius</code> from its joint to the
+next joint of the chain, the last one to <code>tip</code> (a point in the distal
+bone's rest frame relative to its joint). The gap of a phalanx is the exact
+signed distance from its segment to each collider less the radius: the
+segment-to-segment distance for spheres and capsules
+(<code>closestPointsBetweenSegments</code>), and for boxes the minimum of the box's
+signed distance along the segment, a convex function of the segment
+parameter, found by golden-section search to 1e-9 of the segment. Contact is
+a gap of zero or less.</p>
+<p>Every joint's flexion is searched from its current value upward in steps
+of <code>step</code> degrees, the first step whose gap is not positive is bracketed
+and the bracket closed to the width 30 bisections leave (<code>HALVINGS</code>), by
+false position on the gap, which is continuous in the angle
+(<code>bracketedCrossing</code>), and by bisection for whatever width that leaves; the
+joint keeps the bracket's lower end, the last angle read with a positive
+gap, so a phalanx stops touching the collider within that resolution and
+never inside it. A joint already in
+contact does not move. A joint that meets nothing stops at the flexion the
+skeleton's range of motion allows (<code>clampJointToSkeleton</code>), so the result
+never needs a later clamp. Forward kinematics is the engine's <code>resolvePose</code>
+with the same axes and rest frames, so the angles read the same everywhere.</p>
+<p>The search is deterministic: a fixed step, a fixed bracket resolution and a
+fixed chain and joint order. A step larger than the thinnest part of an
+object can step a phalanx past it; the default of 1 degree moves a 0.1 m
+phalanx tip less than 2 mm.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">input</span>: <a href="../modules/_automovie_interface.IAutoMovieCurlChainUntilContact.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieCurlChainUntilContact</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieCurlChainUntilContact.IInput.html" class="tsd-signature-type tsd-kind-interface">IInput</a></span>
+<div class="tsd-comment tsd-typography"><p>The rig, the pose to curl, the chains and the colliders.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../modules/_automovie_interface.IAutoMovieCurlChainUntilContact.html" class="tsd-signature-type tsd-kind-namespace">IAutoMovieCurlChainUntilContact</a><span class="tsd-signature-symbol">.</span><a href="../interfaces/_automovie_interface.IAutoMovieCurlChainUntilContact.IResult.html" class="tsd-signature-type tsd-kind-interface">IResult</a></h4><p>The curled pose and each chain's final angles and gap.</p>
+
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-throws">
+<h4 class="tsd-anchor-link" id="throws">Throws<a href="#throws" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p>When a chain names a bone the pose cannot resolve, the
+radius or step is not positive, or a collider is malformed.</p>
+</div></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/engine/src/kinematics/curlChainUntilContact.ts#L80">packages/engine/src/kinematics/curlChainUntilContact.ts:80</a></li></ul></aside></div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>

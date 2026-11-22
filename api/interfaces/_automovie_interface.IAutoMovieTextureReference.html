@@ -1,0 +1,157 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IAutoMovieTextureReference | AutoMovie API</title><meta name="description" content="Documentation for AutoMovie API"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">AutoMovie API</a>
+<div id="tsd-toolbar-links"><a href="https://samchon.github.io/automovie/docs/">Docs</a><a href="https://samchon.github.io/automovie/reference/">Reference</a><a href="https://github.com/samchon/automovie">GitHub</a></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/_automovie_interface.html">@automovie/interface</a></li>
+<li><a href="" aria-current="page">IAutoMovieTextureReference</a></li></ul>
+<h1>Interface IAutoMovieTextureReference</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>One renderer-resolved texture and its deterministic sampling intent.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IAutoMovieTextureReference</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#asset">asset</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#colorspace">colorSpace</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;srgb&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#coordinatesource">coordinateSource</a><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureCoordinateSource.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureCoordinateSource</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#sampler">sampler</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">magFilter</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">minFilter</span><span class="tsd-signature-symbol">:</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linear&quot;</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearestMipmapLinear&quot;</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linearMipmapLinear&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">wrapS</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">wrapT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#texcoord">texCoord</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#transform">transform</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">offset</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">y</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">rotationDeg</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">scale</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">y</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieTextureReference.ts#L11">packages/interface/src/material/IAutoMovieTextureReference.ts:11</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#asset" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>asset</span></a>
+<a href="#colorspace" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>color<wbr/>Space</span></a>
+<a href="#coordinatesource" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>coordinate<wbr/>Source?</span></a>
+<a href="#sampler" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sampler?</span></a>
+<a href="#texcoord" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>tex<wbr/>Coord</span></a>
+<a href="#transform" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>transform?</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="asset"><span>asset</span><a href="#asset" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">asset</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Project asset id.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieTextureReference.ts#L13">packages/interface/src/material/IAutoMovieTextureReference.ts:13</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="colorspace"><span>color<wbr/>Space</span><a href="#colorspace" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">colorSpace</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;srgb&quot;</span></div>
+<div class="tsd-comment tsd-typography"><p>How stored texels must be decoded before shading.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieTextureReference.ts#L32">packages/interface/src/material/IAutoMovieTextureReference.ts:32</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="coordinatesource"><code class="tsd-tag">Optional</code><span>coordinate<wbr/>Source</span><a href="#coordinatesource" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">coordinateSource</span><span class="tsd-signature-symbol">?:</span> <a href="../types/_automovie_interface.AutoMovieTextureCoordinateSource.html" class="tsd-signature-type tsd-kind-type-alias">AutoMovieTextureCoordinateSource</a></div>
+<div class="tsd-comment tsd-typography"><p>What one unit of the addressed UV set means. Omission preserves legacy raw UV sampling without making a new claim about the set's unit or extent.</p>
+<p>Declare <code>&quot;surface-metres&quot;</code> for an atlas-bearing procedural surface, which is what the geometry kernel emits and what most generated members carry; omitting the field there leaves the unit unstated rather than defaulted. Declare <code>&quot;normalized&quot;</code> for a lattice surface, a module prototype, or an imported set whose selected UV layout is known to span <code>[0, 1]</code>. Declare <code>&quot;source-uv&quot;</code> when an imported set keeps its arbitrary authored layout; importing a mesh does not normalize that layout by itself. <code>transform.scale</code> is read against whichever source this names, and the three cannot be told apart from the material record without it.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieTextureReference.ts#L29">packages/interface/src/material/IAutoMovieTextureReference.ts:29</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="sampler"><code class="tsd-tag">Optional</code><span>sampler</span><a href="#sampler" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">sampler</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">magFilter</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">minFilter</span><span class="tsd-signature-symbol">:</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linear&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearestMipmapLinear&quot;</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linearMipmapLinear&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">wrapS</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">wrapT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-comment tsd-typography"><p>Optional texture filtering and wrap policy.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">magFilter</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Filtering when source texels are enlarged.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">minFilter</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;linear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearest&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;nearestMipmapLinear&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;linearMipmapLinear&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Filtering when the image occupies fewer pixels than its source.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">wrapS</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Addressing beyond the horizontal unit interval.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">wrapT</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;clamp&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;repeat&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;mirror&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Addressing beyond the vertical unit interval.</p>
+</div></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieTextureReference.ts#L63">packages/interface/src/material/IAutoMovieTextureReference.ts:63</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="texcoord"><span>tex<wbr/>Coord</span><a href="#texcoord" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">texCoord</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>UV set index. Generated automovie meshes that emit texture coordinates provide set zero and no other.</p>
+<p>The supported mesh representation carries UV0 only; a second coordinate set is not inherently a packed atlas. Packed-atlas authoring and multiple UV sets remain excluded by this contract. Reopening requires an authorable layout rule and a supported artifact/consumer path for that layout, rather than selecting an unavailable channel here.</p>
+<p>The current runtime admits only zero, including imported appearances.</p>
+</div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieTextureReference.ts#L22">packages/interface/src/material/IAutoMovieTextureReference.ts:22</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="transform"><code class="tsd-tag">Optional</code><span>transform</span><a href="#transform" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">transform</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">offset</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">y</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">rotationDeg</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">scale</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">y</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-comment tsd-typography"><p>Optional UV transform applied around the origin, in texture turns.</p>
+<p><code>scale</code> is turns of the image per unit of the addressed coordinate source, so it is <code>1 / tile</code> against <code>&quot;surface-metres&quot;</code> and <code>extent / tile</code> against <code>&quot;normalized&quot;</code>. A <code>&quot;source-uv&quot;</code> set has no general physical-scale formula; read its source layout or adoption receipt. Read <a href="#coordinatesource" class="tsd-kind-property">coordinateSource</a> before authoring it.</p>
+</div>
+<div class="tsd-type-declaration">
+<h4>Type Declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">offset</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">y</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></h5>
+<div class="tsd-comment tsd-typography"><p>Finite image-turn offset applied after rotation and scale.</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">x</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Horizontal image-turn translation after scale and rotation.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">y</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Vertical image-turn translation after scale and rotation.</p>
+</div></li></ul></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">rotationDeg</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Finite counterclockwise rotation in degrees about the UV origin.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">scale</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">y</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></h5>
+<div class="tsd-comment tsd-typography"><p>Finite nonzero image turns per coordinate unit; negative mirrors.</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">x</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Horizontal image turns per source U unit; negative mirrors U.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">y</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Vertical image turns per source V unit; negative mirrors V.</p>
+</div></li></ul></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/samchon/automovie/blob/master/packages/interface/src/material/IAutoMovieTextureReference.ts#L39">packages/interface/src/material/IAutoMovieTextureReference.ts:39</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#asset"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>asset</span></a><a href="#colorspace"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>color<wbr/>Space</span></a><a href="#coordinatesource"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>coordinate<wbr/>Source</span></a><a href="#sampler"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>sampler</span></a><a href="#texcoord"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>tex<wbr/>Coord</span></a><a href="#transform"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>transform</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://samchon.github.io/automovie/docs/" class="tsd-nav-link">Docs</a><a href="https://samchon.github.io/automovie/reference/" class="tsd-nav-link">Reference</a><a href="https://github.com/samchon/automovie" class="tsd-nav-link">GitHub</a></nav>
+<nav class="tsd-navigation"><a href="../index.html">AutoMovie API</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer></footer>
+<div class="overlay"></div></body></html>
