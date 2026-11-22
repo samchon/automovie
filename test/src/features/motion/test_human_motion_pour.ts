@@ -63,10 +63,15 @@ export function test_human_motion_pour(): void {
     y: body.measure.waistHeight,
     z: 0.55 * (body.measure.upperArm + body.measure.forearm),
   };
+  // The right hand pours to its inner side, the glass turned so its lip
+  // faces the cup there: pronation tips the glass toward the body's left. A
+  // cup straight ahead asks the wrist to pitch the glass 40 degrees forward
+  // at the pivot, which the arm cannot hold (planned with the pour's hard
+  // lip and tilt limits, a task point stays 105 mm off at mid-flow).
   const targetAt: IAutoMovieVector3 = {
-    x: sourceAt.x,
+    x: sourceAt.x + 0.13,
     y: sourceAt.y + sourceLip.y - targetMouth.y,
-    z: sourceAt.z + 0.13,
+    z: sourceAt.z,
   };
   const params: IAutoMovieMotionHumanPour.IParams = {
     source: "glass",
@@ -95,7 +100,7 @@ export function test_human_motion_pour(): void {
         },
       ],
       props: [
-        HumanObject.prop("glass", source, { at: sourceAt, yaw: 0 }),
+        HumanObject.prop("glass", source, { at: sourceAt, yaw: 90 }),
         HumanObject.prop("cup", target, {
           at: targetAt,
           yaw: 0,
