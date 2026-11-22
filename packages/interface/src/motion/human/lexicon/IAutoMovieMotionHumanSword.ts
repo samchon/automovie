@@ -32,6 +32,16 @@ import type { IAutoMovieMotionHumanStrikingHeld } from "../striking/IAutoMovieMo
  * frame's change of the target's predicted place at contact is superposed
  * on the landing one correction latency later (`HumanSwordFollow`).
  *
+ * Timing of every blade attack ({@link HumanSword.SPEED}, {@link HumanSwordTiming}):
+ * the hand moves each path as one minimum-jerk unit, lasting 1.875 times the
+ * path over the point's peak speed. The thrust's point peaks at 2.6 m/s at
+ * novice to 3.2 m/s at elite (Chen et al. 2017); the cut's edge peaks at
+ * 6 to 10 m/s (provisional, under the 9.89 m/s of a knife slash, Bleetman et
+ * al. 2003). The performer's `speed` skill reads between them, so a thrust
+ * of 0.8 m takes 0.47 s at elite and 0.58 s at novice. The setting and the
+ * return take the recovery skill's factor, 1.4 at novice to 1.0 at elite;
+ * `manner.pace` stretches the whole clock. A parry's travel is timed the same.
+ *
  * First pass: a body does not stop the blade; binds, winds and redirection
  * are not planned; every pose constant is provisional, from the treatises'
  * figures.
