@@ -47,7 +47,7 @@ export function test_motion_throw_catch_pitch_release(): void {
     composition: HumanChain.subject("pitcher")
       .pickUp({ prop: "ball", handle: "grip" })
       .registered("pitch", {
-        at: { kind: "point", frame: "world", at: { x: 0, y: 1, z: 10 } },
+        target: { kind: "point", frame: "world", at: { x: 0, y: 1, z: 10 } },
         prop: "ball",
       }).node,
   });

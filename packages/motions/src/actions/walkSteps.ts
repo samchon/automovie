@@ -280,7 +280,8 @@ export namespace walkSteps {
     const turnStep: number = (walkReach.TWIST - stand.TOE_OUT) * (input.gait?.turn ?? 1);
     // An arrival turned about takes step turns at the arrival (`walkHeading.closing`).
     const closing: number = walkHeading.closing(inPlace || facing !== undefined ? 0 : ending - along$(D), turnStep);
-    const extra: number = closing - walkHeading.CLOSING;
+    // A turned-about arrival turns only on footfalls taken in place at it, each a step turn round the standing foot; the walking ones keep their way. A walk facing off its entry turns a step turn a footfall, with footfalls added in place where its own are too few.
+    const extra: number = facing !== undefined ? Math.max(0, Math.ceil(Math.abs(ending - yaw0) / turnStep) - pace.steps - turning) : closing > walkHeading.CLOSING ? closing : 0;
     const n: number = inPlace ? Math.max(1, Math.ceil(Math.abs(ending - yaw0) / turnStep)) : pace.steps + turning + extra;
     const lag: number = turning * T;
     const last: number = inPlace ? first + swing + n * T : pace.last + lag + extra * T;
@@ -321,7 +322,7 @@ export namespace walkSteps {
         const d: number = place(i + 1);
         if (inPlace) return yaw0 + (ending - yaw0) * Math.min(1, (i + 1) / n);
         if (facing !== undefined)
-          return i >= n - 1 ? ending : faced$(path.at(d));
+          return walkHeading.capped(yaw0, i >= n - 1 ? ending : faced$(path.at(d)), turnStep * (i + 1));
         if (i >= n - 1) return ending;
         const along: number = along$(d);
         return i >= n - closing ? along + ((ending - along) * (i - n + closing + 1)) / closing : along;

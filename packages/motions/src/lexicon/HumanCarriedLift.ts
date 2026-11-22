@@ -17,6 +17,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
+import { HumanCarriedLiftKnots } from "./HumanCarriedLiftKnots";
 
 /**
  * The lift into a carry and the set-down out of it (#3349): the carried
@@ -158,6 +159,16 @@ export namespace HumanCarriedLift {
         },
       };
     };
+    // The carry's frozen posture over each phase is kept on knots
+    // (`HumanCarriedLiftKnots`): one whole-posture fit a knot, not one a
+    // displayed second, the knots as dense as the blend's own error bound
+    // needs.
+    const rising: HumanCarriedLiftKnots.ICourse = HumanCarriedLiftKnots.course(
+      0,
+      lift,
+    );
+    const lowering: HumanCarriedLiftKnots.ICourse =
+      HumanCarriedLiftKnots.course(plan.duration - setDown, plan.duration);
     return {
       ...plan,
       events: [
@@ -188,37 +199,43 @@ export namespace HumanCarriedLift {
       ): IAutoMovieMotionHumanPosture => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(source);
-        const held: IAutoMovieMotionHumanPosture = plan.posture(
-          at,
-          undefined,
-          resolution,
-          projection,
-        );
+        // The carry's frozen posture at a second of a phase: its knot's own
+        // where the phase keeps one, interpolated between knots elsewhere.
+        const carried = (
+          course: HumanCarriedLiftKnots.ICourse,
+        ): HumanCarriedLiftKnots.IReading =>
+          HumanCarriedLiftKnots.read(
+            course,
+            body,
+            at,
+            (seconds: number): IAutoMovieMotionHumanPosture =>
+              GymnasticsFlight.frozen(
+                body,
+                plan.posture(seconds, undefined, resolution, projection),
+                resolution,
+                projection,
+              ),
+          );
         if (lift > 0 && at < lift) {
           const x: number = Math.max(0, at / lift);
-          return x <= 0
-            ? entry
-            : mix(
-                stood,
-                GymnasticsFlight.frozen(body, held, resolution, projection),
-                x,
-              );
+          return x <= 0 ? entry : mix(stood, carried(rising).posture, x);
         }
         if (setDown > 0 && at > plan.duration - setDown) {
           const w: number = (at - (plan.duration - setDown)) / setDown;
-          return w <= 0
-            ? held
-            : mix(
-                GymnasticsFlight.frozen(body, held, resolution, projection),
-                {
-                  ...stood,
-                  root: { x: held.root.x, y: stood.root.y, z: held.root.z },
-                  yaw: HumanFrame.heading(turnHumanPosture(held).rotation),
-                },
-                w,
-              );
+          if (w <= 0)
+            return plan.posture(at, undefined, resolution, projection);
+          const reading: HumanCarriedLiftKnots.IReading = carried(lowering);
+          return mix(
+            reading.posture,
+            {
+              ...stood,
+              root: { x: reading.root.x, y: stood.root.y, z: reading.root.z },
+              yaw: HumanFrame.heading(reading.rotation),
+            },
+            w,
+          );
         }
-        return held;
+        return plan.posture(at, undefined, resolution, projection);
       },
     };
   }

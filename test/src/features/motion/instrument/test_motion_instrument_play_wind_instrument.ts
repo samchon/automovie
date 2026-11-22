@@ -34,7 +34,7 @@ export function test_motion_instrument_play_wind_instrument(): void {
     prop: "bugle",
     delay: 0.23,
     prepare: 0.55,
-    seconds: 0.9,
+    hold: 0.9,
     retract: 0.61,
   };
   const scene = {

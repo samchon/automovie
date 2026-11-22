@@ -212,7 +212,7 @@ export function test_motion_carry_person_shared_carry(): void {
         "grip",
       ).point;
       TestValidator.predicate(
-        `${owner.site} keeps its own point at ${seconds} s`,
+        `${owner.site} keeps its own point at ${seconds} s PROBE ${JSON.stringify({ actual, expected, before: HumanHand.frame(owner.performer.body, performance.bones(owner.performer.subject, from - 0.1), owner.side, "grip").point, at: HumanHand.frame(owner.performer.body, performance.bones(owner.performer.subject, from), owner.side, "grip").point })}`,
         nclose(Vector3.length(Vector3.subtract(actual, expected)), 0, 0.015),
       );
       if (seconds < from || seconds > to) continue;

@@ -3228,6 +3228,208 @@
       ]
     },
     {
+      "law": "closeStrike",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=horizontalElbow",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=risingElbow",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=descendingElbow",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=spinningElbow",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=spinningBackfist",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=headbutt",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "arm=lead",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "arm=rear",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "footStrike",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=side",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=back",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=hook",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=crescent",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=axe",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=stomp",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=sweep",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "leg=lead",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "leg=rear",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "spin=true",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "spin=false",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "jump=true",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "jump=false",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
       "law": "guard",
       "checks": [
         "tangle",
@@ -6387,6 +6589,46 @@
         },
         {
           "row": "kind=taiChiPush",
+          "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "chiSau",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "count",
+        "amplitude",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
           "tests": [],
           "audit": [],
           "sweep": "reduced"

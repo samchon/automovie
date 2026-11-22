@@ -91,7 +91,7 @@ export function test_motion_operate_swipe_touchscreen(): void {
   const perform = (
     from: number,
     to: number,
-    seconds?: number,
+    duration?: number,
     fixture: IAutoMovieMotionHumanProp = tablet,
     cut?: "relax" | 1,
   ): HumanPerformance => {
@@ -100,7 +100,7 @@ export function test_motion_operate_swipe_touchscreen(): void {
       screen: "screen",
       from,
       to,
-      seconds,
+      duration,
     };
     const chain = Chain.subject("a")
       .stand({ hold: 0.6, sway: 0 })
@@ -232,12 +232,12 @@ export function test_motion_operate_swipe_touchscreen(): void {
     ["off-screen endpoint", "from", () => perform(-0.6, 0.25)],
     [
       "unrepresentable stroke",
-      "seconds",
+      "duration",
       () => perform(-0.25, 0.25, Number.EPSILON),
     ],
     [
       "withdrawal lost to the film clock",
-      "seconds",
+      "duration",
       () => perform(-0.25, 0.25, 1e16),
     ],
     [

@@ -137,7 +137,14 @@ export namespace cartwheel {
       .posture(0);
     const ease: (x: number) => number = (x: number): number =>
       minimumJerk.share(x);
-    const between: ReturnType<typeof ExerciseKey.prepareBlend> =
+    // The shape leaves the body as the entry shows it, its stance and its
+    // feet, and closes on the relaxed stand.
+    const entering: ReturnType<typeof ExerciseKey.prepareBlend> =
+      ExerciseKey.prepareBlend(
+        ExerciseKey.shown(context.entry.pose),
+        wheel(body),
+      );
+    const leaving: ReturnType<typeof ExerciseKey.prepareBlend> =
       ExerciseKey.prepareBlend(ExerciseKey.standing(body), wheel(body));
 
     // The body at an angle of the turn, its root at the origin.
@@ -145,7 +152,9 @@ export namespace cartwheel {
       angle: number,
     ): IAutoMovieMotionHumanPosture => ({
       ...ExerciseKey.posed(
-        between(ease(Math.min(angle, 360 - angle) / SHAPE)),
+        angle <= 180
+          ? entering(ease(angle / SHAPE))
+          : leaving(ease((360 - angle) / SHAPE)),
         standing.yaw,
       ),
       roll: sign * angle,
@@ -177,7 +186,9 @@ export namespace cartwheel {
         body,
         shaped,
         spokes,
-        start: standing.root,
+        // The root where the entry shows it, so the first foot bears where
+        // it stands.
+        start: context.entry.pose.root?.translation ?? standing.root,
         until: 360,
         step: STEP,
       });
@@ -223,18 +234,17 @@ export namespace cartwheel {
       return { ...shaped(angle), root: rolling.root(angle) };
     };
     // The bearing hands and feet laid where they came down, not turned with
-    // the rigid shape (`GymnasticsWheelPlants`).
+    // the rigid shape, the hands in the T-shape: the first along the travel,
+    // the second toward the way the body faces (`GymnasticsWheelPlants`).
+    const frame: Parameters<typeof HumanFrame.point>[0] = {
+      origin: { x: 0, y: 0, z: 0 },
+      yaw: standing.yaw,
+    };
     const lay: ReturnType<typeof GymnasticsWheelPlants.of> =
-      GymnasticsWheelPlants.of(
-        body,
-        contacts,
-        duration,
-        carried,
-        HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw: standing.yaw },
-          { x: -sign, y: 0, z: 0 },
-        ),
-      );
+      GymnasticsWheelPlants.of(body, contacts, duration, carried, {
+        first: HumanFrame.point(frame, { x: -sign, y: 0, z: 0 }),
+        second: HumanFrame.point(frame, { x: 0, y: 0, z: 1 }),
+      });
     const turning: (seconds: number) => IAutoMovieMotionHumanPosture = (
       seconds: number,
     ): IAutoMovieMotionHumanPosture => lay(carried(seconds), seconds);

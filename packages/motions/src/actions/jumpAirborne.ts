@@ -29,6 +29,9 @@ import { walkLeg } from "./walkLeg";
 /** How far each free foot lifts above its straight path at mid-flight, hip heights (provisional). */
 const ARCH: number = 0.1;
 
+/** The least forward gap between the feet that reads as one foot ahead of the other, metres: a nanometre, the walk's root-solve width (`walkReach`), under which the gap is a rounding of side by side. */
+const PASS_GAP: number = 1e-9;
+
 /**
  * A jump's time in the air: the shape it holds between take-off and
  * touchdown, the knee hint its legs bend toward, and the turns it asks the
@@ -268,9 +271,20 @@ export namespace jumpAirborne {
     );
     const g0: number = Vector3.dot(apart, along);
     const g1: number = Vector3.dot(apartEnd, along);
-    const passAt: number = g0 * g1 < 0 ? g0 / (g0 - g1) : Number.NaN;
-    const passBump: number = Number.isNaN(passAt)
-      ? 0
+    // A pass is a sign change of two real gaps, strictly inside the
+    // flight: feet landing side by side leave a floating-point zero gap,
+    // whose pass at the very end made the bump 0/0. A pair whose feet change
+    // sides across the line as well (a crossing landing) is the law's own
+    // crossing, not a pass to open.
+    const passAt: number =
+      g0 * g1 < 0 && Math.min(Math.abs(g0), Math.abs(g1)) > PASS_GAP
+        ? g0 / (g0 - g1)
+        : Number.NaN;
+    const passBump: number =
+      Number.isNaN(passAt) ||
+      !(Vector3.dot(apart, rightward) > 0) ||
+      !(Vector3.dot(apartEnd, rightward) > 0)
+        ? 0
       : Math.max(
           0,
           2 * body.measure.shankRadius -

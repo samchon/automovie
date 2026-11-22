@@ -11,6 +11,7 @@ import type {
 
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { poseBones } from "../posture/poseBones";
+import { refitHumanPosture } from "../posture/refitHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 
@@ -135,7 +136,8 @@ export namespace courseLimbSwivels {
    * refine, or an arm pair that meets to its coupled solve), or where the
    * branch changes, down to the frame grid. The goals stay the displayed
    * ones; only the branch and swivel come from the course, so no read
-   * searches and no branch hops.
+   * searches and no branch hops. Each judgement is made once, the first time a read
+   * descends through it, and kept.
    *
    * @param props The posture reader, the limbs, the span and the knotted instants.
    * @returns Each limb's swivel and branch at a second.
@@ -143,10 +145,10 @@ export namespace courseLimbSwivels {
    * @evidence contracts/development/common.md#meaningful-documentation States what is coursed, how it is read and judged, and why the goals stay.
    * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of a two-bone limb on its goal; coursing it keeps the branch coherent while the closed form keeps the goal exact.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Root knots in order, a recursive judgement, a descending read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every knot is a full resolve, cold or continued from the knot before it; interpolation is admitted against the solver's tolerance and only where the display's closed form places it as given.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Knots only where the swivel path bends away from its interpolation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Knots and judgements are kept.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the reader and the knots.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every knot is the resolve's own limb fit on the posture's assembly, cold or continued from the knot before it, the digits the seeds do not read left out; interpolation is admitted against the solver's tolerance and only where the display's closed form places it as given.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Knots only where the swivel path bends away from its interpolation, judged only along the paths reads descend: a judgement costs one knot resolve and two placements that share one assembly and skip the digits, and a read costs a descent through at most the span over the frame grid's halvings, with no solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Knots and judgements are kept; a second's goal posture and assembly are made once and shared by the knot and both placements judged there, kept for the course's later judgements.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the reader and the knots; the goal postures and assemblies of the judged seconds, one each.
    */
   export function swivels(props: IPrepare): Swivels {
     const { body, posture: read, limbs, span }: IPrepare = props;
@@ -197,20 +199,26 @@ export namespace courseLimbSwivels {
       from?: ISwivelKnot,
       prescribed: boolean = false,
     ): ISwivelKnot => {
+      // The knots are chained from the span's start: the first is the
+      // cold fit, or is placed at the entered swivels, and each later one continues the knot before it (its
+      // branch and swivel, refined, where they stay legal), the warm
+      // start a display holds a limb's branch by, so the course changes
+      // branch only where the continued one turns infeasible. The chain
+      // is fixed by the span and its instants, so no knot depends on the
+      // order the course is read in. A continued knot's seeds are the
+      // resolve's limb fits on the second's shared assembly; a cold one is
+      // the plain resolve, which may take a prepared solve.
+      const continued: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> =
+        from === undefined ? {} : near(from.seeds, prescribed);
       const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
-        resolveHumanPosture.seeded(
-          body,
-          goals(seconds),
-          undefined,
-          // The knots are chained from the span's start: the first is the
-          // cold fit, or is placed at the entered swivels, and each later one continues the knot before it (its
-          // branch and swivel, refined, where they stay legal), the warm
-          // start a display holds a limb's branch by, so the course changes
-          // branch only where the continued one turns infeasible. The chain
-          // is fixed by the span and its instants, so no knot depends on the
-          // order the course is read in.
-          from === undefined ? {} : near(from.seeds, prescribed),
-        );
+        Object.keys(continued).length === 0
+          ? resolveHumanPosture.seeded(body, goals(seconds))
+          : refitHumanPosture.constructed(
+              body,
+              assembled(seconds).pose,
+              assembled(seconds).limbs,
+              continued,
+            );
       const seeds: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
       for (const limb of limbs) {
         const seed: IAutoMovieSwivelSeed | null | undefined =
@@ -256,18 +264,39 @@ export namespace courseLimbSwivels {
       }
       return out;
     };
+    // A second's assembly (the posture's root, heading and clamped direct
+    // joints before any limb fit, `resolveHumanPosture.assemble`), made once
+    // and shared by both placements judged there: a placement is the
+    // resolve's second half alone.
+    const assemblies: Map<number, resolveHumanPosture.IAssembled> = new Map();
+    const assembled = (seconds: number): resolveHumanPosture.IAssembled => {
+      let found: resolveHumanPosture.IAssembled | undefined =
+        assemblies.get(seconds);
+      if (found === undefined) {
+        found = resolveHumanPosture.assemble(body, goals(seconds));
+        assemblies.set(seconds, found);
+      }
+      return found;
+    };
+    // The limbs placed at given swivels: the posture's own goals fitted on
+    // its assembly in the resolver's order (`refitHumanPosture.constructed`,
+    // the kernel a full resolve runs after assembling), each coursed limb
+    // prescribed, so it stands in closed form at its swivel (Tolani, Goswami
+    // and Badler 2000, section 3.2.4) where it reaches its goal within range
+    // and clear of what it keeps clear of. The digits a full resolve fits
+    // last are left out: a judged knuckle is the proximal joint's origin,
+    // which only the hand's own frame places.
     const placed = (
       seconds: number,
       seeds: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>,
     ): IPlacement => {
+      const assembly: resolveHumanPosture.IAssembled = assembled(seconds);
       const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
-        resolveHumanPosture.seeded(
+        refitHumanPosture.constructed(
           body,
-          goals(seconds),
-          undefined,
+          assembly.pose,
+          assembly.limbs,
           near(seeds, true),
-          undefined,
-          ends,
         );
       return {
         bones: poseBones(body, resolved.pose, undefined, ends),
@@ -369,6 +398,19 @@ export namespace courseLimbSwivels {
         : null;
       return piece.halves;
     };
+
+    // A root interval is made the first time a read lands in it, and judged
+    // only along the path a read descends: an interval no read reaches is
+    // never judged. Each judgement reads only its interval's two ends and is
+    // kept, so the course is the same in any reading order.
+    const baked = (i: number): ISwivelInterval => {
+      let piece: ISwivelInterval | undefined = intervals.get(i);
+      if (piece === undefined) {
+        piece = { a: root(i), b: root(i + 1) };
+        intervals.set(i, piece);
+      }
+      return piece;
+    };
     return (
       seconds: number,
     ): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> => {
@@ -376,11 +418,7 @@ export namespace courseLimbSwivels {
       if (times.length === 1) return root(0).seeds;
       let i: number = 0;
       while (i + 2 < times.length && times[i + 1]! <= at) ++i;
-      let piece: ISwivelInterval | undefined = intervals.get(i);
-      if (piece === undefined) {
-        piece = { a: root(i), b: root(i + 1) };
-        intervals.set(i, piece);
-      }
+      let piece: ISwivelInterval = baked(i);
       for (
         let split: readonly [ISwivelInterval, ISwivelInterval] | null =
           halves(piece);

@@ -177,7 +177,9 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
           (swivel: number): IAutoMovieVector3 =>
             Quaternion.rotateVector(turn(swivel), unit),
         );
-        const along = (axis: IAutoMovieVector3): IAutoMovieSwivelArcs.ISinusoid =>
+        const along: (axis: IAutoMovieVector3) => IAutoMovieSwivelArcs.ISinusoid = (
+          axis: IAutoMovieVector3,
+        ): IAutoMovieSwivelArcs.ISinusoid =>
           fit(sampled.map((d: IAutoMovieVector3): number => Vector3.dot(d, axis)));
         const read: IPointing = {
           flexion: along(wrist.flexion),

@@ -1,9 +1,10 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+﻿import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
@@ -15,7 +16,9 @@ import type {
 import { AutoMovieMotionHumanElbowPole } from "../compose/AutoMovieMotionHumanElbowPole";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
+import { HumanHandShape } from "../posture/HumanHandShape";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsPalmRise } from "./GymnasticsPalmRise";
@@ -26,22 +29,48 @@ import { GymnasticsPalmRise } from "./GymnasticsPalmRise";
  * itself and its sole or palm would lift, skate or pass into the floor. While
  * a spoke bears, its limb is solved to a laid place fixed where it came
  * down: a foot flat on its ankle's point at its own heading, a palm flat on
- * the floor under its wrist, the fingers along the wheel's travel. Over
- * `LEAD` of the action at each end the limb moves from the carried pose to
- * the laid one and back, so a contact taken or left mid-turn does not jump;
- * a hand the carried shape would take below the floor is held on it. A laid
- * arm's elbow keeps the carried one's side, a straight arm's pushed out
- * along its olecranon (`AutoMovieMotionHumanElbowPole`), so the solve has a
- * side to bend to.
+ * the floor under its wrist with the fingers straight. The hands are set in
+ * the T-shape gymnasts are coached to and that loads the wrists and elbows
+ * least (Farana, Irwin, Jandacka, Uchytil and Mullineaux 2014, Sports
+ * Biomechanics 13(2):123-134; Farana et al. 2018, European Journal of Sport
+ * Science 18(10):1375-1381): the first hand's fingers point along the travel,
+ * the second's turned a quarter, toward the way the body faced, so neither
+ * forearm stands at the end of its turn.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States why the limbs are laid, where and how the ends blend.
- * @evidence contracts/development/design.md#principled-representation Limb goals over a rigid wheel posture, one per bearing window.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The blend share and one writer.
+ * Over `LEAD` of the action at each end the limb moves from the carried pose
+ * to the laid one and back, blended in joint space as a skeletal control's
+ * weight blends its solved chain with the input pose (each joint on its
+ * rotation, `blendHumanJoint`): the solve of the laid place is the end at
+ * full weight and the carried joints the end at none, so a contact taken or
+ * left mid-turn neither jumps nor makes the solver choose a turn of the arm
+ * the carried pose does not have. A laid arm's elbow keeps the carried one's
+ * side, a straight arm's pushed out along its olecranon
+ * (`AutoMovieMotionHumanElbowPole`), so the solve has a side to bend to.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States why the limbs are laid, where, how the hands are turned and how the ends blend, with the sources.
+ * @evidence contracts/development/design.md#principled-representation Limb goals over a rigid wheel posture, one per bearing window, and joint-space blends at their ends.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The blend share, the finger directions and one writer.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The places are where the wheel set each joint down; nothing is typed in.
  */
 export namespace GymnasticsWheelPlants {
   /** The share of the action over which a limb takes its laid place before its contact and leaves it after, provisional. */
   export const LEAD: number = 0.06;
+
+  /**
+   * The directions the laid fingers point along the floor, unit vectors.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member.
+   * @evidence contracts/development/design.md#principled-representation The T-shape's two hands in their order of contact.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts World directions given by the law.
+   */
+  export interface IFingers {
+    /** The first hand down: along the travel. */
+    first: IAutoMovieVector3;
+
+    /** The second hand down: a quarter turn from the first, toward the way the body faced. */
+    second: IAutoMovieVector3;
+  }
 
   /** One bearing window with its laid place. */
   interface ILaid {
@@ -62,8 +91,20 @@ export namespace GymnasticsWheelPlants {
     opens: boolean;
     closes: boolean;
 
+    /** The laid fingers' direction, for a hand. */
+    fingers: IAutoMovieVector3;
+
     /** The laid limb goal, given the posture it is written into. */
     goal(posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal;
+  }
+
+  /** A window's weight at a second. */
+  interface IWeighted {
+    /** The window. */
+    laid: ILaid;
+
+    /** Its weight, in (0, 1]. */
+    weight: number;
   }
 
   /**
@@ -73,15 +114,15 @@ export namespace GymnasticsWheelPlants {
    * @param contacts The wheel's bearing windows, shares of the duration.
    * @param duration The action's seconds.
    * @param carried The wheel's rigid posture at an action second.
-   * @param forward The wheel's travel on the floor, a unit vector: the laid fingers' direction.
+   * @param fingers The laid fingers' directions on the floor, by the hands' order of contact.
    * @returns A writer of the laid limbs into a carried posture at a second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the writer.
-   * @evidence contracts/development/implementation.md#principled-implementation Each window's laid goal from the carried pose where it came down; a minimum-jerk-free linear blend of point and slerp of rotation between the carried and the laid limb at the ends.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Windows, then one write.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The laid place is the wheel's own contact point.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bone FK per window at its start; per written sample, one FK of the limb and, for an arm, one of its hand under a flexed elbow.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The leg goal, the hand target and the pose reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Each window's laid goal from the carried pose where it came down; at the ends a minimum-jerk weight blends the carried joints toward the laid solve's joints on each joint's rotation (`blendHumanJoint`), the input-pose blend of a skeletal control's weight, so zero weight is the carried pose itself.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Windows, then per limb the heaviest window, then one write.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The laid place is the wheel's own contact point; the fingers are the flat hand's (`HumanHandShape`).
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bone FK per window at its start; per written sample, one FK of the limb and, for an arm, one of its hand under a flexed elbow; a blended sample adds one solve of that limb.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The leg goal, the hand target, the hand shape, the joint blend and the pose reader.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the windows' places.
    */
   export function of(
@@ -89,7 +130,7 @@ export namespace GymnasticsWheelPlants {
     contacts: readonly IAutoMovieMotionHumanContactWindow[],
     duration: number,
     carried: (seconds: number) => IAutoMovieMotionHumanPosture,
-    forward: IAutoMovieVector3,
+    fingers: IFingers,
   ): (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
@@ -107,34 +148,29 @@ export namespace GymnasticsWheelPlants {
         undefined,
         new Set([bone]),
       ).get(bone)!;
-    const laid: ILaid[] = contacts
-      .filter(
-        (c: IAutoMovieMotionHumanContactWindow): boolean =>
-          c.part === "leftFoot" ||
-          c.part === "rightFoot" ||
-          c.part === "leftHand" ||
-          c.part === "rightHand",
-      )
-      .map((c: IAutoMovieMotionHumanContactWindow): ILaid => {
-        const bone: AutoMovieHumanoidBone = c.part as AutoMovieHumanoidBone;
-        const side: AutoMovieHumanSide = c.part.startsWith("left")
-          ? "left"
-          : "right";
-        const hand: boolean = c.part.endsWith("Hand");
-        const from: number = c.from * duration;
-        const down: IAutoMovieResolvedBone = end(carried(from), bone);
-        if (hand) {
-          const target: ReturnType<typeof HumanHandTarget.prepareGoal> =
-            HumanHandTarget.prepareGoal(body, side, {
-              surface: "palm",
-              shape: "flat",
-            });
-          const point: IAutoMovieVector3 = {
-            x: down.worldPosition.x,
-            y: 0,
-            z: down.worldPosition.z,
-          };
-          return {
+    const firstHand: number = contacts.findIndex(
+      (c: IAutoMovieMotionHumanContactWindow): boolean =>
+        c.part === "leftHand" || c.part === "rightHand",
+    );
+    const laid: ILaid[] = contacts.flatMap(
+        (c: IAutoMovieMotionHumanContactWindow, index: number): ILaid[] => {
+          if (
+            c.part !== "leftFoot" &&
+            c.part !== "rightFoot" &&
+            c.part !== "leftHand" &&
+            c.part !== "rightHand"
+          )
+            return [];
+          const bone: AutoMovieHumanoidBone = c.part;
+          const side: AutoMovieHumanSide = c.part.startsWith("left")
+            ? "left"
+            : "right";
+          const hand: boolean = c.part.endsWith("Hand");
+          const from: number = c.from * duration;
+          const down: IAutoMovieResolvedBone = end(carried(from), bone);
+          const along: IAutoMovieVector3 =
+            index === firstHand ? fingers.first : fingers.second;
+          const window: Omit<ILaid, "goal"> = {
             bone,
             side,
             hand,
@@ -142,70 +178,83 @@ export namespace GymnasticsWheelPlants {
             to: c.to * duration,
             opens: c.from <= 0,
             closes: c.to >= 1,
-            goal: (
-              posture: IAutoMovieMotionHumanPosture,
-            ): IAutoMovieHumanLimbGoal =>
-              target(posture, { point, normal: { x: 0, y: 1, z: 0 } }, forward),
+            fingers: along,
           };
-        }
-        const place: IAutoMovieMotionHumanFoot.IPlacement = {
-          ankle: down.worldPosition,
-          rotation: HumanFoot.rotation(
-            HumanFoot.heading(down.worldRotation),
-            0,
-          ),
-        };
-        return {
-          bone,
-          side,
-          hand,
-          from,
-          to: c.to * duration,
-          opens: c.from <= 0,
-          closes: c.to >= 1,
-          goal: (
-            posture: IAutoMovieMotionHumanPosture,
-          ): IAutoMovieHumanLimbGoal =>
-            AutoMovieMotionHumanLeg.goal(body, posture, side, place, true),
-        };
-      });
+          if (hand) {
+            const target: ReturnType<typeof HumanHandTarget.prepareGoal> =
+              HumanHandTarget.prepareGoal(body, side, {
+                surface: "palm",
+                shape: "flat",
+              });
+            const point: IAutoMovieVector3 = {
+              x: down.worldPosition.x,
+              y: 0,
+              z: down.worldPosition.z,
+            };
+            return [
+              {
+                ...window,
+                goal: (
+                  posture: IAutoMovieMotionHumanPosture,
+                ): IAutoMovieHumanLimbGoal =>
+                  target(posture, { point, normal: { x: 0, y: 1, z: 0 } }, along),
+              },
+            ];
+          }
+          const place: IAutoMovieMotionHumanFoot.IPlacement = {
+            ankle: down.worldPosition,
+            rotation: HumanFoot.rotation(
+              HumanFoot.heading(down.worldRotation),
+              0,
+            ),
+          };
+          return [
+            {
+              ...window,
+              goal: (
+                posture: IAutoMovieMotionHumanPosture,
+              ): IAutoMovieHumanLimbGoal =>
+                AutoMovieMotionHumanLeg.goal(body, posture, side, place, true),
+            },
+          ];
+        },
+      );
+    const flat: Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]> =
+      {
+        left: HumanHandShape.of("left", "flat"),
+        right: HumanHandShape.of("right", "flat"),
+      };
+    const lead: number = Math.max(1e-9, LEAD * duration);
+
+    // A window's weight: 1 while it bears, eased in over the lead before it
+    // and out over the lead after, 0 elsewhere.
+    const weight = (l: ILaid, seconds: number): number => {
+      const before: number = l.opens ? -Infinity : l.from - lead;
+      const after: number = l.closes ? Infinity : l.to + lead;
+      if (seconds <= before || seconds >= after) return 0;
+      if (seconds < l.from) return minimumJerk.share((seconds - before) / lead);
+      if (seconds > l.to) return 1 - minimumJerk.share((seconds - l.to) / lead);
+      return 1;
+    };
     return (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
+      // Each limb follows its heaviest window: two windows of one limb meet
+      // only where one eases out as the other eases in.
+      const heaviest: Map<AutoMovieHumanoidBone, IWeighted> = new Map();
+      for (const l of laid) {
+        const w: number = weight(l, seconds);
+        if (!(w > 0)) continue;
+        const kept: IWeighted | undefined = heaviest.get(l.bone);
+        if (kept === undefined || w > kept.weight)
+          heaviest.set(l.bone, { laid: l, weight: w });
+      }
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...posture.joints,
       };
-      for (const l of laid) {
-        // The limb reaches its laid place by the contact and leaves it after
-        // the lift, over a lead before and after the window, so it is laid
-        // whenever it bears and is never laid only partly while it bears.
-        const lead: number = Math.max(1e-9, LEAD * duration);
-        const before: number = l.opens ? -Infinity : l.from - lead;
-        const after: number = l.closes ? Infinity : l.to + lead;
-        // A limb is written near its contact; a hand also wherever the carried
-        // shape would take it below the floor.
-        const outside: boolean = seconds < before || seconds > after;
-        if (outside && !l.hand) continue;
-        if (
-          outside &&
-          laid.some(
-            (o: ILaid): boolean =>
-              o !== l &&
-              o.bone === l.bone &&
-              seconds >= o.from - lead &&
-              seconds <= o.to + lead,
-          )
-        )
-          continue;
-        const w: number = outside
-          ? 0
-          : seconds < l.from
-            ? minimumJerk.share((seconds - before) / lead)
-            : seconds > l.to
-              ? 1 - minimumJerk.share((seconds - l.to) / lead)
-              : 1;
+      for (const { laid: l, weight: w } of heaviest.values()) {
         const key: AutoMovieHumanLimb = l.hand
           ? l.side === "left"
             ? "leftArm"
@@ -213,19 +262,16 @@ export namespace GymnasticsWheelPlants {
           : l.side === "left"
             ? "leftLeg"
             : "rightLeg";
+        const chain: readonly AutoMovieHumanoidBone[] = l.hand
+          ? [`${l.side}UpperArm`, `${l.side}LowerArm`, `${l.side}Hand`]
+          : [`${l.side}UpperLeg`, `${l.side}LowerLeg`, `${l.side}Foot`, `${l.side}Toes`];
+        const middle: AutoMovieHumanoidBone = chain[1]!;
         // The elbow or the knee kept where the carried shape holds it, so the
         // laid limb takes the same branch as the carried one. A straight
         // arm's elbow lies on the line from the shoulder to the hand and
         // names no side, so its pole is pushed out along the olecranon: the
         // way the elbow goes as the arm bends, opposite to where an elbow
         // flexion carries the hand.
-        const middle: AutoMovieHumanoidBone = l.hand
-          ? l.side === "left"
-            ? "leftLowerArm"
-            : "rightLowerArm"
-          : l.side === "left"
-            ? "leftLowerLeg"
-            : "rightLowerLeg";
         const free: IAutoMovieMotionHumanPosture = { ...posture, limbs: {} };
         const carriedBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           poseBones(
@@ -258,7 +304,8 @@ export namespace GymnasticsWheelPlants {
               elbow,
             )
           : elbow;
-        // A palm whose wrist cannot extend so far rises about its knuckles.
+        // A palm whose wrist cannot extend so far rises about its knuckles;
+        // the laid fingers are straight, extended at the knuckles by the rise.
         const risen: GymnasticsPalmRise.IRise = l.hand
           ? GymnasticsPalmRise.of(
               l.side,
@@ -274,45 +321,55 @@ export namespace GymnasticsWheelPlants {
                     : "rightMiddleProximal",
                 )!,
               ),
-              forward,
+              l.fingers,
             )
           : { goal: { ...l.goal(posture), bend }, joints: {} };
-        const goal: IAutoMovieHumanLimbGoal = risen.goal;
-        for (const [bone, angles] of Object.entries(risen.joints))
-          if (angles !== undefined)
-            joints[bone as AutoMovieHumanoidBone] = [
-              angles[0] * w,
-              angles[1],
-              angles[2],
-            ];
+        const digits: IAutoMovieMotionHumanPosture["joints"] = l.hand
+          ? { ...flat[l.side], ...risen.joints }
+          : {};
         if (w >= 1) {
-          limbs[key] = goal;
+          Object.assign(joints, digits);
+          limbs[key] = risen.goal;
           continue;
         }
-        // Away from its contact a hand follows the carried shape, but never
-        // below the floor it was laid on: there it is held on the floor.
-        const low: boolean =
-          l.hand && carriedEnd.worldPosition.y < goal.point.y;
-        if (outside && !low) continue;
-        const toward: IAutoMovieHumanLimbGoal = low
-          ? {
-              ...goal,
-              point: { ...carriedEnd.worldPosition, y: goal.point.y },
-            }
-          : {
-              ...goal,
-              point: carriedEnd.worldPosition,
-              rotation: carriedEnd.worldRotation,
-            };
-        limbs[key] = {
-          ...goal,
-          point: Vector3.lerp(toward.point, goal.point, w),
-          ...(goal.rotation === undefined || toward.rotation === undefined
-            ? {}
-            : {
-                rotation: Quaternion.slerp(toward.rotation, goal.rotation, w),
-              }),
-        };
+        // Between the carried and the laid limb: each joint of the chain and
+        // each finger on its rotation from the carried angle toward the laid
+        // solve's, by the weight.
+        const solved: IAutoMovieJointPose[] = resolveHumanPosture(body, {
+          ...posture,
+          joints: { ...posture.joints, ...digits },
+          limbs: { [key]: risen.goal },
+        }).joints;
+        const reached: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
+          new Map(
+            solved.map((j: IAutoMovieJointPose): [
+              AutoMovieHumanoidBone,
+              IAutoMovieJointPose,
+            ] => [j.bone, j]),
+          );
+        for (const bone of chain) {
+          const at: IAutoMovieJointPose | undefined = reached.get(bone);
+          if (at === undefined) continue;
+          joints[bone] = blendHumanJoint(
+            body,
+            bone,
+            posture.joints[bone] ?? [0, 0, 0],
+            [at.flexion ?? 0, at.abduction ?? 0, at.twist ?? 0],
+            w,
+          );
+        }
+        for (const [bone, angles] of Object.entries(digits) as [
+          AutoMovieHumanoidBone,
+          readonly [number, number, number],
+        ][])
+          joints[bone] = blendHumanJoint(
+            body,
+            bone,
+            posture.joints[bone] ?? [0, 0, 0],
+            angles,
+            w,
+          );
+        delete limbs[key];
       }
       return { ...posture, joints, limbs };
     };

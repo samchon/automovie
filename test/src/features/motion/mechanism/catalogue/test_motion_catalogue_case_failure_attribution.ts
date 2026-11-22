@@ -26,7 +26,7 @@ import { throwsError } from "../../../internal/throwsError";
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual public test harness with owned stages, verifies its successful mirror control and observes attributed ordinary-error/typed-refusal complaints plus invalid part refusals. A swallowed right failure, mislabeled side, fractional no-cell success or unconditional failure fails.
  * @evidence contracts/development/testing.md#independent-expectations Identical zero-sway standing scenes mirror within the existing physical bound. Exactly one owned stage fails in each negative case, so exactly one complaint must retain that side and its supplied message. A discrete partition needs a positive integer count, an integer index in range and equal parts per body; no implementation output supplies an expected trajectory or selector answer.
  * @evidence contracts/development/testing.md#distinguishing-cases A successful pair, failure before the left film and failure after a successful left film distinguish positive behavior and both failure boundaries, including an actual typed HumanRefusal. Fractional/empty/uneven/out-of-range partition requests cannot pass vacuously through an empty table. Conditional allowed-turn refusals remain airborne_signature's separate policy.
- * @evidence contracts/development/testing.md#execution-ownership This discoverable in-memory unit supplies normal stage callbacks to the real shared harness, which uses existing canonical Human fixtures and public standing performances. The table's touch key selects its side factor only; the test checks harness control flow rather than a touch action. It starts no host or process and replaces no foreign method.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable in-memory unit supplies normal stage callbacks to the real shared harness, which uses existing canonical Human fixtures and public standing performances. The table's touch key selects its hand factor only; the test checks harness control flow rather than a touch action. It starts no host or process and replaces no foreign method.
  */
 export function test_motion_catalogue_case_failure_attribution(): void {
   const read: (side?: "left" | "right") => string[] = (
@@ -37,7 +37,7 @@ export function test_motion_catalogue_case_failure_attribution(): void {
         pick: motionHumanLawSweep.Pick,
         body: IAutoMovieMotionHumanBody,
       ): motionHumanLawSweep.IScene => {
-        const actual: string | undefined = pick("side");
+        const actual: string | undefined = pick("hand");
         if (actual === side && side !== undefined) {
           if (side === "left") throw new Error("owned left stage failure");
           throw new HumanRefusal({
@@ -72,7 +72,7 @@ export function test_motion_catalogue_case_failure_attribution(): void {
         : "owned right stage refusal";
     TestValidator.predicate(
       `${side}: preserves row attribution and original reason`,
-      findings[0]?.startsWith(`touch | side=${side} |`) === true &&
+      findings[0]?.startsWith(`touch | hand=${side} |`) === true &&
         findings[0].includes(reason),
     );
   }

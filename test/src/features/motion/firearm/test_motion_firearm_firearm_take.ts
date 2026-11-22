@@ -136,7 +136,7 @@ export function test_motion_firearm_firearm_take(): void {
         })
         .until({ share: 1 / 3 })
         .act("flinch", {})
-        .registered("holsterFirearm", { prop: "gun", at: rest }),
+        .registered("holsterFirearm", { prop: "gun", to: rest }),
     );
     const shots: IAutoMovieMotionHumanSegment[] = named(film, "recoil");
     checks.check(

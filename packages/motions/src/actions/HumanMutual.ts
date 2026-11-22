@@ -70,7 +70,7 @@ export namespace HumanMutual {
             params: {
               prop: params.prop,
               handle: params.handle,
-              from: cast.giver,
+              partner: cast.giver,
               ...(params.mass === undefined ? {} : { mass: params.mass }),
               ...(params.outcome === undefined
                 ? {}
@@ -151,7 +151,7 @@ export namespace HumanMutual {
         ? {
             name: "throwObject",
             params: {
-              at: {
+              target: {
                 kind: "person",
                 subject: cast.catcher,
                 region: params.hand === "left" ? "palmLeft" : "palmRight",
@@ -164,10 +164,10 @@ export namespace HumanMutual {
         : {
             name: "catchObject",
             params: {
-              from: `${anchor}.thrower`,
+              partner: `${anchor}.thrower`,
               ball: params.ball,
               ...(params.hands === undefined ? {} : { hands: params.hands }),
-              ...(params.hand === undefined ? {} : { side: params.hand }),
+              ...(params.hand === undefined ? {} : { hand: params.hand }),
               ...(params.glove === undefined ? {} : { glove: params.glove }),
             },
           };

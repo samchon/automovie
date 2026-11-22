@@ -179,7 +179,7 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
               ball: "puck",
               speed: 3,
               hand,
-              toward: {
+              target: {
                 kind: "point",
                 frame: "world",
                 at: { x: 0, y: 0.0125, z: 4 },
@@ -308,7 +308,7 @@ function deliveries(body: IAutoMovieMotionHumanBody): void {
         .pickUp({ prop: "ball", handle: "grip" })
         .registered(sample.name, {
           prop: "ball",
-          at: { kind: "point", frame: "world", at: sample.target },
+          target: { kind: "point", frame: "world", at: sample.target },
         }).node,
     });
     const release: number = instant(

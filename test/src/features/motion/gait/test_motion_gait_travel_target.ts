@@ -42,12 +42,13 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  *    campaign's penetration bound).
  * 3. The run ends more than 1 m, across the front, from where the person
  *    stood when it began: it went to where they are, not where they were.
- * 4. Heading off a person composed after the runner is refused as a
- *    `participant` refusal: their path is not known yet.
+ * 4. Heading off a person composed after the runner plans as well: the
+ *    performance places a read person on demand, so their path is known
+ *    whatever the order of composition.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs an interception of a walking person through the public chain and reads both displayed bodies at the run's end; a run to the person's starting place, a run that ends out of reach or inside them, or a silent plan against an unknown path fails.
  * @evidence contracts/development/testing.md#independent-expectations Within reach at the moment of arrival is what heading someone off means; the reach is the bodies' own arm lengths and the 10 mm the campaign's bound, neither read from the law. Limitation: the bearing through the run is not read, since one straight run holds it trivially while both go straight.
- * @evidence contracts/development/testing.md#distinguishing-cases The two orders of a tall and a short person, a target that moves across the front so its start and its meeting place differ by metres, and the refused order of composition.
+ * @evidence contracts/development/testing.md#distinguishing-cases The two orders of a tall and a short person, a target that moves across the front so its start and its meeting place differ by metres, and the reversed order of composition, planned by on-demand placement.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds four short performances in memory; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
  */
@@ -95,16 +96,17 @@ export function test_motion_gait_travel_target(): void {
         composition: first.with(second).node,
       });
 
-    // 4. The person's path must be known.
+    // 4. The person's path is known whatever the order: a read person is
+    // placed on demand.
     let thrown: unknown = null;
     try {
       perform(running, walking);
     } catch (error) {
       thrown = error;
     }
-    if (!(thrown instanceof HumanRefusal && thrown.kind === "participant"))
+    if (thrown !== null)
       complaints.push(
-        `${label}, composed before them: expected a participant refusal, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
+        `${label}, composed before them: expected the interception to plan, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
       );
 
     // 1 to 3. Within reach of where they are.
@@ -278,11 +280,11 @@ function checkMovingTarget(): void {
   for (const [row, fixed] of [
     [
       AutoMovieMotionHumanGait.HumanPursuit.follow,
-      { side: "behind", at: "social", track: "pace" },
+      { from: "behind", at: "social", track: "pace" },
     ],
     [
       AutoMovieMotionHumanGait.HumanPursuit.escort,
-      { side: "left", at: "personal", track: "pace" },
+      { from: "left", at: "personal", track: "pace" },
     ],
     [
       AutoMovieMotionHumanGait.HumanPursuit.chase,
@@ -290,7 +292,7 @@ function checkMovingTarget(): void {
     ],
     [
       AutoMovieMotionHumanGait.HumanPursuit.confront,
-      { side: "front", at: "faceToFace" },
+      { from: "front", at: "faceToFace" },
     ],
   ] as const)
     TestValidator.equals(

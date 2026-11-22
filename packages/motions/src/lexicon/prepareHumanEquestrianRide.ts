@@ -165,11 +165,11 @@ export function prepareHumanEquestrianRide(
       "equestrian.lookBack.cue",
     );
     const length: number = options.lookBack.duration;
-    HumanBound.above("equestrian.lookBack.seconds", length, 0, "s");
+    HumanBound.above("equestrian.lookBack.duration", length, 0, "s");
     const half: number = length / 2;
     if (!(half > 0 && peak - half >= 0 && peak + half <= seconds))
       refuse(
-        "equestrian.lookBack.seconds",
+        "equestrian.lookBack.duration",
         length,
         "the turn and return do not fit inside the ride about the film cue",
         "shorten the turn or place its cue within the ride",

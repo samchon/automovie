@@ -103,11 +103,14 @@ export function test_motion_touch_reach_without_step(): void {
     nearGap <= 0.01,
   );
 
+  // The touch's own axes since #3505: the effector and the hand (formerly
+  // `with` and `side`, which the stage no longer asks for, so the touch fell
+  // back to the palm of its default hand).
   const pick: Readonly<Record<string, string>> = {
     kind: "stroke",
-    with: "fingertips",
+    effector: "fingertips",
     tangent: "up",
-    side: "right",
+    hand: "right",
   };
   const staged: motionHumanLawSweep.IScene =
     MOTION_HUMAN_LAW_STAGES_TOUCH.touch!(

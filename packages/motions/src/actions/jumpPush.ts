@@ -35,6 +35,9 @@ const CARRY: number = 1e-6;
 /** The finite-difference step of the heel rule's slope, seconds. */
 const STEP: number = 1e-3;
 
+/** The least forward gap that reads as one foot ahead of the other, metres: a nanometre, the walk's root-solve width (`walkReach`), under which the gap is a rounding of side by side. */
+const PASS_GAP: number = 1e-9;
+
 /**
  * A jump's push-off, from the entry exactly: the pelvis and the heading
  * from the entry's own angles and rates to the jump's, the take-off foot
@@ -519,7 +522,10 @@ export namespace jumpPush {
         Vector3.subtract(into, support.ankle),
         forward,
       );
-      if (!(g0 * g1 < 0)) return { x: 0, y: 0, z: 0 };
+      // A pass is a sign change of two real gaps (`PASS_GAP`), strictly
+      // inside the path.
+      if (!(g0 * g1 < 0) || !(Math.min(Math.abs(g0), Math.abs(g1)) > PASS_GAP))
+        return { x: 0, y: 0, z: 0 };
       const at: number = g0 / (g0 - g1);
       const gap: number = Vector3.dot(
         Vector3.subtract(Vector3.lerp(from, into, at), support.ankle),

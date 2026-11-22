@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanHandAttitude } from "../posture/HumanHandAttitude";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -194,6 +195,8 @@ export namespace AutoMovieMotionHumanArmCarry {
     // nine coordinates, where one problem of both arms' eighteen costs
     // several times as much (measured on a six-second stretch: 95 s of a
     // 146 s spec in the joint problem's optimiser).
+    // Each member leaves and regains the arm hanging as the body around it
+    // lets it hang there (`hung`), the arm its writes hold off the plan.
     const solve = (
       before: (seconds: number) => IAutoMovieMotionHumanPosture,
     ): Map<
@@ -204,7 +207,12 @@ export namespace AutoMovieMotionHumanArmCarry {
         ? AutoMovieMotionHumanArmPlanned.planned(
             props.body,
             span!,
-            group.carries,
+            group.carries.map(
+              (
+                member: IAutoMovieMotionHumanArmCarry.ICarry,
+              ): IAutoMovieMotionHumanArmCarry.ICarry =>
+                hung(member, span!, before),
+            ),
             before,
             group,
             AutoMovieMotionHumanArmCarry.pace(group.carries),
@@ -220,7 +228,13 @@ export namespace AutoMovieMotionHumanArmCarry {
                 ...AutoMovieMotionHumanArmPlanned.planned(
                   member.body,
                   member.span === undefined ? span! : member.span,
-                  [member],
+                  [
+                    hung(
+                      member,
+                      member.span === undefined ? span! : member.span,
+                      before,
+                    ),
+                  ],
                   before,
                   group,
                   AutoMovieMotionHumanArmCarry.pace([member]),
@@ -360,6 +374,18 @@ export namespace AutoMovieMotionHumanArmCarry {
             source,
             projection,
           );
+        // Off its plan at weight 0 the arm hangs at its rest, which the legs
+        // and trunk the action moves may come into: it is let out as any
+        // hanging arm is (`HumanArmSwing.of`), the same arm a planned span
+        // leaves and regains (`hung`).
+        if (!onPlan && !(weight > 0))
+          out = HumanArmSwing.of(
+            props.body,
+            out,
+            [props.side],
+            source,
+            projection,
+          );
         if (props.attitude === undefined || !(weight > 0 && weight < 1))
           return out;
 
@@ -459,6 +485,91 @@ export namespace AutoMovieMotionHumanArmCarry {
         ),
       );
   }
+}
+
+/**
+ * A planned carry whose rest ends are the arm hanging where its span leaves
+ * and regains it: its rest let out by `HumanArmSwing.of` on the posture so
+ * far at the span's start, and, where the span returns and names no arm of
+ * its own to return to, at the span's end. Off the plan the carry writes
+ * that same hanging arm, so the plan starts and ends on the arm shown.
+ *
+ * @param member The carry.
+ * @param span Its span.
+ * @param before The posture so far, the planned arms left out.
+ * @returns The carry, itself where neither end is let out.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States both ends, the owner of the let-out and the identity result.
+ * @evidence contracts/development/implementation.md#principled-implementation A hanging arm is kept clear of the legs and trunk by the least added abduction (`HumanArmSwing.of`); a plan that starts from the unlet arm would jump from the arm the carry shows off its plan.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readings of one rule, at the span's two ends.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A law's own return arm (`back`) is kept; a hold to the end has no return to let out.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One or two hanging-arm readings per member per plan.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanArmSwing.of` is the one owner of a hanging arm's clearance.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the carry or one copy of it; retains nothing.
+ */
+function hung(
+  member: IAutoMovieMotionHumanArmCarry.ICarry,
+  span: IAutoMovieMotionHumanArmPlanned.ISpan,
+  before: (seconds: number) => IAutoMovieMotionHumanPosture,
+): IAutoMovieMotionHumanArmCarry.ICarry {
+  const rest: IAutoMovieMotionHumanArmAngles.IAngles = hanging(
+    member,
+    before(span.start),
+  );
+  const back: IAutoMovieMotionHumanArmAngles.IAngles | undefined =
+    member.back !== undefined || !(span.relax < span.end)
+      ? member.back
+      : hanging(member, before(span.end));
+  if (rest === member.rest && (back === undefined || back === member.rest))
+    return member;
+  return {
+    ...member,
+    rest,
+    ...(back === undefined ? {} : { back }),
+  };
+}
+
+/**
+ * A carry's rest arm hanging in a posture: its upper arm let out by the least
+ * abduction that keeps it clear (`HumanArmSwing.of`).
+ *
+ * @param member The carry.
+ * @param posture The posture the arm hangs in.
+ * @returns The rest angles, the same record where nothing is let out.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the reading and its identity result.
+ * @evidence contracts/development/implementation.md#principled-implementation The rest written into the posture with its goal removed is the joint-written arm the swing owner clears.
+ * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One write and one reading.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the abduction the owner adds changes; the elbow and the wrist keep the rest.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One owner call.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanArmSwing.of`.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ */
+function hanging(
+  member: IAutoMovieMotionHumanArmCarry.ICarry,
+  posture: IAutoMovieMotionHumanPosture,
+): IAutoMovieMotionHumanArmAngles.IAngles {
+  const side: AutoMovieHumanSide = member.side;
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+  delete limbs[`${side}Arm`];
+  const upper: readonly [number, number, number] | undefined =
+    HumanArmSwing.of(
+      member.body,
+      {
+        ...posture,
+        joints: {
+          ...posture.joints,
+          [`${side}UpperArm`]: member.rest.upper,
+          [`${side}LowerArm`]: member.rest.lower,
+          [`${side}Hand`]: member.rest.hand,
+        },
+        limbs,
+      },
+      [side],
+    ).joints[`${side}UpperArm`];
+  return upper === undefined || upper[1] === member.rest.upper[1]
+    ? member.rest
+    : { ...member.rest, upper };
 }
 
 /** A retained standalone follower needs only the original fixed posture. */

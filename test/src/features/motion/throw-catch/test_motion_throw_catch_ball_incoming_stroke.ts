@@ -199,12 +199,12 @@ export function test_motion_throw_catch_ball_incoming_stroke(): void {
       ],
       composition: AutoMovieComposition.parallel(
         HumanChain.subject("pitcher")
-          .registered(holdBall.name, { seconds: 0.4, sway: 0 })
+          .registered(holdBall.name, { hold: 0.4, sway: 0 })
           .registered(
             "pitch",
             {
               prop: "ball",
-              at: { kind: "point", frame: "world", at: take.aim },
+              target: { kind: "point", frame: "world", at: take.aim },
             },
             "pitch",
           )
@@ -214,7 +214,7 @@ export function test_motion_throw_catch_ball_incoming_stroke(): void {
     });
   const standing: IAutoMovieComposition = HumanChain.subject(
     "batter",
-  ).registered(holdBat.name, { seconds: 0.4, sway: 0 }).node;
+  ).registered(holdBat.name, { hold: 0.4, sway: 0 }).node;
   const ballCentre = (
     take: HumanPerformance,
     seconds: number,
@@ -248,7 +248,7 @@ export function test_motion_throw_catch_ball_incoming_stroke(): void {
   const hit: HumanPerformance = film({
     aim: contact,
     batter: HumanChain.subject("batter")
-      .registered(holdBat.name, { seconds: 0.4, sway: 0 })
+      .registered(holdBat.name, { hold: 0.4, sway: 0 })
       .registered(
         "baseballHit",
         {
@@ -256,7 +256,7 @@ export function test_motion_throw_catch_ball_incoming_stroke(): void {
           ball: "ball",
           speed: 40,
           impact,
-          toward: {
+          target: {
             kind: "point",
             frame: "world",
             at: { x: contact.x, y: 0, z: 40 },

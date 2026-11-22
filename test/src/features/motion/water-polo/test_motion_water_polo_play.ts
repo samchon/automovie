@@ -306,10 +306,10 @@ function stage(
           .registered("aquatic", polo("defend"))
           .over((u: ReturnType<typeof HumanChain.subject>) =>
             u.registered("stageCatch", {
-              from: "pass",
+              partner: "pass",
               ball: "ball",
               hands: "one",
-              side,
+              hand: side,
               intercept: pass,
             }),
           )
@@ -329,7 +329,7 @@ function stage(
           .over((u: ReturnType<typeof HumanChain.subject>) =>
             u
               .registered("stageCatch", {
-                from: "shot",
+                partner: "shot",
                 ball: "ball",
                 hands: "two",
                 intercept: shot,

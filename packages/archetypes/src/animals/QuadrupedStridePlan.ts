@@ -338,7 +338,7 @@ export namespace QuadrupedStridePlan {
   }
 
   /**
-   * The ride's stride events: every hoof landing, `<limb>On`, and each change of gait or lead, `gait:<from>-<to>` and `lead:<from>-<to>`, at the stride start where it takes effect.
+   * The ride's stride events: every hoof landing, `<limb>On`, and each change of gait or lead, `gait:<from>-<to>` and `lead:<from>-<to>`, at the left fore's landing that starts the stride where it takes effect, which a shift at a change (`gaitChangeShift`) may move off the stride's integer phase.
    *
    * @param plan The built stride plan.
    * @param standing Whether the ride departs from standing, so the hooves' phase-zero landings are the neutral stance and not events.
@@ -372,7 +372,7 @@ export namespace QuadrupedStridePlan {
       const will: IStride = plan.strideOf(n + 1);
       if (was.gait !== will.gait)
         result.push({
-          seconds: plan.secondsAt(n),
+          seconds: plan.secondsAt(plan.landing("leftFore", n)),
           label: `gait:${was.gait}-${will.gait}`,
         });
       else if (
@@ -380,7 +380,7 @@ export namespace QuadrupedStridePlan {
         AutoMovieArchetypeQuadrupedGait.LEADED.includes(will.gait)
       )
         result.push({
-          seconds: plan.secondsAt(n),
+          seconds: plan.secondsAt(plan.landing("leftFore", n)),
           label: `lead:${was.lead}-${will.lead}`,
         });
     }

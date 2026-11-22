@@ -335,7 +335,7 @@ function stage(
         equestrian: {
           stride: windows.map((window: IWindow): Stride => window.stride),
           ...(look
-            ? { lookBack: { cue: "look", side: "left", seconds: 0.8 } }
+            ? { lookBack: { cue: "look", side: "left", duration: 0.8 } }
             : {}),
         },
       }).node,

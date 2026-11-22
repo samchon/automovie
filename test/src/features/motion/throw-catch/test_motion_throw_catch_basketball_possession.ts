@@ -118,7 +118,7 @@ export function test_motion_throw_catch_basketball_possession(): void {
           ).node,
         HumanChain.subject("forward")
           .registered("stageCatch", {
-            from: "pass",
+            partner: "pass",
             ball: "ball",
             hands: "two",
             intercept: 0.42,

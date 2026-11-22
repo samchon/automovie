@@ -97,7 +97,7 @@ export function test_motion_throw_catch_basketball_contest(): void {
       parts.push(
         HumanChain.subject("defender")
           .registered("stageDeflect", {
-            from: "shot",
+            partner: "shot",
             ball: "ball",
             hands: "two",
             intercept: defender.intercept,

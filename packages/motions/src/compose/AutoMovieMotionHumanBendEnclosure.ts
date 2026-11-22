@@ -33,7 +33,14 @@ export namespace AutoMovieMotionHumanBendEnclosure {
   /** Degrees every enclosure is widened by: far above the fit's and the decomposition's rounding (about 1e-12 degrees at `FLOOR`), far below any strain a sweep compares. */
   export const SLACK: number = 1e-6;
 
-  /** An enclosure of an angle, degrees, the lesser end first. */
+  /**
+   * An enclosure of an angle, degrees, the lesser end first.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit and the order of the ends.
+   * @evidence contracts/development/design.md#principled-representation An ordered pair of degrees, the form every enclosure and reader shares.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two numbers and nothing else.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No sentinel ends: an uncertified enclosure is null at its reader.
+   */
   export type IInterval = [number, number];
 
   /**

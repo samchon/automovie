@@ -59,7 +59,7 @@ export function test_motion_bowling_final_slide(): void {
       distance,
       from,
       to,
-      seconds,
+      duration: seconds,
     });
     return new HumanPerformance({
       seed: "bowling-glide",

@@ -271,7 +271,6 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           flight,
           context.start,
           boarding,
-          carrier,
         );
   const lets: number =
     handover === undefined ? release : Math.min(release, handover.lets);
@@ -367,9 +366,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         },
       };
       // The other hand holds the partner's thigh on its side from the
-      // hand-over to the landing.
-      if (handover === undefined || takes === undefined || t < takes)
-        return reached;
+      // hand-over to the landing: its goal is that hold, as it stands at the
+      // hand-over before it, the course reaching it from the rest by then.
+      if (handover === undefined || takes === undefined) return reached;
       const landing: number = LET_GO * flight;
       reached = HumanUnseatPose.reach(
         reached,
@@ -377,7 +376,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         HumanMountedFrame.partnerHold(
           partner,
           handover.bone,
-          context.start + Math.min(t, landing),
+          context.start + Math.min(Math.max(t, takes), landing),
         ),
         1,
       );
@@ -421,8 +420,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     goals,
     carrier,
     context.start,
-    (local: IAutoMovieMotionHumanActionPlan) => {
-      const first: IAutoMovieMotionHumanActionPlan = courseArmGoal({
+    (local: IAutoMovieMotionHumanActionPlan) =>
+      courseArmGoal({
         body: context.body,
         // The grip holds from the instant the hand reaches its hold.
         plan: {
@@ -439,26 +438,28 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         side: hand.side,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand.side),
         span,
-      });
-      // The other hand's course: from its rest to the hand-over, its hold to
-      // the landing, and back in the settle.
-      return handover === undefined || takes === undefined
-        ? first
-        : courseArmGoal({
-            body: context.body,
-            plan: first,
-            side: handover.side,
-            rest: AutoMovieMotionHumanArm.angles(
-              context.entry.pose,
-              handover.side,
-            ),
-            span: {
-              start: 0,
-              ready: takes,
-              relax: LET_GO * flight,
-              end: duration,
-            },
-          });
-    },
+        // The other hand's course, solved with the first as one problem
+        // over its own instants: from its rest to the hand-over, its hold to
+        // the landing, and back in the settle.
+        ...(handover === undefined || takes === undefined
+          ? {}
+          : {
+              with: [
+                {
+                  side: handover.side,
+                  rest: AutoMovieMotionHumanArm.angles(
+                    context.entry.pose,
+                    handover.side,
+                  ),
+                  span: {
+                    start: 0,
+                    ready: takes,
+                    relax: LET_GO * flight,
+                    end: duration,
+                  },
+                },
+              ],
+            }),
+      }),
   );
 }

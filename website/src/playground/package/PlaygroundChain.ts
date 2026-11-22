@@ -190,8 +190,14 @@ export namespace PlaygroundChain {
     for (const [key, space] of Object.entries(EXPORTS)) {
       if (typeof space !== "object" || space === null) continue;
       register(space, key);
-      for (const [member, value] of Object.entries(space))
+      for (const [member, value] of Object.entries(space)) {
         register(value, `${key}.${member}`);
+        // A family namespace holds a law that carries its mutual action, as
+        // `AutoMovieMotionHumanCarryPerson.HumanAssistedTransfer.mutual`.
+        if (typeof value !== "object" || value === null) continue;
+        for (const [inner, nested] of Object.entries(value))
+          register(nested, `${key}.${member}.${inner}`);
+      }
     }
     return found;
   }

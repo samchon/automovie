@@ -145,11 +145,11 @@ export function test_motion_throw_catch_ball_continuity(): void {
     composition: AutoMovieComposition.parallel(
       HumanChain.subject("passer").registered(
         "releaseCourtBall",
-        { seconds: 2 },
+        { hold: 2 },
         "bounce",
       ).node,
       HumanChain.subject("receiver").registered("stageCatch", {
-        from: "bounce",
+        partner: "bounce",
         ball: subject,
         hands: "one",
         intercept,
@@ -261,7 +261,7 @@ export function test_motion_throw_catch_ball_continuity(): void {
       },
     ],
     composition: HumanChain.subject("passer").registered(rollRelease.name, {
-      seconds: 1,
+      hold: 1,
     }).node,
   });
   const lowFloor: number = Math.sqrt((2 * drop) / gravity);

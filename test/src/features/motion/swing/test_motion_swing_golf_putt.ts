@@ -176,13 +176,13 @@ export async function test_motion_swing_golf_putt(): Promise<void> {
         }),
       ],
       composition: HumanChain.subject("golfer")
-        .registered(hold.name, { seconds: 0.2, sway: 0 })
+        .registered(hold.name, { hold: 0.2, sway: 0 })
         .registered("golfPutt", {
           tool: "putter",
           ball: "ball",
           speed: 1,
           impact,
-          toward: { kind: "point", frame: "world", at: aim },
+          target: { kind: "point", frame: "world", at: aim },
         }).node,
     });
 

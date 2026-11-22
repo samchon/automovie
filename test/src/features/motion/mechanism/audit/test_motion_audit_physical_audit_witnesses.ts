@@ -192,7 +192,7 @@ export async function test_motion_audit_physical_audit_witnesses(): Promise<void
       value.segments[0]!.shapes[0]!.transform.rotation.w = 2;
     },
     (value: Geometry): void => {
-      value.segments[0]!.shapes[0]!.transform.position.x = 1e100;
+      value.segments[0]!.shapes[0]!.transform.position.x = Infinity;
     },
     (value: Geometry): void => {
       value.segments[0]!.shapes.push(

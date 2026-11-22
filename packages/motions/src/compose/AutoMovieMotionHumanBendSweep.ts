@@ -235,6 +235,8 @@ export function AutoMovieMotionHumanBendSweep(
   // The strain's certified bound over a bracket of swivels, for a cold sweep
   // ranked by the strain itself; a trial's witness reads the full sweep's
   // first score, so a search with one keeps the full sweep.
+  const wrist: AutoMovieMotionHumanBendStrain.IHand =
+    AutoMovieMotionHumanBendStrain.handOf(chain, body, side);
   const bound: ReturnType<typeof AutoMovieMotionHumanBendBound.prepare> | undefined =
     byStrain && near === undefined && trial === undefined && neutral !== null
       ? AutoMovieMotionHumanBendBound.prepare({
@@ -242,7 +244,19 @@ export function AutoMovieMotionHumanBendSweep(
           frame: HUMANOID_REST_FRAME[upperBone],
           range: upperRange,
           neutral,
-          capped: rotation !== undefined,
+          hand:
+            rotation === undefined
+              ? undefined
+              : {
+                  parent: prepared.upper.worldRotation,
+                  rest: prepared.lowerRotation,
+                  rotation,
+                  axis: lowerAxes.twist,
+                  range: prepared.lowerDomain.constraint?.twist,
+                  handAxes: wrist.axes,
+                  handFrame: HUMANOID_REST_FRAME[`${side}Hand`],
+                  handRange: wrist.range,
+                },
         })
       : undefined;
   const solve = () =>

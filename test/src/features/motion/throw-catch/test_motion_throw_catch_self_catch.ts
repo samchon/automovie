@@ -163,7 +163,7 @@ function take(
     .registered(
       "throwObject",
       {
-        at: {
+        target: {
           kind: "point",
           at: through,
           frame: "performer",
@@ -193,10 +193,10 @@ function take(
     ],
     composition: (catching
       ? tossed.until({ event: "release" }).registered("catchObject", {
-          from: "toss",
+          partner: "toss",
           ball: "ball",
           hands: "one",
-          side: "right",
+          hand: "right",
         })
       : tossed
     ).node,

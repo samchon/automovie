@@ -331,7 +331,7 @@ function checkCrossedSeat(findings: string[]): void {
       !(
         error instanceof HumanRefusal &&
         error.kind === "parameter" &&
-        error.axis === "seconds"
+        error.axis === "hold"
       )
     )
       findings.push(String(error));

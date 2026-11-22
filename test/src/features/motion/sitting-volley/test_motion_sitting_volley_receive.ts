@@ -83,7 +83,7 @@ export function test_motion_sitting_volley_receive(): void {
     composition: sitting.registered("sittingVolley", {
       hand: "left",
       lateral,
-      seconds: 1.3,
+      duration: 1.3,
       target,
     }).node,
   });

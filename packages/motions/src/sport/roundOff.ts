@@ -139,8 +139,9 @@ export namespace roundOff {
       minimumJerk.share(x);
     const wheeled: IAutoMovieMotionHumanExerciseKey.IKey =
       cartwheel.wheel(body);
+    // The wheel leaves the body as the entry shows it, its stance and feet.
     const entering: ReturnType<typeof ExerciseKey.prepareBlend> =
-      ExerciseKey.prepareBlend(ExerciseKey.standing(body), wheeled);
+      ExerciseKey.prepareBlend(ExerciseKey.shown(context.entry.pose), wheeled);
     const closing: ReturnType<typeof ExerciseKey.prepareBlend> =
       ExerciseKey.prepareBlend(wheeled, landed(body));
 
@@ -194,7 +195,9 @@ export namespace roundOff {
         body,
         shaped,
         spokes,
-        start: standing.root,
+        // The root where the entry shows it, so the feet bear where they
+        // stand.
+        start: context.entry.pose.root?.translation ?? standing.root,
         until: 360,
         step: cartwheel.STEP,
       });
@@ -235,19 +238,18 @@ export namespace roundOff {
         root: wheel.root(angle),
       };
     };
-    // The bearing hands and feet laid where they came down, and each arm
-    // coursed over the whole turn with one continuous branch.
+    // The bearing hands and feet laid where they came down, the hands in the
+    // T-shape the round-off is coached and measured in (Farana et al. 2014):
+    // the first turned across the run, the second along it.
+    const frame: Parameters<typeof HumanFrame.point>[0] = {
+      origin: { x: 0, y: 0, z: 0 },
+      yaw: standing.yaw,
+    };
     const lay: ReturnType<typeof GymnasticsWheelPlants.of> =
-      GymnasticsWheelPlants.of(
-        body,
-        contacts,
-        duration,
-        carried,
-        HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw: standing.yaw },
-          { x: -sign, y: 0, z: 0 },
-        ),
-      );
+      GymnasticsWheelPlants.of(body, contacts, duration, carried, {
+        first: HumanFrame.point(frame, { x: -sign, y: 0, z: 0 }),
+        second: HumanFrame.point(frame, { x: 0, y: 0, z: 1 }),
+      });
     const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
@@ -265,12 +267,4 @@ export namespace roundOff {
         {
           from: 0,
           to: duration,
-          sample: (seconds: number): IAutoMovieMotionHumanPlayback.ISample => ({
-            posture: result.posture(seconds),
-          }),
-        },
-      ],
-    });
-    return result;
-  }
-}
+          sample: (seco

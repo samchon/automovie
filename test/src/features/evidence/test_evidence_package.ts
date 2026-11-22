@@ -441,7 +441,6 @@ export async function test_evidence_package(): Promise<void> {
       "src/composition/scenes/bout/002-count/count.ts",
       [
         "/** Composes count.",
-        " * @evidence contracts/development/common.md#meaningful-documentation The comment names what is composed.",
         ...implementation,
         " * @evidence contracts/development/composition.md#screenplay-realization The cited decisions are composed.",
         " * @evidence contracts/development/composition.md#composition-only Only capabilities are combined.",
@@ -455,7 +454,6 @@ export async function test_evidence_package(): Promise<void> {
     const compose = (name: string, citation: string): string =>
       [
         `/** Composes ${name}.`,
-        " * @evidence contracts/development/common.md#meaningful-documentation The comment names what is composed.",
         ...implementation,
         " * @evidence contracts/development/composition.md#screenplay-realization The cited decisions are composed.",
         " * @evidence contracts/development/composition.md#composition-only Only capabilities are combined.",

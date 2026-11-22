@@ -164,7 +164,7 @@ export function test_motion_throw_catch_volleyball_rally(): void {
       chains[player] =
         player === "server"
           ? HumanChain.subject("server")
-              .registered(holding.name, { seconds: 0.3, sway: 0 })
+              .registered(holding.name, { hold: 0.3, sway: 0 })
               .ballSport(
                 {
                   kind: "handballThrow",
@@ -189,7 +189,7 @@ export function test_motion_throw_catch_volleyball_rally(): void {
           touch.row,
           {
             ball: "ball",
-            toward: { kind: "point", frame: "world", at: touch.toward },
+            target: { kind: "point", frame: "world", at: touch.toward },
             speed: touch.speed,
             impact,
           },

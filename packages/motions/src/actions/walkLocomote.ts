@@ -28,6 +28,7 @@ import { walkFoot } from "./walkFoot";
 import { walkHorizontalRoot } from "./walkHorizontalRoot";
 import { walkLeg } from "./walkLeg";
 import { walkPlayback } from "./walkPlayback";
+import { walkPoleCarriage } from "./walkPoleCarriage";
 import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
 import { walkStation } from "./walkStation";
@@ -412,10 +413,17 @@ export function walkLocomote(
   // thighs no nearer than they hang beside them, by one abduction read
   // over one of its strides (`walkCarriage`).
   let carried: Record<"left" | "right", number> | undefined;
+  // A hand carrying a long prop is driven by the walk, which takes the prop
+  // over with a grip window, so the performance lets the walk's carriage
+  // reach it (`walkPoleCarriage`).
+  const poles: walkPoleCarriage.IHold[] = walkPoleCarriage.prepare(context);
   const planned: walkStation.IPlan = {
     duration,
     events,
-    contacts,
+    contacts: [...contacts, ...walkPoleCarriage.grips(poles)],
+    ...(poles.length === 0
+      ? {}
+      : { holds: walkPoleCarriage.kept(context, poles) }),
     horizontalRoot: walkHorizontalRoot(body, gait, steps),
     posture: (
       seconds: number,
@@ -443,7 +451,8 @@ export function walkLocomote(
         !channels.includes("rightArm")
       )
         return posture;
-      return HumanArmSwing.carry(
+      // A long held prop is carried tip forward (`walkPoleCarriage`).
+      return walkPoleCarriage.write(HumanArmSwing.carry(
         posture,
         (carried ??= walkCarriage.of(
           body,
@@ -460,7 +469,7 @@ export function walkLocomote(
           resolution,
           projection,
         )),
-      );
+      ), poles);
     },
   };
 

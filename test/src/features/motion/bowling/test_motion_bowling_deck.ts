@@ -281,7 +281,7 @@ export async function test_motion_bowling_deck(): Promise<void> {
     performers,
     laws: [address],
     composition: HumanChain.subject(subject).registered(address.name, {
-      seconds: 0.2,
+      hold: 0.2,
       sway: 0,
     }).node,
   });
@@ -313,23 +313,23 @@ export async function test_motion_bowling_deck(): Promise<void> {
       }),
     ],
     composition: HumanChain.subject(subject)
-      .registered(held.name, { seconds: 0.2, sway: 0 })
+      .registered(held.name, { hold: 0.2, sway: 0 })
       .carry({
         to: line,
         kind: "twoHands",
         load: ball.properties.mass / body.profile.mass,
       })
-      .registered(address.name, { seconds: 0.2, sway: 0 })
+      .registered(address.name, { hold: 0.2, sway: 0 })
       .registered("bowlingSlide", {
         distance: 0.22,
         from: slideFrom,
         to: slideTo,
-        seconds: 2.9,
+        duration: 2.9,
       })
       .over((upper) =>
         upper.registered("bowlingDelivery", {
           prop: "ball",
-          at: {
+          target: {
             kind: "point",
             frame: "world",
             at: { x: 0.102, y: 0.11, z: 2 },

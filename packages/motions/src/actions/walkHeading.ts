@@ -84,6 +84,29 @@ export namespace walkHeading {
   }
 
   /**
+   * A heading turned from another toward a target by no more than a bound:
+   * a footfall of a walk facing off its entry turns from the entry by at
+   * most as many step turns as it is footfalls in.
+   *
+   * @param from The heading turned from, degrees.
+   * @param target The heading asked, degrees, unwrapped near `from`.
+   * @param most The largest turn, degrees.
+   * @returns The heading, degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the rule.
+   * @evidence contracts/development/implementation.md#principled-implementation The asked turn clamped to the bound, its sign kept.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamp.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target within the bound is returned as asked.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function capped(from: number, target: number, most: number): number {
+    const turn: number = target - from;
+    return from + Math.sign(turn) * Math.min(Math.abs(turn), most);
+  }
+
+  /**
    * How many opening footfalls a walk steps in place to turn about: when a
    * foot's first swing cannot face the way the walk sets off (turning at
    * most `step` of the turn), the feet alternate in place, each turning at

@@ -310,7 +310,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           { ...context, params: { on, duration: clock.duration, hands } },
           on,
           support,
-          context.entry.posture,
+          // The hands take and close on their holds in the first figure's key posture, where the transfer brings them, not in the entry's.
+          HumanMountedFrame.move(keys[0]!, HumanMountedFrame.LOCAL, origin),
           placed,
           figures[0]!.transfer,
           // A hand that enters holding keeps the crossing its rein is displayed with.

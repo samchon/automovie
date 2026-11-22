@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { abductionRange } from "../rom/abductionRange";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { swingTwistExcludedSwivels } from "./swingTwistExcludedSwivels";
 import { swivelArcs } from "./swivelArcs";
@@ -33,7 +34,9 @@ import { swivelJointReadings } from "./swivelJointReadings";
  * negating its vector, and reflects the middle angle about its right angle.
  * Where one such sinusoid exceeds `MARGIN`, its exact roots bound an arc of
  * swivels (`φ ± acos((MARGIN - a) / R)`), and a reading is refused on the
- * union of its axes' arcs.
+ * union of its axes' arcs. An abduction ceiling that rises with flexion
+ * (`abductionRange`) couples two axes, so its abduction is refused only past
+ * the highest ceiling the coupling reaches, which bounds it at every flexion.
  *
  * Every refusal is certain. A sinusoid above `MARGIN` puts its angle past
  * the bound by more than `MARGIN` radians, the joints' tolerance
@@ -85,7 +88,8 @@ export function boxExcludedSwivels(
     (alternate: boolean): IAutoMovieSwivelArcs.IArc[] | "all" => {
       const arcs: IAutoMovieSwivelArcs.IArc[] = [];
       for (const axis of AXES) {
-        const range: IAutoMovieAngleRange | null = constraint[axis];
+        const range: IAutoMovieAngleRange | null =
+          axis === "abduction" ? highestAbduction(constraint) : constraint[axis];
         if (range === null) continue;
         const read: IRead = reading[axis];
         for (const bound of bounds(
@@ -114,6 +118,18 @@ export function boxExcludedSwivels(
  * rounding of every step and the decomposition's gimbal band.
  */
 const MARGIN: number = (ROM_TOLERANCE * Math.PI) / 180;
+
+/**
+ * A joint's abduction interval at its highest ceiling: the ceiling a flexed
+ * abduction coupling reaches at its own flexion (`abductionRange`), which no
+ * flexion exceeds since the coupled ceiling is at least the neutral one
+ * (`validateJointConstraint`); the joint's own interval without a coupling.
+ */
+function highestAbduction(
+  constraint: IAutoMovieJointConstraint,
+): IAutoMovieAngleRange | null {
+  return abductionRange(constraint, constraint.abductionFlexed?.flexion ?? null);
+}
 
 /** The three clinical axes (`swivelJointReadings.AXES`). */
 const AXES: readonly Axis[] = swivelJointReadings.AXES;

@@ -52,19 +52,19 @@ export function test_motion_catalogue_alias_admission(): void {
   const bindings: readonly Binding[] = [
     ["stance", "handsOnHips", "rest", { left: "hip", right: "hip" }],
     ["stance", "thinking", "rest", { left: "elbowSupport", right: "chinRest" }],
-    ["manipulate", "fret", "manipulate", { side: "left" }],
+    ["manipulate", "fret", "manipulate", { hand: "left" }],
     [
       "manipulate",
       "thumbText",
       "manipulate",
-      { side: "right", digit: "thumb" },
+      { hand: "right", digit: "thumb" },
     ],
     ["sport", "childsPose", "kneel", { kind: "sitBack", hold: 10 }],
     [
       "sport",
       "toeTouch",
       "bend",
-      { toward: { kind: "self", region: "footTopRight" }, hold: 20 },
+      { target: { kind: "self", region: "footTopRight" }, hold: 20 },
     ],
     ["sportGym", "curl", "workout", { kind: "curl" }],
   ];

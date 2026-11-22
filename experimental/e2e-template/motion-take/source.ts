@@ -18,9 +18,9 @@ import type {
 import {
   HumanChain,
   HumanObject,
+  AutoMovieMotionHumanStance,
+  AutoMovieMotionHumanThrowCatch,
   createHumanBody,
-  stageCatch,
-  stand,
 } from "@automovie/motions";
 
 import type { IMotionTakeSource } from "../../src/executable/motionTake/IMotionTakeSource";
@@ -110,15 +110,15 @@ function releasePlan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
 ): IAutoMovieMotionHumanThrowObject.IPlan {
   return {
-    ...stand.plan({
+    ...AutoMovieMotionHumanStance.stand.plan({
       ...context,
       params: { ...context.params, sway: 0, on: { prop: "carrier" } },
     }),
     events: [
-      { name: "release", share: launch.seconds / context.params.seconds! },
+      { name: "release", share: launch.seconds / context.params.hold! },
       {
         name: "retime",
-        share: fixture.sourceSeconds / context.params.seconds!,
+        share: fixture.sourceSeconds / context.params.hold!,
       },
     ],
     launch: { ...launch, target: intercept },
@@ -164,7 +164,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
     prepared.skeleton,
     prepared.profile,
   );
-  const initial: IAutoMovieVector3 = stand.posture(body, origin, 180).root;
+  const initial: IAutoMovieVector3 = AutoMovieMotionHumanStance.stand.posture(body, origin, 180).root;
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const door: IAutoMovieMotionHumanProp = HumanObject.prop(
     "door",
@@ -183,7 +183,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
     take: "original",
     bindings: [
       { id: "release-plan", version: "1", value: releasePlan },
-      { id: "staged-catch-plan", version: "1", value: stageCatch.plan },
+      { id: "staged-catch-plan", version: "1", value: AutoMovieMotionHumanThrowCatch.stageCatch.plan },
       { id: "carrier-motion", version: "1", value: carrierMotion },
       { id: "hinge-travel", version: "1", value: hingeTravel },
       { id: "door-articulation", version: "1", value: door.articulate! },
@@ -191,7 +191,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
     human: {
       "staged-catch": {
         seed: "staged-foam-catch",
-        laws: [release, stageCatch],
+        laws: [release, AutoMovieMotionHumanThrowCatch.stageCatch],
         performers: [
           {
             subject: "emitter",
@@ -253,18 +253,18 @@ export function createMotionTakeSource(): IMotionTakeSource {
           AutoMovieComposition.parallel(
             HumanChain.subject("emitter").registered(
               "releaseFoamBall",
-              { seconds: 2 },
+              { hold: 2 },
               "foam-release",
             ).node,
             HumanChain.subject("catcher").registered("stageCatch", {
-              from: "foam-release",
+              partner: "foam-release",
               ball: launch.prop,
               hands: "one",
             }).node,
           ),
           HumanChain.subject("catcher").registered(
             "stand",
-            { seconds: 1, sway: 0 },
+            { hold: 1, sway: 0 },
             "old-tail",
           ).node,
         ),

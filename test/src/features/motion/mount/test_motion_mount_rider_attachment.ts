@@ -330,7 +330,7 @@ function checkGripAndLanding(findings: string[]): void {
         composition: chain.node,
       });
     const sit = actor.sit({ seat, hold: 0.5 });
-    const params = { on: "mount", seconds: WAIT + m.duration, ...m.ride };
+    const params = { on: "mount", duration: WAIT + m.duration, ...m.ride };
     if (m.ride.seat) {
       let error: unknown;
       try {

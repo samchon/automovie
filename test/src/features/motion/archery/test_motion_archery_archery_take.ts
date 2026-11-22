@@ -133,14 +133,14 @@ export function test_motion_archery_archery_take(): void {
               gun: "bow",
               hand: "left",
               target: { kind: "point", at: TARGET, frame: "world" },
-              seconds: 2,
+              hold: 2,
             },
             "present",
           )
           .registered(
             "drawBow",
             {
-              mechanism: {
+              kind: {
                 kind: "slider",
                 at: { kind: "prop", subject: "bow", point: "string" },
                 travel: bow.affordance("string").travel!,

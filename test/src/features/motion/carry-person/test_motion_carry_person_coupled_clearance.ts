@@ -222,8 +222,8 @@ export function test_motion_carry_person_coupled_clearance(): void {
     refused = error;
   }
   TestValidator.predicate(
-    "carrying oneself is refused on by",
-    refused instanceof HumanRefusal && refused.axis === "by",
+    "carrying oneself is refused on partner",
+    refused instanceof HumanRefusal && refused.axis === "partner",
   );
 }
 type CarryBones = ReturnType<typeof HumanSignature.bones>;

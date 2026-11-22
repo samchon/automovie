@@ -88,7 +88,7 @@ export function test_motion_throw_catch_ball_deflection(): void {
   const deflect = (intercept: number): IAutoMovieComposition =>
     HumanChain.subject("defender").registered(
       "stageDeflect",
-      { from: "pass", ball: ballId, hands: "one", intercept },
+      { partner: "pass", ball: ballId, hands: "one", intercept },
       "deflect",
     ).node;
   const film = (
@@ -114,7 +114,7 @@ export function test_motion_throw_catch_ball_deflection(): void {
           ? []
           : [
               HumanChain.subject("receiver").registered("stageCatch", {
-                from: "deflect",
+                partner: "deflect",
                 ball: ballId,
                 hands: "two",
                 intercept: back,

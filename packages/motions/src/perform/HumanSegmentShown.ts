@@ -13,7 +13,6 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStill } from "./HumanSegmentStill";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
-import { perf1Clock } from "./perf1Clock";
 
 /**
  * A person's displayed pose at a film second as the person keeps it: the
@@ -65,9 +64,7 @@ export namespace HumanSegmentShown {
       ? person.planning?.get(seconds)
       : person.cache.get(seconds);
     if (cached !== undefined) return { pose: cached.pose, kept: cached };
-    const timed: boolean = !person.resolving;
-    const clock: number | undefined = timed ? perf1Clock.enter() : undefined;
-    try {
+
     // A transient observation consumes just its demand. Otherwise, where
     // the person keeps poses, a bone demand reads the whole pose and
     // keeps it, so every later reader of this second, whatever bones it asks,
@@ -124,9 +121,6 @@ export namespace HumanSegmentShown {
     if (demand !== undefined) return { pose };
     const kept: HumanSegment.IShown = { pose };
     return keep(person, seconds, kept) ? { pose, kept } : { pose };
-    } finally {
-      if (timed) perf1Clock.leave("frame", clock);
-    }
   }
 
   /**

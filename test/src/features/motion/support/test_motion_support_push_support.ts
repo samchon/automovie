@@ -65,7 +65,7 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  *    it stood through the press, the fists within 10 mm of its handles.
  * 8. Refused, each with its class and axis: a handle the prop does not
  *    have (`affordance`), a moving haul with nowhere to go (`parameter` on
- *    `to`), a press with no duration (`parameter` on `seconds`).
+ *    `to`), a press with no duration (`parameter` on `duration`).
  *
  * Not covered: walking a tall load corner by corner, which the law does not
  * plan yet, and the seeded pauses under heavy loads.
@@ -249,7 +249,7 @@ export function test_motion_support_push_support(): void {
       "a press with no duration",
       { prop: "crate", way: "push", moves: false },
       "parameter",
-      "seconds",
+      "duration",
     );
   }
   TestValidator.equals("a heavy load moved by its handles", complaints, []);

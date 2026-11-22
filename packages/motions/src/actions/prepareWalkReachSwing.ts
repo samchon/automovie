@@ -289,7 +289,9 @@ export function prepareWalkReachSwing(
         ),
       ),
     );
-    const anchored: number = Math.max(1 - held, 1 - risen);
+    // Only the departure half holds it: a landing joins the stance the reach
+    // settled, not the swing's scheduled sole.
+    const anchored: number = Math.max(1 - held, share < 0.5 ? 1 - risen : 0);
     if (anchored > 0) {
       const anchor: IAutoMovieMotionHumanFoot.Socket = lowestSocket(
         foot.placement,

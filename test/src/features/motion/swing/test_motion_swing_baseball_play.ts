@@ -252,12 +252,12 @@ export function test_motion_swing_baseball_play(): void {
       ],
       composition: AutoMovieComposition.parallel(
         HumanChain.subject("pitcher")
-          .registered(holdBall.name, { seconds: 0.4, sway: 0 })
+          .registered(holdBall.name, { hold: 0.4, sway: 0 })
           .registered(
             input.delivery,
             {
               prop: "ball",
-              at: { kind: "point", frame: "world", at: contact },
+              target: { kind: "point", frame: "world", at: contact },
             },
             "pitch",
           )
@@ -305,7 +305,7 @@ export function test_motion_swing_baseball_play(): void {
     at: batterAt,
     yaw: 0,
     chain: HumanChain.subject("batter").registered(holdBat.name, {
-      seconds: 0.4,
+      hold: 0.4,
       sway: 0,
     }).node,
   };
@@ -357,7 +357,7 @@ export function test_motion_swing_baseball_play(): void {
     at: batterAt,
     yaw: 0,
     chain: HumanChain.subject("batter")
-      .registered(holdBat.name, { seconds: 0.4, sway: 0 })
+      .registered(holdBat.name, { hold: 0.4, sway: 0 })
       .registered(
         "baseballHit",
         {
@@ -365,7 +365,7 @@ export function test_motion_swing_baseball_play(): void {
           ball: "ball",
           speed: 40,
           impact,
-          toward: { kind: "point", frame: "world", at: target },
+          target: { kind: "point", frame: "world", at: target },
         },
         "hit",
       )
@@ -432,7 +432,7 @@ export function test_motion_swing_baseball_play(): void {
     yaw: (Math.atan2(-away.x, -away.z) * 180) / Math.PI,
     chain: HumanChain.subject("fielder")
       .registered("stageCatch", {
-        from: "hit",
+        partner: "hit",
         ball: "ball",
         hands: "two",
         intercept: hang,
@@ -475,7 +475,7 @@ export function test_motion_swing_baseball_play(): void {
     ],
     props: [HumanObject.prop("bat", bat, batHeld)],
     composition: HumanChain.subject("batter")
-      .registered(holdBat.name, { seconds: 0.4, sway: 0 })
+      .registered(holdBat.name, { hold: 0.4, sway: 0 })
       .registered("dash", { to: firstBase }).node,
   });
   const onBag: boolean = (["left", "right"] as const).some(
@@ -506,7 +506,7 @@ export function test_motion_swing_baseball_play(): void {
     yaw: 0,
     chain: HumanChain.subject("catcher")
       .registered("stageCatch", {
-        from: "pitch",
+        partner: "pitch",
         ball: "ball",
         hands: "two",
         intercept: takeHang,
@@ -553,7 +553,7 @@ export function test_motion_swing_baseball_play(): void {
       {
         ...swinging(field),
         chain: HumanChain.subject("batter")
-          .registered(holdBat.name, { seconds: 0.4, sway: 0 })
+          .registered(holdBat.name, { hold: 0.4, sway: 0 })
           .registered(
             "baseballHit",
             {
@@ -561,7 +561,7 @@ export function test_motion_swing_baseball_play(): void {
               ball: "ball",
               speed: 40,
               impact,
-              toward: { kind: "point", frame: "world", at: field },
+              target: { kind: "point", frame: "world", at: field },
             },
             "hit",
           )
