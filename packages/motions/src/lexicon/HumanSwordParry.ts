@@ -52,8 +52,8 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * middle of the blade, 1/2, when the arm cannot hold it there (`SLIDE`), the
  * two centre lines 5 mm apart (`HumanSword.GAP`), and the blade may lean about
  * 30 degrees (29.7) from the square to the attacker's (`LEAN`, the friction angle of
- * steel). The attack is stopped at 0.85 of its path
- * (`HumanSword.STOPPED`, provisional). The parry's own travel is timed as the
+ * steel). The attack is stopped where this parry's guard meets it, a forearm
+ * short of its target (`HumanSword.stopped`). The parry's own travel is timed as the
  * thrust's, at 2.6 to 3.2 m/s by skill, and it never arrives faster than its
  * skill: a parry that starts late meets late. It waits in its hold until
  * its meeting falls on the attack's decisive instant, so a parry synced to

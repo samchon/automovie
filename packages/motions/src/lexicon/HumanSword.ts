@@ -50,7 +50,7 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * First pass: the target is read once, at the start; a body does not stop
  * the blade; binds, winds and redirection are not planned; the chambers and
  * the stand-in target are the body's own measures, and `SWING`, `CONE`,
- * `REACH`, `STOPPED` and the cut's speed are provisional.
+ * `REACH` and the cut's speed are provisional.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the effector, how the blade is given, the vocabulary with its source, how a parried attack is declared and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One law record over the stroke planner; the lines a cut comes from are a closed union with a table of directions.
@@ -98,9 +98,6 @@ export namespace HumanSword {
 
   /** The share of the arm's length a target may lie from the shoulder, less the blade, before an advance is taken (provisional). */
   export const REACH: number = 0.9;
-
-  /** The share of its path a parried attack is stopped at (provisional). */
-  export const STOPPED: number = 0.85;
 
   /** The gap between two blades' centre lines where they meet, metres: two half thicknesses of the archetypes' 5 mm blades. */
   export const GAP: number = 0.005;
@@ -300,14 +297,27 @@ export namespace HumanSword {
     };
   };
 
-  /** The share of its path an attack runs: all of it, a feint's shown share, or a parried attack's stop. */
+  /** The share of its path an attack runs: all of it, a feint's shown share, or, parried, as far as the parry meets it: a parry closes its line with the hand a forearm ahead of the shoulders (`HumanSwordParry`'s guard), across the attack's horizontal `line`, and takes the attacking blade on its weak (`THIRDS[0]` back from the point), so the attack stops where the weak, going from `from` at the path's start to `to` at its end, crosses that frontal plane a forearm before `target`: `u = (s0 - forearm) / (s0 - s1)` for the weak's heights `s0`, `s1` before the target along `-line`, all of the path where it never crosses; the defender is measured as the attacker, as `aim`'s stand-in opponent is. */
   export const stopped = (
-    params: IAutoMovieMotionHumanSword.IAttack,
+    context: Pick<IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>, "body" | "params">,
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    target: IAutoMovieVector3,
+    line: IAutoMovieVector3,
   ): number => {
-    if (params.feint !== undefined)
-      return HumanBound.within("feint", params.feint, 0, 1, "", "both");
-    return params.outcome === "parried" ? STOPPED : 1;
+    const params: IAutoMovieMotionHumanSword.IAttack = context.params;
+    if (params.feint !== undefined) return HumanBound.within("feint", params.feint, 0, 1, "", "both");
+    if (params.outcome !== "parried") return 1;
+    const guard: number = context.body.measure.forearm;
+    const s0: number = -Vector3.dot(Vector3.subtract(from, target), line);
+    const s1: number = -Vector3.dot(Vector3.subtract(to, target), line);
+    if (s0 <= guard) return 0;
+    return s1 < guard ? Math.min(1, (s0 - guard) / (s0 - s1)) : 1;
   };
+
+  /** Where a held blade's weak lies, `THIRDS[0]` of its length back from its point, for a hand frame. */
+  export const weak = (tool: IAutoMovieMotionHumanStrikingHeld.ITool, frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame): IAutoMovieVector3 =>
+    Vector3.add(frame.point, Quaternion.rotateVector(frame.rotation, Vector3.subtract(tool.tip, Vector3.scale(tool.axis, THIRDS[0] * tool.length))));
 
   /** What an author can change when a target is out of reach. */
   export const FIX: string =
@@ -456,7 +466,7 @@ export namespace HumanSword {
             travel: a.travel,
             line: a.line,
             stay: false,
-            stop: stopped(context.params),
+            stop: stopped(context, weak(s.tool, path(0)), weak(s.tool, landed), a.target, a.line),
           },
         );
 

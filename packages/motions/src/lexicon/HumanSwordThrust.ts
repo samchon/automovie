@@ -231,7 +231,13 @@ export namespace HumanSwordThrust {
             travel: a.travel,
             line: a.line,
             stay: false,
-            stop: HumanSword.stopped(context.params),
+            stop: HumanSword.stopped(
+              context,
+              HumanSword.weak(s.tool, drawn),
+              HumanSword.weak(s.tool, landed),
+              a.target,
+              a.line,
+            ),
           },
         );
 
