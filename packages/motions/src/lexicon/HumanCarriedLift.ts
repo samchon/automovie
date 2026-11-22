@@ -25,13 +25,15 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  * where the carrier has brought it.
  *
  * Both are a blend on minimum-jerk progress between two whole postures: the
- * displayed root travels straight between them, its quaternion follows
+ * displayed root rises before it crosses and crosses before it comes down,
+ * each on a minimum-jerk half of the phase, so the body goes over the
+ * carrier rather than through it; its quaternion follows
  * the shortest rotation and the joints go with it, and the carry's own posture keeps following the carrier
  * meanwhile, so the body arrives on a carrier who walks. The carried body's
  * contact with the carrier is declared only between the two, while it
- * rests there, and the feet plant on the floor through the lift and from
- * the set-down's start, so the floor bears the body until the carrier does
- * and again before the carrier lets go (#3437).
+ * rests there; the feet leave the floor as the lift begins and come back
+ * to it as the set-down ends, so no floor window lies inside either phase
+ * (#3437).
  *
  * First pass: the body is carried through the blend by nothing that is
  * shown (the carrier's hands arrive by `bearing`'s own take-up, and no hand
@@ -56,8 +58,8 @@ export namespace HumanCarriedLift {
    * @throws {HumanRefusal} When a phase is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the carry's own, blended from the entry posture while the lift lasts and toward a stand under the carried root while the set-down lasts; phases longer than the carry are scaled to fill it. Both ends' displayed roots include their whole-body rotations (`turnHumanPosture`); their positions are blended linearly and their rotations by quaternion slerp, represented as a correction after the blended Euler heading, so a rotation carried outside those angles cannot disappear when a phase starts.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weights, one blend, the contact windows cut to the hold and the feet's floor windows around it.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the carry's own, blended from the entry posture while the lift lasts and toward a stand under the carried root while the set-down lasts; phases longer than the carry are scaled to fill it. Both ends' displayed roots include their whole-body rotations (`turnHumanPosture`); their positions are blended vertically and across the floor on the two minimum-jerk halves (rising first, coming down last) and their rotations by quaternion slerp, represented as a correction after the blended Euler heading, so a rotation carried outside those angles cannot disappear when a phase starts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weights, one blend, the contact windows cut to the hold.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading is blended the short way round; a limb goal is blended as the joint angles its solve gives, so no limb jumps when the blend starts or ends.
    * @evidence contracts/development/implementation.md#efficient-algorithms The entry is frozen once per plan; a posture inside a phase freezes the carry's posture once (one whole-posture fit) and blends the joints, and one outside the phases costs the carry's own posture alone.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one posture call the carry's plan and the freeze share one forward-kinematics reader and the caller's range-of-motion projector; the bearer's bones the carry reads are its own. Nothing is kept between seconds.
@@ -82,13 +84,25 @@ export namespace HumanCarriedLift {
     // (`GymnasticsFlight.frozen`), so a limb a goal places at one end is
     // blended from where that goal put it, never dropped at the start or
     // taken whole half way, and the blend meets each end's displayed pose.
-    const stood: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(body, entry);
-    const ease: (x: number) => number = (x: number): number => minimumJerk.share(x);
+    const stood: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
+      body,
+      entry,
+    );
+    const ease: (x: number) => number = (x: number): number =>
+      minimumJerk.share(x);
+    // The blend at a raw progress `x`. The joints, the heading and the
+    // attitude go on one minimum-jerk share; the root rises before it
+    // crosses and crosses before it comes down, each on a minimum-jerk half
+    // of the phase, so the body goes over the carrier, never through it, and
+    // the two halves meet at rest, the root's velocity continuous there.
     const mix = (
       from: IAutoMovieMotionHumanPosture,
       to: IAutoMovieMotionHumanPosture,
-      w: number,
+      x: number,
     ): IAutoMovieMotionHumanPosture => {
+      const w: number = ease(x);
+      const lead: number = ease(Math.min(1, 2 * x));
+      const lag: number = ease(Math.max(0, 2 * x - 1));
       const joints: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const bone of new Set([
         ...Object.keys(from.joints),
@@ -107,18 +121,23 @@ export namespace HumanCarriedLift {
         ];
       }
       const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-      const a: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(from);
-      const b: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(to);
+      const a: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+        turnHumanPosture(from);
+      const b: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+        turnHumanPosture(to);
       const rotation: IAutoMovieQuaternion = Quaternion.slerp(
         a.rotation,
         b.rotation,
         w,
       );
+      const rising: boolean = b.position.y >= a.position.y;
+      const up: number = rising ? lead : lag;
+      const across: number = rising ? lag : lead;
       const blended: IAutoMovieMotionHumanPosture = {
         root: {
-          x: a.position.x + (b.position.x - a.position.x) * w,
-          y: a.position.y + (b.position.y - a.position.y) * w,
-          z: a.position.z + (b.position.z - a.position.z) * w,
+          x: a.position.x + (b.position.x - a.position.x) * across,
+          y: a.position.y + (b.position.y - a.position.y) * up,
+          z: a.position.z + (b.position.z - a.position.z) * across,
         },
         yaw: from.yaw + turn * w,
         pitch: from.pitch + (to.pitch - from.pitch) * w,
@@ -146,42 +165,18 @@ export namespace HumanCarriedLift {
       ],
       contacts: [
         ...plan.contacts.map(
-          (window: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+          (
+            window: IAutoMovieMotionHumanContactWindow,
+          ): IAutoMovieMotionHumanContactWindow => ({
             ...window,
             from: Math.max(window.from, lift / plan.duration),
             to: Math.min(window.to, 1 - setDown / plan.duration),
           }),
         ),
-
-        // The floor bears the feet until the carrier bears the body, and
-        // again from the set-down's start: each support is released only as
-        // the next one takes the weight (#3437, a support sequence of #3435).
-        ...(["leftFoot", "rightFoot"] as const).flatMap(
-          (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow[] => [
-            ...(lift > 0
-              ? [
-                  {
-                    part,
-                    kind: "plant" as const,
-                    from: 0,
-                    to: lift / plan.duration,
-                    support: { kind: "ground" as const },
-                  },
-                ]
-              : []),
-            ...(setDown > 0
-              ? [
-                  {
-                    part,
-                    kind: "plant" as const,
-                    from: 1 - setDown / plan.duration,
-                    to: 1,
-                    support: { kind: "ground" as const },
-                  },
-                ]
-              : []),
-          ],
-        ),
+        // No floor window inside a phase: the root rises from the lift's
+        // first instant and reaches the floor only at the set-down's end, so
+        // the feet are off the floor throughout both, and a plant there
+        // would hold a foot the body has lifted.
       ],
       posture: (
         at: number,
@@ -189,16 +184,26 @@ export namespace HumanCarriedLift {
         source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
-        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-        const held: IAutoMovieMotionHumanPosture = plan.posture(at, undefined, resolution, projection);
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(source);
+        const held: IAutoMovieMotionHumanPosture = plan.posture(
+          at,
+          undefined,
+          resolution,
+          projection,
+        );
         if (lift > 0 && at < lift) {
-          const w: number = ease(at / lift);
-          return w <= 0
+          const x: number = Math.max(0, at / lift);
+          return x <= 0
             ? entry
-            : mix(stood, GymnasticsFlight.frozen(body, held, resolution, projection), w);
+            : mix(
+                stood,
+                GymnasticsFlight.frozen(body, held, resolution, projection),
+                x,
+              );
         }
         if (setDown > 0 && at > plan.duration - setDown) {
-          const w: number = ease((at - (plan.duration - setDown)) / setDown);
+          const w: number = (at - (plan.duration - setDown)) / setDown;
           return w <= 0
             ? held
             : mix(

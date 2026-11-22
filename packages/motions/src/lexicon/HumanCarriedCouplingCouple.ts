@@ -28,6 +28,7 @@ import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
 import type { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
+import { HumanCarriedNeckClear } from "./HumanCarriedNeckClear";
 
 /** The borne regions held by the bearer's left and right hands. */
 type Grip = Parameters<typeof HumanCarriedCouplingFit.read>[3];
@@ -201,10 +202,16 @@ export namespace HumanCarriedCouplingCouple {
         throw error;
       }
     };
+    const chosen: IGripFit = choose(0);
+    // The borne pelvis is set back off the bearer's neck where the key
+    // rests it there (`HumanCarriedNeckClear`).
     const {
       read: { fit, mine, theirs },
       held,
-    }: IGripFit = choose(0);
+    }: IGripFit = {
+      ...chosen,
+      read: HumanCarriedNeckClear(bearer, borne, chosen.read),
+    };
     // The key frame is the bone the resting region rides on, so the borne
     // body goes with that bone wherever the bearer's action takes it.
     const anchor: AutoMovieHumanoidBone = HumanCarriedCouplingPose.anchor(

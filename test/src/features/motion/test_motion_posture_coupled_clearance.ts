@@ -60,7 +60,7 @@ export function test_motion_posture_coupled_clearance(): void {
     ankleDrag: ["calfLeft", "thighFrontRight"],
     waistLift: ["abdomen", "sternum"],
     overheadLift: ["abdomen", "nape"],
-    shoulders: ["seat", "nape"],
+    shoulders: ["seat", "yoke"],
   };
   const stage = (
     names: readonly [CarryFixture, CarryFixture],
