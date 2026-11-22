@@ -110,6 +110,7 @@ export function test_human_motion_seated_draw(): void {
         composition: sitting.node,
       });
       const seated: number = film.instant({ of: "sit", event: "settled" });
+      const unseated: number = film.instant({ of: "draw", event: "unseated" });
       const drawn: number = film.instant({ of: "draw", event: "drawn" });
       const placed: number = film.instant({ of: "sheathe", event: "placed" });
       const pelvis: IAutoMovieVector3 = film
@@ -137,9 +138,11 @@ export function test_human_motion_seated_draw(): void {
           film.prop("knife", t),
         );
       checks.check(
-        `${label}: the knife rides the sheath until the draw`,
-        Vector3.distance(inSheath(seated).position, inSheath(0).position) <=
-          RIGID,
+        `${label}: the knife rides the sheath until the draw (${Vector3.distance(inSheath(unseated - 0.01).position, inSheath(0).position).toFixed(4)} m)`,
+        Vector3.distance(
+          inSheath(unseated - 0.01).position,
+          inSheath(0).position,
+        ) <= RIGID,
       );
       checks.check(
         `${label}: the hand keeps the knife between the draw and the return`,
