@@ -241,7 +241,14 @@ export namespace CarBody {
       undefined,
       { color: BODY },
     );
+    // The lid's vertices about its own centre, so its frame is its middle
+    // and the hinge turns it about its rear edge.
     const lid: number = 0.03;
+    const middle: IAutoMovieVector3 = v(
+      0,
+      (lead + l.belt + lid) / 2,
+      (l.front + l.firewall) / 2,
+    );
     builder.convex(
       "bonnet-lid",
       [
@@ -253,8 +260,11 @@ export namespace CarBody {
         v(x - 0.02, l.belt, l.firewall),
         v(-x + 0.02, l.belt + lid, l.firewall),
         v(x - 0.02, l.belt + lid, l.firewall),
-      ],
-      undefined,
+      ].map(
+        (point: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.subtract(point, middle),
+      ),
+      middle,
       { color: BODY },
     );
     builder.affordance({
