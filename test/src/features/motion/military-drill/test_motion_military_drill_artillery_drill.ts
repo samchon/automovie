@@ -29,9 +29,9 @@ import {
   HumanPerformance,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The gunner's command to fire, film seconds on the scene's cue track: after the drill's duties. */
 const FIRE: number = 40;
@@ -110,7 +110,7 @@ const ORDER: readonly string[] = [
  * @evidence contracts/development/testing.md#distinguishing-cases Each duty, each prop's custody span, both bodies across the roles.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_motion_exercise_artillery_drill(): void {
+export function test_motion_military_drill_artillery_drill(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   try {
     const gun: ReturnType<typeof createCannon> = createCannon({

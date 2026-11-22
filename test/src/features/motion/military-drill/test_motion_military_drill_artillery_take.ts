@@ -14,9 +14,9 @@ import {
   HumanPerformance,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The fire command's film second, on the scene's cue track. */
 const FIRE: number = 6;
@@ -63,7 +63,7 @@ const STATIONS: readonly IStation[] = [
  * @evidence contracts/development/testing.md#distinguishing-cases Five stations on two bodies, before and at the command.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_motion_exercise_artillery_take(): void {
+export function test_motion_military_drill_artillery_take(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   try {
     const gun: ReturnType<typeof createCannon> = createCannon({

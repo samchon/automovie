@@ -50,7 +50,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** One held cell: a stage prop and the contact the right hand takes it by. */
 interface IHoldCase {
@@ -124,7 +124,7 @@ const REST: IAutoMovieRigidTransform = {
  * @evidence contracts/development/testing.md#distinguishing-cases Every held variant on two casts, the worn carriers, one transfer between custody states, and four refused cells of three causes.
  * @evidence contracts/development/testing.md#execution-ownership Runs in memory on the scenario runner with prepared polygon bodies and the public producers and readers.
  */
-export function test_motion_exercise_stage_prop_matrix(): void {
+export function test_motion_stage_fight_stage_prop_matrix(): void {
   const failures: string[] = [];
   for (const cast of [
     "f-small",

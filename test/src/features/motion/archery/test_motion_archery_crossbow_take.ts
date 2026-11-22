@@ -15,9 +15,9 @@ import {
   HumanPropFrame,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The counter top above the floor, metres: the website's counter band middle. */
 const TOP: number = 0.914;
@@ -49,7 +49,7 @@ const RIGID: number = 0.002;
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, both hands, before and after the cue.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_motion_exercise_crossbow_take(): void {
+export function test_motion_archery_crossbow_take(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const label of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(label);

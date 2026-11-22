@@ -9,18 +9,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBlade,
   HumanFoot,
   HumanHand,
   HumanObject,
   HumanRefusal,
-  HumanSabre,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { mountedHorseScene } from "../internal/mountedHorseScene";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { mountedHorseScene } from "../../internal/mountedHorseScene";
 
 /** The campaign's held-contact bound, metres. */
 const CONTACT: number = 0.01;
@@ -55,7 +55,7 @@ const AIM: number = 15;
  * @evidence contracts/development/testing.md#distinguishing-cases Slope against engage, a gallop against a canter cue.
  * @evidence contracts/development/testing.md#execution-ownership In-memory films of one polygon man on one archetype horse with one sabre.
  */
-export function test_motion_equestrian_sabre(): void {
+export function test_motion_blade_equestrian_sabre(): void {
   const findings: string[] = [];
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const horse: mountedHorseScene.Horse = createHorse(
@@ -97,7 +97,7 @@ export function test_motion_equestrian_sabre(): void {
       wait: WAIT,
       course,
       cues: { gaits, charge: [{ name: "charge", seconds: at }] },
-      laws: [HumanSabre],
+      laws: [AutoMovieMotionHumanBlade.HumanSabre],
       props: [
         HumanObject.prop("sabre", sabre, {
           // On a rack where the standing rider's right hand rests.
@@ -115,7 +115,7 @@ export function test_motion_equestrian_sabre(): void {
       acts: (seated) => {
         const ridden = seated.registered("ride", {
           on: "horse",
-          seconds: WAIT - 1,
+          duration: WAIT - 1,
           seat: "seat",
           feet: { left: "leftStirrup", right: "rightStirrup" },
           hands: { left: "leftRein" },
@@ -128,7 +128,7 @@ export function test_motion_equestrian_sabre(): void {
           gaits: "gaits",
           transition: TRANSITION,
           ...(target === undefined ? {} : { target }),
-          seconds: charge - WAIT + 1.5,
+          duration: charge - WAIT + 1.5,
         });
       },
     });

@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanArchery,
+  AutoMovieMotionHumanArchery,
   HumanChain,
   HumanObject,
   HumanPerformance,
@@ -17,10 +17,10 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { qclose } from "../internal/qclose";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { qclose } from "../../internal/qclose";
+import { vclose } from "../../internal/vclose";
 
 /**
  * A staged arrow or bolt remains with its named fixture until the public
@@ -41,7 +41,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers two different fixture coordinates and cue names, reverse-order reads, a named prop off the nock, and a fixture recovery while its former prop still moves. Other tests own quiver pickup and performer reach.
  * @evidence contracts/development/testing.md#execution-ownership Uses seedless prop producers and in-memory HumanPerformance on one polygon body. This exported entry starts no host.
  */
-export function test_motion_exercise_archery_continuation(): void {
+export function test_motion_archery_archery_continuation(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const zero: IAutoMovieVector3 = Vector3.create(0, 0, 0);
   const up: IAutoMovieVector3 = Vector3.create(0, 1, 0);
@@ -88,8 +88,11 @@ export function test_motion_exercise_archery_continuation(): void {
   for (const kind of ["recurve", "crossbow"] as const) {
     const model: ReturnType<typeof createBow> = createBow({ kind });
     const crossbow: boolean = kind === "crossbow";
-    const law: typeof HumanArchery.loose | typeof HumanArchery.shootCrossbow =
-      crossbow ? HumanArchery.shootCrossbow : HumanArchery.loose;
+    const law:
+      | typeof AutoMovieMotionHumanArchery.HumanArchery.loose
+      | typeof AutoMovieMotionHumanArchery.HumanArchery.shootCrossbow = crossbow
+      ? AutoMovieMotionHumanArchery.HumanArchery.shootCrossbow
+      : AutoMovieMotionHumanArchery.HumanArchery.loose;
     const event: string = crossbow ? "strokeStart" : "open";
     const coordinate: "string" | "crank" = crossbow ? "crank" : "string";
     const heldTravel: number = model.affordance(coordinate).travel! / 3;

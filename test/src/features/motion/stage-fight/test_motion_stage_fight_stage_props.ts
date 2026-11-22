@@ -13,17 +13,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStageFight,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanStageProp,
-  composeHumanStageProp,
-  withHumanStagePropLink,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /**
  * Verify the screen cue of a two-hand stage prop beat and the replay of a
@@ -45,7 +43,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Exercises distinct grip ownership, a cue without physical hits, and reads before, during and after a cue-driven articulation in an order different from playback.
  * @evidence contracts/development/testing.md#execution-ownership Runs in memory on the scenario runner using a prepared polygon body and the normal prop, composition and performance readers.
  */
-export function test_motion_exercise_stage_props(): void {
+export function test_motion_stage_fight_stage_props(): void {
   verifyScreenBeat();
   verifyLink();
   verifyLinkedMark();
@@ -67,7 +65,8 @@ function verifyScreenBeat(): void {
     .stand()
     .pickUp({ prop: "shaft", handle: "grip-lower", hand: "right", lift: 0 })
     .pickUp({ prop: "shaft", handle: "grip-upper", hand: "left", lift: 0 });
-  const composition: IAutoMovieChain = composeHumanStageProp(
+  const composition: IAutoMovieChain =
+    AutoMovieMotionHumanStageFight.stageProp(
     enrolled,
     { beat: "figureEight", prop: "shaft", support: "grip-upper" },
     "shaft-display",
@@ -92,7 +91,7 @@ function verifyScreenBeat(): void {
       },
     ],
     composition: composition.node,
-    laws: [HumanStageProp],
+    laws: [AutoMovieMotionHumanStageFight.HumanStageProp],
     props: [
       {
         ...shaft,
@@ -171,7 +170,8 @@ function verifyLink(): void {
     at: { x: 0, y: 0, z: 0 },
     yaw: 0,
   });
-  const linked: IAutoMovieMotionHumanProp = withHumanStagePropLink(
+  const linked: IAutoMovieMotionHumanProp =
+    AutoMovieMotionHumanStageFight.withHumanStagePropLink(
     rest,
     { of: "edit", event: "swing" },
     [
@@ -224,7 +224,8 @@ function verifyLinkedMark(): void {
     at: { x: -0.15 - grip, y: 1.11, z: 0.29 },
     yaw: 0,
   });
-  const prop: IAutoMovieMotionHumanProp = withHumanStagePropLink(
+  const prop: IAutoMovieMotionHumanProp =
+    AutoMovieMotionHumanStageFight.withHumanStagePropLink(
     {
       ...rest,
       frame: {
@@ -258,7 +259,7 @@ function verifyLinkedMark(): void {
         { beat: "linked", prop: "tool", mark: "end", at },
         "display",
       ).node,
-    laws: [HumanStageProp],
+    laws: [AutoMovieMotionHumanStageFight.HumanStageProp],
     props: [prop],
   });
   const stroke: IAutoMovieScheduleCue | undefined = performance.schedule.entries

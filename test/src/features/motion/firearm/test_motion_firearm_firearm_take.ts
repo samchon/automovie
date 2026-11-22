@@ -22,8 +22,8 @@ import {
   HumanPropFrame,
 } from "@automovie/motions";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The counter top above the floor, metres: the website's counter band middle. */
 const TOP: number = 0.914;
@@ -59,7 +59,7 @@ const RIGID: number = 0.001;
  * @evidence contracts/development/testing.md#distinguishing-cases Handgun against long arm, a whole action against one cut short, a held gun against one set down.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_motion_exercise_firearm_take(): void {
+export function test_motion_firearm_firearm_take(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const checks: motionComplaints.IGatherer = motionComplaints();
   const laws = Object.values(HUMAN_LEXICON).flat();

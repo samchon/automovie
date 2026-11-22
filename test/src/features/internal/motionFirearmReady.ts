@@ -11,11 +11,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanFirearm,
   HumanChain,
-  HumanFirearm,
   HumanObject,
   HumanPerformance,
-  HumanWeaponFirearm,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,9 +77,9 @@ export function motionFirearmReady(name: motionHumanBody.Name): void {
       180) /
     Math.PI;
   const laws: IAutoMovieMotionHumanActionLaw<never>[] = [
-    ...Object.values(HumanFirearm),
-    HumanWeaponFirearm.draw,
-    HumanWeaponFirearm.present,
+    ...Object.values(AutoMovieMotionHumanFirearm.HumanFirearm),
+    AutoMovieMotionHumanFirearm.HumanWeaponFirearm.draw,
+    AutoMovieMotionHumanFirearm.HumanWeaponFirearm.present,
   ] as IAutoMovieMotionHumanActionLaw<never>[];
   const regions: Record<"highReady" | "lowReady", readonly [number, number]> = {
     highReady: [45, 75],

@@ -13,16 +13,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBlade,
+  AutoMovieMotionHumanBlade,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanPropFrame,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** One two-weapon pairing: the right and left hands' swords. */
 interface IPair {
@@ -79,7 +79,7 @@ const LEAD: number = 0.4;
  * @evidence contracts/development/testing.md#distinguishing-cases Two pairings, left against right hand, block against answer.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_two_weapon(): void {
+export function test_motion_blade_two_weapon(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const checks: motionComplaints.IGatherer = motionComplaints();
   const use: IAutoMovieMotionHumanGraspUse.IUse = {
@@ -123,13 +123,13 @@ export function test_human_motion_two_weapon(): void {
         .pickUp({ prop: "a.right", handle: "grip", hand: "right", use })
         .pickUp({ prop: "a.left", handle: "grip", hand: "left", use })
         .registered(
-          HumanBlade.parry.name,
+          AutoMovieMotionHumanBlade.HumanBlade.parry.name,
           { blade: "a.left", hand: "left", against: "b.cut" },
           "a.block",
         )
         .sync({ of: "b.cut", offset: -LEAD })
         .registered(
-          HumanBlade.thrust.name,
+          AutoMovieMotionHumanBlade.HumanBlade.thrust.name,
           {
             blade: "a.right",
             hand: "right",
@@ -146,7 +146,7 @@ export function test_human_motion_two_weapon(): void {
         })
         .stand({ hold: 1.2, sway: 0 })
         .registered(
-          HumanBlade.cut.name,
+          AutoMovieMotionHumanBlade.HumanBlade.cut.name,
           {
             blade: "b.sabre",
             target: { kind: "person", subject: "a", region: "shoulderLeft" },
@@ -156,7 +156,7 @@ export function test_human_motion_two_weapon(): void {
         );
       const film: HumanPerformance = new HumanPerformance({
         seed: "two-weapon-" + pair.name,
-        laws: [...Object.values(HumanBlade)],
+        laws: [...Object.values(AutoMovieMotionHumanBlade.HumanBlade)],
         performers: [
           {
             subject: "a",

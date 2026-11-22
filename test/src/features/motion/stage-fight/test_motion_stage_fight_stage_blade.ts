@@ -19,9 +19,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
 
 /** Independent blocking marks and assertions for the sampled stage steps. */
 interface ICase {
@@ -59,7 +59,7 @@ interface ICase {
  * @evidence contracts/development/testing.md#distinguishing-cases Uses two proportional bodies, forward and lateral and backward directions, deliberate glide and raised travel, held and empty hands, cues present and absent, and out-of-order samples. The checks cover sample landmarks, not equipment scoring or swept clearance.
  * @evidence contracts/development/testing.md#execution-ownership The in-memory unit uses the public performance scheduler, actual archetype and canonical body, with no native host or rendered capture.
  */
-export function test_motion_exercise_stage_blade(): void {
+export function test_motion_stage_fight_stage_blade(): void {
   const cases: readonly ICase[] = [
     {
       body: "m-average",

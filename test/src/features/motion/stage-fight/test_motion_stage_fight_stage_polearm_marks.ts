@@ -20,16 +20,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStageFight,
   HumanChain,
   HumanColliders,
   HumanObject,
   HumanPerformance,
-  HumanStageProp,
-  composeHumanStageProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The pole-blade display marks a profile can expose. */
 type Mark = "tip" | "edge" | "rear" | "side-edge";
@@ -87,7 +86,7 @@ type HandPart = ReturnType<
  * @evidence contracts/development/testing.md#distinguishing-cases Covers all four profiles, the side blade's extra mark, both hands and five beat times; a profile whose marks coincided or whose grip slipped would fail.
  * @evidence contracts/development/testing.md#execution-ownership Runs in memory on the scenario runner with a prepared polygon body and the public prop, chain and performance readers.
  */
-export function test_motion_exercise_stage_polearm_marks(): void {
+export function test_motion_stage_fight_stage_polearm_marks(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const hands: ReturnType<typeof HumanColliders.preparePlaced> =
     HumanColliders.preparePlaced(
@@ -219,7 +218,8 @@ function beat(
     .stand()
     .pickUp({ prop: "shaft", handle: "grip-lower", hand: "right", lift: 0 })
     .pickUp({ prop: "shaft", handle: "grip-upper", hand: "left", lift: 0 });
-  const composition: IAutoMovieChain = composeHumanStageProp(
+  const composition: IAutoMovieChain =
+    AutoMovieMotionHumanStageFight.stageProp(
     enrolled,
     { beat: "figureEight", prop: "shaft", support: "grip-upper" },
     "shaft-display",
@@ -236,7 +236,7 @@ function beat(
       },
     ],
     composition: composition.node,
-    laws: [HumanStageProp],
+    laws: [AutoMovieMotionHumanStageFight.HumanStageProp],
     props: [
       {
         ...shaft,

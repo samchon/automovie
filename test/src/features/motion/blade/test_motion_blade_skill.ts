@@ -9,15 +9,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBlade,
+  AutoMovieMotionHumanBlade,
   HumanChain,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionBladeReach } from "../internal/motionBladeReach";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionBladeReach } from "../../internal/motionBladeReach";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The proficiency levels whose cited lunge speeds the spec compares. */
 type Level = "novice" | "elite";
@@ -60,7 +60,7 @@ interface ITake {
  * @evidence contracts/development/testing.md#distinguishing-cases Two skill levels on two bodies of opposite build with the same seed; the order check separates a skill-blind clock from one in band by chance. Seeds, replay and the landing belong to the other blade specs.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory performances through the public chain, with no host or capture.
  */
-export function test_human_motion_blade_skill(): void {
+export function test_motion_blade_skill(): void {
   const sword: ReturnType<typeof createSword> = createSword({
     kind: "armingSword",
   });
@@ -75,7 +75,7 @@ export function test_human_motion_blade_skill(): void {
     const stage = (level: Level): ITake => {
       const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "skill",
-        laws: Object.values(HumanBlade),
+        laws: Object.values(AutoMovieMotionHumanBlade.HumanBlade),
         performers: [
           {
             subject: "a",

@@ -14,26 +14,25 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBlade,
+  AutoMovieMotionHumanBlade,
+  AutoMovieMotionHumanStageFight,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  HumanStagePiste,
-  stageBladeFootwork,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /** One weapon's bout: its blocking, the touches' targets and the scripted result. */
 interface IBout {
   /** The weapon. */
-  kind: Exclude<HumanStagePiste.Kind, "kendo">;
+  kind: Exclude<AutoMovieMotionHumanStageFight.HumanStagePiste.Kind, "kendo">;
 
   /** The first performer's lead foot. */
   lead: AutoMovieHumanSide;
@@ -48,7 +47,7 @@ interface IBout {
   answer: AutoMovieHumanoidRegion;
 
   /** The scripted result. */
-  result: HumanStagePiste.Result;
+  result: AutoMovieMotionHumanStageFight.HumanStagePiste.Result;
 }
 
 /** A scoring touch: its action's anchor, the struck performer and the region it lands on. */
@@ -133,7 +132,7 @@ const MARK: number = 0.008;
  * @evidence contracts/development/testing.md#distinguishing-cases Three weapons with different leads, approaches and results, a single, a parried and a double touch, whose two blades each follow a moving target, the window's inside and outside, and the adjacent inadmissible and admitted targets. Checks are at sampled instants, not swept.
  * @evidence contracts/development/testing.md#execution-ownership Public in-memory placement and pose sampling on canonical bodies and archetype props. No viewer or native host is invoked.
  */
-export function test_motion_exercise_staged_piste(): void {
+export function test_motion_stage_fight_staged_piste(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: motionComplaints.IGatherer = motionComplaints();
   for (const bout of BOUTS)
@@ -154,7 +153,7 @@ export function test_motion_exercise_staged_piste(): void {
 /** A placed bout and its performance. */
 interface IStaged {
   /** The composed bout. */
-  placed: HumanStagePiste.IPlaced;
+  placed: AutoMovieMotionHumanStageFight.HumanStagePiste.IPlaced;
 
   /** Its performance. */
   film: HumanPerformance;
@@ -203,7 +202,7 @@ function stage(body: IAutoMovieMotionHumanBody, bout: IBout): IStaged {
     a: { x: 0, y: 0, z: 0 },
     b: { x: 0, y: 0, z: OPENING },
   };
-  const take: HumanStagePiste.ITake = {
+  const take: AutoMovieMotionHumanStageFight.HumanStagePiste.ITake = {
     anchor: "bout",
     kind: bout.kind,
     first: {
@@ -235,10 +234,13 @@ function stage(body: IAutoMovieMotionHumanBody, bout: IBout): IStaged {
     duration: SECONDS,
     result: bout.result,
   };
-  const placed: HumanStagePiste.IPlaced = HumanStagePiste.compose(take);
+  const placed: AutoMovieMotionHumanStageFight.HumanStagePiste.IPlaced = AutoMovieMotionHumanStageFight.HumanStagePiste.compose(take);
   const film: HumanPerformance = new HumanPerformance({
     seed: `piste-${bout.kind}-${bout.result}`,
-    laws: [stageBladeFootwork, ...Object.values(HumanBlade)],
+    laws: [
+      AutoMovieMotionHumanStageFight.stageBladeFootwork,
+      ...Object.values(AutoMovieMotionHumanBlade.HumanBlade),
+    ],
     performers: ["a", "b"].map((subject: string) => ({
       subject,
       body,
@@ -318,7 +320,7 @@ function play(
   const label: string = `${bout.kind}/${bout.result}`;
 
   // 1. The announced result at the decisive instant of the scoring touch.
-  const announced: HumanStagePiste.IAnnouncement | undefined = placed.announced(
+  const announced: AutoMovieMotionHumanStageFight.HumanStagePiste.IAnnouncement | undefined = placed.announced(
     film.schedule,
   );
   const touch: Touch =
@@ -336,7 +338,7 @@ function play(
   // 2. The approach: the lead leaves first, the rear holds, both feet settle
   // the approach's distance forward and the pelvis follows.
   const count: number = Math.ceil(
-    Math.max(bout.distance, ANSWERING) / HumanStagePiste.ADVANCE,
+    Math.max(bout.distance, ANSWERING) / AutoMovieMotionHumanStageFight.HumanStagePiste.ADVANCE,
   );
   const first: IAutoMovieScheduleEntry | undefined = entry(film, "bout.first");
   const last: IAutoMovieScheduleEntry | undefined = entry(
@@ -450,7 +452,7 @@ function double(
     film,
     "bout.counter",
   );
-  const announced: HumanStagePiste.IAnnouncement | undefined = placed.announced(
+  const announced: AutoMovieMotionHumanStageFight.HumanStagePiste.IAnnouncement | undefined = placed.announced(
     film.schedule,
   );
   const gaps: readonly number[] = [
@@ -468,7 +470,7 @@ function double(
   );
 
   // A counter landing outside the window scores no double touch.
-  const late: number = HumanStagePiste.DOUBLE + 0.01;
+  const late: number = AutoMovieMotionHumanStageFight.HumanStagePiste.DOUBLE + 0.01;
   complaints.check(
     "epee/both: a counter later than the epee's window is not announced",
     placed.announced({
@@ -495,10 +497,10 @@ function rules(complaints: motionComplaints.IGatherer): void {
     region,
   });
   const take = (
-    kind: HumanStagePiste.Kind,
+    kind: AutoMovieMotionHumanStageFight.HumanStagePiste.Kind,
     region: AutoMovieHumanoidRegion,
-    result: HumanStagePiste.Result,
-  ): HumanStagePiste.ITake => ({
+    result: AutoMovieMotionHumanStageFight.HumanStagePiste.Result,
+  ): AutoMovieMotionHumanStageFight.HumanStagePiste.ITake => ({
     anchor: "rule",
     kind,
     first: {
@@ -524,14 +526,14 @@ function rules(complaints: motionComplaints.IGatherer): void {
     ["sabre", "kneeRight", "first", "first.target"],
   ] as const)
     try {
-      HumanStagePiste.compose(take(kind, region, result));
+      AutoMovieMotionHumanStageFight.HumanStagePiste.compose(take(kind, region, result));
       complaints.list.push(`${kind}: admitted ${result} on ${region}`);
     } catch (error) {
       if (!(error instanceof HumanRefusal) || error.axis !== axis)
         complaints.list.push(`${kind}: unexpected refusal ${String(error)}`);
     }
   try {
-    HumanStagePiste.compose(take("epee", "thighFrontLeft", "first"));
+    AutoMovieMotionHumanStageFight.HumanStagePiste.compose(take("epee", "thighFrontLeft", "first"));
   } catch (error) {
     complaints.list.push(`epee: refused a valid thigh touch ${String(error)}`);
   }

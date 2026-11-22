@@ -59,5 +59,5 @@ The modern support arms are the existing `createLongGun` models: Colt's carbines
 ## Run
 
 ```powershell
-pnpm test:esbuild --include test_motion_exercise_stage_prop_matrix test_motion_exercise_stage_polearm_marks test_archetype_stage_firearm_attachments
+pnpm test:esbuild --include test_motion_stage_fight_stage_prop_matrix test_motion_stage_fight_stage_polearm_marks test_archetype_stage_firearm_attachments
 ```

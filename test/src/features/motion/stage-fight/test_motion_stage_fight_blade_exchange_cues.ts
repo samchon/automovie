@@ -3,10 +3,10 @@ import type {
   IAutoMovieScheduleCue,
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
-import { readHumanBladeExchangeCues } from "@automovie/motions";
+import { AutoMovieMotionHumanStageFight } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/nclose";
+import { nclose } from "../../internal/nclose";
 
 /**
  * Read editing cues from an in-memory film schedule with three staged
@@ -26,7 +26,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers a chronological tie, a distinct reply onset and contact, optional reply absence, an event at and after a cut, an unrelated anchor and a missing cue.
  * @evidence contracts/development/testing.md#execution-ownership Portable logic unit spec. The in-memory schedule contains no geometry, arm plan, host or capture.
  */
-export function test_human_motion_blade_exchange_cues(): void {
+export function test_motion_stage_fight_blade_exchange_cues(): void {
   const entry = (
     index: number,
     anchor: string,
@@ -80,7 +80,8 @@ export function test_human_motion_blade_exchange_cues(): void {
       },
     ],
   };
-  const first: IAutoMovieScheduleCue[] = readHumanBladeExchangeCues(
+  const first: IAutoMovieScheduleCue[] =
+    AutoMovieMotionHumanStageFight.readHumanBladeExchangeCues(
     schedule,
     "first",
   );
@@ -96,7 +97,8 @@ export function test_human_motion_blade_exchange_cues(): void {
       nclose(first[1]?.seconds ?? Number.NaN, 2.25) &&
       nclose(first[2]?.seconds ?? Number.NaN, 2.5),
   );
-  const atCut: IAutoMovieScheduleCue[] = readHumanBladeExchangeCues(
+  const atCut: IAutoMovieScheduleCue[] =
+    AutoMovieMotionHumanStageFight.readHumanBladeExchangeCues(
     schedule,
     "second",
   );
@@ -109,10 +111,16 @@ export function test_human_motion_blade_exchange_cues(): void {
   );
   TestValidator.equals(
     "the empty track represents an exchange edited before its cues",
-    readHumanBladeExchangeCues(schedule, "last"),
+    AutoMovieMotionHumanStageFight.readHumanBladeExchangeCues(
+      schedule,
+      "last",
+    ),
     [],
   );
   TestValidator.error("an unrelated anchor is not an exchange", (): void => {
-    readHumanBladeExchangeCues(schedule, "side.first");
+    AutoMovieMotionHumanStageFight.readHumanBladeExchangeCues(
+      schedule,
+      "side.first",
+    );
   });
 }

@@ -13,16 +13,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStageFight,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanStageProp,
-  withHumanStagePropLink,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /** The stage prop model the archetype produces. */
 type Model = ReturnType<typeof createStageWeaponProp>;
@@ -90,7 +89,7 @@ const RIGID: number = 0.001;
  * @evidence contracts/development/testing.md#distinguishing-cases Rigid against articulated, before against after the cue, in order against out of order, and the beat against its recovery.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men; rendering belongs to capture review.
  */
-export function test_motion_exercise_stage_prop_rigid_linked(): void {
+export function test_motion_stage_fight_stage_prop_rigid_linked(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const travels: number[] = [];
   for (const profile of PROFILES) {
@@ -115,7 +114,7 @@ export function test_motion_exercise_stage_prop_rigid_linked(): void {
       .stand({ hold: 0.3, sway: 0 })
       .pickUp({ prop: "prop", handle: "grip", hand: "right", lift: 0 })
       .registered(
-        HumanStageProp.name,
+        AutoMovieMotionHumanStageFight.HumanStageProp.name,
         { beat: profile.beat, prop: "prop", mark: profile.mark },
         "display",
       )
@@ -149,7 +148,7 @@ export function test_motion_exercise_stage_prop_rigid_linked(): void {
         ],
         composition: composition.node,
         cues: { edit: [{ name: "swing", seconds: swing }] },
-        laws: [HumanStageProp],
+        laws: [AutoMovieMotionHumanStageFight.HumanStageProp],
         props: [prop],
       });
 
@@ -165,7 +164,11 @@ export function test_motion_exercise_stage_prop_rigid_linked(): void {
       )!.seconds;
     const film: HumanPerformance = profile.linked
       ? perform(
-          withHumanStagePropLink(laid, { of: "edit", event: "swing" }, KEYS),
+          AutoMovieMotionHumanStageFight.withHumanStagePropLink(
+            laid,
+            { of: "edit", event: "swing" },
+            KEYS,
+          ),
           placed,
         )
       : rigid;

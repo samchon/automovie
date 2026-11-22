@@ -16,15 +16,14 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStageFight,
   HumanChain,
   HumanPerformance,
-  composeHumanBladeExchange,
-  readHumanBladeExchangeCues,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /**
  * Place two staged exchanges in a HumanPerformance using registered stage
@@ -50,7 +49,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Exercises parallel roles, a reversed cast with its own anchors, reply present and absent, and malformed cast, prop, lead and cue choices. The cue-reader spec owns tie order, cuts and absence.
  * @evidence contracts/development/testing.md#execution-ownership Portable composition spec. HumanPerformance places registered timing laws over an in-memory body, with no host or capture.
  */
-export function test_human_motion_blade_exchange_composition(): void {
+export function test_motion_stage_fight_blade_exchange_composition(): void {
   const castA: IAutoMovieMotionHumanChain = HumanChain.subject("a").registered(
     "prepareOpening",
     {},
@@ -76,8 +75,12 @@ export function test_human_motion_blade_exchange_composition(): void {
     blockLeadSeconds: 0.75,
     openingMark: { kind: "prop", subject: "set", point: "mark-c" },
   };
-  const full: IAutoMovieChain = composeHumanBladeExchange(castA, castB, first);
-  const short: IAutoMovieChain = composeHumanBladeExchange(
+  const full: IAutoMovieChain = AutoMovieMotionHumanStageFight.bladeExchange(
+    castA,
+    castB,
+    first,
+  );
+  const short: IAutoMovieChain = AutoMovieMotionHumanStageFight.bladeExchange(
     HumanChain.subject("b").registered("prepareOpening"),
     HumanChain.subject("a").registered("prepareBlock"),
     second,
@@ -237,7 +240,8 @@ export function test_human_motion_blade_exchange_composition(): void {
     1,
   );
 
-  const track: IAutoMovieScheduleCue[] = readHumanBladeExchangeCues(
+  const track: IAutoMovieScheduleCue[] =
+    AutoMovieMotionHumanStageFight.readHumanBladeExchangeCues(
     film,
     "first",
   );
@@ -258,7 +262,7 @@ export function test_human_motion_blade_exchange_composition(): void {
   );
 
   TestValidator.error("the two performers must be distinct", (): void => {
-    composeHumanBladeExchange(castA, castA, first);
+    AutoMovieMotionHumanStageFight.bladeExchange(castA, castA, first);
   });
   const invalid: readonly [
     string,
@@ -271,6 +275,9 @@ export function test_human_motion_blade_exchange_composition(): void {
   ];
   for (const [name, input] of invalid)
     TestValidator.error(name, (): void => {
-      composeHumanBladeExchange(castA, castB, { ...first, ...input });
+      AutoMovieMotionHumanStageFight.bladeExchange(castA, castB, {
+        ...first,
+        ...input,
+      });
     });
 }

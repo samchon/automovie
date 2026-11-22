@@ -15,17 +15,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanArchery,
   HumanHand,
-  HumanLasso,
   HumanObject,
   HumanRefusal,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { archetypeHorseRide } from "../internal/archetypeHorseRide";
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { mountedHorseScene } from "../internal/mountedHorseScene";
+import { archetypeHorseRide } from "../../internal/archetypeHorseRide";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { mountedHorseScene } from "../../internal/mountedHorseScene";
 
 /** Where the rider stands before sitting on, in the seat's frame on the floor. */
 const FROM: IAutoMovieVector3 = { x: 0.6, y: 0, z: -0.2 };
@@ -49,7 +49,7 @@ const WAIT: number = 6;
  * @evidence contracts/development/testing.md#distinguishing-cases A reachable against an unreachable calf; the swing against the dally.
  * @evidence contracts/development/testing.md#execution-ownership In-memory films of one polygon man on archetype animals.
  */
-export function test_motion_equestrian_lasso(): void {
+export function test_motion_archery_equestrian_lasso(): void {
   const findings: string[] = [];
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const horse: mountedHorseScene.Horse = createHorse(
@@ -103,7 +103,7 @@ export function test_motion_equestrian_lasso(): void {
       wait: WAIT,
       course,
       cues: { stride: strides },
-      laws: [HumanLasso],
+      laws: [AutoMovieMotionHumanArchery.HumanLasso],
       props: [
         HumanObject.prop("calf", calf, place(0), place, head),
         HumanObject.prop("lariat", lariat, {
@@ -122,7 +122,7 @@ export function test_motion_equestrian_lasso(): void {
       acts: (seated) => {
         const ridden = seated.registered("ride", {
           on: "horse",
-          seconds: WAIT,
+          duration: WAIT,
           seat: "seat",
           feet: { left: "leftStirrup", right: "rightStirrup" },
           hands: { left: "leftRein" },

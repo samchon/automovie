@@ -14,17 +14,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStageFight,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanStageProp,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** One hand's grip: its side, the prop and the prop site's world point at a time. */
 type IGrip = readonly [
@@ -67,7 +67,7 @@ const APART: number = 0.08;
  * @evidence contracts/development/testing.md#distinguishing-cases Right against left lead, boss against rim, beat against recovery, a reachable against an unreachable mark.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_motion_exercise_stage_prop_exchange(): void {
+export function test_motion_stage_fight_stage_prop_exchange(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const checks: motionComplaints.IGatherer = motionComplaints();
   try {
@@ -119,7 +119,7 @@ function perform(
         proficiency: { level: "trained" },
       },
     ],
-    laws: [HumanStageProp],
+    laws: [AutoMovieMotionHumanStageFight.HumanStageProp],
     props,
     composition: carrier.with(partner).node,
   });
@@ -250,12 +250,12 @@ function shaft(
     .pickUp({ prop: "shaft", handle: "grip-lower", hand: "right", lift: 0 })
     .pickUp({ prop: "shaft", handle: "grip-upper", hand: "left", lift: 0 })
     .registered(
-      HumanStageProp.name,
+      AutoMovieMotionHumanStageFight.HumanStageProp.name,
       { beat: "figureEight", prop: "shaft", support: "grip-upper" },
       "eight",
     )
     .registered(
-      HumanStageProp.name,
+      AutoMovieMotionHumanStageFight.HumanStageProp.name,
       {
         beat: "overheadCircle",
         prop: "shaft",
@@ -319,12 +319,12 @@ function shield(
     .pickUp({ prop: "shield", handle: "grip", hand: "left", lift: 0 })
     .pickUp({ prop: "sword", handle: "grip", hand: "right", lift: 0 })
     .registered(
-      HumanStageProp.name,
+      AutoMovieMotionHumanStageFight.HumanStageProp.name,
       { beat: "boss", prop: "shield", hand: "left", mark: "boss" },
       "boss",
     )
     .registered(
-      HumanStageProp.name,
+      AutoMovieMotionHumanStageFight.HumanStageProp.name,
       { beat: "rim", prop: "shield", hand: "left", mark: "rim" },
       "rim",
     )
@@ -376,7 +376,7 @@ function shield(
         .stand()
         .pickUp({ prop: "shield", handle: "grip", hand: "left", lift: 0 })
         .registered(
-          HumanStageProp.name,
+          AutoMovieMotionHumanStageFight.HumanStageProp.name,
           {
             beat: "boss",
             prop: "shield",

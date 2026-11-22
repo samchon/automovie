@@ -7,9 +7,9 @@ import type {
 } from "@automovie/interface";
 import { HumanObject } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { mountedHorseScene } from "../internal/mountedHorseScene";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { mountedHorseScene } from "../../internal/mountedHorseScene";
 
 /** Where the rider stands before sitting on, in the seat's frame on the floor. */
 const FROM: IAutoMovieVector3 = { x: 0.6, y: 0, z: -0.2 };
@@ -35,7 +35,7 @@ const LYING: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
  * @evidence contracts/development/testing.md#distinguishing-cases A held hand beside a rein hand in one ride.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory film of one polygon man on one archetype horse.
  */
-export function test_motion_equestrian_held_lance(): void {
+export function test_motion_blade_equestrian_held_lance(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const horse: mountedHorseScene.Horse = createHorse(
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },
@@ -75,7 +75,7 @@ export function test_motion_equestrian_held_lance(): void {
     acts: (seated: mountedHorseScene.Seated): mountedHorseScene.Seated =>
       seated.registered("ride", {
         on: "horse",
-        seconds: 4,
+        duration: 4,
         seat: "seat",
         feet: { left: "leftStirrup", right: "rightStirrup" },
         hands: { left: "leftRein" },

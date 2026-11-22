@@ -13,21 +13,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBlade,
+  AutoMovieMotionHumanBlade,
+  AutoMovieMotionHumanStageFight,
   HumanChain,
   HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  HumanStagePiste,
-  stageBladeFootwork,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /** A piece of armour, the region it is worn on and the axis of the piece that faces along that region's normal. */
 interface IWorn {
@@ -94,7 +93,7 @@ const GLIDE_HEIGHT: number = 0.006;
  * @evidence contracts/development/testing.md#distinguishing-cases A reachable strike and the same strike from beyond its reach; an armour point and a bare body region; the glide's planted and moving soles. Checks are at sampled instants, not swept.
  * @evidence contracts/development/testing.md#execution-ownership Public in-memory placement and pose sampling on canonical bodies and archetype props. No viewer or native host is invoked.
  */
-export function test_motion_exercise_staged_kendo(): void {
+export function test_motion_stage_fight_staged_kendo(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: motionComplaints.IGatherer = motionComplaints();
   try {
@@ -115,7 +114,7 @@ export function test_motion_exercise_staged_kendo(): void {
 
   // A strike at the bare body is not a kendo strike.
   try {
-    HumanStagePiste.compose({
+    AutoMovieMotionHumanStageFight.HumanStagePiste.compose({
       ...take("men"),
       first: {
         ...take("men").first,
@@ -131,7 +130,7 @@ export function test_motion_exercise_staged_kendo(): void {
 }
 
 /** The bout: the glides, then the first's men strike, scored for the first. */
-function take(point: string): HumanStagePiste.ITake {
+function take(point: string): AutoMovieMotionHumanStageFight.HumanStagePiste.ITake {
   return {
     anchor: "kendo",
     kind: "kendo",
@@ -200,13 +199,16 @@ function bout(
     );
     for (const piece of ARMOUR) props.push(worn(body, subject, piece));
   }
-  const placed: HumanStagePiste.IPlaced = HumanStagePiste.compose({
+  const placed: AutoMovieMotionHumanStageFight.HumanStagePiste.IPlaced = AutoMovieMotionHumanStageFight.HumanStagePiste.compose({
     ...take("men"),
     reserve: [opening, 0.25],
   });
   const film: HumanPerformance = new HumanPerformance({
     seed: "kendo-men",
-    laws: [stageBladeFootwork, ...Object.values(HumanBlade)],
+    laws: [
+      AutoMovieMotionHumanStageFight.stageBladeFootwork,
+      ...Object.values(AutoMovieMotionHumanBlade.HumanBlade),
+    ],
     performers: ["a", "b"].map((subject: string) => ({
       subject,
       body,
@@ -301,7 +303,7 @@ function bout(
         struck,
       ),
     );
-  const announced: HumanStagePiste.IAnnouncement | undefined = placed.announced(
+  const announced: AutoMovieMotionHumanStageFight.HumanStagePiste.IAnnouncement | undefined = placed.announced(
     film.schedule,
   );
   complaints.check(

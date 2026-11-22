@@ -9,13 +9,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBlade,
+  AutoMovieMotionHumanBlade,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  HumanSword,
 } from "@automovie/motions";
 
 import { motionBladeReach } from "./motionBladeReach";
@@ -99,7 +98,10 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
   });
   const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "blade",
-    laws: [...Object.values(HumanBlade), HumanSword.cut],
+    laws: [
+      ...Object.values(AutoMovieMotionHumanBlade.HumanBlade),
+      AutoMovieMotionHumanBlade.HumanSword.cut,
+    ],
     performers: [
       {
         subject: "a",
@@ -266,7 +268,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
   try {
     new HumanPerformance({
       seed: "blade",
-      laws: Object.values(HumanBlade),
+      laws: Object.values(AutoMovieMotionHumanBlade.HumanBlade),
       performers: [
         {
           subject: "a",

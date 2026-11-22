@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBlade,
+  AutoMovieMotionHumanBlade,
   HumanChain,
   HumanObject,
   HumanPerformance,
@@ -62,7 +62,7 @@ export function motionBladeSeed(name: motionHumanBody.Name): string[] {
   } => {
     const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed,
-      laws: Object.values(HumanBlade),
+      laws: Object.values(AutoMovieMotionHumanBlade.HumanBlade),
       performers: [
         {
           subject: "a",
