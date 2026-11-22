@@ -309,8 +309,10 @@ export namespace HumanMountOff {
           kind: "plant",
           from: 0,
           to: flight[side][0] / duration,
-          // The foot bears where the entry held it, a stirrup or a rest.
+          // The foot bears where the entry held it, a stirrup or a rest,
+          // under its ball.
           support: HumanSupportFrame.contact(context, part),
+          socket: "ball",
         });
       contacts.push({
         part,

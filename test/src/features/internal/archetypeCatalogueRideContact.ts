@@ -326,6 +326,7 @@ function rideFilm(
     model,
     placed(0),
     "driverSeat",
+    "sedan",
   );
   const actor: IAutoMovieMotionHumanChain = HumanChain.subject("a");
   const entry: IAutoMovieMotionHumanChain = seated

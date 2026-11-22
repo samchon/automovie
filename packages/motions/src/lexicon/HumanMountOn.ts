@@ -337,8 +337,10 @@ export namespace HumanMountOn {
           kind: "plant",
           from: bearing[side] / duration,
           to: 1,
-          // A foot rest bears at its own height, a stirrup's above the floor.
+          // A foot rest bears at its own height, a stirrup's above the floor,
+          // under the ball the foot is placed on it by.
           support: { kind: "ground", height: places[side].height },
+          socket: "ball",
         });
     }
     // A swinging leg's goal at an instant, before its toes turn down.

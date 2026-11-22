@@ -48,7 +48,8 @@ import { lineWalkPole } from "./lineWalkPole";
  * other on the line, heel to toe, turned out `TURN` degrees from it; a
  * stepping foot swings over `SWING` of a `PERIOD`-second step while the
  * other bears, passing the bearing shank on its own side by the two shanks'
- * radii at the crossing. The hips travel along the line between the feet on
+ * radii at the crossing; a foot holds the line under its ball and its heel
+ * rises about that ball. The hips travel along the line between the feet on
  * minimum-jerk progress and sway across it, `SWAY` of the stature at the
  * stride's period, corrected back over the line at each footfall; the arms
  * are held out to the sides for balance.
@@ -288,9 +289,7 @@ export namespace lineWalk {
     }
     // The foot that does not step last closes beside the other.
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    // Each foot's own side of the line, level and square to the heading, and
-    // how far a swinging ankle passes the bearing one: the two shank
-    // colliders' radii, so the shanks meet at the crossing without entering.
+    // Each foot's own side of the line, and how far a swinging ankle passes the bearing one: the two shank colliders' radii.
     const heading: IAutoMovieVector3 = Vector3.scale(along, sign);
     const leftward: IAutoMovieVector3 = Vector3.normalize({
       x: heading.z,
@@ -322,10 +321,8 @@ export namespace lineWalk {
             0.03 * body.measure.stature,
             time,
           );
-        // Heel to toe on one line, the swinging foot would pass through the
-        // bearing shank at mid-swing: it passes it on its own side, its
-        // ankle off the line by the two shanks' radii at the crossing
-        // (`passing`), back on the line at each end.
+        // Heel to toe on one line, a swinging foot passes the bearing shank on
+        // its own side (`passing`), back on the line at each end.
         return {
           ...swung,
           ankle: Vector3.add(
@@ -373,6 +370,8 @@ export namespace lineWalk {
               planted(t)
                 ? AutoMovieMotionHumanFootRelax.load(t, lifts(t), lands(t))
                 : 0,
+              true,
+              true,
             ),
           planted,
         },
@@ -398,6 +397,7 @@ export namespace lineWalk {
             from: from / duration,
             to: to / duration,
             support,
+            socket: "ball",
           });
       }
     }

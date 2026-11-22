@@ -313,7 +313,8 @@ export namespace HumanMountedPaths {
     if (part === "leftHand" || part === "rightHand")
       return { part, kind: "grip", from: 0, to: 1, support };
     // A sole on a named stirrup rides the stirrup's own frame, which swings
-    // on the moving horse, not the horse's.
+    // on the moving horse, not the horse's; the ball is what bears on the
+    // tread, the point a leg aid turns the foot about, so it is the contact.
     if (part === "leftFoot" || part === "rightFoot")
       return {
         part,
@@ -322,6 +323,7 @@ export namespace HumanMountedPaths {
         to: 1,
         support:
           point === undefined ? support : { kind: "prop", subject: on, point },
+        socket: "ball",
       };
     if (part === "leftKnee")
       return {

@@ -21,7 +21,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * between follows the share of the weight (`walkLeg.dorsal`). A law that
  * carries a foot at a placement of its own (held flat, or turned as it was
  * set down) would ask the ankle past that limit whenever the shank leans
- * over it, so the placement's heel is raised about the toes' joint as the
+ * over it, so the placement's heel is raised about the toes' joint (about the
+ * ball, for a support held under it) as the
  * forefoot rocker raises a walking foot's, read in closed form from the
  * shank's lean (`prepareWalkLegLean`): the forefoot stays where the law put
  * it, so a foot on the floor rises onto its ball rather than driving its
@@ -81,6 +82,7 @@ export namespace AutoMovieMotionHumanFootRelax {
    * @param placement The placement the law asks.
    * @param share The share of the weight the foot bears, 0 to 1; none when absent.
    * @param grounded Whether the forefoot is on the floor, so the heel rises about it; a foot in the air turns about its ankle instead.
+   * @param ball Whether the heel rises about the ball the foot bears on, for a support held under the ball (a line, a stirrup); about the toes' joint when false.
    * @returns The placement with its heel raised about the toes' joint where the ask would pass the limit, else the ask.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the correction.
@@ -98,6 +100,7 @@ export namespace AutoMovieMotionHumanFootRelax {
     placement: IAutoMovieMotionHumanFoot.IPlacement,
     share: number = 0,
     grounded: boolean = true,
+    ball: boolean = false,
   ): IAutoMovieMotionHumanFoot.IPlacement {
     const hip: IAutoMovieVector3 = hipJoints(
       body,
@@ -124,10 +127,11 @@ export namespace AutoMovieMotionHumanFootRelax {
             rotation: HumanFoot.rotation(direction.heading, most),
           };
     }
+    const pivot: Parameters<typeof HumanFoot.point>[2] = ball ? "ball" : "mtp";
     const forefoot: IAutoMovieVector3 = HumanFoot.point(
       body,
       side,
-      "mtp",
+      pivot,
       placement,
     );
     const dorsal: number =
@@ -147,7 +151,7 @@ export namespace AutoMovieMotionHumanFootRelax {
       foot = HumanFoot.pivot(
         body,
         side,
-        "mtp",
+        pivot,
         forefoot,
         direction.heading,
         pitch,

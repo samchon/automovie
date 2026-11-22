@@ -144,7 +144,7 @@ export function test_motion_posture_entry_state(): void {
         }),
       },
       {
-        name: "mounted",
+        name: "seatTaken",
         interrupts: {},
         plan: (
           context: IAutoMovieMotionHumanActionContext<never>,
@@ -152,7 +152,7 @@ export function test_motion_posture_entry_state(): void {
           held(context, { kind: "seated", seat: saddle }),
       },
       {
-        name: "dismounted",
+        name: "seatLeft",
         interrupts: {},
         plan: (
           context: IAutoMovieMotionHumanActionContext<never>,
@@ -240,10 +240,10 @@ export function test_motion_posture_entry_state(): void {
     // 3 to 5. A declared seat, passed on and then replaced.
     const ridden: IAutoMovieMotionHumanEntryState[] = entries(
       start()
-        .registered("mounted")
+        .registered("seatTaken")
         .registered("witness")
         .registered("witness")
-        .registered("dismounted")
+        .registered("seatLeft")
         .registered("witness"),
     );
     for (const [index, label] of [

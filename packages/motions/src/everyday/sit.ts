@@ -36,6 +36,7 @@ import { prepareSitLowering } from "./prepareSitLowering";
 import { prepareSitWorkingFeet } from "./prepareSitWorkingFeet";
 import { seated } from "./seated";
 import { seatedCourse } from "./seatedCourse";
+import { sitCarried } from "./sitCarried";
 import { sitHands } from "./sitHands";
 import { sitPlace } from "./sitPlace";
 
@@ -145,7 +146,7 @@ export namespace sit {
    * @throws {HumanRefusal} When the seat is too low for the body, the performer does not face away from it, the feet are out of reach of a seat inside the band, the body stands more than a leg's length from a high seat, or `lean` has no backrest.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States context/plan ownership and seat, facing, leg-reach and backrest refusals; the namespace gives world-metre socket goals, timing and contact conventions.
-   * @evidence contracts/development/implementation.md#principled-implementation The seat socket follows its original descent/balanced travel while planted-leg and achieved hand goals retain canonical fitting; high seats delegate to the existing mount law.
+   * @evidence contracts/development/implementation.md#principled-implementation The seat socket follows its original descent/balanced travel while planted-leg and achieved hand goals retain canonical fitting; high seats delegate to the existing mount law; a seat on a prop that may move carries the whole plan in that prop's frame (`sitCarried`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed descent geometry and the original balance table feed one body base and two carried hand rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original seat/facing/reach refusals, all balance samples/bracket trials, contact times and authored interpolation remain; no fit or tolerance is relaxed.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning retains the original SHARES balance brackets and actual complete mass-centre fits, with no unused support geometry. Moving queries retain actual root lowering and hand trajectory/fits; the native settled hold reuses its delivered lower-body key; fixed intervals, joint entries and frame coefficients prepare once.
@@ -182,7 +183,7 @@ export namespace sit {
         fix: `turn to within ${FACING} degrees of facing away from the seat first, or turn the seat`,
       });
     if (seated.high(body, seat, under) || seat.astride === true)
-      return HumanMountOn.plan(context, seat, sitPlace.BACKS[back], turn);
+      return sitCarried(context, seat, HumanMountOn.plan(context, seat, sitPlace.BACKS[back], turn));
     // The feet stand on that floor.
     const entered: Record<AutoMovieHumanSide, IAutoMovieVector3> = stand.feet(
       body,
@@ -420,6 +421,7 @@ export namespace sit {
       contact: "seatContact",
     });
     const planned: IAutoMovieMotionHumanActionPlan = { ...composed, base: lowering.base, ...HumanPhysics.declared(context.params, window) };
-    return adjusted === undefined ? planned : prepareSitWorkingFeet.prepend(adjusted.prefix, planned);
+    // A seat on a prop that may move carries the sit with it (`sitCarried`).
+    return sitCarried(context, seat, adjusted === undefined ? planned : prepareSitWorkingFeet.prepend(adjusted.prefix, planned));
   }
 }

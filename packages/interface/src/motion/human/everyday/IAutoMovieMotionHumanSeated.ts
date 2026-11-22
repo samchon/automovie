@@ -59,6 +59,9 @@ export namespace IAutoMovieMotionHumanSeated {
     /** The sitting surface's sideways tilt, degrees, as a posture's roll; level when absent. */
     roll?: number;
 
+    /** The subject of the prop the seat belongs to, when that prop may move: the seat is then read where the prop stands when the sit begins, and the sit follows it in the prop's frame (`sitCarried`). A seat in the world when absent. */
+    carrier?: string;
+
     /** Depth back from the front edge, metres; deep enough for the thigh when absent. */
     depth?: number;
 

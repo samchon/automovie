@@ -65,6 +65,9 @@ export namespace HumanRide {
   /** Seconds a hand takes to reach the point it is to hold (provisional). */
   export const TAKE: number = 0.6;
 
+  /** The sole socket a foot bears on its rest by: the ball, which the seat places on the tread. */
+  const BALL: IAutoMovieMotionHumanContactWindow.Socket = "ball";
+
   /** How far a rising trot lifts the seat off the saddle, thigh lengths (provisional: no rider kinematics were read). */
   export const POST: number = 0.25;
 
@@ -115,6 +118,7 @@ export namespace HumanRide {
         from: 0,
         to: 1,
         support: { kind: "prop", subject: on },
+        ...(kind === "plant" ? { socket: BALL } : {}),
       });
 
       // A rising trot stands in the stirrups, so it needs both.

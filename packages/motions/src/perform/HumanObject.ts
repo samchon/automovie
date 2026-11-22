@@ -207,6 +207,7 @@ export namespace HumanObject {
    * @param model The object.
    * @param placement Where the scene puts it.
    * @param id The seat's affordance id; the object's only seat when absent.
+   * @param carrier The subject of the prop the object is, when it may move, so a sit follows the seat in its frame (`IAutoMovieMotionHumanSeated.ISeat.carrier`); absent for a seat in the world.
    * @returns The seat.
    * @throws {HumanRefusal} When the object has no such seat, or several and none is named, listing its seats.
    *
@@ -222,6 +223,7 @@ export namespace HumanObject {
     model: IAutoMovieMotionHumanObject.IModel,
     placement: IAutoMovieMotionHumanObject.Placement,
     id?: string,
+    carrier?: string,
   ): IAutoMovieMotionHumanSeated.ISeat {
     const seats: IAutoMovieAffordance[] = (model.affordances ?? []).filter(
       (affordance: IAutoMovieAffordance): boolean => affordance.kind === "seat",
@@ -275,6 +277,7 @@ export namespace HumanObject {
       ...(found.astride === undefined ? {} : { astride: found.astride }),
       ...(found.mount === undefined ? {} : { mount: found.mount }),
       ...(Object.keys(rests).length === 0 ? {} : { footrests: rests }),
+      ...(carrier === undefined ? {} : { carrier }),
     };
   }
 
