@@ -345,6 +345,20 @@ export namespace AutoMovieHumanCanonicalProfile {
           b: "rightUpperLeg",
           reason: "both thigh roots cross the midline between the hip joints",
         },
+        // The thumb's carpometacarpal joint sits on the trapezium at the
+        // wrist, so the metacarpal's base meets the forearm's distal end
+        // across the wrist's flexion, as when a hand opens flat on a bent
+        // wrist.
+        ...(["left", "right"] as const).map(
+          (
+            side: "left" | "right",
+          ): { a: string; b: string; reason: string } => ({
+            a: `${side}LowerArm`,
+            b: `${side}ThumbMetacarpal`,
+            reason:
+              "the thumb's carpometacarpal joint sits at the wrist, so the metacarpal's base meets the forearm's distal end across the wrist's range",
+          }),
+        ),
         ...hands.flatMap((hand: AutoMovieHumanoidBone[]) =>
           hand.flatMap((a: AutoMovieHumanoidBone, i: number) =>
             hand
