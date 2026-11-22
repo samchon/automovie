@@ -13,7 +13,7 @@ import { HumanHand } from "../posture/HumanHand";
  * The held tool's geometry in the hand's own rest frame, and one instant of a swing it places (`HumanPolo`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame and each reading.
- * @evidence contracts/development/design.md#principled-representation The fingers, the tool's axis square to them as the grip holds it, and the working point from the wrist in that frame.
+ * @evidence contracts/development/design.md#principled-representation The fingers, the plane the grip holds the tool's axis in with them, and the working point from the wrist in that frame.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One reader and two records the polo law reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The tool is the held prop's own reading (`StrikingHeld`); the rest frame is the hand's own (`HumanHand.rotation`).
  */
@@ -60,6 +60,173 @@ export namespace HumanPoloHand {
 
     /** The working point, metres. */
     head: IAutoMovieVector3;
+  }
+
+  /**
+   * A swing's plane: the angle 0 direction, the direction of travel at 0, and their cross.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member.
+   * @evidence contracts/development/design.md#principled-representation An orthonormal frame of the plane.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `place`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IPlane {
+    /** The direction at angle 0, unit. */
+    u: IAutoMovieVector3;
+
+    /** The direction of travel at angle 0, unit, square to `u`. */
+    w: IAutoMovieVector3;
+
+    /** `u` cross `w`. */
+    normal: IAutoMovieVector3;
+  }
+
+  /**
+   * Place the arm and the held tool as one in a swing's plane: the wrist a distance out from the shoulder along the arm's angle, the fingers turned from the arm's line by the deviation and the tool behind them, the whole set off the plane by the working point's own offset across the hand so the working point turns in the plane through the shoulder.
+   *
+   * @param hand The held tool in the hand's frame.
+   * @param plane The swing's plane.
+   * @param shoulder The shoulder joint, metres.
+   * @param wrist The wrist's distance from the shoulder within the plane, metres.
+   * @param arm The arm's angle in the plane from `u` toward `w`, radians.
+   * @param deviation The wrist's deviation, radians, positive ulnar.
+   * @returns The wrist, the hand's rotation and the working point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the configuration and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The arm's line and its way round from the angle; the fingers and the tool's axis as `planar` turns them; the hand's rotation aligns the rest fingers and axis onto them (`HumanHand.align`), and the working point is the wrist plus its hand-frame coordinates on the turned axes, the across axis being `-normal`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two axes, the wrist, then the record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record.
+   */
+  export function place(
+    hand: IHand,
+    plane: IPlane,
+    shoulder: IAutoMovieVector3,
+    wrist: number,
+    arm: number,
+    deviation: number,
+  ): IStation {
+    const r: IAutoMovieVector3 = Vector3.add(
+      Vector3.scale(plane.u, Math.cos(arm)),
+      Vector3.scale(plane.w, Math.sin(arm)),
+    );
+    const a: IAutoMovieVector3 = Vector3.add(
+      Vector3.scale(plane.u, -Math.sin(arm)),
+      Vector3.scale(plane.w, Math.cos(arm)),
+    );
+    const toward: IAutoMovieVector3 = Vector3.subtract(
+      Vector3.scale(r, Math.cos(deviation)),
+      Vector3.scale(a, Math.sin(deviation)),
+    );
+    const shaft: IAutoMovieVector3 = Vector3.scale(
+      Vector3.add(
+        Vector3.scale(r, Math.sin(deviation)),
+        Vector3.scale(a, Math.cos(deviation)),
+      ),
+      -1,
+    );
+    const joint: IAutoMovieVector3 = Vector3.add(
+      Vector3.add(shoulder, Vector3.scale(plane.normal, hand.across)),
+      Vector3.scale(r, wrist),
+    );
+    return {
+      wrist: joint,
+      rotation: HumanHand.align(
+        { normal: hand.fingers, forward: hand.shaft },
+        { normal: toward, forward: shaft },
+      ),
+      head: Vector3.add(
+        joint,
+        Vector3.add(
+          Vector3.add(
+            Vector3.scale(toward, hand.along),
+            Vector3.scale(shaft, hand.out),
+          ),
+          Vector3.scale(plane.normal, -hand.across),
+        ),
+      ),
+    };
+  }
+
+  /**
+   * The working point in a swing's plane against the arm's line.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member and its unit.
+   * @evidence contracts/development/design.md#principled-representation Two coordinates in the plane.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `planar`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IPlanar {
+    /** From the shoulder along the arm's line, metres. */
+    outward: number;
+
+    /** Across the arm's line along its way round, metres; negative behind it. */
+    sideways: number;
+  }
+
+  /**
+   * Where the working point lies against the arm's line, the wrist a distance from the shoulder on it, the hand's fingers in the plane turned from the line by a deviation and the tool behind them.
+   *
+   * @param hand The held tool in the hand's frame.
+   * @param wrist The wrist's distance from the shoulder along the line, metres.
+   * @param deviation The wrist's deviation, radians, positive ulnar.
+   * @returns The working point's coordinates in the plane.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the configuration and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The fingers turned by the deviation from the line and the tool's axis square to them behind, the working point's two in-plane coordinates rotated with them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two closed forms.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function planar(
+    hand: IHand,
+    wrist: number,
+    deviation: number,
+  ): IPlanar {
+    return {
+      outward:
+        wrist +
+        hand.along * Math.cos(deviation) -
+        hand.out * Math.sin(deviation),
+      sideways:
+        -hand.along * Math.sin(deviation) - hand.out * Math.cos(deviation),
+    };
+  }
+
+  /**
+   * The deviation that puts the working point a distance from the shoulder, the wrist on the arm's line at its own distance (`planar`).
+   *
+   * @param hand The held tool in the hand's frame.
+   * @param wrist The wrist's distance from the shoulder, metres.
+   * @param distance The working point's distance asked, metres.
+   * @returns The deviation, radians, positive ulnar; NaN when no deviation gives that distance.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and when there is none.
+   * @evidence contracts/development/implementation.md#principled-implementation The squared distance is the wrist's, the point's and twice the wrist times the point's projection on the turned fingers, a cosine of the deviation plus the point's own angle, inverted on its principal branch.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A distance no deviation gives returns NaN for the caller to refuse.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function deviation(
+    hand: IHand,
+    wrist: number,
+    distance: number,
+  ): number {
+    const cosine: number =
+      (distance * distance -
+        wrist * wrist -
+        hand.along * hand.along -
+        hand.out * hand.out) /
+      (2 * wrist * Math.hypot(hand.along, hand.out));
+    return Math.abs(cosine) <= 1
+      ? Math.acos(cosine) - Math.atan2(hand.out, hand.along)
+      : NaN;
   }
 
   /**

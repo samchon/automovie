@@ -299,9 +299,14 @@ function stage(
       }),
     ],
     from: FROM,
-    // Picked up on the ground before mounting, as an author would: the hold rides the hand through sitting on and riding.
+    // Picked up on the ground before mounting, as an author would, by a grasp made for the stroke: the shaft oblique across the fingers, as a mallet, a club or a sword is held. The hold rides the hand through sitting on and riding.
     before: (chain) =>
-      chain.pickUp({ prop: "mallet", handle: "grip", hand: "right" }),
+      chain.pickUp({
+        prop: "mallet",
+        handle: "grip",
+        hand: "right",
+        use: { tip: "head", line: "oblique" },
+      }),
     acts: (seated) => {
       const ridden = seated.registered("ride", {
         on: "horse",

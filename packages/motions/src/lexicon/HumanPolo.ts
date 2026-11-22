@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -44,11 +45,16 @@ const PHASES: Readonly<
   settle: 0.6,
 };
 
-/** The head's angles in the swing's plane from the contact, degrees: the carry, the mallet upright over the shoulder; the top of the backswing past it; the follow-through (provisional). */
-const ANGLES: Readonly<Record<"carry" | "top" | "finish", number>> = {
-  carry: -210,
-  top: -225,
-  finish: 80,
+/** How far the arm turns on past the contact in the follow-through, degrees (provisional). */
+const FINISH: number = 80;
+
+/** How far short of straight up along the trunk the arm stands at the carry and the top of the backswing, degrees: the shoulder's flexion ends at 180 (the AAOS normal range, read through secondary summaries), and the margin keeps the arm off that end (provisional). */
+const TOP: number = 20;
+
+/** The body's own up and ahead. */
+const AXES: Readonly<Record<"up" | "ahead", IAutoMovieVector3>> = {
+  up: { x: 0, y: 1, z: 0 },
+  ahead: { x: 0, y: 0, z: 1 },
 };
 
 /** The wrist's deviation range, degrees: radial 20, ulnar 30 (the AAOS normal ranges, read through secondary summaries). The top of the backswing cocks the wrist to the radial end, the double pendulum's hinge. */
@@ -80,7 +86,7 @@ const RISE: number = 0.1;
 const PITCH: number = 20;
 
 /**
- * A polo stroke from the saddle (`IAutoMovieMotionHumanPolo`, #3955): carried on the saddle, the rider rises in the stirrups, leans out over the side and turns the shoulders toward it; the arm and the held mallet turn as one about the right shoulder in the plane through the ball and the horse's level heading, the mallet at the angle the grip and the wrist's deviation give, from the upright carry back to the cocked top of the backswing, down through the ball at the contact and on to the finish; the ball is launched along the swing at the contact. Register `HumanPolo` to use it.
+ * A polo stroke from the saddle (`IAutoMovieMotionHumanPolo`, #3955): carried on the saddle, the rider rises in the stirrups and turns the shoulders toward the swing's side; the arm and the held mallet turn as one about the right shoulder in the plane through the ball and the horse's level heading, the mallet at the angle the grip and the wrist's deviation give, from the carry and the cocked top of the backswing, the arm short of straight up along the upright trunk, down through the ball at the contact, the rider leaning out over the side as it comes down, and on to the finish; the ball is launched along the swing at the contact. Register `HumanPolo` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the phases, the swing's geometry, the launch and how it is registered.
  * @evidence contracts/development/design.md#principled-representation One law over the side and stroke literals, a swing as an angle in a plane, and the held mallet's own geometry.
@@ -95,10 +101,10 @@ export const HumanPolo: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPolo
      * Admit the stroke, lay the swing's plane at the contact, then sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: a non-seated entry, a bad lean, speed or contact time, a ball whose distance from the shoulder no wrist deviation within its range meets, and a swing whose head would pass through the horse.
-     * @evidence contracts/development/implementation.md#principled-implementation The shoulder is the leaned and turned posture's own right shoulder joint, resolved in the carrier contact's frame; the wrist stands the arm's reach at the elbow's flexion from it, the held mallet square to the fingers as the grip holds it and turned further by the wrist's deviation, so the head's distance from the shoulder is a closed form of the deviation, solved for the ball's; the arm and the mallet turn rigidly about the shoulder, the head's angle following minimum-jerk pieces between the phase instants and the deviation running from neutral at the carry to the radial end at the top and the solved one at the contact; the head is held to the ball only at the contact, the hand's turn elsewhere asked as a rotation the course meets as closely as the arm allows.
+     * @evidence contracts/development/implementation.md#principled-implementation The shoulder is the risen and turned posture's own right shoulder joint, resolved in the carrier contact's frame, and the lean tips it about the posture's root in closed form; the lean is the least that brings the shoulder over the ball's line, or the most admitted; the wrist stands the arm's reach at the elbow's flexion from it, the held mallet at the angle the grip holds it to the fingers and turned further by the wrist's deviation, so the head's distance from the shoulder is a closed form of the deviation, solved for the ball's; the arm and the mallet turn rigidly about the shoulder, the arm's angle in the plane still at the carry and the top, short of the shoulder's flexion end along the upright trunk, then following minimum-jerk pieces to the contact angle that puts the head on the ball and on to the finish, the lean growing over the downswing, and the deviation running from neutral at the carry to the radial end at the top and the solved one at the contact; the head is held to the ball only at the contact, the hand's turn elsewhere asked as a rotation the course meets as closely as the arm allows.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the plane, the station, the refusals, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable ball or a swing into the horse is refused, never bent.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One tool read, at most twenty-six shoulder resolves restricted to the upper arm for the lean's bisection, and seventeen clearance samples per plan; a sample reads one carrier frame and writes one arm goal.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One tool read, one shoulder resolve restricted to the upper arm, a closed-form lean bisection, and seventeen clearance samples per plan; a sample reads one carrier frame and writes one arm goal.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The plane, the tool and the hand's geometry are shared by every sample.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the plane, the tool and the carrier reader.
      */
@@ -189,32 +195,45 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       ],
     },
   });
-  // The right shoulder joint where the leaned trunk actually places it: the posture resolved for the upper arm alone, its arms' goals left out.
-  const shoulderAt = (degrees: number): IAutoMovieVector3 =>
-    poseBones(
+  // The right shoulder joint where the upright, turned trunk places it: the posture resolved for the upper arm alone, its arms' goals left out. The lean tips the whole body about its root, so a leaned shoulder is that joint turned with it.
+  const upright: IAutoMovieMotionHumanPosture = posed(0);
+  const raisedShoulder: IAutoMovieVector3 = poseBones(
+    context.body,
+    resolveHumanPosture.seeded(
       context.body,
-      resolveHumanPosture.seeded(
-        context.body,
-        { ...posed(degrees), limbs: {} },
-        undefined,
-        {},
-        undefined,
-        SHOULDER,
-      ).pose,
+      { ...upright, limbs: {} },
+      undefined,
+      {},
       undefined,
       SHOULDER,
-    ).get("rightUpperArm")!.worldPosition;
-  // The shoulder's reach out over the side grows with the lean: bisect for the lean whose shoulder meets the ball's line.
+    ).pose,
+    undefined,
+    SHOULDER,
+  ).get("rightUpperArm")!.worldPosition;
+  const unturned: IAutoMovieQuaternion = Quaternion.inverse(
+    resolveHumanPosture.heading(upright),
+  );
+  const shoulderAt = (degrees: number): IAutoMovieVector3 =>
+    Vector3.add(
+      upright.root,
+      Quaternion.rotateVector(
+        Quaternion.multiply(
+          resolveHumanPosture.heading(posed(degrees)),
+          unturned,
+        ),
+        Vector3.subtract(raisedShoulder, upright.root),
+      ),
+    );
+  // The shoulder's reach out over the side grows with the lean: bisect for the least lean whose shoulder meets the ball's line, or take the most admitted.
   let low: number = 0;
   let high: number = lean;
-  if (sign * (shoulderAt(high).x - ball.x) < 0)
+  if (sign * (shoulderAt(high).x - ball.x) >= 0)
     for (let k: number = 0; k < 24; ++k) {
       const mid: number = (low + high) / 2;
       if (sign * (shoulderAt(mid).x - ball.x) < 0) low = mid;
       else high = mid;
     }
   const leaning: number = high;
-  const leaned: IAutoMovieMotionHumanPosture = posed(leaning);
   const shoulder: IAutoMovieVector3 = shoulderAt(leaning);
 
   // The swing's plane: through the leaned shoulder and the ball, holding the horse's level heading.
@@ -230,45 +249,30 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     Vector3.subtract(forward, Vector3.scale(u, Vector3.dot(forward, u))),
   );
   const normal: IAutoMovieVector3 = Vector3.cross(u, w);
-  const radial = (r: number): IAutoMovieVector3 =>
-    Vector3.add(Vector3.scale(u, Math.cos(r)), Vector3.scale(w, Math.sin(r)));
-  const along = (r: number): IAutoMovieVector3 =>
-    Vector3.add(Vector3.scale(u, -Math.sin(r)), Vector3.scale(w, Math.cos(r)));
 
-  // The hand's own frame at rest, the held mallet square to the fingers as the grip holds it, and the head from the wrist in that frame.
-  const {
-    fingers,
-    shaft: shaftRest,
-    along: vF,
-    out: vT,
-    across: vN,
-  }: HumanPoloHand.IHand = HumanPoloHand.of(context.body, "right", tool);
+  // The hand's own frame at rest, the held mallet as the grip holds it, and the head from the wrist in that frame.
+  const hand: HumanPoloHand.IHand = HumanPoloHand.of(
+    context.body,
+    "right",
+    tool,
+  );
   // The wrist stands the arm's reach at the elbow's flexion from the shoulder; the swing's centre is set off the plane by the head's own offset across the hand, so the head turns in the plane through the ball.
   const reach: number = Math.sqrt(
     m.upperArm * m.upperArm +
       m.forearm * m.forearm +
       2 * m.upperArm * m.forearm * Math.cos((ELBOW * Math.PI) / 180),
   );
-  const d: number = Math.sqrt(Math.max(0, reach * reach - vN * vN));
-  const centre: IAutoMovieVector3 = Vector3.add(
-    shoulder,
-    Vector3.scale(normal, vN),
+  const d: number = Math.sqrt(
+    Math.max(0, reach * reach - hand.across * hand.across),
   );
-  // The head in the plane against the arm's line for a deviation (positive ulnar): along the arm, and along its way round.
-  const outward = (deviation: number): number =>
-    d + vF * Math.cos(deviation) - vT * Math.sin(deviation);
-  const sideways = (deviation: number): number =>
-    -vF * Math.sin(deviation) - vT * Math.cos(deviation);
-  const distanceAt = (deviation: number): number =>
-    Math.hypot(outward(deviation), sideways(deviation));
-  // The contact's deviation: the head as far from the shoulder as the ball, a closed form.
+  // The contact's deviation: the head as far from the shoulder as the ball, a closed form (`HumanPoloHand.deviation`).
+  const distanceAt = (deviation: number): number => {
+    const p: HumanPoloHand.IPlanar = HumanPoloHand.planar(hand, d, deviation);
+    return Math.hypot(p.outward, p.sideways);
+  };
   const radialEnd: number = (-DEVIATION.radial * Math.PI) / 180;
   const ulnarEnd: number = (DEVIATION.ulnar * Math.PI) / 180;
-  const cosine: number =
-    (radius * radius - d * d - vF * vF - vT * vT) /
-    (2 * d * Math.hypot(vF, vT));
-  const deviated: number =
-    Math.abs(cosine) <= 1 ? Math.acos(cosine) - Math.atan2(vT, vF) : NaN;
+  const deviated: number = HumanPoloHand.deviation(hand, d, radius);
   if (!(deviated >= radialEnd && deviated <= ulnarEnd))
     throw new HumanRefusal({
       kind: "reach",
@@ -291,14 +295,35 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const duration: number = finish + PHASES.settle;
   const share = (a: number, b: number, t: number): number =>
     minimumJerk.share(Math.min(1, Math.max(0, (t - a) / (b - a))));
-  const theta = (t: number): number => {
-    const piece = (a: number, b: number, from: number, to: number): number =>
-      from + (to - from) * share(a, b, t);
-    if (t < takeAway) return ANGLES.carry;
-    if (t < top) return piece(takeAway, top, ANGLES.carry, ANGLES.top);
-    if (t < contact) return piece(top, contact, ANGLES.top, 0);
-    return piece(contact, finish, 0, ANGLES.finish);
+  // The arm's angle in the plane: still at the carry and the top, short of straight up along the upright trunk, then down through the contact, where the head meets the ball, on to the finish; the rider leans out over the downswing.
+  const struckAt: HumanPoloHand.IPlanar = HumanPoloHand.planar(
+    hand,
+    d,
+    deviated,
+  );
+  const contactArm: number = -Math.atan2(struckAt.sideways, struckAt.outward);
+  const finishArm: number = contactArm + (FINISH * Math.PI) / 180;
+  const raisedTurn: IAutoMovieQuaternion = resolveHumanPosture.heading(upright);
+  const tilt: number = (TOP * Math.PI) / 180;
+  const raised: IAutoMovieVector3 = Vector3.add(
+    Vector3.scale(Quaternion.rotateVector(raisedTurn, AXES.up), Math.cos(tilt)),
+    Vector3.scale(
+      Quaternion.rotateVector(raisedTurn, AXES.ahead),
+      Math.sin(tilt),
+    ),
+  );
+  const lifted: number = Math.atan2(
+    Vector3.dot(raised, w),
+    Vector3.dot(raised, u),
+  );
+  const topArm: number = lifted > contactArm ? lifted - 2 * Math.PI : lifted;
+  const armAt = (t: number): number => {
+    if (t < top) return topArm;
+    if (t < contact)
+      return topArm + (contactArm - topArm) * share(top, contact, t);
+    return contactArm + (finishArm - contactArm) * share(contact, finish, t);
   };
+  const rolled = (t: number): number => leaning * share(top, contact, t);
   const deviation = (t: number): number => {
     if (t < takeAway) return 0;
     if (t < top) return radialEnd * share(takeAway, top, t);
@@ -306,40 +331,17 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       return radialEnd + (deviated - radialEnd) * share(top, contact, t);
     return deviated;
   };
-  // The arm and the mallet as one: the arm's line ahead of the head by the angle the deviation leaves between them.
-  const station = (t: number): HumanPoloHand.IStation => {
-    const dev: number = deviation(t);
-    const arm: number =
-      (theta(t) * Math.PI) / 180 - Math.atan2(sideways(dev), outward(dev));
-    const r: IAutoMovieVector3 = radial(arm);
-    const a: IAutoMovieVector3 = along(arm);
-    const toward: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.scale(r, Math.cos(dev)),
-      Vector3.scale(a, Math.sin(dev)),
+  // The arm and the mallet as one about the shoulder where the lean has carried it, the mallet at the angle the deviation leaves to the arm (`HumanPoloHand.place`).
+  const plane: HumanPoloHand.IPlane = { u, w, normal };
+  const station = (t: number): HumanPoloHand.IStation =>
+    HumanPoloHand.place(
+      hand,
+      plane,
+      shoulderAt(rolled(t)),
+      d,
+      armAt(t),
+      deviation(t),
     );
-    const shaft: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(
-        Vector3.scale(r, Math.sin(dev)),
-        Vector3.scale(a, Math.cos(dev)),
-      ),
-      -1,
-    );
-    const wrist: IAutoMovieVector3 = Vector3.add(centre, Vector3.scale(r, d));
-    return {
-      wrist,
-      rotation: HumanHand.align(
-        { normal: fingers, forward: shaftRest },
-        { normal: toward, forward: shaft },
-      ),
-      head: Vector3.add(
-        wrist,
-        Vector3.add(
-          Vector3.add(Vector3.scale(toward, vF), Vector3.scale(shaft, vT)),
-          Vector3.scale(normal, -vN),
-        ),
-      ),
-    };
-  };
 
   // The swing's head must stay clear of the horse: outside the straddle's half width wherever it is below the seat.
   const feet: number[] = (["left", "right"] as const)
@@ -357,7 +359,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         axis: "side",
         value: params.side,
         feasible: null,
-        reason: `the mallet's head would pass through the horse at ${theta(t).toFixed(0)} degrees of the swing`,
+        reason: `the mallet's head would pass through the horse ${t.toFixed(2)} s into the stroke`,
         fix: "strike a ball further out from the horse",
       });
   }
@@ -418,7 +420,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         return HumanMountedFrame.move(local, HumanMountedFrame.LOCAL, now);
       const shown: IAutoMovieMotionHumanPosture = mixHumanPosture(
         local,
-        leaned,
+        posed(rolled(t)),
         into(t),
       );
       const at: HumanPoloHand.IStation = station(t);
