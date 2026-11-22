@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropDrive,
   IAutoMovieMotionPropHold,
   IAutoMovieQuaternion,
@@ -27,6 +28,7 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { heldDigits } from "../handling/heldDigits";
 import { workHeldPush } from "../handling/workHeldPush";
 import { writeWith } from "../handling/writeWith";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -327,9 +329,11 @@ function backup(
   clock: IAutoMovieMotionClock,
   base: IAutoMovieMotionHumanActionPlan,
 ): IAutoMovieMotionHumanActionPlan {
-  const grip: IAutoMovieAffordance | undefined = (
-    context.prop(p.prop).prop.affordances ?? []
-  ).find((a: IAutoMovieAffordance): boolean => a.id === p.grip);
+  const sites: readonly IAutoMovieAffordance[] =
+    context.prop(p.prop).prop.affordances ?? [];
+  const grip: IAutoMovieAffordance | undefined = sites.find(
+    (a: IAutoMovieAffordance): boolean => a.id === p.grip,
+  );
   if (grip === undefined)
     throw new HumanRefusal({
       kind: "affordance",
@@ -350,12 +354,20 @@ function backup(
   ): IAutoMovieVector3 => {
     let found: IAutoMovieVector3 | undefined = sampled.get(k);
     if (found === undefined) {
-      const frame: IAutoMovieRigidTransform = context
-        .prop(p.prop)
-        .frame(context.start + Math.min(clock.duration, k / FRAME));
+      const at: number = context.start + Math.min(clock.duration, k / FRAME);
+      const reader: IAutoMovieMotionHumanPropReader = context.prop(p.prop);
+      const frame: IAutoMovieRigidTransform = reader.frame(at);
+      // The grip where the line's bend puts it, when it rides one.
+      const joint: IAutoMovieAffordance | undefined = sites.find(
+        (a: IAutoMovieAffordance): boolean => a.id === grip.rides,
+      );
+      const local: IAutoMovieVector3 =
+        joint === undefined
+          ? grip.frame.translation
+          : heldDigits.posed(joint, grip, reader.state?.(at)?.[joint.id] ?? 0);
       found = Vector3.add(
         frame.position,
-        Quaternion.rotateVector(frame.rotation, grip.frame.translation),
+        Quaternion.rotateVector(frame.rotation, local),
       );
       sampled.set(k, found);
     }

@@ -136,7 +136,7 @@ function umbrella(
     .registered("workHeld", {
       prop: "umbrella",
       // Held low before the body, the runner within the free arm.
-      at: { out: 0.15, up: shoulder - 0.45, forward: 0.3 },
+      at: { out: 0.05, up: shoulder - 0.45, forward: 0.3 },
       seconds: 0.4,
     })
     .registered("workHeld", {
@@ -155,11 +155,11 @@ function umbrella(
   const partner: everydayTake.IOther = {
     subject: "partner",
     body,
-    at: { x: -0.45, y: 0, z: 0 },
+    at: { x: -0.55, y: 0, z: 0 },
     yaw: 0,
     chain: HumanChain.subject("partner")
       .stand({ seconds: 3.5, sway: 0 })
-      .walk({ to: { x: -0.45, y: 0, z: 2 } }),
+      .walk({ to: { x: -0.55, y: 0, z: 2 } }),
   };
   const take: HumanPerformance = play(label, body, props, chain, [partner]);
   const operate: IAutoMovieMotionHumanSegment = named(take, "workHeld")[1]!;
