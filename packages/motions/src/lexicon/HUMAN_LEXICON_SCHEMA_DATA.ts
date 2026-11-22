@@ -295,6 +295,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamskind-o13",
       "description": "Burpees, without the jump."
     },
+    "burpInfant": {
+      "$ref": "#/components/schemas/OmitIParamshold-o3",
+      "description": "Hold an infant against the shoulder and pat its back."
+    },
     "buttKicks": {
       "$ref": "#/components/schemas/OmitIParamskind-o13",
       "description": "Butt kicks in place."
@@ -526,6 +530,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "crabWalk": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanCrabWalk.IParams",
       "description": "A crab walk: supine on the hands and the feet, the pelvis lifted, travelling feet or head first in the diagonal sequence."
+    },
+    "cradleInfant": {
+      "$ref": "#/components/schemas/OmitIParamshold-o3",
+      "description": "Cradle an infant across the front, its head in the holding arm's crook."
     },
     "crescentKick": {
       "$ref": "#/components/schemas/OmitIParamsjumplegspintechnique",
@@ -822,6 +830,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "farmersWalk": {
       "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanWalkParamsarmSwingpace",
       "description": "A farmer's walk: a slow walk with the arms still, carrying what both hands took before it (a kettlebell or a dumbbell in each), so the arms hang and do not swing (provisional: no arm swing, as a loaded carry is taught). The composition gives where to."
+    },
+    "feedInfant": {
+      "$ref": "#/components/schemas/OmitIParamshold-o3",
+      "description": "Feed a cradled infant from a bottle in the other hand."
     },
     "feint": {
       "$ref": "#/components/schemas/OmitICutfeint",
@@ -1514,6 +1526,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "lungeGrab": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanLungeGrab.IParams",
       "description": "A lunge and grab: the leading foot steps long toward the victim and both palms close on its shoulders or a named region; a victim beyond the longest lunge is refused."
+    },
+    "lungeHorse": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanLunge",
+      "description": "Lunge a horse from the circle's centre, turning on the spot with the line in one hand and the whip in the other, changing hands at a change of rein."
     },
     "lunges": {
       "$ref": "#/components/schemas/OmitIParamskind-o4",
@@ -18965,6 +18981,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "rake": {
             "$ref": "#/components/schemas/OmitIParamsstroke",
             "description": "Rake or hoe the ground toward oneself."
+          },
+          "cradleInfant": {
+            "$ref": "#/components/schemas/OmitIParamshold-o3",
+            "description": "Cradle an infant across the front, its head in the holding arm's crook."
+          },
+          "burpInfant": {
+            "$ref": "#/components/schemas/OmitIParamshold-o3",
+            "description": "Hold an infant against the shoulder and pat its back."
+          },
+          "feedInfant": {
+            "$ref": "#/components/schemas/OmitIParamshold-o3",
+            "description": "Feed a cradled infant from a bottle in the other hand."
           }
         },
         "required": [
@@ -18984,7 +19012,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "sideChop",
           "sledge",
           "dig",
-          "rake"
+          "rake",
+          "cradleInfant",
+          "burpInfant",
+          "feedInfant"
         ],
         "additionalProperties": false,
         "description": "Open parameters of the labour lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
@@ -19374,6 +19405,65 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false
       },
+      "OmitIParamshold-o3": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The held infant's prop subject, taken up at its `seat` by `hand`."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The holding hand; the hand that holds `prop` when absent."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Seconds the hold lasts once taken; 4 when absent."
+          },
+          "rock": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanHoldInfant.IRock",
+            "description": "A rocking of the held infant; none when absent."
+          },
+          "pats": {
+            "type": "number",
+            "description": "Back pats a second in the shoulder hold; 1.5 when absent."
+          },
+          "bottle": {
+            "type": "string",
+            "description": "The bottle's prop subject, held in the other hand, for `feed`."
+          }
+        },
+        "required": [
+          "prop"
+        ],
+        "additionalProperties": false
+      },
+      "IAutoMovieMotionHumanHoldInfant.IRock": {
+        "type": "object",
+        "properties": {
+          "amplitude": {
+            "type": "number",
+            "description": "How far the infant sways either way, metres."
+          },
+          "frequency": {
+            "type": "number",
+            "description": "Sways per second, hertz."
+          }
+        },
+        "required": [
+          "amplitude",
+          "frequency"
+        ],
+        "additionalProperties": false,
+        "description": "A gentle rocking of the held infant."
+      },
       "IAutoMovieMotionHumanLexiconRideParams": {
         "type": "object",
         "properties": {
@@ -19400,6 +19490,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "HumanLeadHorse": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanLeadHorse",
             "description": "Hold a horse's moving lead rope in one hand over an authored walk."
+          },
+          "HumanLunge": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanLunge",
+            "description": "Lunge a horse from the circle's centre, turning on the spot with the line in one hand and the whip in the other, changing hands at a change of rein."
           },
           "HumanHoldHandles": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanHoldHandles",
@@ -19461,6 +19555,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "HumanBikeTransfer",
           "HumanBikeGuide",
           "HumanLeadHorse",
+          "HumanLunge",
           "HumanHoldHandles",
           "HumanFloatBeside",
           "HumanMounted",
@@ -19944,6 +20039,53 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "additionalProperties": false,
         "description": "Leading a horse on foot: one hand takes the horse's moving lead rope,\nholds it while the handler walks, and lets it go, as an arm overlay over\nan authored walk.\n\nThe walk underneath owns the steps, the root and the other arm. The horse\nprop owns where the rope is at every film second, so the scene stages the\nhorse's course and the handler's walk together; the action refuses a\nsample whose displayed hand cannot reach the rope."
       },
+      "IAutoMovieMotionHumanLunge": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "string",
+            "description": "The horse prop's subject id in the performance."
+          },
+          "line": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The hand that holds the lunge line; the other carries the whip."
+          },
+          "point": {
+            "type": "string",
+            "description": "The horse's affordance id for the held run of the lunge line; `lead` when absent."
+          },
+          "whip": {
+            "type": "string",
+            "description": "The whip prop the other hand already holds; that hand hangs by the side when absent."
+          },
+          "change": {
+            "type": "number",
+            "description": "Seconds into the action the hands change over for a change of rein, over three `transition`s: the line hand brings the line in to the middle as the whip hand comes to it, the whip hand closes on the line beside it, the first hand takes the whip from it, and each goes out to its new side. The line hand starts on its own side and the whip on the other; the hands keep them when absent. At least one `transition` after the start and four before the end.",
+            "minimum": 0,
+            "x-unit": "s"
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Seconds the action lasts, taking up and letting go the line included, more than twice `transition`.",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          },
+          "transition": {
+            "type": "number",
+            "description": "Seconds the hands take to take up the line and aim the whip, and again to let them go, positive.",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "required": [
+          "on",
+          "line",
+          "seconds",
+          "transition"
+        ],
+        "additionalProperties": false,
+        "description": "Lunging a horse from the ground: the handler stands at the circle's centre, turning on the spot to face the horse as it circles, with the lunge line in one hand and the whip in the other.\n\nThe horse prop owns the circle and the line: its ride lays the line from the halter to the handler's line hand at every film second, and the action holds that line where the horse has it, so the scene stages the horse's lunge and the handler together. The action owns the handler's feet, which pivot on the spot in small steps whenever the horse's bearing has moved a step's worth from them, and both arms; the whip, already in the other hand, is held low and pointed at the horse's quarters. At a change of rein the hands change over, the line passing to the other hand and the whip to the first, timed with the line's own change on the horse's ride. It refuses a sample whose line hand misses the line, and a horse that circles faster than pivot steps can follow."
+      },
       "IAutoMovieMotionHumanHoldHandles": {
         "type": "object",
         "properties": {
@@ -20106,6 +20248,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "IAutoMovieMotionHumanMounted.Seat": {
         "oneOf": [
           {
+            "const": "ascent"
+          },
+          {
             "const": "aside"
           },
           {
@@ -20118,6 +20263,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "const": "crouch"
           },
           {
+            "const": "descent"
+          },
+          {
             "const": "entered"
           },
           {
@@ -20127,7 +20275,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "const": "twoPoint"
           }
         ],
-        "description": "A seat kind, the posture a figure holds in the carrier contact's frame:\n\n- `entered`: the seated posture the law was entered with, legs as they were;\n- `aside`: a side-saddle seat, square to the carrier's front, the right thigh over `rightThigh` and the left sole on `leftFoot`;\n- `basic`: a vaulter's basic seat astride, upright, both arms stretched to the sides with the fingertips at eye level, no hand holding;\n- `bench`: a vaulter's bench, both knees on `leftKnee` and `rightKnee` with the feet tucked behind, the trunk inclined forward and both hands on their handles; the seat is free;\n- `twoPoint`: the two-point seat, the seat clear of the saddle, the weight in the stirrups `leftFoot` and `rightFoot`, the trunk inclined forward and the hands forward on the reins;\n- `crouch`: a jockey's racing crouch on short stirrups, the seat well clear of the saddle and the trunk level;\n- `standing`: standing in the stirrups, the knees nearly straight and the trunk upright.\n\n`entered` may name the stirrups its entry already stands in, so a transfer to an out-of-saddle seat keeps them."
+        "description": "A seat kind, the posture a figure holds in the carrier contact's frame:\n\n- `entered`: the seated posture the law was entered with, legs as they were;\n- `aside`: a side-saddle seat, square to the carrier's front, the right thigh over `rightThigh` and the left sole on `leftFoot`;\n- `basic`: a vaulter's basic seat astride, upright, both arms stretched to the sides with the fingertips at eye level, no hand holding;\n- `bench`: a vaulter's bench, both knees on `leftKnee` and `rightKnee` with the feet tucked behind, the trunk inclined forward and both hands on their handles; the seat is free;\n- `twoPoint`: the two-point seat, the seat clear of the saddle, the weight in the stirrups `leftFoot` and `rightFoot`, the trunk inclined forward and the hands forward on the reins;\n- `crouch`: a jockey's racing crouch on short stirrups, the seat well clear of the saddle and the trunk level;\n- `standing`: standing in the stirrups, the knees nearly straight and the trunk upright;\n- `descent`: down a bank, seated with the heels down in the stirrups `leftFoot` and `rightFoot` and the hands giving the reins forward, the trunk kept upright in space against the carrier's pitch and roll at every instant;\n- `ascent`: up a bank, a light seat clear of the saddle over the stirrups `leftFoot` and `rightFoot`, the trunk inclined forward over the withers in space against the carrier's pitch and roll at every instant, a hand that names the `mane` taking it.\n\n`entered` may name the stirrups its entry already stands in, so a transfer to an out-of-saddle seat keeps them."
       },
       "IAutoMovieMotionHumanMounted.ISupports": {
         "type": "object",
