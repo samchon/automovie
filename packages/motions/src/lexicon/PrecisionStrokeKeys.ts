@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
@@ -53,7 +54,16 @@ export namespace PrecisionStrokeKeys {
     for (const limb of ["leftArm", "rightArm"] as const) {
       const goal: IAutoMovieHumanLimbGoal | undefined = out[limb];
       if (goal === undefined) continue;
+      // A goal that places a held tool's contact turns with the hand, so
+      // its place is the hand's own: the contact carried back through the
+      // goal's rotation.
       const place: IAutoMovieHumanLimbGoal = { ...goal };
+      if (goal.contact !== undefined && goal.rotation !== undefined)
+        place.point = Vector3.subtract(
+          goal.point,
+          Quaternion.rotateVector(goal.rotation, goal.contact),
+        );
+      delete place.contact;
       delete place.rotation;
       out[limb] = place;
     }

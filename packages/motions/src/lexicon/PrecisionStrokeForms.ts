@@ -268,9 +268,8 @@ export namespace PrecisionStrokeForms {
           ? Math.sqrt(span * span - drop * drop)
           : Math.max(
               span * Math.hypot(working.x, working.z),
-              // Hanging arms lie in front of the chest, never inside it, even
-              // with the trunk hinged forward over them at address.
-              props.body.measure.chestDepth +
+              // Hanging arms lie in front of the chest, never inside it.
+              props.body.measure.chestDepth / 2 +
                 props.body.measure.upperArmRadius +
                 props.body.measure.forearmRadius,
             );

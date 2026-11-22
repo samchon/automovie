@@ -348,6 +348,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
         // away from it the hands' goals carry their places only, and the arm
         // turns the implement as its course finds clear.
         const current: IAutoMovieMotionHumanPosture =
+          held === undefined ||
           Math.abs(t - clock.at("stroke")) <= PrecisionStrokeKeys.CONTACT
             ? keyed
             : { ...keyed, limbs: PrecisionStrokeKeys.places(keyed.limbs) };

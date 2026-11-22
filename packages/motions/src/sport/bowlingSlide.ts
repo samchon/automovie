@@ -192,7 +192,8 @@ function plan(
       footSupport(lead, "plant", 0, from),
       footSupport(trail, "plant", 0, from),
       footSupport(lead, "bear", from, to),
-      footSupport(trail, "bear", from, to),
+      // The trailing toe drags on the approach until the recovery lifts it.
+      footSupport(trail, "bear", from, to + (settle - to) * TERMINAL),
       footSupport(lead, "plant", to, seconds),
       footSupport(trail, "plant", settle, seconds),
     ],
@@ -266,8 +267,8 @@ function plan(
       // The foot pitches toes down by its shank's forward lean over it, the
       // line from the hip leaning and the bent knee tilting the shank on
       // from that line (law of cosines over the thigh and the shank), so the
-      // unloaded ankle keeps the angle it stood with; the pitch fades only as
-      // the foot sets down, and the foot is raised until its toe clears the
+      // unloaded ankle keeps the angle it stood with; the pitch fades as the
+      // step travels, so the foot sets down flat without turning its toe, and the foot is raised until its toe clears the
       // floor while it swings.
       const pitched: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: trailingAnkle,
@@ -278,16 +279,7 @@ function plan(
               tilt(reached, trailingAnkle) -
               lean(rest, feet[trail].ankle) -
               tilt(rest, feet[trail].ankle)) *
-              (1 -
-                minimumJerk.share(
-                  Math.min(
-                    1,
-                    Math.max(
-                      0,
-                      ((time - to) / (settle - to) - (1 - TERMINAL)) / TERMINAL,
-                    ),
-                  ),
-                )),
+              (1 - step),
         ),
       };
       // In the slide the toe drags on the approach (its declared bearing
