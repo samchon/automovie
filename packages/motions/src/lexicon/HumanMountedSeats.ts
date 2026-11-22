@@ -62,7 +62,7 @@ export namespace HumanMountedSeats {
    * @returns The required and the optional supporting parts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what each kind reads.
-   * @evidence contracts/development/implementation.md#principled-implementation The side saddle's two leg supports with optional reins, the bench's knees and handles, the basic seat's free arms, the out-of-saddle seats' two stirrups with optional reins, and the entered seat's optional hands and the stirrups its entry stands in.
+   * @evidence contracts/development/implementation.md#principled-implementation The side saddle's two leg supports with optional reins, the bench's knees and handles, the basic seat's free arms, the out-of-saddle and bank seats' two stirrups with optional hands, and the entered seat's optional hands and the stirrups its entry stands in.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One choice per kind.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
@@ -80,7 +80,13 @@ export namespace HumanMountedSeats {
     if (seat === "bench")
       return [["leftKnee", "rightKnee", "leftHand", "rightHand"], []];
     if (seat === "basic") return [[], []];
-    if (seat === "twoPoint" || seat === "crouch" || seat === "standing")
+    if (
+      seat === "twoPoint" ||
+      seat === "crouch" ||
+      seat === "standing" ||
+      seat === "descent" ||
+      seat === "ascent"
+    )
       return [
         ["leftFoot", "rightFoot"],
         ["leftHand", "rightHand"],
@@ -92,7 +98,7 @@ export namespace HumanMountedSeats {
    * Whether a seat kind bears on the seat.
    *
    * @param seat The seat kind.
-   * @returns True for the seats sat on: entered, aside and basic.
+   * @returns True for the seats sat on: entered, aside, basic and descent.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which kinds sit.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A membership test.
@@ -103,7 +109,12 @@ export namespace HumanMountedSeats {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function sits(seat: IAutoMovieMotionHumanMounted.Seat): boolean {
-    return seat === "entered" || seat === "aside" || seat === "basic";
+    return (
+      seat === "entered" ||
+      seat === "aside" ||
+      seat === "basic" ||
+      seat === "descent"
+    );
   }
 
   /**

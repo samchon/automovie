@@ -73,7 +73,7 @@ export namespace HumanMountedStirrups {
    * Whether a seat kind is out of the saddle.
    *
    * @param seat The seat kind.
-   * @returns True for the two-point seat, the racing crouch and standing.
+   * @returns True for the two-point seat, the racing crouch, standing and the bank's ascent.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which kinds.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A membership test.
@@ -84,7 +84,12 @@ export namespace HumanMountedStirrups {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function free(seat: IAutoMovieMotionHumanMounted.Seat): boolean {
-    return seat === "twoPoint" || seat === "crouch" || seat === "standing";
+    return (
+      seat === "twoPoint" ||
+      seat === "crouch" ||
+      seat === "standing" ||
+      seat === "ascent"
+    );
   }
 
   /**
@@ -116,7 +121,7 @@ export namespace HumanMountedStirrups {
   }
 
   /**
-   * The profile of an out-of-saddle seat (all provisional): the two-point seat's socket 0.12 thighs over the saddle with the pelvis inclined 40 degrees, the crouch's 0.2 thighs with the pelvis inclined 55 degrees, within the hip's flexion against the thighs' slope to the stirrups, and the hips 0.5 thighs behind the stirrups; the hands take the reins a forearm up toward the bit in the crouch, half a forearm in the two-point seat and 0.3 standing, the short reins of a rider out of the saddle, and standing at 20 degrees of knee flexion with the pelvis inclined 10; the crouch keeps the pelvis fully level, as the jockey's crouch does (Pfau et al. 2009), the two-point seat and standing half (provisional).
+   * The profile of an out-of-saddle seat (all provisional): the two-point seat's socket 0.12 thighs over the saddle with the pelvis inclined 40 degrees, the crouch's 0.2 thighs with the pelvis inclined 55 degrees, within the hip's flexion against the thighs' slope to the stirrups, and the hips 0.5 thighs behind the stirrups; the hands take the reins a forearm up toward the bit in the crouch, half a forearm in the two-point seat and 0.3 standing, the short reins of a rider out of the saddle, and standing at 20 degrees of knee flexion with the pelvis inclined 10; the ascent's light seat half the two-point seat's clearance, 0.06 thighs, with the pelvis inclined 45 degrees over the withers and the reins half a forearm up the neck; the crouch keeps the pelvis fully level, as the jockey's crouch does (Pfau et al. 2009), the two-point seat, standing and the ascent half (provisional).
    *
    * @param seat An out-of-saddle seat kind.
    * @returns Its profile.
@@ -134,6 +139,8 @@ export namespace HumanMountedStirrups {
       return { clear: 0.2, pitch: 55, back: 0.5, decouple: 1, reins: 1 };
     if (seat === "standing")
       return { knee: 20, pitch: 10, back: 0.05, decouple: 0.5, reins: 0.3 };
+    if (seat === "ascent")
+      return { clear: 0.06, pitch: 45, back: 0.25, decouple: 0.5, reins: 0.5 };
     return { clear: 0.12, pitch: 40, back: 0.25, decouple: 0.5, reins: 0.5 };
   }
 

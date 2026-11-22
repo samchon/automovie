@@ -23,6 +23,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanMountedAids } from "./HumanMountedAids";
+import { HumanMountedBank } from "./HumanMountedBank";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanMountedPaths } from "./HumanMountedPaths";
 import { HumanMountedSeats } from "./HumanMountedSeats";
@@ -32,7 +33,6 @@ import { HumanMountedTimeline } from "./HumanMountedTimeline";
 import { HumanMountedWhip } from "./HumanMountedWhip";
 import { HumanRideHands } from "./HumanRideHands";
 import { admitHumanMountedFigure } from "./admitHumanMountedFigure";
-import { respondHumanMounted } from "./respondHumanMounted";
 
 /** The mounted law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMounted>;
@@ -110,7 +110,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       ),
       feasible: null,
       reason: "a mounted performance holds at least one figure and ends seated",
-      fix: "end on an entered, aside or basic figure",
+      fix: "end on an entered, aside, basic or descent figure",
     });
   const support: IAutoMovieMotionHumanPropReader = context.prop(on);
   const hands: Partial<Record<AutoMovieHumanSide, string>> = {};
@@ -388,15 +388,17 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             },
           };
         }
-      // The trunk leans against the carrier's own pitch and roll by the author's share.
+      // The trunk leans against the carrier's own pitch and roll by the author's share, and in a bank seat keeps its inclination in space.
       const now: IAutoMovieRigidTransform = carrier(film);
       const moved: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
-        respondHumanMounted(
+        HumanMountedBank.respond(
           context.body,
           HumanMountedPaths.heels(
             context.body,
             HumanMountedAids.body(aids, time, local),
           ),
+          figures,
+          { index, share },
           origin.rotation,
           now.rotation,
           respond,
@@ -463,12 +465,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
               reading,
               context.body.measure.forearm,
             ),
-            HumanMountedStirrups.blend(
-              figures,
-              index,
-              share,
-              (p: HumanMountedStirrups.IProfile): number => p.reins,
-            ) * context.body.measure.forearm,
+            HumanMountedBank.reins(figures, { index, share }) *
+              context.body.measure.forearm,
           );
         const grip: HumanRideHands.IMaterialGrip =
           pushed === 0

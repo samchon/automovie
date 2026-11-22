@@ -145,7 +145,9 @@ export namespace IAutoMovieMotionHumanMounted {
    * - `bench`: a vaulter's bench, both knees on `leftKnee` and `rightKnee` with the feet tucked behind, the trunk inclined forward and both hands on their handles; the seat is free;
    * - `twoPoint`: the two-point seat, the seat clear of the saddle, the weight in the stirrups `leftFoot` and `rightFoot`, the trunk inclined forward and the hands forward on the reins;
    * - `crouch`: a jockey's racing crouch on short stirrups, the seat well clear of the saddle and the trunk level;
-   * - `standing`: standing in the stirrups, the knees nearly straight and the trunk upright.
+   * - `standing`: standing in the stirrups, the knees nearly straight and the trunk upright;
+   * - `descent`: down a bank, seated with the heels down in the stirrups `leftFoot` and `rightFoot` and the hands giving the reins forward, the trunk kept upright in space against the carrier's pitch and roll at every instant;
+   * - `ascent`: up a bank, a light seat clear of the saddle over the stirrups `leftFoot` and `rightFoot`, the trunk inclined forward over the withers in space against the carrier's pitch and roll at every instant, a hand that names the `mane` taking it.
    *
    * `entered` may name the stirrups its entry already stands in, so a transfer to an out-of-saddle seat keeps them.
    *
@@ -161,7 +163,9 @@ export namespace IAutoMovieMotionHumanMounted {
     | "bench"
     | "twoPoint"
     | "crouch"
-    | "standing";
+    | "standing"
+    | "descent"
+    | "ascent";
 
   /**
    * A rider's aid: a movement of the hands, legs, seat or voice the carrier answers, made `latency` seconds before each instant of the cue track `cue`, the carrier's transitions, and released once the carrier has answered.
