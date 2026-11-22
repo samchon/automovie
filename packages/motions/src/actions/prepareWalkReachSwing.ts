@@ -15,7 +15,7 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { walkFoot } from "./walkFoot";
+import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import type { walkReach } from "./walkReach";
 
@@ -49,9 +49,9 @@ interface IBounds {
  * @returns The swing constraint reader over a settled pelvis and foot.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States fixed body/side/bounds, the varying settled frame and the optional share semantics inherited from walkReach.swing.
- * @evidence contracts/development/implementation.md#principled-implementation Holds the foot inside the leg-length sphere, the thigh-extension cone, the hip-twist clamp (keeping the foot's pitch and roll) and the ankle's side and bending ranges, with the optional boundary fade. A foot the ankle's range turns is raised only where it would otherwise pass into the floor, never back to its scheduled clearance: raising the ankle bends the knee, leans the shank and turns the foot further, a loop whose gain nears one at a straight leg, where a turn of under a degree held the foot centimetres up and released it at a square root's slope.
+ * @evidence contracts/development/implementation.md#principled-implementation Holds the foot inside the leg-length sphere, the thigh-extension cone, the hip-twist clamp (keeping the foot's pitch and roll) and the ankle's side and bending ranges, with the optional boundary fade. A foot the ankle's range turns is raised to its scheduled low point but no higher than the least toe clearance of walking (`walkFoot.CLEARANCE`), never back to a higher scheduled clearance: raising the ankle bends the knee, leans the shank and turns the foot further, a loop whose gain nears one at a straight leg, so the target stays the few millimetres every swing keeps over the floor's contact height.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed reach/range/socket terms precede the one swing reader; walkReach owns the bounds and the entry.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ankle range is applied to the foot's own rotation at every trial lift, so the floor reading is one function of the lift and the fixed-point and bisection stages agree, and the foot ends within `SETTLED` of the floor. Fixed-point lifts by the penetration run while each at least halves it; a slower one hands over to a bisection on the lift, bracketed by the last lift and a lift to hip height, which converges while the lowest point rises with the lift (a lift-to-turn gain under one). Should the hip-height lift still leave the foot under the floor, which no reachable pose does, the foot is lifted onto it and keeps that trial's turn.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ankle range is applied to the foot's own rotation at every trial lift, so the floor reading is one function of the lift and the fixed-point and bisection stages agree, and the foot ends within `SETTLED` of its target height. Fixed-point lifts by the penetration run while each at least halves it; a slower one hands over to a bisection on the lift, bracketed by the last lift and a lift to hip height, which converges while the lowest point rises with the lift (a lift-to-turn gain under one). Should the hip-height lift still leave the foot under the floor, which no reachable pose does, the foot is lifted onto it and keeps that trial's turn.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and bounded constant work per foot; time queries skip body-only reach, range trigonometry and socket lookup. One toe-angle offset serves all trial lifts, and the ankle range is prepared once for the foot's initial heading. Each fixed-point lift at least halves the penetration and the bisection halves its bracket, so a foot costs at most about twenty trials per stage at a micrometre against centimetres of penetration and a metre of bracket.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side and the reach owner's bounds fix this reader. Each foot correction binds its own toe offset and initial heading; every pelvis, ankle, rotation, toe angle and queried share is evaluated for its own query.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds fixed body/bound/socket geometry; each correction releases its toe-offset and ankle-range readers on return or throw; no queried foot, hip, rotation or time history is kept.
@@ -117,9 +117,9 @@ export function prepareWalkReachSwing(
     }
 
     // Toe articulation is fixed across this foot's ankle/floor search; every
-    // trial lift fits the ankle's range again. The lift is only off the
-    // floor: restoring the scheduled clearance would feed the turn it
-    // answers (a raised ankle leans the shank further).
+    // trial lift fits the ankle's range again. The lift reaches at most the
+    // least toe clearance: restoring a higher scheduled clearance would feed
+    // the turn it answers (a raised ankle leans the shank further).
     const toe: ReturnType<typeof HumanFoot.prepareHeight> = toeAt(foot.toes);
     const lowest: (placement: IAutoMovieMotionHumanFoot.IPlacement) => number = (placement: IAutoMovieMotionHumanFoot.IPlacement): number =>
       Math.min(toe(placement), heel(placement));
@@ -132,6 +132,16 @@ export function prepareWalkReachSwing(
     // stays under one it is increasing and the lift that puts the foot on the
     // floor is its root.
     const own: IAutoMovieQuaternion = rotation;
+
+    // The height the ranged foot's lowest point is lifted to: where the
+    // swing carried it, but no higher than the least toe clearance of
+    // walking (`walkFoot.CLEARANCE`), which every walk's swing keeps
+    // through its middle; so a foot the range turns toes-down still clears
+    // the floor's contact height while it travels.
+    const target: number = Math.min(
+      Math.max(0, lowest(foot.placement)),
+      walkFoot.CLEARANCE,
+    );
     const placed: (lift: number) => { ankle: IAutoMovieVector3; rotation: IAutoMovieQuaternion; low: number } = (lift: number): { ankle: IAutoMovieVector3; rotation: IAutoMovieQuaternion; low: number } => {
       const at: IAutoMovieVector3 = lift === 0 ? ankle : { ...ankle, y: ankle.y + lift };
       const turned: IAutoMovieQuaternion = ankleRange(h, at, own);
@@ -144,28 +154,28 @@ export function prepareWalkReachSwing(
     // lift and the lift to hip height, where the foot hangs clear of any floor.
     let lift: number = 0;
     let read: { ankle: IAutoMovieVector3; rotation: IAutoMovieQuaternion; low: number } = placed(0);
-    while (read.low < -SETTLED) {
-      const next: { ankle: IAutoMovieVector3; rotation: IAutoMovieQuaternion; low: number } = placed(lift - read.low);
-      if (next.low >= -SETTLED || -next.low <= -read.low / 2) {
-        lift -= read.low;
+    while (read.low < target - SETTLED) {
+      const next: { ankle: IAutoMovieVector3; rotation: IAutoMovieQuaternion; low: number } = placed(lift + target - read.low);
+      if (next.low >= target - SETTLED || target - next.low <= (target - read.low) / 2) {
+        lift += target - read.low;
         read = next;
         continue;
       }
-      let low: number = lift - read.low;
+      let low: number = lift + target - read.low;
       let high: number = Math.max(low, h.y - ankle.y);
       let above: { ankle: IAutoMovieVector3; rotation: IAutoMovieQuaternion; low: number } = placed(high);
       while (high - low > SETTLED) {
         const middle: number = (low + high) / 2;
         const probe: { ankle: IAutoMovieVector3; rotation: IAutoMovieQuaternion; low: number } = placed(middle);
-        if (probe.low >= 0) {
+        if (probe.low >= target) {
           high = middle;
           above = probe;
-        } else if (probe.low >= -SETTLED) {
+        } else if (probe.low >= target - SETTLED) {
           above = probe;
           break;
         } else low = middle;
       }
-      read = above.low >= -SETTLED ? above : { ...above, ankle: { ...above.ankle, y: above.ankle.y - above.low }, low: 0 };
+      read = above.low >= target - SETTLED ? above : { ...above, ankle: { ...above.ankle, y: above.ankle.y + target - above.low }, low: target };
       break;
     }
     ankle = read.ankle;
@@ -189,7 +199,7 @@ export function prepareWalkReachSwing(
       Quaternion.slerp(foot.placement.rotation, rotation, held),
     );
     const low: number = lowest({ ankle: joined, rotation: turned });
-    if (low < 0) joined = { ...joined, y: joined.y - low };
+    if (low < target) joined = { ...joined, y: joined.y + target - low };
     return { ankle: joined, rotation: turned, toes: foot.toes };
   };
 }
