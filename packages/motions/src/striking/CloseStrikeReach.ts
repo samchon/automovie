@@ -117,7 +117,7 @@ export function CloseStrikeReach(
   // the elbow cannot rise more than one upper arm above the shoulder.
   const upright = (shift: IAutoMovieVector3): IAutoMovieVector3 =>
     read(at(0, shift), `${side}UpperArm`).get(`${side}UpperArm`)!.worldPosition;
-  const bow: number =
+  let bow: number =
     technique === "spinningBackfist" || target.y >= upright(still).y
       ? 0
       : CloseStrikeReach.ELBOW_LEAN;
@@ -238,15 +238,42 @@ export function CloseStrikeReach(
       body.rest.get(`${side}LowerArm`)!,
     ),
   );
-  let folded: CloseStrikeReach.IFold = fit(target);
-  for (let i: number = 0; i < 2; ++i)
-    folded = fit(
-      Vector3.subtract(
-        target,
-        Quaternion.rotateVector(rotationBetween(rest, folded.forearm), region),
-      ),
-    );
-  const { elbow, shift, forearm }: CloseStrikeReach.IFold = folded;
+  const landed = (): CloseStrikeReach.IFold => {
+    let folded: CloseStrikeReach.IFold = fit(target);
+    for (let i: number = 0; i < 2; ++i)
+      folded = fit(
+        Vector3.subtract(
+          target,
+          Quaternion.rotateVector(
+            rotationBetween(rest, folded.forearm),
+            region,
+          ),
+        ),
+      );
+    return folded;
+  };
+  // An elbow the stance cannot shift to upright leans the trunk in, half
+  // the lean and then all of it, before it is refused.
+  let folded: CloseStrikeReach.IFold | undefined;
+  for (const lean of [
+    bow,
+    0.5 * CloseStrikeReach.ELBOW_LEAN,
+    CloseStrikeReach.ELBOW_LEAN,
+  ]) {
+    if (lean < bow) continue;
+    bow = lean;
+    try {
+      folded = landed();
+      break;
+    } catch (error) {
+      if (
+        !(error instanceof HumanRefusal) ||
+        lean >= CloseStrikeReach.ELBOW_LEAN
+      )
+        throw error;
+    }
+  }
+  const { elbow, shift, forearm }: CloseStrikeReach.IFold = folded!;
   const palm: IAutoMovieVector3 =
     Math.abs(Vector3.dot(forearm, up)) > 0.9
       ? Vector3.scale(line, -1)
