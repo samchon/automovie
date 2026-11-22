@@ -10,11 +10,13 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanUnseat,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmReach } from "../compose/AutoMovieMotionHumanArmReach";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -68,10 +70,10 @@ export const HumanUnseat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanUn
      * Admit the fall, find the release, solve the flight or the drag once, then sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: a non-seated entry, a bad instant, speed or time, a release outside the act, a drag without its stirrup and a fall that would pass through the carrier.
-     * @evidence contracts/development/implementation.md#principled-implementation Before the release the entry posture is carried by the carrier's contact (`HumanMountedFrame.move`); the release velocity is the carried root's central difference; the flight is `HumanUnseatFlight`'s closed form; the shape blends from the carried posture to the lie by the minimum-jerk share of the flight; the falling hand's way to the floor is one planned arm course in the world (courseArmGoal), clear of the trunk and the thighs, reaching the floor by the touch.
+     * @evidence contracts/development/implementation.md#principled-implementation Before the release the entry posture is carried by the carrier's contact (`HumanMountedFrame.move`); the release velocity is the carried root's central difference; the flight is `HumanUnseatFlight`'s closed form; the shape blends from the carried posture to the lie by the minimum-jerk share of the flight; the falling hand's way to the floor is one planned arm course in the world (courseArmGoal), clear of the trunk and the thighs, leaving from the seat's arm at the release instant and reaching the floor by the touch; its palm, not its wrist, lies on the floor (the goal's point is the wrist's), palm down at the heading about the vertical nearest the fingers-out one that the lying arm meets (`AutoMovieMotionHumanArmReach`, Tolani et al. 2000), since a flat palm bears alike at any heading.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, release, the fall's path, windows, then the sampler.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A fall that would cross the carrier's flank below the seat is refused, never bent around it.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One lie fit, one flight and one arm course per plan; a sample reads at most two carrier frames and one stirrup.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A fall that would cross the carrier's flank below the seat is refused, never bent around it; a palm the lying arm cannot lay flat at any heading is refused with its least miss, never clamped.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One lie fit, one flight, one heading search for the palm and one arm course per plan; a sample reads at most two carrier frames and one stirrup.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The lie, the flight and the release state are shared by every sample.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its flight, lie and the carrier reader.
      */
@@ -299,6 +301,65 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const touch: number = reached;
   const hand: string = `${side}Hand`;
   const before: number = leave / duration;
+
+  // The flying body with the falling hand sent to its place beside the
+  // shoulder, at a local second after the release.
+  const reaching = (t: number): IAutoMovieMotionHumanPosture => {
+    const shown: IAutoMovieMotionHumanPosture = flown(t);
+    return HumanUnseatPose.reach(
+      shown,
+      side,
+      HumanUnseatPose.beside(shown, side, context.body),
+      1,
+    );
+  };
+  // The palm bears on the floor at the hand's place, palm down. The goal's
+  // point is the wrist's, so it stands the palm's offset off that place,
+  // turned with the hand: the palm, not the wrist, is on the floor.
+  const palm: IAutoMovieVector3 = HumanHand.offset(
+    context.body,
+    side,
+    "palm",
+  ).point;
+  const onFloor = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => ({
+    ...posture.limbs[`${side}Arm`]!.point,
+    y: 0,
+  });
+  const palmDown = (
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieQuaternion =>
+    HumanHand.rotation(side, {
+      fingers: Quaternion.rotateVector(
+        resolveHumanPosture.heading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
+        { x: side === "left" ? 1 : -1, y: 0, z: 0 },
+      ),
+      palm: { x: 0, y: -1, z: 0 },
+    });
+  // A palm flat on the floor bears alike at any heading about the vertical,
+  // so the hand asks palm down with the fingers out to the side, turned about
+  // the vertical to the nearest heading the arm meets on the lie it holds it
+  // through (`AutoMovieMotionHumanArmReach`), chosen once at the landing: the
+  // fingers-out heading asks the lying arm's forearm past its twist, and the
+  // hand that misses it pitches its fingers through the floor.
+  const heading: number = standing
+    ? 0
+    : ((): number => {
+        const lain: IAutoMovieMotionHumanPosture = reaching(land);
+        return AutoMovieMotionHumanArmReach.attitude({
+          body: context.body,
+          posture: lain,
+          side,
+          bend: lain.limbs[`${side}Arm`]!.bend,
+          requested: palmDown(lain),
+          axis: { x: 0, y: 1, z: 0 },
+          wrist: (rotation: IAutoMovieQuaternion): IAutoMovieVector3 =>
+            Vector3.subtract(
+              onFloor(lain),
+              Quaternion.rotateVector(rotation, palm),
+            ),
+          name: "fall",
+        }).turn;
+      })();
   const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [
@@ -327,32 +388,32 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     base: { kind: standing ? "standing" : "lying" },
     posture: (time: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.max(0, Math.min(duration, time));
-      if (t < leave || (standing && t === leave)) return seatedAt(t);
-      const shown: IAutoMovieMotionHumanPosture = flown(t);
-      // From the release on the falling hand's goal is its place on the floor beside the shoulder, which the course reaches by the touch.
-      if (standing) return shown;
-      const reached: IAutoMovieMotionHumanPosture = HumanUnseatPose.reach(
-        shown,
-        side,
-        HumanUnseatPose.beside(shown, side, context.body),
-        1,
-      );
-      // The palm bears on the floor, the hand turned palm-down with the fingers out to the side, from the touch on; until then the goal is only where the course is bound.
-      const out: IAutoMovieVector3 = Quaternion.rotateVector(
-        resolveHumanPosture.heading({ yaw: shown.yaw, pitch: 0, roll: 0 }),
-        { x: side === "left" ? 1 : -1, y: 0, z: 0 },
+      // The release instant is still the seat's: the body leaves it with the
+      // seat's own pose (the flight starts from it), and the falling hand's
+      // course leaves from the arm shown there, which the course reads off
+      // this plan at its span's start.
+      if (t <= leave) return seatedAt(t);
+      // After the release the falling hand's goal is its place on the floor beside the shoulder, which the course reaches by the touch.
+      if (standing) return flown(t);
+      const reached: IAutoMovieMotionHumanPosture = reaching(t);
+      // The palm on the floor at its reachable heading, from the touch on; until then the goal is only where the course is bound.
+      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
+          palmDown(reached),
+        ),
       );
       const floor: IAutoMovieHumanLimbGoal = reached.limbs[`${side}Arm`]!;
       reached.limbs = {
         ...reached.limbs,
         [`${side}Arm`]: {
           ...floor,
-          point: { ...floor.point, y: 0 },
-          contact: HumanHand.offset(context.body, side, "palm").point,
-          rotation: HumanHand.rotation(side, {
-            fingers: out,
-            palm: { x: 0, y: -1, z: 0 },
-          }),
+          point: Vector3.subtract(
+            onFloor(reached),
+            Quaternion.rotateVector(rotation, palm),
+          ),
+          contact: palm,
+          rotation,
           planted: t >= touch,
         },
       };
