@@ -1,5 +1,8 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanTrampoline } from "../exercise/IAutoMovieMotionHumanTrampoline";
+import type { IAutoMovieMotionHumanRoman } from "../lexicon/IAutoMovieMotionHumanRoman";
 import type { IAutoMovieMotionHumanSkydive } from "../lexicon/IAutoMovieMotionHumanSkydive";
+import type { IAutoMovieMotionHumanTrick } from "../lexicon/IAutoMovieMotionHumanTrick";
 import type { IAutoMovieMotionHumanCartwheel } from "../sport/IAutoMovieMotionHumanCartwheel";
 import type { IAutoMovieMotionHumanGymnastics } from "../sport/IAutoMovieMotionHumanGymnastics";
 import type { IAutoMovieMotionHumanHandspring } from "../sport/IAutoMovieMotionHumanHandspring";
@@ -7,7 +10,9 @@ import type { IAutoMovieMotionHumanRoundOff } from "../sport/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanSalto } from "../sport/IAutoMovieMotionHumanSalto";
 
 /**
- * Gymnastic and tumbling skills in flight: the salto, cartwheel, round-off, handspring and trampoline.
+ * Gymnastic and tumbling skills in flight: the salto, cartwheel, round-off, handspring, trampoline and skydive, and the trick and Roman riding of a performer on horses that move.
+ *
+ * `AutoMovieMotionHumanAcrobatics.ROUND_OFF_LEFT` and `ROUND_OFF_RIGHT` (`IRoundOffPreset`) are the round-off led with one hand, data spread into `roundOff`'s parameters; a preset adds no method.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -152,6 +157,40 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
     params: IAutoMovieMotionHumanAcrobatics.ISkydive,
     anchor?: string,
   ): Chain;
+
+  /**
+   * Trick riding on a moving horse's trick saddle (#3950): from the seat, each figure in turn is reached over its transfer and held; the act ends back in the seat.
+   *
+   * @param params The `on`, `frame` and `figures` of `IAutoMovieMotionHumanTrick`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAcrobatics.trick is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAcrobatics.trick is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAcrobatics.trick is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAcrobatics.trick is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.trick is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.trick is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   */
+  trick(params: IAutoMovieMotionHumanAcrobatics.ITrick, anchor?: string): Chain;
+
+  /**
+   * Roman riding (#3950): standing with one foot on each of two horses that move together side by side, held for a time.
+   *
+   * @param params The `left`, `right`, `frame`, `hold` and `step` of `IAutoMovieMotionHumanRoman`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAcrobatics.roman is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAcrobatics.roman is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAcrobatics.roman is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAcrobatics.roman is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.roman is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.roman is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
+   */
+  roman(params: IAutoMovieMotionHumanAcrobatics.IRoman, anchor?: string): Chain;
 }
 
 /**
@@ -227,4 +266,37 @@ export namespace IAutoMovieMotionHumanAcrobatics {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `skydive` takes exactly the type its law reads.
    */
   export type ISkydive = IAutoMovieMotionHumanSkydive.IParams;
+
+  /**
+   * The parameters of `trick`: the law's own `IAutoMovieMotionHumanTrick`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTrick` owns the type; the alias serves this family's `trick` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `trick` takes the type its law reads.
+   */
+  export type ITrick = IAutoMovieMotionHumanTrick;
+
+  /**
+   * The parameters of `roman`: the law's own `IAutoMovieMotionHumanRoman`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRoman` owns the type; the alias serves this family's `roman` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `roman` takes the type its law reads.
+   */
+  export type IRoman = IAutoMovieMotionHumanRoman;
+
+  /**
+   * The values a round-off led with one hand fixes: the hand that goes down first. It is spread into `roundOff`'s parameters, which keep the duration open.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the one value the preset fixes and how it is applied.
+   * @evidence contracts/development/design.md#principled-representation `lead` is an `AutoMovieHumanSide`, the person's own side, as the round-off reads it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the fixed key of the rows `roundOffLeft` and `roundOffRight`; the law's other parameters stay open.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the preset carries no value the law does not read.
+   */
+  export interface IRoundOffPreset {
+    /** The hand that goes down first, the person's own left or right. */
+    lead: AutoMovieHumanSide;
+  }
 }

@@ -4,3 +4,4 @@ export { horizontalJump } from "../../sport/horizontalJump";
 export { highJump } from "../../sport/highJump";
 export { poleVault } from "../../sport/poleVault";
 export { hurdleClear } from "../../sport/hurdleClear";
+export { HumanAirborneShape } from "../../lexicon/HumanAirborneShape";

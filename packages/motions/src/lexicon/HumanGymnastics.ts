@@ -8,6 +8,8 @@ import { lineWalk as lineWalkLaw } from "../exercise/lineWalk";
 import { stiltWalk } from "../exercise/stiltWalk";
 import { trampolineBounce } from "../exercise/trampolineBounce";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_ACROBATICS_ROUND_OFF_LEFT } from "../next/presets/HUMAN_ACROBATICS_ROUND_OFF_LEFT";
+import { HUMAN_ACROBATICS_ROUND_OFF_RIGHT } from "../next/presets/HUMAN_ACROBATICS_ROUND_OFF_RIGHT";
 import { fieldThrow as fieldThrowLaw } from "../sport/fieldThrow";
 import { handspring } from "../sport/handspring";
 import { highJump } from "../sport/highJump";
@@ -41,16 +43,20 @@ export namespace HumanGymnastics {
   /** A round-off leading with the left hand, landing on both feet facing back. Takes 1.2 s by default (`roundOff.SECONDS`, provisional). */
   export const roundOffLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["roundOffLeft"]
-  > = HumanActionRow.of("roundOffLeft", roundOff, {
-    lead: "left",
-  });
+  > = HumanActionRow.of(
+    "roundOffLeft",
+    roundOff,
+    HUMAN_ACROBATICS_ROUND_OFF_LEFT,
+  );
 
   /** A round-off leading with the right hand. Takes 1.2 s by default (`roundOff.SECONDS`, provisional). */
   export const roundOffRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["roundOffRight"]
-  > = HumanActionRow.of("roundOffRight", roundOff, {
-    lead: "right",
-  });
+  > = HumanActionRow.of(
+    "roundOffRight",
+    roundOff,
+    HUMAN_ACROBATICS_ROUND_OFF_RIGHT,
+  );
 
   /** A front handspring on the floor, lunging on the left leg; the composition may lead with the right. */
   export const frontHandspring: IAutoMovieMotionHumanActionLaw<

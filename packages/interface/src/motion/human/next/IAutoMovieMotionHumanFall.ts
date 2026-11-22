@@ -1,3 +1,6 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
+import type { IAutoMovieMotionHumanEnvironmentRecovery } from "../lexicon/IAutoMovieMotionHumanEnvironmentRecovery";
+import type { IAutoMovieMotionHumanStuntFall } from "../lexicon/IAutoMovieMotionHumanStuntFall";
 import type { IAutoMovieMotionHumanCollapse } from "../reaction/IAutoMovieMotionHumanCollapse";
 import type { IAutoMovieMotionHumanKnockdown } from "../reaction/IAutoMovieMotionHumanKnockdown";
 import type { IAutoMovieMotionHumanPerturb } from "../reaction/IAutoMovieMotionHumanPerturb";
@@ -7,7 +10,9 @@ import type { IAutoMovieMotionHumanVehicleHit } from "../reaction/IAutoMovieMoti
 import type { IAutoMovieMotionHumanWireFlight } from "../reaction/IAutoMovieMotionHumanWireFlight";
 
 /**
- * The falls and the balance reactions: a collapse, a stagger, a knockdown, a body thrown or hit, a perturbation and a wire flight. Each is planned by physics of the body and its support, not by a fixed pose.
+ * The falls and the balance reactions: a collapse, a stagger, a knockdown, a body thrown or hit by a car, a perturbation, a wire flight or arrest, a staged stunt fall and the recovery from a trip or a slip. Each is planned by physics of the body and its support, not by a fixed pose. A reaction that leaves the feet where they are is a `IAutoMovieMotionHumanReaction`, not a fall.
+ *
+ * `AutoMovieMotionHumanFall.GOALKEEPER_DIVE_LEFT` and `GOALKEEPER_DIVE_RIGHT` (`IDivePreset`) are the one-side dives of a goalkeeper, data spread into the dive law's parameters; a preset adds no method.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -125,9 +130,9 @@ export interface IAutoMovieMotionHumanFall<Chain> {
   ): Chain;
 
   /**
-   * A pedestrian struck by a moving car, or diving clear of it.
+   * A pedestrian struck by a moving car.
    *
-   * @param params The `vehicle`, `edge`, `horizon` and `seconds` of `IAutoMovieMotionHumanVehicleHit.IParams`.
+   * @param params The `vehicle`, `edge`, `horizon` and `hold` of `IAutoMovieMotionHumanVehicleHit.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    *
@@ -141,6 +146,86 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    */
   vehicleHit(
     params: IAutoMovieMotionHumanFall.IVehicleHit,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * A body held on a wire after a free drop: it falls `drop` metres, then the wire decelerates it to rest at the height `stop`; a fall the wire cannot stop above `stop` is refused.
+   *
+   * @param params The `drop`, `stop` and `deceleration` of `IAutoMovieMotionHumanWireFlight.IArrest`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.wireArrest is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.wireArrest is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.wireArrest is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFall.wireArrest is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.wireArrest is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.wireArrest is provided by the chain that implements IAutoMovieMotionHumanFall.
+   */
+  wireArrest(
+    params: IAutoMovieMotionHumanFall.IWireArrest,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * A staged stunt fall: a tumble or a seat slide down a named staircase, or a high fall from a named top onto a pad or the ground.
+   *
+   * @param params The `kind` and its members of `IAutoMovieMotionHumanStuntFall.IParams`: `stairs` and `slide` for a staircase, `exit`, `pad`, `top` and `descender` for a high fall.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.stuntFall is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.stuntFall is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.stuntFall is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFall.stuntFall is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.stuntFall is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.stuntFall is provided by the chain that implements IAutoMovieMotionHumanFall.
+   */
+  stuntFall(
+    params: IAutoMovieMotionHumanFall.IStuntFall,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * The answer to a staged trip or slip in a walk: the walk is cut at the measured cue and continues into a capture step, a fall or a braced rail catch.
+   *
+   * @param params The `kind`, `foot`, `outcome` and `rail` of `IAutoMovieMotionHumanEnvironmentRecovery.IParams`, with `obstacle` for a trip and `coefficient` and `support` for a slip.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.environmentalRecovery is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.environmentalRecovery is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.environmentalRecovery is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFall.environmentalRecovery is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.environmentalRecovery is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.environmentalRecovery is provided by the chain that implements IAutoMovieMotionHumanFall.
+   */
+  environmentalRecovery(
+    params: IAutoMovieMotionHumanFall.IEnvironmentRecovery,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * A pedestrian diving clear of a moving car to the side.
+   *
+   * @param params The `vehicle`, `side` and `horizon` of `IAutoMovieMotionHumanVehicleHit.IDive`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFall.vehicleDive is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFall.vehicleDive is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFall.vehicleDive is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFall.vehicleDive is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.vehicleDive is provided by the chain that implements IAutoMovieMotionHumanFall.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.vehicleDive is provided by the chain that implements IAutoMovieMotionHumanFall.
+   */
+  vehicleDive(
+    params: IAutoMovieMotionHumanFall.IVehicleDive,
     anchor?: string,
   ): Chain;
 }
@@ -218,4 +303,58 @@ export namespace IAutoMovieMotionHumanFall {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `vehicleHit` takes the type its law reads.
    */
   export type IVehicleHit = IAutoMovieMotionHumanVehicleHit.IParams;
+
+  /**
+   * The parameters of `wireArrest`: the law's own `IAutoMovieMotionHumanWireFlight.IArrest`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWireFlight` owns the type; the alias serves this family's `wireArrest` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `wireArrest` takes the type its law reads.
+   */
+  export type IWireArrest = IAutoMovieMotionHumanWireFlight.IArrest;
+
+  /**
+   * The parameters of `stuntFall`: the law's own `IAutoMovieMotionHumanStuntFall.IParams`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStuntFall` owns the type; the alias serves this family's `stuntFall` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stuntFall` takes the type its law reads.
+   */
+  export type IStuntFall = IAutoMovieMotionHumanStuntFall.IParams;
+
+  /**
+   * The parameters of `environmentalRecovery`: the law's own `IAutoMovieMotionHumanEnvironmentRecovery.IParams`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanEnvironmentRecovery` owns the type; the alias serves this family's `environmentalRecovery` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `environmentalRecovery` takes the type its law reads.
+   */
+  export type IEnvironmentRecovery =
+    IAutoMovieMotionHumanEnvironmentRecovery.IParams;
+
+  /**
+   * The parameters of `vehicleDive`: the law's own `IAutoMovieMotionHumanVehicleHit.IDive`, unchanged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
+   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanVehicleHit` owns the type; the alias serves this family's `vehicleDive` signature.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `vehicleDive` takes the type its law reads.
+   */
+  export type IVehicleDive = IAutoMovieMotionHumanVehicleHit.IDive;
+
+  /**
+   * The values a goalkeeper's dive fixes: the side the body dives to. It is spread into the dive law's parameters, which add the kind of fall.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the one value the preset fixes and how it is applied.
+   * @evidence contracts/development/design.md#principled-representation `side` is an `AutoMovieHumanSide`, the person's own side, as the dive law reads it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the fixed key of the rows `goalkeeperDiveLeft` and `goalkeeperDiveRight`; the law's other parameters stay open.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the preset carries no value the law does not read.
+   */
+  export interface IDivePreset {
+    /** The side the body dives to, the person's own left or right. */
+    side: AutoMovieHumanSide;
+  }
 }
