@@ -19,7 +19,7 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
  */
 export namespace HumanSportCarry {
-  /** A farmer's walk: a slow walk with the arms still, carrying what both hands took before it (a kettlebell or a dumbbell in each), so the arms hang and do not swing (provisional: no arm swing, as a loaded carry is taught). The composition gives where to. */
+  /** A farmer's walk: a slow walk with the arms still, carrying what both hands took before it (a kettlebell or a dumbbell in each), so the arms hang and do not swing (provisional: no arm swing, as a loaded carry is taught). The composition gives where to. The `slow` walk's speed, about 1.05 m/s at the reference hip ({@link IAutoMovieMotionHumanWalkParams.pace}). */
   export const farmersWalk: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportCarry"]["farmersWalk"]
   > = HumanActionRow.of("farmersWalk", walk, {

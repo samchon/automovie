@@ -38,14 +38,14 @@ import { vault } from "../sport/vault";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own or fixes a length in metres.
  */
 export namespace HumanGymnastics {
-  /** A round-off leading with the left hand, landing on both feet facing back. */
+  /** A round-off leading with the left hand, landing on both feet facing back. Takes 1.2 s by default (`roundOff.SECONDS`, provisional). */
   export const roundOffLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["roundOffLeft"]
   > = HumanActionRow.of("roundOffLeft", roundOff, {
     lead: "left",
   });
 
-  /** A round-off leading with the right hand. */
+  /** A round-off leading with the right hand. Takes 1.2 s by default (`roundOff.SECONDS`, provisional). */
   export const roundOffRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["roundOffRight"]
   > = HumanActionRow.of("roundOffRight", roundOff, {
@@ -87,12 +87,12 @@ export namespace HumanGymnastics {
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["hurdleClear"]
   > = HumanActionRow.of("hurdleClear", hurdleClearLaw, {});
 
-  /** A shot, discus or hammer thrown from a circle, or a javelin thrown out of a run, to the distance the composition gives. */
+  /** A shot, discus or hammer thrown from a circle, or a javelin thrown out of a run, to the distance the composition gives. The delivery takes 0.25 s from the end of the turn to the release and the recovery 0.8 s (`fieldThrow.DELIVER`, `fieldThrow.RECOVER`, provisional); the throw's speed follows from the distance. */
   export const fieldThrow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["fieldThrow"]
   > = HumanActionRow.of("fieldThrow", fieldThrowLaw, {});
 
-  /** A walk heel to toe along a beam or a rope, arms out for balance. */
+  /** A walk heel to toe along a beam or a rope, arms out for balance. A step takes 0.9 s, a careful balance walk's (`lineWalk.PERIOD`, provisional), about 67 steps a minute. */
   export const lineWalk: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["lineWalk"]
   > = HumanActionRow.of("lineWalk", lineWalkLaw, {});
@@ -102,12 +102,12 @@ export namespace HumanGymnastics {
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["juggling"]
   > = HumanActionRow.of("juggling", juggle, {});
 
-  /** A walk on stilts. */
+  /** A walk on stilts. A step takes 0.8 s and is 0.35 hip heights long (`stiltWalk.PERIOD`, `stiltWalk.STEP`, provisional), so about 0.4 m/s at the reference hip. */
   export const stilts: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["stilts"]
   > = HumanActionRow.of("stilts", stiltWalk, {});
 
-  /** Bouncing on a trampoline. */
+  /** Bouncing on a trampoline. Four bounces by default, the bed returning 0.9 of the energy (`trampolineBounce.KEEP`, provisional). */
   export const trampoline: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["trampoline"]
   > = HumanActionRow.of("trampoline", trampolineBounce, {});
