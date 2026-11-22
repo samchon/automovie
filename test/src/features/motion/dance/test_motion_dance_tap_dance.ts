@@ -15,8 +15,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The strike's contact bound, metres. */
 const TOUCH: number = 0.005;
@@ -41,7 +41,7 @@ const BPM: number = 120;
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, and a step with a hop beside one with heel drops.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture.
  */
-export function test_motion_exercise_tap_dance(): void {
+export function test_motion_dance_tap_dance(): void {
   const quarter: number = 60 / BPM / 4;
   for (const name of ["f-small", "m-average"] as const)
     for (const step of ["timeStep", "crampRoll"] as const) {

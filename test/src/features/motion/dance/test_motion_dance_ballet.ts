@@ -20,8 +20,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Classical ballet on the beat (#3991's ballet).
@@ -47,7 +47,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Five positions, a relevé, a single and a double pirouette on different bodies, a jeté, and two refusals.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture.
  */
-export function test_motion_exercise_ballet(): void {
+export function test_motion_dance_ballet(): void {
   const turnout: number = AutoMovieMotionHumanDance.ballet.TURNOUT;
   const bodies: readonly Fixture[] = ["f-small", "m-average"];
 

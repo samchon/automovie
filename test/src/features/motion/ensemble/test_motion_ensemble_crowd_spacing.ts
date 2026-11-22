@@ -2,10 +2,10 @@ import type {
   IAutoMovieMotionHumanFormation,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanCrowd, HumanEnsemble, HumanFormation } from "@automovie/motions";
+import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A formation retains its grid spacing when its frame translates and turns.
@@ -20,7 +20,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers both ends of each rank, finite dressing, file neighbours and a transformed frame.
  * @evidence contracts/development/testing.md#execution-ownership Generates only formation positions; no bodies or films are constructed.
  */
-export function test_motion_posture_crowd_spacing(): void {
+export function test_motion_ensemble_crowd_spacing(): void {
   checkCrossing();
   const findings: string[] = [];
   const line = (dress: number): IAutoMovieMotionHumanFormation => ({
@@ -42,11 +42,13 @@ export function test_motion_posture_crowd_spacing(): void {
 
   // 1. The lattice.
   for (const dress of [0.04, 0]) {
-    const f: IAutoMovieMotionHumanFormation = HumanFormation.of(line(dress));
+    const f: IAutoMovieMotionHumanFormation =
+      AutoMovieMotionHumanEnsemble.HumanFormation.of(line(dress));
     for (let i: number = 0; i < 4; ++i) {
       const rank: number = Math.floor(i / 2);
       const file: number = i % 2;
-      const at: IAutoMovieVector3 = HumanFormation.slot(f, i, 0).at;
+      const at: IAutoMovieVector3 =
+        AutoMovieMotionHumanEnsemble.HumanFormation.slot(f, i, 0).at;
 
       // Facing +Z, the frame's right is -X and its rear -Z.
       const lattice: IAutoMovieVector3 = {
@@ -68,7 +70,15 @@ export function test_motion_posture_crowd_spacing(): void {
       }
     }
   }
-  if (!(HumanFormation.slot(HumanFormation.of(line(0)), 0, 0).at.x > 0))
+  if (
+    !(
+      AutoMovieMotionHumanEnsemble.HumanFormation.slot(
+        AutoMovieMotionHumanEnsemble.HumanFormation.of(line(0)),
+        0,
+        0,
+      ).at.x > 0
+    )
+  )
     findings.push("file 0 does not stand on the frame's left");
 
   // 2. Rigidity.
@@ -82,8 +92,10 @@ export function test_motion_posture_crowd_spacing(): void {
     i: number,
     j: number,
   ): number => {
-    const a: IAutoMovieVector3 = HumanFormation.slot(f, i, 0).at;
-    const b: IAutoMovieVector3 = HumanFormation.slot(f, j, 0).at;
+    const a: IAutoMovieVector3 =
+      AutoMovieMotionHumanEnsemble.HumanFormation.slot(f, i, 0).at;
+    const b: IAutoMovieVector3 =
+      AutoMovieMotionHumanEnsemble.HumanFormation.slot(f, j, 0).at;
     return Math.hypot(a.x - b.x, a.z - b.z);
   };
   for (let i: number = 0; i < 4; ++i)
@@ -99,7 +111,7 @@ export function test_motion_posture_crowd_spacing(): void {
 /** Two walkers and a translating square directly exercise agent and obstacle clearance. */
 function checkCrossing(): void {
   const body = motionHumanBody("m-average");
-  const ensemble = HumanEnsemble.of({
+  const ensemble = AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
     id: "crossing",
     seed: "pairs",
     count: 2,
@@ -112,7 +124,7 @@ function checkCrossing(): void {
   });
   const halfWidth = 0.4;
   const end = 12;
-  const result = HumanCrowd.steer(ensemble, {
+  const result = AutoMovieMotionHumanEnsemble.HumanCrowd.steer(ensemble, {
     goals: (member) => ({ ...member.place.at, z: 2 }),
     gait: "walk",
     start: 0,
@@ -137,11 +149,15 @@ function checkCrossing(): void {
     result.arrivals.length === 2 &&
       result.arrivals.every((time) => time !== null),
   );
-  const radii = ensemble.members.map(HumanCrowd.half);
+  const radii = ensemble.members.map(AutoMovieMotionHumanEnsemble.HumanCrowd.half);
   for (let frame = 0; frame <= 24 * end; ++frame) {
     const time = frame / 24;
     const [left, right] = result.frames.map(
-      (course) => HumanFormation.frame({ blocks: [], frame: course }, time).at,
+      (course) =>
+        AutoMovieMotionHumanEnsemble.HumanFormation.frame(
+          { blocks: [], frame: course },
+          time,
+        ).at,
     );
     TestValidator.predicate(
       "the two bodies stay apart",

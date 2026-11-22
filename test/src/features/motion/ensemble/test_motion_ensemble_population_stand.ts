@@ -14,9 +14,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { qclose } from "../internal/qclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { qclose } from "../../internal/qclose";
 
 /**
  * Population extras can hold a foreground template's settled standing pose.
@@ -37,7 +37,7 @@ import { qclose } from "../internal/qclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers a placed and rotated template, multiple held phases, the end-exclusive selection interval, malformed sample count, a final settled endpoint and an endpoint owned by a successor. The existing ensemble population spec covers the moving cycle.
  * @evidence contracts/development/testing.md#execution-ownership A discovered motion feature unit constructs one in-memory HumanPerformance and reads settled instants and their take eligibility. It starts no viewer, host or render.
  */
-export function test_human_motion_ensemble_population_stand(): void {
+export function test_motion_ensemble_population_stand(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const template: IAutoMovieMotionHumanPerformer = {
     subject: "template",

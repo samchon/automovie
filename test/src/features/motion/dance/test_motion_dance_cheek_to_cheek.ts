@@ -16,8 +16,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** How near the two cheeks stay, metres: `headRest`'s skin contact. */
 const NEAR: number = 0.01;
@@ -63,7 +63,7 @@ interface IPair {
  * @evidence contracts/development/testing.md#distinguishing-cases Two pairs of matched height on two bodies; a large height difference's refusal, the bench rest and the standing rest are the head rest specification's.
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain.
  */
-export function test_human_motion_cheek_to_cheek(): void {
+export function test_motion_dance_cheek_to_cheek(): void {
   const pairs: readonly IPair[] = [
     { resting: "m-average", partner: "m-average" },
     { resting: "f-small", partner: "f-small" },
@@ -106,7 +106,7 @@ export function test_human_motion_cheek_to_cheek(): void {
           partner: "b",
           region: "cheekRight",
           own: "cheekRight",
-          seconds: 2 * SWAYS * BEAT,
+          hold: 2 * SWAYS * BEAT,
         }),
       ).node,
     });

@@ -10,11 +10,10 @@ import type {
 import {
   AutoMovieMotionHumanEnsemble,
   AutoMovieMotionHumanGait,
-  HumanCrowd,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Pedestrians in two opposing flows part around a carriage crossing the
@@ -46,7 +45,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership A unit test of the motions package on prepared polygon-man bodies, discovered by its exported name; courses only, no pose, no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the moving-carriage, replay, moved-frame and group course cases.
  */
-export function test_human_motion_crowd_parting(): void {
+export function test_motion_ensemble_crowd_parting(): void {
   const findings: string[] = [];
   const pool: IAutoMovieMotionHumanBody[] = [
     motionHumanBody("m-average"),
@@ -54,7 +53,7 @@ export function test_human_motion_crowd_parting(): void {
     motionHumanBody("m-tall"),
   ];
 
-  // The pass's span, derived from the law: the course at the slowest desired speed the population can draw (the walk's normal Froude speed at the shortest hip, the draw's floor `HumanCrowd.SLOWEST` and fatigue's heaviest factor), plus the driving term's start, one relaxation time, and its arrival, whose speed falls linearly within `ARRIVAL` relaxation times of travel and so closes on the goal exponentially, `tau ARRIVAL ln(near / radius)` to come within the agent's radius.
+  // The pass's span, derived from the law: the course at the slowest desired speed the population can draw (the walk's normal Froude speed at the shortest hip, the draw's floor `AutoMovieMotionHumanEnsemble.HumanCrowd.SLOWEST` and fatigue's heaviest factor), plus the driving term's start, one relaxation time, and its arrival, whose speed falls linearly within `ARRIVAL` relaxation times of travel and so closes on the goal exponentially, `tau ARRIVAL ln(near / radius)` to come within the agent's radius.
   const slowest: number =
     Math.min(
       ...pool.map((b: IAutoMovieMotionHumanBody): number =>
@@ -65,7 +64,7 @@ export function test_human_motion_crowd_parting(): void {
         ),
       ),
     ) *
-    HumanCrowd.SLOWEST *
+    AutoMovieMotionHumanEnsemble.HumanCrowd.SLOWEST *
     Math.min(
       AutoMovieMotionHumanEnsemble.HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace.low,
       AutoMovieMotionHumanEnsemble.HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace.high,
@@ -77,7 +76,7 @@ export function test_human_motion_crowd_parting(): void {
     tau +
     tau *
       steerAutoMovieCrowd.ARRIVAL *
-      Math.log(near / Math.min(...e.members.map(HumanCrowd.half)));
+      Math.log(near / Math.min(...e.members.map(AutoMovieMotionHumanEnsemble.HumanCrowd.half)));
   const scene = (dx: number, dz: number): IScene => {
     const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble =
       AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
@@ -118,7 +117,7 @@ export function test_human_motion_crowd_parting(): void {
         yaw: 90,
       }),
     };
-    const result: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(
+    const result: IAutoMovieMotionHumanCrowd.IResult = AutoMovieMotionHumanEnsemble.HumanCrowd.steer(
       ensemble,
       {
         goals: (
@@ -151,7 +150,7 @@ export function test_human_motion_crowd_parting(): void {
         at(f, t),
     );
     for (const [i, p] of points.entries()) {
-      const half: number = HumanCrowd.half(ensemble.members[i]!);
+      const half: number = AutoMovieMotionHumanEnsemble.HumanCrowd.half(ensemble.members[i]!);
 
       // The carriage faces +X: its 2.4 m runs along X, its 1.6 m along Z.
       const gap: number = Math.hypot(
@@ -167,7 +166,7 @@ export function test_human_motion_crowd_parting(): void {
       }
       for (let j: number = i + 1; j < points.length; ++j) {
         const d: number = Math.hypot(points[j]!.x - p.x, points[j]!.z - p.z);
-        const sum: number = half + HumanCrowd.half(ensemble.members[j]!);
+        const sum: number = half + AutoMovieMotionHumanEnsemble.HumanCrowd.half(ensemble.members[j]!);
         if (d < sum - 1e-6) {
           findings.push(
             `${ensemble.members[i]!.subject} and ${ensemble.members[j]!.subject} are ${d.toFixed(3)} m apart at ${t.toFixed(2)} s, within ${sum.toFixed(3)} m`,
@@ -223,7 +222,7 @@ export function test_human_motion_crowd_parting(): void {
       }),
     });
   const requested: number[] = [];
-  const groups: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(grouped, {
+  const groups: IAutoMovieMotionHumanCrowd.IResult = AutoMovieMotionHumanEnsemble.HumanCrowd.steer(grouped, {
     goals: (
       member: IAutoMovieMotionHumanEnsemble.IMember,
     ): IAutoMovieVector3 => {

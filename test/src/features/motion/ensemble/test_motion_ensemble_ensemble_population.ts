@@ -1,8 +1,8 @@
 import type { IAutoMovieMotionHumanEnsemble } from "@automovie/interface";
-import { HumanEnsemble, HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanEnsemble, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A population gives each actor a stable identifier and its own authored placement.
@@ -18,14 +18,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Compares zero, one, three and a second ensemble with another origin.
  * @evidence contracts/development/testing.md#execution-ownership Resolves member declarations using one local body without planning actions.
  */
-export function test_motion_catalogue_ensemble_population(): void {
+export function test_motion_ensemble_ensemble_population(): void {
   const body = motionHumanBody("m-average");
   const build = (
     id: string,
     count: number,
     origin: number,
   ): IAutoMovieMotionHumanEnsemble.IEnsemble =>
-    HumanEnsemble.of({
+    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
       id,
       count,
       seed: "members",

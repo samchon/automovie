@@ -39,9 +39,9 @@ import {
 } from "@automovie/motions";
 import * as THREE from "three";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose, vclose } from "../internal/predicates";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose, vclose } from "../../internal/predicates";
 
 /** The shared director cue for the first step. */
 const STEP_OFF: number = 2.1;
@@ -114,7 +114,7 @@ interface IRehearsal {
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts occupied and background slots, moving and grounded phases, bare and carried rehearsals, separately addressed and uncued actors, two cameras, repeated/reversed reads and a second seeded build. The ball-drift and sole bounds are the gait's floor-contact tolerances; the row spacing bound is the start mark's reading tolerance.
  * @evidence contracts/development/testing.md#execution-ownership Discoverable native test runs two seeded performances and observes their products in memory. The cameras project actual body positions; raster inspection is recorded separately.
  */
-export function test_human_motion_ground_ensemble_cues(): void {
+export function test_motion_ensemble_ground_ensemble_cues(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const variant of [
     "plain row",

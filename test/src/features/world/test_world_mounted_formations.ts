@@ -13,7 +13,7 @@ import type {
   IAutoMovieMotionHumanFormation,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFormation } from "@automovie/motions";
+import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
@@ -75,19 +75,26 @@ export function test_world_mounted_formations(): void {
       80,
     );
     const starts: IAutoMovieVector3[] = [0, 1, 2, 3].map(
-      (k: number): IAutoMovieVector3 => HumanFormation.slot(column, k, 0).at,
+      (k: number): IAutoMovieVector3 =>
+        AutoMovieMotionHumanEnsemble.HumanFormation.slot(column, k, 0).at,
     );
-    const onLine: number[] = HumanFormation.assign(line, starts, "nearest", 0);
-    const lined: IAutoMovieVector3[] = onLine.map(
-      (slot: number): IAutoMovieVector3 =>
-        HumanFormation.slot(line, slot, 0).at,
-    );
-    const onColumn: number[] = HumanFormation.assign(
-      rally,
-      lined,
+    const onLine: number[] = AutoMovieMotionHumanEnsemble.HumanFormation.assign(
+      line,
+      starts,
       "nearest",
       0,
     );
+    const lined: IAutoMovieVector3[] = onLine.map(
+      (slot: number): IAutoMovieVector3 =>
+        AutoMovieMotionHumanEnsemble.HumanFormation.slot(line, slot, 0).at,
+    );
+    const onColumn: number[] =
+      AutoMovieMotionHumanEnsemble.HumanFormation.assign(
+        rally,
+        lined,
+        "nearest",
+        0,
+      );
     return AutoMovieArchetypePassage.conflicts("deploy", {
       participants: starts.map(
         (
@@ -103,7 +110,14 @@ export function test_world_mounted_formations(): void {
             sample(14, lined[k]!),
             sample(15.5, point(lined[k]!.x, 33)),
             sample(17, point(lined[k]!.x, 36)),
-            sample(30, HumanFormation.slot(rally, onColumn[k]!, 0).at),
+            sample(
+              30,
+              AutoMovieMotionHumanEnsemble.HumanFormation.slot(
+                rally,
+                onColumn[k]!,
+                0,
+              ).at,
+            ),
           ]),
           footprint,
           margin: MARGIN,
@@ -384,7 +398,7 @@ function formation(
   layout: IAutoMovieFormationLayout,
   z: number,
 ): IAutoMovieMotionHumanFormation {
-  return HumanFormation.of({
+  return AutoMovieMotionHumanEnsemble.HumanFormation.of({
     blocks: [{ layout, count: 4 }],
     frame: { kind: "fixed", at: point(0, z), heading: 0 },
   });

@@ -22,7 +22,7 @@ import type {
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFormation } from "@automovie/motions";
+import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
@@ -165,21 +165,23 @@ export function test_world_mounted_passage(): void {
       );
 
   // 2. Formation identity from the entrance to the re-form.
-  const entry: IAutoMovieMotionHumanFormation = HumanFormation.of({
-    blocks: [{ layout: FILE, count: 2 }],
-    frame: course([sample(0, 0, 0), sample(4, 0, 6)]),
-  });
-  const reform: IAutoMovieMotionHumanFormation = HumanFormation.of({
-    blocks: [{ layout: FILE, count: 2 }],
-    frame: course([sample(23, 0, 35), sample(27, 0, 45)]),
-  });
-  const entered: number[] = HumanFormation.assign(
+  const entry: IAutoMovieMotionHumanFormation =
+    AutoMovieMotionHumanEnsemble.HumanFormation.of({
+      blocks: [{ layout: FILE, count: 2 }],
+      frame: course([sample(0, 0, 0), sample(4, 0, 6)]),
+    });
+  const reform: IAutoMovieMotionHumanFormation =
+    AutoMovieMotionHumanEnsemble.HumanFormation.of({
+      blocks: [{ layout: FILE, count: 2 }],
+      frame: course([sample(23, 0, 35), sample(27, 0, 45)]),
+    });
+  const entered: number[] = AutoMovieMotionHumanEnsemble.HumanFormation.assign(
     entry,
     [point(0.2, 0.3), point(-0.1, -4.8)],
     "nearest",
     0,
   );
-  const reformed: number[] = HumanFormation.assign(
+  const reformed: number[] = AutoMovieMotionHumanEnsemble.HumanFormation.assign(
     reform,
     [point(-4.5, 30), point(4.5, 30)],
     "order",
@@ -193,8 +195,16 @@ export function test_world_mounted_passage(): void {
   );
   TestValidator.predicate(
     "entrance and re-form ranks stand five metres apart, the lead ahead",
-    vclose(HumanFormation.slot(entry, 1, 0).at, point(0, -5), 1e-12) &&
-      vclose(HumanFormation.slot(reform, 1, 23).at, point(0, 30), 1e-12),
+    vclose(
+      AutoMovieMotionHumanEnsemble.HumanFormation.slot(entry, 1, 0).at,
+      point(0, -5),
+      1e-12,
+    ) &&
+      vclose(
+        AutoMovieMotionHumanEnsemble.HumanFormation.slot(reform, 1, 23).at,
+        point(0, 30),
+        1e-12,
+      ),
   );
 
   // 3. The admitted variants.
@@ -470,13 +480,8 @@ function pair(
   const side: number = slot === 0 ? -1 : 1;
   const lane: number = side * staging.lane;
   const split: number = side * staging.split;
-  const entrance: AutoMovieArchetypeCourse.ISample[] = HumanFormation.path(
-    entry,
-    slot,
-    0,
-    4,
-    2,
-  );
+  const entrance: AutoMovieArchetypeCourse.ISample[] =
+    AutoMovieMotionHumanEnsemble.HumanFormation.path(entry, slot, 0, 4, 2);
   const marks: AutoMovieArchetypeCourse.ISample[] =
     slot === 0
       ? [

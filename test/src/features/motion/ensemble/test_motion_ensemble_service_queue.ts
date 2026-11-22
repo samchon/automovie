@@ -10,15 +10,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanEnsemble,
+  AutoMovieMotionHumanEnsemble,
   HumanPerformance,
   HumanRefusal,
-  humanQueueAdvance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { vclose } from "../../internal/vclose";
 
 /**
  * Three people advance from uneven marks on one release, preserving order
@@ -38,7 +37,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Unequal gaps expose wrong slot selection. Shifted and identical cues distinguish clock translation from exact replay. A 1 cm exit, off-axis mark and reversed rank check distinct refusals.
  * @evidence contracts/development/testing.md#execution-ownership A motions feature test, discovered by its exported name, that builds a real performance on the prepared polygon-man bodies with no host.
  */
-export function test_human_motion_service_queue(): void {
+export function test_motion_ensemble_service_queue(): void {
   const marks: readonly number[] = [0, -1.1, -2.6];
   const wait: number = 0.25;
   const bodies: readonly IAutoMovieMotionHumanBody[] = [
@@ -46,16 +45,17 @@ export function test_human_motion_service_queue(): void {
     motionHumanBody("m-average"),
     motionHumanBody("m-tall"),
   ];
-  const drawn: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
-    id: "queue",
-    count: 3,
-    seed: "queue",
-    bodies,
-    places: (i: number): { at: IAutoMovieVector3; yaw: number } => ({
-      at: { x: 0, y: 0, z: marks[i]! },
-      yaw: 0,
-    }),
-  });
+  const drawn: IAutoMovieMotionHumanEnsemble.IEnsemble =
+    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+      id: "queue",
+      count: 3,
+      seed: "queue",
+      bodies,
+      places: (i: number): { at: IAutoMovieVector3; yaw: number } => ({
+        at: { x: 0, y: 0, z: marks[i]! },
+        yaw: 0,
+      }),
+    });
 
   // Give all three sizes a turn instead of relying on draws with replacement.
   const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble = {
@@ -76,16 +76,15 @@ export function test_human_motion_service_queue(): void {
     wait,
   };
 
-  const composition: IAutoMovieComposition = humanQueueAdvance(
-    ensemble,
-    request,
-  );
+  const composition: IAutoMovieComposition =
+    AutoMovieMotionHumanEnsemble.humanQueueAdvance(ensemble, request);
 
   /** Build the same performance at the supplied release second. */
   const build = (release: number): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "queue",
-      performers: HumanEnsemble.performers(ensemble),
+      performers:
+        AutoMovieMotionHumanEnsemble.HumanEnsemble.performers(ensemble),
       cues: { counter: [{ name: "release", seconds: release }] },
       composition,
     });
@@ -229,7 +228,10 @@ export function test_human_motion_service_queue(): void {
 
   let refusal: unknown;
   try {
-    humanQueueAdvance(ensemble, { ...request, exit: { x: 0, y: 0, z: 0.01 } });
+    AutoMovieMotionHumanEnsemble.humanQueueAdvance(ensemble, {
+      ...request,
+      exit: { x: 0, y: 0, z: 0.01 },
+    });
   } catch (error) {
     refusal = error;
   }
@@ -256,7 +258,7 @@ export function test_human_motion_service_queue(): void {
     };
     let placementRefusal: unknown;
     try {
-      humanQueueAdvance(invalid, request);
+      AutoMovieMotionHumanEnsemble.humanQueueAdvance(invalid, request);
     } catch (error) {
       placementRefusal = error;
     }

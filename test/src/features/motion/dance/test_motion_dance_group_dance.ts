@@ -14,8 +14,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** How many dance in each group: the issue's eight. */
 const MEMBERS: number = 8;
@@ -50,7 +50,7 @@ const JOINED: number = 0.04;
  * @evidence contracts/development/testing.md#distinguishing-cases Three dances, eight members, two bodies, eight seeds.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture.
  */
-export function test_motion_exercise_group_dance(): void {
+export function test_motion_dance_group_dance(): void {
   const period: number = 60 / BPM;
 
   // 1. Line dance: two rows of four, two repeats.

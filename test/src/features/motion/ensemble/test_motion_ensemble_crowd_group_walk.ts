@@ -14,9 +14,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
 
 /**
  * Four named walkers follow one authored social-group course through a bend.
@@ -33,7 +33,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Four separate walking laws share a moving frame with authored heading changes, with off-grid, reverse and repeated reads.
  * @evidence contracts/development/testing.md#execution-ownership Uses prepared polygon-man bodies and the public performance. It starts no viewer or renderer.
  */
-export function test_human_motion_crowd_group_walk(): void {
+export function test_motion_ensemble_crowd_group_walk(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const half: number =
     body.measure.shoulderHalfWidth + body.measure.upperArmRadius;

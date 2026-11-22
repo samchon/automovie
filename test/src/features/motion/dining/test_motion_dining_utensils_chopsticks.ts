@@ -14,9 +14,9 @@ import type {
 } from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 
-import { diningTable } from "../internal/diningTable";
-import { everydayTake } from "../internal/everydayTake";
-import { motionComplaints } from "../internal/motionComplaints";
+import { diningTable } from "../../internal/diningTable";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 
 /**
  * Chopsticks seated at a table (#4005), right-handed on m-average and
@@ -34,7 +34,7 @@ import { motionComplaints } from "../internal/motionComplaints";
  * @evidence contracts/development/testing.md#distinguishing-cases Right- against left-handed diners, the pinching against the holding hand.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_dining_utensils_chopsticks(): void {
+export function test_motion_dining_utensils_chopsticks(): void {
   diningTable.run("chopsticks", diningChopsticks);
 }
 
@@ -86,24 +86,24 @@ function diningChopsticks(
         [0, -0.01],
         [0, 0],
       ],
-      seconds: 0.3,
-      side,
+      duration: 0.3,
+      hand: side,
     })
     .registered("workHeld", {
       prop: "sticks",
-      side,
+      hand: side,
       drive: [{ articulation: "pinch", to: 12 }],
       take: { prop: "morsel", point: "tips" },
-      seconds: 0.3,
+      duration: 0.3,
     })
     .pickUp({ prop: "bowl", handle: "body", hand: other, lift: 0.05 })
     .registered("workHeld", {
       prop: "bowl",
-      side: other,
+      hand: other,
       at: { out: 0.2, up: chin - 0.15, forward: 0.3, level: true },
-      seconds: 0.5,
+      duration: 0.5,
     })
-    .registered("eatWith", { held: "sticks", point: "tips", side });
+    .registered("eatWith", { held: "sticks", point: "tips", hand: side });
   const take: HumanPerformance = diningTable.play(
     `${label} chopsticks`,
     body,

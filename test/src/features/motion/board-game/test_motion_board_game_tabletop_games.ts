@@ -21,17 +21,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBoardGame,
   HUMAN_LEXICON,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanTabletop,
 } from "@automovie/motions";
 
-import { everydayTake } from "../internal/everydayTake";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** A placed prop lands within this of its target, metres. */
 const LAND: number = 0.005;
@@ -68,12 +68,12 @@ const UP: IAutoMovieQuaternion = { x: 0, y: 0, z: 1, w: 0 };
  * Every take passes the shipped verdicts, and no displayed prop jumps.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each scenario, the bodies, the refusals and the identity checks.
- * @evidence contracts/development/testing.md#behavioral-verification Composes HumanTabletop over seated takes and reads displayed props, hands and board squares.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes AutoMovieMotionHumanBoardGame.HumanTabletop over seated takes and reads displayed props, hands and board squares.
  * @evidence contracts/development/testing.md#independent-expectations Targets are the archetypes' own squares and authored seat points; tolerances are named.
  * @evidence contracts/development/testing.md#distinguishing-cases Move against capture, free against occupied square, reachable against distant seat, face down against face up.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_tabletop_games(): void {
+export function test_motion_board_game_tabletop_games(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
@@ -187,22 +187,23 @@ function chess(
     everydayTake.prop("wp", white, square("e2")),
     everydayTake.prop("bp", black, square("d3")),
   ];
-  const chain: IAutoMovieMotionHumanChain = HumanTabletop.chessMove(
-    HumanTabletop.chessMove(seated(s), {
-      board: "board",
-      piece: "wp",
-      to: "e3",
-      occupancy: { e2: "wp", d3: "bp" },
-    }),
-    {
-      board: "board",
-      piece: "wp",
-      to: "d3",
-      occupancy: { e3: "wp", d3: "bp" },
-      capture: "bp",
-      aside,
-    },
-  );
+  const chain: IAutoMovieMotionHumanChain =
+    AutoMovieMotionHumanBoardGame.HumanTabletop.chessMove(
+      AutoMovieMotionHumanBoardGame.HumanTabletop.chessMove(seated(s), {
+        board: "board",
+        piece: "wp",
+        to: "e3",
+        occupancy: { e2: "wp", d3: "bp" },
+      }),
+      {
+        board: "board",
+        piece: "wp",
+        to: "d3",
+        occupancy: { e3: "wp", d3: "bp" },
+        capture: "bp",
+        aside,
+      },
+    );
   const take: HumanPerformance = play(
     body,
     label,
@@ -253,7 +254,7 @@ function chess(
   // A refusal is checked once, on the first body.
   if (label.startsWith("m-average")) {
     const occupied: HumanRefusal | undefined = everydayTake.refusal(() =>
-      HumanTabletop.chessMove(seated(s), {
+      AutoMovieMotionHumanBoardGame.HumanTabletop.chessMove(seated(s), {
         board: "board",
         piece: "wp",
         to: "d3",
@@ -315,15 +316,16 @@ function cards(
     ...packets,
   ];
   const squared: IAutoMovieVector3 = onTable(s, 0, 0.05);
-  let chain: IAutoMovieMotionHumanChain = HumanTabletop.deal(seated(s), {
-    cards: dealt,
-    seats,
-  });
-  chain = HumanTabletop.lay(chain, {
+  let chain: IAutoMovieMotionHumanChain =
+    AutoMovieMotionHumanBoardGame.HumanTabletop.deal(seated(s), {
+      cards: dealt,
+      seats,
+    });
+  chain = AutoMovieMotionHumanBoardGame.HumanTabletop.lay(chain, {
     cards: ["c2"],
     places: [{ at: { ...seats[1]!, z: seats[1]!.z - 0.1 }, rotation: UP }],
   });
-  chain = HumanTabletop.shuffle(chain, {
+  chain = AutoMovieMotionHumanBoardGame.HumanTabletop.shuffle(chain, {
     left: "l0",
     leftTop: "l1",
     right: "r0",
@@ -396,7 +398,7 @@ function cards(
         `tabletop-${label}-far`,
         body,
         props,
-        HumanTabletop.deal(seated(s), {
+        AutoMovieMotionHumanBoardGame.HumanTabletop.deal(seated(s), {
           cards: ["c3"],
           seats: [onTable(s, 0, 1.2)],
         }),
@@ -450,18 +452,22 @@ function tokens(
     }),
     everydayTake.prop("die", createDie({ id: "die" }), onTable(s, -0.18, 0.05)),
   ];
-  let chain: IAutoMovieMotionHumanChain = HumanTabletop.push(seated(s), {
-    stack: "k0",
-    to: pot,
-  });
-  chain = HumanTabletop.lay(chain, {
+  let chain: IAutoMovieMotionHumanChain =
+    AutoMovieMotionHumanBoardGame.HumanTabletop.push(seated(s), {
+      stack: "k0",
+      to: pot,
+    });
+  chain = AutoMovieMotionHumanBoardGame.HumanTabletop.lay(chain, {
     cards: ["n1", "n0"],
     places: [
       { at: pile, rotation: DOWN },
       { at: { ...pile, y: pile.y + note }, rotation: DOWN },
     ],
   });
-  chain = HumanTabletop.roll(chain, { die: "die", to: roll });
+  chain = AutoMovieMotionHumanBoardGame.HumanTabletop.roll(chain, {
+    die: "die",
+    to: roll,
+  });
   const take: HumanPerformance = play(
     body,
     label,

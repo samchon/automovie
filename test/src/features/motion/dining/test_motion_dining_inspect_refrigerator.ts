@@ -8,16 +8,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDining,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  inspectRefrigerator,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A person opens the refrigerator compartment and looks at the chosen shelf.
@@ -37,7 +37,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership One in-memory performance and one refused setup through the discovered feature entry.
  * @evidence contracts/development/common.md#meaningful-documentation States the interaction, the sampled moments and the bounds.
  */
-export function test_human_motion_inspect_refrigerator(): void {
+export function test_motion_dining_inspect_refrigerator(): void {
   const pullHeight: number = 1.18;
   const fridge: ReturnType<typeof createAppliance> = createAppliance({
     kind: "refrigerator",
@@ -49,10 +49,12 @@ export function test_human_motion_inspect_refrigerator(): void {
   const shelf: IAutoMovieVector3 =
     fridge.affordance("shelf3").frame.translation;
   const swing: number = 30;
-  const chain: IAutoMovieMotionHumanChain = inspectRefrigerator(
-    HumanChain.subject("cook"),
-    { refrigerator: "fridge", shelf: 3, swing },
-  );
+  const chain: IAutoMovieMotionHumanChain =
+    AutoMovieMotionHumanDining.inspectRefrigerator(HumanChain.subject("cook"), {
+      refrigerator: "fridge",
+      shelf: 3,
+      swing,
+    });
   /** Stage the same beat at the authored distance or further back. */
   const stage = (back: number): HumanPerformance =>
     new HumanPerformance({
@@ -165,7 +167,7 @@ export function test_human_motion_inspect_refrigerator(): void {
 
   refusal = undefined;
   try {
-    inspectRefrigerator(HumanChain.subject("cook"), {
+    AutoMovieMotionHumanDining.inspectRefrigerator(HumanChain.subject("cook"), {
       refrigerator: "fridge",
       shelf: 3,
       swing: 0,

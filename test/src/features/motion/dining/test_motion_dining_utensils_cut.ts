@@ -20,9 +20,9 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 
-import { diningTable } from "../internal/diningTable";
-import { everydayTake } from "../internal/everydayTake";
-import { motionComplaints } from "../internal/motionComplaints";
+import { diningTable } from "../../internal/diningTable";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 
 /**
  * Knife and fork, continental, seated at a table (#4005), right-handed on
@@ -42,7 +42,7 @@ import { motionComplaints } from "../internal/motionComplaints";
  * @evidence contracts/development/testing.md#distinguishing-cases Right- against left-handed diners, the saw against the take, a plate within against beyond reach.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_dining_utensils_cut(): void {
+export function test_motion_dining_utensils_cut(): void {
   diningTable.run("knife and fork", diningCut);
 }
 
@@ -95,8 +95,8 @@ function diningCut(
         [edge, -0.03],
         [edge, 0.03],
       ],
-      seconds: 1.2,
-      side,
+      duration: 1.2,
+      hand: side,
       // The fork pins a hand's breadth from the knife.
       steady: {
         tool: "fork",
@@ -113,11 +113,11 @@ function diningCut(
         [edge - sign * 0.004, 0],
         [edge, 0],
       ],
-      seconds: 0.3,
-      side: other,
+      duration: 0.3,
+      hand: other,
       take: { prop: "piece", point: "face" },
     })
-    .registered("eatWith", { held: "fork", point: "face", side: other });
+    .registered("eatWith", { held: "fork", point: "face", hand: other });
   const take: HumanPerformance = diningTable.play(
     `${label} cut`,
     body,
@@ -225,8 +225,8 @@ function diningCut(
               [0, -0.03],
               [0, 0.03],
             ],
-            seconds: 0.5,
-            side,
+            duration: 0.5,
+            hand: side,
           }),
         Object.values(HUMAN_LEXICON).flat(),
       ),

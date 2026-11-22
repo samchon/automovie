@@ -18,8 +18,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The tempo, beats per minute. */
 const BPM: number = 120;
@@ -45,7 +45,7 @@ const BPM: number = 120;
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, two grooves and two seeds.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture.
  */
-export function test_motion_exercise_street_dance(): void {
+export function test_motion_dance_street_dance(): void {
   const period: number = 60 / BPM;
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);

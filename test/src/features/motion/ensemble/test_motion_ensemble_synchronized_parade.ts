@@ -8,15 +8,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanEnsemble,
   HUMAN_LEXICON,
   HumanCue,
-  HumanEnsemble,
-  HumanFormation,
   HumanPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Six unarmed marchers of mixed stature travel in two ranks to a shared beat.
@@ -36,50 +35,52 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Two ranks, three files and two statures share one course and beat track. The cadence and ensemble formation tests already exercise those axes separately.
  * @evidence contracts/development/testing.md#execution-ownership A motions unit test discovered by its exported name, using prepared polygon-man bodies and the public performance sampler.
  */
-export function test_human_motion_scene_synchronized_parade(): void {
+export function test_motion_ensemble_synchronized_parade(): void {
   const bpm: number = 100;
   const period: number = 60 / bpm;
   const bodies: IAutoMovieMotionHumanBody[] = [
     motionHumanBody("m-average"),
     motionHumanBody("f-small"),
   ];
-  const formation: IAutoMovieMotionHumanFormation = HumanFormation.of({
-    blocks: [
-      {
-        layout: {
-          kind: "line",
-          ranks: 2,
-          files: 3,
-          spacing: { lateral: 0.8, depth: 1 },
+  const formation: IAutoMovieMotionHumanFormation =
+    AutoMovieMotionHumanEnsemble.HumanFormation.of({
+      blocks: [
+        {
+          layout: {
+            kind: "line",
+            ranks: 2,
+            files: 3,
+            spacing: { lateral: 0.8, depth: 1 },
+          },
+          count: 6,
         },
-        count: 6,
-      },
-    ],
-    frame: {
-      kind: "course",
-      samples: [
-        { seconds: 0, x: 0, y: 0, z: 0 },
-        { seconds: 2.4, x: 0, y: 0, z: 1.8 },
-        { seconds: 4.8, x: 0, y: 0, z: 4.5 },
-        { seconds: 7.2, x: 0, y: 0, z: 6.3 },
-        { seconds: 9.6, x: 0, y: 0, z: 9.6 },
       ],
-    },
-  });
-  const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
-    id: "parade",
-    seed: "parade",
-    count: 6,
-    bodies,
-    attributes: { discipline: { mean: 1, spread: 0 } },
-    formation,
-  });
+      frame: {
+        kind: "course",
+        samples: [
+          { seconds: 0, x: 0, y: 0, z: 0 },
+          { seconds: 2.4, x: 0, y: 0, z: 1.8 },
+          { seconds: 4.8, x: 0, y: 0, z: 4.5 },
+          { seconds: 7.2, x: 0, y: 0, z: 6.3 },
+          { seconds: 9.6, x: 0, y: 0, z: 9.6 },
+        ],
+      },
+    });
+  const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble =
+    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+      id: "parade",
+      seed: "parade",
+      count: 6,
+      bodies,
+      attributes: { discipline: { mean: 1, spread: 0 } },
+      formation,
+    });
   const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "parade",
     laws: [...HUMAN_LEXICON.gait!],
-    performers: HumanEnsemble.performers(ensemble),
+    performers: AutoMovieMotionHumanEnsemble.HumanEnsemble.performers(ensemble),
     cues: { drum: HumanCue.beats({ bpm, count: 24, from: 0 }) },
-    composition: HumanEnsemble.chains(
+    composition: AutoMovieMotionHumanEnsemble.HumanEnsemble.chains(
       ensemble,
       (
         member: IAutoMovieMotionHumanEnsemble.IMember,

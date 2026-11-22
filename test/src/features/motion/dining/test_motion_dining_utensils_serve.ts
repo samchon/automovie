@@ -10,9 +10,9 @@ import type {
 } from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 
-import { diningTable } from "../internal/diningTable";
-import { everydayTake } from "../internal/everydayTake";
-import { motionComplaints } from "../internal/motionComplaints";
+import { diningTable } from "../../internal/diningTable";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 
 /**
  * Serving seated at a table (#4005), right-handed on m-average and
@@ -29,7 +29,7 @@ import { motionComplaints } from "../internal/motionComplaints";
  * @evidence contracts/development/testing.md#distinguishing-cases Right- against left-handed diners, the scoop against the placing.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_dining_utensils_serve(): void {
+export function test_motion_dining_utensils_serve(): void {
   diningTable.run("serving", diningServe);
 }
 
@@ -84,8 +84,8 @@ function diningServe(
         [0, -0.02],
         [0, 0],
       ],
-      seconds: 0.4,
-      side,
+      duration: 0.4,
+      hand: side,
       take: { prop: "serving", point: "face" },
     })
     .registered("write", {
@@ -97,8 +97,8 @@ function diningServe(
         [0, 0],
         [0, 0.02],
       ],
-      seconds: 0.4,
-      side,
+      duration: 0.4,
+      hand: side,
       leave: { prop: "serving", point: "pick" },
     });
   const take: HumanPerformance = diningTable.play(

@@ -14,7 +14,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A walking partner dance, lead and follow (`HumanPartner`'s dance rows):
@@ -48,7 +48,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one two-person performance; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 4 scenarios with their bounds.
  */
-export function test_motion_posture_paired_dance(): void {
+export function test_motion_dance_paired_dance(): void {
   const lead: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const follow: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const complaints: string[] = [];
