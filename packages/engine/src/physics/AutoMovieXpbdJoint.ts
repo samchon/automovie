@@ -61,7 +61,15 @@ export class AutoMovieXpbdJoint {
   /**
    * The anchor frame on the parent, in the parent's body frame.
    *
-   * @returns The frame.
+   * @returns The profile joint's own record, not a copy; metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, unit and that the record is shared.
+   * @evidence contracts/development/implementation.md#principled-implementation The anchor frame is fixed by the profile joint for the joint's lifetime.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One field read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A read of fixed state; nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the joint's record; retains nothing new.
    */
   public parentFrame(): IAutoMovieRigidTransform {
     return this.joint.parentFrame;
@@ -70,7 +78,15 @@ export class AutoMovieXpbdJoint {
   /**
    * The anchor frame on the child, in the child's body frame.
    *
-   * @returns The frame.
+   * @returns The profile joint's own record, not a copy; metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, unit and that the record is shared.
+   * @evidence contracts/development/implementation.md#principled-implementation The anchor frame is fixed by the profile joint for the joint's lifetime.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One field read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A read of fixed state; nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the joint's record; retains nothing new.
    */
   public childFrame(): IAutoMovieRigidTransform {
     return this.joint.childFrame;

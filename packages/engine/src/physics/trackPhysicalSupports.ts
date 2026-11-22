@@ -199,7 +199,18 @@ export function trackPhysicalSupports(
   }
 }
 
-/** Companion types of {@link trackPhysicalSupports}. */
+/**
+ * The input {@link trackPhysicalSupports} reads for one body and one
+ * substep. Each optional member widens the default: without a recovery
+ * bone every limb may get force, without an actuation map forces act on
+ * the carriers, without constrained limbs no stance yields and without a
+ * dynamic set every bone may get an endpoint force.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents each member with its unit and frame, and each optional member's absent meaning.
+ * @evidence contracts/development/design.md#principled-representation The interface's body and target records, world goals by bone, the binding's segment bodies, seconds, metres and newton metres.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Built by trackPhysicalWorld, which owns every member's source: the recovery state, the actuation map, the collected supports and the solver-owned bones.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional members are independent refinements, each with a stated absent meaning, so no combination is meaningless; no any, unknown or cast.
+ */
 export namespace trackPhysicalSupports {
   /** What one support-tracking substep needs. */
   export interface IInput {

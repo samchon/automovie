@@ -172,7 +172,15 @@ export function collectPhysicalSupports(
   );
 }
 
-/** Companion types of {@link collectPhysicalSupports}. */
+/**
+ * The input {@link collectPhysicalSupports} reads: one body's limbs against
+ * the world's last step and the run's compliant receipts at one local time.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents each input member with its owner, frame, unit and timebase.
+ * @evidence contracts/development/design.md#principled-representation The world and segment bodies as the binding built them, scene identities as strings, receipts as the interface records, local seconds and the solver substep in seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Built by trackPhysicalWorld and advancePhysicalBalance; every member is read, the substep widening the receipt window by one step.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member, any, unknown or cast; the profile, pattern and receipts are the interface's own types.
+ */
 export namespace collectPhysicalSupports {
   /** What one support reading needs. */
   export interface IInput {
