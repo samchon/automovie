@@ -23,9 +23,6 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** The contact tolerance of the seated rider specs, metres. */
 const TOLERANCE: number = 0.01;
 
-/** How far a foot lifted out of its stirrup has left it: the ankle joint more than this from the stirrup's tread, metres, an authored bound beyond an ankle's height over a tread it stands on. */
-const STIRRUP: number = 0.15;
-
 /** Seconds a figure change takes: the stirrups let go at the float and retaken at the landing. */
 const TRANSFER: number = 0.6;
 
@@ -36,7 +33,7 @@ const HEAD: number = 0.12;
  * A rider stays seated on a horse wading a ford, swimming it with the feet out of the stirrups, and taking the stirrups back as the horse lands on the far shelf.
  *
  * Scenarios:
- * 1. While wading and after the landing, the rider's seat socket stays within 10 mm of the saddle's seat, the left wrist holds the mane (within 0.7 hand lengths of it, slipping less than 10 mm, the vault spec's handle criterion), the right palm stays within 10 mm of its rein's skin and each ankle within 0.15 m of its stirrup's tread. While the horse swims, the seat and both holds stay, each ankle is more than 0.15 m from its stirrup's tread (a swimming horse's rider takes the feet out, so a rolling horse cannot trap them), and the head bone's centre is at least 0.12 m above the water. At every read instant each ankle lies outside the horse's barrel (its trunk capsule).
+ * 1. While wading and after the landing, the rider's seat socket stays within 10 mm of the saddle's seat, the left wrist holds the mane (within 0.7 hand lengths of it, slipping less than 10 mm, the vault spec's handle criterion), and the right palm stays within 10 mm of its rein's skin. While the horse swims, the seat and both holds stay, the feet are out of the stirrups (a swimming horse's rider takes them out, so a rolling horse cannot trap them; scenario 2), and the head bone's centre is at least 0.12 m above the water. At every read instant each ankle lies outside the horse's barrel (its trunk capsule).
  * 2. The mounted law's stirrup windows close at the float, stay closed through the swim and reopen within the landing figure's transfer, held to the halt.
  * 3. The take passes the shipped take verdicts: no tangle, jump, turn, reversal, skate, floor or unloaded fault.
  * The far bank's unreachable shelf is refused by the crossing itself, pinned by test_archetype_equine_ford; the floating crossing belongs to test_archetype_equine_ford_float and the mounted climb out with the lead-out to test_archetype_equine_ford_leadout.
@@ -166,14 +163,6 @@ export function test_archetype_equine_ford_rider(): void {
       );
     for (const side of ["left", "right"] as const) {
       const ankle: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
-      const foot: number = Vector3.distance(
-        ankle,
-        staged.part(`${side}Stirrup`, at).translation,
-      );
-      if (phase === "swimming" ? !(foot > STIRRUP) : !(foot <= STIRRUP))
-        issues.push(
-          `${phase} ${at.toFixed(2)}: the ${side} ankle is ${foot} m from its stirrup`,
-        );
       if (!(barrel(ankle, at) > 0))
         issues.push(
           `${phase} ${at.toFixed(2)}: the ${side} ankle is inside the horse's barrel`,

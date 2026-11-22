@@ -6,6 +6,7 @@ import type {
 
 import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
 import { EquineBank } from "./EquineBank";
+import { EquineEdge } from "./EquineEdge";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
 import { EquineScramble } from "./EquineScramble";
@@ -120,6 +121,10 @@ export namespace EquineFootwork {
     readonly bank: readonly EquineBank.IWindow[];
     /** Admitted scrambles up steep banks, in leg order. */
     readonly scramble: readonly EquineScramble.IWindow[];
+    /** The bank faces' edges, whose crossing pitches the trunk along its support. */
+    readonly edges: readonly EquineEdge.IEdge[];
+    /** The root's course distance at a film second. */
+    readonly distance: (second: number) => number;
   }
 
   /**
@@ -156,6 +161,7 @@ export namespace EquineFootwork {
     const lateral: EquineLateral.IWindow[] = [];
     const bank: EquineBank.IWindow[] = [];
     const scramble: EquineScramble.IWindow[] = [];
+    const edges: EquineEdge.IEdge[] = [];
     const cues: IInstant[] = [];
     let jump: EquineJump.IRequest | undefined;
     let slide: ISlide | undefined;
@@ -222,6 +228,7 @@ export namespace EquineFootwork {
           hooves.leftHind.z,
         );
         bank.push(window);
+        edges.push(...EquineEdge.of(course.legs, index, plan, hooves));
         cues.push(
           { seconds: window.from, label: "bankSlideStart" },
           { seconds: window.from + window.entry, label: "bankSlideSat" },
@@ -242,6 +249,7 @@ export namespace EquineFootwork {
           reach,
         );
         scramble.push(window);
+        edges.push(...EquineEdge.of(course.legs, index, plan, hooves));
         cues.push(
           { seconds: window.from, label: "bankScrambleStart" },
           ...window.bounds.slice(1, -1).map(
@@ -317,6 +325,8 @@ export namespace EquineFootwork {
       lateral,
       bank,
       scramble,
+      edges,
+      distance: (second: number): number => plan.at(second).distance,
       ...(jump === undefined ? {} : { jump }),
     };
 
@@ -401,7 +411,7 @@ export namespace EquineFootwork {
   }
 
   /**
-   * The trunk's pitch a technique adds at a film second, degrees, positive nose-down: a bank slide sits the horse back on its haunches by `EquineBank.SIT`.
+   * The trunk's pitch a technique adds at a film second, degrees, positive nose-down: a bank slide sits the horse back on its haunches by `EquineBank.SIT`, and a bank face's edges pitch the trunk along its support as it crosses them (`EquineEdge`).
    *
    * @param plan The admitted technique plan.
    * @param second The film second.
@@ -416,7 +426,12 @@ export namespace EquineFootwork {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function sit(plan: IPlan, second: number): number {
-    return -EquineBank.SIT * EquineBank.share(plan.bank, second);
+    return (
+      -EquineBank.SIT * EquineBank.share(plan.bank, second) +
+      (plan.edges.length === 0
+        ? 0
+        : EquineEdge.pitch(plan.edges, plan.distance(second)))
+    );
   }
 
   /**
