@@ -37,7 +37,17 @@ export namespace courseLimbSwivels {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /** The plan's posture, with its goals, at a second since the plan's start. */
+    /**
+     * The plan's posture, with its goals, at a second since the plan's start.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the member gives and at which second.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; the caller of `swivels`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; the caller of `swivels`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; the caller of `swivels`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; the caller of `swivels`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the caller of `swivels`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the caller of `swivels`, which implements it, carries this claim.
+     */
     posture(seconds: number): IAutoMovieMotionHumanPosture;
 
     /** The limbs whose swivels are coursed. */
@@ -94,7 +104,14 @@ export namespace courseLimbSwivels {
     }
   }
 
-  /** Each coursed limb's swivel and branch at a second. */
+  /**
+   * Each coursed limb's swivel and branch at a second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the reader gives at a second.
+   * @evidence contracts/development/design.md#principled-representation The resolver's own seeds, keyed by limb.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The one reader `swivels` returns.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No goal is returned; the goals stay the display's own.
+   */
   export type Swivels = (
     seconds: number,
   ) => ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;

@@ -66,8 +66,18 @@ export namespace AutoMovieMotionHumanArmReach {
     /** The world axis the law leaves the turn about free, unit or not. */
     axis: IAutoMovieVector3;
 
-    /** The wrist's place for a candidate attitude, world metres (a held prop's offset turns with the hand). */
-    wrist: (rotation: IAutoMovieQuaternion) => IAutoMovieVector3;
+    /**
+     * The wrist's place for a candidate attitude, world metres (a held prop's offset turns with the hand).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the member gives, its frame and unit, and why it reads the attitude.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; the caller of `attitude`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; the caller of `attitude`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; the caller of `attitude`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; the caller of `attitude`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the caller of `attitude`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the caller of `attitude`, which implements it, carries this claim.
+     */
+    wrist:(rotation: IAutoMovieQuaternion) => IAutoMovieVector3;
 
     /** What the refusal names as the action's axis. */
     name: string;

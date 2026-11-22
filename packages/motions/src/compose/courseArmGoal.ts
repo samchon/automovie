@@ -234,7 +234,14 @@ export function courseArmGoal(
   return coursed;
 }
 
-/** Companion types of `courseArmGoal`. */
+/**
+ * Companion types, records and readers of `courseArmGoal`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit: the law plan a coursed plan's goal is read from, the arm and course records, the last read posture, the written bones and the borrowed readers.
+ * @evidence contracts/development/design.md#principled-representation An arm's task and the course in the carry's own terms, by `Pick`; the goal stays the law plan's, held weakly by its coursed plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the course and its readers use; `IRead` is written and read only by `courseArmGoal`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional members are the carry's own, not restated; a posture read with other readers is never reused, and a copied coursed plan reads as itself.
+ */
 export namespace courseArmGoal {
   /** Each coursed plan's law plan, whose posture still writes the arm's goal (`goals`). */
   export const SOURCES: WeakMap<
@@ -250,14 +257,6 @@ export namespace courseArmGoal {
    *
    * @param plan A plan, coursed or not.
    * @returns The plan that writes the goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is returned for either kind of plan and who reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation The goal is the law's; the course only places the arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A copied coursed plan is not registered and reads as itself.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure lookup.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The map holds plans weakly.
    */
   export function goals(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -268,11 +267,6 @@ export namespace courseArmGoal {
   /**
    * One arm a course lays: its side, its rest, its span and the carry's own
    * per-arm members.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation An arm's task in the carry's own terms, by `Pick`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what each carry reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional members are the carry's own, not restated.
    */
   export interface IArm extends Partial<
     Pick<
@@ -292,11 +286,6 @@ export namespace courseArmGoal {
 
   /**
    * A plan whose arm goals are to be planned as one course.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The law's plan, its first arm and the four instants of its course, the arms laid with it, and the carry's own group members by `Pick`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the course reads; the goals and the weights come from the plan and the spans.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional members are the carry's own, not restated.
    */
   export interface IProps
     extends
@@ -344,11 +333,6 @@ export namespace courseArmGoal {
   }
   /**
    * The last posture of the plan read, and what it was read with.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is kept.
-   * @evidence contracts/development/design.md#principled-representation The posture with the second and borrowed readers that identify it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read only by `courseArmGoal`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The readers are compared by identity, so a posture read with other readers is never reused.
    */
   export interface IRead {
     /** Seconds since the plan's start. */
@@ -375,14 +359,6 @@ export namespace courseArmGoal {
    *
    * @param side The arm.
    * @returns The upper arm, the forearm and the hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bones and why they are listed.
-   * @evidence contracts/development/implementation.md#principled-implementation The three joints a carried arm writes (`AutoMovieMotionHumanArmCarry`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One literal.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No input is judged.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bones(side: AutoMovieHumanSide): readonly Bone[] {
     return [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`];

@@ -138,7 +138,14 @@ export function fitClearArmPose(
   }
 }
 
-/** Companion types and constants of `fitClearArmPose`. */
+/**
+ * Companion types and constants of `fitClearArmPose`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit: the hold's span, the request, the reach and the two verdicts.
+ * @evidence contracts/development/design.md#principled-representation The verdict is a union discriminated by `clear`, the refusal the planner's own; the hold's span is one frame of the planner's 120 Hz grid.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the judgement reads and returns.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The grasp is the carry's own member type, not restated.
+ */
 export namespace fitClearArmPose {
   /**
    * The hold's span, seconds: one frame of the 120 Hz grid the planner
