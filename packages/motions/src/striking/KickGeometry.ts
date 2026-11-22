@@ -306,8 +306,24 @@ export namespace KickGeometry {
           (recovery?.landings[timing.side] === undefined && t <= timing.prep) ||
           t >= timing.duration - 1e-9;
         const rise: number = recovery?.rise(timing.side, t, timing.prep) ?? 0;
+        const toes: readonly [number, number, number] | undefined =
+          held.leg.toes === undefined
+            ? undefined
+            : (held.body.joints[`${timing.side}Toes`] ?? [0, 0, 0]);
         return {
           ...held.body,
+          ...(toes === undefined
+            ? {}
+            : {
+                joints: {
+                  ...held.body.joints,
+                  [`${timing.side}Toes`]: [
+                    toes[0] + held.leg.toes!,
+                    toes[1],
+                    toes[2],
+                  ],
+                },
+              }),
           limbs: {
             ...held.body.limbs,
             ...(arms ? guardAt(held.body, resolution, projection) : {}),
