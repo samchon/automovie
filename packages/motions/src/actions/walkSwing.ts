@@ -46,7 +46,7 @@ interface IArrival {
  */
 export function walkSwing(
   body: IAutoMovieMotionHumanBody,
-  gait: Pick<IAutoMovieMotionHumanWalkGait, "lift" | "stiff" | "swing">,
+  gait: Pick<IAutoMovieMotionHumanWalkGait, "lift" | "stiff" | "swing" | "toeClearance">,
   at: (side: "left" | "right", seconds: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => walkFoot.IEnd,
   closing: (side: "left" | "right", on: number) => boolean = (): boolean => false,
 ): (
