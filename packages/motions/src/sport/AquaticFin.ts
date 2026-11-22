@@ -36,6 +36,9 @@ const BREATH: number = 30;
 
 /** Seconds of the pike, the legs' lift and the bottom turn of a duck dive: provisional. */
 const PIKE: number = 0.8;
+
+/** Seconds a flutter kick takes to grow in from still legs: provisional, half a kick. */
+const KICK_IN: number = 0.4;
 const LIFT: number = 0.6;
 const TURN: number = 1;
 
@@ -103,13 +106,39 @@ export namespace AquaticFin {
       area *
       (2 * Math.PI * KICK * HEAVE) ** 2;
     const speed: number = Math.sqrt(thrust / resistance);
-    const kick = (
+    // The flutter kick laid over a key's legs, at a share `k` of its
+    // stroke, so a kick that starts from still legs grows in without a jump.
+    const kick: (
       posture: IAutoMovieMotionHumanPosture,
       t: number,
-    ): IAutoMovieMotionHumanPosture => ({
-      ...posture,
-      joints: { ...posture.joints, ...legs(body, 2 * Math.PI * KICK * t) },
-    });
+      k?: number,
+    ) => IAutoMovieMotionHumanPosture = (
+      posture: IAutoMovieMotionHumanPosture,
+      t: number,
+      k: number = 1,
+    ): IAutoMovieMotionHumanPosture => {
+      const kicked: IAutoMovieMotionHumanPosture["joints"] = legs(
+        body,
+        2 * Math.PI * KICK * t,
+      );
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...posture.joints,
+      };
+      for (const [bone, angles] of Object.entries(kicked) as [
+        AutoMovieHumanoidBone,
+        readonly [number, number, number],
+      ][]) {
+        const from: readonly [number, number, number] = posture.joints[
+          bone
+        ] ?? [0, 0, 0];
+        joints[bone] = [
+          from[0] + (angles[0] - from[0]) * k,
+          from[1] + (angles[1] - from[1]) * k,
+          from[2] + (angles[2] - from[2]) * k,
+        ];
+      }
+      return { ...posture, joints };
+    };
     const place = (
       posture: IAutoMovieMotionHumanPosture,
       hips: IAutoMovieVector3,
@@ -184,7 +213,10 @@ export namespace AquaticFin {
       ExerciseKey.from(
         body,
         { pitch: 180 },
-        { shoulder: 170, raise: 10, elbow: 5 },
+        // At this flexion a raise carries the arms toward each other: a
+        // small one keeps the hands apart overhead, so the hand that sweeps
+        // down on the turn passes outside the other.
+        { shoulder: 170, raise: 5, elbow: 5 },
       ),
     );
     const pike: IAutoMovieMotionHumanPosture = AquaticPosture.key(
@@ -192,7 +224,7 @@ export namespace AquaticFin {
       ExerciseKey.from(
         body,
         { pitch: 170 },
-        { hip: 90, shoulder: 170, raise: 10, elbow: 5 },
+        { hip: 90, shoulder: 170, raise: 5, elbow: 5 },
       ),
     );
     const headUp: IAutoMovieMotionHumanPosture = AquaticPosture.key(
@@ -205,6 +237,8 @@ export namespace AquaticFin {
         { shoulder: 170, raise: 5, elbow: 5 },
       ),
     );
+    const grow: (seconds: number) => number = (seconds: number): number =>
+      minimumJerk.share(Math.max(0, Math.min(1, seconds / KICK_IN)));
     const a: ReturnType<typeof AquaticPosture.blend> = AquaticPosture.blend(
       prone,
       pike,
@@ -243,9 +277,10 @@ export namespace AquaticFin {
             : t < PIKE + LIFT
               ? b((t - PIKE) / LIFT)
               : t < tBottom
-                ? kick(headDown, t)
-                : t < tAscend
-                  ? c((t - tBottom) / TURN)
+                ? kick(headDown, t, grow(t - PIKE - LIFT))
+                : // The kick goes on through the turn and the ascent.
+                  t < tAscend
+                  ? kick(c((t - tBottom) / TURN), t)
                   : kick(headUp, t);
         return place(shaped, { x: entered.x, y: hipsY, z: entered.z });
       },
