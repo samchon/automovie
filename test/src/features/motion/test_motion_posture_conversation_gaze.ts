@@ -1,6 +1,6 @@
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
 import type { IAutoMovieMotionHumanConversation } from "@automovie/interface";
-import { HumanConversation } from "@automovie/motions";
+import { AutoMovieMotionHumanConversation } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -40,19 +40,19 @@ export function test_motion_posture_conversation_gaze(): void {
   let speaking: number = 0;
   let listening: number = 0;
   for (let seed: number = 0; seed < 200; seed++) {
-    const requests = HumanConversation.gaze(
-      "a",
-      "b",
+    const requests = AutoMovieMotionHumanConversation.gaze({
+      subject: "a",
+      partner: "b",
       turns,
-      createAutoMovieRandom(deriveAutoMovieSeed("talk", String(seed))),
-      1.6,
-    );
+      random: createAutoMovieRandom(deriveAutoMovieSeed("talk", String(seed))),
+      eyes: 1.6,
+    });
     for (const turn of turns) {
-      const share: number = HumanConversation.share(
+      const share: number = AutoMovieMotionHumanConversation.share({
         requests,
-        turn.from,
-        turn.to,
-      );
+        from: turn.from,
+        to: turn.to,
+      });
       if (turn.speaker === "a") speaking += share;
       else listening += share;
     }
@@ -90,13 +90,13 @@ export function test_motion_posture_conversation_gaze(): void {
           return Math.abs(angle - 15) < 1e-9;
         }),
       );
-      const again = HumanConversation.gaze(
-        "a",
-        "b",
+      const again = AutoMovieMotionHumanConversation.gaze({
+        subject: "a",
+        partner: "b",
         turns,
-        createAutoMovieRandom(deriveAutoMovieSeed("talk", "0")),
-        1.6,
-      );
+        random: createAutoMovieRandom(deriveAutoMovieSeed("talk", "0")),
+        eyes: 1.6,
+      });
       TestValidator.predicate(
         "deterministic",
         JSON.stringify(again) === JSON.stringify(requests),
@@ -118,13 +118,13 @@ export function test_motion_posture_conversation_gaze(): void {
   TestValidator.predicate(
     "a backward turn is refused",
     throwsError((): unknown =>
-      HumanConversation.gaze(
-        "a",
-        "b",
-        [{ speaker: "a", from: 2, to: 1 }],
-        createAutoMovieRandom(deriveAutoMovieSeed("x")),
-        1.6,
-      ),
+      AutoMovieMotionHumanConversation.gaze({
+        subject: "a",
+        partner: "b",
+        turns: [{ speaker: "a", from: 2, to: 1 }],
+        random: createAutoMovieRandom(deriveAutoMovieSeed("x")),
+        eyes: 1.6,
+      }),
     ),
   );
 }

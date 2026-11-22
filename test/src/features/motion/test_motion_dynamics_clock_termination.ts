@@ -10,10 +10,10 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditMotion,
-  HumanConversation,
-  HumanFreedomChoice,
+  AutoMovieMotionHumanConversation,
   HumanWater,
 } from "@automovie/motions";
+import { HumanFreedomChoice } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { createValidMotion } from "../internal/fixtures";
@@ -63,13 +63,13 @@ export function test_motion_dynamics_clock_termination(): void {
     [0],
   );
   const gaze = (from: number) =>
-    HumanConversation.gaze(
-      "a",
-      "b",
-      [{ speaker: "a", from, to: 30 }],
-      createAutoMovieRandom(deriveAutoMovieSeed("talk", "0")),
-      1.6,
-    );
+    AutoMovieMotionHumanConversation.gaze({
+      subject: "a",
+      partner: "b",
+      turns: [{ speaker: "a", from, to: 30 }],
+      random: createAutoMovieRandom(deriveAutoMovieSeed("talk", "0")),
+      eyes: 1.6,
+    });
   TestValidator.predicate(
     "glance clock starts at a valid turn boundary",
     throwsError(() => gaze(-1)) &&

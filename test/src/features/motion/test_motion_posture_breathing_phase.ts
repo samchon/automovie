@@ -1,7 +1,9 @@
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBreath } from "@automovie/interface";
-import { HumanBreath } from "@automovie/motions";
+import { AutoMovieMotionHumanExpression } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
+
+const { HumanBreath } = AutoMovieMotionHumanExpression;
 
 /**
  * Resting respiratory cycles and exercise recovery have a continuous phase.
