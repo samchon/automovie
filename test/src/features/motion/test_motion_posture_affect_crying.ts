@@ -17,20 +17,22 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanExpression,
+  AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   HUMAN_EVERYDAY_LAWS,
-  AutoMovieMotionHumanExpression,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
-  hug,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { throwsError } from "../internal/throwsError";
+
+const { hug } = AutoMovieMotionHumanTouch;
 
 const { HumanAffect } = AutoMovieMotionHumanExpression;
 

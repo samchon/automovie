@@ -5,15 +5,17 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
-  HumanSocial,
 } from "@automovie/motions";
 
 import { lexiconRowInputs } from "./lexiconRowInputs";
 import { motionHumanBody } from "./motionHumanBody";
 import { profileHumanMotion } from "./profileHumanMotion";
+
+const { HumanSocial } = AutoMovieMotionHumanTouch;
 
 /**
  * The net every lexicon family's test casts over its rows: each row is
@@ -388,7 +390,7 @@ export namespace LexiconRowNet {
         () =>
           starting("a")
             .walk({ to: { x: 0, y: 0, z: -2 } })
-            .with(starting("b").registered("carried", { by: "a", seconds: 2 })),
+            .with(starting("b").registered("carried", { partner: "a", hold: 2 })),
         HUMAN_LEXICON.carried!,
       );
       check(

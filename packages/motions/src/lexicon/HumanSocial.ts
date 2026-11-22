@@ -9,6 +9,9 @@ import type {
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { handToFace } from "../daily/handToFace";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_TOUCH_SOCIAL_COMFORT } from "../next/presets/HUMAN_TOUCH_SOCIAL_COMFORT";
+import { HUMAN_TOUCH_SOCIAL_FIRM_PRESS } from "../next/presets/HUMAN_TOUCH_SOCIAL_FIRM_PRESS";
+import { HUMAN_TOUCH_SOCIAL_SHOULDER_PAT } from "../next/presets/HUMAN_TOUCH_SOCIAL_SHOULDER_PAT";
 import { highFive } from "../touch/highFive";
 import { kiss } from "../touch/kiss";
 import { touch } from "../touch/touch";
@@ -49,20 +52,12 @@ export namespace HumanSocial {
   /** A pat on the partner's shoulder; the composition gives the shoulder as the target. Two pats of 0.4 s, then 0.4 s, 1.2 s after the reach (`AutoMovieMotionHumanTouchForm.FORMS`, provisional); encouragement, praise. */
   export const shoulderPat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["shoulderPat"]
-  > = HumanActionRow.of("shoulderPat", touch, {
-    effector: "palm",
-    kind: "pat",
-    count: 2,
-  });
+  > = HumanActionRow.of("shoulderPat", touch, HUMAN_TOUCH_SOCIAL_SHOULDER_PAT);
 
   /** A comforting hand held on the partner. Held 2 s after the reach (provisional); condolence, reassurance. */
   export const comfort: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["comfort"]
-  > = HumanActionRow.of("comfort", touch, {
-    effector: "palm",
-    kind: "hold",
-    hold: 2,
-  });
+  > = HumanActionRow.of("comfort", touch, HUMAN_TOUCH_SOCIAL_COMFORT);
 
   /** A fist bump, one role of it. The fists stay together 0.1 s, then return in the reach's time (`highFive.REBOUND`, provisional); a friendly greeting between peers. */
   export const fistBump: IAutoMovieMotionHumanActionLaw<
@@ -160,11 +155,7 @@ export namespace HumanSocial {
   /** A firm, slow pat or press of the palm on the partner (Laban's press: strong, sustained, direct); the composition gives the region. The press takes 0.4 s and holds 1.2 s (`touch`'s defaults, provisional); steadying, emphasis. */
   export const firmPress: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["firmPress"]
-  > = HumanActionRow.of("firmPress", touch, {
-    effector: "palm",
-    kind: "press",
-    manner: AutoMovieMotionManner.PRESETS.press,
-  });
+  > = HumanActionRow.of("firmPress", touch, HUMAN_TOUCH_SOCIAL_FIRM_PRESS);
 
   /** A light, quick flick of the fingertips on the partner, as brushing lint off a shoulder (Laban's flick: light, sudden, indirect); the composition gives the region. One stroke lasting a flick's 0.151 s, a proxy from a flick gesture's duration (`touch.FLICK`, Moyle and Cockburn 2003), sped further by the flick manner; brushing lint off, dismissing. */
   export const flickOff: IAutoMovieMotionHumanActionLaw<

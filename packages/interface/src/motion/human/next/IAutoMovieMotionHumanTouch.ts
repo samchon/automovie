@@ -18,9 +18,13 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
+import type { IAutoMovieMotionHumanBackToBack } from "../touch/IAutoMovieMotionHumanBackToBack";
+import type { IAutoMovieMotionHumanEmbraceFromBehind } from "../touch/IAutoMovieMotionHumanEmbraceFromBehind";
+import type { IAutoMovieMotionHumanHeadRest } from "../touch/IAutoMovieMotionHumanHeadRest";
 import type { IAutoMovieMotionHumanHighFive } from "../touch/IAutoMovieMotionHumanHighFive";
 import type { IAutoMovieMotionHumanKiss } from "../touch/IAutoMovieMotionHumanKiss";
 import type { IAutoMovieMotionHumanLegTouch } from "../touch/IAutoMovieMotionHumanLegTouch";
+import type { IAutoMovieMotionHumanSitOnLap } from "../touch/IAutoMovieMotionHumanSitOnLap";
 import type { IAutoMovieMotionHumanTouchEffectors } from "../touch/IAutoMovieMotionHumanTouchEffectors";
 import type { IAutoMovieMotionHumanTouchSite } from "../touch/IAutoMovieMotionHumanTouchSite";
 
@@ -110,6 +114,83 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
     params: IAutoMovieMotionHumanTouch.ILegTouch,
     anchor?: string,
   ): Chain;
+
+  /**
+   * Rest the head on a partner: the temple or the cheek laid on the partner's shoulder or chest, seated side by side or standing, held for the authored span and released.
+   *
+   * @param params The `IAutoMovieMotionHumanHeadRest` members, as `IAutoMovieMotionHumanTouch.IHeadRest`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanTouch.headRest is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanTouch.headRest is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanTouch.headRest is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanTouch.headRest is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanTouch.headRest is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanTouch.headRest is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   */
+  headRest(
+    params: IAutoMovieMotionHumanTouch.IHeadRest,
+    anchor?: string,
+  ): Chain;
+  /**
+   * Two people seated or standing back to back, their backs in contact and held for the authored span.
+   *
+   * @param params The `IAutoMovieMotionHumanBackToBack` members, as `IAutoMovieMotionHumanTouch.IBackToBack`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanTouch.backToBack is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanTouch.backToBack is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanTouch.backToBack is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanTouch.backToBack is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanTouch.backToBack is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanTouch.backToBack is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   */
+  backToBack(
+    params: IAutoMovieMotionHumanTouch.IBackToBack,
+    anchor?: string,
+  ): Chain;
+  /**
+   * Sit on a seated partner's lap: the sitter stands before the partner's knees, facing away, and sits onto the partner's thighs, which bear the sitter's seat. Getting off is the ordinary rise.
+   *
+   * @param params The `IAutoMovieMotionHumanSitOnLap` members, as `IAutoMovieMotionHumanTouch.ISitOnLap`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanTouch.sitOnLap is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanTouch.sitOnLap is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanTouch.sitOnLap is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanTouch.sitOnLap is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanTouch.sitOnLap is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanTouch.sitOnLap is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   */
+  sitOnLap(
+    params: IAutoMovieMotionHumanTouch.ISitOnLap,
+    anchor?: string,
+  ): Chain;
+  /**
+   * Embrace a partner from behind: the arms around their waist with the palms on their abdomen, the chest against their upper back and the chin on one of their shoulders, held for the authored span and released.
+   *
+   * @param params The `IAutoMovieMotionHumanEmbraceFromBehind` members, as `IAutoMovieMotionHumanTouch.IEmbraceFromBehind`.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanTouch.embraceFromBehind is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanTouch.embraceFromBehind is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanTouch.embraceFromBehind is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanTouch.embraceFromBehind is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanTouch.embraceFromBehind is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanTouch.embraceFromBehind is provided by the chain that implements IAutoMovieMotionHumanTouch.
+   */
+  embraceFromBehind(
+    params: IAutoMovieMotionHumanTouch.IEmbraceFromBehind,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
@@ -155,6 +236,168 @@ export namespace IAutoMovieMotionHumanTouch {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type ILegTouch = IAutoMovieMotionHumanLegTouch.IParams;
+
+  /**
+   * The parameters of `headRest`: `IAutoMovieMotionHumanHeadRest`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHeadRest`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHeadRest` owns the shape; the alias serves `headRest` of this family.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type IHeadRest = IAutoMovieMotionHumanHeadRest;
+  /**
+   * The parameters of `backToBack`: `IAutoMovieMotionHumanBackToBack`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBackToBack`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBackToBack` owns the shape; the alias serves `backToBack` of this family.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type IBackToBack = IAutoMovieMotionHumanBackToBack;
+  /**
+   * The parameters of `sitOnLap`: `IAutoMovieMotionHumanSitOnLap`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanSitOnLap`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSitOnLap` owns the shape; the alias serves `sitOnLap` of this family.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type ISitOnLap = IAutoMovieMotionHumanSitOnLap;
+  /**
+   * The parameters of `embraceFromBehind`: `IAutoMovieMotionHumanEmbraceFromBehind`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanEmbraceFromBehind`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanEmbraceFromBehind` owns the shape; the alias serves `embraceFromBehind` of this family.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type IEmbraceFromBehind = IAutoMovieMotionHumanEmbraceFromBehind;
+  /**
+   * The parameters of the mutual `hug` and `shoulderClasp` rows: the nominal touch dwell.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the member's meaning, unit and default.
+   * @evidence contracts/development/design.md#principled-representation One dwell in seconds, as the `touch` law's own `hold`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the two mutual rows read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is widened or cast.
+   */
+  export interface IHold {
+    /** The nominal touch dwell, seconds; 1 when absent, a brief greeting. */
+    hold?: number;
+  }
+  /**
+   * The `touch` parameters a preset fixes: `kind`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type ITouchKindPreset = Pick<ITouchParams, "kind">;
+
+  /**
+   * The `touch` parameters a preset fixes: `target`, `effector`, `kind`, `hand`, `elbow`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type ITouchTargetEffectorKindHandElbowPreset = Pick<
+    ITouchParams,
+    "target" | "effector" | "kind" | "hand" | "elbow"
+  >;
+
+  /**
+   * The `touch` parameters a preset fixes: `target`, `effector`, `kind`, `hand`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type ITouchTargetEffectorKindHandPreset = Pick<
+    ITouchParams,
+    "target" | "effector" | "kind" | "hand"
+  >;
+
+  /**
+   * The `touch` parameters a preset fixes: `target`, `effector`, `kind`, `hold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type ITouchTargetEffectorKindHoldPreset = Pick<
+    ITouchParams,
+    "target" | "effector" | "kind" | "hold"
+  >;
+
+  /**
+   * The `touch` parameters a preset fixes: `target`, `other`, `effector`, `kind`, `hand`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type ITouchTargetOtherEffectorKindHandPreset = Pick<
+    ITouchParams,
+    "target" | "other" | "effector" | "kind" | "hand"
+  >;
+
+  /**
+   * The `touch` parameters a preset fixes: `effector`, `kind`, `count`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type ITouchEffectorKindCountPreset = Pick<
+    ITouchParams,
+    "effector" | "kind" | "count"
+  >;
+
+  /**
+   * The `touch` parameters a preset fixes: `effector`, `kind`, `hold`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type ITouchEffectorKindHoldPreset = Pick<
+    ITouchParams,
+    "effector" | "kind" | "hold"
+  >;
+
+  /**
+   * The `touch` parameters a preset fixes: `effector`, `kind`, `manner`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type ITouchEffectorKindMannerPreset = Pick<
+    ITouchParams,
+    "effector" | "kind" | "manner"
+  >;
+
+  /**
+   * The `touch` parameters a preset fixes: `effector`, `kind`, `hold`, `hand`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
+   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
+   */
+  export type ITouchEffectorKindHoldHandPreset = Pick<
+    ITouchParams,
+    "effector" | "kind" | "hold" | "hand"
+  >;
 }
 
 /**
@@ -189,11 +432,6 @@ export namespace IAutoMovieMotionHumanTouch {
  * `strokeEnd` the repetitions, `relax` leaving). A touch may be cut before
  * it arrives or from `relax` on, into standing, a walk, a gesture or another
  * touch, the declined handshake's rule.
- *
- * @evidence contracts/development/common.md#meaningful-documentation kind: The kind; `pat` when absent. effector: The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow. hand: The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`).
- * @evidence contracts/development/design.md#principled-representation kind: The kind; `pat` when absent. effector: The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow. hand: The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.touch, params); touch/touch.ts (touch.plan, context); touch/touchHold.ts (touchHold.lay, context); touch/touchHold.ts (rubbed, elbow); touch/touchSide.ts (touchSide.of, context); compose/AutoMovieMotionHumanDrinkingArm.ts (AutoMovieMotionHumanDrinkingArm.carried, touch).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanTouchForm.Kind, IAutoMovieMotionHumanTouchEffectors.With, AutoMovieHumanSide, IAutoMovieMotionHumanTouchSite.ISite, IAutoMovieMotionHumanHeldUse.IGrasp identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanTouch {
   /**

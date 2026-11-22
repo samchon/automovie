@@ -19,7 +19,7 @@ import type {
  * @evidence contracts/development/common.md#meaningful-documentation States the required staging, four contacts, release, reach refusal, hold units and default, and study.
  */
 export const hug: IAutoMovieMotionHumanMutual<
-  { hold?: number },
+  IAutoMovieMotionHumanTouch.IHold,
   "one" | "other"
 > = {
   name: "hug",
@@ -27,7 +27,7 @@ export const hug: IAutoMovieMotionHumanMutual<
   /** Both roles hold the opposite role's back at two heights. */
   act: (
     role: "one" | "other",
-    params: { hold?: number },
+    params: IAutoMovieMotionHumanTouch.IHold,
     cast: Readonly<Record<"one" | "other", string>>,
   ): IAutoMovieMotionHumanMutual.IAct => {
     const subject: string = cast[role === "one" ? "other" : "one"];

@@ -4,16 +4,18 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanColliders,
   HumanHand,
   HumanPerformance,
-  shoulderClasp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
+
+const { shoulderClasp } = AutoMovieMotionHumanTouch;
 
 /**
  * Two facing performers start a reciprocal shoulder clasp after a standing

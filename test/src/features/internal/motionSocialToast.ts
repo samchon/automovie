@@ -11,14 +11,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSocial,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
+
+const { HumanSocial } = AutoMovieMotionHumanTouch;
 
 /**
  * One cast of the toast, which the `test_human_motion_social_toast_*` specs

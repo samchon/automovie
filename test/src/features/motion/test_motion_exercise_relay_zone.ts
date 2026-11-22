@@ -11,10 +11,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanHandover,
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanHand,
   HumanObject,
-  HumanPartner,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
@@ -22,6 +22,8 @@ import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { HumanPartner } = AutoMovieMotionHumanTouch;
 
 /** The film second both roles state for the pass. */
 const AT: number = 2;

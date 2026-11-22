@@ -5,17 +5,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanColliders,
   HumanHand,
   HumanPerformance,
   HumanRefusal,
-  hug,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
+
+const { hug } = AutoMovieMotionHumanTouch;
 
 /**
  * Two closely staged performers give one another a criss-cross hug after a

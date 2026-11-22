@@ -10,6 +10,8 @@ import { clinch } from "../grappling/clinch";
 import { kuzushi } from "../grappling/kuzushi";
 import { relayPass } from "../handling/relayPass";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_GRAPPLE_JUDO_GRIP } from "../next/presets/HUMAN_GRAPPLE_JUDO_GRIP";
+import { HUMAN_TOUCH_PARTNER_DANCE_HOLD } from "../next/presets/HUMAN_TOUCH_PARTNER_DANCE_HOLD";
 import { touch } from "../touch/touch";
 
 /**
@@ -57,20 +59,12 @@ export namespace HumanPartner {
   /** The follower's hold of a walking partner dance once both stand: her left palm laid on the leader and held 1.5 s. The composition gives the leader's region (his near shoulder at her left in a promenade). A hold kept while walking is coupled travel (#3341), not staged here: a speed-matching follower lags while the leader walks. */
   export const danceHold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceHold"]
-  > = HumanActionRow.of("danceHold", touch, {
-    effector: "palm",
-    kind: "hold",
-    hold: 1.5,
-    hand: "left",
-  });
+  > = HumanActionRow.of("danceHold", touch, HUMAN_TOUCH_PARTNER_DANCE_HOLD);
 
   /** Judo's grip (kumikata) for a throw: the right hand on the partner's left collar and the left on the right sleeve, held two seconds (provisional). The composition gives the partner. */
   export const judoGrip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["judoGrip"]
-  > = HumanActionRow.of("judoGrip", clinch, {
-    grip: "collarSleeve",
-    hold: 2,
-  });
+  > = HumanActionRow.of("judoGrip", clinch, HUMAN_GRAPPLE_JUDO_GRIP);
 
   /** The receiver of a judo throw drawn off balance forward (`kuzushi`), the body tipped about the ankles over the toes and held a second. */
   export const judoBroken: IAutoMovieMotionHumanActionLaw<
