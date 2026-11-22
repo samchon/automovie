@@ -169,6 +169,8 @@ export namespace CartPushed {
     const wheel: number = d.wheelDiameter! / 2;
     const length: number = d.length!;
     const handleHeight: number = d.handleHeight!;
+
+    // The tray's 0.88 m length and 0.3 m depth are authored.
     const tray: number = 0.88;
     const rear: number = -length / 2 + createCart.GRIP;
     const middle: number = length / 2 - d.wheelDiameter! - tray / 2 + 0.2;

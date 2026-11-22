@@ -71,6 +71,8 @@ export function createCueTable(
   const nose: number = bed + d.nose * BALL;
   const rail: number = d.rail;
   const corner: number = MOUTH.corner / Math.SQRT2;
+
+  // The cabinet's top 9 cm below the bed is authored; no rule states it.
   const drop: number = 0.09;
   const tray: number = bed - drop;
   const edge: number = length / 2 - corner;

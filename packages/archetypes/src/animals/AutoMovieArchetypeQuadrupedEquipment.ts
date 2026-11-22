@@ -7,18 +7,11 @@ import { QuadrupedEquipmentBearing } from "./QuadrupedEquipmentBearing";
 import { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
 
 /**
- * Authored yokes and pack frames on the rest quadruped's landmarks.
+ * A yoke and a pack frame laid on a quadruped's rest landmarks, every dimension authored in metres.
  *
- * The model faces +Z and its left is +X. Every equipment length is supplied
- * in metres; no maker specification, load rating or measured animal fit is
- * implied. Geometry and hook contacts use the same planned dimensions.
- * Additional producer spheres describe emitted body solids, not fit
- * proxies; an omitted sphere list is empty. Their centres and radii use this
- * same neutral model frame and metres.
- * Visible tangent bearing rails and connecting rods support each clear frame
- * on the body. Their coarse line contacts do not claim padding,
- * restraint, pressure distribution or rated working capacity.
- * The caller supplies total body-plus-equipment mass to the existing builder.
+ * The model faces `+Z` with its left on `+X`. The yoke is a crossbeam ahead of the neck root with a U hook, `hitch`; the pack frame is two side pads on rails joined by over-back crossbars, with a U hook on each side, `leftLoad` and `rightLoad`. Bearing rails touch the neck or the flanks and carry each frame, which otherwise keeps its authored clearance from the body and from any extra body spheres the producer emits (`ISphere`). The geometry and the hook contacts come from the same plan.
+ *
+ * The assemblies claim no maker specification, measured fit, padding, pressure distribution or load rating, and the caller supplies the body-plus-equipment mass.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the rest frame, authored SI dimensions, rig fit, common geometry/contact ownership and physical limits.
  * @evidence contracts/development/design.md#principled-representation Two independently optional equipment assemblies carry closed contact identities and explicit positive physical lengths; no invented material coefficient or segment mass share is required.
@@ -27,7 +20,7 @@ import { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
  */
 export namespace AutoMovieArchetypeQuadrupedEquipment {
   /**
-   * One real additional spherical body part, in canonical model metres.
+   * One extra spherical body part the producer emits, in model metres; the equipment keeps its clearance from it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the emitted part identity, centre and positive primitive sphere radius, distinct from the ordinary rig envelope.
    * @evidence contracts/development/design.md#principled-representation The same producer record supplies sphere emission and physical equipment admission; this is geometry rather than a species-specific fit proxy.

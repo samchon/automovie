@@ -40,7 +40,7 @@ export function createSqueezeTube(
   const length: number = d.length!;
   const width: number = d.width!;
 
-  // A tube: a body and a cap at its far end.
+  // A tube: a body and a cap at its far end; the cap's 15 mm length is authored.
   const cap: number = 0.015;
   builder.rod(
     "body",

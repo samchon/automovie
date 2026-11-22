@@ -39,6 +39,7 @@ export namespace PaddleBlade {
     ridge: number,
     color: string,
   ): void {
+    // The blade's 9 mm thickness and its outline stations are authored.
     const thickness: number = 0.009;
     const stations = [
       { u: 0, radius: 0.022, rise: 0 },

@@ -99,6 +99,8 @@ export namespace KeyboardConstruction {
     const length: number = d.keyLength!;
     const back: number = depth - length;
     const white: number = d.octave! / 7;
+
+    // The 88 keys (`KEYS`) are 52 white and 36 black.
     const whites: number = 52;
     const left: number = (-whites * white) / 2;
     const bed: number = top - E.white;

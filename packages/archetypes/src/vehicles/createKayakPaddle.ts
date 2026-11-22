@@ -57,6 +57,8 @@ export function createKayakPaddle(
   });
   const half: number = d.length / 2;
   const shoulder: number = half - d.bladeLength;
+
+  // The shaft's 29 mm diameter is authored.
   const diameter: number = 0.029;
   builder.rod("shaft", diameter / 2, v(-shoulder, 0, 0), v(shoulder, 0, 0), {
     color: "#353b40",
