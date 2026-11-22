@@ -112,7 +112,18 @@ export function test_motion_exercise_crossbow_take(): void {
           },
         ],
         composition: HumanChain.subject("a")
-          .pickUp({ prop: "crossbow", handle: "grip", hand: "right" }, "grip")
+          // Taken for its use: the rail continuing the forearm, as the
+          // presentation will aim it, so the grip is one the wrist can
+          // present from.
+          .pickUp(
+            {
+              prop: "crossbow",
+              handle: "grip",
+              hand: "right",
+              use: { tip: "rail", line: "forearm" },
+            },
+            "grip",
+          )
           .pickUp(
             { prop: "crossbow", handle: "foreEnd", hand: "left", lift: 0 },
             "support",

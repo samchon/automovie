@@ -106,7 +106,10 @@ export function test_human_motion_captive(): void {
         {
           subject: "c",
           body: captor,
-          at: { x: 0.6, y: 0, z: 0.05 },
+          // Beside the captive's lap, where the left wrist rests, so the
+          // right hand reaches it ahead rather than across the captor's own
+          // trunk.
+          at: { x: 0.6, y: 0, z: 0.4 },
           yaw: -90,
           proficiency: { level: "trained" },
         },
