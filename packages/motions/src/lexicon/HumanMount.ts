@@ -44,6 +44,12 @@ export namespace HumanMount {
   /** How far a pushing foot's toes point down as it leaves the floor, degrees: it pushes off from the ball (provisional). */
   export const POINT: number = 40;
 
+  /** How far a pushing foot's heel rolls up over its ball before the toes leave the floor, degrees: the toes' extension at the metatarsophalangeal joints in a push-off (provisional). */
+  export const TOE_ROLL: number = 50;
+
+  /** The share of the leg's length a swinging foot's ankle keeps within from its hip: short of straight, so the knee keeps a bend the limb fit can follow (provisional). */
+  export const SWING_REACH: number = 0.97;
+
   /**
    * The thigh's direction from the hip when a foot hangs from a high seat,
    * in the sitter's frame with `x` outward: level ahead on a seat sat on
