@@ -210,13 +210,13 @@ export namespace IAutoMovieMotionHumanTouch {
     /** The arm laid on the region at the entry (`laid`), which every second's fit is held to; no reference when absent. */
     reference?: NonNullable<IAutoMovieHumanLimbGoal["reference"]>;
 
-    /** What the effector's along axis lies on: the travel's tangent, or `arm`, the direction away from the elbow across the region (`AutoMovieMotionHumanTouchPath.lay`), or `reach`, for an effector that meets its place end on: its facing axis runs from the elbow straight to the place (`AutoMovieMotionHumanTouchPath.reach`) and its along axis lies on the world's up, or `upright`, the world's up as a held vessel stands, the effector facing against `facing`; the tangent when absent. */
-    lay?: "tangent" | "arm" | "reach" | "upright";
+    /** What the effector's along axis lies on: the travel's tangent, or `arm`, the direction away from the elbow across the region (`AutoMovieMotionHumanTouchPath.lay`), or `reach`, for an effector that meets its place end on: its facing axis runs from the elbow straight to the place (`AutoMovieMotionHumanTouchPath.reach`) and its along axis lies on the world's up, or `upright`, the world's up as a held vessel stands, the effector facing against `facing`, or `limb`, the long axis of the touched limb (`facing`) square to the region's normal, so a flat hand lies along a curved segment rather than across it; the tangent when absent. */
+    lay?: "tangent" | "arm" | "reach" | "upright" | "limb";
 
     /** The hand's rotation the stroke keeps, world, on the entry posture, turned with the posture's heading: a held tool laid as the grasp chosen for its use presents it (`HumanGraspUse.presented`), so only its point moves. The effector is laid by `lay` when absent. */
     held?: IAutoMovieQuaternion;
 
-    /** With `upright`, the level world direction the effector faces against (`AutoMovieMotionHumanTouchUpright`); the region's level normal when absent. */
+    /** With `upright`, the level world direction the effector faces against (`AutoMovieMotionHumanTouchUpright`); the region's level normal when absent. With `limb`, the touched limb's long axis, world, that the effector's along axis follows; the travel's tangent when absent. */
     facing?: IAutoMovieVector3;
 
     /** With `upright` or `held`, how far the vessel leans toward the region at the face, degrees (`AutoMovieMotionHumanTouchUpright.tip`): the goal holds it so leaned, so the arm is carried toward the arm that holds it at the lips, while the hand's attitude on the way (`AutoMovieMotionHumanDrinkingArm.carried`) carries it as it is laid or held, tipped over the last `TIP` of the carry's progress and righted over the first `TIP` of the way back; no lean when absent. */

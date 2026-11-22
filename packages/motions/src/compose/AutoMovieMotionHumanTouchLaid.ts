@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  hingedArmSwivel,
-} from "@automovie/engine";
+import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -17,7 +13,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanTouchArmReference } from "./HumanTouchArmReference";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -26,6 +21,7 @@ import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEf
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchPath } from "./AutoMovieMotionHumanTouchPath";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
+import { HumanTouchArmReference } from "./HumanTouchArmReference";
 
 /**
  * An effector laid on a region at rest, before any stroke moves it: the arm
@@ -183,7 +179,8 @@ export namespace AutoMovieMotionHumanTouchLaid {
   }
 
   /** The laid arm's reference, from its actual fit and forearm range. */
-  export const reference: typeof HumanTouchArmReference.reference = HumanTouchArmReference.reference;
+  export const reference: typeof HumanTouchArmReference.reference =
+    HumanTouchArmReference.reference;
 
   /** Forearm twist room required by the laid reference, degrees. */
   export const MARGIN: number = HumanTouchArmReference.MARGIN;
@@ -383,7 +380,8 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * into the place, with the along axis on the world's up as nearly as that
    * line allows (`reach`); or the world's up with the effector facing
    * against a level direction, the region's level normal unless one is
-   * given (`upright`). An `upright` region facing straight up or down with
+   * given (`upright`); or the touched limb's long axis (`facing`) square to
+   * the normal (`limb`). An `upright` region facing straight up or down with
    * no direction given, and a `reach` line that runs straight up or down,
    * fall back to the travel's tangent for the along axis.
    *
@@ -394,7 +392,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @param point The region's point, world.
    * @param normal The region's outward unit normal, world.
    * @param travel The travel's unit tangent on the region, world.
-   * @param facing With `upright`, the level direction the effector faces against; the region's level normal when absent.
+   * @param facing With `upright`, the level direction the effector faces against; the region's level normal when absent. With `limb`, the touched limb's long axis; the travel when absent.
    * @param elbow Where the elbow lies, which `arm` and `reach` lay the effector from; the place of least strain when absent.
    * @param from With `reach`, the elbow's place, world; read from the body's measures when absent.
    * @param lean With `upright`, how far the vessel's axis leans from the world's up toward the region, degrees, the facing turned with it; upright when absent.
@@ -452,6 +450,19 @@ export namespace AutoMovieMotionHumanTouchLaid {
       );
       return [
         Vector3.scale(way, -1),
+        Vector3.length(across) > 1e-6 ? Vector3.normalize(across) : travel,
+      ];
+    }
+    if (lay === "limb") {
+      // A flat effector lies along the touched limb, square to the normal,
+      // where the segment does not curve away under it.
+      const axis: IAutoMovieVector3 = facing ?? travel;
+      const across: IAutoMovieVector3 = Vector3.subtract(
+        axis,
+        Vector3.scale(normal, Vector3.dot(axis, normal)),
+      );
+      return [
+        normal,
         Vector3.length(across) > 1e-6 ? Vector3.normalize(across) : travel,
       ];
     }
