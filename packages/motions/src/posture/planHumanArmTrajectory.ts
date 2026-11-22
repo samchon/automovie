@@ -316,7 +316,7 @@ export function planHumanArmTrajectory(
               HumanArmTrajectoryContactCircle(fine, a, k, x[a]![k - 1]!)
                 .length === 0
             )
-              throw unswivelled(fine, k, x, a, problem.arms[a]!.side);
+              throw unswivelled(fine, k, x, problem.arms[a]!.side);
             return laid;
           }
           x[a]![k] = next;
@@ -682,7 +682,7 @@ function entered(
       best = q;
     }
   }
-  if (best === undefined) throw unswivelled(c, k, x, a, side);
+  if (best === undefined) throw unswivelled(c, k, x, side);
   return best;
 }
 
@@ -691,7 +691,6 @@ function unswivelled(
   c: M.IContext,
   k: number,
   x: readonly (readonly number[][])[],
-  a: number,
   side: string,
 ): HumanRefusal {
   const blocked: ReturnType<typeof M.invalid> = M.invalid(

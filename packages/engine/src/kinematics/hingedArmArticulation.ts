@@ -421,7 +421,7 @@ export function hingedArmArticulation(
       Number.isFinite(near.swivel)
     ) {
       const own: (angle: number) => IScored = prober(stop, posed);
-      const roots: number[] = props.closed(posed) ?? [];
+      const roots: readonly number[] = props.closed(posed) ?? [];
       if (!roots.some((angle: number): boolean => legal(own(angle)))) {
         let nearest: IPlacedEdge | null = null;
         for (const other of stops) {
