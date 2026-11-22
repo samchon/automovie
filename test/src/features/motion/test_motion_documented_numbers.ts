@@ -151,10 +151,10 @@ export function test_motion_documented_numbers(): void {
 
   // 3. Striking timing by skill level.
   const levels: Record<"novice" | "amateur" | "trained" | "elite", [number, number, number]> = {
-    novice: [1.06, 0.43, 1.4],
-    amateur: [1.04, 0.42, 1.3],
-    trained: [1.02, 0.41, 1.1],
-    elite: [1.0, 0.405, 1.0],
+    novice: [1.06, 0.33, 1.4],
+    amateur: [1.04, 0.32, 1.3],
+    trained: [1.02, 0.315, 1.1],
+    elite: [1.0, 0.31, 1.0],
   };
   for (const [level, [strike, lone, recovery]] of Object.entries(levels) as [
     keyof typeof levels,
@@ -162,10 +162,10 @@ export function test_motion_documented_numbers(): void {
   ][]) {
     const at: IAutoMovieMotionHumanSkill = HumanSkill.resolve({ level }, "s");
     near(`${level} strike factor`, StrikingSkill.strike(at), strike, 0.005);
-    near(`${level} lone punch`, StrikingSkill.JAB_DELIVERY * StrikingSkill.strike(at), lone, 0.005);
+    near(`${level} lone rear straight`, StrikingSkill.lone(1, 1, at), lone, 0.005);
     near(`${level} recovery factor`, StrikingSkill.recovery(at), recovery, 0.005);
   }
-  near("lone punch", StrikingSkill.JAB_DELIVERY, 0.405, 0);
+  near("elite cross", StrikingSkill.CROSS_DELIVERY, 0.31, 0);
   near("alternating interval", StrikingSkill.ALTERNATING_INTERVAL, 0.35, 1e-9);
   near("same-hand interval", StrikingSkill.SAME_HAND_INTERVAL, 0.45, 1e-9);
   const novice: IAutoMovieMotionHumanSkill = HumanSkill.resolve({ level: "novice" }, "s");

@@ -46,15 +46,17 @@ import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHum
  * along the line at the band's reach and falls short, the declared
  * miss-at-maximum-reach rule.
  *
- * Timing, from launch to contact (`StrikingSkill.JAB_DELIVERY`): a lone
- * punch takes 0.405 s at elite skill (Stanley et al. 2018); a punch that
+ * Timing, from launch to contact (`StrikingSkill.lone`): a lone rear
+ * straight takes 0.310 s at elite skill (Cheraghi et al. 2014), and another
+ * lone punch that time scaled by its own path to the target over the rear
+ * hand's, so a jab is faster (derived, provisional); a punch that
  * follows another punch's contact reaches its own contact 0.35 s after that
  * contact when the hands alternate and 0.45 s when it is the same hand at
  * elite skill (Piorkowski et al. 2011), less the time already passed since
  * that contact when it launches, never under 0.12 s. The return to the guard after contact takes 0.35 s at elite skill.
  * The performer's `speed` skill multiplies the lone delivery and both
  * intervals by 1.06 at novice, 1.04 at amateur, 1.02 at trained and 1.0 at
- * elite, so a lone punch takes 0.43, 0.42, 0.41 and 0.405 s and the
+ * elite, so a lone rear straight takes 0.33, 0.32, 0.315 and 0.31 s and the
  * intervals are 0.37 and 0.48 s at novice (`StrikingSkill.strike`, the novice
  * ratio from Vagner et al. 2023, the levels between on a smoothstep,
  * `HumanSkill.LEVELS`; the intervals' scaling is derived and provisional, as

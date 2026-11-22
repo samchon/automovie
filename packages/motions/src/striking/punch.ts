@@ -1,11 +1,13 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
@@ -14,10 +16,12 @@ import type {
   IAutoMovieMotionHumanStrikingSkill,
   IAutoMovieMotionHumanVariation,
   IAutoMovieMotionWeaponContact,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
+import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
@@ -65,8 +69,9 @@ import { punchLaunch } from "./punchLaunch";
  * along the line at the band's reach and falls short, the declared
  * miss-at-maximum-reach rule.
  *
- * Timing: a lone punch takes the single maximal jab's 0.405 s (Stanley et al.
- * 2018); a punch that follows another punch's contact keeps the measured
+ * Timing: a lone punch takes the elite cross's 0.310 s (Cheraghi et al.
+ * 2014) scaled by its own path to the target over the rear hand's, so a jab
+ * is faster (`StrikingSkill.lone`, derived and provisional); a punch that follows another punch's contact keeps the measured
  * combination intervals, 0.35 s between alternating hands and 0.45 s for the
  * same hand at elite skill (Piorkowski et al. 2011), counted from that
  * contact. The return to the guard takes one alternating interval. Skill
@@ -145,8 +150,30 @@ export namespace punch {
     // Delivery: from the previous punch's contact at the combination
     // interval, or a lone punch's measured delivery, each at the skill.
     const from = context.entry.from;
-    let delivery: number =
-      StrikingSkill.JAB_DELIVERY * StrikingSkill.strike(context.skill);
+    // A lone punch: the elite cross's time scaled by this hand's path to the
+    // target over the rear hand's, both from the hands the entry shows to
+    // the target the contact aims at (`StrikingSkill.lone`).
+    const measure: IAutoMovieMotionHumanBody["measure"] = context.body.measure;
+    const loneTarget: IAutoMovieVector3 = StrikingTarget.aim(
+      context,
+      p.at,
+      context.start,
+      (): number =>
+        0.9 * (measure.upperArm + measure.forearm) +
+        0.5 * measure.shoulderHalfWidth,
+    );
+    const rearSide: "left" | "right" = StrikingStance.rear({ lead });
+    const fists: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      context.body,
+      context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`, `${rearSide}Hand`]),
+    );
+    let delivery: number = StrikingSkill.lone(
+      Vector3.distance(fists.get(`${side}Hand`)!.worldPosition, loneTarget),
+      Vector3.distance(fists.get(`${rearSide}Hand`)!.worldPosition, loneTarget),
+      context.skill,
+    );
     if (
       from !== undefined &&
       from.family === "punch" &&

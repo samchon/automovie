@@ -14,7 +14,7 @@ import { punch } from "../striking/punch";
 /**
  * Fighting and training rows, each a row of a shipped action; a strike's
  * row leaves its target to the composition. Register the ones a film uses.
- * `hook` and `uppercut` are punches (launch to contact 0.405 s at elite
+ * `hook` and `uppercut` are punches (launch to contact 0.310 s for an elite cross, other punches in proportion to their path,
  * skill, 1.06 times at novice, `IAutoMovieMotionHumanPunch`); `frontKick` is a
  * push kick (0.33 s, `IAutoMovieMotionHumanKick`); `aim` holds the pointing
  * arm 1.5 s. The jab, the cross and the rear round kick are the strike family's rows

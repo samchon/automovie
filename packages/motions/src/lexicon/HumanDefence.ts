@@ -23,7 +23,7 @@ import { defend } from "../striking/defend";
  * Every `defend` row shares one timing ({@link IAutoMovieMotionHumanDefend}): the
  * defender starts after a reaction time of about 0.3 s less the anticipation the
  * strike's preparation shows, and its limb or head takes 0.30 s at novice to
- * 0.20 s at elite to move, so against a punch of 0.405 s a defence is in time
+ * 0.20 s at elite to move, so against a rear straight of 0.310 s a defence is in time
  * only when it anticipates, and a kick or a fast strike is met late by a
  * novice. `slip`, `rollUnder` and `swayBack` fit a punch; `cover`,
  * `elbowBlock` and `highBlock` fit a punch or a kick to the guarded region;

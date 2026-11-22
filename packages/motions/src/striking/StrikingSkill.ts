@@ -34,8 +34,47 @@ import { HumanSkill } from "../skill/HumanSkill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the skill's quantity reading and the engine's random stream; no other family's numbers live here.
  */
 export namespace StrikingSkill {
-  /** Single maximal jab, movement onset to contact, seconds (Stanley, Thomson, Smith and Lamb 2018, Int J Perf Anal Sport 18:835, abstract; fifteen amateur boxers). */
-  export const JAB_DELIVERY: number = 0.405;
+  /**
+   * A rear straight punch (cross) at elite skill, fist motion onset to
+   * impact, seconds: 0.310 +- 0.06 s for eight international amateur boxers
+   * (Cheraghi, Agha Alinejad, Arshi and Shirzad 2014, Ann Appl Sport Sci
+   * 2(2):39, Table 1). No elite jab time was found; a lead punch's time is
+   * derived from it in proportion to its shorter path at the same peak hand
+   * speed ({@link lone}), provisional. The amateur mean jab of Stanley et
+   * al. 2018 (0.405 s, Int J Perf Anal Sport 18:835) left a champion no
+   * faster than amateurs.
+   */
+  export const CROSS_DELIVERY: number = 0.31;
+
+  /**
+   * A lone punch's delivery, launch to contact, seconds: the elite cross's
+   * time scaled by the punch's path over the cross's path to the same
+   * target, a time-scaled path at one peak hand speed (Hollerbach and Flash
+   * 1982, Biol Cybern 44:67), then by the skill's delivery factor
+   * ({@link strike}). Derived and provisional, so a jab, whose lead hand
+   * starts nearer the target, stays faster than the cross.
+   *
+   * @param path This punch's guard-to-target path, metres.
+   * @param cross The rear hand's guard-to-target path to the same target, metres.
+   * @param skill The performer's skill.
+   * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the derivation, its sources and units.
+   * @evidence contracts/development/implementation.md#principled-implementation Time scaling of a fixed movement at one peak speed: duration proportional to path length (Hollerbach and Flash 1982).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ratio and one product.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A degenerate cross path keeps the cross's own time.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function lone(
+    path: number,
+    cross: number,
+    skill: IAutoMovieMotionHumanSkill,
+  ): number {
+    const share: number = cross > 1e-9 ? path / cross : 1;
+    return CROSS_DELIVERY * share * strike(skill);
+  }
 
   /** Contact-to-contact interval of alternating hands in a combination at elite skill, seconds (Piorkowski, Lees and Barton 2011, Sports Biomech 10:1: 1.05 s over three intervals); {@link interval} scales it by skill. */
   export const ALTERNATING_INTERVAL: number = 1.05 / 3;

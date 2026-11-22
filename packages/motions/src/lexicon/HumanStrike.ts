@@ -45,7 +45,7 @@ import { punch } from "../striking/punch";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own.
  */
 export namespace HumanStrike {
-  /** A straight punch with the lead hand. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** A straight punch with the lead hand. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const jab: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["jab"]
   > = HumanActionRow.of("jab", punch, {
@@ -53,7 +53,7 @@ export namespace HumanStrike {
     hand: "lead",
   });
 
-  /** A straight punch with the rear hand. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** A straight punch with the rear hand. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const cross: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["cross"]
   > = HumanActionRow.of("cross", punch, {
@@ -61,7 +61,7 @@ export namespace HumanStrike {
     hand: "rear",
   });
 
-  /** A hook with the lead hand. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** A hook with the lead hand. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const leadHook: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["leadHook"]
   > = HumanActionRow.of("leadHook", punch, {
@@ -69,7 +69,7 @@ export namespace HumanStrike {
     hand: "lead",
   });
 
-  /** A hook with the rear hand. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** A hook with the rear hand. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const rearHook: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["rearHook"]
   > = HumanActionRow.of("rearHook", punch, {
@@ -77,7 +77,7 @@ export namespace HumanStrike {
     hand: "rear",
   });
 
-  /** An uppercut with the lead hand. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** An uppercut with the lead hand. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const leadUppercut: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["leadUppercut"]
   > = HumanActionRow.of("leadUppercut", punch, {
@@ -85,7 +85,7 @@ export namespace HumanStrike {
     hand: "lead",
   });
 
-  /** An uppercut with the rear hand. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** An uppercut with the rear hand. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const rearUppercut: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["rearUppercut"]
   > = HumanActionRow.of("rearUppercut", punch, {
@@ -93,7 +93,7 @@ export namespace HumanStrike {
     hand: "rear",
   });
 
-  /** A wing chun chain punch with the lead hand: a vertical fist along the centreline. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** A wing chun chain punch with the lead hand: a vertical fist along the centreline. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const chainPunch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["chainPunch"]
   > = HumanActionRow.of("chainPunch", punch, {
@@ -101,7 +101,7 @@ export namespace HumanStrike {
     hand: "lead",
   });
 
-  /** A wing chun chain punch with the rear hand. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** A wing chun chain punch with the rear hand. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const rearChainPunch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["rearChainPunch"]
   > = HumanActionRow.of("rearChainPunch", punch, {
@@ -126,7 +126,7 @@ export namespace HumanStrike {
     spin: true,
   });
 
-  /** A backfist with the lead hand. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** A backfist with the lead hand. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const backfist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["backfist"]
   > = HumanActionRow.of("backfist", punch, {
@@ -134,7 +134,7 @@ export namespace HumanStrike {
     hand: "lead",
   });
 
-  /** A hammerfist with the rear hand. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** A hammerfist with the rear hand. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const hammerfist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["hammerfist"]
   > = HumanActionRow.of("hammerfist", punch, {
@@ -142,7 +142,7 @@ export namespace HumanStrike {
     hand: "rear",
   });
 
-  /** A palm-heel strike with the rear hand. Launch to contact 0.405 s at elite skill, 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
+  /** A palm-heel strike with the rear hand. Launch to contact 0.310 s at elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}). */
   export const palmHeel: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["palmHeel"]
   > = HumanActionRow.of("palmHeel", punch, {
@@ -150,7 +150,7 @@ export namespace HumanStrike {
     hand: "rear",
   });
 
-  /** A horizontal elbow with the rear arm, swept across the line. Launch to contact 0.405 s at elite skill, 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
+  /** A horizontal elbow with the rear arm, swept across the line. Launch to contact 0.310 s at elite skill, the elite cross's (Cheraghi et al. 2014), 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
   export const horizontalElbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["horizontalElbow"]
   > = HumanActionRow.of("horizontalElbow", closeStrike, {
@@ -158,7 +158,7 @@ export namespace HumanStrike {
     arm: "rear",
   });
 
-  /** A rising elbow with the rear arm, brought up under the target. Launch to contact 0.405 s at elite skill, 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
+  /** A rising elbow with the rear arm, brought up under the target. Launch to contact 0.310 s at elite skill, the elite cross's (Cheraghi et al. 2014), 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
   export const risingElbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["risingElbow"]
   > = HumanActionRow.of("risingElbow", closeStrike, {
@@ -166,7 +166,7 @@ export namespace HumanStrike {
     arm: "rear",
   });
 
-  /** A descending elbow with the rear arm, brought down onto the target. Launch to contact 0.405 s at elite skill, 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
+  /** A descending elbow with the rear arm, brought down onto the target. Launch to contact 0.310 s at elite skill, the elite cross's (Cheraghi et al. 2014), 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
   export const descendingElbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["descendingElbow"]
   > = HumanActionRow.of("descendingElbow", closeStrike, {
@@ -174,7 +174,7 @@ export namespace HumanStrike {
     arm: "rear",
   });
 
-  /** A spinning elbow: a whole turn on the lead ball, the rear elbow landing as it comes past. Launch to contact 0.405 s at elite skill, 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
+  /** A spinning elbow: a whole turn on the lead ball, the rear elbow landing as it comes past. Launch to contact 0.310 s at elite skill, the elite cross's (Cheraghi et al. 2014), 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
   export const spinningElbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["spinningElbow"]
   > = HumanActionRow.of("spinningElbow", closeStrike, {
@@ -182,7 +182,7 @@ export namespace HumanStrike {
     arm: "rear",
   });
 
-  /** A spinning backfist: a whole turn on the lead ball, the back of the rear fist landing as it comes past. Launch to contact 0.405 s at elite skill, 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
+  /** A spinning backfist: a whole turn on the lead ball, the back of the rear fist landing as it comes past. Launch to contact 0.310 s at elite skill, the elite cross's (Cheraghi et al. 2014), 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
   export const spinningBackfist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["spinningBackfist"]
   > = HumanActionRow.of("spinningBackfist", closeStrike, {
@@ -190,7 +190,7 @@ export namespace HumanStrike {
     arm: "rear",
   });
 
-  /** A headbutt: the forehead driven onto the target, the hands on a person's neck. Launch to contact 0.405 s at elite skill, 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
+  /** A headbutt: the forehead driven onto the target, the hands on a person's neck. Launch to contact 0.310 s at elite skill, the elite cross's (Cheraghi et al. 2014), 1.06 times that at novice (the punch's timing, {@link IAutoMovieMotionHumanCloseStrike}). */
   export const headbutt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["headbutt"]
   > = HumanActionRow.of("headbutt", closeStrike, {
