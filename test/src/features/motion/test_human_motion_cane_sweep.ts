@@ -20,19 +20,19 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
+import { checkTakeClean } from "../internal/checkTakeClean";
+import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** Where the cane stands before it is taken up, beside the right foot, world metres. */
 const STAND: IAutoMovieVector3 = { x: -0.3, y: 0, z: 0.3 };
 
 /** How far the walk goes along the corridor, metres. */
-const CORRIDOR: number = 3;
+const CORRIDOR: number = 4;
 
-/** How long the cane is swept over the walk, seconds. */
-const SWEEP: number = 1.8;
+/** How long the cane is swept over the walk, seconds: within the corridor walk's time, long enough for several steps. */
+const SWEEP: number = 2.8;
 
 /** How close a touching tip lies to the floor, metres: the campaign's ground-contact bound. */
 const FLOOR: number = 0.002;
@@ -69,19 +69,55 @@ const MIDLINE: number = 0.02;
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain.
  */
 export function test_human_motion_cane_sweep(): void {
-  for (const fit of ["m-average", "f-small"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
-    const length: number = Math.min(
-      createLongCane.BANDS.length.maximum,
-      Math.max(createLongCane.BANDS.length.minimum, sternum(body)),
-    );
-    for (const technique of ["twoPoint", "constant"] as const) {
-      const label: string = `${fit} ${technique}`;
+  const checks: motionComplaints.IGatherer = motionComplaints();
+  for (const fit of ["m-average", "f-small"] as const)
+    for (const technique of ["twoPoint", "constant"] as const)
+      try {
+        verify(checks, motionHumanBody(fit), `${fit} ${technique}`, technique);
+      } catch (error: unknown) {
+        checks.check(
+          `${fit} ${technique}: ${error instanceof Error ? error.message : String(error)}`,
+          false,
+        );
+      }
+
+  // 5. The shortest cane.
+  checks.check(
+    "a cane too short to reach the floor from the waist is refused on the prop",
+    ((): boolean => {
+      try {
+        sweep(
+          motionHumanBody("m-average"),
+          createLongCane({ length: createLongCane.BANDS.length.minimum }),
+          "twoPoint",
+        ).bones("a", 3);
+        return false;
+      } catch (error: unknown) {
+        return error instanceof HumanRefusal && error.axis === "prop";
+      }
+    })(),
+  );
+  checks.assert("the long cane sweeps meet their acceptance");
+}
+
+/** One body's sweep in one technique and its checks 1 to 4. */
+function verify(
+  checks: motionComplaints.IGatherer,
+  body: IAutoMovieMotionHumanBody,
+  label: string,
+  technique: IAutoMovieMotionHumanCaneSweep.Technique,
+): void {
+  const length: number = Math.min(
+    createLongCane.BANDS.length.maximum,
+    Math.max(createLongCane.BANDS.length.minimum, sternum(body)),
+  );
+  {
+    {
       const cane: ReturnType<typeof createLongCane> = createLongCane({
         length,
       });
       const film: HumanPerformance = sweep(body, cane, technique);
-      assertTakeClean(label, film);
+      checkTakeClean(checks, label, film);
       const overlay: IAutoMovieMotionHumanSegment = film.overlays("a")[0]!;
       const touches: number[] = overlay.plan.events
         .filter((e: IAutoMovieMotionEvent): boolean =>
@@ -100,7 +136,7 @@ export function test_human_motion_cane_sweep(): void {
       };
       const widest: number =
         body.measure.shoulderHalfWidth + body.measure.upperArmRadius;
-      TestValidator.predicate(
+      checks.check(
         `${label}: the sweep touches at every step (${touches.length})`,
         touches.length >= 2,
       );
@@ -117,11 +153,11 @@ export function test_human_motion_cane_sweep(): void {
         // Walking along +Z, the walker's left is +X.
         const lateral: number = at.x - hips.x;
         const leading: number = left.z > right.z ? 1 : -1;
-        TestValidator.predicate(
+        checks.check(
           `${label}: at ${t.toFixed(2)} s the tip touches the floor opposite the landing foot (${(at.y * 1000).toFixed(1)} mm up, ${(lateral * 1000).toFixed(0)} mm across)`,
           at.y <= FLOOR && lateral * leading < 0,
         );
-        TestValidator.predicate(
+        checks.check(
           `${label}: at ${t.toFixed(2)} s the touch lies in the shoulder-width band (${(Math.abs(lateral) * 1000).toFixed(0)} mm)`,
           Math.abs(lateral) >= body.measure.shoulderHalfWidth &&
             Math.abs(lateral) <= widest + BEYOND,
@@ -132,7 +168,7 @@ export function test_human_motion_cane_sweep(): void {
       for (let i: number = 1; i < touches.length; ++i) {
         const mid: number = (touches[i - 1]! + touches[i]!) / 2;
         const height: number = tip(mid).y;
-        TestValidator.predicate(
+        checks.check(
           `${label}: between touches ${i} and ${i + 1} the tip ${technique === "twoPoint" ? "lifts no more than an inch" : "stays on the floor"} (${(height * 1000).toFixed(1)} mm)`,
           technique === "twoPoint"
             ? height > FLOOR && height <= LIFT + FLOOR
@@ -151,29 +187,12 @@ export function test_human_motion_cane_sweep(): void {
           );
         }),
       );
-      TestValidator.predicate(
+      checks.check(
         `${label}: the cane hand stays at the midline (${(off * 1000).toFixed(1)} mm)`,
         off <= MIDLINE,
       );
     }
   }
-
-  // 5. The shortest cane.
-  TestValidator.predicate(
-    "a cane too short to reach the floor from the waist is refused on the prop",
-    ((): boolean => {
-      try {
-        sweep(
-          motionHumanBody("m-average"),
-          createLongCane({ length: createLongCane.BANDS.length.minimum }),
-          "twoPoint",
-        ).bones("a", 3);
-        return false;
-      } catch (error: unknown) {
-        return error instanceof HumanRefusal && error.axis === "prop";
-      }
-    })(),
-  );
 }
 
 /** The sternum's standing height, metres: the long cane's fitting length. */

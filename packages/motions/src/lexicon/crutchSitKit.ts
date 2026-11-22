@@ -210,6 +210,57 @@ export namespace crutchSitKit {
     };
   }
 
+  /** How far apart the two crutches stand in one hand, metres (provisional: two shafts side by side). */
+  export const SPACING: number = 0.035;
+
+  /** How far ahead of the chest's front the gathered crutches stand, metres (provisional: the underarm pad's half length and a hand's breadth clear of the chest). */
+  export const AHEAD: number = 0.2;
+
+  /**
+   * A crutch's upright frame where both crutches are gathered into the
+   * injured side's hand, before a body standing on a posture: on the floor
+   * `AHEAD` before the chest's front, the injured side's crutch half the
+   * hip's half width toward the injured side, the sound side's crutch
+   * `SPACING` inside it, so the sound hand reaches in front of the body and
+   * never across it.
+   *
+   * @param kit The kit.
+   * @param posture The standing posture, its root and heading.
+   * @param side The crutch's side.
+   * @returns The crutch's world frame, upright.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the place, its parts and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The tip's floor place from the body's measure in the posture's frame, the crutch upright and turned to the heading (`crutchSitPath.slid`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One place and one frame.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clearances are marked provisional.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function gathered(
+    kit: IKit,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieRigidTransform {
+    const m: IAutoMovieMotionHumanBody["measure"] = kit.body.measure;
+    const ahead: IAutoMovieVector3 = forward(posture.yaw);
+    const aside: number =
+      m.hipHalfWidth / 2 - (side === kit.injured ? 0 : SPACING);
+    const tip: IAutoMovieVector3 = Vector3.add(
+      { x: posture.root.x, y: 0, z: posture.root.z },
+      Vector3.add(
+        Vector3.scale(ahead, m.chestDepth / 2 + AHEAD),
+        Vector3.scale(lateral(posture.yaw, kit.injured), aside),
+      ),
+    );
+    return crutchSitPath.slid(
+      kit.crutch[side],
+      tip,
+      Vector3.add(tip, { x: 0, y: 1, z: 0 }),
+      ahead,
+    );
+  }
+
   /**
    * A held leg's angles on a minimum-jerk share between two.
    *

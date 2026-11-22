@@ -165,6 +165,18 @@ function frameAt(
   return place(level(climb, k));
 }
 
+/** How many treads the sound foot has stepped onto by a second since the climb's start: going up it steps at the middle of each step, going down at its end. */
+function arrived(climb: IClimb, seconds: number): number {
+  let k: number = 0;
+  for (let i: number = 0; i < climb.moves.length; ++i)
+    if (
+      seconds >=
+      climb.ready + i * climb.step + (climb.sign > 0 ? 0.5 : 1) * climb.step
+    )
+      k = i + 1;
+  return k;
+}
+
 /** Refuse a crutch setting with its reason. */
 function refuse(axis: string, value: unknown, reason: string): never {
   throw new HumanRefusal({
@@ -379,9 +391,34 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       posture,
       yields: ["head"],
       contacts: [
-        ...plan.contacts.filter(
-          (w: IAutoMovieMotionHumanContactWindow): boolean =>
-            !(w.part === `${injured}Foot` && w.from * plan.duration >= lifted),
+        ...plan.contacts.flatMap(
+          (
+            w: IAutoMovieMotionHumanContactWindow,
+          ): IAutoMovieMotionHumanContactWindow[] =>
+            // The injured foot bears only until it lifts; the sound foot
+            // bears on the tread it stands on.
+            w.part === `${injured}Foot`
+              ? w.from * plan.duration >= lifted
+                ? []
+                : [{ ...w, to: Math.min(w.to, lifted / plan.duration) }]
+              : w.part === `${sound}Foot`
+                ? [
+                    {
+                      ...w,
+                      support: {
+                        kind: "ground",
+                        height:
+                          floor.y +
+                          climb.sign *
+                            climb.riser *
+                            arrived(
+                              climb,
+                              ((w.from + w.to) / 2) * plan.duration,
+                            ),
+                      },
+                    },
+                  ]
+                : [w],
         ),
         ...(["left", "right"] as const).map(
           (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({

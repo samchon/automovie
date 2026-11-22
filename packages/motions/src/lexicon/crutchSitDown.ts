@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -11,7 +11,6 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSeated,
-  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -39,9 +38,6 @@ const SEATED: IAutoMovieHumanLimbReference = {
   lower: [60, 0, 0],
 };
 
-/** How far apart the two crutches stand in one hand, metres (provisional: two shafts side by side). */
-const SPACING: number = 0.035;
-
 /** How far a seated hand rests beside the thigh's side, metres (provisional: a hand's breadth out). */
 const BESIDE: number = 0.08;
 
@@ -53,16 +49,18 @@ const BESIDE: number = 0.08;
  * First each hand closes on its crutch's handgrip where it stands
  * (`taken`, `crutchSitPath.grasped`) while the injured leg lifts off the
  * floor to `STANDING`. Then both crutches are gathered into the injured
- * side's hand (`gathered`): that hand carries its crutch to stand upright
- * on the floor at the tip from which, pivoting, its grip comes down to the
- * seated hand's place beside the thigh, and the sound hand carries its
- * crutch `SPACING` beside it, where it is worn on the injured side's hand
- * from then on. Then the sound hand reaches back to the chair (`reached`):
- * onto its armrest on the sound side, as the sit law places a hand there,
- * or onto the seat beside the hip. Then the sit law lowers the body onto
- * the seat while the injured side's hand comes down the crutches' pivot arc
- * to its seated place, the crutches tilting on their planted tips, top
- * back, and the injured leg goes from `STANDING` to `SEATED`.
+ * side's hand (`gathered`): both hands carry their crutches to stand upright
+ * side by side before the body (`crutchSitKit.gathered`), and the sound
+ * crutch is worn on the injured side's hand from then on. Then the sit law
+ * lowers the body while the sound hand reaches back for the chair, onto
+ * its armrest on the sound side as the sit law places a hand there, or onto
+ * the seat beside the hip, as the seat takes the body (`reached`); a
+ * standing hand cannot reach an armrest behind the hips, so the reach rides
+ * the descent as the sit law's own does. The injured side's hand brings the
+ * crutches down to its seated place beside the
+ * thigh, the crutches tilting top back as their tips slide forward on the
+ * floor to where the crutch's length reaches that place, and the injured
+ * leg goes from `STANDING` to `SEATED`.
  *
  * @param context The crutch sit's context.
  * @param kit Its shared reads.
@@ -121,8 +119,8 @@ export function crutchSitDown(
     `${injured}Leg`,
   );
 
-  // The seated hand's grip place beside the injured thigh, and the planted
-  // tip from which the crutch's pivot brings its grip there.
+  // The seated hand's grip place beside the injured thigh, and the tip on
+  // the floor ahead of it from which the crutch's length reaches it.
   const cA: crutchSitPath.ICrutch = crutch[injured];
   const seatedAt: IAutoMovieVector3 = Vector3.add(
     Vector3.add(
@@ -144,22 +142,24 @@ export function crutchSitDown(
     { x: seatedAt.x, y: 0, z: seatedAt.z },
     Vector3.scale(f, cA.length * Math.sin((tilt * Math.PI) / 180)),
   );
-  const axis: IAutoMovieVector3 = crutchSitKit.lateral(seat.yaw, "left");
-  const upright: IAutoMovieQuaternion = kit.start(injured).rotation;
-  const gatheredA: IAutoMovieRigidTransform = crutchSitPath.pivoted(
-    cA,
-    tip,
-    upright,
-    axis,
-    0,
+  const gatheredA: IAutoMovieRigidTransform = crutchSitKit.gathered(
+    kit,
+    entry,
+    injured,
   );
-  const gatheredB: IAutoMovieRigidTransform = {
-    position: Vector3.add(
-      gatheredA.position,
-      Vector3.scale(crutchSitKit.lateral(seat.yaw, injured), SPACING),
-    ),
-    rotation: gatheredA.rotation,
-  };
+  const gatheredB: IAutoMovieRigidTransform = crutchSitKit.gathered(
+    kit,
+    entry,
+    sound,
+  );
+  const tipA: IAutoMovieVector3 = Vector3.add(
+    gatheredA.position,
+    Quaternion.rotateVector(gatheredA.rotation, cA.tip),
+  );
+  const gripA: IAutoMovieVector3 = Vector3.add(
+    gatheredA.position,
+    Quaternion.rotateVector(gatheredA.rotation, cA.grip),
+  );
   const gather: number = AutoMovieMotionHumanTiming.transport(
     Math.max(
       Vector3.distance(kit.start(injured).position, gatheredA.position),
@@ -167,11 +167,14 @@ export function crutchSitDown(
     ),
   );
 
-  // The sound hand's rest on the chair: its armrest, or the seat beside the hip.
+  // The sound hand's rest on the chair, on the body's posture as it lowers:
+  // its armrest as the sit law places a hand there, or the seat beside the hip.
   const armrest: IAutoMovieVector3 | undefined = seat.armrests?.[sound];
-  const settled: IAutoMovieHumanLimbGoal =
+  const settled = (
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieHumanLimbGoal =>
     armrest !== undefined
-      ? seated.armrest(body, entry, sound, armrest, seat.yaw)
+      ? seated.armrest(body, posture, sound, armrest, seat.yaw)
       : {
           ...HumanHand.place(
             body,
@@ -193,18 +196,20 @@ export function crutchSitDown(
             }),
             "flat",
           ),
-          bend: AutoMovieMotionHumanBend.hang(body, entry, sound, 0.2),
+          bend: AutoMovieMotionHumanBend.hang(body, posture, sound, 0.2),
         };
-  const reach: number = AutoMovieMotionHumanTiming.transport(
-    Vector3.distance(kit.goal(sound, hB, gatheredB).point, settled.point),
-  );
   const plan: IAutoMovieMotionHumanActionPlan = sit.plan({
     ...context,
     params: { seat },
   });
   const carried: number = take + gather;
-  const lower: number = carried + reach;
+
+  // The sit starts once the crutches are gathered; the sound hand reaches
+  // back for the chair as the body lowers, onto it as the seat takes the
+  // body, as the sit law brings a hand to its armrest.
+  const lower: number = carried;
   const descent: number = kit.at(plan, "seated");
+  const reach: number = kit.at(plan, "seatContact");
   const duration: number = lower + plan.duration;
 
   const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -226,14 +231,19 @@ export function crutchSitDown(
         : kit.goal(
             injured,
             hA,
-            crutchSitPath.pivoted(cA, tip, upright, axis, -tilt * k),
+            crutchSitPath.slid(
+              cA,
+              Vector3.lerp(tipA, tip, k),
+              Vector3.lerp(gripA, seatedAt, k),
+              f,
+            ),
           );
     const soundArm: IAutoMovieHumanLimbGoal =
       t < carried
         ? kit.goal(sound, hB, moved(sound))
         : crutchSitKit.blend(
             kit.goal(sound, hB, gatheredB),
-            settled,
+            settled(under),
             (t - carried) / reach,
           );
     return kit.write(
@@ -293,7 +303,7 @@ export function crutchSitDown(
     {
       part: grip(sound),
       kind: "plant",
-      from: lower / duration,
+      from: (lower + reach) / duration,
       to: 1,
       support: HumanSupportFrame.of(context),
     },
@@ -301,7 +311,7 @@ export function crutchSitDown(
   const events: IAutoMovieMotionEvent[] = [
     { name: "taken", share: take / duration },
     { name: "gathered", share: carried / duration },
-    { name: "reached", share: lower / duration },
+    { name: "reached", share: (lower + reach) / duration },
     ...plan.events.map(
       (e: IAutoMovieMotionEvent): IAutoMovieMotionEvent => ({
         ...e,

@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieMotionHumanChannel,
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -60,7 +61,9 @@ interface ITouch {
  * cane hand is held at the midline, `AHEAD` of the forearm before the hips
  * at the waist's height (the hand's place in the walker's moving frame).
  * The walk's own steps are read from its posture at `RATE`: each instant a
- * leg's goal becomes planted is a landing, and at each landing the tip
+ * leg's goal becomes planted while the hand holds the cane pose (after the
+ * `REACH` to it and before the `RETURN` from it) is a landing, and at each
+ * landing the tip
  * touches the floor on the opposite side, `BEYOND` outside the body's
  * widest part (the shoulder and the upper arm), as the two-point touch
  * places it. Between two touches the tip crosses on a minimum-jerk share,
@@ -70,7 +73,8 @@ interface ITouch {
  * cane's grip-to-tip length spans from the hand to the tip, and the cane's
  * shaft points from the tip to the hand; the hand that holds it is placed
  * for that frame (`HumanWornItem.holding`) and laid as one course
- * (`courseArmGoal`). Events: `touch<n>`. A cane too short to reach the
+ * (`courseArmGoal`), under a grip window on the cane that keeps it in the
+ * hand and a hold that leaves it there. Events: `touch<n>`. A cane too short to reach the
  * floor ahead, or a walk with no landing in the span, is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the hand's place, how steps are read, the touch rule, the crossing, the cane's frame, the course, the events and the refusals.
@@ -124,12 +128,16 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
       const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
       const wide: number = m.shoulderHalfWidth + m.upperArmRadius + BEYOND;
 
-      // The walk's landings, from its planted legs.
+      // The walk's landings, from its planted legs, while the hand holds the
+      // cane pose: after the reach to it and before the return from it.
+      const ready: number = Math.min(REACH, p.seconds / 2);
+      const relax: number = Math.max(p.seconds / 2, p.seconds - RETURN);
       const touches: ITouch[] = [];
       const steps: number = Math.ceil(p.seconds * RATE);
       let before: Record<AutoMovieHumanSide, boolean> | undefined;
       for (let k: number = 0; k <= steps; ++k) {
         const t: number = (k / steps) * p.seconds;
+        if (t < ready || t > relax) continue;
         const posture: IAutoMovieMotionHumanPosture = carrier.posture(t);
         const now: Record<AutoMovieHumanSide, boolean> = {
           left: posture.limbs.leftLeg?.planted === true,
@@ -217,15 +225,27 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
 
       const duration: number = p.seconds;
       const limb: courseArmGoal.Limb = side === "left" ? "leftArm" : "rightArm";
+      const channels: readonly AutoMovieMotionHumanChannel[] = [
+        limb,
+        side === "left" ? "leftHand" : "rightHand",
+      ];
+      const under: IAutoMovieMotionHumanActionPlan =
+        AutoMovieMotionHumanBase.under(context, duration);
+
+      // The held hand is driven only under a grip on its prop, which keeps
+      // the cane in it through the sweep and leaves it held after.
       const goals: IAutoMovieMotionHumanActionPlan = {
-        ...AutoMovieMotionHumanBase.under(context, duration),
+        ...under,
         events: touches.map(
           (touch: ITouch, n: number): IAutoMovieMotionEvent => ({
             name: `touch${n + 1}`,
             share: touch.at / duration,
           }),
         ),
-        channels: [limb, side === "left" ? "leftHand" : "rightHand"],
+        contacts: [...under.contacts, AutoMovieMotionHumanHeld.grip(held)],
+        holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+        channels,
+        enteredChannels: channels,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
           const base: IAutoMovieMotionHumanPosture = carrier.posture(seconds);
           const target: IAutoMovieMotionHumanArmTarget.ITarget =
@@ -259,12 +279,7 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
         plan: goals,
         side,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-        span: {
-          start: 0,
-          ready: Math.min(REACH, duration / 2),
-          relax: Math.max(duration / 2, duration - RETURN),
-          end: duration,
-        },
+        span: { start: 0, ready, relax, end: duration },
       });
     },
   };

@@ -24,14 +24,12 @@ const LIFT: number = 0.04;
 
 /**
  * The geometry of sitting and rising with two crutches held in one hand
- * (#3994): the crutches' grip and tip, a crutch's frame tilted about its
- * planted tip, a carried crutch's lifted path, and a prop's offset in the
- * grip frame of the hand that is about to hold it.
+ * (#3994): the crutches' grip and tip, a crutch's frame tilted with its tip
+ * on the floor, a carried crutch's lifted path, a hand's grip socket, and a
+ * crutch's offset in the grip frame of the hand that holds it.
  *
  * A crutch stands on its tip, its shaft along its own `+Y`; the grip lies
- * `length` above the tip. Pivoting on the planted tip, the crutch tilts in
- * the vertical plane of the seat's heading, its top back toward the seated
- * body, so the grip comes down an arc of that radius.
+ * `length` above the tip.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace computes and the crutch's frame.
  * @evidence contracts/development/design.md#principled-representation A crutch is its rigid frame with a grip and a tip; every path is a frame of it.
@@ -98,32 +96,33 @@ export namespace crutchSitPath {
   }
 
   /**
-   * The crutch's frame pivoted on its planted tip by a tilt about a level axis.
+   * A crutch's frame with its tip on a point and its shaft toward another,
+   * its handgrip turned toward a heading: the frame of a crutch tilting as
+   * its tip slides along the floor.
    *
    * @param c The crutch.
-   * @param tip The planted tip, world metres.
-   * @param upright The crutch's rotation standing upright.
-   * @param axis The level axis it tilts about, world.
-   * @param degrees The tilt, degrees by the right-hand rule about the axis.
+   * @param tip The tip, world metres.
+   * @param toward A point the shaft points to from the tip, world metres.
+   * @param forward The level heading the handgrip's axis turns to, world.
    * @returns The crutch's world frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, frames and result.
-   * @evidence contracts/development/implementation.md#principled-implementation The tilt composes before the upright rotation and the tip stays where it is planted.
+   * @evidence contracts/development/implementation.md#principled-implementation The rotation turning the shaft's `+Y` onto the tip-to-point direction and its `+Z` toward the heading (`HumanHand.align`), placed so the tip stays on its point.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation and one placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact rigid geometry.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function pivoted(
+  export function slid(
     c: ICrutch,
     tip: IAutoMovieVector3,
-    upright: IAutoMovieQuaternion,
-    axis: IAutoMovieVector3,
-    degrees: number,
+    toward: IAutoMovieVector3,
+    forward: IAutoMovieVector3,
   ): IAutoMovieRigidTransform {
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(Quaternion.fromAxisAngle(axis, degrees), upright),
+    const rotation: IAutoMovieQuaternion = HumanHand.align(
+      { normal: UP, forward: { x: 0, y: 0, z: 1 } },
+      { normal: Vector3.normalize(Vector3.subtract(toward, tip)), forward },
     );
     return {
       position: Vector3.subtract(tip, Quaternion.rotateVector(rotation, c.tip)),

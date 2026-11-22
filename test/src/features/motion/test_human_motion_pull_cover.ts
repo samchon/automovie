@@ -21,14 +21,14 @@ import {
   HumanRefusal,
   pullCover,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
+import { checkTakeClean } from "../internal/checkTakeClean";
+import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { softPanel } from "../internal/softPanel";
 
-/** How far above the skin a gripped cover's edge rides, metres: a blanket's thickness and the closed fingers under it, the law's own premise for where the hands go. */
-const OVER: number = 0.03;
+/** How far above the skin a gripping hand's socket rides, metres: the closed fist's half depth over a blanket's thickness, the law's own premise for where the hands go. */
+const OVER: number = 0.05;
 
 /** How near the cover's edge comes to a site it is drawn to, metres: the touch contract's 10 mm disc and half the lattice's spacing, as the grip binds the particle nearest the hand. */
 const REACH: number = 0.01 + 0.04;
@@ -68,10 +68,41 @@ const HOLD: number = 0.5;
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain with a soft prop.
  */
 export function test_human_motion_pull_cover(): void {
-  for (const fit of ["m-average", "f-small"] as const) {
+  const checks: motionComplaints.IGatherer = motionComplaints();
+  for (const fit of ["m-average", "f-small"] as const)
+    try {
+      verify(checks, fit);
+    } catch (error: unknown) {
+      checks.check(
+        `${fit}: ${error instanceof Error ? error.message : String(error)}`,
+        false,
+      );
+    }
+
+  // 4. Standing.
+  checks.check(
+    "a cover pulled while standing is refused on the base",
+    ((): boolean => {
+      try {
+        bed(motionHumanBody("m-average"), false).bones("a", 1);
+        return false;
+      } catch (error: unknown) {
+        return error instanceof HumanRefusal && error.axis === "base";
+      }
+    })(),
+  );
+  checks.assert("the cover pull and push meet their acceptance");
+}
+
+/** The bodies covered. */
+type Fit = "m-average" | "f-small";
+
+/** One body's take and its checks 1 to 3. */
+function verify(checks: motionComplaints.IGatherer, fit: Fit): void {
+  {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
     const film: HumanPerformance = bed(body, true);
-    assertTakeClean(`${fit} pulls a cover up and off`, film);
+    checkTakeClean(checks, `${fit} pulls a cover up and off`, film);
     const [pull, push]: IAutoMovieMotionHumanSegment[] = film
       .segments("a")
       .filter(
@@ -115,7 +146,7 @@ export function test_human_motion_pull_cover(): void {
 
     // 1 and 2. The edge at the chest, then back at the thighs.
     const up: number = reaches(end(pull!), ["chestLeft", "chestRight"]);
-    TestValidator.predicate(
+    checks.check(
       `${fit}: the pulled edge lies at the chest (${(up * 1000).toFixed(0)} mm)`,
       up <= REACH,
     );
@@ -123,7 +154,7 @@ export function test_human_motion_pull_cover(): void {
       "thighFrontLeft",
       "thighFrontRight",
     ]);
-    TestValidator.predicate(
+    checks.check(
       `${fit}: the pushed edge lies back at the thighs (${(off * 1000).toFixed(0)} mm)`,
       off <= REACH,
     );
@@ -149,24 +180,11 @@ export function test_human_motion_pull_cover(): void {
         lowest = Math.min(lowest, p.y);
       }
     }
-    TestValidator.predicate(
+    checks.check(
       `${fit}: the cover stays over the body (deepest ${(deepest * 1000).toFixed(1)} mm, lowest ${(lowest * 1000).toFixed(0)} mm)`,
       deepest >= 0 && lowest > 0,
     );
   }
-
-  // 4. Standing.
-  TestValidator.predicate(
-    "a cover pulled while standing is refused on the base",
-    ((): boolean => {
-      try {
-        bed(motionHumanBody("m-average"), false).bones("a", 1);
-        return false;
-      } catch (error: unknown) {
-        return error instanceof HumanRefusal && error.axis === "base";
-      }
-    })(),
-  );
 }
 
 /** A region's world point lifted `OVER` along its normal, on posed bones. */

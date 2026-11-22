@@ -10,7 +10,6 @@ import type {
   IAutoMovieMotionHumanCrutchSit,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -28,9 +27,6 @@ const STANDING: IAutoMovieHumanLimbReference = {
   lower: [80, 0, 0],
 };
 
-/** How far apart the two crutches stand in one hand, metres (provisional: two shafts side by side, as the sit gathers them). */
-const SPACING: number = 0.035;
-
 /** How far a crutch tip stands beside and ahead of its foot after a rise, metres: the tripod position (Physiopedia, Crutches). */
 const TRIPOD: number = 0.15;
 
@@ -41,9 +37,10 @@ const TRIPOD: number = 0.15;
  *
  * The rise law stands the body on the sound leg while the sound hand pushes
  * on the chair until the seat is left (`seatOff`) and the injured side's
- * hand brings the crutches back up their arc to upright by `standing`; the
- * injured leg goes from its seated angles to `STANDING`. Then the sound hand
- * takes its crutch back from beside the other (`taken`,
+ * hand brings the crutches back upright side by side before the body by
+ * `standing` (`crutchSitKit.gathered`), their tips sliding back on the
+ * floor; the injured leg goes from its seated angles to `STANDING`. Then the
+ * sound hand takes its crutch back from beside the other (`taken`,
  * `crutchSitPath.grasped`), and both crutches are carried to stand `TRIPOD`
  * beside and ahead of the feet (`planted`).
  *
@@ -66,23 +63,16 @@ export function crutchSitUp(
   const { body, entry, injured, sound, crutch, subject }: crutchSitKit.IKit =
     kit;
 
-  // The crutches as the sit left them: tilted on their planted tips.
+  // The crutches as the sit left them: tilted, their tips on the floor.
   const cA: crutchSitPath.ICrutch = crutch[injured];
   const frameA: IAutoMovieRigidTransform = kit.start(injured);
   const tip: IAutoMovieVector3 = Vector3.add(
     frameA.position,
     Quaternion.rotateVector(frameA.rotation, cA.tip),
   );
-  const shaft: IAutoMovieVector3 = Quaternion.rotateVector(frameA.rotation, {
-    x: 0,
-    y: 1,
-    z: 0,
-  });
-  const tilt: number =
-    (Math.acos(Math.min(1, Math.max(-1, shaft.y))) * 180) / Math.PI;
-  const axis: IAutoMovieVector3 = crutchSitKit.lateral(entry.yaw, "left");
-  const upright: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(Quaternion.fromAxisAngle(axis, tilt), frameA.rotation),
+  const gripAt: IAutoMovieVector3 = Vector3.add(
+    frameA.position,
+    Quaternion.rotateVector(frameA.rotation, cA.grip),
   );
   const hA: IAutoMovieMotionHumanHeld.IHeld = crutchSitPath.held(
     body,
@@ -114,37 +104,44 @@ export function crutchSitUp(
       body.measure.hipHalfWidth,
     ),
   );
-  const planted = (side: AutoMovieHumanSide): IAutoMovieRigidTransform =>
-    crutchSitPath.pivoted(
-      crutch[side],
+  const planted = (side: AutoMovieHumanSide): IAutoMovieRigidTransform => {
+    const at: IAutoMovieVector3 = Vector3.add(
+      { x: centre.x, y: 0, z: centre.z },
       Vector3.add(
-        { x: centre.x, y: 0, z: centre.z },
-        Vector3.add(
-          Vector3.scale(
-            crutchSitKit.lateral(risen.yaw, side),
-            body.measure.hipHalfWidth + TRIPOD,
-          ),
-          Vector3.scale(f, TRIPOD),
+        Vector3.scale(
+          crutchSitKit.lateral(risen.yaw, side),
+          body.measure.hipHalfWidth + TRIPOD,
         ),
+        Vector3.scale(f, TRIPOD),
       ),
-      upright,
-      axis,
-      0,
     );
-  const uprightA: IAutoMovieRigidTransform = crutchSitPath.pivoted(
-    cA,
-    tip,
-    upright,
-    axis,
-    0,
-  );
-  const uprightB: IAutoMovieRigidTransform = {
-    position: Vector3.add(
-      uprightA.position,
-      Vector3.scale(crutchSitKit.lateral(entry.yaw, injured), SPACING),
-    ),
-    rotation: uprightA.rotation,
+    return crutchSitPath.slid(
+      crutch[side],
+      at,
+      Vector3.add(at, { x: 0, y: 1, z: 0 }),
+      f,
+    );
   };
+
+  // Standing, the crutches come upright side by side before the body.
+  const uprightA: IAutoMovieRigidTransform = crutchSitKit.gathered(
+    kit,
+    risen,
+    injured,
+  );
+  const uprightB: IAutoMovieRigidTransform = crutchSitKit.gathered(
+    kit,
+    risen,
+    sound,
+  );
+  const tipUp: IAutoMovieVector3 = Vector3.add(
+    uprightA.position,
+    Quaternion.rotateVector(uprightA.rotation, cA.tip),
+  );
+  const gripUp: IAutoMovieVector3 = Vector3.add(
+    uprightA.position,
+    Quaternion.rotateVector(uprightA.rotation, cA.grip),
+  );
   const hB: IAutoMovieMotionHumanHeld.IHeld = crutchSitPath.grasped(
     sound,
     crutch[sound],
@@ -180,7 +177,12 @@ export function crutchSitUp(
         ? kit.goal(
             injured,
             hA,
-            crutchSitPath.pivoted(cA, tip, upright, axis, -tilt * (1 - k)),
+            crutchSitPath.slid(
+              cA,
+              Vector3.lerp(tip, tipUp, k),
+              Vector3.lerp(gripAt, gripUp, k),
+              f,
+            ),
           )
         : kit.goal(
             injured,

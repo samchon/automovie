@@ -20,9 +20,9 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
+import { checkTakeClean } from "../internal/checkTakeClean";
+import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A crutch's length as a share of its user's stature: the clinical fitting the crutch walk's spec stages. */
@@ -78,14 +78,50 @@ const INJURED: AutoMovieHumanSide = "left";
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain.
  */
 export function test_human_motion_crutch_stairs(): void {
-  for (const fit of ["m-average", "f-small"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
-    for (const direction of ["up", "down"] as const) {
-      const label: string = `${fit} ${direction}`;
+  const checks: motionComplaints.IGatherer = motionComplaints();
+  for (const fit of ["m-average", "f-small"] as const)
+    for (const direction of ["up", "down"] as const)
+      try {
+        verify(checks, motionHumanBody(fit), `${fit} ${direction}`, direction);
+      } catch (error: unknown) {
+        checks.check(
+          `${fit} ${direction}: ${error instanceof Error ? error.message : String(error)}`,
+          false,
+        );
+      }
+
+  // 5. A riser too high for a single-leg step-up.
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  checks.check(
+    "a riser above 0.35 of the hip height is refused on the riser",
+    ((): boolean => {
+      try {
+        climb(body, { riser: 0.36 * body.measure.hipHeight }).film.bones(
+          "a",
+          1,
+        );
+        return false;
+      } catch (error: unknown) {
+        return error instanceof HumanRefusal && error.axis === "riser";
+      }
+    })(),
+  );
+  checks.assert("the crutch stair climbs meet their acceptance");
+}
+
+/** One body's climb in one direction and its checks 1 to 4. */
+function verify(
+  checks: motionComplaints.IGatherer,
+  body: IAutoMovieMotionHumanBody,
+  label: string,
+  direction: Direction,
+): void {
+  {
+    {
       const { film, models, params }: IClimb = climb(body, {
         direction,
       });
-      assertTakeClean(label, film);
+      checkTakeClean(checks, label, film);
       const segment: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
       const at = (name: string): number =>
         segment.start +
@@ -97,7 +133,7 @@ export function test_human_motion_crutch_stairs(): void {
       const sound: AutoMovieHumanSide = INJURED === "left" ? "right" : "left";
       const site = (
         side: AutoMovieHumanSide,
-        id: string,
+        id: createAxillaryCrutch.Affordance,
         seconds: number,
       ): IAutoMovieVector3 => {
         const frame: IAutoMovieRigidTransform = film.prop(
@@ -126,7 +162,7 @@ export function test_human_motion_crutch_stairs(): void {
         const crutch: number = at(`crutch${name}${i}`);
 
         // 1. The order, and what stays planted through each move.
-        TestValidator.predicate(
+        checks.check(
           `${label}: step ${i} moves the ${direction === "up" ? "foot, then the crutches" : "crutches, then the foot"}`,
           direction === "up"
             ? previous < foot && foot < crutch
@@ -137,7 +173,7 @@ export function test_human_motion_crutch_stairs(): void {
         const crutchMove: readonly number[] =
           direction === "up" ? [foot, crutch] : [previous, crutch];
         for (const side of ["left", "right"] as const)
-          TestValidator.predicate(
+          checks.check(
             `${label}: the ${side} tip stays planted while the foot steps ${i}`,
             Vector3.distance(
               site(side, "tip", footMove[0]!),
@@ -146,7 +182,7 @@ export function test_human_motion_crutch_stairs(): void {
           );
         const ankle = (seconds: number): IAutoMovieVector3 =>
           film.bones("a", seconds).get(`${sound}Foot`)!.worldPosition;
-        TestValidator.predicate(
+        checks.check(
           `${label}: the sound foot stays planted while the crutches move ${i}`,
           Vector3.distance(ankle(crutchMove[0]!), ankle(crutchMove[1]!)) <=
             STILL,
@@ -157,14 +193,14 @@ export function test_human_motion_crutch_stairs(): void {
           const tip: IAutoMovieVector3 = site(side, "tip", crutch);
           const ahead: number = tip.z - toes;
           const front: number = START + (i - 1) * TREAD;
-          TestValidator.predicate(
+          checks.check(
             `${label}: the ${side} tip stands on tread ${i} (${(tip.y * 1000).toFixed(0)} mm, ${(ahead * 1000).toFixed(0)} mm ahead)`,
             Math.abs(tip.y - sign * i * RISER) <= SUPPORT &&
               ahead >= front &&
               ahead <= front + TREAD,
           );
         }
-        TestValidator.predicate(
+        checks.check(
           `${label}: the sound sole stands on tread ${i} (${(sole(sound, foot) * 1000).toFixed(0)} mm)`,
           Math.abs(sole(sound, foot) - sign * i * RISER) <= SUPPORT,
         );
@@ -176,7 +212,7 @@ export function test_human_motion_crutch_stairs(): void {
               film.bones("a", t).get(`${side}Hand`)!.worldPosition,
               site(side, "grip", t),
             );
-            TestValidator.predicate(
+            checks.check(
               `${label}: the ${side} hand bears on its grip at step ${i} (${(off * 1000).toFixed(1)} mm)`,
               off <= GRIP + body.measure.hand / 2,
             );
@@ -187,7 +223,7 @@ export function test_human_motion_crutch_stairs(): void {
       // 4. The injured foot held above the sound foot's tread.
       const lifted: number = at(direction === "up" ? "footUp1" : "crutchDown1");
       const steps: number = 24;
-      TestValidator.predicate(
+      checks.check(
         `${label}: the injured foot stays above the sound foot's tread`,
         Array.from(
           { length: steps + 1 },
@@ -200,24 +236,10 @@ export function test_human_motion_crutch_stairs(): void {
       );
     }
   }
-
-  // 5. A riser too high for a single-leg step-up.
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  TestValidator.predicate(
-    "a riser above 0.35 of the hip height is refused on the riser",
-    ((): boolean => {
-      try {
-        climb(body, { riser: 0.36 * body.measure.hipHeight }).film.bones(
-          "a",
-          1,
-        );
-        return false;
-      } catch (error: unknown) {
-        return error instanceof HumanRefusal && error.axis === "riser";
-      }
-    })(),
-  );
 }
+
+/** A climb's direction. */
+type Direction = "up" | "down";
 
 /** One crutch climb and what its checks read. */
 interface IClimb {

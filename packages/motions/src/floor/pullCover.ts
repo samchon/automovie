@@ -1,7 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -13,6 +14,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanPullCover,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -30,8 +32,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
-/** How far above the skin the gripped edge rides, metres (provisional: a blanket's thickness and the closed fingers under it). */
-const OVER: number = 0.03;
+/** How far above the skin the gripping hand's grip socket rides, metres (provisional: the closed fist's half depth over a blanket's thickness). */
+const OVER: number = 0.05;
 
 /** Each hand's way up the body, its own side's regions from the thigh to the chest. */
 const WAY: Readonly<
@@ -50,8 +52,8 @@ const WAY: Readonly<
  * soft prop binds its particle nearest each hand's grip socket when the
  * grip closes) and draw it up the way to the chest by `strokeEnd`, where
  * they let go and return; pushing runs the way from the chest down. The
- * hands face the body, the palms down onto the cover, the fingers toward
- * the feet. Both arms are laid in one course (`courseArmGoal`). A performer
+ * hands face the body, the palms down onto the cover, the fingers across
+ * the body toward its midline. Both arms are laid in one course (`courseArmGoal`). A performer
  * not lying on the back (the sternum less than half the chest's depth above
  * the upper back) is refused.
  *
@@ -93,7 +95,13 @@ export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPull
           fix: "lie down on the back first",
         });
 
-      // Each hand's way, from where it grips to where it lets go.
+      // Each hand's way, from where it grips to where it lets go, read on
+      // the displayed entry pose: the thighs ride the legs, which a
+      // trunk-only reading leaves out.
+      const pose: ReturnType<typeof poseBones> = poseBones(
+        body,
+        context.entry.pose,
+      );
       const ways: Record<AutoMovieHumanSide, IAutoMovieVector3[]> = {
         left: points("left"),
         right: points("right"),
@@ -101,12 +109,19 @@ export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPull
       function points(side: AutoMovieHumanSide): IAutoMovieVector3[] {
         const placed: IAutoMovieVector3[] = WAY[side].map(
           (name: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
-            const r: ReturnType<typeof HumanTrunk.region> = HumanTrunk.region(
-              body,
-              entry,
-              name,
+            const frame: IAutoMovieHumanoidSurfaces.IFrame =
+              body.surfaces.regions[name];
+            const bone: IAutoMovieResolvedBone = pose.get(frame.bone)!;
+            return Vector3.add(
+              Vector3.add(
+                bone.worldPosition,
+                Quaternion.rotateVector(bone.worldRotation, frame.point),
+              ),
+              Vector3.scale(
+                Quaternion.rotateVector(bone.worldRotation, frame.normal),
+                OVER,
+              ),
             );
-            return Vector3.add(r.point, Vector3.scale(r.normal, OVER));
           },
         );
         return p.off === true ? placed.reverse() : placed;
@@ -120,6 +135,25 @@ export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPull
       const up: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(sternum, back),
       );
+      // Each hand's fingers point across the body toward its midline, so
+      // the forearm comes in from the side, clear of the trunk, as hands
+      // drawing a cover's edge hold it.
+      const medial = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
+        const across: IAutoMovieVector3 = Vector3.subtract(
+          sternum,
+          ways[side][0]!,
+        );
+        const level: IAutoMovieVector3 = Vector3.subtract(
+          across,
+          Vector3.scale(up, Vector3.dot(across, up)),
+        );
+        return Vector3.normalize(
+          Vector3.subtract(
+            level,
+            Vector3.scale(toward, Vector3.dot(level, toward)),
+          ),
+        );
+      };
       const target = (
         side: AutoMovieHumanSide,
         at: IAutoMovieVector3,
@@ -133,7 +167,7 @@ export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPull
           point: at,
           rotation: HumanHand.align(HumanHand.offset(body, side, "grip"), {
             normal: Vector3.scale(up, -1),
-            forward: toward,
+            forward: medial(side),
           }),
           bend: AutoMovieMotionHumanBend.hang(body, entry, side, 0.2),
         });
@@ -169,10 +203,6 @@ export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPull
             0,
           );
 
-      const pose: ReturnType<typeof poseBones> = poseBones(
-        body,
-        context.entry.pose,
-      );
       const frame: IAutoMovieMotionHumanFrame = {
         origin: entry.root,
         yaw: entry.yaw,
