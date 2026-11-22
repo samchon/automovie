@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -320,7 +320,7 @@ export namespace lieDown {
         Quaternion.rotateVector(resolveHumanPosture.heading(posed), body.rest.get("hips")!),
       );
     };
-    let stood: IAutoMovieVector3 | undefined;
+    let stood: IAutoMovieVector3 | undefined, stoodOffset: number | undefined;
     let landed: IAutoMovieVector3 | undefined;
     let rollHeel: IAutoMovieVector3 | undefined;
     const shift: (
@@ -360,9 +360,10 @@ export namespace lieDown {
         ? (readFeet ??= StrikingBody.prepareTrunk(body, feetBones))(posed, read, project)
         : undefined;
       const moved: IAutoMovieVector3 = shift(index, posed, read, project, current);
+      const decay: number = current === undefined ? 0 : (1 - minimumJerk.share(u)) * (stoodOffset ??= stoodPose.root.y - floor(posedAt(0, 0), read, project)); // Entered standing, the entry's root height decays to the rest on the bounds over the first phase (an inertialized offset, Bollo 2018).
       const rooted: IAutoMovieMotionHumanPosture = {
         ...posed,
-        root: { x: hips.x - offset.x + moved.x, y: floor(posed, read, project), z: hips.z - offset.z + moved.z },
+        root: { x: hips.x - offset.x + moved.x, y: floor(posed, read, project) + decay, z: hips.z - offset.z + moved.z },
       };
       if (index === route.length - 1 && rollSide !== undefined) {
         // During the roll the lower heel bears along with the trunk. Turning
