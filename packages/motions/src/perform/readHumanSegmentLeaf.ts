@@ -23,8 +23,11 @@ import type { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
-/** The arms, placed at the anchor course (`readHumanSegmentLeaf.anchors`) where the plan's own course does not place them; the legs keep their own fits. */
+/** The arms, placed at the anchor course (`readHumanSegmentLeaf.anchors`) where the plan's own course does not place them. */
 const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
+
+/** The legs, continued from the anchor course (`readHumanSegmentLeaf.anchors`) while free: never placed at it, and a planted leg keeps its own fit. */
+const LEGS: readonly AutoMovieHumanLimb[] = ["leftLeg", "rightLeg"];
 
 /**
  * Read the action before its entering offset, including current holds and
@@ -119,6 +122,17 @@ export function readHumanSegmentLeaf(
   // anchor course (`anchors`): the swivel interpolated between the anchor
   // seconds around this one, so no read sweeps or refines and every read of
   // a second shows the same pose, whatever was read before it.
+  const free: AutoMovieHumanLimb[] = still(segment.plan, localSeconds)
+    ? []
+    : LEGS.filter((limb: AutoMovieHumanLimb): boolean => {
+        const goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb] =
+          written.limbs[limb];
+        return (
+          goal !== undefined &&
+          goal.planted !== true &&
+          goal.contact === undefined
+        );
+      });
   const anchoring: boolean =
     fits === undefined &&
     (borne.length !== 0 ||
@@ -127,11 +141,29 @@ export function readHumanSegmentLeaf(
       ARMS.some(
         (limb: AutoMovieHumanLimb): boolean =>
           written.limbs[limb] !== undefined && course?.get(limb) === undefined,
-      ));
+      ) ||
+      free.length !== 0);
 
-  const anchors: HumanSegmentPose.IFits | undefined = anchoring
+  // A free leg (a goal neither planted nor in contact, outside a legs-still
+  // window: a swinging or mounting leg) continues the anchors' fit of it, so
+  // its knee keeps the side the chain chose instead of leaving for whichever
+  // closed-form root a cold fit scores best; a planted leg keeps its own fit,
+  // which holds the foot.
+  const anchored: HumanSegmentPose.IFits | undefined = anchoring
     ? readHumanSegmentLeaf.anchors(person, segment, t, prepared)
     : undefined;
+  const anchors: HumanSegmentPose.IFits | undefined =
+    anchored === undefined
+      ? undefined
+      : new Map(
+          [...anchored].filter(
+            ([name]: [string, IAutoMovieSwivelSeed | null]): boolean =>
+              !name.endsWith("Leg") ||
+              free.some((limb: AutoMovieHumanLimb): boolean =>
+                name.endsWith(`:${limb}`),
+              ),
+          ),
+        );
   const placing: HumanSegmentPose.INear | undefined =
     (course === undefined || course.size === 0) && anchors === undefined
       ? fits
@@ -273,7 +305,7 @@ export namespace readHumanSegmentLeaf {
    * @evidence contracts/development/common.md#meaningful-documentation States the grid and its source, the chained anchor reads, the interpolation, the fallback and when nothing is given.
    * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of an arm on its goal (Tolani §3.2.4); interpolating it between anchor fits chained from the action's start keeps the branch and the elbow continuous across anchors, and the anchors are fixed seconds of the action read under the placed state, so a second's pose never depends on the order seconds are read in.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bracketing anchors, each one kept-map lookup or the chain's missing reads, then one pass over their fit names.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals stay the displayed ones; only the swivel and branch come from the anchors, and the legs keep their own fits.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals stay the displayed ones; only the swivel and branch come from the anchors, prescribed for an arm and only continued for a free leg, and a planted leg keeps its own fit.
    * @evidence contracts/development/implementation.md#efficient-algorithms One read per anchor, overlay count and placed state; every other read is a closed-form placement.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The anchors' fits are kept by the segment for every second between them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most one seed map per anchor and overlay count of the action, released by `HumanSegment.placed` and `HumanSegment.forget`.
@@ -388,7 +420,7 @@ export namespace readHumanSegmentLeaf {
       }
       const arms: Map<string, IAutoMovieSwivelSeed | null> = new Map();
       for (const [name, seed] of reading.seeds)
-        if (name.endsWith("Arm")) arms.set(name, seed);
+        if (name.endsWith("Arm") || name.endsWith("Leg")) arms.set(name, seed);
       (segment.anchors ??= new Map()).set(key(i), arms);
       kept = arms;
     }
