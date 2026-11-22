@@ -21,6 +21,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { bicycleRiders } from "../internal/bicycleRiders";
 import { collectTakeClean } from "../internal/collectTakeClean";
 import { fittedBicycle } from "../internal/fittedBicycle";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -39,31 +40,23 @@ import { vclose } from "../internal/vclose";
  *    pedal-ball distances and bar-relative wrists stay within 15 mm.
  * 3. A 25 mm error at either the seat or a sole refuses entry. Each
  *    accepted effort sample shares its seated ride's carrier frame.
+ * 4. The small woman, whose inseam lies below the saddle band, is refused
+ *    the fitted bicycle at its saddle height.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Specifies the freewheel interval, displacement, contacts and measured bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads wheel articulation and displayed Human seat, hands and soles at ordered and repeated film seconds.
  * @evidence contracts/development/testing.md#independent-expectations The wheel travels one circumference per revolution. An authored clearance and physical contact targets provide the lift and placement witnesses.
  * @evidence contracts/development/testing.md#distinguishing-cases Wheel travel is positive during a static crank interval, and the raised and reseated positions have different saddle contacts.
- * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the average man and the small woman with the same seeded bicycle, each take read by the shipped verdicts.
+ * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the average man with the seeded bicycle, each take read by the shipped verdicts; the small woman is refused the fitted bicycle.
  */
 export function test_motion_exercise_bicycle_effort(): void {
-  const failures: string[] = [];
-  for (const key of BODIES)
-    try {
-      take(key, failures);
-    } catch (error) {
-      failures.push(
-        `${key}: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  TestValidator.equals("bicycle effort", failures, []);
+  bicycleRiders("bicycle effort", 8, (failures: string[]): void =>
+    take("m-average", failures),
+  );
 }
 
-/** The two canonical bodies. */
-const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
-
-/** A canonical body's key. */
-type BodyKey = "m-average" | "f-small";
+/** The riding body; the small woman is refused the bicycle, pinned by `bicycleRiders`. */
+type BodyKey = "m-average";
 
 /**
  * The effort take on one body.

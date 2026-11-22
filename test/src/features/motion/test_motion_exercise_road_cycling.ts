@@ -27,6 +27,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { bicycleRiders } from "../internal/bicycleRiders";
 import { collectTakeClean } from "../internal/collectTakeClean";
 import { fittedBicycle } from "../internal/fittedBicycle";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -44,6 +45,8 @@ import { vclose } from "../internal/vclose";
  *    coast and turn. The pelvis clears the saddle in the effort and settles again.
  * 3. Both posed tires stay within 5 mm of the road. The cycle is upright on
  *    the straight and leans inward at the speed and radius of the turn.
+ * 4. The small woman, whose inseam lies below the saddle band, is refused
+ *    the fitted bicycle at its saddle height.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the authored phases, supports and road-height tolerance.
  * @evidence contracts/development/testing.md#behavioral-verification Observes wheel geometry, crank travel, moving contact frames and resolved Human poses at named beats and repeated film seconds.
@@ -52,23 +55,13 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership Only a seeded production archetype, its authored course and the average Human performance.
  */
 export function test_motion_exercise_road_cycling(): void {
-  const failures: string[] = [];
-  for (const key of BODIES)
-    try {
-      take(key, failures);
-    } catch (error) {
-      failures.push(
-        `${key}: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  TestValidator.equals("road cycling", failures, []);
+  bicycleRiders("road cycling", 8, (failures: string[]): void =>
+    take("m-average", failures),
+  );
 }
 
-/** The two canonical bodies. */
-const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
-
-/** A canonical body's key. */
-type BodyKey = "m-average" | "f-small";
+/** The riding body; the small woman is refused the bicycle, pinned by `bicycleRiders`. */
+type BodyKey = "m-average";
 
 /**
  * The take on one body, its verdicts recorded.

@@ -19,6 +19,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { bicycleRiders } from "../internal/bicycleRiders";
 import { collectTakeClean } from "../internal/collectTakeClean";
 import { fittedBicycle } from "../internal/fittedBicycle";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,6 +35,8 @@ import { nclose } from "../internal/nclose";
  *    10 mm of floor height. Between them, the seat belongs to the bicycle.
  * 2. A mount line moved ahead of the athlete refuses the same starting
  *    pose with the line as the failing axis.
+ * 3. The small woman, whose inseam lies below the saddle band, is refused
+ *    the fitted bicycle at its saddle height.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the event rules, displayed ground tolerance and positive and adjacent refusal cases.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the whole footprint of the displayed shoe at the published ground event and part ownership at the saddle.
@@ -42,23 +45,13 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership In-memory typed performance with the average Human and a seeded production bicycle held at the boundary.
  */
 export function test_motion_exercise_bike_transfer(): void {
-  const failures: string[] = [];
-  for (const key of BODIES)
-    try {
-      take(key, failures);
-    } catch (error) {
-      failures.push(
-        `${key}: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  TestValidator.equals("bike transfer", failures, []);
+  bicycleRiders("bike transfer", 8, (failures: string[]): void =>
+    take("m-average", failures),
+  );
 }
 
-/** The two canonical bodies. */
-const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
-
-/** A canonical body's key. */
-type BodyKey = "m-average" | "f-small";
+/** The riding body; the small woman is refused the bicycle, pinned by `bicycleRiders`. */
+type BodyKey = "m-average";
 
 /**
  * The take on one body, its verdicts recorded.
