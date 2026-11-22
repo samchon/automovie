@@ -15,7 +15,6 @@ import { useSceneClock } from "../components/scenes/useSceneClock";
 import { Transport } from "../components/stage/Transport";
 import { TransportKeys } from "../components/stage/TransportKeys";
 import type { MotionIndex } from "../motions/package/MotionIndex";
-import type { IMotionReference } from "../motions/structures/IMotionReference";
 import type { SceneClock } from "../scenes/SceneClock";
 import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
 
@@ -158,10 +157,8 @@ export default function MotionMovie(props: {
           Parameters
         </h2>
         <p>
-          {detail.parameters === null || detail.parameters.length === 0
-            ? "It takes no parameters of its own. "
-            : `It takes ${detail.parameters.length} parameters, ${required(detail).length} of them required. `}
-          Their types and meanings are in the API reference, under{" "}
+          Its parameters, their types and meanings are in the API reference,
+          under{" "}
           <a className="am-text-link" href={`${SITE_BASE}${detail.api}`}>
             <code>
               {detail.namespace === null
@@ -178,21 +175,13 @@ export default function MotionMovie(props: {
   );
 }
 
-/** The names of the parameters the motion requires. */
-function required(detail: MotionIndex.IDetail): string[] {
-  return (detail.parameters ?? [])
-    .filter((p: IMotionReference.IParameter): boolean => p.required)
-    .map((p: IMotionReference.IParameter): string => p.name);
-}
-
 /**
- * How a chain appends the motion, with its required parameters named. A
+ * How a chain appends the motion, its parameters left to the API reference. A
  * lexicon row is taken from its namespace and extends the chain first, and
  * the performance registers it in its `laws`, as the motions README shows.
  */
 function snippet(detail: MotionIndex.IDetail): string {
-  const names: string[] = required(detail);
-  const args: string = names.length === 0 ? "" : `{ ${names.join(", ")} }`;
+  const args: string = "/* parameters */";
   if (detail.family.name === "actions")
     return `HumanChain.subject("a")\n  .${detail.name}(${args})`;
   const take: string =

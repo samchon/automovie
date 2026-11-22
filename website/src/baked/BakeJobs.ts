@@ -48,10 +48,7 @@ export namespace BakeJobs {
     ]) {
       if (seen.has(row.name)) continue;
       seen.add(row.name);
-      const trial: MotionUsage.ITrial | null = MotionUsage.trial(
-        row.name,
-        row.parameters,
-      );
+      const trial: MotionUsage.ITrial | null = MotionUsage.trial(row.name);
       if (trial === null || !trial.alone) continue;
       motions.push({
         kind: "motion",
