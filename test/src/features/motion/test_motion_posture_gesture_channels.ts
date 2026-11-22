@@ -18,19 +18,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGesture,
   AutoMovieMotionHumanHandToBody,
   HumanChain,
-  HumanGaze,
-  gestureSignal,
-  gestureStroke,
-  resolveHumanPosture,
+  AutoMovieMotionHumanGaze,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
+
+const { gestureSignal, gestureStroke } = AutoMovieMotionHumanGesture;
 
 /**
  * Eyes-only recruitment still applies the original weighted zero-cervical
@@ -96,7 +97,7 @@ export function test_motion_posture_gesture_channels(): void {
         y: origin.y,
         z: origin.z + 3,
       };
-      const actual: IAutoMovieMotionHumanPosture = HumanGaze.aim(
+      const actual: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanGaze.HumanGaze.aim(
         body,
         posture,
         target,
@@ -173,29 +174,29 @@ function displayed(
 function checkChannelSignals(): void {
   const sum = (s: IAutoMovieMotionHumanGaze.ISplit): number =>
     s.eyes.yaw + s.head.yaw + s.trunk;
-  const small = HumanGaze.split(10, 0);
+  const small = AutoMovieMotionHumanGaze.HumanGaze.split(10, 0);
   TestValidator.predicate(
     "small shift on the eyes",
     small.eyes.yaw === 10 && small.head.yaw === 0 && small.trunk === 0,
   );
-  const middle = HumanGaze.split(40, 0);
+  const middle = AutoMovieMotionHumanGaze.HumanGaze.split(40, 0);
   TestValidator.predicate(
     "middle shift recruits the head",
     middle.eyes.yaw === 15 && middle.head.yaw === 25 && middle.trunk === 0,
   );
-  const large = HumanGaze.split(100, 0);
+  const large = AutoMovieMotionHumanGaze.HumanGaze.split(100, 0);
   TestValidator.predicate(
     "large shift recruits the trunk",
     large.eyes.yaw === 15 && large.head.yaw === 60 && large.trunk === 25,
   );
-  const headOnly = HumanGaze.split(100, 0, "head");
+  const headOnly = AutoMovieMotionHumanGaze.HumanGaze.split(100, 0, "head");
   TestValidator.predicate(
     "head only leaves the excess on the eyes",
     headOnly.trunk === 0 &&
       headOnly.head.yaw === 60 &&
       headOnly.eyes.yaw === 40,
   );
-  const eyesOnly = HumanGaze.split(50, -20, "eyes");
+  const eyesOnly = AutoMovieMotionHumanGaze.HumanGaze.split(50, -20, "eyes");
   TestValidator.predicate(
     "eyes only",
     eyesOnly.eyes.yaw === 50 &&
@@ -208,8 +209,8 @@ function checkChannelSignals(): void {
     [30, "trunk"],
     [5, "eyes"],
   ] as const) {
-    const s = HumanGaze.split(y, 25, mode);
-    const m = HumanGaze.split(-y, 25, mode);
+    const s = AutoMovieMotionHumanGaze.HumanGaze.split(y, 25, mode);
+    const m = AutoMovieMotionHumanGaze.HumanGaze.split(-y, 25, mode);
     TestValidator.predicate(
       "split sums to the direction",
       Math.abs(sum(s) - y) < 1e-12 &&
@@ -224,13 +225,13 @@ function checkChannelSignals(): void {
   }
   TestValidator.predicate(
     "main sequence",
-    Math.abs(HumanGaze.saccade(10) - 0.043) < 1e-12 &&
-      Math.abs(HumanGaze.saccade(-30) - 0.087) < 1e-12,
+    Math.abs(AutoMovieMotionHumanGaze.HumanGaze.saccade(10) - 0.043) < 1e-12 &&
+      Math.abs(AutoMovieMotionHumanGaze.HumanGaze.saccade(-30) - 0.087) < 1e-12,
   );
   TestValidator.predicate(
     "head turns lengthen with amplitude",
-    HumanGaze.turn(60) > HumanGaze.turn(20) &&
-      HumanGaze.turn(20) > HumanGaze.turn(0),
+    AutoMovieMotionHumanGaze.HumanGaze.turn(60) > AutoMovieMotionHumanGaze.HumanGaze.turn(20) &&
+      AutoMovieMotionHumanGaze.HumanGaze.turn(20) > AutoMovieMotionHumanGaze.HumanGaze.turn(0),
   );
 
   TestValidator.predicate(

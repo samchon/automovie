@@ -23,7 +23,7 @@ import {
   HumanPerformance,
   HumanRefusal,
   coatPartner,
-  wardrobe,
+  AutoMovieMotionHumanDress,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -232,7 +232,7 @@ function stage(
   const sign: number = hand === "left" ? 1 : -1;
   return new HumanPerformance({
     seed: "coat-partner",
-    laws: [coatPartner, wardrobe],
+    laws: [coatPartner, AutoMovieMotionHumanDress.wardrobe],
     performers: [
       {
         subject: "a",

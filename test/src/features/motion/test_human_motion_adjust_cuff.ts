@@ -13,7 +13,7 @@ import {
   AutoMovieMotionHumanTouchForm,
   HumanChain,
   HumanPerformance,
-  composeHumanAdjustCuff,
+  AutoMovieMotionHumanGetDressed,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -49,9 +49,9 @@ export function test_human_motion_adjust_cuff(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: composeHumanAdjustCuff(
+      composition: AutoMovieMotionHumanGetDressed.adjustCuff(
         HumanChain.subject("actor"),
-        cuff,
+        { cuff },
         "cuff",
       ).node,
     });
