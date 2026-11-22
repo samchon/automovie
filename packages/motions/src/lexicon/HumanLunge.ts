@@ -105,25 +105,7 @@ export const HumanLunge: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLun
           reason: `${on}.${point} does not describe a round line with an actual aperture`,
           fix: "Name the horse's lunge line contact.",
         });
-      if (
-        change !== undefined &&
-        (whip === undefined ||
-          !(change >= transition && change + 4 * transition <= seconds))
-      )
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: "change",
-          value: change,
-          feasible: {
-            kind: "range",
-            minimum: transition,
-            maximum: seconds - 4 * transition,
-            unit: "s",
-          },
-          reason:
-            "a change of hands passes the whip and the line, over three transitions after the take-up and before the let-go",
-          fix: "Give a whip, and a change at least one transition after the start and four before the end.",
-        });
+      HumanLungeChange.admit(change, whip !== undefined, transition, seconds);
       const other: AutoMovieHumanSide = line === "left" ? "right" : "left";
       if (whip !== undefined) context.prop(whip);
       const body: Context["body"] = context.body;
@@ -251,24 +233,47 @@ export const HumanLunge: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLun
       };
       const hands: readonly AutoMovieHumanSide[] =
         whip === undefined ? [line] : [line, other];
-      const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands.of(
-        {
-          ...context,
-          params: {
-            on,
-            seconds,
-            hands:
-              change === undefined
-                ? { [line]: point }
-                : { [line]: point, [other]: point },
-          },
-        },
+      const first: HumanRideHands.IHands = HumanRideHands.of(
+        { ...context, params: { on, seconds, hands: { [line]: point } } },
         on,
         support,
         stance(0),
         support.frame(context.start),
         transition,
       );
+      // The other hand takes the line at the change: the side its fingers close over and their closure are read where it takes it, not where the first hand took it.
+      const taking: number | undefined =
+        change === undefined ? undefined : change + transition;
+      const second: HumanRideHands.IHands | undefined =
+        taking === undefined
+          ? undefined
+          : HumanRideHands.of(
+              {
+                ...context,
+                start: context.start + taking,
+                params: {
+                  on,
+                  seconds: seconds - taking,
+                  hands: { [other]: point },
+                },
+              },
+              on,
+              support,
+              stance(taking),
+              support.frame(context.start + taking),
+              transition,
+            );
+      const gripsAt = (
+        film: number,
+        frame: IAutoMovieRigidTransform,
+      ): ReturnType<HumanRideHands.IHands["gripsAt"]> => ({
+        ...first.gripsAt(film, frame),
+        ...(second?.gripsAt(film, frame) ?? {}),
+      });
+      const closures: HumanRideHands.IHands["closures"] = {
+        ...first.closures,
+        ...(second?.closures ?? {}),
+      };
       const windows: HumanLungeChange.IWindows = HumanLungeChange.windows(
         timeline,
         on,

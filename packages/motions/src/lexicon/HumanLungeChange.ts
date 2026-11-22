@@ -6,6 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanRideHands } from "./HumanRideHands";
 
 /**
@@ -95,6 +96,49 @@ export namespace HumanLungeChange {
     return change === undefined
       ? { line: 0, along: 0 }
       : { line: phase(change), along: GAP };
+  }
+
+  /**
+   * Refuse a change of hands that cannot happen.
+   *
+   * @param change Seconds since the start the change begins, if any.
+   * @param whip Whether the other hand holds a whip to pass.
+   * @param transition Seconds of each transition.
+   * @param seconds The action's length.
+   * @throws {HumanRefusal} For a change without a whip, or one that does not fit its three transitions after the take-up and before the let-go.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The change passes the whip, so it needs one, and its three transitions lie between the take-up and the let-go.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One condition.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure check.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function admit(
+    change: number | undefined,
+    whip: boolean,
+    transition: number,
+    seconds: number,
+  ): void {
+    if (
+      change !== undefined &&
+      (!whip || !(change >= transition && change + 4 * transition <= seconds))
+    )
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "change",
+        value: change,
+        feasible: {
+          kind: "range",
+          minimum: transition,
+          maximum: seconds - 4 * transition,
+          unit: "s",
+        },
+        reason:
+          "a change of hands passes the whip and the line, over three transitions after the take-up and before the let-go",
+        fix: "Give a whip, and a change at least one transition after the start and four before the end.",
+      });
   }
 
   /**
