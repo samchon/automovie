@@ -180,8 +180,21 @@ export function planHumanArmTrajectory(
     // V): where the knots' converged path fails its frame-grid reading
     // between two knots, that interval and its neighbours are split and
     // the path solved again from itself at the penalty it reached, until
-    // the reading admits it or the affected intervals are already frames.
-    while (solved.evaluation.worst.value > M.TOLERANCE && context.n < fine.n) {
+    // the reading admits it, the affected intervals are already frames, or
+    // the refinement stops paying: at most `REFINEMENTS` passes, each of
+    // which must cut the worst miss by `PROGRESS` of what it was, so an
+    // infeasible hold is read and refused after a bounded number of solves
+    // rather than split down to the frame grid.
+    let passes: number = 0;
+    let previous: number = Infinity;
+    while (
+      solved.evaluation.worst.value > M.TOLERANCE &&
+      context.n < fine.n &&
+      passes < REFINEMENTS &&
+      solved.evaluation.worst.value < previous * (1 - PROGRESS)
+    ) {
+      previous = solved.evaluation.worst.value;
+      ++passes;
       // A hand that misses its site or a task point at a knot whose two
       // intervals are already single frames misses it with every freedom a
       // path can have there: no finer interval exists about it, only a larger
@@ -728,3 +741,9 @@ function unswivelled(
     fix: "put the hand on a site its arm reaches with the body clear",
   });
 }
+
+/** The most refinement passes a planned course takes over its frame grid's failing intervals: four halvings bring a knot interval of sixteen frames to single frames (provisional). */
+const REFINEMENTS: number = 4;
+
+/** The share of the worst miss a refinement pass must cut to earn the next one; a pass that cuts less has stopped paying, and the course is read as it stands (provisional). */
+const PROGRESS: number = 0.1;
