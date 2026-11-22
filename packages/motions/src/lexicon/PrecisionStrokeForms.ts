@@ -278,6 +278,31 @@ export namespace PrecisionStrokeForms {
         Vector3.scale(back, across),
       );
       at = { x: shoulder.x - offset.x, y: 0, z: shoulder.z - offset.z };
+
+      // Two hands on one implement reach it across the front of the trunk:
+      // each arm's line from its shoulder to the grip passes ahead of the
+      // chest only when the grip lies at least a chest's depth and both
+      // forearms' girth ahead of the shoulders' frontal plane (the shoulder
+      // on that plane, the line's middle half as far ahead), so the stance
+      // stands back from the grip until it does.
+      if (form.oneHand !== true && form.bare !== true) {
+        const facing: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, props.yaw),
+          { x: 0, y: 0, z: 1 },
+        );
+        const need: number =
+          props.body.measure.chestDepth + 2 * props.body.measure.forearmRadius;
+        const ahead: number = Vector3.dot(
+          Vector3.subtract(grip, Vector3.add(at, offset)),
+          facing,
+        );
+        if (ahead < need)
+          at = Vector3.subtract(at, {
+            x: facing.x * (need - ahead),
+            y: 0,
+            z: facing.z * (need - ahead),
+          });
+      }
     }
     return at;
   }

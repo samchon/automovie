@@ -34,6 +34,7 @@ import { PrecisionStrokeKeys } from "./PrecisionStrokeKeys";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
 import { holdPrecisionSwing } from "./holdPrecisionSwing";
+import { relaxedHand } from "./relaxedHand";
 
 /** The shared authorship contract. Cue strokes also name a supporting surface. */
 type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
@@ -344,7 +345,18 @@ export function createPrecisionSportStroke<P extends Stroke>(
                       clock.progress("start", "ready", t) *
                       (1 - clock.progress("strokeStart", "stroke", t))),
               );
-        const current: IAutoMovieMotionHumanPosture = keyed;
+        // A bare hand that struck open relaxes back into the hand it entered
+        // with as the arm returns, so its extended digits do not reach into
+        // the thigh the hanging hand rests beside.
+        const current: IAutoMovieMotionHumanPosture =
+          held === undefined && t > clock.at("relax")
+            ? relaxedHand(
+                keyed,
+                context.entry.posture,
+                side,
+                clock.progress("relax", "end", t),
+              )
+            : keyed;
         if (
           bridge === undefined ||
           bridgeEntry === undefined ||
