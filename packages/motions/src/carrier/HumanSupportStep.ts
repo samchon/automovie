@@ -90,8 +90,8 @@ function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
  * Step from one support to another, either of which may move: from a fixed
  * landing onto an escalator tread or a walkway band, or off it onto the
  * landing. The walk (`walk`) is planned on the support left as it stood at
- * the step's start, at the height the entry's soles bear on, and that
- * support carries it. Each new footprint bears on the support whose
+ * the step's start, at the height the entry's soles bear on and with the
+ * entry's speed taken against that support's, and that support carries it. Each new footprint bears on the support whose
  * surface holds the foot where it lands, and the entry's footprints on the
  * support left; a new footprint is slid along the surface, the least it
  * takes, to lie wholly on the moving support that bears it or wholly off
@@ -168,8 +168,23 @@ export function HumanSupportStep(
   const lower: IAutoMovieMotionHumanSupportCarry.ICarry = translate(-level);
   const raise: IAutoMovieMotionHumanSupportCarry.ICarry = translate(level);
   const entry: IAutoMovieMotionHumanEntryState = context.entry;
+  // The walk is planned on the support left, so the entry's speed is read
+  // against it: a rider standing on a moving tread is at rest on it, and a
+  // walk handed the tread's own speed would start as if already walking,
+  // its first swing sweeping the toe along the tread.
+  const carried: IAutoMovieVector3 =
+    from === undefined
+      ? { x: 0, y: 0, z: 0 }
+      : HumanSupportFrame.at(context, context.start, {
+          kind: "prop",
+          subject: from,
+        }).velocity;
   const lowered: IAutoMovieMotionHumanEntryState = {
     ...entry,
+    velocity: {
+      ...entry.velocity,
+      linear: Vector3.subtract(entry.velocity.linear, carried),
+    },
     posture: HumanSupportCarry.posture(lower, entry.posture),
     pose:
       entry.pose.root === undefined || entry.pose.root === null
