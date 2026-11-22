@@ -345,7 +345,7 @@ export function hingedArmArticulation(
   // The legal swivel nearest `to` walking from `from` along the shorter
   // turn: `to` itself where every step is legal, the legality edge, found by
   // bisection, where a step is not; null where `from` itself is not legal.
-  const toward = (
+  const walkToward = (
     probe: (angle: number) => IScored,
     from: number,
     to: number,
@@ -399,7 +399,7 @@ export function hingedArmArticulation(
       const followed: IPlacedEdge | null =
         target === null || !Number.isFinite(near.swivel)
           ? null
-          : toward(probe, near.swivel, target);
+          : walkToward(probe, near.swivel, target);
       if (followed !== null)
         return answer(followed.candidate, followed.candidate.shortfall);
     }
@@ -409,9 +409,10 @@ export function hingedArmArticulation(
     // seed itself while it stays admissible. A closed-form candidate inside
     // that bracket answers when legal and met (`hingedSwivelNear`); the
     // start is refined otherwise.
-    const toward: number | null =
+    const nearestSwivel: number | null =
       props.nearest === undefined ? null : props.nearest(posed, near.swivel);
-    const turn: number = toward === null ? 0 : toward - near.swivel;
+    const turn: number =
+      nearestSwivel === null ? 0 : nearestSwivel - near.swivel;
     const delta: number = Number.isFinite(turn)
       ? turn - 360 * Math.round(turn / 360)
       : 0;
@@ -522,7 +523,11 @@ export function hingedArmArticulation(
           for (let d: number = SWIVEL_STEP; d <= 180; d += SWIVEL_STEP) {
             if (nearest !== null && d - SWIVEL_STEP > nearest.distance) break;
             const from: number = target + sign * d;
-            const edge: IPlacedEdge | null = toward(branch.probe, from, target);
+            const edge: IPlacedEdge | null = walkToward(
+              branch.probe,
+              from,
+              target,
+            );
             if (edge === null) continue;
             if (
               nearest === null ||
