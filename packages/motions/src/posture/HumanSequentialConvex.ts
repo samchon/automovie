@@ -10,8 +10,9 @@ import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface
  * decrease, moves the region by the caller's schedule (`ISchedule`), and
  * raises the penalty along the caller's ladder while the constraints are not
  * met, or steers it at every iterate (`IOptions.steer`); a steered solve
- * with a ceiling that settles with its constraints unmet goes on at a
- * tenfold penalty, up to the ceiling, TrajOpt's outer loop. The merit is the
+ * with a ceiling that settles, or whose region collapses, with its
+ * constraints unmet goes on at a tenfold penalty, up to the ceiling,
+ * TrajOpt's outer loop. The merit is the
  * objective plus the penalty times the constraints' summed violation, the l1
  * exact penalty (Nocedal and Wright 2006, "Numerical Optimization", 2nd ed.,
  * section 17.2). A problem still infeasible at the last penalty is left to
@@ -241,16 +242,18 @@ export namespace HumanSequentialConvex {
       }
       if (problem.feasible(current)) break;
       // TrajOpt's outer loop (Schulman et al. 2014, Algorithm 1): a steered
-      // solve that settled with its constraints still unmet goes on at the
-      // penalty raised once more, up to the caller's ceiling, so an iterate
-      // a hair outside the tolerance is not left there by a model too flat
-      // to tell the hair at the lower penalty. A solve without a ceiling has
-      // no bound on this growth and ends as before, as does a stationary
-      // point of the violation (`infeasible`) or spent rounds.
+      // solve that settled with its constraints still unmet, or whose region
+      // collapsed, which TrajOpt's sco reads as converged too (its
+      // min_trust_box_size), goes on at the penalty raised once more, up to
+      // the caller's ceiling, so an iterate a hair outside the tolerance is
+      // not left there by a model too flat to tell the hair at the lower
+      // penalty. A solve without a ceiling has no bound on this growth and
+      // ends as before, as does a stationary point of the violation
+      // (`infeasible`) or spent rounds (sco's iteration limit).
       if (
         steer &&
         options.ceiling !== undefined &&
-        (reason === "model" || reason === "step") &&
+        (reason === "model" || reason === "step" || reason === "collapsed") &&
         mu * STEERING.increase <= options.ceiling
       )
         ladders.push(mu * STEERING.increase);
