@@ -2,7 +2,7 @@ import {
   createCostumeCuirass,
   createStageBladeProp,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   IAutoMovieChain,
   IAutoMovieMotionHumanBladeExchange,
@@ -277,9 +277,25 @@ function stage(
     openingProp: "a.blade",
     respondingProp: "b.blade",
     blockLeadSeconds: LEAD,
-    openingMark: { kind: "person", subject: "b", region: "shoulderRight" },
+    // Marks are fixed points: the partner's right shoulder and the
+    // opener's crown where they stand on their marks.
+    openingMark: {
+      kind: "point",
+      frame: "world",
+      at: {
+        x: -body.rest.get("rightUpperArm")!.x,
+        y: body.rest.get("rightUpperArm")!.y,
+        z: APART - body.rest.get("rightUpperArm")!.z,
+      },
+    },
     ...(branch.reply
-      ? { replyMark: { kind: "person", subject: "a", region: "crown" } }
+      ? {
+          replyMark: {
+            kind: "point",
+            frame: "world",
+            at: { x: 0, y: body.measure.stature, z: 0 },
+          },
+        }
       : {}),
   };
   const opener = HumanChain.subject("a").pickUp({
@@ -367,12 +383,11 @@ function wear(cuirass: Cuirass): IAutoMovieMotionHumanProp {
 function bounds(cuirass: Cuirass): IBox {
   const corners: IAutoMovieVector3[] = [];
   for (const shape of cuirass.shapes?.() ?? []) {
-    const h: IAutoMovieVector3 =
-      shape.kind === "box"
-        ? shape.halfExtents
-        : { x: shape.radius ?? 0, y: shape.radius ?? 0, z: shape.radius ?? 0 };
-    const c: IAutoMovieVector3 = shape.transform.position;
-    corners.push(Vector3.subtract(c, h), Vector3.add(c, h));
+    const box: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(
+      { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
+      shape,
+    );
+    corners.push(box.min, box.max);
   }
   return {
     min: {
