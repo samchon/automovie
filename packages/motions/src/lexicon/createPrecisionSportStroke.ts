@@ -34,7 +34,6 @@ import { PrecisionStrokeKeys } from "./PrecisionStrokeKeys";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
 import { holdPrecisionSwing } from "./holdPrecisionSwing";
-import { relaxedHand } from "./relaxedHand";
 
 /** The shared authorship contract. Cue strokes also name a supporting surface. */
 type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
@@ -328,8 +327,11 @@ export function createPrecisionSportStroke<P extends Stroke>(
           projection,
         );
         if (influence <= 0) return planned;
-        // Two hands on one implement coil the trunk back to the top, square it
-        // into the contact and turn it on to the finish (`PrecisionStrokeKeys`).
+        // The swing's key poses (address, top, contact, finish): two hands
+        // on one implement coil the trunk away from the shot to the top of
+        // the backswing, uncoil it square into the contact and turn it on
+        // toward the shot to the finish, so the arms stay across the front of
+        // the chest instead of through it (`PrecisionStrokeKeys`).
         const keyed: IAutoMovieMotionHumanPosture =
           form.oneHand === true || held === undefined || form.sweep === 0
             ? address(planned, influence)
@@ -342,16 +344,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
                       clock.progress("start", "ready", t) *
                       (1 - clock.progress("strokeStart", "stroke", t))),
               );
-        // A bare hand that struck open relaxes home as the arm returns.
-        const current: IAutoMovieMotionHumanPosture =
-          held === undefined && t > clock.at("relax")
-            ? relaxedHand(
-                keyed,
-                context.entry.posture,
-                side,
-                clock.progress("relax", "end", t),
-              )
-            : keyed;
+        const current: IAutoMovieMotionHumanPosture = keyed;
         if (
           bridge === undefined ||
           bridgeEntry === undefined ||
