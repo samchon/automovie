@@ -42,7 +42,7 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * @throws {HumanRefusal} When an obstacle with openings comes within reach: one convex solid cannot keep its openings open.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States which solids enter, how each moves, which are left out and why, the material and the mass.
- * @evidence contracts/development/implementation.md#principled-implementation Static and moving solids enter the rigid world as kinematic bodies, the standard treatment of animated scene geometry in a rigid-body solver (Rapier's position-based kinematic bodies); a prism is the convex hull of its footprint's corners at both heights.
+ * @evidence contracts/development/implementation.md#principled-implementation Static and moving solids enter the rigid world as kinematic bodies, the standard treatment of animated scene geometry in a rigid-body solver (the solver's kinematic bodies, moved to a set pose each substep); a prism is the convex hull of its footprint's corners at both heights.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the props and one over the obstacles, each building one body; the reach test is shared.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An obstacle the window cannot model is refused rather than dropped; a gripped prop is left out by its grip record, not by name.
  * @evidence contracts/development/implementation.md#efficient-algorithms O(N * (S + 1) * K) for N candidate solids with K colliders over S steps, once per bake.
@@ -186,10 +186,8 @@ function frame(
   // by h about +Y, on the floor.
   return {
     position: { x: placed.position.x, y: 0, z: placed.position.z },
-    rotation: Quaternion.fromAxisAngle(
-      { x: 0, y: 1, z: 0 },
-      (placed.yaw * Math.PI) / 180,
-    ),
+    // The yaw is in degrees, the unit fromAxisAngle takes.
+    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, placed.yaw),
   };
 }
 

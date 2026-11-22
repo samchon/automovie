@@ -142,8 +142,6 @@ async function main(): Promise<void> {
             work,
             rate: input.rate,
             substeps: input.substeps,
-            iterations: input.iterations,
-            internalIterations: input.internalIterations,
             floorOffset,
             start,
             perturbation: input.impulses[0],

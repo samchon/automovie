@@ -40,6 +40,6 @@ Staging a film starts at `stageScene`, `performShot` and `cutSequence` in `film`
 
 ## Physical performance
 
-`AutoMoviePhysicalSimulation.compute` precomputes a physical performance, motion simulated by a rigid-body solver, through Rapier WASM, and `AutoMoviePhysicalPlayback` encodes the result into an archive that can be decoded and sampled later without loading WASM. Run the simulation in a build process or a Worker, not on a page's main thread. `npm run physics` in a generated production runs it under Node.
+`AutoMoviePhysicalSimulation.compute` precomputes a physical performance, motion simulated by the engine's own extended position-based dynamics solver in plain TypeScript, and `AutoMoviePhysicalPlayback` encodes the result into an archive that can be decoded and sampled later without rerunning it. Run the simulation in a build process or a Worker, not on a page's main thread. `npm run physics` in a generated production runs it under Node.
 
 An archive is reproducible for the same inputs on the tested build and platform family; equality across machines has not been measured.

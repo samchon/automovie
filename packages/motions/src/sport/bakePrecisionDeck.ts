@@ -80,7 +80,6 @@ export async function bakePrecisionDeck(
       impulses: [],
       checkpointEvery: RATE,
       yieldEvery: RATE,
-      iterations: 12,
       maximumSteps: input.maximumSteps,
       maximumSegments: bodies.length,
     });

@@ -70,7 +70,6 @@ export namespace PhysicalActiveHumans {
     result.gravity.y = -9.81;
     result.floor = 0;
     result.substeps = SUBSTEPS;
-    result.internalIterations = 1;
     result.checkpointEvery = checkpointEvery;
     result.yieldEvery = checkpointEvery;
     result.maximumSegments = bodies.reduce(
@@ -214,7 +213,6 @@ export namespace PhysicalActiveHumans {
     );
     result.actuation = "world";
     result.compensateGravity = true;
-    result.releasedQuality = { iterations: 64, internalIterations: 64 };
     result.supportTracking = {
       pattern,
       stiffness: 100 * profile.mass,

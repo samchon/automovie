@@ -303,11 +303,11 @@ async function together(
       Vector3.subtract(momentum(people, frame), expected),
     );
 
-    // Rapier integrates in single precision: allow the engine's native
-    // residual of 64 float32 epsilons of the momentum's scale per substep run.
+    // The solver integrates in double precision: allow 64 float64 epsilons
+    // of the momentum's scale per substep run.
     const bound: number =
       64 *
-      2 ** -23 *
+      Number.EPSILON *
       input.substeps! *
       step *
       (scale + mass * Vector3.length(input.gravity) * elapsed);

@@ -62,10 +62,6 @@ import { weldHumanSimulationProfile } from "./weldHumanSimulationProfile";
 export namespace HumanPerformanceSimulation {
   /** Cached intervals per second: the 120 Hz the window issue fixes (#3434), five per 24 Hz film frame. */
   export const RATE: number = 120;
-
-  /** Native solver iterations per substep: Rapier's default `num_solver_iterations` of 4 (rapier.rs IntegrationParameters). */
-  export const ITERATIONS: number = 4;
-
   /** The canonical frame's floor height, metres: every canonical body stands with its lowest point at y = 0. */
   export const FLOOR: number = 0;
 
@@ -328,7 +324,6 @@ export namespace HumanPerformanceSimulation {
       impulses,
       checkpointEvery: count,
       yieldEvery: count,
-      iterations: ITERATIONS,
       maximumSteps: count,
       maximumSegments: [...humans, ...solids.bodies].reduce(
         (sum: number, body: IAutoMoviePhysicalSimulationInput.IBody): number =>

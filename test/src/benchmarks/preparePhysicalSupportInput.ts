@@ -83,7 +83,6 @@ export function preparePhysicalSupportInput(
   const input: IAutoMoviePhysicalSimulationInput.IInput =
     createPhysicalBalanceInput(profile, "internal", impulse, duration, body);
   if (impulse === 0) {
-    input.iterations = 32;
     input.impulses.length = 0;
   } else {
     const perturbation: IAutoMoviePhysicalSimulationInput.IInput["impulses"][number] =
