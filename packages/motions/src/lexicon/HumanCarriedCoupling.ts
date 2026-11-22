@@ -34,8 +34,9 @@ import { HumanCarriedCouplingCouple } from "./HumanCarriedCouplingCouple";
  *   nothing; each bearer hand's palm under the borne region it holds
  *   (`HOLDS`), both bearing; and each clinging hand on the bearer's region
  *   it clings to, a grip.
- * - **Load shares.** The bearing contacts' shares of the borne weight are
- *   the least-norm shares whose weighted centre lies under the borne centre
+ * - **Load shares.** The bearing contacts' and the clinging hands' shares
+ *   of the borne weight, each a point support at its region (a clinging
+ *   hand at its palm), are the least-norm shares whose weighted centre lies under the borne centre
  *   of mass, the vertical reactions of a body at rest on point supports
  *   (static equilibrium of forces and of the moments about the vertical's
  *   two horizontal axes), none of them a pull.
