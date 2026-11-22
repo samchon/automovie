@@ -1,4 +1,5 @@
 import {
+  hingedArmSwivel,
   inertializePose,
   poseJointCodec,
   samplePoseVelocity,
@@ -16,6 +17,7 @@ import type {
   IAutoMoviePoseRig,
   IAutoMoviePoseState,
   IAutoMovieSeededChainFit,
+  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import { HumanLimbFit } from "../posture/HumanLimbFit";
@@ -322,12 +324,34 @@ export namespace HumanSegmentPose {
       HumanSegmentPlant.settled(fitted, pose, posture.limbs, seeds)
     )
       return { pose, seeds };
+    // A read that continues no other second continues each plant from this
+    // very read's leaf fit of the same goal, displaced only by what came
+    // after the leaf: the same branch, refined, never swept afresh.
+    const leafed: HumanSegmentPose.INear | undefined =
+      HumanSegmentPoseSeeds.continues(near)
+        ? near
+        : {
+            seeds: new Map<string, IAutoMovieSwivelSeed | null>(
+              [...seeds]
+                .filter(
+                  ([name]: [string, IAutoMovieSwivelSeed | null]): boolean =>
+                    name.startsWith("leaf::"),
+                )
+                .map(
+                  ([name, seed]: [string, IAutoMovieSwivelSeed | null]): [
+                    string,
+                    IAutoMovieSwivelSeed | null,
+                  ] => [`planted:${name.slice("leaf::".length)}`, seed],
+                ),
+            ),
+            tolerance: hingedArmSwivel.RESOLUTION,
+          };
     const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
       HumanSegmentPlant.fit(
         body,
         pose,
         posture.limbs,
-        near,
+        leafed,
         prepared.resolution,
       );
     for (const [limb, seed] of Object.entries(planted.seeds))
