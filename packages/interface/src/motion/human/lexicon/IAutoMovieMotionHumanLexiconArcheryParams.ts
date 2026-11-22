@@ -1,8 +1,4 @@
-import type { IAutoMovieMotionHumanPickUp } from "../handling/IAutoMovieMotionHumanPickUp";
-import type { IAutoMovieMotionHumanPutDown } from "../handling/IAutoMovieMotionHumanPutDown";
-import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHumanOperate";
-import type { IAutoMovieMotionHumanRelease } from "../throwing/IAutoMovieMotionHumanRelease";
-import type { IAutoMovieMotionHumanWeaponPresent } from "./IAutoMovieMotionHumanWeaponPresent";
+import type { IAutoMovieMotionHumanArchery } from "../next/IAutoMovieMotionHumanArchery";
 
 /**
  * Open parameters of the archery lexicon family, keyed by each runtime export name.
@@ -15,39 +11,29 @@ import type { IAutoMovieMotionHumanWeaponPresent } from "./IAutoMovieMotionHuman
  */
 export interface IAutoMovieMotionHumanLexiconArcheryParams {
   /** Take an arrow by its shaft. */
-  takeArrow: Omit<IAutoMovieMotionHumanPickUp.IParams, "handle">;
+  takeArrow: IAutoMovieMotionHumanArchery.ITakeArrow;
 
   /** Set the arrow's nock on the bow's string. */
-  nockArrow: IAutoMovieMotionHumanPutDown.IParams;
+  nockArrow: IAutoMovieMotionHumanArchery.INockArrow;
 
   /** Hold the bow out in one hand on the line from the face to the target. */
-  presentBow: Omit<
-    IAutoMovieMotionHumanWeaponPresent.IPresent,
-    "anchor" | "hands" | "from" | "tip" | "edge" | "extended"
-  >;
+  presentBow: IAutoMovieMotionHumanArchery.IPresentBow;
 
   /** Draw the string back to the anchor, over `presentBow`. */
-  drawBow: IAutoMovieMotionHumanOperate.IParams;
+  drawBow: IAutoMovieMotionHumanArchery.IDrawBow;
 
   /** Release the arrow prop, with an optional authored continuation after the cue. */
-  loose: IAutoMovieMotionHumanRelease.IParams & {
-    /** The staged arrow and its animation carrier. Incompatible with `prop` or `launch`. */
-    continuation?: IAutoMovieMotionHumanLexiconArcheryParams.IContinuation;
-  };
+  loose: IAutoMovieMotionHumanArchery.ILoose;
 
   /** Span a crossbow by its string or its crank. */
-  spanCrossbow: IAutoMovieMotionHumanOperate.IParams;
+  spanCrossbow: IAutoMovieMotionHumanArchery.ISpanCrossbow;
 
   /** Hold the crossbow to the cheek on the line to the target. */
-  presentCrossbow: Omit<IAutoMovieMotionHumanWeaponPresent.IPresent, "anchor">;
+  presentCrossbow: IAutoMovieMotionHumanArchery.IPresentCrossbow;
 
   /** Cue the crossbow's visible release and transfer the bolt to a continuation when supplied. */
-  shootCrossbow: IAutoMovieMotionHumanWeaponPresent.IWield & {
-    /** The staged bolt and its animation carrier. Incompatible with `shot`. */
-    continuation?: IAutoMovieMotionHumanLexiconArcheryParams.IContinuation;
-  };
+  shootCrossbow: IAutoMovieMotionHumanArchery.IShootCrossbow;
 }
-
 /** References shared by the staged bow and crossbow cues. */
 export namespace IAutoMovieMotionHumanLexiconArcheryParams {
   /**
