@@ -1,8 +1,8 @@
+import { createBall } from "@automovie/archetypes";
 import { Quaternion, hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
-  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPosture,
@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanObject,
   HumanPerformance,
   poseBones,
   resolveHumanPosture,
@@ -32,7 +33,10 @@ const SPAN: number = 0.08;
 /** The shares of the span read between the two anchors. */
 const SHARES: readonly number[] = [0.125, 0.375, 0.5, 0.75];
 
-/** The displayed seconds read inside the overlay's raised span, after its `ready` event, every 1/120 s over half a second: off the anchor grid, and across several anchors. */
+/** How long after the walk's entry its frames are read, seconds: past the cut's half-second decay, so the carry is the walk's own. */
+const SETTLED: number = 0.5;
+
+/** The displayed seconds read after `SETTLED`, every 1/120 s over half a second: off the anchor grid, and across several anchors. */
 const FRAMES: readonly number[] = Array.from(
   { length: 61 },
   (_: unknown, i: number): number => 0.0013 + i / 120,
@@ -41,13 +45,18 @@ const FRAMES: readonly number[] = Array.from(
 /** Every how many frames the cold display is read: each of its reads sweeps, so it is read every twentieth of a second. */
 const COLD: number = 6;
 
+/** The arms read. */
+const SIDES: readonly ("left" | "right")[] = ["left", "right"];
+
 /** The arm joints whose angles a reader takes from a displayed pose. */
-const JOINTS: readonly AutoMovieHumanoidBone[] = [
-  "rightShoulder",
-  "rightUpperArm",
-  "rightLowerArm",
-  "rightHand",
-];
+const JOINTS: readonly AutoMovieHumanoidBone[] = SIDES.flatMap(
+  (side: "left" | "right"): AutoMovieHumanoidBone[] => [
+    `${side}Shoulder`,
+    `${side}UpperArm`,
+    `${side}LowerArm`,
+    `${side}Hand`,
+  ],
+);
 
 /** The hand placement two fits of one goal must share, metres: a tenth of a millimetre. */
 const HAND: number = 1e-4;
@@ -70,26 +79,25 @@ const STEP: number = 0.005;
  *    fit), puts the hand where the cold fit does, and its swivel, lying
  *    between the ends' swivels, is no farther from the cold swivel than the
  *    farther end's is.
- * 2. A walk with a held sheet read in the right hand over it, every 1/120 s
- *    of half a second of the raised hand, off the anchor grid:
+ * 2. A basketball picked up from the floor and carried on a 2 m walk, every
+ *    1/120 s of half a second of the walk, off the anchor grid:
  *    - the verdicts' bone read and playback's pose read of a frame are the
  *      same pose, though the two performances read the frames in opposite
  *      orders;
- *    - the elbow and wrist move about the shoulder by at most the audit's
+ *    - each elbow and wrist moves about its shoulder by at most the audit's
  *      5 mm between neighbouring frames, across every anchor boundary;
+ *    - the walk keeps anchors holding a carried arm's fit;
  *    - against the same display with every anchor emptied (each fit cold),
- *      read every twentieth of a second, the wrist is on the same goal
- *      within a tenth of a millimetre and the elbow on the same side of the
- *      shoulder-wrist axis (the same branch);
- *    - the walk keeps the anchors' overlay leaf arm fits.
+ *      read every twentieth of a second, each wrist is on the same goal
+ *      within a tenth of a millimetre and each elbow on the same side of
+ *      its shoulder-wrist axis (the same branch).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the bodies, the goal motion, the frames, each pinned property and the source of each tolerance.
+ * @evidence contracts/development/common.md#meaningful-documentation States the bodies, the goal motion, the take, the frames, each pinned property and the source of each tolerance.
  * @evidence contracts/development/testing.md#behavioral-verification Fits goals through resolveHumanPosture.seeded cold and prescribed, and reads a performance's displayed bones and poses at frames through its anchors, in two read orders and with every anchor emptied.
  * @evidence contracts/development/testing.md#independent-expectations The cold fit and the cold display are the references; the anchor course must keep their branch and goal, never the other way, and two read orders must agree exactly.
- * @evidence contracts/development/testing.md#distinguishing-cases Two extreme bodies, four shares between two anchors, and sixty-one frames spanning several anchor boundaries.
- * @evidence contracts/development/testing.md#execution-ownership Pure posture fits and in-memory performances on polygon bodies.
- */
-export function test_motion_contact_anchor_continuation(): void {
+ * @evidence contracts/development/testing.md#distinguishing-cases Two extreme bodies, four shares between two anchors, both arms, and sixty-one frames spanning several anchor boundaries.
+ * @evidence contracts/development/testing.md#execution-ownership Pure posture fits and in-memory performances of a polygon body and a ball.
+ */ export function test_motion_contact_anchor_continuation(): void {
   for (const name of BODIES) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     fits(name, body);
@@ -191,17 +199,16 @@ function fits(name: string, body: IAutoMovieMotionHumanBody): void {
 
 /** Scenario 2: one placement for every reader of a displayed frame, continuous across anchors, on the cold display's branch and goal. */
 function display(name: string, body: IAutoMovieMotionHumanBody): void {
-  const verdicts: IAutoMovieMotionHumanPerformance = reading(body);
-  const overlay: IAutoMovieMotionHumanSegment.IOverlay | undefined =
-    verdicts.overlays("a")[0];
-  TestValidator.predicate(`${name}: the walk carries the read`, !!overlay);
-  const ready: number =
-    overlay!.start +
-    (overlay!.plan.events.find(
-      (event: IAutoMovieMotionEvent): boolean => event.name === "ready",
-    )?.share ?? 0) *
-      overlay!.plan.duration;
-  const seconds: number[] = FRAMES.map((s: number): number => ready + s);
+  const verdicts: IAutoMovieMotionHumanPerformance = carrying(body);
+  const walk: IAutoMovieMotionHumanSegment | undefined =
+    verdicts.segments("a")[1];
+  TestValidator.predicate(
+    `${name}: the pickup is followed by the walk`,
+    !!walk,
+  );
+  const seconds: number[] = FRAMES.map(
+    (s: number): number => walk!.entryTime + SETTLED + s,
+  );
 
   // The verdicts read bones forward; playback reads poses backward.
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[] =
@@ -209,7 +216,7 @@ function display(name: string, body: IAutoMovieMotionHumanBody): void {
       (t: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
         verdicts.bones("a", t),
     );
-  const playback: IAutoMovieMotionHumanPerformance = reading(body);
+  const playback: IAutoMovieMotionHumanPerformance = carrying(body);
   const poses: IAutoMoviePose[] = [...seconds]
     .reverse()
     .map((t: number): IAutoMoviePose => playback.pose("a", t))
@@ -229,47 +236,49 @@ function display(name: string, body: IAutoMovieMotionHumanBody): void {
     );
   });
 
-  // Neighbouring frames move the elbow and the wrist about the shoulder,
-  // which carries them along the walk, by at most a step.
+  // Neighbouring frames move each elbow and wrist about its shoulder, which
+  // carries them along the walk, by at most a step.
   for (let i: number = 1; i < seconds.length; ++i)
-    for (const bone of ["rightLowerArm", "rightHand"] as const) {
-      const moved: number = distance(
-        minus(
-          bones[i - 1]!.get(bone)!.worldPosition,
-          bones[i - 1]!.get("rightUpperArm")!.worldPosition,
-        ),
-        minus(
-          bones[i]!.get(bone)!.worldPosition,
-          bones[i]!.get("rightUpperArm")!.worldPosition,
-        ),
-      );
-      TestValidator.predicate(
-        `${name} ${bone} from ${seconds[i - 1]!.toFixed(4)} s: moves ${(moved * 1000).toFixed(3)} mm in a frame`,
-        moved <= STEP,
-      );
-    }
+    for (const side of SIDES)
+      for (const bone of [`${side}LowerArm`, `${side}Hand`] as const) {
+        const moved: number = distance(
+          minus(
+            bones[i - 1]!.get(bone)!.worldPosition,
+            bones[i - 1]!.get(`${side}UpperArm`)!.worldPosition,
+          ),
+          minus(
+            bones[i]!.get(bone)!.worldPosition,
+            bones[i]!.get(`${side}UpperArm`)!.worldPosition,
+          ),
+        );
+        TestValidator.predicate(
+          `${name} ${bone} from ${seconds[i - 1]!.toFixed(4)} s: moves ${(moved * 1000).toFixed(3)} mm in a frame`,
+          moved <= STEP,
+        );
+      }
 
-  // The walk keeps its anchors' overlay leaf arm fits.
-  const walk: readonly IAutoMovieMotionHumanSegment[] = verdicts.segments("a");
+  // The walk keeps its anchors' carry fits: the frames were placed from them.
   TestValidator.predicate(
-    `${name}: the frames are placed from anchors holding the overlay leaf's arm fit`,
-    walk.some((segment: IAutoMovieMotionHumanSegment): boolean =>
-      [...(segment.anchors?.values() ?? [])].some(
-        (fits: IAutoMovieMotionHumanSegment.IAnchorFits): boolean =>
-          (fits.get("leaf:0:rightArm") ?? null) !== null,
-      ),
+    `${name}: the frames are placed from anchors holding a carried arm's fit`,
+    [...(walk!.anchors?.values() ?? [])].some(
+      (fits: IAutoMovieMotionHumanSegment.IAnchorFits): boolean =>
+        [...fits].some(
+          ([fit, seed]: [string, IAutoMovieSwivelSeed | null]): boolean =>
+            fit.startsWith("carry:") && seed !== null,
+        ),
     ),
   );
 
   // The same display with every anchor it used emptied: each fit is cold.
-  const cold: IAutoMovieMotionHumanPerformance = reading(body);
+  const cold: IAutoMovieMotionHumanPerformance = carrying(body);
+  const used: readonly IAutoMovieMotionHumanSegment[] = verdicts.segments("a");
   cold
     .segments("a")
     .forEach((segment: IAutoMovieMotionHumanSegment, i: number): void => {
-      const used: IAutoMovieMotionHumanSegment["anchors"] = walk[i]?.anchors;
-      if (used === undefined) return;
+      const kept: IAutoMovieMotionHumanSegment["anchors"] = used[i]?.anchors;
+      if (kept === undefined) return;
       segment.anchors = new Map();
-      for (const key of used.keys()) segment.anchors.set(key, new Map());
+      for (const key of kept.keys()) segment.anchors.set(key, new Map());
     });
   seconds.forEach((t: number, i: number): void => {
     if (i % COLD !== 0) return;
@@ -277,23 +286,25 @@ function display(name: string, body: IAutoMovieMotionHumanBody): void {
       "a",
       t,
     );
-    const wrist: number = distance(
-      bones[i]!.get("rightHand")!.worldPosition,
-      own.get("rightHand")!.worldPosition,
-    );
-    TestValidator.predicate(
-      `${name} at ${t.toFixed(4)} s: the wrist is on the cold read's goal (${(wrist * 1000).toFixed(4)} mm apart)`,
-      wrist <= HAND,
-    );
-    TestValidator.predicate(
-      `${name} at ${t.toFixed(4)} s: the elbow is on the cold read's side of the shoulder-wrist axis`,
-      side(bones[i]!, own) > 0,
-    );
+    for (const side of SIDES) {
+      const wrist: number = distance(
+        bones[i]!.get(`${side}Hand`)!.worldPosition,
+        own.get(`${side}Hand`)!.worldPosition,
+      );
+      TestValidator.predicate(
+        `${name} ${side} at ${t.toFixed(4)} s: the wrist is on the cold read's goal (${(wrist * 1000).toFixed(4)} mm apart)`,
+        wrist <= HAND,
+      );
+      TestValidator.predicate(
+        `${name} ${side} at ${t.toFixed(4)} s: the elbow is on the cold read's side of the shoulder-wrist axis`,
+        elbows(bones[i]!, own, side) > 0,
+      );
+    }
   });
 }
 
-/** A walk of 2 m with a sheet read in the right hand over it. */
-function reading(
+/** A basketball picked up from the floor and carried on a 2 m walk. */
+function carrying(
   body: IAutoMovieMotionHumanBody,
 ): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
@@ -302,15 +313,20 @@ function reading(
       {
         subject: "a",
         body,
-        at: { x: 0, y: 0, z: 0 },
+        at: { x: 0, y: 0, z: 1.2 },
         yaw: 0,
         proficiency: { level: "trained" },
       },
     ],
+    props: [
+      HumanObject.prop("ball", createBall({ kind: "basketball" }), {
+        position: { x: 0, y: 0, z: 1.69 },
+        rotation: Quaternion.identity(),
+      }),
+    ],
     composition: HumanChain.subject("a")
-      .walk({ to: { x: 0, y: 0, z: 2 } })
-      .over((u) => u.handToFace({ task: "read", side: "right", seconds: 0.5 }))
-      .node,
+      .pickUp({ prop: "ball", handle: "grip", lift: 0.15 })
+      .walk({ to: { x: 0, y: 0, z: 3.2 } }).node,
   });
 }
 
@@ -341,17 +357,18 @@ function angles(
   );
 }
 
-/** The cosine-signed agreement of two reads' elbow offsets from their shoulder-wrist axes: positive where both elbows sit on the same side. */
-function side(
+/** The cosine-signed agreement of two reads' elbow offsets from one arm's shoulder-wrist axis: positive where both elbows sit on the same side. */
+function elbows(
   a: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   b: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  side: "left" | "right",
 ): number {
   const offset = (
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 => {
-    const s: IAutoMovieVector3 = bones.get("rightUpperArm")!.worldPosition;
-    const e: IAutoMovieVector3 = bones.get("rightLowerArm")!.worldPosition;
-    const w: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
+    const s: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
+    const e: IAutoMovieVector3 = bones.get(`${side}LowerArm`)!.worldPosition;
+    const w: IAutoMovieVector3 = bones.get(`${side}Hand`)!.worldPosition;
     const axis: IAutoMovieVector3 = minus(w, s);
     const along: number = dot(minus(e, s), axis) / dot(axis, axis);
     return minus(minus(e, s), scale(axis, along));
