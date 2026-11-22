@@ -125,7 +125,7 @@ export function ropeTraverse(
     },
   });
   const monkey: boolean = p.style === "monkey";
-  let lead: number = here + (sign * step) / 2;
+  const lead: number = here + (sign * step) / 2;
   let rear: number = here - (sign * step) / 2;
   const feet = (): IAutoMovieMotionHumanSupport.IContact[] =>
     monkey

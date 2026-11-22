@@ -11,6 +11,9 @@ import { supportContact } from "./supportContact";
 /** Only the subject and target parameters identify a support frame. */
 type ContextField = "subject" | "params";
 
+/** The least upward component of a world point's normal for it to be ground under a contact: within about 45 degrees of level. */
+const UPWARD: number = 0.7;
+
 /**
  * A support sequence's declared windows, including the frame each target
  * belongs to. The contact identity keeps separate placements and targets.
@@ -20,9 +23,6 @@ type ContextField = "subject" | "params";
  * @evidence contracts/development/design.md#minimal-and-owned-surface One schedule reader for support.plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the shared target and contact types.
  */
-/** The least upward component of a world point's normal for it to be ground under a contact: within about 45 degrees of level. */
-const UPWARD: number = 0.7;
-
 export namespace supportWindows {
   /**
    * Describe how and where a stance contact bears.
