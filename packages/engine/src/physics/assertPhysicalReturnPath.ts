@@ -7,10 +7,10 @@ import type {
   IAutoMoviePreparePhysicalGeometry,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
@@ -48,14 +48,14 @@ export function assertPhysicalReturnPath(
     Record<string, IAutoMovieRigidTransform>
   > = Object.fromEntries(
     [...bound.segments].map(
-      ([id, segments]: [string, Map<string, RigidBody>]): [
+      ([id, segments]: [string, Map<string, AutoMovieXpbdBody>]): [
         string,
         Record<string, IAutoMovieRigidTransform>,
       ] => [
         id,
         Object.fromEntries(
           [...segments].map(
-            ([bone, rigid]: [string, RigidBody]): [
+            ([bone, rigid]: [string, AutoMovieXpbdBody]): [
               string,
               IAutoMovieRigidTransform,
             ] => [

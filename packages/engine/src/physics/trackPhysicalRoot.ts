@@ -6,15 +6,14 @@ import type {
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { distributePhysicalSupportWrench } from "./distributePhysicalSupportWrench";
 import { physicalJointInertia } from "./physicalJointInertia";
-import { physicalNativeVector } from "./physicalNativeVector";
 
 /**
  * Realize one bounded root demand through an external wrench or feasible actual-support joint torques.
@@ -54,7 +53,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     ? Tracking.force(
         Vector3.subtract(rootGoal, base.translation()),
         Vector3.subtract(
-          base.velocityAtPoint(physicalNativeVector(base.translation())),
+          base.velocityAtPoint(base.translation()),
           rootIntent.velocity,
         ),
         body.profile.mass,
@@ -188,8 +187,8 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
       });
     }
   } else if (rootDynamic && !actuation) {
-    base.addForce(physicalNativeVector(force), true);
-    base.addTorque(physicalNativeVector(rootTorque), true);
+    base.addForce(force);
+    base.addTorque(rootTorque);
   }
 }
 
@@ -207,7 +206,7 @@ export namespace trackPhysicalRoot {
     /** Admitted global physical settings. */ settings: IAutoMoviePhysicalSimulationInput.IInput;
     /** Admitted provider and controller. */ body: IAutoMoviePhysicalSimulationInput.IBody;
     /** Transient native maps and prediction destination. */ bound: Bound;
-    /** Native root wrapper. */ base: RigidBody;
+    /** Native root wrapper. */ base: AutoMovieXpbdBody;
     /** Whether the root is currently dynamically owned. */ rootDynamic: boolean;
     /** Independent root motor intent captured before actual-root fitting. */ rootIntent: IAutoMovieSamplePhysicalTarget.IResult;
     /** Effective effort after physical balance assessment. */ target: IAutoMoviePhysicalSimulationInput.ITarget;

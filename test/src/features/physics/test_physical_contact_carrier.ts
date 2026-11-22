@@ -1,4 +1,6 @@
 import {
+  AutoMovieXpbdBody,
+  AutoMovieXpbdWorld,
   Quaternion,
   Vector3,
   accumulatePhysicalMotorTorques,
@@ -9,7 +11,6 @@ import type {
   IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
-import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -30,7 +31,6 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A point on the first of two hinges is invariant under the distal hinge.).
  */
 export async function test_physical_contact_carrier(): Promise<void> {
-  await RAPIER.init();
   const profile: P = PhysicalPointFixtures.profile();
   profile.joints[1]!.axes = [
     {
@@ -39,28 +39,27 @@ export async function test_physical_contact_carrier(): Promise<void> {
       minimum: -Math.PI / 2,
     },
   ];
-  const world: World = new RAPIER.World({ x: 0, y: 0, z: 0 });
-  try {
-    const segments: Map<string, RigidBody> = new Map(
+  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+    x: 0,
+    y: 0,
+    z: 0,
+  });
+  {
+    const segments: Map<string, AutoMovieXpbdBody> = new Map(
       profile.segments.map(
-        (segment: IAutoMoviePhysicalSegment): [string, RigidBody] => [
-          segment.bone,
-          world.createRigidBody(
-            RAPIER.RigidBodyDesc.dynamic()
-              .setTranslation(
-                segment.neutral.position.x,
-                segment.neutral.position.y,
-                segment.neutral.position.z,
-              )
-              .setRotation(segment.neutral.rotation)
-              .setAdditionalMassProperties(
-                segment.mass,
-                segment.centerOfMass,
-                segment.inertia,
-                segment.inertiaRotation,
-              ),
-          ),
-        ],
+        (segment: IAutoMoviePhysicalSegment): [string, AutoMovieXpbdBody] => {
+          const body: AutoMovieXpbdBody = world.createBody(
+            true,
+            segment.neutral,
+          );
+          body.setMass(
+            segment.mass,
+            segment.centerOfMass,
+            segment.inertia,
+            segment.inertiaRotation,
+          );
+          return [segment.bone, body];
+        },
       ),
     );
     for (const transformed of [false, true]) {
@@ -81,9 +80,8 @@ export async function test_physical_contact_carrier(): Promise<void> {
               translation,
               Quaternion.rotateVector(rotation, segment.neutral.position),
             ),
-            true,
           );
-        segments.get(segment.bone)!.setRotation(rotation, true);
+        segments.get(segment.bone)!.setRotation(rotation);
       }
       for (const joint of profile.joints.slice(0, 2)) {
         const frame: IAutoMovieRigidTransform["rotation"] = transformed
@@ -134,7 +132,5 @@ export async function test_physical_contact_carrier(): Promise<void> {
         }
       }
     }
-  } finally {
-    world.free();
   }
 }

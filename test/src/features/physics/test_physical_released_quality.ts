@@ -1,18 +1,21 @@
-import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
+import {
+  AutoMovieXpbdBody,
+  AutoMovieXpbdWorld,
+  AutoMoviePhysicalSimulation as Simulation,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
-import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
-/** Twenty-four native steps cover release, return and one continuation. */
+/** Twenty-four fixed steps cover release, return and one continuation. */
 const DURATION: number = 0.2;
 
-/** Steps between retained native checkpoints. */
+/** Steps between retained solver checkpoints. */
 const CHECKPOINT: number = 4;
 
 /** Step where authored strength returns. */
@@ -30,7 +33,7 @@ const RETURNED: number = 16;
 /** First edited step, inside the release after its checkpoint. */
 const EDIT: number = 9;
 
-/** Native per-island quality survives checkpoints and is withdrawn when authored control returns.
+/** Per-body solver quality survives checkpoints and is withdrawn when authored control returns.
  *
  * Scenarios:
  * 1. A released sphere and an articulation under reflex joint effort carry the declared extra solver budget in a restored checkpoint.
@@ -91,21 +94,17 @@ export async function test_physical_released_quality(): Promise<void> {
       [RELEASED, [8, 7]],
       [RETURNED, [0, 0]],
     ] as const) {
-      const world: World = RAPIER.World.restoreSnapshot(
+      const world: AutoMovieXpbdWorld = AutoMovieXpbdWorld.restoreSnapshot(
         baseline.cache.checkpoints.get(step)!,
       );
-      try {
-        world.bodies.forEach((rigid: RigidBody): void => {
-          if (!rigid.isDynamic()) return;
-          if (
-            rigid.additionalSolverIterations() !== expected[0] ||
-            rigid.additionalPgsIterations() !== expected[1]
-          )
-            findings.push(`native quality at step ${step}`);
-        });
-      } finally {
-        world.free();
-      }
+      for (const rigid of world.bodies.filter(
+        (candidate: AutoMovieXpbdBody): boolean => candidate.isDynamic(),
+      ))
+        if (
+          rigid.extraPasses !== expected[0] ||
+          rigid.extraSweeps !== expected[1]
+        )
+          findings.push(`solver quality at step ${step}`);
     }
     const edited: IAutoMoviePhysicalSimulationInput.IInput =
       structuredClone(input);
@@ -130,7 +129,7 @@ export async function test_physical_released_quality(): Promise<void> {
     )
       findings.push("released-quality checkpoint continuation");
     TestValidator.equals(
-      "native quality policy and exact resumed states",
+      "solver quality policy and exact resumed states",
       findings,
       [],
     );

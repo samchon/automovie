@@ -8,34 +8,36 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
-import RAPIER, {
-  type Collider,
-  type ImpulseJoint,
-  type RigidBody,
-  type World,
-} from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
+import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { assertPhysicalNativeMotion } from "./assertPhysicalNativeMotion";
 import { physicalHullErode } from "./physicalHullErode";
-import { physicalNativeShape } from "./physicalNativeShape";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
- * Create generic native bodies, colliders and joint limits, or reconnect restored handles.
+ * Create the world's bodies, colliders and joints for every admitted body,
+ * or reconnect a restored world's in creation order. A segment is dynamic
+ * when its first target selects it, kinematic otherwise; it carries the
+ * profile's mass properties. A compliant material's shape is a sensor with
+ * a solid inner core eroded by its maximum compression. The floor is a
+ * stationary kinematic box with friction 0.7.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Create generic native bodies, colliders and joint limits, or reconnect restored handles) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Create generic native bodies, colliders and joint limits, or reconnect restored handles) directly over its typed inputs (`world`, `input`, `restored`) as nested iteration of depth 4 (map over input.bodies; forEach over world.bodies; forEach over world.colliders), delegating to `Object.fromEntries`, `bodies.push`, `colliders.push`, `joints.push`, `world.createRigidBody`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literals 8, 16, 32, 3, 4, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 407 lines and 16 top-level statements that reuses `Object.fromEntries`, `bodies.push`, `colliders.push`, `joints.push`, `world.createRigidBody` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 24 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `world`, `input`, `restored`; the dominant cost is nested iteration of depth 4 (map over input.bodies; forEach over world.bodies; forEach over world.colliders), performed once per call with 66 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is created per segment, shape, joint and the floor, and the restored case.
+ * @evidence contracts/development/implementation.md#principled-implementation Each segment becomes one body with the profile's mass, centre and principal inertia; each shape one collider with its material's friction and restitution; each joint one world joint whose frames, axes and limits are the profile's. Restored worlds are reconnected by creation order, which the snapshot preserves. The literal 0.7 is the floor's declared friction.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass per body over segments, shapes and joints, then the derived orders and the floor; creation is the world's.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every segment, shape and joint of every admitted body is bound; none is special-cased.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments, shapes and joints, plus the quadratic joint ordering pass over each profile's joints.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 66 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function bindPhysicalWorld(
-  world: World,
+  world: AutoMovieXpbdWorld,
   input: IAutoMoviePhysicalSimulationInput.IInput,
   restored: boolean,
 ): Bound {
@@ -71,25 +73,19 @@ export function bindPhysicalWorld(
     supportCoordinates: new Map(),
     selection: new Map(),
   };
-  const bodies: RigidBody[] = [];
-  const colliders: Collider[] = [];
-  const joints: ImpulseJoint[] = [];
+  const bodies: AutoMovieXpbdBody[] = [];
+  const colliders: AutoMovieXpbdCollider[] = [];
+  const joints: AutoMovieXpbdJoint[] = [];
   if (restored) {
-    world.bodies.forEach((body: RigidBody): void => {
-      bodies.push(body);
-    });
-    world.colliders.forEach((collider: Collider): void => {
-      colliders.push(collider);
-    });
-    world.impulseJoints.forEach((joint: ImpulseJoint): void => {
-      joints.push(joint);
-    });
+    bodies.push(...world.bodies);
+    colliders.push(...world.colliders);
+    joints.push(...world.joints);
   }
   let bi: number = 0;
   let ci: number = 0;
   let ji: number = 0;
   for (const body of input.bodies) {
-    const local: Map<string, RigidBody> = new Map();
+    const local: Map<string, AutoMovieXpbdBody> = new Map();
     const dynamic: Set<string> = new Set();
     bound.segments.set(body.id, local);
     bound.dynamic.set(body.id, dynamic);
@@ -110,28 +106,16 @@ export function bindPhysicalWorld(
       const selected: boolean =
         body.mode.kind !== "kinematic" &&
         (body.targets[0]!.dynamicSegments?.includes(segment.bone) ?? true);
-      const rigid: RigidBody = restored
+      const rigid: AutoMovieXpbdBody = restored
         ? bodies[bi++]!
-        : world.createRigidBody(
-            (selected
-              ? RAPIER.RigidBodyDesc.dynamic()
-              : RAPIER.RigidBodyDesc.kinematicPositionBased()
-            )
-              .setTranslation(
-                target.position.x,
-                target.position.y,
-                target.position.z,
-              )
-              .setRotation(target.rotation)
-              .setGravityScale(factor)
-              .setCcdEnabled(true)
-              .setAdditionalMassProperties(
-                segment.mass,
-                segment.centerOfMass,
-                segment.inertia,
-                segment.inertiaRotation,
-              ),
-          );
+        : world.createBody(selected, target, factor);
+      if (!restored)
+        rigid.setMass(
+          segment.mass,
+          segment.centerOfMass,
+          segment.inertia,
+          segment.inertiaRotation,
+        );
       if (rigid.isDynamic()) dynamic.add(segment.bone);
       if (!restored) {
         bound.ownership.push({
@@ -162,9 +146,8 @@ export function bindPhysicalWorld(
                 Quaternion.rotateVector(target.rotation, segment.centerOfMass),
               ),
             ),
-            true,
           );
-          rigid.setAngvel(sampled.angularVelocity, true);
+          rigid.setAngvel(sampled.angularVelocity);
         }
       }
       bound.bodies.set(`${body.id}/${segment.bone}`, rigid);
@@ -175,30 +158,15 @@ export function bindPhysicalWorld(
             (candidate: (typeof body.profile.materials)[number]): boolean =>
               candidate.id === shape.material,
           )!;
-        const descriptor: RAPIER.ColliderDesc = new RAPIER.ColliderDesc(
-          physicalNativeShape(shape),
-        );
-        const collider: Collider = restored
+        const collider: AutoMovieXpbdCollider = restored
           ? colliders[ci++]!
           : world.createCollider(
-              descriptor
-                .setTranslation(
-                  shape.transform.position.x,
-                  shape.transform.position.y,
-                  shape.transform.position.z,
-                )
-                .setRotation(shape.transform.rotation)
-                .setDensity(0)
-                .setFriction(material.friction)
-                .setRestitution(material.restitution)
-                .setSensor(material.compliance > 0),
               rigid,
+              shape,
+              material.friction,
+              material.restitution,
+              material.compliance > 0,
             );
-        if (!restored)
-          collider.setActiveHooks(
-            RAPIER.ActiveHooks.FILTER_CONTACT_PAIRS |
-              RAPIER.ActiveHooks.FILTER_INTERSECTION_PAIRS,
-          );
         bound.colliders.set(collider.handle, {
           body: body.id,
           bone: segment.bone,
@@ -237,23 +205,14 @@ export function bindPhysicalWorld(
             shape satisfies never;
             throw new Error("Unknown physical shape kind");
           }
-          const core: RAPIER.ColliderDesc = new RAPIER.ColliderDesc(
-            physicalNativeShape(coreShape),
-          );
-          const inner: Collider = restored
+          const inner: AutoMovieXpbdCollider = restored
             ? colliders[ci++]!
             : world.createCollider(
-                core
-                  .setTranslation(
-                    shape.transform.position.x,
-                    shape.transform.position.y,
-                    shape.transform.position.z,
-                  )
-                  .setRotation(shape.transform.rotation)
-                  .setDensity(0)
-                  .setFriction(material.friction)
-                  .setRestitution(material.restitution),
                 rigid,
+                coreShape,
+                material.friction,
+                material.restitution,
+                false,
               );
           bound.colliders.set(inner.handle, {
             body: body.id,
@@ -261,67 +220,20 @@ export function bindPhysicalWorld(
             shape: shape.id,
             material: shape.material,
           });
-          if (!restored)
-            inner.setActiveHooks(
-              RAPIER.ActiveHooks.FILTER_CONTACT_PAIRS |
-                RAPIER.ActiveHooks.FILTER_INTERSECTION_PAIRS,
-            );
         }
       }
     }
-    for (const joint of body.profile.joints) {
-      let mask: number =
-        RAPIER.JointAxesMask.LinX |
-        RAPIER.JointAxesMask.LinY |
-        RAPIER.JointAxesMask.LinZ;
-      for (const [axis, bit] of [
-        ["x", 8],
-        ["y", 16],
-        ["z", 32],
-      ] as const)
-        if (
-          !joint.axes.some(
-            (candidate: (typeof joint.axes)[number]): boolean =>
-              candidate.axis === axis,
-          )
-        )
-          mask |= bit;
-      const descriptor: RAPIER.JointData = RAPIER.JointData.generic(
-        joint.parentFrame.position,
-        joint.childFrame.position,
-        { x: 1, y: 0, z: 0 },
-        mask,
+    for (const joint of body.profile.joints)
+      bound.joints.set(
+        `${body.id}/${joint.id}`,
+        restored
+          ? joints[ji++]!
+          : world.createJoint(
+              joint,
+              bound.bodies.get(`${body.id}/${joint.parent}`)!,
+              bound.bodies.get(`${body.id}/${joint.child}`)!,
+            ),
       );
-      descriptor.frame1 = joint.parentFrame.rotation;
-      descriptor.frame2 = joint.childFrame.rotation;
-      const native: ImpulseJoint = restored
-        ? joints[ji++]!
-        : world.createImpulseJoint(
-            descriptor,
-            bound.bodies.get(`${body.id}/${joint.parent}`)!,
-            bound.bodies.get(`${body.id}/${joint.child}`)!,
-            true,
-          );
-      if (!restored) {
-        native.setLocalFrame1(
-          joint.parentFrame.position,
-          joint.parentFrame.rotation,
-        );
-        native.setLocalFrame2(
-          joint.childFrame.position,
-          joint.childFrame.rotation,
-        );
-        native.setContactsEnabled(false);
-        for (const axis of joint.axes)
-          world.impulseJoints.raw.jointSetLimits(
-            native.handle,
-            axis.axis === "x" ? 3 : axis.axis === "y" ? 4 : 5,
-            axis.minimum,
-            axis.maximum,
-          );
-      }
-      bound.joints.set(`${body.id}/${joint.id}`, native);
-    }
     const order: IAutoMoviePhysicalJoint[] = [];
     const pending: Set<IAutoMoviePhysicalJoint> = new Set(body.profile.joints);
     while (pending.size > 0)
@@ -422,26 +334,36 @@ export function bindPhysicalWorld(
       disjoint: select(posture),
     });
   }
-  // The finite cuboid avoids the pinned SDK's inconsistent half-space queries.
-  // Rapier 0.21's JS frequency setter configures dynamic-contact softness only;
-  // fixed-body contacts retain a separate unexposed 60 Hz setting. A stationary
-  // position-kinematic boundary has zero inverse mass and uses the configured
-  // contact law. Its identical next pose is submitted on every native step.
-  const floor: Collider = restored
+  // The floor is a stationary kinematic box whose top face lies at the
+  // floor height across the admitted floor bounds.
+  const floor: AutoMovieXpbdCollider = restored
     ? colliders[ci]!
     : world.createCollider(
-        RAPIER.ColliderDesc.cuboid(
-          (input.floorBounds.max.x - input.floorBounds.min.x) / 2,
-          input.floorBounds.thickness / 2,
-          (input.floorBounds.max.z - input.floorBounds.min.z) / 2,
-        ).setFriction(0.7),
-        world.createRigidBody(
-          RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(
-            (input.floorBounds.min.x + input.floorBounds.max.x) / 2,
-            input.floor - input.floorBounds.thickness / 2,
-            (input.floorBounds.min.z + input.floorBounds.max.z) / 2,
-          ),
-        ),
+        world.createBody(false, {
+          position: {
+            x: (input.floorBounds.min.x + input.floorBounds.max.x) / 2,
+            y: input.floor - input.floorBounds.thickness / 2,
+            z: (input.floorBounds.min.z + input.floorBounds.max.z) / 2,
+          },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+        }),
+        {
+          id: "plane",
+          material: "floor",
+          kind: "box",
+          halfExtents: {
+            x: (input.floorBounds.max.x - input.floorBounds.min.x) / 2,
+            y: input.floorBounds.thickness / 2,
+            z: (input.floorBounds.max.z - input.floorBounds.min.z) / 2,
+          },
+          transform: {
+            position: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: 0, w: 1 },
+          },
+        },
+        0.7,
+        0,
+        false,
       );
   bound.floor = floor.parent()!;
   bound.colliders.set(floor.handle, {
@@ -457,8 +379,6 @@ export function bindPhysicalWorld(
     friction: 0.7,
     gain: 1,
   });
-  if (!restored)
-    for (const rigid of bound.bodies.values())
-      rigid.recomputeMassPropertiesFromColliders();
+
   return bound;
 }

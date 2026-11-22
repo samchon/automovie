@@ -7,17 +7,16 @@ import type {
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import RAPIER, { type RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalRotationVector as Rotation } from "./PhysicalRotationVector";
 import { assertPhysicalNativeMotion } from "./assertPhysicalNativeMotion";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
-import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { stabilizePhysicalJointReturn } from "./stabilizePhysicalJointReturn";
 
@@ -80,7 +79,7 @@ export function advancePhysicalOwnership(input: {
   }
   const selected: Set<string> = selection.bones;
   let owned: Set<string> | undefined;
-  const segments: Map<string, RigidBody> = input.bound.segments.get(
+  const segments: Map<string, AutoMovieXpbdBody> = input.bound.segments.get(
     input.body.id,
   )!;
   const transitions: Record<string, IAutoMoviePhysicalHandoff> =
@@ -104,16 +103,14 @@ export function advancePhysicalOwnership(input: {
   const actual: Record<string, IAutoMovieSamplePhysicalTarget.IResult> =
     Object.fromEntries(
       [...segments].map(
-        ([bone, rigid]: [string, RigidBody]): [
+        ([bone, rigid]: [string, AutoMovieXpbdBody]): [
           string,
           IAutoMovieSamplePhysicalTarget.IResult,
         ] => [
           bone,
           {
             pose: { position: rigid.translation(), rotation: rigid.rotation() },
-            velocity: rigid.velocityAtPoint(
-              physicalNativeVector(rigid.translation()),
-            ),
+            velocity: rigid.velocityAtPoint(rigid.translation()),
             angularVelocity: rigid.angvel(),
           },
         ],
@@ -160,7 +157,7 @@ export function advancePhysicalOwnership(input: {
     );
   for (const segment of ordered) {
     const bone: string = segment.bone;
-    const rigid: RigidBody = segments.get(bone)!;
+    const rigid: AutoMovieXpbdBody = segments.get(bone)!;
     if (selected.has(bone)) {
       delete transitions[bone];
       if (!rigid.isDynamic()) {
@@ -172,9 +169,9 @@ export function advancePhysicalOwnership(input: {
         );
         const velocity: IAutoMovieVector3 = rigid.linvel();
         const angular: IAutoMovieVector3 = rigid.angvel();
-        rigid.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
-        rigid.setLinvel(velocity, true);
-        rigid.setAngvel(angular, true);
+        rigid.setDynamic(true);
+        rigid.setLinvel(velocity);
+        rigid.setAngvel(angular);
         input.bound.ownership.push({
           body: input.body.id,
           bone,
@@ -248,7 +245,7 @@ export function advancePhysicalOwnership(input: {
           ),
         ),
       };
-      rigid.setBodyType(RAPIER.RigidBodyType.KinematicPositionBased, true);
+      rigid.setDynamic(false);
       input.bound.ownership.push({
         body: input.body.id,
         bone,
@@ -434,7 +431,7 @@ export function advancePhysicalOwnership(input: {
           `Derived native joint anchor exceeds f32 range: ${joint.id}`,
         );
     }
-    const rigid: RigidBody = segments.get(bone)!;
+    const rigid: AutoMovieXpbdBody = segments.get(bone)!;
     rigid.setNextKinematicTranslation(goal.pose.position);
     rigid.setNextKinematicRotation(goal.pose.rotation);
   }

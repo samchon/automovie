@@ -1,4 +1,6 @@
 import {
+  AutoMovieXpbdBody,
+  AutoMovieXpbdWorld,
   AutoMoviePhysicalPlayback as Playback,
   Quaternion,
   AutoMoviePhysicalSimulation as Simulation,
@@ -17,7 +19,6 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
-import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -25,11 +26,11 @@ import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
 import { vclose } from "../internal/vclose";
 
-/** Native subtree authority and C1 authored reconciliation share one collision/display tree.
+/** Solver subtree authority and C1 authored reconciliation share one collision/display tree.
  *
  * Scenarios:
  * 1. A moving parent remains authored while an impacted child simulates, returns and reactivates.
- * 2. Native entry retains actual pose and COM/angular velocity; midpoint colliders equal cached display.
+ * 2. Solver entry retains actual pose and COM/angular velocity; midpoint colliders equal cached display.
  * 3. A checkpoint inside return and binary replay preserve exact frames and ownership metadata.
  * 4. Positive solver contact activates the complete receiving body irreversibly; a miss does not.
  * 5. A blocked return refuses instead of teleporting through its receiver.
@@ -114,16 +115,16 @@ export async function test_physical_ownership_handoff(): Promise<void> {
         Vector3.subtract(entering.angularVelocity, returning.angularVelocity),
       ) < 0.1,
   );
-  const world: World = RAPIER.World.restoreSnapshot(
-    baseline.cache.checkpoints.get(48)!,
-  );
-  try {
+  {
+    const world: AutoMovieXpbdWorld = AutoMovieXpbdWorld.restoreSnapshot(
+      baseline.cache.checkpoints.get(48)!,
+    );
     const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
       world,
       baseline.input,
       true,
     );
-    const actual: RigidBody = bound.bodies.get(`${body.id}/child`)!;
+    const actual: AutoMovieXpbdBody = bound.bodies.get(`${body.id}/child`)!;
     const displayed: typeof entering =
       baseline.cache.at(0.4).bodies[body.id]!.child!;
     TestValidator.predicate(
@@ -149,7 +150,7 @@ export async function test_physical_ownership_handoff(): Promise<void> {
       60,
     );
     TestValidator.predicate(
-      "native COM velocity agrees with independently sampled transport",
+      "solver COM velocity agrees with independently sampled transport",
       Vector3.length(Vector3.subtract(actual.linvel(), finiteCom)) < 0.005,
     );
     const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
@@ -166,27 +167,21 @@ export async function test_physical_ownership_handoff(): Promise<void> {
       z: delta.z * scale,
     };
     TestValidator.predicate(
-      "compound native angular derivative agrees with sampled rotation",
+      "compound solver angular derivative agrees with sampled rotation",
       Vector3.length(Vector3.subtract(actual.angvel(), finiteAngular)) < 0.01,
     );
-  } finally {
-    world.free();
   }
-  const activation: World = RAPIER.World.restoreSnapshot(
-    baseline.cache.checkpoints.get(48)!,
-  );
-  try {
+  {
+    const activation: AutoMovieXpbdWorld = AutoMovieXpbdWorld.restoreSnapshot(
+      baseline.cache.checkpoints.get(48)!,
+    );
     const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
       activation,
       baseline.input,
       true,
     );
-    const actual: RigidBody = bound.bodies.get(`${body.id}/child`)!;
-    const before: {
-      pose: IAutoMovieRigidTransform;
-      linear: IAutoMovieRigidTransform["position"];
-      angular: IAutoMovieRigidTransform["position"];
-    } = {
+    const actual: AutoMovieXpbdBody = bound.bodies.get(`${body.id}/child`)!;
+    const before: IBodyState = {
       pose: { position: actual.translation(), rotation: actual.rotation() },
       linear: actual.linvel(),
       angular: actual.angvel(),
@@ -221,15 +216,13 @@ export async function test_physical_ownership_handoff(): Promise<void> {
       nativeRate: 120 * 8,
     });
     TestValidator.predicate(
-      "activation keeps exact actual native state",
+      "activation keeps exact actual solver state",
       actual.isDynamic() &&
         vclose(actual.translation(), before.pose.position) &&
         qclose(actual.rotation(), before.pose.rotation) &&
         vclose(actual.linvel(), before.linear) &&
         vclose(actual.angvel(), before.angular),
     );
-  } finally {
-    activation.free();
   }
   const changed: IAutoMoviePhysicalSimulationInput.IInput =
     structuredClone(input);
@@ -377,6 +370,18 @@ export async function test_physical_ownership_handoff(): Promise<void> {
   );
 }
 
+/** A solver body's pose and velocities at one instant. */
+interface IBodyState {
+  /** Body-frame world pose. */
+  pose: IAutoMovieRigidTransform;
+
+  /** Centre-of-mass velocity, metres per second. */
+  linear: IAutoMovieRigidTransform["position"];
+
+  /** Angular velocity, world radians per second. */
+  angular: IAutoMovieRigidTransform["position"];
+}
+
 /** Two independently declared one-kilogram bodies have offset COMs, an oblique pivot, compound parent motion and a noncommuting child rotation. */
 function movingBody(duration: number): IAutoMoviePhysicalSimulationInput.IBody {
   const prototype: IAutoMoviePhysicalSegment =
@@ -423,7 +428,9 @@ function movingBody(duration: number): IAutoMoviePhysicalSimulationInput.IBody {
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         },
         axes: (["x", "y", "z"] as const).map(
-          (axis: "x" | "y" | "z"): IAutoMoviePhysicalJointAxis => ({
+          (
+            axis: IAutoMoviePhysicalJointAxis["axis"],
+          ): IAutoMoviePhysicalJointAxis => ({
             axis,
             channel: `pivot.${axis}`,
             minimum: -Math.PI / 2,

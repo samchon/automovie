@@ -1,4 +1,5 @@
 import {
+  type AutoMovieXpbdWorld,
   AutoMoviePhysicalSimulation as Simulation,
   bindPhysicalWorld,
   collectPhysicalSupports as collect,
@@ -10,12 +11,12 @@ import type {
   IAutoMovieVector3,
   IAutoMovieFootfallPattern as Pattern,
 } from "@automovie/interface";
-import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
+import { physicalSolverWorld } from "../internal/physicalSolverWorld";
 import { vclose } from "../internal/vclose";
 
 /** Independent balance, endpoint and reaction policies retain their own actual patch witnesses.
@@ -31,7 +32,6 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A single endpoint actuator cannot remove three actual contacts from a four-support balance assessment.).
  */
 export async function test_physical_support_policy_ownership(): Promise<void> {
-  await RAPIER.init();
   for (const proximal of [false, true]) {
     const body: IAutoMoviePhysicalSimulationInput.IBody =
       PhysicalSupportFixtures.body(PhysicalModelFixtures.quadrupod(), 1 / 120);
@@ -62,16 +62,8 @@ export async function test_physical_support_policy_ownership(): Promise<void> {
       contactFrequency: 240,
     });
     Simulation.identity(input);
-    const world: World = new RAPIER.World(input.gravity);
-    try {
-      world.timestep = 1 / 960;
-      world.numSolverIterations = input.iterations;
-      world.numInternalPgsIterations = input.internalIterations!;
-      world.integrationParameters.normalizedPredictionDistance = 0;
-      world.integrationParameters.normalizedAllowedLinearError =
-        input.contactTolerance!;
-      world.integrationParameters.contact_natural_frequency =
-        input.contactFrequency!;
+    const world: AutoMovieXpbdWorld = physicalSolverWorld(input);
+    {
       const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
         world,
         input,
@@ -97,7 +89,7 @@ export async function test_physical_support_policy_ownership(): Promise<void> {
       );
       const endpoint: ReturnType<typeof observe> = observe(pattern);
       TestValidator.equals(
-        "all native balance patches remain observed",
+        "all solver balance patches remain observed",
         balance.length,
         4,
       );
@@ -168,8 +160,6 @@ export async function test_physical_support_policy_ownership(): Promise<void> {
           0,
         ),
       );
-    } finally {
-      world.free();
     }
   }
 }

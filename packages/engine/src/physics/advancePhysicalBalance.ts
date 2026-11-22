@@ -14,17 +14,17 @@ import type {
   IAutoMovieSamplePhysicalRecoveryGoal,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { RigidBody, World } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
 import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
 import { physicalBalanceBracing } from "./physicalBalanceBracing";
 import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
-import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 
@@ -44,12 +44,12 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 36 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function advancePhysicalBalance(input: {
-  /** Active solver, read before this step's integration. */ world: World;
+  /** Active solver, read before this step's integration. */ world: AutoMovieXpbdWorld;
   /** Scene body identity. */ body: string;
   /** Its actual provider profile. */ profile: IAutoMoviePhysicalProfile;
   /** Current world segment wrappers. */ segments: ReadonlyMap<
     string,
-    RigidBody
+    AutoMovieXpbdBody
   >;
   /** Shape identities, including the explicit floor. */ colliders: ReadonlyMap<
     number,
@@ -83,7 +83,7 @@ export function advancePhysicalBalance(input: {
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of input.profile.segments) {
-    const rigid: RigidBody = input.segments.get(segment.bone)!;
+    const rigid: AutoMovieXpbdBody = input.segments.get(segment.bone)!;
     center = Vector3.add(
       center,
       Vector3.scale(
@@ -98,11 +98,9 @@ export function advancePhysicalBalance(input: {
       velocity,
       Vector3.scale(
         rigid.velocityAtPoint(
-          physicalNativeVector(
-            Vector3.add(
-              rigid.translation(),
-              Quaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
-            ),
+          Vector3.add(
+            rigid.translation(),
+            Quaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
           ),
         ),
         segment.mass / input.profile.mass,
@@ -126,7 +124,7 @@ export function advancePhysicalBalance(input: {
     }
   if (state.swing && input.seconds >= state.swing.end) {
     const bone: string = state.swing.bone;
-    const rigid: RigidBody = input.segments.get(bone)!;
+    const rigid: AutoMovieXpbdBody = input.segments.get(bone)!;
     const position: IAutoMovieVector3 = actual(bone);
     const reached: boolean =
       Math.hypot(
@@ -251,7 +249,7 @@ export function advancePhysicalBalance(input: {
     state.revision = (state.revision ?? 0) + 1;
   }
   if (state.swing) {
-    const rigid: RigidBody = input.segments.get(state.swing.bone)!;
+    const rigid: AutoMovieXpbdBody = input.segments.get(state.swing.bone)!;
     const motion: IAutoMovieSamplePhysicalRecoveryGoal.IResult =
       samplePhysicalRecoveryGoal({
         swing: state.swing,
@@ -284,7 +282,7 @@ export function advancePhysicalBalance(input: {
   }
   for (const [bone, offset] of Object.entries(state.offsets)) {
     if (state.swing?.bone === bone) continue;
-    const rigid: RigidBody = input.segments.get(bone)!;
+    const rigid: AutoMovieXpbdBody = input.segments.get(bone)!;
     const segment: IAutoMoviePhysicalSegment = input.profile.segments.find(
       (candidate: (typeof input.profile.segments)[number]): boolean =>
         candidate.bone === bone,
@@ -356,15 +354,13 @@ export function advancePhysicalBalance(input: {
 
   /** Read the actual endpoint without changing a native body's bone-origin frame. */
   function actual(bone: string): IAutoMovieVector3 {
-    const rigid: RigidBody = input.segments.get(bone)!;
-    return physicalNativeVector(
-      physicalSupportPoint(
-        { position: rigid.translation(), rotation: rigid.rotation() },
-        input.policy.pattern.limbs.find(
-          (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
-            limb.bone === bone,
-        )!.localPoint,
-      ),
+    const rigid: AutoMovieXpbdBody = input.segments.get(bone)!;
+    return physicalSupportPoint(
+      { position: rigid.translation(), rotation: rigid.rotation() },
+      input.policy.pattern.limbs.find(
+        (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
+          limb.bone === bone,
+      )!.localPoint,
     );
   }
 
@@ -383,7 +379,7 @@ export function advancePhysicalBalance(input: {
   /** Keep recovery forces on the declared actuator path, including internal actuation. */
   function drive(
     bone: string,
-    rigid: RigidBody,
+    rigid: AutoMovieXpbdBody,
     point: IAutoMovieVector3,
     force: IAutoMovieVector3,
   ): void {
@@ -402,11 +398,6 @@ export function advancePhysicalBalance(input: {
         reverse: false,
         torques: input.actuation,
       });
-    else
-      rigid.addForceAtPoint(
-        physicalNativeVector(force),
-        physicalNativeVector(point),
-        true,
-      );
+    else rigid.addForceAtPoint(force, point);
   }
 }

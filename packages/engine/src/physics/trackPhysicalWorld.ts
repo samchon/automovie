@@ -14,10 +14,11 @@ import type {
   IAutoMovieTrackPhysicalBalanceTargets,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { RigidBody, World } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
 import { advancePhysicalOwnership } from "./advancePhysicalOwnership";
@@ -52,7 +53,7 @@ import { trackPhysicalSupports } from "./trackPhysicalSupports";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 36 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function trackPhysicalWorld(
-  world: World,
+  world: AutoMovieXpbdWorld,
   input: IAutoMoviePhysicalSimulationInput.IInput,
   bound: Bound,
   step: number,
@@ -133,9 +134,11 @@ export function trackPhysicalWorld(
     const rootDynamic: boolean = dynamic.has(root.bone);
     if (scene) scene = readPhysicalScene(bound, scene, body.id);
     for (const segment of body.profile.segments) {
-      const rigid: RigidBody = bound.bodies.get(`${body.id}/${segment.bone}`)!;
-      rigid.resetForces(false);
-      rigid.resetTorques(false);
+      const rigid: AutoMovieXpbdBody = bound.bodies.get(
+        `${body.id}/${segment.bone}`,
+      )!;
+      rigid.resetForces();
+      rigid.resetTorques();
     }
     if (body.mode.kind === "kinematic") continue;
     if (!dynamic.size) {
@@ -147,8 +150,8 @@ export function trackPhysicalWorld(
         !body.releasedQuality.duringReflex
       )
         for (const rigid of bound.segments.get(body.id)!.values()) {
-          rigid.setAdditionalSolverIterations(0);
-          rigid.setAdditionalPgsIterations(0);
+          rigid.extraPasses = 0;
+          rigid.extraSweeps = 0;
         }
       configurePhysicalBodyQuality(bound, input, body, false);
       continue;
@@ -268,8 +271,8 @@ export function trackPhysicalWorld(
       !body.releasedQuality.duringReflex
     )
       for (const rigid of bound.segments.get(body.id)!.values()) {
-        rigid.setAdditionalSolverIterations(0);
-        rigid.setAdditionalPgsIterations(0);
+        rigid.extraPasses = 0;
+        rigid.extraSweeps = 0;
       }
     configurePhysicalBodyQuality(bound, input, body, effort.strength === 0);
     const endpointGoals: typeof goals = { ...authoredGoals };
@@ -355,7 +358,9 @@ export function trackPhysicalWorld(
       floor: input.floor,
       tolerance: input.contactTolerance!,
     });
-    const base: RigidBody = bound.bodies.get(`${body.id}/${root.bone}`)!;
+    const base: AutoMovieXpbdBody = bound.bodies.get(
+      `${body.id}/${root.bone}`,
+    )!;
     trackPhysicalRoot({
       settings: input,
       body,
@@ -409,8 +414,12 @@ export function trackPhysicalWorld(
       );
     for (const joint of body.profile.joints) {
       if (!dynamic.has(joint.child)) continue;
-      const parent: RigidBody = bound.bodies.get(`${body.id}/${joint.parent}`)!;
-      const child: RigidBody = bound.bodies.get(`${body.id}/${joint.child}`)!;
+      const parent: AutoMovieXpbdBody = bound.bodies.get(
+        `${body.id}/${joint.parent}`,
+      )!;
+      const child: AutoMovieXpbdBody = bound.bodies.get(
+        `${body.id}/${joint.child}`,
+      )!;
       const parentFrame: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(parent.rotation(), joint.parentFrame.rotation);
       const childFrame: IAutoMovieRigidTransform["rotation"] =
