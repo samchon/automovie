@@ -549,29 +549,24 @@ export const SCENES_PARTNER: readonly IScene[] = [
       person(
         `r${k}`,
         k % 2 === 0 ? "m1" : "f1",
-        trooper.x - 0.6,
-        trooper.z,
+        // On the near side, the horse's left, where a horse is mounted from.
+        trooper.x + 0.6,
+        trooper.z - 0.2,
         0,
         [
           act("pickUp", { prop: `s${k}`, handle: "grip", hand: "right" }),
           act("sit", { seat: seat(`h${k}`) }),
-          act(
-            "ride",
-            { on: `h${k}`, seconds: CHARGE_RIDE, hands: { left: "leftRein" } },
-            {
-              over: [
-                act("sabre", {
-                  on: `h${k}`,
-                  prop: `s${k}`,
-                  carry: "slope",
-                  cue: "charge",
-                  gaits: `h${k}:gaits`,
-                  transition: 0.4,
-                  seconds: CHARGE_RIDE,
-                }),
-              ],
-            },
-          ),
+          act("ride", { on: `h${k}`, seconds: 1, hands: { left: "leftRein" } }),
+          // The sabre law carries the seat itself, at the slope until the charge.
+          act("sabre", {
+            on: `h${k}`,
+            prop: `s${k}`,
+            carry: "slope",
+            cue: "charge",
+            gaits: `h${k}:gaits`,
+            transition: 0.4,
+            seconds: CHARGE_RIDE,
+          }),
         ],
       ),
     ),
@@ -582,8 +577,8 @@ export const SCENES_PARTNER: readonly IScene[] = [
           `s${k}`,
           "createSword",
           "sabre",
-          trooper.x - 0.85,
-          trooper.z + 0.3,
+          trooper.x + 0.35,
+          trooper.z + 0.1,
           0,
           0.9,
         ),
