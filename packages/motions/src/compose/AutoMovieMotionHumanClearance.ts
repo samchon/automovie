@@ -121,38 +121,43 @@ export namespace AutoMovieMotionHumanClearance {
           Math.hypot(line[i]!.z - line[i - 1]!.z, line[i]!.y - line[i - 1]!.y),
       );
     const total: number = lengths[lengths.length - 1]!;
-    return Object.assign((share: number): IAutoMovieMotionHumanClearance.IPoint => {
-      const s: number = Math.max(0, Math.min(1, share)) * total;
-      let lo: number = 0;
-      let hi: number = line.length - 1;
-      while (hi - lo > 1) {
-        const mid: number = (lo + hi) >> 1;
-        if (lengths[mid]! <= s) lo = mid;
-        else hi = mid;
-      }
-      const piece: number = lengths[hi]! - lengths[lo]!;
-      return toward(
-        line[lo]!,
-        line[hi]!,
-        piece > 0 ? (s - lengths[lo]!) / piece : 0,
-      );
-    }, {
-      // The first share of arc length at which the path stands `height`
-      // above its start: one walk along the rounded polyline to the first
-      // piece that reaches it, interpolated within that piece.
-      lifted: (height: number): number => {
-        for (let i: number = 1; i < line.length; i++) {
-          const rise: number = line[i]!.y - from.y;
-          if (rise < height) continue;
-          const before: number = line[i - 1]!.y - from.y;
-          const within: number = rise > before ? (height - before) / (rise - before) : 0;
-          return total > 0
-            ? (lengths[i - 1]! + within * (lengths[i]! - lengths[i - 1]!)) / total
-            : 1;
+    return Object.assign(
+      (share: number): IAutoMovieMotionHumanClearance.IPoint => {
+        const s: number = Math.max(0, Math.min(1, share)) * total;
+        let lo: number = 0;
+        let hi: number = line.length - 1;
+        while (hi - lo > 1) {
+          const mid: number = (lo + hi) >> 1;
+          if (lengths[mid]! <= s) lo = mid;
+          else hi = mid;
         }
-        return 1;
+        const piece: number = lengths[hi]! - lengths[lo]!;
+        return toward(
+          line[lo]!,
+          line[hi]!,
+          piece > 0 ? (s - lengths[lo]!) / piece : 0,
+        );
       },
-    });
+      {
+        // The first share of arc length at which the path stands `height`
+        // above its start: one walk along the rounded polyline to the first
+        // piece that reaches it, interpolated within that piece.
+        lifted: (height: number): number => {
+          for (let i: number = 1; i < line.length; i++) {
+            const rise: number = line[i]!.y - from.y;
+            if (rise < height) continue;
+            const before: number = line[i - 1]!.y - from.y;
+            const within: number =
+              rise > before ? (height - before) / (rise - before) : 0;
+            return total > 0
+              ? (lengths[i - 1]! + within * (lengths[i]! - lengths[i - 1]!)) /
+                  total
+              : 1;
+          }
+          return 1;
+        },
+      },
+    );
   }
 
   /**
@@ -168,7 +173,20 @@ export namespace AutoMovieMotionHumanClearance {
     /** The path's point at a share of its arc length in [0, 1]. */
     (share: number): IAutoMovieMotionHumanClearance.IPoint;
 
-    /** The first share of arc length at which the path stands `height` metres above its start; 1 when it never does. */
+    /**
+     * The first share of arc length at which the path stands `height`
+     * metres above its start, interpolated within the polyline piece that
+     * first reaches it; 1 when it never does, and 1 for a path of zero
+     * length.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the unit of the height, the arc-length share returned, the interpolation and both fallbacks to 1.
+     * @evidence contracts/development/implementation.md#principled-implementation Heights along each straight piece vary linearly with its arc length, so linear interpolation within the first piece whose end reaches the height gives the exact first share on the built polyline.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Built with the point reader over the same polyline and cumulative lengths, so the two never disagree on the path.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case beyond the stated fallbacks; a flat piece takes its start share instead of dividing by zero.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One forward walk, linear in the polyline's points, stopping at the first piece that reaches the height.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the polyline and cumulative arc lengths the path built once.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates nothing per call; the path retains its polyline and lengths for its own lifetime.
+     */
     lifted: (height: number) => number;
   }
 
