@@ -21,7 +21,8 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * same inert prop from its slot to a moving socket. The release rows can
  * hand it off to a scene-authored animation carrier on a film cue (#3713–3714).
  *
- * - `takeArrow`: a pick up of the arrow by its shaft, from where the
+ * - `takeArrow`: a pick up of the arrow by its shaft just ahead of the
+ *   nock (`nockGrip`), where the fingers hold it to nock it, from where the
  *   composition says it lies (a quiver's slot site).
  * - `nockArrow`: a put down of the arrow's nock onto the bow's `nock`
  *   socket, its shaft on the bow's `rest`.
@@ -63,7 +64,7 @@ export namespace HumanArchery {
   export const takeArrow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["takeArrow"]
   > = HumanActionRow.of("takeArrow", pickUp, {
-    handle: "shaft",
+    handle: "nockGrip",
   });
 
   /** Set the arrow's nock on the bow's string. */

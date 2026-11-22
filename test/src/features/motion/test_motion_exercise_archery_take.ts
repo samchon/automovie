@@ -96,7 +96,7 @@ export function test_motion_exercise_archery_take(): void {
         HumanObject.prop(
           "arrow",
           arrow,
-          onCounter(arrow, "shaft", { x: -0.18, y: TOP + 0.01, z: 0.42 }),
+          onCounter(arrow, "nockGrip", { x: -0.18, y: TOP + 0.01, z: 0.42 }),
         ),
         carrier(),
       ];

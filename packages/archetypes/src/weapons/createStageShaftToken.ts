@@ -70,6 +70,18 @@ export function createStageShaftToken(
       aperture: 2 * r,
       length: length - head,
     });
+    // Where the fingers pinch the shaft to set the nock on a string: just
+    // ahead of the nock, a pinch's width along it.
+    builder.affordance({
+      id: "nockGrip",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(v(0, PINCH, 0), v(0, 0, -1), v(0, 1, 0)),
+      extent: null,
+      grip: "precision",
+      aperture: 2 * r,
+      length: PINCH,
+    });
     builder.affordance({
       id: "nock",
       kind: "socket",
@@ -90,6 +102,9 @@ export function createStageShaftToken(
   });
 }
 
+/** How far ahead of the nock the fingers pinch the shaft to nock it, metres: a fingertip pad's width (provisional). */
+const PINCH: number = 0.03;
+
 /**
  * Authoring options for {@link createStageShaftToken}.
  *
@@ -106,7 +121,7 @@ export namespace createStageShaftToken {
   export type Dimension = "diameter" | "head" | "headWidth" | "length" | "mass";
 
   /**
-   * The createProjectile contact set its shared construction types. This producer builds nock, shaft, tip.
+   * The createProjectile contact set its shared construction types. This producer builds nock, nockGrip, shaft, tip.
    */
   export type Affordance = createProjectile.Affordance;
 

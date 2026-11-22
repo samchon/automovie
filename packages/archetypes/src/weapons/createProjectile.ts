@@ -237,11 +237,19 @@ export namespace createProjectile {
    * - `body`: a ball, a shot, a grenade's body or a stone, taken from `-X`.
    * - `shaft`: an arrow's or a bolt's shaft, taken from `-Z` anywhere along it.
    * - `nock`: an arrow's or a bolt's butt, facing down along it.
+   * - `nockGrip`: an arrow's or a bolt's shaft just ahead of its nock, pinched there to set the nock on a string.
    * - `tip`: an arrow's or a bolt's point, `+Y` along it.
    * - `grip`: a cartridge's paper, pinched between the thumb and two fingers.
    * - `end`: a cartridge's powder end, `+Y` out along it, which the teeth tear open.
    */
-  export type Affordance = "body" | "shaft" | "nock" | "tip" | "grip" | "end";
+  export type Affordance =
+    | "body"
+    | "shaft"
+    | "nock"
+    | "nockGrip"
+    | "tip"
+    | "grip"
+    | "end";
 
   /**
    * The free dimensions, metres unless stated:

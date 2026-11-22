@@ -69,7 +69,15 @@ export namespace pickUpOver {
         fix: "take the second grip without lifting, or give a non-negative lift",
       });
 
-    // The grasp, chosen on the body as it was entered: the carrier keeps it.
+    // The grasp, chosen on the body as it was entered: the carrier keeps it,
+    // so the stance is the entry's, never lowered.
+    const unmoved: pickUpPosture.IStance = {
+      posture: context.entry.posture,
+      at: (): IAutoMovieMotionHumanPosture => context.entry.posture,
+      lower: (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => posture,
+    };
     const authored: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.target(
       context,
       context.params.prop,
@@ -81,7 +89,7 @@ export namespace pickUpOver {
       side,
       lift,
       authored,
-      { posture: context.entry.posture },
+      unmoved,
     );
     pickUpPosture.reachable(context, side, chosen.wrist.point);
     const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(
