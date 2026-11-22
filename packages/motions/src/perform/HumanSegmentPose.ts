@@ -17,7 +17,6 @@ import type {
   IAutoMoviePoseRig,
   IAutoMoviePoseState,
   IAutoMovieSeededChainFit,
-  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import { HumanLimbFit } from "../posture/HumanLimbFit";
@@ -106,7 +105,9 @@ export namespace HumanSegmentPose {
   /**
    * {@link of} with every limb fit's seed. Names distinguish the chain,
    * overlay set and leaf, carry, stop or planted stage (`IFits`); each fit
-   * continues its matching nearby seed, or solves cold when none is held.
+   * continues its matching nearby seed. A read that continues no other
+   * second places its stops and plants at its own shown leaf fit of the
+   * same limb (`HumanSegmentPoseSeeds.shown`), prescribed for an arm.
    *
    * @param person The person.
    * @param segment The action.
@@ -167,14 +168,32 @@ export namespace HumanSegmentPose {
     // shaped it, and no stop fit or transition offset writes it below.
     let plain: boolean = person.overlays.length === 0 && carried.length === 0;
 
-    // One more fit of the evaluation, continued where `near` holds its name.
-    // The fitted pose is this evaluation's own intermediate, so the fit's
-    // result is used as solved, without the public entry's complete clone.
+    // A read that continues no other second places a later stage's limb
+    // (a stop's, a plant's) at this very read's leaf fit of that limb,
+    // prescribed: the same branch and swivel on the stage's own goal, never
+    // swept or refined afresh, so every reader of the second reads one
+    // placement. The leaf is the one under every running overlay, whose fit
+    // the pose shows (`HumanSegmentOverlay.overlaid` names it by all their
+    // ordinals). A read that continues another second continues `near`.
+    const leafed = (stage: string): HumanSegmentPose.INear | undefined =>
+      HumanSegmentPoseSeeds.continues(near)
+        ? near
+        : {
+            seeds: HumanSegmentPoseSeeds.shown(seeds, stage),
+            tolerance: hingedArmSwivel.RESOLUTION,
+            prescribed: true,
+          };
+
+    // One more fit of the evaluation, continued or placed where `from`
+    // holds its name. The fitted pose is this evaluation's own intermediate,
+    // so the fit's result is used as solved, without the public entry's
+    // complete clone.
     function fit(
       name: string,
       at: IAutoMoviePose,
       limb: AutoMovieHumanLimb,
       goal: IAutoMovieHumanLimbGoal,
+      from: HumanSegmentPose.INear | undefined,
     ): IAutoMoviePose {
       const fitted: IAutoMovieSeededChainFit = HumanLimbFit.fit(
         body,
@@ -183,7 +202,7 @@ export namespace HumanSegmentPose {
         goal,
         ["left", "right"],
         undefined,
-        nearby(near, name),
+        nearby(from, name),
         prepared.resolution,
       );
       seeds.set(name, fitted.seed);
@@ -234,7 +253,13 @@ export namespace HumanSegmentPose {
         const goal: IAutoMovieHumanLimbGoal = (stopped ??=
           HumanSegmentStop.reader(person, segment, prepared))(w, s);
         posture = { ...posture, limbs: { ...posture.limbs, [w.limb]: goal } };
-        pose = fit(`stop:${w.id}:${w.limb}`, pose, w.limb, goal);
+        pose = fit(
+          `stop:${w.id}:${w.limb}`,
+          pose,
+          w.limb,
+          goal,
+          leafed(`stop:${w.id}:`),
+        );
         plain = false;
       }
     if (
@@ -324,34 +349,14 @@ export namespace HumanSegmentPose {
       HumanSegmentPlant.settled(fitted, pose, posture.limbs, seeds)
     )
       return { pose, seeds };
-    // A read that continues no other second continues each plant from this
-    // very read's leaf fit of the same goal, displaced only by what came
-    // after the leaf: the same branch, refined, never swept afresh.
-    const leafed: HumanSegmentPose.INear | undefined =
-      HumanSegmentPoseSeeds.continues(near)
-        ? near
-        : {
-            seeds: new Map<string, IAutoMovieSwivelSeed | null>(
-              [...seeds]
-                .filter(
-                  ([name]: [string, IAutoMovieSwivelSeed | null]): boolean =>
-                    name.startsWith("leaf::"),
-                )
-                .map(
-                  ([name, seed]: [string, IAutoMovieSwivelSeed | null]): [
-                    string,
-                    IAutoMovieSwivelSeed | null,
-                  ] => [`planted:${name.slice("leaf::".length)}`, seed],
-                ),
-            ),
-            tolerance: hingedArmSwivel.RESOLUTION,
-          };
+    // Each plant is placed at this very read's leaf fit of the same goal
+    // (`leafed`), displaced only by what came after the leaf.
     const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
       HumanSegmentPlant.fit(
         body,
         pose,
         posture.limbs,
-        leafed,
+        leafed("planted:"),
         prepared.resolution,
       );
     for (const [limb, seed] of Object.entries(planted.seeds))

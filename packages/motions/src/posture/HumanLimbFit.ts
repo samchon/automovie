@@ -418,12 +418,18 @@ export namespace HumanLimbFit {
     return HumanLimbMirror.goal(goal);
   }
 
-  /** Public near/cold fitting retains its original workspace entry and order; a re-aim pass continues its previous pass. */
+  /** Public near/cold fitting retains its original workspace entry and order; a re-aim pass continues its previous pass, prescribed where the fit's own seed is. */
   function ordinary(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
-    _near: IAutoMovieSwivelNear | undefined, continued?: IAutoMovieSwivelNear,
+    near: IAutoMovieSwivelNear | undefined, continued?: IAutoMovieSwivelNear,
     incumbent?: IAutoMovieSwivelSeed, capture?: fitHumanLimbContact.ICapture): IAutoMovieSeededChainFit {
+    // A re-aim pass of a prescribed fit keeps the prescription at the swivel
+    // the pass before it settled on: re-aiming moves the target, never the
+    // swivel the course chose.
+    const pass: IAutoMovieSwivelNear | undefined =
+      continued !== undefined && near?.prescribed === true ? { ...continued, prescribed: true } : continued;
+
     // A held seed only starts a swept fit's bounded search (HumanLimbIncumbent).
-    return workspace.fit(point, continued, continued === undefined ? incumbent : undefined, capture);
+    return workspace.fit(point, pass, pass === undefined ? incumbent : undefined, capture);
   }
 
   /** Only the actual continuous-curve constructor selects current hinged correction. */

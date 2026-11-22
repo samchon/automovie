@@ -91,9 +91,10 @@ export interface IAutoMovieMotionHumanSegment {
    * The arms' fits of the action's displayed leaf at its anchor seconds,
    * each read cold once, keyed by the person's overlay count and the anchor
    * (the plan second over the anchor spacing, rounded), as `<overlays>:<anchor>`.
-   * A displayed second with no fits of its own continues its arm fits from
-   * the nearest anchor's, so a verdict or sub-frame read refines a seed
-   * instead of sweeping every swivel. Absent until a read needs one, and
+   * A displayed second with no fits of its own places its arms at the swivels
+   * interpolated between the anchors around it, so a verdict, a sub-frame
+   * and playback read one closed-form placement instead of sweeping every
+   * swivel. Absent until a read needs one, and
    * released when anything is placed or the person's memos are forgotten.
    */
   anchors?: Map<string, IAutoMovieMotionHumanSegment.IAnchorFits>;

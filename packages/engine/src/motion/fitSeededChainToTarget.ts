@@ -99,6 +99,9 @@ export namespace fitSeededChainToTarget {
      * An optional `near` replaces the source's cold/near mode for this target
      * only: the fit continues that seed (a later contact re-aim pass
      * continuing the previous pass's answer for a target millimetres away).
+     * A prescribed seed (`IAutoMovieSwivelNear.prescribed`) is placed in
+     * closed form; this call's prescribed `near` wins over the source's, so
+     * a re-aim pass keeps the swivel the pass before it settled on.
      * An optional `incumbent` (ignored with `near`) is a seed the caller holds
      * for this swept fit: it only starts the bounded sweep's stop
      * (`IAutoMovieFitChainToTargetProps.incumbent`), so the answer is the
@@ -263,12 +266,15 @@ function preparedWorkspace(
   });
   return {
       fit: (target: IAutoMovieVector3, near?: IAutoMovieSwivelNear, incumbent?: IAutoMovieSwivelSeed, capture?: orientChainEffector.IReading): IAutoMovieSeededChainFit => {
-        // A prescribed seed, the workspace's own or this call's, is placed in
-        // closed form at every target (a contact's re-aims included): the
-        // course chose the swivel, so nothing is searched or refined.
+        // A prescribed seed, this call's or else the workspace's own, is
+        // placed in closed form at every target (a contact's re-aims
+        // included): the course chose the swivel, so nothing is searched or
+        // refined. This call's wins, so a re-aim pass keeps the swivel the
+        // pass before it settled on, even where that pass had to refine away
+        // from the workspace's.
         const prescribed: IAutoMovieSwivelNear | undefined =
-          workspace.props.near?.prescribed === true ? workspace.props.near
-            : near?.prescribed === true ? near : undefined;
+          near?.prescribed === true ? near
+            : workspace.props.near?.prescribed === true ? workspace.props.near : undefined;
         if (prescribed !== undefined) {
           const placed: ReturnType<typeof fitHingedChainAt> = fitHingedChainAt(
             { ...workspace.props, target }, prescribed.swivel, prescribed.branch);
