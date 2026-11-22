@@ -21,7 +21,7 @@ import { respondHumanMounted } from "./respondHumanMounted";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The pitch and roll are the carrier's own at each instant; the lean is the existing seat response's.
  */
 export namespace HumanMountedBank {
-  /** How far up the reins toward the bit the descent's hands give them, forearm lengths: the rein let forward as the horse stretches its neck down the bank (provisional; no source read gives it). */
+  /** How far the descent's hands let the reins slip through the fingers, away from the bit, forearm lengths: the rein given as the horse stretches its neck down the bank, so the hands keep it without reaching (provisional; no source read gives it). */
   export const GIVE: number = 0.5;
 
   /** A mounted clock's phase: the current figure and how far its transfer has gone. */
@@ -49,7 +49,7 @@ export namespace HumanMountedBank {
   }
 
   /**
-   * The seat response with the bank seats' own: the author's share of the carrier's turn since the start, raised to the whole of its pitch and roll against the start's level heading over a transfer into a bank seat and lowered back over a transfer out of one.
+   * The seat response with the bank seats' own: the author's share of the carrier's turn since the start, raised to the whole of its pitch and roll against the start's level heading over a transfer into a bank seat and lowered back over a transfer out of one; the forward lean that brings the holding hands in reach fades by the same share, since a bank seat keeps the trunk's inclination in space and the hands take the reins where they are.
    *
    * @param body The body.
    * @param posture The posture in the carrier contact's frame.
@@ -99,11 +99,12 @@ export namespace HumanMountedBank {
       respond + (1 - respond) * share,
       grips,
       surge,
+      1 - share,
     );
   }
 
   /**
-   * How far up the reins toward the bit the hands take them, forearm lengths: an out-of-saddle seat's shortened reins (`HumanMountedStirrups.profile`) and the descent's given ones, each blended over the transfers.
+   * How far up the reins toward the bit the hands take them, forearm lengths: an out-of-saddle seat's shortened reins (`HumanMountedStirrups.profile`) less the descent's slipped ones, each blended over the transfers.
    *
    * @param figures The figures.
    * @param phase The clock's phase.
@@ -132,7 +133,7 @@ export namespace HumanMountedBank {
         figures,
         phase,
         (seat: IAutoMovieMotionHumanMounted.Seat): number =>
-          seat === "descent" ? GIVE : 0,
+          seat === "descent" ? -GIVE : 0,
       )
     );
   }

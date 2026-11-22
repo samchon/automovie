@@ -226,10 +226,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         const id: string | undefined = figure.supports?.[`${side}Hand`];
         if (id !== undefined) points[side] = seats.point(id);
       }
-      return HumanMountRider.leant(
-        key,
-        HumanMountRider.lean(context.body, key, points),
-      );
+      // A bank seat keeps its trunk's inclination in space; its hands take the reins where they are.
+      return HumanMountedBank.bank(figure.seat)
+        ? key
+        : HumanMountRider.leant(
+            key,
+            HumanMountRider.lean(context.body, key, points),
+          );
     },
   );
 

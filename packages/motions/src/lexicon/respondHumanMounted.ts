@@ -30,6 +30,7 @@ const SHARES: readonly (readonly ["spine" | "chest", number])[] = [
  * @param start The carrier's rotation when the performance began.
  * @param now The carrier's rotation now.
  * @param share How much of the turn the trunk cancels, 0 to 1.
+ * @param reach How much of the forward lean that brings the holding hands in reach the trunk takes, 0 to 1; all of it when absent.
  * @param surge The carrier's forward acceleration, metres per second squared (`HumanMountedFrame.surge`): the trunk leans forward into a surge and back against a pull-up, by the angle whose tangent is the acceleration over gravity, so the felt vertical stays along it.
  * @param grips Where the holding hands' contacts are now, in the carrier frame: the trunk leans forward as far as brings them in reach after the response (`HumanMountRider.lean`).
  * @returns The posture with its trunk joints leant against the turn.
@@ -50,6 +51,7 @@ export function respondHumanMounted(
   share: number,
   grips: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
   surge: number,
+  reach: number = 1,
 ): IAutoMovieMotionHumanPosture {
   if (share === 0) return posture;
   // Leaning with a surge by the angle whose tangent is the acceleration over gravity keeps the trunk along the felt vertical.
@@ -74,7 +76,12 @@ export function respondHumanMounted(
     ];
   }
   const leant: IAutoMovieMotionHumanPosture = { ...posture, joints };
-  return HumanMountRider.leant(leant, HumanMountRider.lean(body, leant, grips));
+  return reach === 0
+    ? leant
+    : HumanMountRider.leant(
+        leant,
+        reach * HumanMountRider.lean(body, leant, grips),
+      );
 }
 
 /** A joint range of the engine's constraint table. */
