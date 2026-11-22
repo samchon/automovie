@@ -33,6 +33,15 @@ const ON: number = 0.03;
 const HOLD: number = 0.005;
 /** A cut point lies on its authored line within this, metres. */
 const LINE: number = 0.005;
+/** The hand's place before opening an umbrella, in shares of the arm's reach: the forearm held forward with the elbow bent, the hand half a reach ahead and well below the shoulder (provisional). */
+const AHEAD: number = 0.5;
+
+/** See `AHEAD`: how far below the shoulder, as a share of the reach. */
+const BELOW: number = 0.6;
+
+/** Room between two sharers' shoulders for the arm that holds the umbrella, as a share of the holder's reach (provisional). */
+const ROOM: number = 0.5;
+
 /** Degrees of travel read as shut or fully open. */
 const SHUT: number = 0.5;
 
@@ -131,14 +140,16 @@ function umbrella(
   ];
   const shoulder: number = body.measure.shoulderHeight;
   const reach: number = body.measure.upperArm + body.measure.forearm;
+  // Sharing one umbrella the two walk shoulder to shoulder, with room between
+  // for the arm that holds it: half the holder's reach.
+  const apart: number = 2 * body.measure.shoulderHalfWidth + ROOM * reach;
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()
     .pickUp({ prop: "umbrella", handle: "grip", hand: "right", lift: 0.05 })
     .registered("workHeld", {
       prop: "umbrella",
       // Held low before the body, the runner within the free arm.
-      // Before the body within the arm: half a reach ahead, below the shoulder.
-      at: { out: 0.05, up: shoulder - 0.6 * reach, forward: 0.5 * reach },
+      at: { out: 0.05, up: shoulder - BELOW * reach, forward: AHEAD * reach },
       seconds: 0.4,
     })
     .registered("workHeld", {
@@ -157,11 +168,11 @@ function umbrella(
   const partner: everydayTake.IOther = {
     subject: "partner",
     body,
-    at: { x: -0.65, y: 0, z: 0 },
+    at: { x: -apart, y: 0, z: 0 },
     yaw: 0,
     chain: HumanChain.subject("partner")
       .stand({ seconds: 3.5, sway: 0 })
-      .walk({ to: { x: -0.65, y: 0, z: 2 } }),
+      .walk({ to: { x: -apart, y: 0, z: 2 } }),
   };
   const take: HumanPerformance = play(label, body, props, chain, [partner]);
   const operate: IAutoMovieMotionHumanSegment = named(take, "workHeld")[1]!;

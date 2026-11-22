@@ -163,19 +163,51 @@ export namespace everydayTake {
     id: string,
     t: number,
   ): IAutoMovieVector3 {
-    // The contact where the prop's articulations put it at that second.
-    const posed: IAutoMovieMotionHumanObject.IModel =
-      model.articulate === undefined
-        ? model
-        : model.articulate(take.state(subject, t));
-    const site: IAutoMovieAffordance = (posed.affordances ?? []).find(
+    // The contact where the prop's articulations put it at that second: a
+    // contact that rides none stays at its declared place, and a model is
+    // posed only once per state it is read at.
+    const rest: IAutoMovieAffordance = (model.affordances ?? []).find(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     )!;
+    const site: IAutoMovieAffordance =
+      rest.rides === undefined || model.articulate === undefined
+        ? rest
+        : posedSite(model, take.state(subject, t), id);
     const frame: IAutoMovieRigidTransform = take.prop(subject, t);
     return Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, site.frame.translation),
     );
+  }
+
+  /** Posed models by their state, per model: a pose is built once per state read. */
+  const POSED: WeakMap<
+    IPosable,
+    Map<string, IAutoMovieMotionHumanObject.IModel>
+  > = new WeakMap();
+
+  /**
+   * A contact of a model posed at an articulation state, the pose cached.
+   *
+   * @param model The model.
+   * @param state The articulation state.
+   * @param id The contact.
+   * @returns The posed contact.
+   */
+  function posedSite(
+    model: IPosable,
+    state: Record<string, number>,
+    id: string,
+  ): IAutoMovieAffordance {
+    let cache: Map<string, IAutoMovieMotionHumanObject.IModel> | undefined =
+      POSED.get(model);
+    if (cache === undefined) POSED.set(model, (cache = new Map()));
+    const key: string = JSON.stringify(state);
+    let posed: IAutoMovieMotionHumanObject.IModel | undefined = cache.get(key);
+    if (posed === undefined) cache.set(key, (posed = model.articulate!(state)));
+    return (posed.affordances ?? []).find(
+      (a: IAutoMovieAffordance): boolean => a.id === id,
+    )!;
   }
 
   /**
