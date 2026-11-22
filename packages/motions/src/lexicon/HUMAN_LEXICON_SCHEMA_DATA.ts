@@ -3765,7 +3765,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -4446,47 +4446,47 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Laban Effort, each factor in [-1, 1]; neutral when absent."
+            "description": "Laban Effort, each factor in [-1, 1]; 0 when absent. IAutoMovieMotionHumanEffort gives what each factor changes."
           },
           "intensity": {
             "type": "number",
-            "description": "How much of the action's full size is performed, in (0, 1]; 1 when absent."
+            "description": "The share of the action's full size, in (0, 1]; 1 when absent. The full\nsize is what the action performs without a manner, stated on its type.\nIt multiplies the excursions about the base and the free-space\namplitudes (a gesture's amplitude, a stroke's reach); the Effort `weight`\nand `flow` factors scale the same size (IAutoMovieMotionHumanEffort)."
           },
           "pace": {
             "type": "number",
-            "description": "The rate as a multiple of the action's natural rate; positive, 1 when absent."
+            "description": "The rate as a multiple of the action's natural rate, positive; 1 when\nabsent. The natural rate is the action's own timing, stated on its type\n(a gait's speed on its `pace`). `pace: 1.5` divides every duration the\naction does not fix physically by 1.5 and the holds likewise; a flight or\na fall keeps its length. A gait's speed is multiplied by 1.5\n(IAutoMovieMotionHumanWalkParams.manner). An Effort `time` factor\nmultiplies the durations by `1 - 0.3 time` on top."
           },
           "proficiency": {
             "type": "number",
-            "description": "Skill in [0, 1], which narrows the variation; the performer's own when absent."
+            "description": "Skill in [0, 1], which narrows the offsets `variation` draws: at\n`variation` 1 the duration and the size differ by up to 14 % and 20 % for\n0 and 5 % and 8 % for 1, in proportion between (`AutoMovieMotionManner.BOUNDS`;\nthe duration's are measured, the size's provisional). It changes nothing\nat `variation` 0. The performer's own timing skill when absent."
           },
           "variation": {
             "type": "number",
-            "description": "How much one performance differs from the next, in [0, 1]; 0 when absent."
+            "description": "The share of the offset bound a seeded draw takes, in [0, 1], so one performance differs from the next in duration and size; 0 when absent: every performance is the same."
           }
         },
         "required": [],
         "additionalProperties": false,
-        "description": "The authored manner shared by human motion primitives: effort, intensity, pace, proficiency and variation. AutoMovieMotionManner resolves these controls into motion-specific modifiers."
+        "description": "The authored manner shared by human motion primitives: effort, intensity, pace, proficiency and variation. AutoMovieMotionManner resolves these controls into motion-specific modifiers.\n\nA manner changes how an action is performed and never which contacts it makes: a goal on a solid place keeps its place. A member reaches an action only where that action's `manner` admits it; the punch admits `variation` and `proficiency` alone and takes its timing from the performer's skill. Every member is neutral when absent, and the action then performs its own natural timing and size, stated on the action's type."
       },
       "IAutoMovieMotionHumanEffort.IEffort": {
         "type": "object",
         "properties": {
           "weight": {
             "type": "number",
-            "description": "-1 light to 1 strong."
+            "description": "-1 light to 1 strong. Strong reaches farther and swings the arms more: extent `1 + 0.1 weight`, arm swing `1 + 0.2 weight` (`HumanEffort.modifiers`, provisional)."
           },
           "time": {
             "type": "number",
-            "description": "-1 sustained to 1 sudden."
+            "description": "-1 sustained to 1 sudden. Sudden is shorter: every duration `1 - 0.3 time` (0.7 at 1, 1.3 at -1), provisional."
           },
           "space": {
             "type": "number",
-            "description": "-1 indirect to 1 direct."
+            "description": "-1 indirect to 1 direct. Indirect curves the hand's path sideways by `0.15 max(0, -space)` of its length; direct is straight, provisional."
           },
           "flow": {
             "type": "number",
-            "description": "-1 free to 1 bound."
+            "description": "-1 free to 1 bound. Bound holds in: extent and step `1 - 0.15 flow`, arm swing `1 - 0.4 flow`, elbows `0.15 flow` upper-arm lengths nearer the body, holds `1 + 0.3 flow` longer; free releases them outward, provisional."
           }
         },
         "required": [],
@@ -4711,7 +4711,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -4762,7 +4762,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds; 0 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -4772,7 +4772,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality."
+            "description": "Laban Effort (IAutoMovieMotionHumanEffort.IEffort): `time` multiplies every phase by `1 - 0.3 time` (0.7 sudden, 1.3 sustained), `weight` and `flow` the gesture's size, `flow` the elbow width; neutral when absent. The coefficients are provisional."
           },
           "turn": {
             "type": "number",
@@ -4862,11 +4862,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "proficiency": {
             "type": "number",
-            "description": "Skill in [0, 1], which narrows the variation; the performer's own when absent."
+            "description": "Skill in [0, 1], which narrows the offsets `variation` draws: at\n`variation` 1 the duration and the size differ by up to 14 % and 20 % for\n0 and 5 % and 8 % for 1, in proportion between (`AutoMovieMotionManner.BOUNDS`;\nthe duration's are measured, the size's provisional). It changes nothing\nat `variation` 0. The performer's own timing skill when absent."
           },
           "variation": {
             "type": "number",
-            "description": "How much one performance differs from the next, in [0, 1]; 0 when absent."
+            "description": "The share of the offset bound a seeded draw takes, in [0, 1], so one performance differs from the next in duration and size; 0 when absent: every performance is the same."
           }
         },
         "required": [],
@@ -5096,7 +5096,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -5376,7 +5376,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -5561,7 +5561,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -5612,7 +5612,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds; 0 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -5622,7 +5622,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality."
+            "description": "Laban Effort (IAutoMovieMotionHumanEffort.IEffort): `time` multiplies every phase by `1 - 0.3 time` (0.7 sudden, 1.3 sustained), `weight` and `flow` the gesture's size, `flow` the elbow width; neutral when absent. The coefficients are provisional."
           },
           "manner": {
             "$ref": "#/components/schemas/PickIAutoMovieMotionMannerproficiencyvariation",
@@ -5776,7 +5776,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -5827,7 +5827,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds; 0 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -5837,7 +5837,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality."
+            "description": "Laban Effort (IAutoMovieMotionHumanEffort.IEffort): `time` multiplies every phase by `1 - 0.3 time` (0.7 sudden, 1.3 sustained), `weight` and `flow` the gesture's size, `flow` the elbow width; neutral when absent. The coefficients are provisional."
           },
           "turn": {
             "type": "number",
@@ -5995,7 +5995,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -6046,7 +6046,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds; 0 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -6056,7 +6056,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality."
+            "description": "Laban Effort (IAutoMovieMotionHumanEffort.IEffort): `time` multiplies every phase by `1 - 0.3 time` (0.7 sudden, 1.3 sustained), `weight` and `flow` the gesture's size, `flow` the elbow width; neutral when absent. The coefficients are provisional."
           },
           "turn": {
             "type": "number",
@@ -6436,7 +6436,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0.6,
             "maximum": 1.3,
             "default": 1,
@@ -6444,7 +6444,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "armSwing": {
             "type": "number",
-            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent.\nInclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).\nInclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "maximum": 2,
             "default": 1,
@@ -6460,7 +6460,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the\n`pace` gait's (a normal walk at the reference hip: about 2.3 m/s in\nsteps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes\nit 0.8 times. An Effort `time` factor makes the speed\n`1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when\nabsent."
           },
           "station": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanFormation.IStation",
@@ -7026,15 +7026,15 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "Its cruising speed, metres per second, stopping at the path's end; or speed marks, each the speed it changes to from a film second on, the last held until it brakes to a stop at the end."
+            "description": "Its cruising speed, metres per second, stopping at the path's end (IAutoMovieMotionHumanGait gives a walking crowd's: 1.5 m/s, a run 3.4 m/s); or speed marks, each the speed it changes to from a film second on, the last held until it brakes to a stop at the end."
           },
           "acceleration": {
             "type": "number",
-            "description": "Its acceleration and braking, metres per second squared; `HumanFormation.ACCELERATION` when absent."
+            "description": "Its acceleration and braking, metres per second squared; `HumanFormation.ACCELERATION` when absent (2.68, a pedestrian's 1.34 m/s over 0.5 s, Helbing and Molnar 1995), so a walk's speed is reached in half a second."
           },
           "turn": {
             "type": "number",
-            "description": "Metres of path over which its heading turns at each corner, half before and half after; `HumanFormation.TURN` when absent."
+            "description": "Metres of path over which its heading turns at each corner, half before and half after; `HumanFormation.TURN` when absent (1.5 m, about two marching steps, provisional)."
           }
         },
         "required": [
@@ -7479,7 +7479,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -7740,7 +7740,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -7999,7 +7999,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -8044,7 +8044,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds; 0 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -8054,7 +8054,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality."
+            "description": "Laban Effort (IAutoMovieMotionHumanEffort.IEffort): `time` multiplies every phase by `1 - 0.3 time` (0.7 sudden, 1.3 sustained), `weight` and `flow` the gesture's size, `flow` the elbow width; neutral when absent. The coefficients are provisional."
           },
           "turn": {
             "type": "number",
@@ -8400,7 +8400,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -8569,7 +8569,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               "range": {
                 "type": "number",
-                "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
               }
             },
             "required": [
@@ -8969,7 +8969,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -9132,7 +9132,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -9384,7 +9384,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -9532,7 +9532,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -9680,7 +9680,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -10004,7 +10004,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the\n`pace` gait's (a normal walk at the reference hip: about 2.3 m/s in\nsteps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes\nit 0.8 times. An Effort `time` factor makes the speed\n`1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when\nabsent."
           },
           "station": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanFormation.IStation",
@@ -10089,7 +10089,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0.6,
             "maximum": 1.3,
             "default": 1,
@@ -10097,7 +10097,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the\n`pace` gait's (a normal walk at the reference hip: about 2.3 m/s in\nsteps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes\nit 0.8 times. An Effort `time` factor makes the speed\n`1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when\nabsent."
           },
           "station": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanFormation.IStation",
@@ -10147,11 +10147,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale in [0.6, 1.3]; 1 when absent."
+            "description": "Step-length scale in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed."
           },
           "armSwing": {
             "type": "number",
-            "description": "Arm-swing scale in [0, 2]; 1 when absent."
+            "description": "Arm-swing scale in [0, 2]; 1 when absent. It multiplies the shoulder swing of the pace (`run.GAITS`: 25, 35 and 50 degrees either way)."
           },
           "elbows": {
             "type": "number",
@@ -10159,7 +10159,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the run is performed, read as a walk reads it (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent."
+            "description": "How the run is performed, read as a walk reads it (`IAutoMovieMotionHumanWalkParams.manner`): `pace: 1.5` multiplies the speed by 1.5; neutral when absent."
           }
         },
         "required": [
@@ -10230,7 +10230,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the\n`pace` gait's (a normal walk at the reference hip: about 2.3 m/s in\nsteps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes\nit 0.8 times. An Effort `time` factor makes the speed\n`1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when\nabsent."
           },
           "station": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanFormation.IStation",
@@ -10342,7 +10342,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the\n`pace` gait's (a normal walk at the reference hip: about 2.3 m/s in\nsteps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes\nit 0.8 times. An Effort `time` factor makes the speed\n`1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when\nabsent."
           },
           "station": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanFormation.IStation",
@@ -10436,7 +10436,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the\n`pace` gait's (a normal walk at the reference hip: about 2.3 m/s in\nsteps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes\nit 0.8 times. An Effort `time` factor makes the speed\n`1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when\nabsent."
           },
           "station": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanFormation.IStation",
@@ -10518,7 +10518,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The standing gait's pace; `normal` upright and `slow` for duck and squeeze when absent. The crawl ignores it."
+            "description": "The standing gait's walk pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` upright and `slow` for duck and squeeze when absent. The crawl ignores it."
           }
         },
         "required": [
@@ -10757,11 +10757,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "exposure": {
             "type": "number",
-            "description": "How far the head crosses the end's plane, metres; 0.12 when absent."
+            "description": "How far the head crosses the end's plane, metres; 0.12 m when absent."
           },
           "hold": {
             "type": "number",
-            "description": "Seconds the head holds out; 0.8 when absent."
+            "description": "Seconds the head holds out, between the lean out and the lean back; 0.8 s when absent."
           }
         },
         "required": [
@@ -11017,7 +11017,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "speed": {
             "type": "number",
-            "description": "The fastest the hands may move down the rope, metres per second; 1 when absent."
+            "description": "The fastest the hands may move down the rope, metres per second; 1 when absent. A move takes the larger of one beat (0.6 s, `ropeSupport.BEAT`) and twice the 0.45 arm length step (`ropeSupport.STEP`) over this speed: a faster bound than the beat allows changes nothing, a slower one stretches the descent. A controlled descent, not a slide."
           }
         },
         "required": [
@@ -11298,11 +11298,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "track": {
             "type": "number",
-            "description": "A forward glide in freefall, metres per second over the ground; none when absent."
+            "description": "A forward glide in freefall, metres per second over the ground; none when absent. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "turn": {
             "type": "number",
-            "description": "A freefall turn, degrees per second, positive to the left; none when absent."
+            "description": "A freefall turn, degrees per second, positive to the left; none when absent. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "toggles": {
             "type": "array",
@@ -11351,7 +11351,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the toggle is held down."
+            "description": "Seconds the toggle is held down. No natural value is defined: choose it for the beat (provisional, missing)."
           }
         },
         "required": [
@@ -11756,7 +11756,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "turnSeconds": {
             "type": "number",
-            "description": "Seconds for the seated turn and both foot passages before the rise, before tempo scaling. Positive."
+            "description": "Seconds for the seated turn and both foot passages before the rise, before tempo scaling. Positive. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "clearance": {
             "type": "number",
@@ -11912,7 +11912,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "severity": {
             "type": "number",
-            "description": "How frail the walk is, from 0, the ordinary walk, to 1, a shuffle;\n0.5 when absent.\nUnit: \"1\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How frail the walk is, from 0, the ordinary walk (about 1.5 m/s at the\nreference hip), to 1, a shuffle (0.6 m/s, the speed below which an older\nadult is frail, Studenski et al. 2011); about 1.1 m/s and 0.5 when absent.\nEach feature runs linearly between the two ends (`HumanFrailWalk`):\n0 fits a healthy older adult, about 0.5 a tiring or unsteady one, 1 a\nweak one who shuffles.\nUnit: \"1\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "maximum": 1,
             "x-unit": "1"
@@ -11986,11 +11986,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The pace; `normal` when absent."
+            "description": "The walk's pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`."
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality: steps, arm swing and elbow width of the walk."
+            "description": "Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in (`HumanEffort.modifiers`); its `time` factor is not read."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -12035,7 +12035,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality: steps, arm swing and elbow width of the walk."
+            "description": "Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in (`HumanEffort.modifiers`); its `time` factor is not read."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -12073,11 +12073,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The pace; `normal` when absent."
+            "description": "The walk's pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`."
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality: steps, arm swing and elbow width of the walk."
+            "description": "Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in (`HumanEffort.modifiers`); its `time` factor is not read."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -12126,7 +12126,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "sprint"
               }
             ],
-            "description": "The pace; `run` when absent."
+            "description": "The running gait (IAutoMovieMotionHumanRun.IParams.pace gives the speeds); `run` when absent. A pace the target outruns is refused."
           }
         },
         "required": [
@@ -12144,7 +12144,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "metres": {
             "type": "number",
-            "description": "How far to run, metres; `FLIGHT` hip heights when absent.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How far to run, metres; `FLIGHT` hip heights when absent (9 hip heights, about 8 m at the reference hip).\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "exclusiveMinimum": 0,
             "x-unit": "m"
           },
@@ -12160,7 +12160,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "sprint"
               }
             ],
-            "description": "The pace; `run` when absent."
+            "description": "The running gait (IAutoMovieMotionHumanRun.IParams.pace gives the speeds); `run` when absent. An escape at full effort is `sprint`."
           }
         },
         "required": [
@@ -12594,7 +12594,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -12876,7 +12876,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -13214,7 +13214,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -13326,7 +13326,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality: steps, arm swing and elbow width of the walk."
+            "description": "Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in (`HumanEffort.modifiers`); its `time` factor is not read."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -13573,7 +13573,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -13676,7 +13676,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Seconds the tip is held; 1 when absent."
+            "description": "Seconds the tip is held at its depth; 1 when absent. The action lasts the tip's 0.5 s each way and this."
           }
         },
         "required": [],
@@ -13971,7 +13971,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Total scene duration in seconds, positive and finite. Each kind uses its own staging duration when absent.",
+            "description": "Total scene duration in seconds, positive and finite. Absent, each kind takes its own length listed on `Kind` (`grappleStances.seconds`, `grappleSumo.seconds`); every one is an authored staging length, provisional: no study of a bout's phase times was read. The phases keep their shares of it, so a longer scene is the same beats slower.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           },
@@ -14384,7 +14384,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "lever": {
             "type": "number",
-            "description": "How long the lever turns the armed hand before its grip opens, seconds; 0.5 when absent."
+            "description": "How long the lever turns the armed hand before its grip opens, seconds; 0.5 s when absent (`disarm.LEVER`, authored, no study). The defender then holds the weapon 0.4 s (`disarm.AFTER`). A longer lever fits a resisting partner."
           }
         },
         "required": [
@@ -14734,11 +14734,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "back": {
             "type": "number",
-            "description": "How far the pair walks backward, metres; 0 when absent."
+            "description": "How far the pair walks backward, metres; 0 when absent, the pair standing still. The speed is this over `seconds`."
           },
           "seconds": {
             "type": "number",
-            "description": "How long the hold lasts, seconds; 3 when absent."
+            "description": "How long the hold lasts, seconds; 3 when absent (authored)."
           }
         },
         "required": [
@@ -14787,7 +14787,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/PickIAutoMovieMotionMannerproficiencyvariation",
-            "description": "How much repeats of the punch differ: `variation` in [0, 1] scales the\nspread of the point aimed at within a person's region, and\n`proficiency` replaces the performer's skill for that spread. Absent or\n0, every repeat is aimed at the region's own point."
+            "description": "How much repeats of the punch differ: `variation` in [0, 1] scales the\nspread of the point aimed at within a person's region, and\n`proficiency` replaces the performer's skill for that spread. Absent or\n0, every repeat is aimed at the region's own point. Neither member\nchanges the times or the fist's speed: these follow the performer's\nskill (see the namespace)."
           }
         },
         "required": [
@@ -15047,7 +15047,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -15314,7 +15314,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -15585,7 +15585,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -15652,7 +15652,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "plum"
               }
             ],
-            "description": "The grip; `plum` when absent."
+            "description": "The grip; `plum` when absent: `plum`, the two-handed neck tie of Muay Thai clinch fighting; `collarSleeve`, judo's collar and sleeve grip that opens a throw."
           },
           "hand": {
             "oneOf": [
@@ -15823,7 +15823,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -15836,7 +15836,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "intensity": {
             "type": "number",
-            "description": "How strong, in (0, 1]; 1 when absent.\nExclusive minimum: 0. Inclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How strong, in (0, 1]; 1 when absent. It scales the size and not the time: at 1 the head turns 45 degrees with an 8 degree tilt, or the trunk shifts 3 % of the stature (`give.TURN`, `give.TILT`, `give.SHIFT`, provisional), peaking at 0.12 s, held 0.15 s and back by 0.6 s more (`give.RISE`, `give.RETURN`). 1 fits a slap; less fits a light push or a nudge.\nExclusive minimum: 0. Inclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "maximum": 1,
             "exclusiveMinimum": 0,
             "x-unit": ""
@@ -16084,7 +16084,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -16154,7 +16154,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "length": {
             "type": "number",
-            "description": "Each step's length, metres. A turning or lead-changing phrase may be\nin place (zero). When absent, turns and lead changes stay in place\nand straight steps travel half a stance length."
+            "description": "Each step's length, metres. A turning or lead-changing phrase may be\nin place (zero). When absent, turns and lead changes stay in place\nand straight steps travel half a stance length (`step.STEP_SHARE`,\n1.2 shoulder widths long: IAutoMovieMotionHumanStrikingStance)."
           },
           "turn": {
             "type": "number",
@@ -16315,7 +16315,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -16409,7 +16409,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/PickIAutoMovieMotionMannerproficiencyvariation",
-            "description": "How much repeats of the punch differ: `variation` in [0, 1] scales the\nspread of the point aimed at within a person's region, and\n`proficiency` replaces the performer's skill for that spread. Absent or\n0, every repeat is aimed at the region's own point."
+            "description": "How much repeats of the punch differ: `variation` in [0, 1] scales the\nspread of the point aimed at within a person's region, and\n`proficiency` replaces the performer's skill for that spread. Absent or\n0, every repeat is aimed at the region's own point. Neither member\nchanges the times or the fist's speed: these follow the performer's\nskill (see the namespace)."
           }
         },
         "required": [
@@ -16456,7 +16456,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "How long, seconds; 1 when absent and at least the 0.6 s the stance takes to set."
+            "description": "How long the guard is held, seconds; 1 when absent and never under the 0.6 s the stance takes to set (`guard.SET`)."
           },
           "style": {
             "oneOf": [
@@ -16467,7 +16467,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "kickboxing"
               }
             ],
-            "description": "Sport's glove carriage. The original open guard when absent."
+            "description": "Sport's glove carriage: `boxing` close to the jaw, `kickboxing` the more open guard, both described on the stance (IAutoMovieMotionHumanStrikingStance). The open guard when absent."
           },
           "facing": {
             "oneOf": [
@@ -16595,7 +16595,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -16754,7 +16754,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -16809,7 +16809,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality."
+            "description": "Laban Effort (IAutoMovieMotionHumanEffort.IEffort): `time` multiplies every phase by `1 - 0.3 time` (0.7 sudden, 1.3 sustained), `weight` and `flow` the gesture's size, `flow` the elbow width; neutral when absent. The coefficients are provisional."
           },
           "turn": {
             "type": "number",
@@ -16903,7 +16903,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "reps": {
             "type": "integer",
-            "description": "Whole-number repetitions, at least one; 3 when absent.\nUnit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top (`exercise`): 3.3 s at the default tempo, so 3 repetitions take 9.9 s.\nUnit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -16934,7 +16934,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "type": "number"
               }
             ],
-            "description": "Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent.",
+            "description": "Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent: a controlled 2 s lowering and a 1 s rise. `manner.pace` scales the three; the 0.3 s at the top is fixed.",
             "additionalItems": false
           },
           "side": {
@@ -16967,7 +16967,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "beats": {
             "type": "integer",
-            "description": "How many beats; 8 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many beats; 8 when absent. At the default 120 beats a minute a beat is 0.5 s (`dance.BPM`), so 8 beats take 4 s plus one beat.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -17185,11 +17185,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "distance": {
             "type": "number",
-            "description": "Horizontal travel in metres. Defaults to a body-scaled stage distance."
+            "description": "Horizontal travel in metres. Absent, the style's share of the stature (0.11 to 0.15, about 0.19 to 0.26 m at a stature of 1.75 m); at most 0.23 of the stature, about 0.4 m (`stageBladeFootwork`, provisional)."
           },
           "duration": {
             "type": "number",
-            "description": "Positive stage duration in seconds. Defaults to a body-scaled edit length."
+            "description": "Positive stage duration in seconds. Absent, the style's length from 0.45 s (`sabre`) to 0.85 s (`armoured`) at the reference hip (`stageBladeFootwork`, provisional); the foot moves in two windows within it."
           },
           "propCue": {
             "type": "number",
@@ -17461,7 +17461,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -17675,7 +17675,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -17890,7 +17890,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -18229,7 +18229,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -18561,7 +18561,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -18677,11 +18677,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               "speed": {
                 "type": "number",
-                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner."
+                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner. Authored, never derived: take the gun's own muzzle velocity."
               },
               "lock": {
                 "type": "number",
-                "description": "Lock delay after trigger break, seconds; defaults to zero."
+                "description": "Lock delay after trigger break, seconds; 0 when absent: the shot launches at the trigger break. Give a flintlock's lock time here."
               }
             },
             "required": [
@@ -18817,7 +18817,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -18834,7 +18834,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the carriage is held once reached; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -18913,11 +18913,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               "speed": {
                 "type": "number",
-                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner."
+                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner. Authored, never derived: take the gun's own muzzle velocity."
               },
               "lock": {
                 "type": "number",
-                "description": "Lock delay after trigger break, seconds; defaults to zero."
+                "description": "Lock delay after trigger break, seconds; 0 when absent: the shot launches at the trigger break. Give a flintlock's lock time here."
               }
             },
             "required": [
@@ -19078,7 +19078,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The walk's pace; `normal` when absent."
+            "description": "The walk's pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` when absent. The load leans the trunk and does not change the speed."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -19246,7 +19246,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "angle": {
             "type": "number",
-            "description": "The release angle above the horizontal, degrees; the style's when absent."
+            "description": "The release angle above the horizontal, degrees; the style's when absent (`throwObjectForm.ANGLE`). A target the angle cannot reach is refused."
           },
           "attitude": {
             "oneOf": [
@@ -19311,7 +19311,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "How the prop turns in flight (`IAutoMovieProjectile.attitude`): along\nits velocity for a javelin; `turns` for a knife, whose spin the act\nchooses (throwObjectLever.spin); its release rotation kept when\nabsent."
+            "description": "How the prop turns in flight (`IAutoMovieProjectile.attitude`): along\nits velocity for a javelin; `turns` for a knife, whose spin the act\nchooses (`throwObjectLever.spin`); its release rotation kept when\nabsent."
           },
           "implement": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanThrowObjectLever.IImplement",
@@ -19628,7 +19628,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "A rising trot: the mount's stride time, seconds, or the cue track of\nthe performance that holds its strides (the footfalls of one\ndiagonal, as the mount's own ride publishes them). The rider stands\nin the stirrups and sits again once a stride, the seat rising `POST`\nthigh lengths off the saddle, so both feet must rest on the support.\nOn a cue track the seat is down at each of its instants and seated\nbefore the first and after the last. Seated throughout when absent.\n\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas."
+            "description": "A rising trot: the mount's stride time, seconds, or the cue track of\nthe performance that holds its strides (the footfalls of one\ndiagonal, as the mount's own ride publishes them). The rider stands\nin the stirrups and sits again once a stride, the seat rising `POST`\nthigh lengths (`HumanRide.POST`, 0.25, provisional) off the saddle; a trot's stride time is on IAutoMovieMotionHumanMounted.stride, so both feet must rest on the support.\nOn a cue track the seat is down at each of its instants and seated\nbefore the first and after the last. Seated throughout when absent.\n\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas."
           },
           "feet": {
             "$ref": "#/components/schemas/PartialRecordleftrightstring",
@@ -19907,7 +19907,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Total action length in seconds."
+            "description": "Total action length in seconds; it holds `seatOff`, `up`, `lower` and `seatOn` in order. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "seatOff": {
             "type": "number",
@@ -20040,13 +20040,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the action lasts, acquiring and releasing included, more than twice `transition`.",
+            "description": "Seconds the action lasts, acquiring and releasing included, more than twice `transition`. No natural value is defined: choose it for the beat (provisional, missing).",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           },
           "transition": {
             "type": "number",
-            "description": "Seconds the hand takes to reach the rope, and again to let it go, positive.",
+            "description": "Seconds the hand takes to reach the rope, and again to let it go, positive. No natural value is defined: choose it for the beat (provisional, missing).",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
@@ -20087,13 +20087,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the action lasts, taking up and letting go the line included, more than twice `transition`.",
+            "description": "Seconds the action lasts, taking up and letting go the line included, more than twice `transition`. Pivot steps follow the horse's bearing: one step is two foot swings of the stance step's period, 0.7 s at the reference hip (`step.PERIOD` 0.35 s), taken whenever the bearing has moved a third of the hip's twist from the feet (`HumanLungePivot.TRIGGER`).",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           },
           "transition": {
             "type": "number",
-            "description": "Seconds the hands take to take up the line and aim the whip, and again to let them go, positive.",
+            "description": "Seconds the hands take to take up the line and aim the whip, and again to let them go, positive; also the time the pelvis takes to turn from the entry heading to the horse. A change of rein takes three of these (`change`).",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
@@ -20204,7 +20204,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "The carrier's stride time, seconds, more than none. Out of the saddle\nthe pelvis then follows the carrier's path averaged over one stride, so\nit stays nearly level while the back rises and falls under it, the\ndecoupling a jockey's crouch gives (Pfau et al. 2009, Science 325:289),\nand a hand ride pushes the hands along the reins once a stride. Without\nit every figure is carried rigidly with the contact and a hand ride is\nrefused."
+            "description": "The carrier's stride time, seconds, more than none. Out of the saddle\nthe pelvis then follows the carrier's path averaged over one stride, so\nit stays nearly level while the back rises and falls under it, the\ndecoupling a jockey's crouch gives (Pfau et al. 2009, Science 325:289),\nand a hand ride pushes the hands along the reins once a stride. Without\nit every figure is carried rigidly with the contact and a hand ride is\nrefused. Nothing is read from a gait name: give the carrier's own stride\ntime. A horse of 1.4 m at the withers measured about 0.9 s at a walk\n(1.5 m/s), 0.64 s at a trot (3 m/s), 0.5 s at a canter (5 m/s) and 0.4 s\nat a gallop (8 m/s) (`HorseGait.TABLE`, Robilliard et al. 2007);\nwarmbloods are about 15 % slower, and the table's scaling to other\nheights is provisional."
           },
           "respond": {
             "type": "number",
@@ -20239,7 +20239,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "transfer": {
             "type": "number",
-            "description": "Seconds the transfer from the previous figure, or from the entry for the first, takes; more than none."
+            "description": "Seconds the transfer from the previous figure, or from the entry for the first, takes; more than none. The time is the author's: no source for a mounting time was read (missing)."
           },
           "seconds": {
             "type": "number",
@@ -21137,11 +21137,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "transfer": {
             "type": "number",
-            "description": "Seconds it takes to reach from the figure before."
+            "description": "Seconds it takes to reach from the figure before. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds it is held."
+            "description": "Seconds it is held. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "object": {
             "type": "string",
@@ -21193,7 +21193,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "How long the stand is held, seconds."
+            "description": "How long the stand is held once reached, seconds; positive, and the action lasts `step` more. The two seats must stay between a hip width and the two legs' span apart for the whole hold (a leg abducted 30 degrees), or the stand is refused."
           },
           "step": {
             "type": "number",
@@ -21446,7 +21446,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -21459,11 +21459,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "transition": {
             "type": "number",
-            "description": "Seconds the slope takes to reach the engage, more than none and at most a gallop stride."
+            "description": "Seconds the slope takes to reach the engage after the charge cue, more than none and at most 0.5 s, one gallop stride (`HumanSabre` `STRIDE`, provisional: about two strides a second); a minimum-jerk path in the seat frame. The arms take 0.5 s from the entry to the bridle and the carriage."
           },
           "seconds": {
             "type": "number",
-            "description": "How long the act lasts, seconds."
+            "description": "How long the act lasts, seconds; positive. The charge cue must fall inside it."
           }
         },
         "required": [
@@ -22244,11 +22244,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "Duration in seconds, positive."
+            "description": "Duration in seconds, positive. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "speed": {
             "type": "number",
-            "description": "Travel speed in metres per second, positive. Approached from the entry speed."
+            "description": "Travel speed in metres per second, positive. Approached from the entry speed. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "turn": {
             "type": "number",
@@ -22376,7 +22376,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "speed": {
             "type": "number",
-            "description": "Positive forward glide speed in metres per second.",
+            "description": "Positive forward glide speed in metres per second. No natural value is defined: choose it for the beat (provisional, missing).",
             "exclusiveMinimum": 0,
             "x-unit": "m/s"
           },
@@ -22424,11 +22424,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "Duration in seconds, positive."
+            "description": "Duration in seconds, positive. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "speed": {
             "type": "number",
-            "description": "Travel speed in metres per second, positive. Approached from the entry speed."
+            "description": "Travel speed in metres per second, positive. Approached from the entry speed. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "turn": {
             "type": "number",
@@ -22565,7 +22565,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Duration in seconds, positive."
+            "description": "Duration in seconds, positive. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "hands": {
             "$ref": "#/components/schemas/PartialRecordAutoMovieHumanSidestring",
@@ -23194,7 +23194,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -23255,7 +23255,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "Seconds for the floor shift and receive."
+            "description": "Seconds for the floor shift and receive; the palm plants at 0.25 of it, releases at 0.55 and the receive lands at 0.8 (`HumanSittingVolley` shares, provisional). No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "lateral": {
             "type": "number",
@@ -23319,7 +23319,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds held; `HOLD` when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held at the end of the range, after 1.5 s to enter and before 1.5 s to release; `HOLD` when absent (`stretch.HOLD`, 30 s, Bandy et al. 1997).\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -23332,7 +23332,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "moderate"
               }
             ],
-            "description": "How far into the range; `moderate` when absent."
+            "description": "How far into the joint's own range (`stretch.INTENSITY`): `mild` half of it, a gentle stretch; `moderate` deep, a working stretch or a held pose. `moderate` when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -23413,7 +23413,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "count": {
             "type": "integer",
-            "description": "Punches of a choku-zuki series; 4 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Punches of a choku-zuki series; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s (`martialArt`).\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -23458,7 +23458,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Dribble bounces; 4 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Dribble bounces; 4 when absent, at 2 bounces a second (`ballSport.BOUNCES`, provisional): a 2 s dribble.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -23687,7 +23687,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -23754,13 +23754,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "Cycles; 3 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Cycles; 3 when absent. A cycle takes 1.4 s in the front crawl (`swim.CYCLE`) and the backstroke, 1 s treading water, so 3 cycles of the crawl take 4.2 s; the keyed strokes take the seconds of their keys (`SwimStroke.strokes`).\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How it is performed."
+            "description": "How it is performed: `pace: 1.5` makes each cycle 1.5 times shorter and, for a keyed stroke, the glide 1.5 times faster (IAutoMovieMotionManner.pace). Neutral when absent."
           }
         },
         "required": [],
@@ -23977,7 +23977,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "beats": {
             "type": "integer",
-            "description": "How many beats a position is danced over; 4 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many beats a position is danced over; 4 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 2 s.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -24035,7 +24035,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "beats": {
             "type": "integer",
-            "description": "How many beats; 8 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many beats; 8 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 4 s plus one beat.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -24348,7 +24348,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "How many crawl cycles; 3 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many crawl cycles; 3 when absent. A cycle takes 1.2 s at a 0.93 m hip (`crawl.CYCLE`, provisional), so 3 cycles are 3.6 s.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -24526,7 +24526,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0.6,
             "maximum": 1.3,
             "default": 1,
@@ -24542,7 +24542,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the\n`pace` gait's (a normal walk at the reference hip: about 2.3 m/s in\nsteps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes\nit 0.8 times. An Effort `time` factor makes the speed\n`1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when\nabsent."
           },
           "station": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanFormation.IStation",
@@ -24946,7 +24946,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -24959,11 +24959,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "sag": {
             "type": "number",
-            "description": "How long the knees give and the trunk sways before the drop, seconds; 0 when absent."
+            "description": "How long the knees give and the trunk sways before the drop, seconds; 0 when absent, the drop starting at once. A faint is shown with a sag (Smeesters, Hayes and McMahon 2001); no study gives its duration, so the value is the author's."
           },
           "seconds": {
             "type": "number",
-            "description": "How long the body lies after landing, seconds; 1 when absent."
+            "description": "How long the body lies after landing, seconds; 1 when absent; see IAutoMovieMotionHumanKnockdown.IParams.seconds."
           }
         },
         "required": [],
@@ -24990,15 +24990,15 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "distance": {
             "type": "number",
-            "description": "How far the body's root travels over the ground, metres; positive."
+            "description": "How far the body's root travels over the ground, metres; positive. The ground speed is this over the flight time, which `height` fixes: a 0.5 m height is airborne about 0.64 s."
           },
           "height": {
             "type": "number",
-            "description": "How high the root rises above its take-off height, metres; positive."
+            "description": "How high the root rises above its take-off height, metres; positive. The root rises and falls under standard gravity, so the flight lasts about `2 sqrt(2 h / g)`: 0.64 s at 0.5 m, 0.9 s at 1 m."
           },
           "seconds": {
             "type": "number",
-            "description": "How long the body lies after landing, seconds; 1 when absent."
+            "description": "How long the body lies after landing, seconds; 1 when absent; see IAutoMovieMotionHumanKnockdown.IParams.seconds."
           },
           "wall": {
             "oneOf": [
@@ -25126,7 +25126,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -25159,11 +25159,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "horizon": {
             "type": "number",
-            "description": "How far past the action's start the car's course is searched for the contact, seconds; 6 when absent."
+            "description": "How far past the action's start the car's course is searched for the contact, seconds; 6 when absent. A car that reaches the pedestrian later is not struck."
           },
           "seconds": {
             "type": "number",
-            "description": "How long the body lies after landing, seconds; 1 when absent."
+            "description": "How long the body lies after landing, seconds; 1 when absent; see IAutoMovieMotionHumanKnockdown.IParams.seconds."
           }
         },
         "required": [
@@ -25192,7 +25192,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "horizon": {
             "type": "number",
-            "description": "How far past the action's start the car's course is searched for its arrival, seconds; 6 when absent."
+            "description": "How far past the action's start the car's course is searched for its arrival, seconds; 6 when absent. A car that arrives later is not dived from."
           }
         },
         "required": [
@@ -25217,7 +25217,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "How long the flight takes, seconds; positive."
+            "description": "How long the flight takes, seconds; positive. The root keeps one minimum-jerk profile, so its speed peaks at 1.875 times the mean, the path length over this, and starts and ends at rest. A 10 m flight in 4 s averages 2.5 m/s and peaks at 4.7 m/s."
           },
           "shape": {
             "oneOf": [
@@ -25320,7 +25320,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "deceleration": {
             "type": "number",
-            "description": "The most deceleration the wire applies, metres per second squared; twice standard gravity when absent."
+            "description": "The most deceleration the wire applies, metres per second squared; twice standard gravity (19.6 m/s2) when absent."
           },
           "seconds": {
             "type": "number",
@@ -25496,7 +25496,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -25693,7 +25693,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds for each authored contact phase."
+            "description": "Seconds for each of the seven contact phases, so the transfer takes seven times it; 0.55 s when absent, 3.9 s in all (`HumanAssistedTransfer`; provisional, no source). The clasp is taken at 1.5 times it and released at 6 times."
           },
           "role": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanAssistedTransfer.Role",
@@ -25910,11 +25910,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "impact": {
             "type": "number",
-            "description": "Positive seconds from the action start to impact. Omit for the stroke's neutral timing."
+            "description": "Positive seconds from the action start to impact. Omit for the stroke's neutral timing (the row's own, provisional)."
           },
           "speed": {
             "type": "number",
-            "description": "Positive outgoing ball speed in metres per second. The row fixes the departure inclination."
+            "description": "Positive outgoing ball speed in metres per second. The row fixes the departure inclination. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "hand": {
             "oneOf": [
@@ -25958,11 +25958,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "impact": {
             "type": "number",
-            "description": "Positive seconds from the action start to impact. Omit for the stroke's neutral timing."
+            "description": "Positive seconds from the action start to impact. Omit for the stroke's neutral timing (the row's own, provisional)."
           },
           "speed": {
             "type": "number",
-            "description": "Positive outgoing ball speed in metres per second. The row fixes the departure inclination."
+            "description": "Positive outgoing ball speed in metres per second. The row fixes the departure inclination. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "hand": {
             "oneOf": [
@@ -26011,11 +26011,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "impact": {
             "type": "number",
-            "description": "Positive seconds from the action start to impact. Omit for the stroke's neutral timing."
+            "description": "Positive seconds from the action start to impact. Omit for the stroke's neutral timing (the row's own, provisional)."
           },
           "speed": {
             "type": "number",
-            "description": "Positive outgoing ball speed in metres per second. The row fixes the departure inclination."
+            "description": "Positive outgoing ball speed in metres per second. The row fixes the departure inclination. No natural value is defined: choose it for the beat (provisional, missing)."
           },
           "hand": {
             "oneOf": [
@@ -26197,7 +26197,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -26400,7 +26400,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -26823,7 +26823,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -26836,11 +26836,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "speed": {
             "type": "number",
-            "description": "Horizontal launch speed in m/s. Omit for a contact-only kick."
+            "description": "Horizontal launch speed of the ball, m/s, authored and never derived from the leg. Omit for a contact-only kick: the foot meets the ball and the ball is not launched. The foot meets the ball at the stroke's film instant, 0.45 s after the start (the backswing 0.35 s and the swing 0.1 s; the follow-through 0.15 s and the return 0.45 s end the kick at 1.05 s; all provisional, scaled by the manner's tempo)."
           },
           "lift": {
             "type": "number",
-            "description": "Upward launch speed in m/s. With a launch, defaults to a small positive departure."
+            "description": "Upward launch speed of the ball, m/s; 0.3 m/s when absent, a ground ball, and read only with `speed`. A chip or a lofted kick takes a larger value."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -26865,7 +26865,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "apex": {
             "type": "number",
-            "description": "Apex height of the flight above take-off, metres; positive.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Apex height of the flight above take-off, metres; positive; 0.06 hip heights plus a tenth of the jump's length when absent (`jump`, provisional). Gravity decides the flight time: the take-off speed is `sqrt(2 g apex)` and a level landing follows `sqrt(8 apex / g)` later, g 9.80665 m/s2: 0.36 s for a 1 m jump at the reference hip (apex 0.15 m). The push-off (0.3 s, `jump.PUSH`), the absorption (0.3 s, `jump.ABSORB`) and the rise to standing (0.45 s, `jump.RISE`) are provisional and scaled by `manner.pace`; the flight is not.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "exclusiveMinimum": 0,
             "x-unit": "m"
           },
@@ -26929,7 +26929,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "apex": {
             "type": "number",
-            "description": "Apex height of the flight above take-off, metres; `APEX` of the stature when absent."
+            "description": "Apex height of the flight above take-off, metres; 0.3 of the stature when absent (`salto.APEX`, provisional), about 0.53 m at a 1.75 m stature. Gravity decides the flight time as for a jump: `sqrt(8 apex / g)` at a level landing, g 9.80665 m/s2, 0.66 m there; the somersault must fit it, or the take-off cannot meet it and the request is refused."
           },
           "turns": {
             "type": "integer",
@@ -26948,7 +26948,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "Seconds the cartwheel takes; `SECONDS` when absent.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the cartwheel takes; `SECONDS` when absent (`cartwheel.SECONDS`, 1.6 s, provisional: no study of a cartwheel's duration was read).\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
@@ -26972,7 +26972,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "two"
               }
             ],
-            "description": "One hand or two; `two` when absent."
+            "description": "One hand or two; `two` when absent. The hands reach the object in the aimed movement time to its size (McIntosh et al. 2018), give 0.05 to 0.15 m with it (provisional) and hold it at the sternum."
           },
           "side": {
             "oneOf": [
@@ -27427,7 +27427,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "Seconds the round-off takes; `SECONDS` when absent.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the round-off takes; `SECONDS` when absent (`roundOff.SECONDS`, 1.2 s, provisional: quicker than the cartwheel, the entry to a tumbling run).\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
@@ -27518,7 +27518,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "apexReserve": {
             "type": "number",
-            "description": "The centre-of-mass apex above the crossbar's axis, in metres. Defaults to zero. The high-jump law requires a finite non-negative value and bounds the combined apex by the takeoff's vertical speed.",
+            "description": "The centre-of-mass apex above the crossbar's axis, in metres. Defaults to zero. The vertical take-off speed is bounded by 5.05 m/s (`highJump.RISE`), so the apex above take-off is at most 1.30 m (`v^2 / 2g`, g 9.80665 m/s2); the flight time is the ballistic fall from that apex to the landing surface. The high-jump law requires a finite non-negative value and bounds the combined apex by the takeoff's vertical speed.",
             "minimum": 0,
             "default": 0,
             "x-unit": "m"
@@ -27716,7 +27716,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "height": {
             "type": "number",
-            "description": "How high the throws rise above the hands, metres; 0.6 when absent.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How high the throws rise above the hands, metres; 0.6 when absent. Gravity decides the flight, `sqrt(8 h / g)` between hands level with each other (g 9.80665 m/s2): 0.70 s at 0.6 m. The hold times follow from the flight by Shannon's theorem at a dwell ratio of 0.75 (`juggle.DWELL`, Beek and Lewbel 1995), so a higher throw is slower in every beat; a vacancy under `juggle.VACANCY` (0.12 s) is refused.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "exclusiveMinimum": 0,
             "x-unit": "m"
           },
@@ -28035,7 +28035,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -28294,11 +28294,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               "speed": {
                 "type": "number",
-                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner."
+                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner. Authored, never derived: take the gun's own muzzle velocity."
               },
               "lock": {
                 "type": "number",
-                "description": "Lock delay after trigger break, seconds; defaults to zero."
+                "description": "Lock delay after trigger break, seconds; 0 when absent: the shot launches at the trigger break. Give a flintlock's lock time here."
               }
             },
             "required": [
@@ -28434,7 +28434,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -28471,7 +28471,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the carriage is held once reached; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -28809,7 +28809,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -29084,7 +29084,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -29529,7 +29529,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds of the stroke before any performance tempo scaling. Approach and return have their own durations."
+            "description": "Seconds of the stroke before any performance tempo scaling. Approach and return have their own durations. Required: no natural value is defined, so the author sets it (provisional: no timing study was read)."
           },
           "side": {
             "oneOf": [
@@ -29733,7 +29733,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds of the work before tempo scaling; positive."
+            "description": "Seconds of the work before tempo scaling; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read)."
           }
         },
         "required": [
@@ -30379,7 +30379,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds of the pull before tempo scaling; positive."
+            "description": "Seconds of the pull before tempo scaling; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read)."
           }
         },
         "required": [
@@ -30561,7 +30561,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -30704,7 +30704,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "duration": {
             "type": "number",
-            "description": "Seconds from entry until both fingertips have cleared the string, after `releaseAt`."
+            "description": "Seconds from entry until both fingertips have cleared the string, after `releaseAt`. Required: the score sets it, so no natural value is defined."
           }
         },
         "required": [
@@ -30755,7 +30755,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "duration": {
             "type": "number",
-            "description": "Total action-local seconds, finite and greater than releaseAt."
+            "description": "Total action-local seconds, finite and greater than releaseAt. Required: the score sets it, so no natural value is defined."
           }
         },
         "required": [
@@ -30868,7 +30868,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "duration": {
             "type": "number",
-            "description": "Action duration in seconds, greater than the last stroke's to time."
+            "description": "Action duration in seconds, greater than the last stroke's to time. Required: the score sets it, so no natural value is defined."
           }
         },
         "required": [
@@ -30947,7 +30947,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "duration": {
             "type": "number",
-            "description": "Action duration in seconds, greater than the last stroke's to time."
+            "description": "Action duration in seconds, greater than the last stroke's to time. Required: the score sets it, so no natural value is defined."
           }
         },
         "required": [
@@ -33276,7 +33276,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -33665,7 +33665,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Duration of the push, seconds, at unit tempo."
+            "description": "Duration of the push, seconds, at unit tempo. Required: no natural value is defined, so the author sets it (provisional: no timing study was read)."
           },
           "side": {
             "oneOf": [
@@ -33718,7 +33718,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Positive stroke duration at unit tempo, seconds."
+            "description": "Positive stroke duration at unit tempo, seconds. Required: no natural value is defined, so the author sets it (provisional: no timing study was read)."
           },
           "side": {
             "oneOf": [
@@ -34207,7 +34207,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "late"
               }
             ],
-            "description": "The forced outcome; drawn from the defender's skill when absent."
+            "description": "The forced outcome; drawn from the defender's skill when absent. The defender starts after a reaction time drawn around 0.335 s at novice to 0.29 s at elite (the ex-Gaussian mu, Liu et al. 2018, `StrikingSkill.reaction`), less the anticipation the strike's preparation shows, and its limb or head takes 0.30 s at novice to 0.20 s at elite to move (`StrikingSkill.defence`, provisional). `inTime`: in place at the contact, the strike lands on the glove; `late`: caught half-made within half the movement time, the strike lands through the guard; `fail`: the strike lands as if undefended. A forced outcome is refused when no plausible timing reaches it. Against a kick or a fast strike a reactive defence is late: only anticipation, which skill buys, makes it in time."
           }
         },
         "required": [
@@ -34324,7 +34324,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "angle": {
             "type": "number",
-            "description": "The release angle above the horizontal, degrees; the style's when absent."
+            "description": "The release angle above the horizontal, degrees; the style's when absent (`throwObjectForm.ANGLE`). A target the angle cannot reach is refused."
           },
           "implement": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanThrowObjectLever.IImplement",
@@ -34647,7 +34647,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                       },
                       "range": {
                         "type": "number",
-                        "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                        "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                       }
                     },
                     "required": [
@@ -34792,7 +34792,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The pace; `normal` when absent."
+            "description": "The gait, which fixes the speed (`walk.FROUDE`; the speed model is\nIAutoMovieMotionHumanGait). No step exceeds 0.75 m\n(`walk.longestStep`):\n\n- `slow`: about 1.05 m/s, about 96 steps a minute; a stroll, a weary,\n  sad or cautious walk.\n- `normal`: about 1.5 m/s, about 120 steps a minute; ordinary walking.\n- `fast`: about 1.7 m/s, about 136 steps a minute; hurrying, a brisk\n  errand. A quicker way is a `run` jog.\n\n`normal` when absent. `normal` is the metabolic minimum of ordinary\nlimbs (PMID 21653821); the `slow` and `fast` Froude numbers have no\nstated source."
           },
           "via": {
             "type": "array",
@@ -34842,7 +34842,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0.6,
             "maximum": 1.3,
             "default": 1,
@@ -34850,7 +34850,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "armSwing": {
             "type": "number",
-            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent.\nInclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).\nInclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "maximum": 2,
             "default": 1,
@@ -34866,7 +34866,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the\n`pace` gait's (a normal walk at the reference hip: about 2.3 m/s in\nsteps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes\nit 0.8 times. An Effort `time` factor makes the speed\n`1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when\nabsent."
           },
           "station": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanFormation.IStation",
@@ -35065,11 +35065,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               "speed": {
                 "type": "number",
-                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner."
+                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner. Authored, never derived: take the gun's own muzzle velocity."
               },
               "lock": {
                 "type": "number",
-                "description": "Lock delay after trigger break, seconds; defaults to zero."
+                "description": "Lock delay after trigger break, seconds; 0 when absent: the shot launches at the trigger break. Give a flintlock's lock time here."
               }
             },
             "required": [
@@ -35205,7 +35205,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -35222,7 +35222,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the carriage is held once reached; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -35548,7 +35548,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -35887,7 +35887,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -36014,7 +36014,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               "speed": {
                 "type": "number",
-                "description": "The launcher's speed along the line, metres per second."
+                "description": "The launcher's speed along the line, metres per second: the arrow's speed off the string, set by the bow's `launchSpeed` at the string's travel; a hand's own velocity is added."
               }
             },
             "required": [
@@ -36149,11 +36149,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               "speed": {
                 "type": "number",
-                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner."
+                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner. Authored, never derived: take the gun's own muzzle velocity."
               },
               "lock": {
                 "type": "number",
-                "description": "Lock delay after trigger break, seconds; defaults to zero."
+                "description": "Lock delay after trigger break, seconds; 0 when absent: the shot launches at the trigger break. Give a flintlock's lock time here."
               }
             },
             "required": [
@@ -36289,7 +36289,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -36322,7 +36322,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the carriage is held once reached; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -36365,7 +36365,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               "speed": {
                 "type": "number",
-                "description": "The launcher's speed along the line, metres per second."
+                "description": "The launcher's speed along the line, metres per second: the arrow's speed off the string, set by the bow's `launchSpeed` at the string's travel; a hand's own velocity is added."
               }
             },
             "required": [
@@ -36472,11 +36472,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               "speed": {
                 "type": "number",
-                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner."
+                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner. Authored, never derived: take the gun's own muzzle velocity."
               },
               "lock": {
                 "type": "number",
-                "description": "Lock delay after trigger break, seconds; defaults to zero."
+                "description": "Lock delay after trigger break, seconds; 0 when absent: the shot launches at the trigger break. Give a flintlock's lock time here."
               }
             },
             "required": [
@@ -36612,7 +36612,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -36649,7 +36649,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the carriage is held once reached; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -36728,11 +36728,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               },
               "speed": {
                 "type": "number",
-                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner."
+                "description": "Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner. Authored, never derived: take the gun's own muzzle velocity."
               },
               "lock": {
                 "type": "number",
-                "description": "Lock delay after trigger break, seconds; defaults to zero."
+                "description": "Lock delay after trigger break, seconds; 0 when absent: the shot launches at the trigger break. Give a flintlock's lock time here."
               }
             },
             "required": [
@@ -37099,7 +37099,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "How long to stand, seconds; 1.5 when absent.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How long to stand, seconds; 1.5 when absent (provisional, `stand.SECONDS`): a beat between actions, not a held pose.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           },
@@ -37147,7 +37147,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "sprint"
               }
             ],
-            "description": "The pace; `run` when absent."
+            "description": "The gait, which fixes the speed (`run.GAITS`; the speed model is\nIAutoMovieMotionHumanGait):\n\n- `jog`: about 2.3 m/s, about 165 steps a minute; an easy pace held for\n  a long way, a warm-up.\n- `run`: about 3.4 m/s, about 176 steps a minute; hurrying, a chase\n  or an escape that is not an all-out one.\n- `sprint`: about 6.8 m/s, about 234 steps a minute; a charge, chase or\n  escape at full effort.\n\n`run` when absent. The Froude numbers and duty factors are sourced; the\ntrunk lean and arm swing are provisional (see the namespace)."
           },
           "via": {
             "type": "array",
@@ -37162,11 +37162,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale in [0.6, 1.3]; 1 when absent."
+            "description": "Step-length scale in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed."
           },
           "armSwing": {
             "type": "number",
-            "description": "Arm-swing scale in [0, 2]; 1 when absent."
+            "description": "Arm-swing scale in [0, 2]; 1 when absent. It multiplies the shoulder swing of the pace (`run.GAITS`: 25, 35 and 50 degrees either way)."
           },
           "elbows": {
             "type": "number",
@@ -37174,7 +37174,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the run is performed, read as a walk reads it (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent."
+            "description": "How the run is performed, read as a walk reads it (`IAutoMovieMotionHumanWalkParams.manner`): `pace: 1.5` multiplies the speed by 1.5; neutral when absent."
           }
         },
         "required": [
@@ -37211,7 +37211,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "type": "number"
               }
             ],
-            "description": "The gap: a named band or metres; `personal` when absent."
+            "description": "The gap from the performer's chest to the target, metres or a named band (IAutoMovieMotionHumanProxemics.Band gives the metres of each band); `personal` when absent."
           },
           "side": {
             "oneOf": [
@@ -37242,11 +37242,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The pace; `normal` when absent."
+            "description": "The walk's pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`."
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality: steps, arm swing and elbow width of the walk."
+            "description": "Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in (`HumanEffort.modifiers`); its `time` factor is not read."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -37473,7 +37473,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -37524,7 +37524,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds; 0 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -37534,7 +37534,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
-            "description": "Movement quality."
+            "description": "Laban Effort (IAutoMovieMotionHumanEffort.IEffort): `time` multiplies every phase by `1 - 0.3 time` (0.7 sudden, 1.3 sustained), `weight` and `flow` the gesture's size, `flow` the elbow width; neutral when absent. The coefficients are provisional."
           },
           "turn": {
             "type": "number",
@@ -37813,7 +37813,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/PickIAutoMovieMotionMannerproficiencyvariation",
-            "description": "How much repeats of the punch differ: `variation` in [0, 1] scales the\nspread of the point aimed at within a person's region, and\n`proficiency` replaces the performer's skill for that spread. Absent or\n0, every repeat is aimed at the region's own point."
+            "description": "How much repeats of the punch differ: `variation` in [0, 1] scales the\nspread of the point aimed at within a person's region, and\n`proficiency` replaces the performer's skill for that spread. Absent or\n0, every repeat is aimed at the region's own point. Neither member\nchanges the times or the fist's speed: these follow the performer's\nskill (see the namespace)."
           }
         },
         "required": [
@@ -37912,7 +37912,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "How long, seconds; 1 when absent and at least the 0.6 s the stance takes to set."
+            "description": "How long the guard is held, seconds; 1 when absent and never under the 0.6 s the stance takes to set (`guard.SET`)."
           },
           "stance": {
             "oneOf": [
@@ -37934,7 +37934,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "kickboxing"
               }
             ],
-            "description": "Sport's glove carriage. The original open guard when absent."
+            "description": "Sport's glove carriage: `boxing` close to the jaw, `kickboxing` the more open guard, both described on the stance (IAutoMovieMotionHumanStrikingStance). The open guard when absent."
           },
           "facing": {
             "oneOf": [
@@ -38062,7 +38062,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -38100,13 +38100,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "steps": {
             "type": "integer",
-            "description": "How many steps; 1 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many steps; 1 when absent. Each step takes the body's step period, 0.35 s at the reference hip and shorter on a shorter leg (`step.PERIOD`, about three steps a second, provisional), so the phrase lasts about `steps` times that.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
           "length": {
             "type": "number",
-            "description": "Each step's length, metres. A turning or lead-changing phrase may be\nin place (zero). When absent, turns and lead changes stay in place\nand straight steps travel half a stance length."
+            "description": "Each step's length, metres. A turning or lead-changing phrase may be\nin place (zero). When absent, turns and lead changes stay in place\nand straight steps travel half a stance length (`step.STEP_SHARE`,\n1.2 shoulder widths long: IAutoMovieMotionHumanStrikingStance)."
           },
           "turn": {
             "type": "number",
@@ -38189,7 +38189,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "late"
               }
             ],
-            "description": "The forced outcome; drawn from the defender's skill when absent."
+            "description": "The forced outcome; drawn from the defender's skill when absent. The defender starts after a reaction time drawn around 0.335 s at novice to 0.29 s at elite (the ex-Gaussian mu, Liu et al. 2018, `StrikingSkill.reaction`), less the anticipation the strike's preparation shows, and its limb or head takes 0.30 s at novice to 0.20 s at elite to move (`StrikingSkill.defence`, provisional). `inTime`: in place at the contact, the strike lands on the glove; `late`: caught half-made within half the movement time, the strike lands through the guard; `fail`: the strike lands as if undefended. A forced outcome is refused when no plausible timing reaches it. Against a kick or a fast strike a reactive defence is late: only anticipation, which skill buys, makes it in time."
           }
         },
         "required": [
@@ -38328,7 +38328,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -38341,7 +38341,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "intensity": {
             "type": "number",
-            "description": "How strong, in (0, 1]; 1 when absent."
+            "description": "How strong, in (0, 1]; 1 when absent. It scales the size and not the time: at 1 the trunk leans a quarter of the reach's lean limit, the hips shift 1.8 % of the stature and the neck ducks lightly (`flinch.LEAN`, `flinch.SHIFT`, `flinch.DUCK`, provisional); the peak comes at 0.2 s and the body is back by 0.6 s (Landis and Hunt 1939). 1 fits a start or a near miss; less fits a small twitch."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -38481,7 +38481,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -38494,7 +38494,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "speed": {
             "type": "number",
-            "description": "The centre of mass's speed after the blow, m/s."
+            "description": "The centre of mass's speed after the blow, m/s. Up to four recovery steps catch it (each about 0.18 to 0.24 s, 0.38 to 0.59 stature long); a faster push is refused as a fall, naming the fastest push the body catches, and a fall is a `knockdown`. The step count and times are the body's dynamics and follow this speed alone."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -38636,7 +38636,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -38649,7 +38649,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "How long the body lies after landing, seconds; 1 when absent."
+            "description": "How long the body lies after landing, seconds; 1 when absent. The seat lands at 0.45 s and the back rests by 1.1 s after the start, so the action lasts 1.1 s plus this. 0 ends the action on the lie; a longer lie fits a stunned or unconscious body."
           }
         },
         "required": [],
@@ -39272,7 +39272,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "rear"
               }
             ],
-            "description": "Which leg: lead or rear; rear when absent."
+            "description": "Which leg: lead or rear; rear when absent. A knee is the kick's chamber alone: contact 0.22 s after the start at elite skill (0.074 s plus the 0.14 s chamber) and 0.65 s of recoil, the chamber and recoil 1.4 times at novice (IAutoMovieMotionHumanKick)."
           }
         },
         "required": [
@@ -39286,7 +39286,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "technique": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanCloseStrike.Technique",
-            "description": "The close strike."
+            "description": "The close strike. It keeps the punch's timing: 0.405 s from launch to contact at elite skill, 1.06 times at novice, and 0.35 s back to the guard (IAutoMovieMotionHumanPunch); no study of an elbow's or a headbutt's delivery time was located. GLORY rules ban elbows (`KickboxingRules`)."
           },
           "at": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
@@ -39343,7 +39343,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "technique": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanFootStrike.Technique",
-            "description": "The foot strike."
+            "description": "The foot strike. Launch to contact: `side` 0.77 s (the middle of 0.70 to 0.84 s, Pieter and Pieter); every other technique 0.33 s, the round kick's (IAutoMovieMotionHumanKick); times 1.06 at novice to 1.0 at elite (`footStrike.SIDE`, `footStrike.KICK`). The recoil is 0.65 s."
           },
           "at": {
             "$ref": "#/components/schemas/IAutoMovieMotionTarget",
@@ -39362,11 +39362,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "spin": {
             "type": "boolean",
-            "description": "A whole turn on the support ball before the strike; none when absent."
+            "description": "A whole turn on the support ball before the strike, adding 0.33 s before the contact (`footStrike.KICK`); none when absent."
           },
           "jump": {
             "type": "boolean",
-            "description": "Off the floor with both feet at the contact; planted when absent."
+            "description": "Off the floor with both feet at the contact, adding 0.15 s before it and lifting 0.25 of the leg (`footStrike.JUMP`, provisional); planted when absent."
           }
         },
         "required": [
@@ -39816,7 +39816,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -41019,7 +41019,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -41166,7 +41166,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "windmill"
               }
             ],
-            "description": "The style; `overarm` when absent."
+            "description": "The style; `overarm` when absent. It fixes the release angle, the windup and the trunk's turn and tilt (IAutoMovieMotionHumanThrowObjectForm.Style gives each style's angle and windup, provisional). The speed follows from the distance and the angle by the range equation, so a farther target is a faster throw."
           },
           "hand": {
             "oneOf": [
@@ -41185,7 +41185,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "angle": {
             "type": "number",
-            "description": "The release angle above the horizontal, degrees; the style's when absent."
+            "description": "The release angle above the horizontal, degrees; the style's when absent (`throwObjectForm.ANGLE`). A target the angle cannot reach is refused."
           },
           "attitude": {
             "oneOf": [
@@ -41250,7 +41250,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "How the prop turns in flight (`IAutoMovieProjectile.attitude`): along\nits velocity for a javelin; `turns` for a knife, whose spin the act\nchooses (throwObjectLever.spin); its release rotation kept when\nabsent."
+            "description": "How the prop turns in flight (`IAutoMovieProjectile.attitude`): along\nits velocity for a javelin; `turns` for a knife, whose spin the act\nchooses (`throwObjectLever.spin`); its release rotation kept when\nabsent."
           },
           "implement": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanThrowObjectLever.IImplement",
@@ -41283,7 +41283,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "two"
               }
             ],
-            "description": "One hand or two; `two` when absent."
+            "description": "One hand or two; `two` when absent. The hands reach the object in the aimed movement time to its size (McIntosh et al. 2018), give 0.05 to 0.15 m with it (provisional) and hold it at the sternum."
           },
           "side": {
             "oneOf": [
@@ -41531,7 +41531,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -41729,7 +41729,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -42678,7 +42678,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "How many crawl cycles; 3 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many crawl cycles; 3 when absent. A cycle takes 1.2 s at a 0.93 m hip (`crawl.CYCLE`, provisional), so 3 cycles are 3.6 s.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -42769,7 +42769,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "plum"
               }
             ],
-            "description": "The grip; `plum` when absent."
+            "description": "The grip; `plum` when absent: `plum`, the two-handed neck tie of Muay Thai clinch fighting; `collarSleeve`, judo's collar and sleeve grip that opens a throw."
           },
           "hand": {
             "oneOf": [
@@ -42784,7 +42784,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Seconds the grip is held; 2 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the grip is held once both hands have closed, before they let go; 2 s when absent (`clinch`, provisional: no study of a grip's duration was read). The hands reach in their aimed movement time first (McIntosh et al. 2018), so the whole action is that time, `hold` and the release. 0 closes and lets go at once; a few seconds fits a held neck tie or a grip taken before a throw.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -42962,7 +42962,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                   },
                   "range": {
                     "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                    "description": "Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent (IAutoMovieMotionHumanPerformanceAim.range)."
                   }
                 },
                 "required": [
@@ -42975,11 +42975,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "speed": {
             "type": "number",
-            "description": "Horizontal launch speed in m/s. Omit for a contact-only kick."
+            "description": "Horizontal launch speed of the ball, m/s, authored and never derived from the leg. Omit for a contact-only kick: the foot meets the ball and the ball is not launched. The foot meets the ball at the stroke's film instant, 0.45 s after the start (the backswing 0.35 s and the swing 0.1 s; the follow-through 0.15 s and the return 0.45 s end the kick at 1.05 s; all provisional, scaled by the manner's tempo)."
           },
           "lift": {
             "type": "number",
-            "description": "Upward launch speed in m/s. With a launch, defaults to a small positive departure."
+            "description": "Upward launch speed of the ball, m/s; 0.3 m/s when absent, a ground ball, and read only with `speed`. A chip or a lofted kick takes a larger value."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -43179,7 +43179,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The walk's pace; `normal` when absent."
+            "description": "The walk's pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` when absent. The load leans the trunk and does not change the speed."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -43245,7 +43245,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "moderate"
               }
             ],
-            "description": "The load's declared level (`IAutoMovieMotionHumanPushPullLean.Load`); `moderate` when absent."
+            "description": "The load's declared level (`IAutoMovieMotionHumanPushPullLean.Load`); `moderate` when absent. It sets the trunk's lean only, not the speed. For a push (the pull's are in `pushPullLean.ANGLES`, a drag's read as a push's): `light` 45.5 N leans about 7 degrees at the handles' height, `moderate` 222.5 N about 14 to 17 degrees and `heavy` 400.5 N about 19 to 25 degrees (Lett and McGill 2006, `pushPullLean.ANGLES`)."
           },
           "moves": {
             "type": "boolean",
@@ -43253,7 +43253,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the hands press a load that does not move; required then, and read only then."
+            "description": "Seconds the hands press a load that does not move; required then, and read only then. The author sets it: no natural duration is defined (provisional: no study of a held push)."
           }
         },
         "required": [
@@ -43447,7 +43447,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "reps": {
             "type": "integer",
-            "description": "Whole-number repetitions, at least one; 3 when absent.\nUnit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top (`exercise`): 3.3 s at the default tempo, so 3 repetitions take 9.9 s.\nUnit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -43478,7 +43478,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "type": "number"
               }
             ],
-            "description": "Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent.",
+            "description": "Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent: a controlled 2 s lowering and a 1 s rise. `manner.pace` scales the three; the 0.3 s at the top is fixed.",
             "additionalItems": false
           },
           "side": {
@@ -43540,7 +43540,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds held; `HOLD` when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held at the end of the range, after 1.5 s to enter and before 1.5 s to release; `HOLD` when absent (`stretch.HOLD`, 30 s, Bandy et al. 1997).\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -43553,7 +43553,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "moderate"
               }
             ],
-            "description": "How far into the range; `moderate` when absent."
+            "description": "How far into the joint's own range (`stretch.INTENSITY`): `mild` half of it, a gentle stretch; `moderate` deep, a working stretch or a held pose. `moderate` when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -43601,7 +43601,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "beats": {
             "type": "integer",
-            "description": "How many beats; 8 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many beats; 8 when absent. At the default 120 beats a minute a beat is 0.5 s (`dance.BPM`), so 8 beats take 4 s plus one beat.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -43695,7 +43695,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Punches of a choku-zuki series; 4 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Punches of a choku-zuki series; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s (`martialArt`).\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -43771,7 +43771,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "Roll cycles; 4 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Roll cycles; 4 when absent, each `chiSau.CYCLE` (1.2 s, provisional), so 4.8 s of rolling.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -43808,7 +43808,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Dribble bounces; 4 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Dribble bounces; 4 when absent, at 2 bounces a second (`ballSport.BOUNCES`, provisional): a 2 s dribble.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -44024,13 +44024,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "Cycles; 3 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Cycles; 3 when absent. A cycle takes 1.4 s in the front crawl (`swim.CYCLE`) and the backstroke, 1 s treading water, so 3 cycles of the crawl take 4.2 s; the keyed strokes take the seconds of their keys (`SwimStroke.strokes`).\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
             "minimum": 1,
             "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How it is performed."
+            "description": "How it is performed: `pace: 1.5` makes each cycle 1.5 times shorter and, for a keyed stroke, the glide 1.5 times faster (IAutoMovieMotionManner.pace). Neutral when absent."
           }
         },
         "required": [
