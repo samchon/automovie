@@ -2,5 +2,8 @@ export type { IAutoMovieMotionHumanCrawl } from "./IAutoMovieMotionHumanCrawl";
 export type { IAutoMovieMotionHumanDive } from "./IAutoMovieMotionHumanDive";
 export type { IAutoMovieMotionHumanGetUp } from "./IAutoMovieMotionHumanGetUp";
 export type { IAutoMovieMotionHumanLieDown } from "./IAutoMovieMotionHumanLieDown";
+export type { IAutoMovieMotionHumanLieOnSurface } from "./IAutoMovieMotionHumanLieOnSurface";
+export type { IAutoMovieMotionHumanLogRoll } from "./IAutoMovieMotionHumanLogRoll";
+export type { IAutoMovieMotionHumanTurnOver } from "./IAutoMovieMotionHumanTurnOver";
 export type { IAutoMovieMotionHumanRoll } from "./IAutoMovieMotionHumanRoll";
 export type { IAutoMovieMotionHumanCrabWalk } from "./IAutoMovieMotionHumanCrabWalk";
