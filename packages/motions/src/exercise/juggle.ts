@@ -20,6 +20,7 @@ import { HumanBall } from "../ballStrike/HumanBall";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanElbowPlace } from "../compose/AutoMovieMotionHumanElbowPlace";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
@@ -394,8 +395,20 @@ export namespace juggle {
               ...posture,
               limbs: {
                 ...posture.limbs,
+                // The elbow placed out and below the hand, so the hand's
+                // rotation cannot flip it across the arm.
                 [side === "left" ? "leftArm" : "rightArm"]:
-                  AutoMovieMotionHumanArm.goal(body, side, palm(side, t)),
+                  AutoMovieMotionHumanElbowPlace.of(
+                    body,
+                    posture,
+                    side,
+                    AutoMovieMotionHumanArm.goal(body, side, palm(side, t)),
+                    (): IAutoMovieVector3 =>
+                      HumanFrame.point(
+                        { origin: { x: 0, y: 0, z: 0 }, yaw },
+                        { x: side === "left" ? 1 : -1, y: -1, z: -1 },
+                      ),
+                  ),
               },
             }),
           }),

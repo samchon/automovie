@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -44,6 +45,7 @@ import { throwObjectForm } from "./throwObjectForm";
 import { throwObjectLaunch } from "./throwObjectLaunch";
 import { throwObjectLever } from "./throwObjectLever";
 import { throwObjectRelease } from "./throwObjectRelease";
+import { throwObjectSwing } from "./throwObjectSwing";
 
 /**
  * Throwing a held object to a target: overarm, underarm, or a gentle toss.
@@ -81,8 +83,8 @@ import { throwObjectRelease } from "./throwObjectRelease";
  * A thrown `prop` rides the hand by a grip window to the release and is
  * launched there (`IHumanActionPlan.launches`), so it flies the same path;
  * `angle` replaces the style's release angle for a row with its own. An
- * `implement` held in the hand lengthens the lever the launch leaves from,
- * and a `turns` attitude spins the prop at the lever's rate rounded to whole
+ * `implement` held in the hand lengthens the lever the launch leaves from
+ * and stays held after it (`holds`), only the prop flying; a `turns` attitude spins the prop at the lever's rate rounded to whole
  * half turns to the target (`throwObjectLever`). Not yet: the stride, the
  * two-hand chest pass and overhead throws, the thrown prop riding the
  * implement before the release (it leaves from the implement's point, set on
@@ -351,6 +353,11 @@ export namespace throwObject {
         goal: wristAt,
         fallback: "hang",
       });
+    const swing: throwObjectSwing.Elbow = throwObjectSwing.of(
+      body,
+      side,
+      style,
+    );
     const throwing: IAutoMovieMotionHumanPrimitive = {
       channels: [`${side}Arm`, `${side}Hand`],
       from: 0,
@@ -375,18 +382,14 @@ export namespace throwObject {
           posture,
           seconds,
         );
-        const bend: IAutoMovieVector3 = elbow.elbow(posture, seconds, wrist);
-        return {
-          ...posture,
-          limbs: {
-            ...posture.limbs,
-            [`${side}Arm`]: AutoMovieMotionHumanArmTarget.fromWrist(
-              wrist,
-              bend,
-              { ...gripOffset! },
-            ),
-          },
-        };
+        const goal: IAutoMovieHumanLimbGoal =
+          AutoMovieMotionHumanArmTarget.fromWrist(
+            wrist,
+            elbow.elbow(posture, seconds, wrist),
+            { ...gripOffset! },
+          );
+        const arm: IAutoMovieHumanLimbGoal = swing(posture, goal);
+        return { ...posture, limbs: { ...posture.limbs, [`${side}Arm`]: arm } };
       },
     };
 
@@ -463,6 +466,9 @@ export namespace throwObject {
             ].sort((a, b): number => a.share - b.share),
           }
         : {}),
+      ...(implement === undefined
+        ? {}
+        : { holds: [{ side, prop: implement.prop, from: 1 }] }),
       physicalWindow: {
         from: cockedAt,
         to: releasedAt + throwObjectForm.CARRY,

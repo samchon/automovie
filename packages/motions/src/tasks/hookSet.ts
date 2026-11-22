@@ -48,7 +48,7 @@ export const hookSet: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHookSe
     HumanBound.least("seconds", params.seconds, 1e-3, "s");
     const hand: AutoMovieHumanSide =
       params.hand ?? (entry.holds.right === params.rod ? "right" : "left");
-    AutoMovieMotionHumanHeld.of(context, hand, params.rod);
+    const held: ReturnType<typeof AutoMovieMotionHumanHeld.of> = AutoMovieMotionHumanHeld.of(context, hand, params.rod);
     const rod: IAutoMovieRigidTransform = context.prop(params.rod).frame(context.start);
     const along: IAutoMovieVector3 = Quaternion.rotateVector(rod.rotation, { x: 0, y: 1, z: 0 });
     // The tip rises about the horizontal axis square to the rod: a positive
@@ -67,8 +67,12 @@ export const hookSet: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHookSe
       t: number,
     ): IAutoMovieMotionHumanPosture => wardrobeHands.arm(body, entry.posture, hand, turned(t));
     wardrobeHands.verify(context, posture(params.seconds), hand, turned(params.seconds), wardrobeHands.MISS);
+    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(context, duration);
     return {
-      ...AutoMovieMotionHumanBase.under(context, duration),
+      ...base,
+      // The rod hand takes the rod's hold over and leaves it held.
+      contacts: [...base.contacts, AutoMovieMotionHumanHeld.grip(held)],
+      holds: [AutoMovieMotionHumanHeld.hold(context, held)],
       events: [
         { name: "set", share: params.seconds / duration },
         { name: "relax", share: 1 },

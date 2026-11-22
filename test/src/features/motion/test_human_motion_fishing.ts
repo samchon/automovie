@@ -57,7 +57,8 @@ type Rod = ReturnType<typeof createSpinningRod>;
  *
  * Scenarios, on the average man and the small woman, each take clean:
  * 1. The lure, set on the rod's tip, leaves it at the throw's release and
- *    lands within 0.5 m of the target 12 m ahead.
+ *    lands within 0.5 m of the target 12 m ahead, the rod staying in the rod
+ *    hand after the release.
  * 2. The line runs from the tip to the lure's eye throughout.
  * 3. Three turns of the reel's handle by the free hand shorten the line by
  *    three turns' retrieve and draw the lure in with it, while the rod
