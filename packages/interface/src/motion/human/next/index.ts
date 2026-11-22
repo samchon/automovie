@@ -2,6 +2,7 @@ export type { IAutoMovieMotionHumanAcrobatics } from "./IAutoMovieMotionHumanAcr
 export type { IAutoMovieMotionHumanBlade } from "./IAutoMovieMotionHumanBlade";
 export type { IAutoMovieMotionHumanCarryPerson } from "./IAutoMovieMotionHumanCarryPerson";
 export type { IAutoMovieMotionHumanClimb } from "./IAutoMovieMotionHumanClimb";
+export type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
 export type { IAutoMovieMotionHumanCrossing } from "./IAutoMovieMotionHumanCrossing";
 export type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
 export type { IAutoMovieMotionHumanDefence } from "./IAutoMovieMotionHumanDefence";

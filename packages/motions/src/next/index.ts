@@ -2,6 +2,7 @@ export { AutoMovieMotionHumanAcrobatics } from "./AutoMovieMotionHumanAcrobatics
 export { AutoMovieMotionHumanBlade } from "./AutoMovieMotionHumanBlade";
 export { AutoMovieMotionHumanCarryPerson } from "./AutoMovieMotionHumanCarryPerson";
 export { AutoMovieMotionHumanClimb } from "./AutoMovieMotionHumanClimb";
+export { AutoMovieMotionHumanCover } from "./AutoMovieMotionHumanCover";
 export { AutoMovieMotionHumanCrossing } from "./AutoMovieMotionHumanCrossing";
 export { AutoMovieMotionHumanDance } from "./AutoMovieMotionHumanDance";
 export { AutoMovieMotionHumanDefence } from "./AutoMovieMotionHumanDefence";
