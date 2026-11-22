@@ -36,9 +36,6 @@ import { grappleSumo } from "./grappleSumo";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The support action fits the floor and the hand owner fits the goals. Sport scoring remains an authored event outside the law.
  */
 export namespace grapple {
-  /** How far apart two heads pressed side by side in a clinch stand, metres: a skin contact (provisional, as `headRest`'s). */
-  export const SKIN: number = 0.01;
-
   /** Action key used by both performed roles. */
   export const name: AutoMovieMotionHumanActionKey = "grapple";
 
@@ -197,28 +194,10 @@ export namespace grapple {
     const duration: number = p.seconds ?? grappleStances.seconds(p.kind);
     HumanBound.above("seconds", duration, 0, "s");
 
-    // In the MMA clinch the heads press side by side, not face to face:
-    // each fighter bends its neck aside (and turns with it) far enough that
-    // its head's centre moves its radius and half the skin off the line, so
-    // the two heads, bent to opposite sides of it, meet skin to skin.
-    const m: IAutoMovieMotionHumanBody["measure"] = context.body.measure;
-    const beside: number =
-      p.kind === "mmaReset"
-        ? (Math.asin(
-            Math.min(
-              1,
-              (m.headRadius + grapple.SKIN / 2) /
-                Math.max(1e-3, m.headHeight - m.neckHeight),
-            ),
-          ) *
-            180) /
-          Math.PI
-        : 0;
     const keys: ReturnType<typeof grappleStances.keys> = grappleStances.keys(
       p,
       duration,
-      m.stature,
-      beside,
+      context.body.measure.stature,
     );
     const supportPlan: IAutoMovieMotionHumanActionPlan = support.plan({
       ...context,

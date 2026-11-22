@@ -177,14 +177,12 @@ export namespace grappleStances {
     return side === "left" ? "right" : "left";
   }
 
-  /** Standing stance which lets the pelvis and trunk turn separately; a head beside the partner's bends the neck that far aside and turns it with the bend. */
+  /** Standing stance which lets the pelvis and trunk turn separately. */
   function stance(
     entry: IEntry,
     direction: number,
     share: number,
-    beside: number = 0,
   ): IAutoMovieMotionHumanLieDown.IPose {
-    const aside: number = direction * beside * share * 0.5;
     const depth: number = entry.depth * share;
     const armSpread: number = 12 + (entry.armSpread ?? 0) * share;
     return {
@@ -201,8 +199,6 @@ export namespace grappleStances {
         rightUpperArm: [16 * share, armSpread, 0],
         leftLowerArm: [35 * share, 0, 0],
         rightLowerArm: [35 * share, 0, 0],
-        neck: [0, aside, aside],
-        head: [0, aside, aside],
       },
     };
   }
@@ -280,7 +276,6 @@ export namespace grappleStances {
     p: IAutoMovieMotionHumanGrapple.IParams,
     duration: number,
     stature: number,
-    beside: number = 0,
   ): readonly IAutoMovieMotionHumanSupport.IStance[] {
     if (grappleSumo.is(p.kind))
       return grappleSumo.keys({ ...p, kind: p.kind }, duration, stature);
@@ -326,12 +321,12 @@ export namespace grappleStances {
       {
         event: "ready",
         contacts: feet(),
-        prefer: stance(entry, direction, 0.3, beside),
+        prefer: stance(entry, direction, 0.3),
       },
       {
         event: "entry",
         contacts: feet(step),
-        prefer: stance(entry, direction, 1, beside),
+        prefer: stance(entry, direction, 1),
         turn,
       },
       down
@@ -344,7 +339,7 @@ export namespace grappleStances {
         : {
             event: complete ? "transfer" : "interrupted",
             contacts: feet(other(step)),
-            prefer: stance(entry, direction, 0.7, beside),
+            prefer: stance(entry, direction, 0.7),
             turn: turn * 0.6,
           },
       down
@@ -359,7 +354,7 @@ export namespace grappleStances {
           : {
               event: "supportRegained",
               contacts: feet(step),
-              prefer: stance(entry, direction, 0.12, beside),
+              prefer: stance(entry, direction, 0.12),
             },
       down || kneeling
         ? {
