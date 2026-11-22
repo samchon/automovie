@@ -33,7 +33,7 @@ import { HumanBound } from "../law/HumanBound";
  *   feet stand `1 - SWING` of each step instead of a fifth; older adults
  *   lengthen their double support (Winter et al. 1990).
  * - Toe clearance: the least clearance of the swinging foot falls to
- *   `CLEARANCE` metres, a shuffle's (provisional).
+ *   `CLEARANCE` metres, the low end of older adults' (Begg et al. 2007).
  *
  * The values are provisional where marked.
  *
@@ -64,8 +64,8 @@ export namespace HumanFrailWalk {
   /** The swing at the shuffle's end, step periods: both feet stand 35 % of each step (provisional, after Winter et al. 1990's longer double support). */
   export const SWING: number = 0.65;
 
-  /** The least toe clearance at the shuffle's end, metres (provisional: a shuffle's foot just over the floor). */
-  export const CLEARANCE: number = 0.005;
+  /** The least toe clearance at the shuffle's end, metres: older adults keep about 1.2 to 1.5 cm over the floor at mid-swing (Begg et al. 2007, Gait and Posture 25:191), so a shuffle lowers it to the low end, still clear of the floor the foot audit reads (`HumanFoot.BEARING`). */
+  export const CLEARANCE: number = 0.012;
 
   /** The grade when the author names none. */
   export const SEVERITY: number = 0.5;

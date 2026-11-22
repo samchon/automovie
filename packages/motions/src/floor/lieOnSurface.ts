@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionClockPhase,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -41,20 +42,46 @@ const MARGIN: number = 0.05;
 /** How far behind the edge the seated hips sit, metres (provisional: the thighs resting over the edge). */
 const BEHIND: number = 0.15;
 
-/** The seated key on the edge: upright, hips and knees at right angles (provisional). */
-const SEATED: IAutoMovieMotionHumanLieDown.IPose = {
-  pitch: 0,
-  roll: 0,
-  joints: {
-    ...lieDownPoses.POSES.sit.joints,
-    leftUpperLeg: [90, 5, 0],
-    rightUpperLeg: [90, 5, 0],
-    leftLowerLeg: [90, 0, 0],
-    rightLowerLeg: [90, 0, 0],
-    leftUpperArm: [10, 10, 0],
-    rightUpperArm: [10, 10, 0],
-  },
-};
+/**
+ * The seated key on the edge: upright, the thighs level along the seat and
+ * each shank leaning forward from upright by as much as brings its ankle to
+ * its height over the floor, `acos((hip - ankle) / shank)`, so the soles
+ * rest on the floor; a seat higher than the shank and the ankle leaves the
+ * shanks upright and the feet hanging.
+ */
+function seatedKey(body: IAutoMovieMotionHumanBody, hip: number, floor: number): ISeatedKey {
+  const reach: number = (hip - floor - body.measure.ankleHeight) / body.measure.shank;
+  const lean: number = reach >= 1 ? 0 : (Math.acos(Math.max(-1, reach)) * 180) / Math.PI;
+  const knee: number = 90 - lean;
+  return {
+    pose: {
+      pitch: 0,
+      roll: 0,
+      joints: {
+        ...lieDownPoses.POSES.sit.joints,
+        leftUpperLeg: [90, 5, 0],
+        rightUpperLeg: [90, 5, 0],
+        leftLowerLeg: [knee, 0, 0],
+        rightLowerLeg: [knee, 0, 0],
+        // The shank's foot end ahead of its knee plantarflexes the ankle by the lean, the sole level.
+        leftFoot: [-lean, 0, 0],
+        rightFoot: [-lean, 0, 0],
+        leftUpperArm: [10, 10, 0],
+        rightUpperArm: [10, 10, 0],
+      },
+    },
+    planted: reach <= 1,
+  };
+}
+
+/** The seated key and whether its soles reach the floor. */
+interface ISeatedKey {
+  /** The tilt and the joints. */
+  pose: IAutoMovieMotionHumanLieDown.IPose;
+
+  /** Whether the feet rest on the floor. */
+  planted: boolean;
+}
 
 /** One key of the route: the body's tilt and joints, the hips' world point and the event that names its arrival. */
 interface IKey {
@@ -151,8 +178,9 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
             },
           )
         : entryHips;
+      const perched: ISeatedKey = seatedKey(body, seatedHips.y, 0);
       const seated: IKey = {
-        pose: rise ? SEATED : { pitch: entry.pitch, roll: entry.roll, joints: entry.joints },
+        pose: rise ? perched.pose : { pitch: entry.pitch, roll: entry.roll, joints: entry.joints },
         hips: seatedHips,
         lying: false,
         event: "seated",
@@ -279,7 +307,7 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
         ? [
             { part: "back", kind: "lie", from: 0, to: turned, support },
             { part: "seat", kind: "seat", from: turned, to: 1, support },
-            ...(["leftFoot", "rightFoot"] as const).map(
+            ...(perched.planted ? (["leftFoot", "rightFoot"] as const) : []).map(
               (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
                 part,
                 kind: "plant",

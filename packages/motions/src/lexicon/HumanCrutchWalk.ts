@@ -33,8 +33,8 @@ const ADVANCE: number = 1 / 3;
 /** How far a swung-through foot lands past the crutch tips, metres (provisional: a short step past the tripod). */
 const THROUGH: number = 0.15;
 
-/** The hip's and knee's flexion that hold a three-point gait's injured foot off the floor, degrees (provisional: the knee bent so the foot clears the floor). */
-const HELD: Readonly<Record<"hip" | "knee", number>> = { hip: 20, knee: 60 };
+/** The hip's and knee's flexion that hold a three-point gait's injured foot off the floor, degrees (provisional: the knee bent near a right angle and the hip a little forward, so the foot clears the floor by a hand's breadth even as the sound knee gives under the swing). */
+const HELD: Readonly<Record<"hip" | "knee", number>> = { hip: 30, knee: 80 };
 
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

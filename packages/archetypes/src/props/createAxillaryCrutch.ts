@@ -24,8 +24,9 @@ const MASS: string = "about 1 kg for one aluminium axillary crutch, provisional"
  * An axillary (underarm) crutch: a shaft from its rubber tip to its underarm
  * pad, with a handgrip across it where the hand bears the body's weight.
  *
- * It stands on its tip at the origin, the pad up `+Y` and the handgrip along
- * `+X`. `tip` is the floor contact facing down, `grip` the handgrip the hand
+ * It stands on its tip at the origin, the pad up `+Y`, and the pad's length
+ * and the handgrip along `+Z`, front to back between the side rails as the
+ * crutch stands beside its user. `tip` is the floor contact facing down, `grip` the handgrip the hand
  * closes on, and `pad` the underarm pad's top, which the side of the chest
  * presses against two to three finger widths below the axilla, never the
  * axilla itself (Physiopedia, Crutches, https://www.physio-pedia.com/Crutches).
@@ -83,16 +84,16 @@ export function createAxillaryCrutch(
   builder.rod(
     "handgrip",
     r,
-    Vector3.create(-createAxillaryCrutch.GRIP_LENGTH / 2, grip, 0),
-    Vector3.create(createAxillaryCrutch.GRIP_LENGTH / 2, grip, 0),
+    Vector3.create(0, grip, -createAxillaryCrutch.GRIP_LENGTH / 2),
+    Vector3.create(0, grip, createAxillaryCrutch.GRIP_LENGTH / 2),
     { color: "#2c2f33" },
   );
   builder.box(
     "pad",
     Vector3.create(
-      createAxillaryCrutch.PAD_WIDTH,
-      pad,
       createAxillaryCrutch.PAD_DEPTH,
+      pad,
+      createAxillaryCrutch.PAD_WIDTH,
     ),
     Vector3.create(0, length - pad / 2, 0),
     { color: "#3a3d42" },
@@ -104,7 +105,7 @@ export function createAxillaryCrutch(
     frame: ArchetypeFrame.facing(
       Vector3.create(0, grip, 0),
       Vector3.create(0, 1, 0),
-      Vector3.create(1, 0, 0),
+      Vector3.create(0, 0, 1),
     ),
     extent: null,
     grip: "power",
@@ -126,8 +127,8 @@ export function createAxillaryCrutch(
     kind: "surface",
     frame: ArchetypeFrame.upright(Vector3.create(0, length, 0)),
     extent: null,
-    width: createAxillaryCrutch.PAD_WIDTH,
-    depth: createAxillaryCrutch.PAD_DEPTH,
+    width: createAxillaryCrutch.PAD_DEPTH,
+    depth: createAxillaryCrutch.PAD_WIDTH,
   });
   return builder.build(d.mass);
 }

@@ -165,26 +165,27 @@ function stage(
         rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 0),
       }),
     ],
-    composition: HumanChain.extend({ dressPartner })
-      .subject("a")
-      .pickUp({ prop: "item", handle: "hold", hand: "right", lift: 0.05 })
-      .dressPartner({
-        prop: "item",
-        partner,
-        region: item.region,
-        point: "wear",
-      })
-      .with(
-        item.kneels
-          ? HumanChain.subject("b").act("kneel", {
-              kind: "both",
-              hold: 4,
-              rise: true,
-            })
-          : HumanChain.subject("b")
-              .stand({ seconds: 4 })
-              .walk({ to: { x: 0, y: 0, z: 0.55 }, face: 120 }),
-      ).node,
+    // The partner is placed first, so the dresser reads where the partner is.
+    composition: (item.kneels
+      ? HumanChain.subject("b").act("kneel", {
+          kind: "both",
+          hold: 4,
+          rise: true,
+        })
+      : HumanChain.subject("b")
+          .stand({ seconds: 4 })
+          .walk({ to: { x: 0, y: 0, z: 0.55 }, face: 120 })
+    ).with(
+      HumanChain.extend({ dressPartner })
+        .subject("a")
+        .pickUp({ prop: "item", handle: "hold", hand: "right", lift: 0.05 })
+        .dressPartner({
+          prop: "item",
+          partner,
+          region: item.region,
+          point: "wear",
+        }),
+    ).node,
   });
 }
 

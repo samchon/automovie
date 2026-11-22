@@ -236,18 +236,19 @@ function stage(
         wardrobeFilm.placement(0.1 * sign + 0.25 * sign, 1.06, -0.25),
       ),
     ],
-    composition: HumanChain.extend({ coatPartner })
-      .subject("a")
-      .stand({ seconds: 0.3 })
-      .pickUp({ prop: "jacket", handle: "hold", hand, lift: 0.02 })
-      .coatPartner({ prop: "jacket", partner, hand, hold })
+    // The partner is placed first, so the dresser reads where the partner stands.
+    composition: HumanChain.subject("b")
+      .stand({ seconds: WAIT })
+      .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: "left" })
+      .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: "right" })
+      .stand({ seconds: 2 })
+      .walk({ to: { x: 0.3, y: 0, z: 0.8 }, face: 60 })
       .with(
-        HumanChain.subject("b")
-          .stand({ seconds: WAIT })
-          .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: "left" })
-          .registered("wardrobe", { kind: "sleeveIn", prop: "jacket", side: "right" })
-          .stand({ seconds: 2 })
-          .walk({ to: { x: 0.3, y: 0, z: 0.8 }, face: 60 }),
+        HumanChain.extend({ coatPartner })
+          .subject("a")
+          .stand({ seconds: 0.3 })
+          .pickUp({ prop: "jacket", handle: "hold", hand, lift: 0.02 })
+          .coatPartner({ prop: "jacket", partner, hand, hold }),
       ).node,
   });
 }

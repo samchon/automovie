@@ -88,15 +88,16 @@ function ceremony(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody, me
         rotation: { x: 0, y: 0, z: 0, w: 1 },
       }),
     ],
-    composition: HumanChain.extend({ dressPartner })
-      .subject("a")
-      .pickUp({ prop: "medal", handle: "hold", hand: "right", lift: 0.05 })
-      .dressPartner({ prop: "medal", partner: "b", region: "sternum", point: "wear" })
+    // The receiver is placed first, so the presenter reads where they bow.
+    composition: HumanChain.subject("b")
+      .gesture({ kind: "bow" })
+      .stand({ seconds: 3 })
+      .walk({ to: { x: 0, y: 0, z: 0.6 }, face: 120 })
       .with(
-        HumanChain.subject("b")
-          .gesture({ kind: "bow" })
-          .stand({ seconds: 3 })
-          .walk({ to: { x: 0, y: 0, z: 0.6 }, face: 120 }),
+        HumanChain.extend({ dressPartner })
+          .subject("a")
+          .pickUp({ prop: "medal", handle: "hold", hand: "right", lift: 0.05 })
+          .dressPartner({ prop: "medal", partner: "b", region: "sternum", point: "wear" }),
       ).node,
   });
 }

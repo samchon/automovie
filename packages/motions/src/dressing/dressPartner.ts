@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanDressPartner,
   IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionPropHold,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -18,7 +19,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * Dress another performer (#4015). The dresser's hand carries the held item
  * to the partner's region by the arm phrase that visits a target, the item
  * is worn on the partner's bone under that region from the phrase's stroke,
- * when the hand arrives, and the hand's grip ends there, so custody passes
+ * when the hand arrives, and the hand's grip ends there and no hold is left
+ * on the item, so custody passes
  * from the hand to the partner's body without a gap or an overlap. The
  * partner's region is read where it is at the phrase's start, so a partner
  * who presents a hand, bows or kneels first is met where they stand.
@@ -91,6 +93,11 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
       )!.share;
       return {
         ...plan,
+        // The item is worn from the stroke, not left held: the visit's
+        // closing hold would take it back into the hand at the phrase's end.
+        holds: (plan.holds ?? []).filter(
+          (hold: IAutoMovieMotionPropHold): boolean => hold.prop !== params.prop,
+        ),
         contacts: plan.contacts.map(
           (
             window: IAutoMovieMotionHumanContactWindow,

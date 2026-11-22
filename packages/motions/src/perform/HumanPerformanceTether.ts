@@ -34,7 +34,8 @@ const INDEX: WeakMap<IAutoMovieMotionHumanPerformanceState, Map<string, IHeld[]>
  * A line's length is its free metres, or its metres less its rate times the
  * driving articulation's travel at that second (`HumanPerformanceObject.state`),
  * never below zero. The far prop is pulled to the line's length from the near
- * end while no hand or worn span carries it; a flight pays the line out,
+ * end while no hand or worn span carries it, a driven line only once its
+ * articulation has paid it in; a flight pays the line out,
  * so a line long enough never pulls it and one too short stops it. Pulled, it
  * keeps its height and slides along the surface it rests on toward the near
  * end, as a lure drawn back across the water. A slack line hangs as the
@@ -111,12 +112,19 @@ export namespace HumanPerformanceTether {
     frame: (prop: string, seconds: number) => IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform {
     const lines: IHeld[] | undefined = index(self).get(subject);
-    if (lines === undefined || carried(self, subject, seconds)) return rested;
+    if (lines === undefined) return rested;
+    // A driven line pulls only once paid in: before its articulation moves it
+    // is the line let out, which a cast only pays out further. Read first, it
+    // spares the near prop's frame for every read of a prop no line pulls.
+    const pulling: IHeld[] = lines.filter(
+      ({ tether }: IHeld): boolean => tether.length.kind === "free" || paid(self, tether.length, seconds) > 0,
+    );
+    if (pulling.length === 0 || carried(self, subject, seconds)) return rested;
     let placed: IAutoMovieRigidTransform = rested;
-    for (const { owner, tether } of lines) {
+    for (const { owner, tether } of pulling) {
+      const length: number = out(self, tether, seconds);
       const near: IAutoMovieVector3 = point(owner, tether.from, frame(owner.subject, seconds));
       const far: IAutoMovieVector3 = point(prop(self, subject), tether.to.point, placed);
-      const length: number = out(self, tether, seconds);
       if (Vector3.distance(near, far) <= length) continue;
       const rise: number = far.y - near.y;
       const across: IAutoMovieVector3 = { x: far.x - near.x, y: 0, z: far.z - near.z };
@@ -179,14 +187,19 @@ function out(
 ): number {
   const length: IAutoMovieMotionHumanTether.Length = tether.length;
   const metres: number =
-    length.kind === "free"
-      ? length.metres
-      : length.metres -
-        length.per *
-          (HumanPerformanceObject.state(self, prop(self, length.articulation.prop), seconds)[length.articulation.point] ?? 0);
+    length.kind === "free" ? length.metres : length.metres - length.per * paid(self, length, seconds);
   if (!(length.metres > 0))
     throw refuse("tether", length.metres, `the line ${tether.id} has no line out`);
   return Math.max(0, metres);
+}
+
+/** A driven line's articulation travel at a second, in its own unit. */
+function paid(
+  self: IAutoMovieMotionHumanPerformanceState,
+  length: IAutoMovieMotionHumanTether.IDriven,
+  seconds: number,
+): number {
+  return HumanPerformanceObject.state(self, prop(self, length.articulation.prop), seconds)[length.articulation.point] ?? 0;
 }
 
 /** A prop's named point in the world. */
