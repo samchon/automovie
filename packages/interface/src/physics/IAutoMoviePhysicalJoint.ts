@@ -35,14 +35,7 @@ export interface IAutoMoviePhysicalJoint {
   swingTwist?: IAutoMoviePhysicalJoint.ISwingTwist;
 }
 
-/**
- * Companion types of {@link IAutoMoviePhysicalJoint}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The swing-twist limit and its ranges.
- * @evidence contracts/development/design.md#principled-representation Unit axes in the joint frame and radian ranges.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the engine's swing-twist limit and filled by the motions human model.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each range is one minimum and maximum; the runtime owner validates their order and units.
- */
+/** Companion types of {@link IAutoMoviePhysicalJoint}: the swing-twist limit and its angle ranges. */
 export namespace IAutoMoviePhysicalJoint {
   /**
    * A swing-twist limit (Baerlocher and Boulic 2001, "Parametrization and
