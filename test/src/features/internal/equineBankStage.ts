@@ -22,8 +22,8 @@ import { equineFordScene } from "./equineFordScene";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace equineBankStage {
-  /** The level approach before the face, metres along +Z. */
-  export const APPROACH: number = 3;
+  /** The level approach before the face, metres along +Z: long enough for a rider to sit on and settle before the face. */
+  export const APPROACH: number = 5;
 
   /** The level run-out after the face, metres. */
   export const RUN_OUT: number = 4;

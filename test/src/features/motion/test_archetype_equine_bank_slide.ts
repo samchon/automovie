@@ -8,7 +8,6 @@ import {
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanMounted,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -44,14 +43,6 @@ const TRANSFER: number = 0.4;
 
 /** The most a descending rider's trunk leans from upright in space, degrees: authored, well inside the horse's pitch on the face. */
 const UPRIGHT: number = 10;
-
-/** A descending rider's supports: the feet in the stirrups, the hands on the reins given forward. */
-const REINS: IAutoMovieMotionHumanMounted.ISupports = {
-  leftFoot: "leftStirrup",
-  rightFoot: "rightStirrup",
-  leftHand: "leftRein",
-  rightHand: "rightRein",
-};
 
 /** The slide on the face, at a friction. */
 const slide = (friction: number): EquineBank.ISlide => ({
@@ -248,7 +239,7 @@ export function test_archetype_equine_bank_slide(): void {
         seat: "descent",
         transfer: TRANSFER,
         seconds: end - start - TRANSFER,
-        supports: REINS,
+        supports: equineFordRider.WADING,
       },
       {
         seat: "entered",
