@@ -42,7 +42,7 @@ const AIM: number = 15;
  *
  * Scenarios:
  * 1. Picked up on the ground and carried through sitting on, the ride and the overlay, the sabre's grip stays within 10 mm of the right hand's grip at every read.
- * 2. At the slope the point runs up and a little back and the edge forward, within 15 degrees of the seat frame's targets; at the engage the point runs along the seat's forward and the edge down, within 15 degrees.
+ * 2. At the slope the back of the blade rests on the right shoulder: the blade passes within half a hand's length (about a hand's breadth) of the right shoulder joint, its edge facing away from the shoulder and its point above the grip; at the engage the point runs along the seat's forward and the edge up, as the ox guard turns it, within 15 degrees.
  * 3. The charge begins after the cue by the rider's reaction and reaches the engage within one gallop stride, 0.5 s.
  * 4. No point along the blade comes within the rider's head radius of the head or within the horse's own neck and head (the blade stays above the withers and outside the straddle below it).
  * 5. The left wrist stays within 0.7 hand lengths of the reins' middle; the seat within 10 mm of the saddle and both balls of the feet within 10 mm of their treads.
@@ -200,22 +200,54 @@ export function test_motion_equestrian_sabre(): void {
       Quaternion.rotateVector(world("edge", at).rotation, { x: 0, y: 1, z: 0 }),
     );
   const sloped: number = charged - 0.5;
-  if (angle(pointAt(sloped), { x: 0, y: 1, z: -0.15 }) > AIM)
+  const joint: IAutoMovieVector3 = scene.film
+    .bones("rider", sloped)
+    .get("rightUpperArm")!.worldPosition;
+  const hilt: IAutoMovieVector3 = world("grip", sloped).position;
+  const blade: IAutoMovieVector3 = Vector3.subtract(
+    world("point", sloped).position,
+    hilt,
+  );
+  const nearest: IAutoMovieVector3 = Vector3.add(
+    hilt,
+    Vector3.scale(
+      blade,
+      Math.max(
+        0,
+        Math.min(
+          1,
+          Vector3.dot(Vector3.subtract(joint, hilt), blade) /
+            Vector3.dot(blade, blade),
+        ),
+      ),
+    ),
+  );
+  const rest: number = Vector3.distance(nearest, joint);
+  if (rest > body.measure.hand / 2)
     findings.push(
-      `slope: the point is ${angle(pointAt(sloped), { x: 0, y: 1, z: -0.15 }).toFixed(1)} degrees off up-and-back`,
+      `slope: the blade passes ${rest.toFixed(3)} m from the right shoulder joint`,
     );
-  if (angle(edgeAt(sloped), { x: 0, y: 0, z: 1 }) > AIM + 5)
-    findings.push(
-      `slope: the edge is ${angle(edgeAt(sloped), { x: 0, y: 0, z: 1 }).toFixed(1)} degrees off forward`,
-    );
+  if (
+    Vector3.dot(
+      Quaternion.rotateVector(world("edge", sloped).rotation, {
+        x: 0,
+        y: 1,
+        z: 0,
+      }),
+      Vector3.subtract(nearest, joint),
+    ) <= 0
+  )
+    findings.push("slope: the edge faces the shoulder, not the back");
+  if (!(pointAt(sloped).y > 0))
+    findings.push("slope: the point is not above the grip");
   const held: number = engaged + 0.5;
   if (angle(pointAt(held), { x: 0, y: 0, z: 1 }) > AIM)
     findings.push(
       `engage: the point is ${angle(pointAt(held), { x: 0, y: 0, z: 1 }).toFixed(1)} degrees off the travel`,
     );
-  if (angle(edgeAt(held), { x: 0, y: -1, z: 0 }) > AIM)
+  if (angle(edgeAt(held), { x: 0, y: 1, z: 0 }) > AIM)
     findings.push(
-      `engage: the edge is ${angle(edgeAt(held), { x: 0, y: -1, z: 0 }).toFixed(1)} degrees off down`,
+      `engage: the edge is ${angle(edgeAt(held), { x: 0, y: 1, z: 0 }).toFixed(1)} degrees off up`,
     );
 
   // 3. The charge's timing.

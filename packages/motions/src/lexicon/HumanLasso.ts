@@ -1,5 +1,6 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -13,12 +14,19 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
+
+/** The bone whose rotation the entry's hold is read from: the right hand. */
+const HAND: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+  "rightHand",
+]);
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
@@ -53,7 +61,7 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
      * Admit the throw, lay the swing and the launch, then sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a non-seated entry, bad counts or times, a stride track with fewer than two instants inside the swing, and a target beyond `REACH`.
-     * @evidence contracts/development/implementation.md#principled-implementation The swing's period is the stride track's mean interval and its phase puts the loop ahead of the rider at each stride instant; the launch velocity is the projectile's from the release point to the target's contact in the flight time under standard gravity.
+     * @evidence contracts/development/implementation.md#principled-implementation The swing's period is the stride track's mean interval and its phase puts the loop ahead of the rider at each stride instant; the launch velocity is the projectile's from the release point to the target's contact in the flight time under standard gravity; the loop is placed on its circle with the lariat along the radius, the hand keeping about that line the roll its entry hold gives it.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the clock, the launch, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target out of reach is refused, never pulled in.
      * @evidence contracts/development/implementation.md#efficient-algorithms A sample reads one carrier frame and fits one arm goal.
@@ -110,7 +118,27 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
         params.lariat,
         { tip: "loop" },
       );
-      const goal = StrikingHeld.prepareGoal(context, tool, tool.length);
+      const goal = StrikingHeld.prepareGoal(context, tool, 0);
+      // The lariat's edge as the entry hand holds it, read as an angle about the swing's first radius between the vertical and the way round; every station keeps that angle about its own radius, so the forearm keeps its roll as the hand circles.
+      const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+      const held: IAutoMovieVector3 = Quaternion.rotateVector(
+        poseBones(context.body, context.entry.pose, undefined, HAND).get(
+          "rightHand",
+        )!.worldRotation,
+        tool.edge,
+      );
+      let rolled: number | undefined;
+      const roll = (radial: IAutoMovieVector3): IAutoMovieVector3 => {
+        const round: IAutoMovieVector3 = Vector3.cross(up, radial);
+        rolled ??= Math.atan2(
+          Vector3.dot(held, round),
+          Vector3.dot(held, up),
+        );
+        return Vector3.add(
+          Vector3.scale(up, Math.cos(rolled)),
+          Vector3.scale(round, Math.sin(rolled)),
+        );
+      };
 
       // The swing's clock: the stride's mean period and its first instant, or a second a turn from the start.
       let period: number = 1;
@@ -281,13 +309,17 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
           );
           if (t <= release) {
             const p: IAutoMovieVector3 = placed(t);
-            // The grip on the hand's circle, the lariat running out from it along the radius.
+            // The loop placed on its circle as the precision strokes place their working point, the lariat running out from the hand along the radius, the hand keeping the roll it entered with about the line (`roll`), the elbow hung from the body.
+            const radial: IAutoMovieVector3 = Vector3.normalize({
+              ...Vector3.subtract(p, centre(film)),
+              y: 0,
+            });
             const frame = StrikingHeld.hand(
               tool,
-              tool.length,
-              p,
-              Vector3.subtract(p, centre(film)),
-              { x: 0, y: 1, z: 0 },
+              0,
+              Vector3.add(p, Vector3.scale(radial, tool.length)),
+              radial,
+              roll(radial),
             );
             return {
               ...shown,
@@ -295,7 +327,7 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
                 ...shown.limbs,
                 rightArm: goal(
                   frame,
-                  Vector3.add(shown.root, { x: 0, y: -0.2, z: 0 }),
+                  AutoMovieMotionHumanBend.hang(context.body, shown, "right"),
                 ),
               },
             };
