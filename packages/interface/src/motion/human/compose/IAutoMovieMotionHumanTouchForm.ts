@@ -64,7 +64,7 @@ export namespace IAutoMovieMotionHumanTouchForm {
     /** One repetition's length; ignored when `speed` is given. */
     period: IAutoMovieMotionHumanTiming.Span;
 
-    /** The travel's peak speed, metres per second; sets the period when present (`2 pi travel hand / speed`, the hand length of the body). Only the stroke has one, 0.05 m/s, inside the pleasant-touch range of 1 to 10 cm/s (Loken et al. 2009; {@link AutoMovieMotionHumanTouchForm}); the other forms keep their `period`. */
+    /** The travel's peak speed, metres per second; sets the period when present (`2 pi travel hand / speed`, the hand length of the body). Only the stroke has one, 0.05 m/s, inside the pleasant-touch range of 1 to 10 cm/s (Loken et al. 2009; `AutoMovieMotionHumanTouchForm.FORMS`); the other forms keep their `period`. */
     speed?: number;
 
     /** Extra flexion of every finger joint, degrees. */

@@ -86,7 +86,7 @@ export namespace IAutoMovieMotionHumanGesture {
      */
     count?: number;
 
-    /** Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is {@link AutoMovieMotionHumanTiming.PAUSES}. The timing of the other phases is on the `gesture` namespace.
+    /** Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.
      * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     hold?: number;

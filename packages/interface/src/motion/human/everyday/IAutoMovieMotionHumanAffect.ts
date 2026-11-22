@@ -84,12 +84,12 @@ export namespace IAutoMovieMotionHumanAffect {
     /** Film second it starts. */
     at: number;
 
-    /** How long, seconds; the display's own length when absent ({@link HumanAffect.LENGTH}, per kind: a laugh is brief, a weep long).
+    /** How long, seconds; the display's own length when absent (`HumanAffect.LENGTH`, per kind: a laugh is brief, a weep long).
      * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     seconds?: number;
 
-    /** Amplitude scale; 1 when absent: every joint angle of the display ({@link HumanAffect}) is multiplied by it, so 0.5 is a suppressed or quiet display and 2 an exaggerated one. For a sob it also sets the interval of its inspirations, 0.5 s at 1, shorter above and longer below, within [0.5, 2] (provisional beyond that range). */
+    /** Amplitude scale; 1 when absent: every joint angle of the display (`HumanAffect`) is multiplied by it, so 0.5 is a suppressed or quiet display and 2 an exaggerated one. For a sob it also sets the interval of its inspirations, 0.5 s at 1, shorter above and longer below, within [0.5, 2] (provisional beyond that range). */
     intensity?: number;
 
     /** The key of a sob's or weep's seeded irregular timing; the display's kind and start when absent, so equal displays repeat. */

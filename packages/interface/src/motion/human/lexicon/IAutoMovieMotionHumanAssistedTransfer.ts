@@ -24,7 +24,7 @@ export interface IAutoMovieMotionHumanAssistedTransfer {
   /** The facing hand of each performer. Defaults to right. */
   hand?: AutoMovieHumanSide;
 
-  /** Seconds for each of the seven contact phases, so the transfer takes seven times it; 0.55 s when absent, 3.9 s in all ({@link HumanAssistedTransfer}; provisional, no source). The clasp is taken at 1.5 times it and released at 6 times. */
+  /** Seconds for each of the seven contact phases, so the transfer takes seven times it; 0.55 s when absent, 3.9 s in all (`HumanAssistedTransfer`; provisional, no source). The clasp is taken at 1.5 times it and released at 6 times. */
   seconds?: number;
 }
 
