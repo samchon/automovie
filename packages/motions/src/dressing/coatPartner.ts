@@ -19,6 +19,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanPartnerClear } from "../compose/AutoMovieMotionHumanPartnerClear";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
@@ -82,8 +83,11 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
         "wear",
         "socket",
       );
+      const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
+        params.partner,
+      );
       const target: IAutoMovieRigidTransform = HumanPropFrame.parent(
-        collar(context.performer(params.partner), context.start),
+        collar(partner, context.start),
         wardrobeHands.frame(wear),
       );
       const kept: IAutoMovieRigidTransform = HumanPropFrame.parent(
@@ -168,7 +172,14 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
               wearer: params.partner,
             },
           ],
-          posture,
+          // The partner's body, behind which the arm carries the jacket, is
+          // the arm's obstacle too (`AutoMovieMotionHumanPartnerClear`).
+          posture: (t: number): IAutoMovieMotionHumanPosture =>
+            AutoMovieMotionHumanPartnerClear.onto(
+              posture(t),
+              `${hand}Arm`,
+              AutoMovieMotionHumanPartnerClear.at(partner, context.start + t),
+            ),
         },
       });
     },

@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
@@ -27,6 +28,7 @@ import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanPartnerClear } from "../compose/AutoMovieMotionHumanPartnerClear";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { courseArmGoal } from "../compose/courseArmGoal";
@@ -343,9 +345,59 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
         relax: clock.at("relax"),
         end: clock.duration,
       };
+      // The partner's body is both arms' obstacle (`AutoMovieMotionHumanPartnerClear`),
+      // except the presented hand, its fingers and its forearm, which the
+      // ring goes onto and the steadying palm lies under: those are the
+      // steadying arm's rests and no obstacle to the ring hand.
+      const presented: (bone: AutoMovieHumanoidBone) => boolean = (
+        bone: AutoMovieHumanoidBone,
+      ): boolean =>
+        bone === `${hand}Hand` ||
+        bone === `${hand}LowerArm` ||
+        (bone.startsWith(hand) &&
+          /(Thumb|Index|Middle|Ring|Little)/.test(bone));
+      const cleared: IAutoMovieMotionHumanActionPlan = {
+        ...plan,
+        posture: (
+          seconds: number,
+          channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+          resolution?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[2],
+          projection?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[3],
+        ): IAutoMovieMotionHumanPosture => {
+          const segments: IAutoMovieMotionHumanColliders.IPlaced[] =
+            AutoMovieMotionHumanPartnerClear.at(
+              partner,
+              context.start + seconds,
+            );
+          const clear: IAutoMovieMotionHumanColliders.IPlaced[] =
+            segments.filter(
+              (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+                !presented(s.bone),
+            );
+          const rests: IAutoMovieMotionHumanColliders.IPlaced[] =
+            segments.filter(
+              (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+                presented(s.bone),
+            );
+          return AutoMovieMotionHumanPartnerClear.onto(
+            AutoMovieMotionHumanPartnerClear.onto(
+              plan.posture(seconds, channels, resolution, projection),
+              `${side}Arm`,
+              clear,
+            ),
+            `${steady}Arm`,
+            clear,
+            rests,
+          );
+        },
+      };
       const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
         body,
-        plan,
+        plan: cleared,
         side,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span,

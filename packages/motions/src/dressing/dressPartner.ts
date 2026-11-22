@@ -14,6 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanPartnerClear } from "../compose/AutoMovieMotionHumanPartnerClear";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { armPhrase } from "../everyday/armPhrase";
 import { HumanTrunkLean } from "../handling/HumanTrunkLean";
@@ -156,9 +157,34 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
                 ),
             }
           : phrase;
+      // The partner's body is the arm's obstacle as much as the dresser's
+      // own: its posed segments at each second lie on the arm's goal
+      // (`AutoMovieMotionHumanPartnerClear`), so the forearm passes over a
+      // kneeling partner's head instead of through it.
+      const cleared: IAutoMovieMotionHumanActionPlan = {
+        ...leaned,
+        posture: (
+          seconds: number,
+          channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+          resolution?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[2],
+          projection?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[3],
+        ): IAutoMovieMotionHumanPosture =>
+          AutoMovieMotionHumanPartnerClear.onto(
+            leaned.posture(seconds, channels, resolution, projection),
+            `${side}Arm`,
+            AutoMovieMotionHumanPartnerClear.at(
+              partner,
+              context.start + seconds,
+            ),
+          ),
+      };
       const plan: IAutoMovieMotionHumanActionPlan = courseArmGoal({
         body: context.body,
-        plan: leaned,
+        plan: cleared,
         side,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span: {
