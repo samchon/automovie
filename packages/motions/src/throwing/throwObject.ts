@@ -272,6 +272,11 @@ export namespace throwObject {
         origin.rotation,
       ),
     });
+    const swing: throwObjectSwing.ISwing = throwObjectSwing.of(
+      body,
+      side,
+      style,
+    );
     const grip: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -286,7 +291,7 @@ export namespace throwObject {
           point:
             style === "windmill"
               ? precisionThrow.windmill(frame, arm, chamber, rest.point, u)
-              : Vector3.lerp(rest.point, chamber, u),
+              : swing.windup(posture, rest.point, chamber, u),
           rotation: Quaternion.slerp(rest.rotation, cocking, u),
         };
       }
@@ -353,11 +358,6 @@ export namespace throwObject {
         goal: wristAt,
         fallback: "hang",
       });
-    const swing: throwObjectSwing.Elbow = throwObjectSwing.of(
-      body,
-      side,
-      style,
-    );
     const throwing: IAutoMovieMotionHumanPrimitive = {
       channels: [`${side}Arm`, `${side}Hand`],
       from: 0,
@@ -388,7 +388,7 @@ export namespace throwObject {
             elbow.elbow(posture, seconds, wrist),
             { ...gripOffset! },
           );
-        const arm: IAutoMovieHumanLimbGoal = swing(posture, goal);
+        const arm: IAutoMovieHumanLimbGoal = swing.elbow(posture, goal);
         return { ...posture, limbs: { ...posture.limbs, [`${side}Arm`]: arm } };
       },
     };
