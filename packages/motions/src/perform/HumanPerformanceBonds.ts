@@ -50,6 +50,9 @@ interface IKept {
 
   /** The elbow or the knee. */
   bend: IAutoMovieVector3;
+
+  /** The hand's or the foot's rotation from its rest, so the bound hand keeps the turn it was bound in. */
+  rotation: IAutoMovieQuaternion;
 }
 
 /** The bones under each limb, by the part of the bone's name after its side. */
@@ -269,6 +272,7 @@ function layer(
       (l: IBound): IKept => ({
         point: bones.get(l.end)!.worldPosition,
         bend: bones.get(l.middle)!.worldPosition,
+        rotation: bones.get(l.end)!.worldRotation,
       }),
     );
     if (link.target !== undefined) {
@@ -290,13 +294,21 @@ function layer(
             drawn,
             Vector3.subtract(read[0]!.bend, read[0]!.point),
           ),
+          rotation: read[0]!.rotation,
         },
       ];
       return kept;
     }
-    // Two ends in the carrying bone's frame, drawn to the slack about their middle.
+    // Two ends in the carrying bone's frame, drawn to the slack about their
+    // middle; each hand's turn kept after the bone's.
     const [a, b] = read.map(
-      (k: IKept): IKept => ({ point: local(k.point), bend: local(k.bend) }),
+      (k: IKept): IKept => ({
+        point: local(k.point),
+        bend: local(k.bend),
+        rotation: Quaternion.normalize(
+          Quaternion.multiply(inverse, k.rotation),
+        ),
+      }),
     ) as [IKept, IKept];
     const apart: number = Vector3.distance(a.point, b.point);
     const middle: IAutoMovieVector3 = Vector3.lerp(a.point, b.point, 0.5);
@@ -309,6 +321,7 @@ function layer(
       return {
         point,
         bend: Vector3.add(point, Vector3.subtract(k.bend, k.point)),
+        rotation: k.rotation,
       };
     };
     kept = [draw(a), draw(b)];
@@ -329,6 +342,7 @@ function layer(
         goals[limbs[0]!.limb] = {
           point: Vector3.add(at, ends[0]!.point),
           bend: Vector3.add(at, ends[0]!.bend),
+          rotation: ends[0]!.rotation,
           reference: references![0]!,
         } satisfies IAutoMovieHumanLimbGoal;
       } else
@@ -336,6 +350,7 @@ function layer(
           goals[l.limb] = {
             point: ends[k]!.point,
             bend: ends[k]!.bend,
+            rotation: ends[k]!.rotation,
             on: carrier,
             reference: references![k]!,
           } satisfies IAutoMovieHumanLimbGoal;

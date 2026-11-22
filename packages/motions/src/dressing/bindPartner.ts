@@ -18,7 +18,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 /**
  * Bind another performer with a held restraint (#3974, #4002). The binder's
  * hand carries the restraint to the partner's region by the arm phrase that
- * visits a target, the palm toward the partner and the fingers down, and the
+ * visits a target, the fingers down and the palm turned in (the thumb ahead,
+ * clear of the binder's own hips), and the
  * restraint is worn on the bone under the region from the phrase's stroke
  * with the link: the partner's other region's bone, or a scene target, and
  * the slack. The performance then keeps the bound parts
@@ -70,10 +71,11 @@ export const bindPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBi
           reason: "the linked region lies on the bone the restraint is worn on",
           fix: "link a region of another limb, such as the other wrist",
         });
-      // The hand carries the restraint to the region facing it: the palm
-      // toward the partner's body, the fingers down, as cuffs and ropes are
-      // put on wrists from behind or beside, and the restraint is worn there
-      // from the phrase's stroke, when the hand arrives.
+      // The hand carries the restraint to the region in a neutral grip: the
+      // fingers down and the palm turned in, so the thumb points ahead,
+      // clear of the binder's own hips, as cuffs and ropes are put on wrists
+      // from behind or beside, and the restraint is worn there from the
+      // phrase's stroke, when the hand arrives.
       const side: AutoMovieHumanSide = context.params.side ?? "right";
       const phrase: IAutoMovieMotionHumanActionPlan = armPhrase.plan({
         ...context,
@@ -85,7 +87,7 @@ export const bindPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBi
             region: context.params.region,
           },
           side,
-          facing: { fingers: "down", palm: "forward" },
+          facing: { fingers: "down", palm: "in" },
           held: context.params.prop,
           ...(context.params.point === undefined
             ? {}

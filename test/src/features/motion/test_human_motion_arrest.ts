@@ -37,6 +37,8 @@ const CHAIN: number = 0.08;
 const RINGS: number = 0.07;
 /** A worn cuff rides its wrist rigidly within this, metres: the worn-prop bound. */
 const RIGID: number = 0.001;
+/** How long the subject may hold the parade rest, seconds: longer than the officer's frisk, pick-up and cuffing, so the walk synced to the cuffing's end cuts it. */
+const HELD: number = 30;
 
 /**
  * An arrest of a standing subject: the hands clasped behind the back and
@@ -89,9 +91,12 @@ export function test_human_motion_arrest(): void {
         },
         "cuff",
       );
+    // The subject keeps the hands clasped behind until the cuffs are on, and
+    // walks off bound when the cuffing ends.
     const subjectChain: IAutoMovieMotionHumanChain = HumanChain.subject("s")
-      .act("paradeRest", { seconds: 12 })
-      .walk({ to: { x: 0, y: 0, z: 1.5 } });
+      .act("paradeRest", { seconds: HELD })
+      .walk({ to: { x: 0, y: 0, z: 1.5 } })
+      .sync({ of: "cuff", event: "end" });
     const film: HumanPerformance = new HumanPerformance({
       seed: "arrest",
       performers: [
@@ -225,10 +230,13 @@ function cuffs(officer: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp {
       subject: "o",
       bone: "hips",
       offset: {
+        // A cuff case at the front of the right hip, so the hand carries
+        // the cuffs forward to the subject's wrists, away from the body,
+        // rather than along the hip's side from behind it.
         position: {
           x: -0.16 * (officer.measure.stature / 1.75),
           y: 0,
-          z: -0.12,
+          z: 0.12,
         },
         rotation: Quaternion.identity(),
       },
