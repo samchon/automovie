@@ -484,7 +484,13 @@ export namespace seatedHands {
         -Vector3.dot(reach, normal),
       );
       const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
-        fingers: heading(side, along, laidReach, normal),
+        fingers: heading(
+          side,
+          along,
+          laidReach,
+          normal,
+          Vector3.subtract(thigh.worldPosition, posture.root),
+        ),
         palm: Vector3.scale(normal, -1),
       });
       limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(body, side, {
@@ -608,15 +614,20 @@ export namespace seatedHands {
  * The fingers' direction for a palm laid on a surface: the surface's own
  * direction (along the thigh) where it lies within the wrist's deviation of
  * the arm's line laid into the surface, else that line turned by the
- * deviation toward it. The deviation is the narrower side of the rig's
- * wrist deviation range (`DEFAULT_HUMANOID_ROM`, the hand's abduction), so
- * the hand stays where the wrist reaches on either side.
+ * deviation toward it. The deviation is the side of the rig's wrist
+ * deviation range (`DEFAULT_HUMANOID_ROM`, the hand's abduction) the turn
+ * goes to: for a palm laid down, fingers turned away from the body's
+ * midline turn toward the little finger, ulnar deviation, the wider side of
+ * the range, and fingers turned toward the midline radially, the narrower
+ * (the table's -30 and 20 degrees; the American Academy of Orthopaedic
+ * Surgeons' norms, Greene and Heckman 1994, give ulnar 30 and radial 20).
  */
 function heading(
   side: AutoMovieHumanSide,
   along: IAutoMovieVector3,
   reach: IAutoMovieVector3,
   normal: IAutoMovieVector3,
+  lateral: IAutoMovieVector3,
 ): IAutoMovieVector3 {
   const laid: IAutoMovieVector3 = Vector3.addScaled(
     along,
@@ -627,10 +638,13 @@ function heading(
     return along;
   const range: IAutoMovieAngleRange =
     DEFAULT_HUMANOID_ROM[`${side}Hand`]!.abduction!;
-  const deviation: number = Math.min(Math.abs(range.min), Math.abs(range.max));
   const n: IAutoMovieVector3 = Vector3.normalize(normal);
   const r: IAutoMovieVector3 = Vector3.normalize(reach);
   const a: IAutoMovieVector3 = Vector3.normalize(laid);
+  const ulnar: boolean = Vector3.dot(Vector3.subtract(a, r), lateral) > 0;
+  const deviation: number = ulnar
+    ? Math.max(Math.abs(range.min), Math.abs(range.max))
+    : Math.min(Math.abs(range.min), Math.abs(range.max));
   const turn: number =
     (Math.atan2(Vector3.dot(Vector3.cross(r, a), n), Vector3.dot(r, a)) * 180) /
     Math.PI;
