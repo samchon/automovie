@@ -1,5 +1,6 @@
 import type {
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanSleep,
   IAutoMovieMotionHumanTurnOver,
 } from "@automovie/interface";
 
@@ -38,9 +39,9 @@ const PREVALENCE: Readonly<
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call composes one chain.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned chain.
  */
-export function composeHumanSleep(
+export function sleep(
   chain: IAutoMovieMotionHumanChain,
-  params: composeHumanSleep.IParams,
+  params: IAutoMovieMotionHumanSleep.ISleep,
 ): IAutoMovieMotionHumanChain {
   if (!(Number.isInteger(params.changes) && params.changes >= 1))
     throw new HumanRefusal({
@@ -111,24 +112,4 @@ function draw(
     if (left < 0) return p;
   }
   return options.at(-1)!;
-}
-
-/**
- * Companion types of {@link composeHumanSleep}.
- */
-export namespace composeHumanSleep {
-  /** A sleep's length, its position changes and their seed. */
-  export interface IParams {
-    /** The whole sleep, seconds. */
-    duration: number;
-
-    /** How many times the sleeper changes position. */
-    changes: number;
-
-    /** The seed that draws each new position and its timing. */
-    seed: number;
-
-    /** The bed or sofa surface lain on; the floor when absent. */
-    on?: IAutoMovieMotionHumanTurnOver.IOn;
-  }
 }

@@ -1,13 +1,11 @@
 import type {
   AutoMovieHumanSide,
+  IAutoMovieMotionHumanBathing,
   IAutoMovieMotionHumanChainCore,
-  IAutoMovieMotionHumanCrossing,
-  IAutoMovieMotionTarget,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**
- * Bathing composed from shipped actions (#3995): getting into and out of a
+ * Bathing (`IAutoMovieMotionHumanBathing`) composed from shipped actions (#3995): getting into and out of a
  * bathtub, washing under a shower and drying with a towel. Each appends
  * shipped step-over, sit, rise, operate, touch and pickup actions, so they are
  * fitted, refused and checked as those actions are.
@@ -23,7 +21,7 @@ import type {
  * @evidence contracts/development/design.md#minimal-and-owned-surface Only the compositions the bathroom scenes use.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No posture is authored here; the composed actions plan and refuse.
  */
-export namespace composeHumanBathing {
+export namespace AutoMovieMotionHumanBathing {
   /** Rubbing strokes for each washed region (provisional). */
   export const SCRUBS: number = 4;
 
@@ -33,19 +31,13 @@ export namespace composeHumanBathing {
   /** Seconds the bather stays sitting in the tub (provisional). */
   export const SOAK: number = 3;
 
-  /** A region one hand scrubs with the other. */
-  export type Washed = "face" | "forearmLeft" | "forearmRight";
-
   /**
    * Step over the tub's apron onto its floor, turn along the tub with a few
    * steps on that floor, and sit down on it with the legs long, as one sits
    * in a bath.
    *
    * @param chain The bather's chain, standing before the tub's apron.
-   * @param tub The tub's subject, the obstacle stepped over and the floor walked on.
-   * @param floor The tub's floor surface inside the apron, where both feet land.
-   * @param at Where on the tub's floor the bather sits, world metres.
-   * @param face The heading the bather sits facing, degrees about +Y: along the tub.
+   * @param params The `tub` (the obstacle stepped over and the floor walked on), the `floor` surface inside the apron where both feet land, the sitting place `at` in world metres and the `face` heading in degrees about +Y, along the tub.
    * @returns The chain with the entry appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order, the place and the heading.
@@ -58,14 +50,18 @@ export namespace composeHumanBathing {
    */
   export function intoTub<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
-    tub: string,
-    floor: string,
-    at: IAutoMovieVector3,
-    face: number,
+    params: IAutoMovieMotionHumanBathing.IIntoTub,
   ): Chain {
     return chain
-      .act("stepOver", { obstacle: tub, onto: { prop: tub, point: floor } })
-      .act("walk", { to: at, facing: { yaw: face }, on: { prop: tub } })
+      .act("stepOver", {
+        obstacle: params.tub,
+        onto: { prop: params.tub, point: params.floor },
+      })
+      .act("walk", {
+        to: params.at,
+        facing: { yaw: params.face },
+        on: { prop: params.tub },
+      })
       .act("lieDown", { kind: "sitLong", hold: SOAK });
   }
 
@@ -74,8 +70,7 @@ export namespace composeHumanBathing {
    * the apron, onto the floor outside, such as a bath mat.
    *
    * @param chain The bather's chain, standing in the tub facing the apron.
-   * @param tub The tub's subject, the obstacle stepped over from inside.
-   * @param onto The level surface outside the tub both feet land on.
+   * @param params The `tub` stepped over from inside and the level surface `onto` outside it both feet land on.
    * @returns The chain with the exit appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the starting stance and the landing.
@@ -88,17 +83,16 @@ export namespace composeHumanBathing {
    */
   export function outOfTub<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
-    tub: string,
-    onto: IAutoMovieMotionHumanCrossing.ISurface,
+    params: IAutoMovieMotionHumanBathing.IOutOfTub,
   ): Chain {
-    return chain.act("stepOver", { obstacle: tub, onto });
+    return chain.act("stepOver", { obstacle: params.tub, onto: params.onto });
   }
 
   /**
    * Shower: open the tap, wash the scalp, the face and both forearms, close the tap.
    *
    * @param chain The bather's chain.
-   * @param tap The tap knob.
+   * @param params The `tap` knob.
    * @returns The chain with the wash appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order of the strokes.
@@ -111,12 +105,13 @@ export namespace composeHumanBathing {
    */
   export function shower<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
-    tap: IAutoMovieMotionTarget,
+    params: IAutoMovieMotionHumanBathing.IShower,
   ): Chain {
+    const tap = params.tap;
     const scrub = (
       current: Chain,
       side: AutoMovieHumanSide,
-      region: Washed,
+      region: IAutoMovieMotionHumanBathing.IWashed,
     ): Chain =>
       current.act("touch", {
         target: { kind: "self", region },
@@ -147,8 +142,7 @@ export namespace composeHumanBathing {
    * Take the towel and dry the scalp with it in both hands.
    *
    * @param chain The bather's chain.
-   * @param towel The towel's subject.
-   * @param handle The towel's grip.
+   * @param params The `towel` subject and its `handle` grip.
    * @returns The chain with the drying appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order.
@@ -161,11 +155,11 @@ export namespace composeHumanBathing {
    */
   export function towelDry<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
-    towel: string,
-    handle: string,
+    params: IAutoMovieMotionHumanBathing.ITowelDry,
   ): Chain {
+    const towel: string = params.towel;
     return chain
-      .act("pickUp", { prop: towel, handle, hand: "right" })
+      .act("pickUp", { prop: towel, handle: params.handle, hand: "right" })
       .act("touch", {
         target: { kind: "self", region: "crown" },
         other: { kind: "self", region: "crown" },
