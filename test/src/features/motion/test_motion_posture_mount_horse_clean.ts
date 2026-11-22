@@ -1,11 +1,11 @@
 import { createHorse } from "@automovie/archetypes";
 import { physicalShapeSegmentDistance } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -39,6 +39,17 @@ const PLACED: IAutoMovieRigidTransform = {
  * rider stands 0.6 m to the saddle's left and 0.2 m behind it, facing the
  * saddle's heading, and sits on it.
  *
+ * Cases:
+ * 1. The take passes `assertTakeClean`, the shipped verdict report.
+ * 2. Every ground plant of a foot, on support at most 5 cm high, ends with
+ *    that foot's ankle no higher than twice the body's ankle height.
+ * 3. At every 1/24 s from the sit's `commit` event to its `seatContact`
+ *    event, each shank, its knee-to-ankle axis less the shank radius, keeps
+ *    its distance to every horse shape no deeper than `-HumanVerdicts.SKIN`.
+ *
+ * Every failing case is collected, and the test fails once with the list.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the scenario and its three cases with their bounds, sampling and failure report.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed take through the shipped verdict report and the sit's declared plants.
  * @evidence contracts/development/testing.md#independent-expectations The verdicts' own limits; a plant on the floor ends no later than its foot's last second within an ankle's height of the floor; a shank's surface, its collider radius off its axis, enters the horse's own shapes by no more than the skin's give.
  * @evidence contracts/development/testing.md#distinguishing-cases A stirrup plant against a floor plant of the same foot.

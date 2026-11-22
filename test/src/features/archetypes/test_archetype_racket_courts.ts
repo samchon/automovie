@@ -16,6 +16,10 @@ import { nclose } from "../internal/nclose";
  * 2. The squash court's front wall stands 9.75 m from the back wall, the tin's top is 48 cm up and the T is 5.44 m from the front wall.
  * 3. The padel court's net is 0.88 m high and its back walls 20 m apart.
  *
+ * Each scenario is one predicate whose values must match within `nclose`'s
+ * tolerance; any other dimension fails it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the three models' scenarios with each expected dimension in metres and the shared tolerance.
  * @evidence contracts/development/testing.md#behavioral-verification Reads each model's affordances, the places a rally is played across.
  * @evidence contracts/development/testing.md#independent-expectations The expected numbers are the ITTF Laws', the WSF court specification's and the FIP rules' own, written here as the documents give them.
  * @evidence contracts/development/testing.md#distinguishing-cases Each model's height and length are read separately, so a swapped axis or a dimension of another sport fails.
