@@ -106,8 +106,14 @@ export function prepareKneelFoot(
 }
 
 /**
- * Companion constants and readers of {@link prepareKneelFoot}; the function
- * carries the evidence for the pair.
+ * Companion constants and readers of {@link prepareKneelFoot}: the share by
+ * which a foot landing heel up has struck its toes, and when a foot's course
+ * ends and starts within its phase.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the constant and the two readers the function times its foot by.
+ * @evidence contracts/development/design.md#principled-representation Shares of a phase's linear time, read from the foot's two kneel keys.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The strike share and the arrival and departure readers the kneel's feet use, and nothing else.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The readers classify a foot by the keys' own heel and movement; the strike share is marked provisional.
  */
 export namespace prepareKneelFoot {
   /** The share of a phase's linear time by which a foot landing heel up has struck its toes, the rest left for the knee to come down over them (provisional). */
