@@ -235,7 +235,23 @@ export function test_motion_exercise_campaign_plays(): void {
       launches: 1,
     },
   ];
+  // Every play is read, and the plays that fail are named together.
+  const failed: string[] = [];
   for (const play of plays) {
+    try {
+      played(play);
+    } catch (error: unknown) {
+      failed.push(
+        `${play.name}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+  TestValidator.predicate(
+    `every play composes, launches its ball and passes the verdicts: ${failed.join(" || ")}`,
+    failed.length === 0,
+  );
+
+  function played(play: IPlay): void {
     const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] =
       play.players.map(
         (
