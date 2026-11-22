@@ -24,9 +24,9 @@ import { Vector3 } from "../math/Vector3";
  * point of a vertex feature. This is the clipping construction of contact
  * manifolds (Ericson, "Real-Time Collision Detection", 2005, sec. 5.5;
  * Gregorius, "Robust Contact Creation for Physics Simulations", GDC 2015).
- * Every patch vertex is lifted back onto the two support planes: the first
- * witness at the first shape's support height, the second at the second's,
- * so each point's separation along `n` is the features' gap. Crossing
+ * Every patch vertex is lifted back along `n` onto each feature: a
+ * face's plane, an edge's line or a vertex's height, so each point's
+ * separation along `n` is the two features' gap there. Crossing
  * edges, which touch at one point, return no point: the caller keeps the
  * nearest-feature witnesses.
  *
@@ -39,7 +39,7 @@ import { Vector3 } from "../math/Vector3";
  * @returns The patch points in hull order; empty for crossing edges.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the support features, the band, the projection, each intersection case, the lift and the empty case.
- * @evidence contracts/development/implementation.md#principled-implementation The textbook clipping construction: support features along the normal, polygon clipping in the contact plane and the lift onto both support planes.
+ * @evidence contracts/development/implementation.md#principled-implementation The textbook clipping construction: support features along the normal, polygon clipping in the contact plane and the lift onto both features.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Feature, hull, clip, lift; one helper per step.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The band is the caller's; no point count is capped and no case is guessed.
  * @evidence contracts/development/implementation.md#efficient-algorithms O(V log V) for the hulls and O(V^2) clipping in the features' vertex counts, eight at most for a box.
@@ -61,12 +61,6 @@ export function physicalShapeContactManifold(
     Vector3.scale(normal, -1),
     band,
   );
-  const top: number = Math.max(
-    ...first.map((p: IAutoMovieVector3): number => Vector3.dot(p, normal)),
-  );
-  const bottom: number = Math.min(
-    ...second.map((p: IAutoMovieVector3): number => Vector3.dot(p, normal)),
-  );
   const u: IAutoMovieVector3 = perpendicular(normal);
   const w: IAutoMovieVector3 = Vector3.cross(normal, u);
   const flat = (p: IAutoMovieVector3): IFlat => ({
@@ -82,8 +76,8 @@ export function physicalShapeContactManifold(
       Vector3.scale(w, v.y),
     );
     return {
-      pointA: Vector3.add(p, Vector3.scale(normal, top)),
-      pointB: Vector3.add(p, Vector3.scale(normal, bottom)),
+      pointA: Vector3.add(p, Vector3.scale(normal, height(first, normal, p))),
+      pointB: Vector3.add(p, Vector3.scale(normal, height(second, normal, p))),
     };
   });
 }
@@ -168,6 +162,63 @@ function feature(
     );
 }
 
+/**
+ * The height along `n` at which the line through `p` along `n` meets a
+ * feature: its plane for three or more points, the segment's line for two,
+ * the point's own height for one.
+ */
+function height(
+  feature: readonly IAutoMovieVector3[],
+  n: IAutoMovieVector3,
+  p: IAutoMovieVector3,
+): number {
+  const first: IAutoMovieVector3 = feature[0]!;
+  let best: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  let area: number = 0;
+  for (let i: number = 1; i < feature.length; i++)
+    for (let j: number = i + 1; j < feature.length; j++) {
+      const m: IAutoMovieVector3 = Vector3.cross(
+        Vector3.subtract(feature[i]!, first),
+        Vector3.subtract(feature[j]!, first),
+      );
+      if (Vector3.length(m) > area) {
+        area = Vector3.length(m);
+        best = m;
+      }
+    }
+  const facing: number = Vector3.dot(best, n);
+  if (area > 0 && Math.abs(facing) > 0)
+    return Vector3.dot(best, Vector3.subtract(first, p)) / facing;
+  if (feature.length >= 2) {
+    // A segment: the point of the segment whose projection is nearest p's.
+    let far: IAutoMovieVector3 = first;
+    for (const q of feature)
+      if (
+        Vector3.length(Vector3.subtract(q, first)) >
+        Vector3.length(Vector3.subtract(far, first))
+      )
+        far = q;
+    const flat = (q: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.subtract(q, Vector3.scale(n, Vector3.dot(q, n)));
+    const d: IAutoMovieVector3 = Vector3.subtract(flat(far), flat(first));
+    const length: number = Vector3.dot(d, d);
+    const s: number =
+      length > 0
+        ? Math.max(
+            0,
+            Math.min(
+              1,
+              Vector3.dot(Vector3.subtract(flat(p), flat(first)), d) / length,
+            ),
+          )
+        : 0;
+    return (
+      Vector3.dot(first, n) + s * (Vector3.dot(far, n) - Vector3.dot(first, n))
+    );
+  }
+  return Vector3.dot(first, n);
+}
+
 /** A unit vector perpendicular to a unit vector. */
 function perpendicular(n: IAutoMovieVector3): IAutoMovieVector3 {
   const seed: IAutoMovieVector3 =
@@ -187,7 +238,11 @@ function hull(points: readonly IFlat[], band: number): IFlat[] {
   );
   const unique: IFlat[] = [];
   for (const p of sorted)
-    if (!unique.some((q: IFlat): boolean => Math.hypot(p.x - q.x, p.y - q.y) <= band))
+    if (
+      !unique.some(
+        (q: IFlat): boolean => Math.hypot(p.x - q.x, p.y - q.y) <= band,
+      )
+    )
       unique.push(p);
   if (unique.length <= 2) return unique;
   const half = (list: readonly IFlat[]): IFlat[] => {
@@ -270,7 +325,7 @@ function clip(subject: IFlat[], window: IFlat[]): IFlat[] {
       const ds: number = cross(p, q, s);
       const de: number = cross(p, q, e);
       if (ds >= 0) output.push(s);
-      if ((ds >= 0) !== (de >= 0)) output.push(cut(s, e, ds, de));
+      if (ds >= 0 !== de >= 0) output.push(cut(s, e, ds, de));
     }
   }
   return output;
