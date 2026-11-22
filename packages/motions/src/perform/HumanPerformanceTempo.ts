@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 
@@ -40,9 +41,17 @@ export namespace HumanPerformanceTempo {
     let needed: number | undefined;
     for (;;) {
       try {
-        const planned: IAutoMovieMotionHumanActionPlan = law.plan(context);
-        HumanPhysics.admitted(context.params, law, planned);
-        return planned;
+        // The plan's arm groups read the last plan's solutions and write
+        // their own (`AutoMovieMotionHumanArmPlanned.within`), so a replan at
+        // the slower time starts where this one ended.
+        return AutoMovieMotionHumanArmPlanned.within(
+          context.handover,
+          (): IAutoMovieMotionHumanActionPlan => {
+            const planned: IAutoMovieMotionHumanActionPlan = law.plan(context);
+            HumanPhysics.admitted(context.params, law, planned);
+            return planned;
+          },
+        );
       } catch (error: unknown) {
         const factor: number | undefined = slower(error);
         if (factor === undefined) throw error;

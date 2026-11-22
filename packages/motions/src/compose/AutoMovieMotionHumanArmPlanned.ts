@@ -28,6 +28,15 @@ import { AutoMovieMotionHumanArmRetimed } from "./AutoMovieMotionHumanArmRetimed
 import { AutoMovieMotionHumanArmRide } from "./AutoMovieMotionHumanArmRide";
 import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
 
+/** The farthest probe's travel between two waypoints of a reach first cut, metres (provisional: a sampling density, not a bound; the solve splits any interval its frame-grid reading fails in). */
+const SPACING: number = 0.08;
+
+/** A daily reach's peak hand speed, metres a second (J NeuroEng Rehabil 2006 3:18). */
+const PEAK: number = 0.55;
+
+/** The least waypoints a second of a reach, a return or a hold: a site moving as fast as a daily reach's peak travels at most `SPACING` between two of them. */
+const LEAST: number = Math.ceil(PEAK / SPACING);
+
 /**
  * An arm's whole action planned as one trajectory (`HumanArmTrajectory`):
  * its reach from rest, its hold on the goal's site and its return, read off
@@ -40,6 +49,9 @@ import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The trajectory's problem is the planner's own (`HumanArmTrajectory`); this file only reads it off the action.
  */
 export namespace AutoMovieMotionHumanArmPlanned {
+  /** The least waypoints a second of an arm's planned action (`LEAST`): a site moving at a daily reach's peak speed travels at most the plan's waypoint spacing between two of them, so a display read continued from anchor seconds this far apart continues no farther than the plan's own waypoints lie apart. */
+  export const WAYPOINTS: number = LEAST;
+
   /**
    * An earlier plan's solution of a group's arms, handed to the next plan
    * of the same action (`IAutoMovieMotionHumanArmPlanned.IWarm`).
@@ -54,13 +66,13 @@ export namespace AutoMovieMotionHumanArmPlanned {
   /**
    * A group for arms moved together.
    *
-   * @param handover The action's handover between its plans (`IHumanActionContext.handover`): the group reads the last plan's solutions from it and writes its own into it. Absent, the group hands nothing on.
+   * @param handover The action's handover between its plans (`IHumanActionContext.handover`): the group reads the last plan's solutions from it and writes its own into it. Absent, the group takes the handover of the action whose plan is in scope (`within`), and hands nothing on outside one.
    * @param stretches Whether the group's span is its law's own, lengthened by a slower tempo (`ITogether.stretches`).
    * @param tempo The explicit replanning multiplier on elapsed time, 1 by default.
    * @returns The empty group.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A group starts empty; its carries join it as they are built. Its `warm` and `last` are the action's handover maps themselves, so every group of one plan writes where the next plan of the action reads.
+   * @evidence contracts/development/implementation.md#principled-implementation A group starts empty; its carries join it as they are built. Its `warm` and `last` are the action's handover maps themselves, so every group of one plan writes where the next plan of the action reads; inside a plan (`within`) the group also takes its place among the plan's groups (`ITogether.ordinal`), which keys its solutions.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One literal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: no member is assumed, and a handed solution is only a start (`planned`).
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -72,14 +84,69 @@ export namespace AutoMovieMotionHumanArmPlanned {
     stretches?: boolean,
     tempo?: number,
   ): IAutoMovieMotionHumanArmPlanned.ITogether {
+    // Inside an action's plan (`within`) every group takes the action's
+    // handover and its place among the plan's groups, whether or not its
+    // law names the handover.
+    const handed: IAutoMovieMotionHumanActionContext.IHandover | undefined =
+      handover ?? scope?.handover;
+    const ordinal: number | undefined =
+      scope === undefined ? undefined : scope.made++;
     return {
       carries: [],
-      ...(handover?.warm === undefined ? {} : { warm: handover.warm }),
-      ...(handover === undefined ? {} : { last: handover.last }),
+      ...(handed?.warm === undefined ? {} : { warm: handed.warm }),
+      ...(handed === undefined ? {} : { last: handed.last }),
       ...(stretches === true ? { stretches } : {}),
       ...(tempo === undefined ? {} : { tempo }),
+      ...(ordinal === undefined ? {} : { ordinal }),
     };
   }
+
+  /**
+   * Run one plan of an action with its handover in scope: every group the
+   * plan makes (`together`, the default group of a carry included) reads
+   * the action's last plan's solutions and writes its own, keyed by its
+   * place among the plan's groups, so a replan at a slower time
+   * (`HumanPerformanceTempo`) starts each solve where the last plan's ended.
+   * Scopes nest: an inner plan's groups are its own, and the enclosing
+   * scope is restored on return or throw.
+   *
+   * @param handover The action's handover (`IHumanActionContext.handover`); absent, the plan runs with no scope.
+   * @param run The plan.
+   * @returns What the plan returns.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the scope gives each group, why, and how scopes nest.
+   * @evidence contracts/development/implementation.md#principled-implementation A replan of one law at a slower time makes the same groups in the same order, so a group's place keys the solution of the same problem; a handed solution is only a start (`HumanArmTrajectory.solve`'s `warm`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoped record, saved and restored in finally, as `HumanLimbIncumbent.within` scopes its seeds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing of a handed solution is trusted; a group made outside any plan keeps no handover.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The handover maps are the action's own.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The scope lives for the synchronous plan and is restored on return or throw.
+   */
+  export function within<T>(
+    handover: IAutoMovieMotionHumanActionContext.IHandover | undefined,
+    run: () => T,
+  ): T {
+    if (handover === undefined) return run();
+    const enclosing: IScope | undefined = scope;
+    scope = { handover, made: 0 };
+    try {
+      return run();
+    } finally {
+      scope = enclosing;
+    }
+  }
+
+  /** The plan in scope (`within`): its action's handover and how many groups it has made. */
+  interface IScope {
+    /** The action's handover. */
+    handover: IAutoMovieMotionHumanActionContext.IHandover;
+
+    /** The groups the plan has made so far. */
+    made: number;
+  }
+
+  /** The plan in scope, while one runs (`within`). */
+  let scope: IScope | undefined;
 
   /**
    * The span a carry's weight states, its four instants read off the
@@ -143,7 +210,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     before: IAutoMovieMotionHumanActionPlan["posture"],
     plan?: Pick<
       IAutoMovieMotionHumanArmPlanned.ITogether,
-      "warm" | "last" | "stretches" | "tempo"
+      "warm" | "last" | "stretches" | "tempo" | "ordinal"
     >,
     inheritedPace?: (seconds: number) => number,
   ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
@@ -557,10 +624,13 @@ export namespace AutoMovieMotionHumanArmPlanned {
     if (laid?.admitted === true) solved = laid.trajectories;
     else {
       // An earlier plan's solution of these arms, carried onto this span,
-      // starts the solve; this plan's own is left for the next.
-      const key: string = carries
-        .map((c: IAutoMovieMotionHumanArmPlanned.IPlanned): string => c.side)
-        .join("+");
+      // starts the solve; this plan's own is left for the next. Both are
+      // keyed by the arms and the group's place among its plan's groups.
+      const key: string =
+        (plan?.ordinal === undefined ? "" : `${plan.ordinal}:`) +
+        carries
+          .map((c: IAutoMovieMotionHumanArmPlanned.IPlanned): string => c.side)
+          .join("+");
       const earlier: IWarm | undefined = plan?.warm?.get(key);
       const separate:
         | IAutoMovieMotionHumanArmTrajectory.Trajectory[]
@@ -675,15 +745,6 @@ export namespace AutoMovieMotionHumanArmPlanned {
 
 /** The spacing of the trajectory's waypoints, seconds at most: the frame grid (`AutoMovieMotionHumanArmCourse.STEP`). */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
-
-/** The farthest probe's travel between two waypoints of a reach first cut, metres (provisional: a sampling density, not a bound; the solve splits any interval its frame-grid reading fails in). */
-const SPACING: number = 0.08;
-
-/** A daily reach's peak hand speed, metres a second (J NeuroEng Rehabil 2006 3:18). */
-const PEAK: number = 0.55;
-
-/** The least waypoints a second of a reach, a return or a hold: a site moving as fast as a daily reach's peak travels at most `SPACING` between two of them. */
-const LEAST: number = Math.ceil(PEAK / SPACING);
 
 /** The intervals a reach or a return is first cut into at most, by its arc: TrajOpt plans an arm's whole path on eleven timesteps, ten intervals (Schulman et al. 2013, section VI); the solve adds knots where the played trajectory's frame-grid reading asks (`HumanArmTrajectoryAdmission`). */
 const TRANSPORT: number = 10;
