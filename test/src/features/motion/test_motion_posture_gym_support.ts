@@ -1,4 +1,4 @@
-import { createPlyoBox } from "@automovie/archetypes";
+﻿import { createPlyoBox } from "@automovie/archetypes";
 import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAcrobatics,
+  AutoMovieMotionHumanThrowCatch,
   AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanColliders,
@@ -16,7 +17,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanSignature,
-  HumanSportThrow,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -185,7 +185,7 @@ function checkSupportedWorkout(complaints: motionComplaints.IGatherer): void {
         ],
         composition: HumanChain.subject("a").registered("workout", {
           kind,
-          reps: 1,
+          count: 1,
           hold: kind === "sidePlank" ? 1.5 : 0.5,
         }).node,
       });
@@ -215,7 +215,7 @@ function checkInvertedSupport(findings: motionComplaints.IGatherer): void {
   const body = motionHumanBody("m-average"),
     stature = body.measure.stature;
   for (const law of [
-    HumanSportThrow.cartwheelLeft,
+    AutoMovieMotionHumanThrowCatch.HumanSportThrow.cartwheelLeft,
     AutoMovieMotionHumanAcrobatics.HumanGymnastics.roundOffLeft,
     AutoMovieMotionHumanAcrobatics.HumanGymnastics.roundOffRight,
   ]) {
@@ -284,7 +284,7 @@ function checkInvertedSupport(findings: motionComplaints.IGatherer): void {
       law.name + " ends upright",
       HumanSignature.joint(reader, end, "head").y - hips(end).y > 0.3 * stature,
     );
-    if (law === HumanSportThrow.cartwheelLeft)
+    if (law === AutoMovieMotionHumanThrowCatch.HumanSportThrow.cartwheelLeft)
       findings.check(
         law.name + " lateral advance and heading",
         travel.x > 0.8 * stature && direction >= 0.99,

@@ -61,7 +61,7 @@ export function test_motion_exercise_track_field(): void {
     composition: HumanChain.subject("a")
       .stand({ hold: 0.3, sway: 0 })
       .registered("sprintStart", {
-        seconds: 0.4,
+        hold: 0.4,
         drive: driveSeconds,
         front: "left",
       }).node,

@@ -11,14 +11,13 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionClock,
+  AutoMovieMotionHumanAcrobatics,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTrunk,
-  GymnasticsFlight,
-  HumanBalance,
   HumanFoot,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { HumanBalance, resolveHumanPosture } from "@automovie/motions/internal";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -335,10 +334,8 @@ export namespace motionComposeTrunk {
     }
 
     // 4. A standing posture of joint angles alone.
-    const angles: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
-      body,
-      standing,
-    );
+    const angles: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanAcrobatics.GymnasticsFlight.frozen(body, standing);
     const bare: IAutoMovieMotionHumanPrimitive =
       AutoMovieMotionHumanTrunk.crouch({
         body: withoutMass(body),
