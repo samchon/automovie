@@ -152,14 +152,29 @@ export namespace HumanRide {
           });
       }
 
-      // A foot that hung when the ride began keeps hanging.
+      // A foot that hung when the ride began keeps hanging. A foot on a
+      // pedal bears on the turning pedal: the contact model names no moving
+      // part's frame for a plant to be read in, and in the bicycle's frame
+      // the pedal's own turn reads as the foot slipping.
+      const { pedals, placed }: placeRideFeet.ISupports =
+        placeRideFeet.supports(context, support);
       const contacts: IAutoMovieMotionHumanContactWindow[] = [...kept.contacts];
       for (const side of ["left", "right"] as const)
         if (
           context.entry.feet[side].planted &&
           (!placeFeet || context.params.feet?.[side] === undefined)
         )
-          contacts.push(bears(`${side}Foot`, "plant"));
+          contacts.push(
+            bears(
+              `${side}Foot`,
+              pedals.some(
+                (pedal: (typeof pedals)[number]): boolean =>
+                  pedal.side === side,
+              )
+                ? "bear"
+                : "plant",
+            ),
+          );
       const post: number = POST * context.body.measure.thigh;
 
       // How far through a stride a second of the ride is, 0 to 1; none outside the strides of a cue track.
@@ -172,8 +187,6 @@ export namespace HumanRide {
         return undefined;
       };
 
-      const { pedals, placed }: placeRideFeet.ISupports =
-        placeRideFeet.supports(context, support);
       for (const foot of placed)
         contacts.push({
           ...bears(foot.side === "left" ? "leftFoot" : "rightFoot", "plant"),
