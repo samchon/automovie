@@ -1,4 +1,3 @@
-import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -8,7 +7,6 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanClearance,
   IAutoMovieMotionHumanClimbStairs,
   IAutoMovieMotionHumanClimbStairsFlight,
   IAutoMovieMotionHumanContactWindow,
@@ -27,7 +25,6 @@ import { walkRoot } from "../actions/walkRoot";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -46,6 +43,7 @@ import { climbStairsPrints } from "./climbStairsPrints";
 import { climbStairsProfile } from "./climbStairsProfile";
 import { climbStairsRail } from "./climbStairsRail";
 import { climbStairsRocker } from "./climbStairsRocker";
+import { climbStairsSwing } from "./climbStairsSwing";
 import { climbStairsWeight } from "./climbStairsWeight";
 
 /** Offset decay time of a cut out of the arrived climb, seconds (a deliberate change of the whole body's action, `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`). */
@@ -68,7 +66,8 @@ const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
  * above the surface under it and `CLEARANCE` above each edge it passes
  * (`AutoMovieMotionHumanClearance`): ascending it lifts beside the riser and
  * follows the line of the nosings, descending it moves forward and lowers
- * once its heel is past the nosing. The pelvis moves between the stances on
+ * once its heel is past the nosing; it lifts over the floor's contact
+ * height before it travels along the flight. The pelvis moves between the stances on
  * minimum-jerk progress over the middle of the two feet, half a step behind
  * them over the floor (`climbStairsPelvis`). Its height at a
  * stance is the highest from which both legs reach their feet, so the lower
@@ -307,37 +306,8 @@ export namespace climbStairs {
       }
     }
 
-    // A swinging foot's path: the shortest one over the flight's profile,
-    // travelled on minimum-jerk progress.
-    function swing(
-      side: "left" | "right",
-      a: IAutoMovieMotionHumanFoot.IPlacement,
-      b: IAutoMovieMotionHumanFoot.IPlacement,
-    ): (s: number) => IAutoMovieMotionHumanFoot.IPlacement {
-      const from: IAutoMovieVector3 = framed.local(a.ankle);
-      const to: IAutoMovieVector3 = framed.local(b.ankle);
-      const across: number = to.x - from.x;
-      const forward: number = Math.max(1e-9, to.z - from.z);
-      const path: ReturnType<typeof AutoMovieMotionHumanClearance.path> =
-        AutoMovieMotionHumanClearance.path(
-          { z: from.z, y: a.ankle.y },
-          { z: to.z, y: b.ankle.y },
-          required(side),
-        );
-      return (s: number): IAutoMovieMotionHumanFoot.IPlacement => {
-        const at: IAutoMovieMotionHumanClearance.IPoint = path(
-          minimumJerk.share(Math.min(1, Math.max(0, s))),
-        );
-        return {
-          ankle: framed.point({
-            x: from.x + (across * (at.z - from.z)) / forward,
-            y: at.y,
-            z: at.z,
-          }),
-          rotation: b.rotation,
-        };
-      };
-    }
+    // A swinging foot's path over the flight, lifted before it travels.
+    const swing: ReturnType<typeof climbStairsSwing> = climbStairsSwing(framed, required);
     const footAt: ReturnType<typeof climbStairsFeet> = climbStairsFeet(
       prints,
       clock,
