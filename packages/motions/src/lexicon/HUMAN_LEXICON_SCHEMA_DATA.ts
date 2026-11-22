@@ -3411,7 +3411,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "archery"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of every installed Human lexicon family and its exported row.\nA row's export key may differ from its registered action name; HUMAN_LEXICON_FAMILIES pairs them when generating the schema.\nThis map guides the runtime rows. HumanPerformanceParams admits their supplied parameters against the generated schemas before planning."
+        "description": "The open parameters of every installed Human lexicon row, by family and\nthen by the row's export key: what a row leaves to the author after the\nparameters it fixes, each with its law's own default, unit and required\nstatus. A row's export key may differ from its registered\nname; `HUMAN_LEXICON_FAMILIES` pairs them when the schema is generated.\nRows are admitted at run time as actions are\n(`IAutoMovieMotionHumanActionParams`): `HumanPerformanceParams` checks the\ngiven parameters against the row's generated schema before its law plans."
       },
       "IAutoMovieMotionHumanLexiconEmblemParams": {
         "type": "object",
@@ -3550,7 +3550,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "coverEars"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the emblem lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the emblem lexicon family, keyed by each runtime export name."
       },
       "OmitIParamselbowkindsidetargetwith": {
         "type": "object",
@@ -3638,6 +3638,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "clear": {
             "type": "number",
             "description": "A miss staged as a touch: the effector passes the region this far off its surface along its normal, in the hand's lengths, at the stroke's full speed, and no contact is declared (a stage slap). A touch that lands when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -4541,7 +4552,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas."
+            "description": "Seconds at the face after the repetitions, at least 0, or two such bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent."
           },
           "prop": {
             "type": "string",
@@ -4756,13 +4767,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Stroke repetitions (waves, nods, claps), a whole number of at least 1; the gesture's own count when absent.",
             "minimum": 1,
             "x-unit": ""
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, at least 0, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -4969,6 +4980,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -5249,6 +5271,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -5606,13 +5639,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Stroke repetitions (waves, nods, claps), a whole number of at least 1; the gesture's own count when absent.",
             "minimum": 1,
             "x-unit": ""
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, at least 0, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -5821,13 +5854,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Stroke repetitions (waves, nods, claps), a whole number of at least 1; the gesture's own count when absent.",
             "minimum": 1,
             "x-unit": ""
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, at least 0, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -6040,13 +6073,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Stroke repetitions (waves, nods, claps), a whole number of at least 1; the gesture's own count when absent.",
             "minimum": 1,
             "x-unit": ""
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, at least 0, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -6201,6 +6234,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
           },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
+          },
           "rests": {
             "type": "array",
             "items": {
@@ -6337,7 +6381,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "seatedHeelBounce"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the habit lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the habit lexicon family, keyed by each runtime export name."
       },
       "OmitIParamssecondstask": {
         "type": "object",
@@ -6436,7 +6480,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.",
             "minimum": 0.6,
             "maximum": 1.3,
             "default": 1,
@@ -6444,7 +6488,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "armSwing": {
             "type": "number",
-            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).\nInclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).",
             "minimum": 0,
             "maximum": 2,
             "default": 1,
@@ -6452,7 +6496,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.\nInclusive range [0, 30]; schema default 0; unit \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
             "minimum": 0,
             "maximum": 30,
             "default": 0,
@@ -7137,7 +7181,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas."
+            "description": "Seconds at the face after the repetitions, at least 0, or two such bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent."
           },
           "prop": {
             "type": "string",
@@ -7188,7 +7232,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas."
+            "description": "Seconds at the face after the repetitions, at least 0, or two such bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent."
           },
           "prop": {
             "type": "string",
@@ -7348,6 +7392,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -7610,6 +7665,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
           },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
+          },
           "other": {
             "oneOf": [
               {
@@ -7825,7 +7891,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas."
+            "description": "Seconds at the face after the repetitions, at least 0, or two such bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent."
           },
           "prop": {
             "type": "string",
@@ -8040,7 +8106,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, at least 0, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -8269,6 +8335,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -8682,14 +8759,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "neckRoll"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the stance lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the stance lexicon family, keyed by each runtime export name."
       },
       "OmitIParamsleftright": {
         "type": "object",
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "How long, seconds; 2 when absent.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How long, seconds, positive; 2 when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
@@ -8805,7 +8882,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "shiftStandingWeight"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the pose lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the pose lexicon family, keyed by each runtime export name."
       },
       "OmitIParamsholdrise": {
         "type": "object",
@@ -9935,7 +10012,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "frailWalk"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the gait lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the gait lexicon family, keyed by each runtime export name."
       },
       "OmitIAutoMovieMotionHumanWalkParamsarmSwingpacestride": {
         "type": "object",
@@ -9992,7 +10069,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.\nInclusive range [0, 30]; schema default 0; unit \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
             "minimum": 0,
             "maximum": 30,
             "default": 0,
@@ -10085,7 +10162,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.",
             "minimum": 0.6,
             "maximum": 1.3,
             "default": 1,
@@ -10218,7 +10295,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.\nInclusive range [0, 30]; schema default 0; unit \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
             "minimum": 0,
             "maximum": 30,
             "default": 0,
@@ -10330,7 +10407,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.\nInclusive range [0, 30]; schema default 0; unit \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
             "minimum": 0,
             "maximum": 30,
             "default": 0,
@@ -10367,7 +10444,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "to"
         ],
         "additionalProperties": false,
-        "description": "What a styled gait leaves to the composition: the walk's destination, waypoints, arrival heading and elbows.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "What a styled gait leaves to the composition: the walk's destination, waypoints, arrival heading and elbows."
       },
       "IAutoMovieMotionHumanGait.ILimp": {
         "type": "object",
@@ -10424,7 +10501,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.\nInclusive range [0, 30]; schema default 0; unit \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
             "minimum": 0,
             "maximum": 30,
             "default": 0,
@@ -10514,14 +10591,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The standing gait's walk pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` upright and `slow` for duck and squeeze when absent. The crawl ignores it."
+            "description": "The standing gait's walk pace (`IAutoMovieMotionHumanWalkParams.pace` gives the speeds); `normal` upright and `slow` for duck and squeeze when absent. The crawl ignores it."
           }
         },
         "required": [
           "through"
         ],
         "additionalProperties": false,
-        "description": "Parameters of a passage.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters of a passage."
       },
       "IAutoMovieMotionHumanCrossing.IParams": {
         "oneOf": [
@@ -10538,7 +10615,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanCrossing.IVault"
           }
         ],
-        "description": "Parameters: one of the four crossing paths.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planNamedCrossing owns the geometry and clearance refusals.",
+        "description": "Parameters: one of the four crossing paths.",
         "discriminator": {
           "mapping": {
             "gap": "#/components/schemas/IAutoMovieMotionHumanCrossing.IGap",
@@ -10702,7 +10779,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanCover.IWindow"
           }
         ],
-        "description": "Parameters: one of the four cover moves.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planCover owns the geometry refusals.",
+        "description": "Parameters: one of the four cover moves.",
         "discriminator": {
           "mapping": {
             "breach": "#/components/schemas/IAutoMovieMotionHumanCover.IBreach",
@@ -10846,7 +10923,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanWallRun.IWallStep"
           }
         ],
-        "description": "Parameters: a wall step or a wall run.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planWallRun owns the reach and friction refusals.",
+        "description": "Parameters: a wall step or a wall run.",
         "discriminator": {
           "mapping": {
             "run": "#/components/schemas/IAutoMovieMotionHumanWallRun.IRun",
@@ -10945,7 +11022,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanRope.ITraverseRope"
           }
         ],
-        "description": "Parameters: one of the four rope crossings.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planRope owns the geometry and speed refusals.",
+        "description": "Parameters: one of the four rope crossings.",
         "discriminator": {
           "mapping": {
             "climb": "#/components/schemas/IAutoMovieMotionHumanRope.IClimb",
@@ -11107,7 +11184,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanStuntFall.IStairs"
           }
         ],
-        "description": "Parameters: a stair fall or a high fall.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planStuntFall owns the geometry refusals.",
+        "description": "Parameters: a stair fall or a high fall.",
         "discriminator": {
           "mapping": {
             "high": "#/components/schemas/IAutoMovieMotionHumanStuntFall.IHigh",
@@ -11191,7 +11268,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanTreeClimb.ISit"
           }
         ],
-        "description": "Parameters: a climb, a sit or a descent.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planTreeClimb owns the reach and load refusals.",
+        "description": "Parameters: a climb, a sit or a descent.",
         "discriminator": {
           "mapping": {
             "climb": "#/components/schemas/IAutoMovieMotionHumanTreeClimb.IClimb",
@@ -11325,7 +11402,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "deploy"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planSkydive owns the altitude refusal."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanSkydive.IToggle": {
         "type": "object",
@@ -11408,7 +11485,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "partner"
         ],
         "additionalProperties": false,
-        "description": "Parameters: the scene, this performer's role and the partner.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planEdgeRescue owns the load and margin refusals."
+        "description": "Parameters: the scene, this performer's role and the partner."
       },
       "IAutoMovieMotionHumanEdgeRescue.Role": {
         "oneOf": [
@@ -11430,7 +11507,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEnvironmentRecovery.ITrip"
           }
         ],
-        "description": "Parameters: a trip or a slip.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; planEnvironmentRecovery owns the cue and outcome refusals.",
+        "description": "Parameters: a trip or a slip.",
         "discriminator": {
           "mapping": {
             "slip": "#/components/schemas/IAutoMovieMotionHumanEnvironmentRecovery.ISlip",
@@ -11580,7 +11657,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "through"
         ],
         "additionalProperties": false,
-        "description": "Parameters of getting in.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters of getting in."
       },
       "IAutoMovieMotionHumanSeated.ISeat": {
         "type": "object",
@@ -11711,7 +11788,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`.\nExclusive minimum: 0.6. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the hand holds the handle, from the start of the reach; more than the reach's 0.6 s (`HumanTravelLeaf.TAKE`).",
             "exclusiveMinimum": 0.6,
             "x-unit": "s"
           },
@@ -11733,7 +11810,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "seconds"
         ],
         "additionalProperties": false,
-        "description": "Parameters of opening a door.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters of opening a door."
       },
       "IAutoMovieMotionHumanTravelCarExit.IParams": {
         "type": "object",
@@ -11916,7 +11993,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "severity": {
             "type": "number",
-            "description": "How frail the walk is, from 0, the ordinary walk (about 1.5 m/s at the\nreference hip), to 1, a shuffle (0.6 m/s, the speed below which an older\nadult is frail, Studenski et al. 2011); about 1.1 m/s and 0.5 when absent.\nEach feature runs linearly between the two ends (`HumanFrailWalk`):\n0 fits a healthy older adult, about 0.5 a tiring or unsteady one, 1 a\nweak one who shuffles.\nUnit: \"1\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How frail the walk is, from 0, the ordinary walk (about 1.5 m/s at the\nreference hip), to 1, a shuffle (0.6 m/s, the speed below which an older\nadult is frail, Studenski et al. 2011); about 1.1 m/s and 0.5 when absent.\nEach feature runs linearly between the two ends (`HumanFrailWalk`):\n0 fits a healthy older adult, about 0.5 a tiring or unsteady one, 1 a\nweak one who shuffles.",
             "minimum": 0,
             "maximum": 1,
             "x-unit": "1"
@@ -11969,7 +12046,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "flee"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the pursuit lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the pursuit lexicon family, keyed by each runtime export name."
       },
       "OmitIParamsatsidetrack": {
         "type": "object",
@@ -11990,7 +12067,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The walk's pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`."
+            "description": "The walk's pace (`IAutoMovieMotionHumanWalkParams.pace` gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`."
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
@@ -12032,7 +12109,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "sprint"
               }
             ],
-            "description": "The running gait (IAutoMovieMotionHumanRun.IParams.pace gives the speeds); `run` when absent. A pace the target outruns is refused."
+            "description": "The running gait (`IAutoMovieMotionHumanRun.IParams.pace` gives the speeds); `run` when absent. A pace the target outruns is refused."
           }
         },
         "required": [
@@ -12060,7 +12137,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The walk's pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`."
+            "description": "The walk's pace (`IAutoMovieMotionHumanWalkParams.pace` gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`."
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
@@ -12103,7 +12180,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "metres": {
             "type": "number",
-            "description": "How far to run, metres; `FLIGHT` hip heights when absent (9 hip heights, about 8 m at the reference hip).\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How far to run, metres, positive; `FLIGHT` hip heights when absent (9 hip heights, about 8 m at the reference hip).",
             "exclusiveMinimum": 0,
             "x-unit": "m"
           },
@@ -12119,7 +12196,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "sprint"
               }
             ],
-            "description": "The running gait (IAutoMovieMotionHumanRun.IParams.pace gives the speeds); `run` when absent. An escape at full effort is `sprint`."
+            "description": "The running gait (`IAutoMovieMotionHumanRun.IParams.pace` gives the speeds); `run` when absent. An escape at full effort is `sprint`."
           }
         },
         "required": [
@@ -12230,7 +12307,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "curtsy"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the social lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the social lexicon family, keyed by each runtime export name."
       },
       "OmitIParamsholdregion": {
         "type": "object",
@@ -12426,6 +12503,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -12708,6 +12796,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -13047,6 +13146,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
           },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
+          },
           "other": {
             "oneOf": [
               {
@@ -13331,7 +13441,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.",
             "minimum": 0.6,
             "maximum": 1.3,
             "default": 1,
@@ -13339,7 +13449,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "armSwing": {
             "type": "number",
-            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).\nInclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).",
             "minimum": 0,
             "maximum": 2,
             "default": 1,
@@ -13347,7 +13457,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.\nInclusive range [0, 30]; schema default 0; unit \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
             "minimum": 0,
             "maximum": 30,
             "default": 0,
@@ -13514,6 +13624,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -13935,7 +14056,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "pushed"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the stageFight lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the stageFight lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanStageProp": {
         "type": "object",
@@ -13998,7 +14119,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Staged time in seconds. Defaults to the beat's authored time.\nExclusive minimum: 0. Unit: seconds."
+            "description": "Staged time, seconds, positive; the beat's authored time when absent."
           }
         },
         "required": [
@@ -14989,6 +15110,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
           },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
+          },
           "other": {
             "oneOf": [
               {
@@ -15255,6 +15387,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -15526,6 +15669,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -15904,7 +16058,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "intensity": {
             "type": "number",
-            "description": "How strong, in (0, 1]; 1 when absent. It scales the size and not the time: at 1 the head turns 45 degrees with an 8 degree tilt, or the trunk shifts 3 % of the stature (`give.TURN`, `give.TILT`, `give.SHIFT`, provisional), peaking at 0.12 s, held 0.15 s and back by 0.6 s more (`give.RISE`, `give.RETURN`). 1 fits a slap; less fits a light push or a nudge.\nExclusive minimum: 0. Inclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How strong, in (0, 1]; 1 when absent. It scales the size and not the time: at 1 the head turns 45 degrees with an 8 degree tilt, or the trunk shifts 3 % of the stature (`give.TURN`, `give.TILT`, `give.SHIFT`, provisional), peaking at 0.12 s, held 0.15 s and back by 0.6 s more (`give.RISE`, `give.RETURN`). 1 fits a slap; less fits a light push or a nudge.",
             "maximum": 1,
             "exclusiveMinimum": 0,
             "x-unit": ""
@@ -16025,6 +16179,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -16445,7 +16610,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "sway"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the drill lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the drill lexicon family, keyed by each runtime export name."
       },
       "OmitIParamshandtechnique": {
         "type": "object",
@@ -16867,7 +17032,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Stroke repetitions (waves, nods, claps), a whole number of at least 1; the gesture's own count when absent.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -16971,7 +17136,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "reps": {
             "type": "integer",
-            "description": "Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top (`exercise`): 3.3 s at the default tempo, so 3 repetitions take 9.9 s.\nUnit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top (`exercise`): 3.3 s at the default tempo, so 3 repetitions take 9.9 s.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -17029,13 +17194,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "bpm": {
             "type": "number",
-            "description": "Beats per minute; `BPM` when absent.\nExclusive minimum: 0. Unit: \"beats/min\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Beats per minute, positive; `dance.BPM` (120) when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "beats/min"
           },
           "beats": {
             "type": "integer",
-            "description": "How many beats; 8 when absent. At the default 120 beats a minute a beat is 0.5 s (`dance.BPM`), so 8 beats take 4 s plus one beat.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many beats, a whole number of at least 1; 8 when absent. At the default 120 beats a minute a beat is 0.5 s (`dance.BPM`), so 8 beats take 4 s plus one beat.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -17227,7 +17392,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "riposte"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the blade lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the blade lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanStageBladeFootwork.IParams": {
         "type": "object",
@@ -17354,7 +17519,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -17567,7 +17732,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "feint": {
             "type": "number",
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.\nExclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
@@ -17781,7 +17946,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "feint": {
             "type": "number",
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.\nExclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
@@ -17982,7 +18147,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "feint": {
             "type": "number",
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.\nExclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
@@ -18055,7 +18220,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; as long as the stopped attack stays where it was met when absent, none for a drill.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the blades stay together after they meet, at least 0: a beat leaves at once, a bind stays; as long as the stopped attack stays where it was met when absent, none for a drill.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -18403,7 +18568,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "surrender"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the firearm lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the firearm lexicon family, keyed by each runtime export name."
       },
       "OmitIParamsholdkindsidetargetwith": {
         "type": "object",
@@ -18502,6 +18667,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -18902,7 +19078,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the carriage is held once reached, at least 0, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -19107,7 +19283,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "feedInfant"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the labour lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the labour lexicon family, keyed by each runtime export name."
       },
       "OmitIParamshow": {
         "type": "object",
@@ -19129,7 +19305,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "load": {
             "type": "number",
-            "description": "The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent.\nInclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent.",
             "minimum": 0,
             "maximum": 0.25,
             "x-unit": ""
@@ -19146,11 +19322,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The walk's pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` when absent. The load leans the trunk and does not change the speed."
+            "description": "The walk's pace (`IAutoMovieMotionHumanWalkParams.pace` gives the speeds); `normal` when absent. The load leans the trunk and does not change the speed."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent."
+            "description": "How the walk is performed, read as the walk reads it (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent."
           }
         },
         "required": [
@@ -19178,7 +19354,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent."
+            "description": "How the walk is performed, read as the walk reads it (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent."
           }
         },
         "required": [
@@ -19243,7 +19419,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "How many cycles; 4 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many cycles, a whole number of at least 1; 4 when absent.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -19485,7 +19661,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "number",
-            "description": "How many strokes; 3 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless."
+            "description": "How many strokes, a whole number of at least 1; 3 when absent."
           }
         },
         "required": [
@@ -19660,7 +19836,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "HumanLanceCouch"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the ride lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the ride lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanRide.IParams": {
         "type": "object",
@@ -19671,7 +19847,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds ridden, more than none.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds ridden, more than none.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           },
@@ -19696,7 +19872,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "A rising trot: the mount's stride time, seconds, or the cue track of\nthe performance that holds its strides (the footfalls of one\ndiagonal, as the mount's own ride publishes them). The rider stands\nin the stirrups and sits again once a stride, the seat rising `POST`\nthigh lengths (`HumanRide.POST`, 0.25, provisional) off the saddle; a trot's stride time is on IAutoMovieMotionHumanMounted.stride, so both feet must rest on the support.\nOn a cue track the seat is down at each of its instants and seated\nbefore the first and after the last. Seated throughout when absent.\n\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas."
+            "description": "A rising trot: the mount's stride time, seconds, positive, or the cue\ntrack of the performance that holds its strides (the footfalls of one\ndiagonal, as the mount's own ride publishes them; a trot's stride time\nis on `IAutoMovieMotionHumanMounted.stride`). The rider stands in the\nstirrups and sits again once a stride, the seat rising `POST` thigh\nlengths (`HumanRide.POST`, 0.25, provisional) off the saddle, so both\nfeet must rest on the support. On a cue track the seat is down at each\nof its instants and seated before the first and after the last. Seated\nthroughout when absent."
           },
           "feet": {
             "$ref": "#/components/schemas/PartialRecordleftrightstring",
@@ -19802,7 +19978,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "seconds"
         ],
         "additionalProperties": false,
-        "description": "Parameters of a ride.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters of a ride."
       },
       "PartialRecordleftrightstring": {
         "type": "object",
@@ -20272,7 +20448,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "The carrier's stride time, seconds, more than none. Out of the saddle\nthe pelvis then follows the carrier's path averaged over one stride, so\nit stays nearly level while the back rises and falls under it, the\ndecoupling a jockey's crouch gives (Pfau et al. 2009, Science 325:289),\nand a hand ride pushes the hands along the reins once a stride. Without\nit every figure is carried rigidly with the contact and a hand ride is\nrefused. Nothing is read from a gait name: give the carrier's own stride\ntime. A horse of 1.4 m at the withers measured about 0.9 s at a walk\n(1.5 m/s), 0.64 s at a trot (3 m/s), 0.5 s at a canter (5 m/s) and 0.4 s\nat a gallop (8 m/s) (`HorseGait.TABLE`, Robilliard et al. 2007);\nwarmbloods are about 15 % slower, and the table's scaling to other\nheights is provisional."
+            "description": "The carrier's stride time, seconds, more than none. Out of the saddle\nthe pelvis then follows the carrier's path averaged over one stride, so\nit stays nearly level while the back rises and falls under it, the\ndecoupling a jockey's crouch gives (Pfau et al. 2009, Science 325:289),\nand a hand ride pushes the hands along the reins once a stride. Without\nit every figure is carried rigidly with the contact and a hand ride is\nrefused. Nothing is read from a gait name: give the carrier's own stride\ntime. A horse of 1.4 m at the withers measured about 0.9 s at a walk\n(1.5 m/s), 0.64 s at a trot (3 m/s), 0.5 s at a canter (5 m/s) and 0.4 s\nat a gallop (8 m/s) (`AutoMovieArchetypeEquineGait.TABLE`, Robilliard et al. 2007);\nwarmbloods are about 15 % slower, and the table's scaling to other\nheights is provisional."
           },
           "respond": {
             "type": "number",
@@ -21639,7 +21815,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "spacecraftGlide"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the carried lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the carried lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanCarried.IParams": {
         "type": "object",
@@ -21828,20 +22004,20 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "seconds"
         ],
         "additionalProperties": false,
-        "description": "Parameters of being carried.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters of being carried."
       },
       "IAutoMovieMotionHumanCarried.IBorne": {
         "type": "object",
         "properties": {
           "lift": {
             "type": "number",
-            "description": "Seconds the lift into the carry takes, at the start; none when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the lift into the carry takes, at the start, at least 0; none when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
           "setDown": {
             "type": "number",
-            "description": "Seconds the set-down takes, at the end; none when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the set-down takes, at the end, at least 0; none when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -21889,13 +22065,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds carried, more than none; 2 when absent.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds carried, more than none; 2 when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           },
           "mass": {
             "type": "number",
-            "description": "Kilograms the carried person carries besides their body (a pack, gear), which the carrier bears too; none when absent.\nInclusive minimum: 0. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Kilograms the carried person carries besides their body (a pack, gear), at least 0, which the carrier bears too; none when absent.",
             "minimum": 0,
             "x-unit": "kg"
           },
@@ -21955,7 +22131,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "mass": {
             "type": "number",
-            "description": "Kilograms the carried person carries besides their body, as their `borne` states it; none when absent.\nInclusive minimum: 0. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Kilograms the carried person carries besides their body, at least 0, as their `borne` states it; none when absent.",
             "minimum": 0,
             "x-unit": "kg"
           },
@@ -21965,7 +22141,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds held, more than none; 2 when absent.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held, more than none; 2 when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
@@ -22305,7 +22481,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "socialDance"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the sport lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the sport lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanSurface.ISkateParams": {
         "type": "object",
@@ -23387,7 +23563,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds held at the end of the range, after 1.5 s to enter and before 1.5 s to release; `HOLD` when absent (`stretch.HOLD`, 30 s, Bandy et al. 1997).\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held at the end of the range, at least 0, after 1.5 s to enter and before 1.5 s to release; `HOLD` when absent (`stretch.HOLD`, 30 s, Bandy et al. 1997).",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -23441,13 +23617,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds held in the set; 1.5 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held in the set, at least 0; 1.5 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
           "drive": {
             "type": "number",
-            "description": "Optional drive from the gun to front-block exit, in seconds. Omitted ends the action at the gun. Exclusive minimum: 0. Unit: \"s\"."
+            "description": "The drive from the gun to the front block's exit, seconds, positive; the action ends at the gun when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -23463,7 +23639,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "Seconds held inverted; 2 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held inverted, at least 0; 2 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -23481,13 +23657,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "count": {
             "type": "integer",
-            "description": "Punches of a choku-zuki series; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s (`martialArt`).\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Punches of a choku-zuki series, a whole number of at least 1; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s (`martialArt`).",
             "minimum": 1,
             "x-unit": ""
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the stance is held; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the stance is held, at least 0; 1 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -23526,7 +23702,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Dribble bounces; 4 when absent, at 2 bounces a second (`ballSport.BOUNCES`, provisional): a 2 s dribble.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Dribble bounces, a whole number of at least 1; 4 when absent, at 2 bounces a second (`ballSport.BOUNCES`, provisional): a 2 s dribble.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -23544,7 +23720,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "flightSeconds": {
             "type": "number",
-            "description": "Positive seconds from release through `at` for a chest pass, set shot, handball throw, or the first impact of a bounce pass.\nExclusive minimum: 0. Unit: s. Each court skill has a provisional default."
+            "description": "Seconds, positive, from the release to the ball passing `at` for a chest\npass, a set shot or a handball throw, or to a bounce pass's first\nimpact; each court skill's own provisional time when absent."
           },
           "contactAt": {
             "$ref": "#/components/schemas/IAutoMovieVector3",
@@ -23559,7 +23735,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "Seconds held; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held, at least 0; 1 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -23587,7 +23763,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds held for a solo position; 0.6 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held for a solo position, at least 0; 0.6 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -23822,7 +23998,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "Cycles; 3 when absent. A cycle takes 1.4 s in the front crawl (`swim.CYCLE`) and the backstroke, 1 s treading water, so 3 cycles of the crawl take 4.2 s; the keyed strokes take the seconds of their keys (`SwimStroke.strokes`).\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Cycles, a whole number of at least 1; 3 when absent. A cycle takes 1.4 s in the front crawl (`swim.CYCLE`) and the backstroke, 1 s treading water, so 3 cycles of the crawl take 4.2 s; the keyed strokes take the seconds of their keys (`SwimStroke.strokes`).",
             "minimum": 1,
             "x-unit": ""
           },
@@ -23899,13 +24075,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "bpm": {
             "type": "number",
-            "description": "Beats per minute; the dance law's `BPM` when absent.\nExclusive minimum: 0. Unit: \"beats/min\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Beats per minute, positive; the dance law's `BPM` when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "beats/min"
           },
           "repeats": {
             "type": "integer",
-            "description": "How many times the step is danced, the leading foot alternating; 1 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many times the step is danced, a whole number of at least 1, the leading foot alternating; 1 when absent.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -23943,7 +24119,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "step"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanTapDance.Step": {
         "oneOf": [
@@ -23977,7 +24153,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "position": {
             "type": "integer",
-            "description": "The position of the feet, one to five; first when absent.\nNumeric representation: \"uint32\". Inclusive range [1, 5]. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The position of the feet, a whole number from 1 to 5; first when absent.",
             "minimum": 1,
             "maximum": 5,
             "x-unit": ""
@@ -23998,13 +24174,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "turnout": {
             "type": "number",
-            "description": "Each foot's turn out, the hip's external rotation, degrees; `balletStep.TURNOUT` when absent. Refused beyond the hip's range.\nInclusive minimum: 0. Unit: \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Each foot's turn out, the hip's external rotation, degrees, at least 0; `balletStep.TURNOUT` when absent. Refused beyond the hip's range.",
             "minimum": 0,
             "x-unit": "degrees"
           },
           "turns": {
             "type": "integer",
-            "description": "A pirouette's whole turns; 1 when absent.\nNumeric representation: \"uint32\". Inclusive range [1, 2]. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "A pirouette's whole turns, 1 or 2; 1 when absent.",
             "minimum": 1,
             "maximum": 2,
             "x-unit": ""
@@ -24022,7 +24198,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "split": {
             "type": "number",
-            "description": "A grand jeté's split at the apex, the front hip's flexion plus the back hip's extension, degrees; 150 when absent. Refused beyond the hips' range.\nExclusive minimum: 0. Unit: \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "A grand jeté's split at the apex, the front hip's flexion plus the back hip's extension, degrees, positive; 150 when absent. Refused beyond the hips' range.",
             "exclusiveMinimum": 0,
             "x-unit": "degrees"
           },
@@ -24039,13 +24215,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "bpm": {
             "type": "number",
-            "description": "Beats per minute; the dance law's `BPM` when absent.\nExclusive minimum: 0. Unit: \"beats/min\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Beats per minute, positive; the dance law's `BPM` when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "beats/min"
           },
           "beats": {
             "type": "integer",
-            "description": "How many beats a position is danced over; 4 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 2 s.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many beats a position is danced over, a whole number of at least 1; 4 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 2 s.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -24072,7 +24248,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "kind"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanBallet.Kind": {
         "oneOf": [
@@ -24097,13 +24273,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "bpm": {
             "type": "number",
-            "description": "Beats per minute; the dance law's `BPM` when absent.\nExclusive minimum: 0. Unit: \"beats/min\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Beats per minute, positive; the dance law's `BPM` when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "beats/min"
           },
           "beats": {
             "type": "integer",
-            "description": "How many beats; 8 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 4 s plus one beat.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many beats, a whole number of at least 1; 8 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 4 s plus one beat.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -24116,7 +24292,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "vary": {
             "type": "number",
-            "description": "The most a member's timing strays from the beat, seconds, drawn per member from its seed; 0.02 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The most a member's timing strays from the beat, seconds, at least 0, drawn per member from its seed; 0.02 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -24154,7 +24330,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "groove"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanStreetDance.Groove": {
         "oneOf": [
@@ -24176,13 +24352,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "bpm": {
             "type": "number",
-            "description": "Beats per minute; the dance law's `BPM` when absent.\nExclusive minimum: 0. Unit: \"beats/min\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Beats per minute, positive; the dance law's `BPM` when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "beats/min"
           },
           "repeats": {
             "type": "integer",
-            "description": "How many times the eight-count pattern is danced; 1 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many times the eight-count pattern is danced, a whole number of at least 1; 1 when absent.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -24192,7 +24368,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "members": {
             "type": "integer",
-            "description": "How many dance in the circle, so each member knows its neighbours.\nNumeric representation: \"uint32\". Inclusive minimum: 3. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many dance in the circle, a whole number of at least 3, so each member knows its neighbours.",
             "minimum": 3,
             "x-unit": ""
           },
@@ -24210,7 +24386,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "vary": {
             "type": "number",
-            "description": "The most a member's timing strays from the beat, seconds, drawn from its seed; 0.02 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The most a member's timing strays from the beat, seconds, at least 0, drawn from its seed; 0.02 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -24237,7 +24413,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "kind"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanGroupDance.Kind": {
         "oneOf": [
@@ -24405,7 +24581,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "dip"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the sportGym lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the sportGym lexicon family, keyed by each runtime export name."
       },
       "OmitIParamskind-o12": {
         "type": "object",
@@ -24416,7 +24592,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "How many crawl cycles; 3 when absent. A cycle takes 1.2 s at a 0.93 m hip (`crawl.CYCLE`, provisional), so 3 cycles are 3.6 s.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many crawl cycles, a whole number of at least 1; 3 when absent. A cycle takes 1.2 s at a 0.93 m hip (`crawl.CYCLE`, provisional), so 3 cycles are 3.6 s.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -24433,13 +24609,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "reps": {
             "type": "integer",
-            "description": "Repetitions; the kind's own count when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Repetitions, a whole number of at least 1; the kind's own count when absent.",
             "minimum": 1,
             "x-unit": ""
           },
           "hold": {
             "type": "number",
-            "description": "Seconds a held pose is stayed in; the kind's own when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds a held pose is stayed in, at least 0; the kind's own when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -24513,7 +24689,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "prop"
         ],
         "additionalProperties": false,
-        "description": "The load's parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "The load's parameters."
       },
       "IAutoMovieMotionHumanLexiconSportCarryParams": {
         "type": "object",
@@ -24537,7 +24713,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "sledPush"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the sportCarry lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the sportCarry lexicon family, keyed by each runtime export name."
       },
       "OmitIAutoMovieMotionHumanWalkParamsarmSwingpace": {
         "type": "object",
@@ -24594,7 +24770,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.",
             "minimum": 0.6,
             "maximum": 1.3,
             "default": 1,
@@ -24602,7 +24778,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.\nInclusive range [0, 30]; schema default 0; unit \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
             "minimum": 0,
             "maximum": 30,
             "default": 0,
@@ -24755,7 +24931,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "backwardRoll"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the floorRoll lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the floorRoll lexicon family, keyed by each runtime export name."
       },
       "OmitIParamsdirection": {
         "type": "object",
@@ -24820,7 +24996,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "wireArrest"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the floorFall lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the floorFall lexicon family, keyed by each runtime export name."
       },
       "OmitIParamskindside": {
         "type": "object",
@@ -25036,7 +25212,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         },
         "required": [],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanThrown.IParams": {
         "type": "object",
@@ -25212,7 +25388,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "height"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanVehicleHit.IParams": {
         "type": "object",
@@ -25320,7 +25496,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "seconds"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanWireFlight.ITouch": {
         "type": "object",
@@ -25429,7 +25605,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "HumanAssistedTransfer"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the support lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the support lexicon family, keyed by each runtime export name."
       },
       "OmitIParamsstances": {
         "type": "object",
@@ -25643,6 +25819,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             },
             "description": "Consecutive floor stations of the body, from the held standing pose."
           },
+          "origin": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "The entry station's world floor point, metres: where the body stands at\nentry, from which every station's `x` and `z` are measured and about\nwhich its `turn` carries the body, its feet and its aid as one rigid\nwhole. Absent, the feet turn about their own midpoint and the aid about\nits own staged frame, which matches only a walk that never turns."
+          },
           "kind": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanAidWalk.HeldKind",
             "description": "The single-grip aid."
@@ -25719,6 +25899,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               "$ref": "#/components/schemas/IAutoMovieMotionHumanAidWalk.IStation"
             },
             "description": "Consecutive floor stations of the body, from the held standing pose."
+          },
+          "origin": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "The entry station's world floor point, metres: where the body stands at\nentry, from which every station's `x` and `z` are measured and about\nwhich its `turn` carries the body, its feet and its aid as one rigid\nwhole. Absent, the feet turn about their own midpoint and the aid about\nits own staged frame, which matches only a walk that never turns."
           },
           "kind": {
             "const": "walker",
@@ -25963,7 +26147,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "spike"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the sportSwing lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the sportSwing lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke": {
         "type": "object",
@@ -26303,7 +26487,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "feint": {
             "type": "number",
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.\nExclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
@@ -26540,7 +26724,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -26675,7 +26859,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "stageDeflect"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the sportThrow lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the sportThrow lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanBowlingSlide.IParams": {
         "type": "object",
@@ -26933,7 +27117,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "apex": {
             "type": "number",
-            "description": "Apex height of the flight above take-off, metres; positive; 0.06 hip heights plus a tenth of the jump's length when absent (`jump`, provisional). Gravity decides the flight time: the take-off speed is `sqrt(2 g apex)` and a level landing follows `sqrt(8 apex / g)` later, g 9.80665 m/s2: 0.36 s for a 1 m jump at the reference hip (apex 0.15 m). The push-off (0.3 s, `jump.PUSH`), the absorption (0.3 s, `jump.ABSORB`) and the rise to standing (0.45 s, `jump.RISE`) are provisional and scaled by `manner.pace`; the flight is not.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Apex height of the flight above take-off, metres; positive; 0.06 hip heights plus a tenth of the jump's length when absent (`jump`, provisional). Gravity decides the flight time: the take-off speed is `sqrt(2 g apex)` and a level landing follows `sqrt(8 apex / g)` later, g 9.80665 m/s2: 0.36 s for a 1 m jump at the reference hip (apex 0.15 m). The push-off (0.3 s, `jump.PUSH`), the absorption (0.3 s, `jump.ABSORB`) and the rise to standing (0.45 s, `jump.RISE`) are provisional and scaled by `manner.pace`; the flight is not.",
             "exclusiveMinimum": 0,
             "x-unit": "m"
           },
@@ -26950,20 +27134,20 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "to"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanJumpAirborne.IRotation": {
         "type": "object",
         "properties": {
           "somersault": {
             "type": "number",
-            "description": "Somersault turns, whole or half; 0 when absent.\nInclusive minimum: 0. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Somersault turns, whole or half, at least 0; 0 when absent.",
             "minimum": 0,
             "x-unit": ""
           },
           "twist": {
             "type": "number",
-            "description": "Twist turns, signed; 0 when absent.\nUnit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Twist turns, signed; 0 when absent.",
             "x-unit": ""
           },
           "way": {
@@ -27001,7 +27185,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "turns": {
             "type": "integer",
-            "description": "Whole turns; 1 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Whole turns, at least 1; 1 when absent.",
             "minimum": 1,
             "x-unit": ""
           }
@@ -27016,7 +27200,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "Seconds the cartwheel takes; `SECONDS` when absent (`cartwheel.SECONDS`, 1.6 s, provisional: no study of a cartwheel's duration was read).\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the cartwheel takes, positive; 1.6 s when absent (`cartwheel.SECONDS`, provisional: no study of a cartwheel's duration was read).",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
@@ -27063,7 +27247,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "intercept": {
             "type": "number",
-            "description": "Seconds after the anchored prop release at which `stageCatch` reads the realized interception. Absent, use the ordinary throw's approach.\nExclusive minimum: 0. Unit: s. `stageCatch` admits this only inside the source action's surviving window."
+            "description": "Seconds, positive, after the anchored prop's release at which\n`stageCatch` reads the realized interception; `stageCatch` admits it\nonly inside the source action's surviving window. The ordinary\nthrow's approach when absent."
           }
         },
         "required": [
@@ -27360,14 +27544,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "ropeSkip"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the sportWorkout lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the sportWorkout lexicon family, keyed by each runtime export name."
       },
       "OmitIParamsseconds": {
         "type": "object",
         "properties": {
           "sway": {
             "type": "number",
-            "description": "The postural sway's RMS on each floor axis, metres; the performer's own\nwhen absent (3 mm times the skill's sway factor, 1.0 to 1.6), and 0 for\na stance that keeps exactly still, such as a reference scene a mirror\nor a difference is read against.\n\nInclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The postural sway's RMS on each floor axis, metres, at least 0; the\nperformer's own when absent (3 mm times the skill's sway factor, 1.0 to\n1.6), and 0 for a stance that keeps exactly still, such as a reference\nscene a mirror or a difference is read against.",
             "minimum": 0,
             "x-unit": "m"
           },
@@ -27488,14 +27672,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "trampoline"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the gymnastics lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the gymnastics lexicon family, keyed by each runtime export name."
       },
       "OmitIParamslead": {
         "type": "object",
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "Seconds the round-off takes; `SECONDS` when absent (`roundOff.SECONDS`, 1.2 s, provisional: quicker than the cartwheel, the entry to a tumbling run).\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the round-off takes, positive; 1.2 s when absent (`roundOff.SECONDS`, provisional: quicker than the cartwheel, the entry to a tumbling run).",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
@@ -27641,7 +27825,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "distance": {
             "type": "number",
-            "description": "The measured jump, metres from the take-off line to the nearest heel mark, perpendicular to the line.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The measured jump, metres, positive, from the take-off line to the nearest heel mark, perpendicular to the line.",
             "exclusiveMinimum": 0,
             "x-unit": "m"
           }
@@ -27684,7 +27868,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "distance": {
             "type": "number",
-            "description": "The recorded result, metres from the circle's inside edge or the arc to the landing mark.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The recorded result, metres, positive, from the circle's inside edge or the arc to the landing mark.",
             "exclusiveMinimum": 0,
             "x-unit": "m"
           }
@@ -27728,7 +27912,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "steps": {
             "type": "integer",
-            "description": "How many steps; the fewest heel-to-toe steps that reach `to` when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many steps, a whole number of at least 1; the fewest heel-to-toe steps that reach `to` when absent.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -27738,7 +27922,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "sag": {
             "type": "number",
-            "description": "How far a rope or wire sags at its middle under the walker, metres; the line's footprints follow the sag. Refused when the tension it needs exceeds the line's working load. Straight when absent.\nInclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How far a rope or wire sags at its middle under the walker, metres, at least 0; the line's footprints follow the sag. Refused when the tension it needs exceeds the line's working load. Straight when absent.",
             "minimum": 0,
             "x-unit": "m"
           }
@@ -27784,13 +27968,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "height": {
             "type": "number",
-            "description": "How high the throws rise above the hands, metres; 0.6 when absent. Gravity decides the flight, `sqrt(8 h / g)` between hands level with each other (g 9.80665 m/s2): 0.70 s at 0.6 m. The hold times follow from the flight by Shannon's theorem at a dwell ratio of 0.75 (`juggle.DWELL`, Beek and Lewbel 1995), so a higher throw is slower in every beat; a vacancy under `juggle.VACANCY` (0.12 s) is refused.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How high the throws rise above the hands, metres, positive; 0.6 when absent. Gravity decides the flight, `sqrt(8 h / g)` between hands level with each other (g 9.80665 m/s2): 0.70 s at 0.6 m. The hold times follow from the flight by Shannon's theorem at a dwell ratio of 0.75 (`juggle.DWELL`, Beek and Lewbel 1995), so a higher throw is slower in every beat; a vacancy under `juggle.VACANCY` (0.12 s) is refused.",
             "exclusiveMinimum": 0,
             "x-unit": "m"
           },
           "throws": {
             "type": "integer",
-            "description": "How many throws; three for each ball when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many throws, a whole number of at least 1; three for each ball when absent.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -27807,7 +27991,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "balls"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanJuggle.Pattern": {
         "oneOf": [
@@ -27833,7 +28017,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "steps": {
             "type": "integer",
-            "description": "How many steps; the fewest short steps that reach `to` when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many steps, a whole number of at least 1; the fewest short steps that reach `to` when absent.",
             "minimum": 1,
             "x-unit": ""
           }
@@ -27843,7 +28027,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "to"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and support refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanStiltWalk.IStilts": {
         "type": "object",
@@ -27873,13 +28057,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "bounces": {
             "type": "integer",
-            "description": "How many bounces; 4 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many bounces, a whole number of at least 1; 4 when absent.",
             "minimum": 1,
             "x-unit": ""
           },
           "apex": {
             "type": "number",
-            "description": "The apex the bounces build toward, the feet's height above the bed, metres; 1 when absent. Refused beyond what the legs' push can sustain.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The apex the bounces build toward, the feet's height above the bed, metres, positive; 1 when absent. Refused beyond what the legs' push can sustain.",
             "exclusiveMinimum": 0,
             "x-unit": "m"
           },
@@ -27905,7 +28089,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "on"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and support refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanLexiconSwordParams": {
         "type": "object",
@@ -27934,7 +28118,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "thrust"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the sword lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the sword lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanSword.ICut": {
         "type": "object",
@@ -28141,7 +28325,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "feint": {
             "type": "number",
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.\nExclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
@@ -28249,14 +28433,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent.",
             "minimum": 0,
             "x-unit": "s"
           }
         },
         "required": [],
         "additionalProperties": false,
-        "description": "Parameters of a guard.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters of a guard."
       },
       "IAutoMovieMotionHumanLexiconWeaponFirearmParams": {
         "type": "object",
@@ -28285,7 +28469,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "holster"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the weaponFirearm lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the weaponFirearm lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanWeaponPresent.IPresent": {
         "type": "object",
@@ -28539,7 +28723,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the carriage is held once reached, at least 0, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -28649,7 +28833,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "prop"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieRigidTransform": {
         "type": "object",
@@ -28712,7 +28896,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "reload"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the weaponMelee lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the weaponMelee lexicon family, keyed by each runtime export name."
       },
       "OmitICutfromtip": {
         "type": "object",
@@ -28915,7 +29099,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "feint": {
             "type": "number",
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.\nExclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
@@ -29025,6 +29209,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -29352,7 +29547,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "cymbalStrike"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the manipulate lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the manipulate lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanManipulate.IParams": {
         "type": "object",
@@ -29411,7 +29606,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "prop"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanManipulate.IContact": {
         "type": "object",
@@ -30223,7 +30418,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "handle"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanDrawFromCarrier": {
         "type": "object",
@@ -31094,7 +31289,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "roll"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the regrasp lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the regrasp lexicon family, keyed by each runtime export name."
       },
       "OmitIParamskind-o15": {
         "type": "object",
@@ -31333,7 +31528,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "scratchOn"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the upperPhrase lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the upperPhrase lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanArmPhrase.IParams": {
         "type": "object",
@@ -31496,7 +31691,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "target"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanArmPhrase.IOffset": {
         "type": "object",
@@ -32920,7 +33115,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "headTilt"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the upperGesture lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the upperGesture lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanHeadTilt": {
         "type": "object",
@@ -32998,7 +33193,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "restElbowSupport"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the upperRest lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the upperRest lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanLexiconUpperTouchParams": {
         "type": "object",
@@ -33077,7 +33272,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "tuckHair"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the upperTouch lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the upperTouch lexicon family, keyed by each runtime export name."
       },
       "OmitIParamskind-o16": {
         "type": "object",
@@ -33217,6 +33412,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -33489,7 +33695,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "wipeTears"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the upperFace lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the upperFace lexicon family, keyed by each runtime export name."
       },
       "PickIParamsmannerseconds": {
         "type": "object",
@@ -33524,7 +33730,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas."
+            "description": "Seconds at the face after the repetitions, at least 0, or two such bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -33582,7 +33788,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas."
+            "description": "Seconds at the face after the repetitions, at least 0, or two such bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent."
           },
           "prop": {
             "type": "string",
@@ -33641,7 +33847,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "wardrobe"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the upperDress lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
+        "description": "Open parameters of the upperDress lexicon family, keyed by each runtime export name."
       },
       "OmitIParamsitem": {
         "type": "object",
@@ -33973,7 +34179,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "toolScrewdriver"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the upperTool lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the upperTool lexicon family, keyed by each runtime export name."
       },
       "IAutoMovieMotionHumanLexiconStrikeParams": {
         "type": "object",
@@ -34152,7 +34358,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "rearKnee"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the strike lexicon family, keyed by each runtime export name: the named punches, kicks and knees of #3362.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the strike lexicon family, keyed by each runtime export name: the named punches, kicks and knees of #3362."
       },
       "OmitIParamsjumplegspintechnique": {
         "type": "object",
@@ -34176,7 +34382,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "feint": {
             "type": "number",
-            "description": "A feint: the share of the delivery shown before returning, in (0, 1).\nExclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless."
+            "description": "A feint: the share of the delivery shown before returning, in (0, 1)."
           }
         },
         "required": [
@@ -34254,7 +34460,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "bracePush"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the defence lexicon family, keyed by each runtime export name: the named blocks, evasions and braces of #3362.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the defence lexicon family, keyed by each runtime export name: the named blocks, evasions and braces of #3362."
       },
       "OmitIParamskind-o17": {
         "type": "object",
@@ -34330,7 +34536,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "castAtlatl"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the thrownWeapon lexicon family, keyed by each runtime export name: the thrown weapons of #3490.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the thrownWeapon lexicon family, keyed by each runtime export name: the thrown weapons of #3490."
       },
       "OmitIAutoMovieMotionHumanThrowObjectParamsangleattitudestyle": {
         "type": "object",
@@ -34470,7 +34676,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "pullLanyard"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the gunDrill lexicon family, keyed by each runtime export name: a field gun crew's duties of #3489.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the gunDrill lexicon family, keyed by each runtime export name: a field gun crew's duties of #3489."
       },
       "IAutoMovieMotionHumanOperate.IParams": {
         "type": "object",
@@ -34910,7 +35116,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.\nInclusive range [0.6, 1.3]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed.",
             "minimum": 0.6,
             "maximum": 1.3,
             "default": 1,
@@ -34918,7 +35124,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "armSwing": {
             "type": "number",
-            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).\nInclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).",
             "minimum": 0,
             "maximum": 2,
             "default": 1,
@@ -34926,7 +35132,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.\nInclusive range [0, 30]; schema default 0; unit \"degrees\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
             "minimum": 0,
             "maximum": 30,
             "default": 0,
@@ -35057,7 +35263,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "fireMusket"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the musketDrill lexicon family, keyed by each runtime export name: the 1764 Manual Exercise's musket drill of #3488.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the musketDrill lexicon family, keyed by each runtime export name: the 1764 Manual Exercise's musket drill of #3488."
       },
       "OmitIParamshandhandle": {
         "type": "object",
@@ -35290,7 +35496,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the carriage is held once reached, at least 0, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -35489,6 +35695,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
           },
           "other": {
             "oneOf": [
@@ -35829,6 +36046,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
           },
+          "arms": {
+            "oneOf": [
+              {
+                "const": "relaxed"
+              },
+              {
+                "const": "straight"
+              }
+            ],
+            "description": "How the arms hold while the hands are on their regions: `relaxed`, the\nelbow never locked, the wrist kept within a share of the arm's length\n(`touch.REACH`), or `straight`, the elbow locked and the whole arm's\nlength reached, as chest compressions are given with the arms straight\nand the shoulders over the hands (American Heart Association 2020).\n`relaxed` when absent."
+          },
           "other": {
             "oneOf": [
               {
@@ -36045,7 +36273,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "dropMagazine"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the boltAction lexicon family, keyed by each runtime export name: a bolt-action rifle's and a pistol's magazine handling of #3488.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the boltAction lexicon family, keyed by each runtime export name: a bolt-action rifle's and a pistol's magazine handling of #3488."
       },
       "IAutoMovieMotionHumanRelease.IParams": {
         "type": "object",
@@ -36131,7 +36359,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "closeGate"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the revolver lexicon family, keyed by each runtime export name: a revolver's handling of #3488.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the revolver lexicon family, keyed by each runtime export name: a revolver's handling of #3488."
       },
       "IAutoMovieMotionHumanLexiconArcheryParams": {
         "type": "object",
@@ -36180,7 +36408,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "shootCrossbow"
         ],
         "additionalProperties": false,
-        "description": "Open parameters of the archery lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans. Release rows can also transfer one staged prop onto an authored continuation.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
+        "description": "Open parameters of the archery lexicon family, keyed by each runtime export name.\nRelease rows can also transfer one staged prop onto an authored continuation."
       },
       "OmitIPresentanchoredgeextendedfromhandstip": {
         "type": "object",
@@ -36390,7 +36618,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the carriage is held once reached, at least 0, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -36717,7 +36945,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the carriage is held once reached, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the carriage is held once reached, at least 0, after the 0.5 to 0.9 s the weapon takes to come to it; 1 s when absent.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -37160,20 +37388,20 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "swim"
         ],
         "additionalProperties": false,
-        "description": "The parameters of every action by its name: the one table that types a\nchain's `act(name, params)` and each vocabulary method, so a call names an\naction and the type checker supplies and checks its parameters.\n\nEach member is the law's own `IParams`; nothing is restated here. Its keys\nare exactly `HumanActionName`: `HumanChain.act` indexes it by the name, so\na name without a member, or a member without a name, fails to compile."
+        "description": "The parameters of every action by its name: the one table that types a\nchain's `act(name, params)` and each vocabulary method, so a call names an\naction and the type checker supplies and checks its parameters.\n\nEach member is the law's own `IParams`; nothing is restated here. Its keys\nare exactly `HumanActionName`: `HumanChain.act` indexes it by the name, so\na name without a member, or a member without a name, fails to compile.\n\nAt run time `HumanPerformanceParams` in motions admits the parameters:\nbefore a law plans, it checks them against the action's schema, generated\nfrom these types and motions' numeric bounds, and refuses the first member\nthe schema does not accept with its path, the value given and what it\naccepts. What only planning finds, such as an unreachable target, the law\nrefuses as its own type states."
       },
       "IAutoMovieMotionHumanStand.IParams": {
         "type": "object",
         "properties": {
           "seconds": {
             "type": "number",
-            "description": "How long to stand, seconds; 1.5 when absent (provisional, `stand.SECONDS`): a beat between actions, not a held pose.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How long to stand, seconds, positive; 1.5 when absent (provisional, `stand.SECONDS`): a beat between actions, not a held pose.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           },
           "sway": {
             "type": "number",
-            "description": "The postural sway's RMS on each floor axis, metres; the performer's own\nwhen absent (3 mm times the skill's sway factor, 1.0 to 1.6), and 0 for\na stance that keeps exactly still, such as a reference scene a mirror\nor a difference is read against.\n\nInclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The postural sway's RMS on each floor axis, metres, at least 0; the\nperformer's own when absent (3 mm times the skill's sway factor, 1.0 to\n1.6), and 0 for a stance that keeps exactly still, such as a reference\nscene a mirror or a difference is read against.",
             "minimum": 0,
             "x-unit": "m"
           },
@@ -37194,7 +37422,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         },
         "required": [],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanRun.IParams": {
         "type": "object",
@@ -37249,7 +37477,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "to"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanApproach.IParams": {
         "type": "object",
@@ -37313,7 +37541,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The walk's pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`."
+            "description": "The walk's pace (`IAutoMovieMotionHumanWalkParams.pace` gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`."
           },
           "effort": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanEffort.IEffort",
@@ -37385,7 +37613,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "How long the action lasts, seconds; 0.6 s after `settled` when absent.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How long the action lasts, seconds, positive; 0.6 s after `settled` when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
@@ -37589,13 +37817,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Stroke repetitions (waves, nods, claps), a whole number of at least 1; the gesture's own count when absent.",
             "minimum": 1,
             "x-unit": ""
           },
           "hold": {
             "type": "number",
-            "description": "Post-stroke hold, seconds, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Post-stroke hold, seconds, at least 0, between the stroke and the retraction; 0 when absent: the hand retracts at once. A beat is `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on the `gesture` namespace.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -37830,14 +38058,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "How long, seconds; 2 when absent.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How long, seconds, positive; 2 when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
         },
         "required": [],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanPunch.IParams": {
         "type": "object",
@@ -38171,7 +38399,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "steps": {
             "type": "integer",
-            "description": "How many steps; 1 when absent. Each step takes the body's step period, 0.35 s at the reference hip and shorter on a shorter leg (`step.PERIOD`, about three steps a second, provisional), so the phrase lasts about `steps` times that.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many steps, a whole number of at least 1; 1 when absent. Each step takes the body's step period, 0.35 s at the reference hip and shorter on a shorter leg (`step.PERIOD`, about three steps a second, provisional), so the phrase lasts about `steps` times that.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -39376,7 +39604,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "feint": {
             "type": "number",
-            "description": "A feint: the share of the delivery shown before returning, in (0, 1).\nExclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless."
+            "description": "A feint: the share of the delivery shown before returning, in (0, 1)."
           }
         },
         "required": [
@@ -39500,7 +39728,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds to stay seated after `seated`; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds to stay seated after `seated`, at least 0; 1 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -39524,7 +39752,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "seat"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanRise.IParams": {
         "type": "object",
@@ -39554,7 +39782,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         },
         "required": [],
         "additionalProperties": false,
-        "description": "Parameters; the rise starts from the seated entry.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters; the rise starts from the seated entry."
       },
       "IAutoMovieMotionHumanShift.IParams": {
         "type": "object",
@@ -39572,7 +39800,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "by"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanBend.IParams": {
         "type": "object",
@@ -39615,7 +39843,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Seconds the hand stays at the target; 0.5 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the hand stays at the target, at least 0; 0.5 when absent.",
             "minimum": 0,
             "x-unit": "s"
           }
@@ -39646,7 +39874,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "pumps": {
             "type": "integer",
-            "description": "Pump cycles; 2 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Pump cycles, a whole number of at least 1; 2 when absent.",
             "minimum": 1,
             "x-unit": ""
           }
@@ -39655,7 +39883,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "partner"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanReceive.IParams": {
         "type": "object",
@@ -39719,7 +39947,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "handle"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanStepOver.IParams": {
         "type": "object",
@@ -39752,7 +39980,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "obstacle"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanBrace.IParams": {
         "type": "object",
@@ -39938,7 +40166,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "text"
         ],
         "additionalProperties": false,
-        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals."
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanHandToFace.IParams": {
         "type": "object",
@@ -40029,7 +40257,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "additionalProperties": false
               }
             ],
-            "description": "Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas."
+            "description": "Seconds at the face after the repetitions, at least 0, or two such bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent."
           },
           "prop": {
             "type": "string",
@@ -40909,7 +41137,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Seconds held at the lowest pose; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held at the lowest pose, at least 0; 1 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -40956,7 +41184,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Seconds held kneeling; 1.5 when absent.\nUnit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held kneeling; 1.5 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -41414,7 +41642,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Seconds held lying; 2 when absent.\nInclusive minimum: 0. Schema default: 2. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held lying, at least 0; 2 when absent.",
             "minimum": 0,
             "default": 2,
             "x-unit": "s"
@@ -42749,7 +42977,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "How many crawl cycles; 3 when absent. A cycle takes 1.2 s at a 0.93 m hip (`crawl.CYCLE`, provisional), so 3 cycles are 3.6 s.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many crawl cycles, a whole number of at least 1; 3 when absent. A cycle takes 1.2 s at a 0.93 m hip (`crawl.CYCLE`, provisional), so 3 cycles are 3.6 s.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -42771,7 +42999,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "rungs": {
             "type": "integer",
-            "description": "How many rungs the feet climb; 3 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many rungs the feet climb, a whole number of at least 1; 3 when absent.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -42855,7 +43083,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "hold": {
             "type": "number",
-            "description": "Seconds the grip is held once both hands have closed, before they let go; 2 s when absent (`clinch`, provisional: no study of a grip's duration was read). The hands reach in their aimed movement time first (McIntosh et al. 2018), so the whole action is that time, `hold` and the release. 0 closes and lets go at once; a few seconds fits a held neck tie or a grip taken before a throw.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the grip is held once both hands have closed, before they let go, at least 0; 2 s when absent (`clinch`, provisional: no study of a grip's duration was read). The hands reach in their aimed movement time first (McIntosh et al. 2018), so the whole action is that time, `hold` and the release. 0 closes and lets go at once; a few seconds fits a held neck tie or a grip taken before a throw.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -43091,7 +43319,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "How many cycles; 4 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many cycles, a whole number of at least 1; 4 when absent.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -43149,7 +43377,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "How many circles; 3 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many circles, a whole number of at least 1; 3 when absent.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -43233,7 +43461,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "load": {
             "type": "number",
-            "description": "The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent.\nInclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent.",
             "minimum": 0,
             "maximum": 0.25,
             "x-unit": ""
@@ -43250,11 +43478,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "slow"
               }
             ],
-            "description": "The walk's pace (IAutoMovieMotionHumanWalkParams.pace gives the speeds); `normal` when absent. The load leans the trunk and does not change the speed."
+            "description": "The walk's pace (`IAutoMovieMotionHumanWalkParams.pace` gives the speeds); `normal` when absent. The load leans the trunk and does not change the speed."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
-            "description": "How the walk is performed (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent."
+            "description": "How the walk is performed, read as the walk reads it (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent."
           }
         },
         "required": [
@@ -43279,7 +43507,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "const": "twoHands"
           }
         ],
-        "description": "A hand's hold place in the performer's moving floor frame. How the load is held."
+        "description": "How the load is held: in one hand, in both hands, on the hip, or pushed on wheels."
       },
       "IAutoMovieMotionHumanPushPull.IParams": {
         "type": "object",
@@ -43518,7 +43746,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "reps": {
             "type": "integer",
-            "description": "Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top (`exercise`): 3.3 s at the default tempo, so 3 repetitions take 9.9 s.\nUnit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top (`exercise`): 3.3 s at the default tempo, so 3 repetitions take 9.9 s.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -43611,7 +43839,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds held at the end of the range, after 1.5 s to enter and before 1.5 s to release; `HOLD` when absent (`stretch.HOLD`, 30 s, Bandy et al. 1997).\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held at the end of the range, at least 0, after 1.5 s to enter and before 1.5 s to release; `HOLD` when absent (`stretch.HOLD`, 30 s, Bandy et al. 1997).",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -43666,13 +43894,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "bpm": {
             "type": "number",
-            "description": "Beats per minute; `BPM` when absent.\nExclusive minimum: 0. Unit: \"beats/min\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Beats per minute, positive; `dance.BPM` (120) when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "beats/min"
           },
           "beats": {
             "type": "integer",
-            "description": "How many beats; 8 when absent. At the default 120 beats a minute a beat is 0.5 s (`dance.BPM`), so 8 beats take 4 s plus one beat.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "How many beats, a whole number of at least 1; 8 when absent. At the default 120 beats a minute a beat is 0.5 s (`dance.BPM`), so 8 beats take 4 s plus one beat.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -43766,13 +43994,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Punches of a choku-zuki series; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s (`martialArt`).\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Punches of a choku-zuki series, a whole number of at least 1; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s (`martialArt`).",
             "minimum": 1,
             "x-unit": ""
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds the stance is held; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds the stance is held, at least 0; 1 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -43842,13 +44070,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "Roll cycles; 4 when absent, each `chiSau.CYCLE` (1.2 s, provisional), so 4.8 s of rolling.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Roll cycles, a whole number of at least 1; 4 when absent, each `chiSau.CYCLE` (1.2 s, provisional), so 4.8 s of rolling.",
             "minimum": 1,
             "x-unit": ""
           },
           "seconds": {
             "type": "number",
-            "description": "The drill's seconds; the cycles at the provisional cycle length when absent.\nExclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "The drill's seconds, positive; the cycles at the provisional cycle length when absent.",
             "exclusiveMinimum": 0,
             "x-unit": "s"
           }
@@ -43879,7 +44107,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "count": {
             "type": "integer",
-            "description": "Dribble bounces; 4 when absent, at 2 bounces a second (`ballSport.BOUNCES`, provisional): a 2 s dribble.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Dribble bounces, a whole number of at least 1; 4 when absent, at 2 bounces a second (`ballSport.BOUNCES`, provisional): a 2 s dribble.",
             "minimum": 1,
             "x-unit": ""
           },
@@ -43897,7 +44125,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "flightSeconds": {
             "type": "number",
-            "description": "Positive seconds from release through `at` for a chest pass, set shot, handball throw, or the first impact of a bounce pass.\nExclusive minimum: 0. Unit: s. Each court skill has a provisional default."
+            "description": "Seconds, positive, from the release to the ball passing `at` for a chest\npass, a set shot or a handball throw, or to a bounce pass's first\nimpact; each court skill's own provisional time when absent."
           },
           "contactAt": {
             "$ref": "#/components/schemas/IAutoMovieVector3",
@@ -43969,7 +44197,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds held; 1 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held, at least 0; 1 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -44018,7 +44246,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds held for a solo position; 0.6 when absent.\nInclusive minimum: 0. Unit: \"s\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Seconds held for a solo position, at least 0; 0.6 when absent.",
             "minimum": 0,
             "x-unit": "s"
           },
@@ -44095,7 +44323,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "cycles": {
             "type": "integer",
-            "description": "Cycles; 3 when absent. A cycle takes 1.4 s in the front crawl (`swim.CYCLE`) and the backstroke, 1 s treading water, so 3 cycles of the crawl take 4.2 s; the keyed strokes take the seconds of their keys (`SwimStroke.strokes`).\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "description": "Cycles, a whole number of at least 1; 3 when absent. A cycle takes 1.4 s in the front crawl (`swim.CYCLE`) and the backstroke, 1 s treading water, so 3 cycles of the crawl take 4.2 s; the keyed strokes take the seconds of their keys (`SwimStroke.strokes`).",
             "minimum": 1,
             "x-unit": ""
           },
