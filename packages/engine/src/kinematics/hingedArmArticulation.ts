@@ -109,7 +109,10 @@ const EDGE_BISECTIONS: number = 20;
  * seed lies in, and a cold fit takes the legal swivel nearest the pole on any
  * branch, walking out from it both ways; each edge is found by swivel steps
  * and bisection on the candidate's legality. Only where no swivel is legal
- * does the sweep decide.
+ * does the sweep decide. A continued fit whose closed-form candidates
+ * (`closed`) are all refused on its seed's branch takes the legal one
+ * nearest its seed on any branch, so the end joint keeps its requested turn
+ * and no read refines toward one its branch cannot take.
  * With certified global score minima and no second key, the first scored
  * coarse candidate ends a cold search only if its actual two keys equal both
  * minima exactly. No later candidate can be strictly ahead, so the original
@@ -402,6 +405,47 @@ export function hingedArmArticulation(
           : walkToward(probe, near.swivel, target);
       if (followed !== null)
         return answer(followed.candidate, followed.candidate.shortfall);
+    }
+
+    // Where a requested term is met only at isolated swivels (`closed`) and
+    // none of them is legal on the seed's branch, the legal one nearest the
+    // seed on any branch answers (Tolani, Goswami and Badler 2000, section
+    // 3.2.4, the feasible swivel nearest the desired one), as a cold placed
+    // fit does: the end joint keeps its requested turn exactly, the mid joint
+    // changes side only where the goal leaves it no legal swivel on its own,
+    // and no read refines toward a turn its branch cannot take.
+    if (
+      props.closed !== undefined &&
+      props.tie === undefined &&
+      props.minimum === undefined &&
+      Number.isFinite(near.swivel)
+    ) {
+      const own: (angle: number) => IScored = prober(stop, posed);
+      const roots: number[] = props.closed(posed) ?? [];
+      if (!roots.some((angle: number): boolean => legal(own(angle)))) {
+        let nearest: IPlacedEdge | null = null;
+        for (const other of stops) {
+          if (other.shortfall !== shortfall) continue;
+          const branched: ISweep = record(other);
+          for (const angle of props.closed(branched.posed) ?? []) {
+            const candidate: IScored = branched.probe(angle);
+            if (!legal(candidate)) continue;
+            const turned: number = angle - near.swivel;
+            const distance: number = Math.abs(
+              turned - 360 * Math.round(turned / 360),
+            );
+            if (
+              nearest === null ||
+              distance < nearest.distance - 1e-9 ||
+              (Math.abs(distance - nearest.distance) <= 1e-9 &&
+                better(candidate, nearest.candidate))
+            )
+              nearest = { candidate, distance };
+          }
+        }
+        if (nearest !== null)
+          return answer(nearest.candidate, nearest.candidate.shortfall);
+      }
     }
 
     // The search is centred on the admissible swivel nearest the seed where

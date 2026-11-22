@@ -133,12 +133,12 @@ export function readHumanSegmentLeaf(
     ? readHumanSegmentLeaf.anchors(person, segment, t, prepared)
     : undefined;
 
-  // Every free leg fitted at this second (outside a legs-still window,
-  // where the legs keep one fit) continues the plan's leg chain at the frame at or
-  // before it (`readHumanSegmentLegs`): the closed-form root on the
-  // branch the frame before chose, so a knee keeps its side from frame to
-  // frame. A leg is never placed at the chain's seed, only continued from
-  // it, so a planted foot is met exactly by its own fit.
+  // Every leg fitted at this second (outside a legs-still window, where the
+  // legs keep one fit) continues the plan's leg chain at the frame at or
+  // before it (`readHumanSegmentLegs`): the closed-form root on the branch
+  // the frame before chose, or the legal one nearest it on the other branch
+  // where that branch has none, so a knee keeps its side from frame to frame
+  // and a planted foot is met exactly.
   const legs: ReadonlyMap<string, IAutoMovieSwivelSeed> =
     fits === undefined && !still(segment.plan, localSeconds)
       ? readHumanSegmentLegs(person, segment, t, localSeconds, written.limbs)

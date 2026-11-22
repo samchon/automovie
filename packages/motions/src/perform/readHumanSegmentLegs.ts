@@ -21,16 +21,16 @@ import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
  * (`HumanSegmentOverlay.overlaid`), every subset of them since a fading
  * overlay keeps both the leaf with it and the one without. The seeds are the
  * plan's leg chain at the frame at or before the second
- * (`readHumanSegmentLegs.chain`), for a free leg alone (a goal neither
- * planted nor in contact): a leg is only continued from them, never placed
- * at them, and a planted leg keeps its own fit, which meets its foot
- * exactly where the chain's branch could leave it no legal root.
+ * (`readHumanSegmentLegs.chain`), for every leg the read gives a goal: a leg
+ * is only continued from them, never placed at them, and its fit takes the
+ * closed-form root nearest the seed (on another branch where the seed's has
+ * no legal one), so a planted foot is met exactly.
  *
  * @param person The person.
  * @param segment The action.
  * @param t Film seconds.
  * @param local The action's plan second of `t`.
- * @param limbs The read's limb goals, which tell a free leg from a planted one.
+ * @param limbs The read's limb goals: a leg without one is not fitted.
  * @returns The legs' seeds by fit name.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the names, the seeds' source and why a leg is only continued.
@@ -66,13 +66,7 @@ export function readHumanSegmentLegs(
     for (const [limb, seed] of chain) {
       const goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb] =
         limbs[limb];
-      if (
-        goal === undefined ||
-        goal.planted === true ||
-        goal.contact !== undefined
-      )
-        continue;
-      out.set(`leaf:${tag}:${limb}`, seed);
+      if (goal !== undefined) out.set(`leaf:${tag}:${limb}`, seed);
     }
   }
   return out;
