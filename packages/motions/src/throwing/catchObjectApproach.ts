@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanCatchObject,
@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBall } from "../ballStrike/HumanBall";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { catchObject } from "./catchObject";
@@ -76,6 +77,20 @@ export namespace catchObjectApproach {
       launch.velocity,
     ).z;
     const released: number = placed.start + launch.seconds - context.start;
+
+    // The launch flies the prop's origin; the catch meets the ball's centre,
+    // which stands off the origin for a ball not modelled about its centre:
+    // that offset as the ball leaves the hand, carried along the path.
+    const leaving: number = placed.start + launch.seconds;
+    const offset: IAutoMovieVector3 = Vector3.subtract(
+      HumanBall.of(context, context.params.ball, leaving, "ball").centre,
+      context.prop(context.params.ball).frame(leaving).position,
+    );
+    const centre = (seconds: number): IAutoMovieVector3 =>
+      Vector3.add(
+        throwObject.path(launch, Math.max(0, seconds - released)),
+        offset,
+      );
     // A toss of the catcher's own is met as it falls to the chest
     // (`TOSS` of the stature), within the arms wherever it rises.
     if (placed.subject === context.subject) {
@@ -94,8 +109,7 @@ export namespace catchObjectApproach {
       return {
         contact: released + flight,
         speed: { ...launch.velocity, y: vy - g * flight },
-        before: (seconds: number): IAutoMovieVector3 =>
-          throwObject.path(launch, Math.max(0, seconds - released)),
+        before: centre,
       };
     }
     if (ahead <= 0 || !(closing > 0))
@@ -119,8 +133,7 @@ export namespace catchObjectApproach {
         ...launch.velocity,
         y: launch.velocity.y - AutoMovieGravity.STANDARD * flight,
       },
-      before: (seconds: number): IAutoMovieVector3 =>
-        throwObject.path(launch, Math.max(0, seconds - released)),
+      before: centre,
     };
   }
 }
