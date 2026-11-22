@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -63,10 +63,13 @@ export namespace HumanMountReach {
     body: IAutoMovieMotionHumanBody,
     seated: IAutoMovieMotionHumanPosture,
     sides: readonly AutoMovieHumanSide[],
-    bow: (degrees: number) => IAutoMovieMotionHumanPosture =
-      (degrees: number): IAutoMovieMotionHumanPosture => HumanMountRider.leant(seated, degrees),
+    bow: (degrees: number) => IAutoMovieMotionHumanPosture = (
+      degrees: number,
+    ): IAutoMovieMotionHumanPosture => HumanMountRider.leant(seated, degrees),
     span: readonly [number, number] = [0, HumanMountRider.LEAN],
-  ): (points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>) => number {
+  ): (
+    points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
+  ) => number {
     if (sides.length === 0) return (): number => 0;
     // The shoulders at three flexions, 0, half and the whole of `LEAN`.
     const angles: readonly [number, number, number] = [
@@ -110,8 +113,8 @@ export namespace HumanMountReach {
         ];
       }),
     );
-    const least: number = span[0] * Math.PI / 180;
-    const most: number = span[1] * Math.PI / 180;
+    const least: number = (span[0] * Math.PI) / 180;
+    const most: number = (span[1] * Math.PI) / 180;
     return (
       points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
     ): number => {
@@ -127,7 +130,8 @@ export namespace HumanMountReach {
         });
       }
       const neutral: boolean = least <= 0 && most >= 0;
-      if (neutral && arms.every((arm: IArc): boolean => arm.k + arm.cos <= 0)) return 0;
+      if (neutral && arms.every((arm: IArc): boolean => arm.k + arm.cos <= 0))
+        return 0;
       const candidates: number[] = neutral ? [0, least, most] : [least, most];
       const period: number = 2 * Math.PI;
       const add = (t: number): void => {
@@ -162,17 +166,30 @@ export namespace HumanMountReach {
         const cos: number = Math.cos(angle);
         let excess: number = 0;
         for (const arm of arms) {
-          const rounded: number = Number.EPSILON * (Math.abs(arm.k) + Math.abs(arm.cos) + Math.abs(arm.sin));
-          excess = Math.max(excess, arm.k + arm.cos * cos + arm.sin * sin - rounded);
+          // An arccos root is exact only to the square root of the machine
+          // epsilon near the ends of its range, so a crossing found there
+          // reads a residue of that size: within it the arm reaches, or the
+          // crossing nearest the posture loses to a deep lean whose excess
+          // is exactly none, for a single instant.
+          const rounded: number =
+            Math.sqrt(Number.EPSILON) *
+            (Math.abs(arm.k) + Math.abs(arm.cos) + Math.abs(arm.sin));
+          excess = Math.max(
+            excess,
+            arm.k + arm.cos * cos + arm.sin * sin - rounded,
+          );
         }
-        if (excess < gap || (excess === gap && Math.abs(angle) < Math.abs(best))) {
+        if (
+          excess < gap ||
+          (excess === gap && Math.abs(angle) < Math.abs(best))
+        ) {
           best = angle;
           gap = excess;
         }
       }
       if (best === least) return span[0];
       if (best === most) return span[1];
-      return best * 180 / Math.PI;
+      return (best * 180) / Math.PI;
     };
   }
 
@@ -270,7 +287,9 @@ export namespace HumanMountReach {
         IAutoMovieVector3,
       ],
     ): Omit<ICircle, "reach"> => {
-      const solve: (axis: keyof IAutoMovieVector3) => [number, number, number] = (
+      const solve: (
+        axis: keyof IAutoMovieVector3,
+      ) => [number, number, number] = (
         axis: keyof IAutoMovieVector3,
       ): [number, number, number] =>
         [0, 1, 2].map(

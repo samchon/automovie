@@ -18,9 +18,6 @@ const EN1176: string =
 const ESTIMATE: string =
   "Coarse playground construction estimate; no source read gives it";
 
-/** Chain grip height above the seat, metres: where a seated rider's hands hold the chains (provisional construction estimate). */
-const GRIP: number = 0.45;
-
 /**
  * A playground swing: a crossbeam on two posts and a seat hung on two
  * chains from the beam's pivot axis.
@@ -54,9 +51,10 @@ export function createSwing(
     pivot,
     clearance,
     seatWidth,
+    grip,
     mass,
   }: Record<createSwing.Dimension, number> = draw.dimensions(createSwing.BANDS);
-  if (!(pivot - clearance > GRIP))
+  if (!(pivot - clearance > grip))
     throw new ArchetypeRefusal({
       kind: "parameter",
       archetype: "swing",
@@ -64,7 +62,7 @@ export function createSwing(
       value: pivot,
       feasible: {
         kind: "range",
-        minimum: clearance + GRIP,
+        minimum: clearance + grip,
         maximum: null,
         unit: "m",
       },
@@ -119,12 +117,13 @@ export namespace createSwing {
   /** The ground under the swing, where a rider stands and lands. */
   export type Affordance = "ground";
 
-  /** Beam height, seat clearance, seat width and depth in metres, and frame mass in kilograms. */
+  /** Beam height, seat clearance, seat width and depth and the chain grips' height above the seat in metres, and frame mass in kilograms. */
   export type Dimension =
     | "pivot"
     | "clearance"
     | "seatWidth"
     | "seatDepth"
+    | "grip"
     | "mass";
 
   /** The hanging seat's sitting surface and the two chain grips. */
@@ -145,6 +144,7 @@ export namespace createSwing {
     clearance: "m",
     seatWidth: "m",
     seatDepth: "m",
+    grip: "m",
     mass: "kg",
   };
 
@@ -154,13 +154,16 @@ export namespace createSwing {
     clearance: ArchetypeBand.metres(0.35, 0.45, EN1176, true),
     seatWidth: ArchetypeBand.metres(0.28, 0.5, ESTIMATE, true),
     seatDepth: ArchetypeBand.metres(0.15, 0.22, ESTIMATE, true),
+    // Where a seated rider holds the chains: from just over the thighs to
+    // an adult's seated overhead reach.
+    grip: ArchetypeBand.metres(0.3, 1.2, ESTIMATE, true),
     mass: ArchetypeBand.of("kg", 60, 150, ESTIMATE, true),
   };
 
   /**
    * The seat with its chains as one rigid model whose origin is the pivot:
    * the sitting surface hangs `length` below it, and each chain grip is
-   * `GRIP` above the seat on its chain.
+   * the swing's `grip` above the seat on its chain.
    *
    * @param swing The swing whose seat this is.
    * @returns The hanging seat model.
@@ -172,6 +175,7 @@ export namespace createSwing {
     const clearance: number = swing.dimensions.clearance!;
     const seatWidth: number = swing.dimensions.seatWidth!;
     const seatDepth: number = swing.dimensions.seatDepth!;
+    const grip: number = swing.dimensions.grip!;
     const draw: ArchetypeDrawSession<SeatDimension> = new ArchetypeDrawSession(
       "swingSeat",
       { length: "m", width: "m", depth: "m", mass: "kg" },
@@ -205,7 +209,7 @@ export namespace createSwing {
         symmetry: "round",
         grip: "power",
         frame: ArchetypeFrame.facing(
-          Vector3.create((side * seatWidth) / 2, GRIP - length, 0),
+          Vector3.create((side * seatWidth) / 2, grip - length, 0),
           Vector3.create(0, 0, -1),
           Vector3.create(0, 1, 0),
         ),

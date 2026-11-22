@@ -49,7 +49,7 @@ const TURN: number = 0.3;
 /** Sampling step that locates the seat's turning points, seconds: finer than any swing's half period. */
 const STEP: number = 1 / 120;
 
-/** How far a wrist may leave its chain grip at full lean beyond where the tucked posture holds it, metres: the 10 mm skin a held site allows its hand. */
+/** How far past the straightened arm's reach a shoulder may lie from the wrist its chain grip takes at full lean, metres: the 10 mm skin a held site allows its hand. */
 const SLIP: number = 0.01;
 
 /** Knee flexion of the tucked and of the extended seated posture, degrees (provisional staging). */
@@ -169,9 +169,11 @@ export function HumanSwingPump(
     };
   };
 
-  // The hands must keep the chains at full lean: a lean that pulls a wrist
-  // further from its chain grip than the tucked posture holds it is
-  // refused, never left to slip.
+  // The hands must keep the chains at full lean: a lean that carries a
+  // shoulder further from the wrist its chain grip takes than the
+  // straightened arm reaches is refused, never left to slip. The shoulder
+  // is read off the posture and the wrist off the grip's own goal, so no
+  // stretch the arm's fit gives can hide the reach.
   const middles: number[] = [0, ...turns, ride.duration]
     .slice(1)
     .map((turn: number, index: number, ends: number[]): number =>
@@ -180,34 +182,32 @@ export function HumanSwingPump(
   const full: number | undefined = middles.find(
     (at: number): boolean => pumped(at) === 1,
   );
-  const tucked: number | undefined = middles.find(
-    (at: number): boolean => pumped(at) === 0,
-  );
-  if (full !== undefined && tucked !== undefined)
-    for (const [side, point] of Object.entries(hands)) {
-      if (point === undefined) continue;
-      const gap = (at: number): number => {
-        const bones: ReturnType<typeof poseBones> = poseBones(
-          context.body,
-          resolveHumanPosture(context.body, pumping(at)),
-        );
-        return Vector3.distance(
-          bones.get(side === "left" ? "leftHand" : "rightHand")!.worldPosition,
-          context.aim({ kind: "prop", subject: on, point }, context.start + at)
-            .point,
-        );
-      };
-      const slip: number = gap(full) - gap(tucked);
+  if (full !== undefined) {
+    const leaning: Posture = pumping(full);
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      context.body,
+      resolveHumanPosture(context.body, leaning),
+    );
+    for (const side of ["left", "right"] as const) {
+      const wrist: IAutoMovieVector3 | undefined =
+        hands[side] === undefined
+          ? undefined
+          : leaning.limbs[`${side}Arm`]?.point;
+      if (wrist === undefined) continue;
+      const slip: number =
+        Vector3.distance(bones.get(`${side}UpperArm`)!.worldPosition, wrist) -
+        (context.body.measure.upperArm + context.body.measure.forearm);
       if (slip > SLIP)
         throw new HumanRefusal({
           kind: "reach",
           axis: "lean",
           value: lean,
           feasible: null,
-          reason: `at ${lean} degrees of lean the ${side} wrist leaves its chain by ${slip.toFixed(3)} m`,
+          reason: `at ${lean} degrees of lean the ${side} shoulder lies ${slip.toFixed(3)} m beyond the straightened arm's reach of its chain grip`,
           fix: "lean back less, or hold the chains lower",
         });
     }
+  }
   return { ...ride, posture: pumping };
 }
 
