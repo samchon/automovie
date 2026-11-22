@@ -46,34 +46,6 @@ const PAIRS: readonly IPair[] = [
   { side: "left", face: "inside" },
 ];
 
-/** The trunk's forward leans tried over the wheel, degrees, least first: provisional steps up to a potter's deep lean. */
-const LEANS: readonly number[] = [0, 10, 20, 30, 40, 50, 60];
-
-/** The deepest of LEANS, which the reach is refused from when none brings the palms within it. */
-const DEEPEST: number = 60;
-
-/** The trunk's bones a lean flexes. */
-type TrunkBone = "spine" | "chest";
-
-/** A posture with its trunk flexed forward, shared between the spine and the chest. */
-function lean(
-  posture: IAutoMovieMotionHumanPosture,
-  degrees: number,
-): IAutoMovieMotionHumanPosture {
-  const add: (bone: TrunkBone) => readonly [number, number, number] = (
-    bone: TrunkBone,
-  ): readonly [number, number, number] => {
-    const was: readonly [number, number, number] = posture.joints[bone] ?? [
-      0, 0, 0,
-    ];
-    return [was[0] + degrees / 2, was[1], was[2]];
-  };
-  return {
-    ...posture,
-    joints: { ...posture.joints, spine: add("spine"), chest: add("chest") },
-  };
-}
-
 /** The head's speed when none is given, revolutions per minute: a provisional throwing speed. */
 const RPM: number = 120;
 

@@ -186,7 +186,8 @@ export namespace createHoseLine {
     | "bailTip"
     | "backup"
     | "tip"
-    | "flex";
+    | "flex"
+    | "flexPitch";
 
   /** The bore, the length and the mass. */
   export type Dimension = "bore" | "length" | "mass";
