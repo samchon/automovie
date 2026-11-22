@@ -48,6 +48,7 @@ import { WorkoutPlace } from "./WorkoutPlace";
 import { WorkoutPoses } from "./WorkoutPoses";
 import { WorkoutStanding } from "./WorkoutStanding";
 import { WorkoutSupport } from "./WorkoutSupport";
+import { hangRings } from "./hangRings";
 import { prepareWorkoutBlends } from "./prepareWorkoutBlends";
 import { workoutContacts } from "./workoutContacts";
 import { workoutFloorClearance } from "./workoutFloorClearance";
@@ -396,8 +397,20 @@ export namespace workout {
         admit(write(standing, at, undefined, read, project));
       });
     }
+    const contacts: IAutoMovieMotionHumanContactWindow[] = workoutContacts.of({
+      kind,
+      prop: p.on?.prop,
+      spans,
+      starts,
+      between,
+      clock,
+      from,
+      to,
+      recovers: recovery !== null,
+    });
+    const hung: typeof write = hangRings(write, context, contacts, duration);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
-      { channels, reads: [], from: 0, to: duration, write },
+      { channels, reads: [], from: 0, to: duration, write: hung },
     ];
     if (kind.hands === true)
       primitives.push(
@@ -414,17 +427,6 @@ export namespace workout {
           clock,
         }),
       );
-    const contacts: IAutoMovieMotionHumanContactWindow[] = workoutContacts.of({
-      kind,
-      prop: p.on?.prop,
-      spans,
-      starts,
-      between,
-      clock,
-      from,
-      to,
-      recovers: recovery !== null,
-    });
     const posed: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
@@ -476,7 +478,7 @@ export namespace workout {
                   ? posed.posture(...args)
                   : merge(
                       standing,
-                      write(
+                      hung(
                         standing,
                         seconds,
                         undefined,
@@ -491,7 +493,6 @@ export namespace workout {
     });
     return result;
   }
-
   /** The colliders of an arm, from the shoulder out. */
   const ARM: RegExp = /(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/;
 }
