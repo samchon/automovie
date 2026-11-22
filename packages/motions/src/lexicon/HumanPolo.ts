@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -45,6 +46,9 @@ const ANGLES: Readonly<Record<"carry" | "top" | "finish", number>> = {
   top: -225,
   finish: 80,
 };
+
+/** The wrist's cock at the top of the backswing, degrees: the mallet square to the arm, the double pendulum's right angle at the top (Cochran and Stobbs 1968, The Search for the Perfect Swing; provisional, read through secondary summaries). */
+const COCK: number = 90;
 
 /** The most a rider leans out of the saddle, degrees (provisional). */
 const MOST: number = 45;
@@ -76,7 +80,7 @@ export const HumanPolo: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPolo
      * Admit the stroke, lay the swing's plane at the contact, then sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: a non-seated entry, a bad lean, speed or contact time, a ball out of the mallet's reach from the leaned shoulder, and a swing whose head would pass through the horse.
-     * @evidence contracts/development/implementation.md#principled-implementation The shoulder is the leaned posture's own right shoulder joint, resolved in the carrier contact's frame; the swing radius is the shoulder's distance to the ball, the hand that far less the mallet's working length from the shoulder; the head's angle follows minimum-jerk pieces between the phase instants.
+     * @evidence contracts/development/implementation.md#principled-implementation The shoulder is the leaned posture's own right shoulder joint, resolved in the carrier contact's frame; the swing radius is the shoulder's distance to the ball, the hand on its own circle that far less the mallet's working length from the shoulder, the mallet hinged at the wrist as a double pendulum, cocked square to the arm at the top and released into line at the contact; the head's angle follows minimum-jerk pieces between the phase instants.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the plane, the refusals, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable ball or a swing into the horse is refused, never bent.
      * @evidence contracts/development/implementation.md#efficient-algorithms One tool read, at most twenty-six shoulder resolves restricted to the upper arm for the lean's bisection, and sixteen clearance samples per plan; a sample reads one carrier frame and fits one arm goal.
@@ -192,27 +196,40 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const w: IAutoMovieVector3 = Vector3.normalize(
     Vector3.subtract(forward, Vector3.scale(u, Vector3.dot(forward, u))),
   );
-  const head = (theta: number): IAutoMovieVector3 => {
+  // The swing as a double pendulum hinged at the wrist, as the precision strokes hinge theirs near the hand: the hand on its own circle about the leaned shoulder at the radius less the mallet's working length, the mallet cocked back against the travel and released into line with the arm at the contact, so the head meets the ball on the radius through it.
+  const radial = (theta: number): IAutoMovieVector3 => {
     const r: number = (theta * Math.PI) / 180;
     return Vector3.add(
-      centre,
-      Vector3.add(
-        Vector3.scale(u, radius * Math.cos(r)),
-        Vector3.scale(w, radius * Math.sin(r)),
-      ),
+      Vector3.scale(u, Math.cos(r)),
+      Vector3.scale(w, Math.sin(r)),
     );
   };
-  // The hand holds the mallet's working length behind its head, toward the circle's centre: every hand station of the swing, the carry's too, lies on the radius, the radius less the mallet from the leaned shoulder.
-  const hand = (theta: number): IAutoMovieVector3 => {
-    const at: IAutoMovieVector3 = head(theta);
-    return Vector3.subtract(
-      at,
-      Vector3.scale(
-        Vector3.normalize(Vector3.subtract(at, centre)),
-        tool.length,
-      ),
+  const along = (theta: number): IAutoMovieVector3 => {
+    const r: number = (theta * Math.PI) / 180;
+    return Vector3.add(
+      Vector3.scale(u, -Math.sin(r)),
+      Vector3.scale(w, Math.cos(r)),
     );
   };
+  // The cock: whole from the top of the backswing, released with the hand's angle to none at the contact.
+  const cock = (theta: number): number =>
+    theta >= 0
+      ? 0
+      : (COCK * Math.min(1, theta / ANGLES.top) * Math.PI) / 180;
+  const shaft = (theta: number): IAutoMovieVector3 =>
+    Vector3.subtract(
+      Vector3.scale(radial(theta), Math.cos(cock(theta))),
+      Vector3.scale(along(theta), Math.sin(cock(theta))),
+    );
+  const face = (theta: number): IAutoMovieVector3 =>
+    Vector3.add(
+      Vector3.scale(radial(theta), Math.sin(cock(theta))),
+      Vector3.scale(along(theta), Math.cos(cock(theta))),
+    );
+  const hand = (theta: number): IAutoMovieVector3 =>
+    Vector3.add(centre, Vector3.scale(radial(theta), radius - tool.length));
+  const head = (theta: number): IAutoMovieVector3 =>
+    Vector3.add(hand(theta), Vector3.scale(shaft(theta), tool.length));
   const station: number = radius - tool.length;
   if (station < 0 || station > arm)
     throw new HumanRefusal({
@@ -319,16 +336,17 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       // Before the lean begins the arm is the entry's; from it on the plan writes the swing's goal to the end, so the course reads it everywhere it lays the arm.
       if (t < takeAway - PHASES.lean)
         return HumanMountedFrame.move(local, HumanMountedFrame.LOCAL, now);
-      const at: IAutoMovieVector3 = head(theta(t));
+      const angle: number = theta(t);
       const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-        StrikingHeld.hand(tool, 0, at, Vector3.subtract(at, centre), w);
+        StrikingHeld.hand(tool, 0, head(angle), shaft(angle), face(angle));
+      // The elbow hung from the body, as the sword strokes leave it (`StrikingBlade`).
       const swung: IAutoMovieMotionHumanPosture = {
         ...shown,
         limbs: {
           ...shown.limbs,
           rightArm: goal(
             frame,
-            Vector3.add(shoulder, { x: -0.6, y: -0.3, z: -0.4 }),
+            AutoMovieMotionHumanBend.hang(context.body, shown, "right"),
           ),
         },
       };
