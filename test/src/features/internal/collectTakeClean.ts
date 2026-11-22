@@ -1,4 +1,4 @@
-import { HumanPerformance } from "@automovie/motions";
+import type { IAutoMovieMotionHumanPerformance } from "@automovie/interface";
 
 import { assertTakeClean } from "./assertTakeClean";
 
@@ -12,7 +12,7 @@ import { assertTakeClean } from "./assertTakeClean";
  */
 export function collectTakeClean(
   label: string,
-  take: HumanPerformance,
+  take: IAutoMovieMotionHumanPerformance,
   failures: string[],
 ): void {
   try {

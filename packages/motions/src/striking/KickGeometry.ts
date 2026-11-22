@@ -355,7 +355,8 @@ export namespace KickGeometry {
    * The feet's contact windows, as shares of the kick's duration: the
    * kicking foot is planted until the launch and at the replant, and the
    * support foot pivots on its ball throughout, except while it slides a
-   * step (up or back) between the launch and the chamber key.
+   * step (up or back) between the launch and the chamber key, when it bears
+   * the body as it slides (a `bear` window).
    */
   function windows(
     timing: IAutoMovieMotionHumanKickGeometry.ITiming,
@@ -399,6 +400,15 @@ export namespace KickGeometry {
       ...(stepped
         ? [
             ...(initiallyBearing ? [pivot(0, launch)] : []),
+            // The stepping support foot slides along the floor bearing the
+            // body: a bearing slide, not a plant.
+            {
+              part: `${support}Foot`,
+              kind: "bear",
+              from: launch,
+              to: timing.chamber / d,
+              support: { kind: "ground" },
+            } satisfies IAutoMovieMotionHumanContactWindow,
             pivot(timing.chamber / d, 1),
           ]
         : [pivot(initiallyBearing ? 0 : launch, 1)]),

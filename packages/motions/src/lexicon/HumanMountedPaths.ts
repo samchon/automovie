@@ -286,10 +286,11 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The contact window a figure's supporting part holds on the carrier: a grip for a hand, a plant for a sole, a knee bearing on its region, the right thigh bearing over its bar.
+   * The contact window a figure's supporting part holds on the carrier: a grip for a hand, a plant for a sole (on its stirrup's own frame when one is named), a knee bearing on its region, the right thigh bearing over its bar.
    *
    * @param part The supporting part.
    * @param on The carrier's subject id.
+   * @param point The carrier's point the part rests on, when the figure names one.
    * @returns The window over the whole performance, which the clock then cuts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each part's window.
@@ -303,6 +304,7 @@ export namespace HumanMountedPaths {
   export function window(
     part: HumanMountedSeats.Part,
     on: string,
+    point?: string,
   ): IAutoMovieMotionHumanContactWindow {
     const support: IAutoMovieMotionHumanContactWindow["support"] = {
       kind: "prop",
@@ -310,8 +312,17 @@ export namespace HumanMountedPaths {
     };
     if (part === "leftHand" || part === "rightHand")
       return { part, kind: "grip", from: 0, to: 1, support };
+    // A sole on a named stirrup rides the stirrup's own frame, which swings
+    // on the moving horse, not the horse's.
     if (part === "leftFoot" || part === "rightFoot")
-      return { part, kind: "plant", from: 0, to: 1, support };
+      return {
+        part,
+        kind: "plant",
+        from: 0,
+        to: 1,
+        support:
+          point === undefined ? support : { kind: "prop", subject: on, point },
+      };
     if (part === "leftKnee")
       return {
         part: "leftLowerLeg",

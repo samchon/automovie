@@ -6,13 +6,17 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSurface,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
+import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -104,8 +108,18 @@ export namespace HumanIceGlide {
         "minimum",
       );
     }
-    const released: number = (step?.window[0] ?? 0) / base.duration;
-    const acquired: number = (step?.window[1] ?? 0) / base.duration;
+    // The released blade rises on `clearance 쨌 sin(?u)` over the step's
+    // window, so it stays within the bearing height of the ice for
+    // `asin(h / clearance) / ?` of the window at each end: it glides there,
+    // still on the ice, and its bearing holds until it clears.
+    const grazing: number =
+      step === undefined
+        ? 0
+        : ((step.window[1] - step.window[0]) *
+            Math.asin(Math.min(1, HumanFoot.BEARING / step.clearance))) /
+          Math.PI;
+    const released: number = ((step?.window[0] ?? 0) + grazing) / base.duration;
+    const acquired: number = ((step?.window[1] ?? 0) - grazing) / base.duration;
     return {
       ...base,
       events:
@@ -151,6 +165,7 @@ export namespace HumanIceGlide {
                   )
                 : 1);
         const limbs: Posture["limbs"] = { ...posture.limbs };
+        const joints: Posture["joints"] = { ...posture.joints };
         for (const side of SIDES) {
           const id: AutoMovieHumanLimb = `${side}Leg`;
           const goal: IAutoMovieHumanLimbGoal = limbs[id]!;
@@ -162,21 +177,53 @@ export namespace HumanIceGlide {
             limbs[id] = canted;
             continue;
           }
-          const phase: number = minimumJerk.share(
-            (at - step.window[0]) / (step.window[1] - step.window[0]),
+          const u: number = Math.min(
+            1,
+            Math.max(
+              0,
+              (at - step.window[0]) / (step.window[1] - step.window[0]),
+            ),
           );
+          const phase: number = minimumJerk.share(u);
           const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
             UP,
             posture.yaw,
           );
           const shift: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
             x: step.offset.x * phase,
-            y: step.clearance * 16 * phase ** 2 * (1 - phase) ** 2,
+            y: step.clearance * Math.sin(Math.PI * u),
             z: step.offset.z * phase,
           });
-          limbs[id] = shifted(canted, shift);
+          const moved: IAutoMovieHumanLimbGoal = shifted(canted, shift);
+          limbs[id] = sheds(
+            context.body,
+            posture,
+            side,
+            moved,
+            at <= step.window[0]
+              ? AutoMovieMotionHumanFootRelax.load(at, step.window[0])
+              : at >= step.window[1]
+                ? AutoMovieMotionHumanFootRelax.load(
+                    at,
+                    Infinity,
+                    step.window[1],
+                  )
+                : 0,
+          );
+          // The toes extend by the heel's rise, so they stay on the ice
+          // ahead of the toes' joint instead of dipping into it.
+          if (moved.rotation !== undefined && limbs[id]!.rotation !== undefined)
+            joints[`${side}Toes`] = [
+              Math.max(
+                0,
+                HumanFoot.pitch(moved.rotation) -
+                  HumanFoot.pitch(limbs[id]!.rotation!),
+              ),
+              0,
+              0,
+            ];
         }
-        return { ...posture, limbs };
+        return { ...posture, limbs, joints };
       },
     };
   }
@@ -195,7 +242,19 @@ export namespace HumanIceGlide {
     const leg: number = body.measure.thigh + body.measure.shank;
     HumanBound.within("drop", params.drop, 0, leg, "m", "minimum");
     HumanBound.within("trail", params.trail, 0, leg, "m", "minimum");
-    HumanBound.within("heel", params.heel, 0, 90, "deg", "minimum");
+    // The toes extend by the heel's rise to stay on the ice, so the rise is
+    // bounded by the toes' own extension.
+    HumanBound.within(
+      "heel",
+      params.heel,
+      0,
+      AutoMovieMotionHumanRange.limit(
+        params.lead === "left" ? "rightToes" : "leftToes",
+        "flexion",
+      ) ?? 90,
+      "deg",
+      "minimum",
+    );
     const side: AutoMovieHumanSide = params.lead === "left" ? "right" : "left";
     const ball: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");
     const trailing: AutoMovieHumanLimb = `${side}Leg`;
@@ -230,6 +289,13 @@ export namespace HumanIceGlide {
         return {
           ...posture,
           root: { ...posture.root, y: posture.root.y - params.drop * set },
+          // The trailing shoe's heel rises about its ball; its toes extend
+          // by as much, so they lie on the ice ahead of the ball instead of
+          // dipping into it.
+          joints: {
+            ...posture.joints,
+            [`${side}Toes`]: [params.heel * set, 0, 0],
+          },
           limbs: {
             ...posture.limbs,
             [leading]: shifted(
@@ -245,6 +311,35 @@ export namespace HumanIceGlide {
       },
     };
   }
+}
+
+/**
+ * A stepping blade within the dorsal range of the weight it bears
+ * (`AutoMovieMotionHumanFootRelax`): as it sheds the body before it
+ * leaves, its heel rises about the toes' joint, which stays on the ice, so
+ * it leaves within the unloaded ankle's range and flies so; it lowers again
+ * as it takes the body back.
+ */
+function sheds(
+  body: IAutoMovieMotionHumanBody,
+  posture: Posture,
+  side: AutoMovieHumanSide,
+  goal: IAutoMovieHumanLimbGoal,
+  share: number,
+): IAutoMovieHumanLimbGoal {
+  if (goal.rotation === undefined) return goal;
+  const placed: IAutoMovieMotionHumanFoot.IPlacement =
+    AutoMovieMotionHumanFootRelax.of(
+      body,
+      posture,
+      side,
+      { ankle: goal.point, rotation: goal.rotation },
+      share,
+    );
+  return {
+    ...shifted(goal, Vector3.subtract(placed.ankle, goal.point)),
+    rotation: placed.rotation,
+  };
 }
 
 /** Translate both the ankle target and its knee bend hint with a released foot. */

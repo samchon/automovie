@@ -6,7 +6,6 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -155,21 +154,18 @@ export namespace HumanRide {
       }
 
       // A foot that hung when the ride began keeps hanging. A foot on a
-      // turning pedal (a `pedal` contact) is planted on the pedal's own
-      // point, whose frame turns with it, so the pedal's turn about the crank
-      // does not read as the foot slipping. A foot in a stirrup or on a
-      // fixed rest stays planted on the support.
+      // part the support moves within itself (a pedal on its crank, a
+      // stirrup on a trotting horse: a point the prop places) is planted on
+      // that point, whose frame moves with it, so the part's own motion
+      // does not read as the foot slipping. A foot on a fixed rest stays
+      // planted on the support.
       const { pedals, placed }: placeRideFeet.ISupports =
         placeRideFeet.supports(context, support);
       const turning = (
         side: AutoMovieHumanSide,
       ): (typeof pedals)[number] | undefined =>
         pedals.find(
-          (pedal: (typeof pedals)[number]): boolean =>
-            pedal.side === side &&
-            support.prop.affordances?.find(
-              (item: IAutoMovieAffordance): boolean => item.id === pedal.id,
-            )?.kind === "pedal",
+          (pedal: (typeof pedals)[number]): boolean => pedal.side === side,
         );
       const contacts: IAutoMovieMotionHumanContactWindow[] = [...kept.contacts];
       for (const side of ["left", "right"] as const) {

@@ -4,7 +4,6 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSupport,

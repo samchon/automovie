@@ -69,7 +69,7 @@ function swingFilm(
   lean: number = 20,
 ): HumanPerformance {
   const model: ReturnType<typeof createSwing.seat> = createSwing.seat(frame);
-  const hang: number = frame.dimensions.pivot - frame.dimensions.clearance;
+  const hang: number = hanging(frame);
   const ride: rideSwing.IRide = rideSwing(frame, playgroundTake.ORIGIN, {
     length: hang,
     start: -42,
@@ -136,7 +136,7 @@ function swing(key: playgroundTake.BodyKey, failures: string[]): void {
     seatWidth: 0.45,
     grip: 0.45,
   });
-  const hang: number = frame.dimensions.pivot - frame.dimensions.clearance;
+  const hang: number = hanging(frame);
   // A small body's arms hold the chains at a shallower lean.
   const lean: number = key === "f-small" ? 10 : 20;
   const increment: number = HumanSurface.pumpIncrement(body, hang, lean);
@@ -309,4 +309,12 @@ interface IRefusalCase {
 
   /** Builds the take, throwing the refusal. */
   take: () => HumanPerformance;
+}
+
+/** The swing's hanging length, from its pivot to its seat's clearance, as the frame drew them. */
+function hanging(frame: ReturnType<typeof createSwing>): number {
+  const { pivot, clearance } = frame.dimensions;
+  if (pivot === undefined || clearance === undefined)
+    throw new Error("the swing frame names no pivot or seat clearance");
+  return pivot - clearance;
 }

@@ -93,33 +93,12 @@ export namespace HumanMountPush {
     pole: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
   ): IBend | null {
-    const thigh: number = body.measure.thigh;
-    const shank: number = body.measure.shank;
-    const reach: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-    const distance: number = Vector3.length(reach);
-    if (distance < 1e-9) return null;
-    const down: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
-    const out: IAutoMovieVector3 | null = square(
-      Vector3.subtract(pole, hip),
-      down,
+    const knee: IAutoMovieVector3 | null = kneeOf(body, hip, ankle, pole);
+    if (knee === null) return null;
+    const down: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(ankle, hip),
     );
-    if (out === null) return null;
-    const span: number = Math.min(
-      thigh + shank,
-      Math.max(Math.abs(thigh - shank), distance),
-    );
-    const along: number =
-      (thigh * thigh + span * span - shank * shank) / (2 * span);
-    const knee: IAutoMovieVector3 = Vector3.add(
-      hip,
-      Vector3.add(
-        Vector3.scale(down, along),
-        Vector3.scale(
-          out,
-          Math.sqrt(Math.max(0, thigh * thigh - along * along)),
-        ),
-      ),
-    );
+    const out: IAutoMovieVector3 = square(Vector3.subtract(pole, hip), down)!;
     const hinge: IAutoMovieVector3 = Vector3.normalize(
       Vector3.cross(down, out),
     );
@@ -324,6 +303,147 @@ export namespace HumanMountPush {
       ),
       rotation: Quaternion.multiply(down, goal.rotation),
     };
+  }
+
+  /**
+   * How far a leg's foot is turned about its shank out of the knee's own
+   * plane. The ankle has no axial twist of its own (its range leaves that
+   * axis immobile), so the knee's swivel must supply this turn: at zero
+   * the leg's closed-form root lies at the goal's pole. The knee is the
+   * pole-vector two-link solution (`bend`), the shank runs from the ankle
+   * to it, and the turn is the angle about the shank from the knee's
+   * forward, square to the shank in the knee's plane, to the toes.
+   *
+   * @param body The body, whose thigh and shank lengths are read.
+   * @param hip The hip joint, world metres.
+   * @param goal The leg's goal, its pole and foot rotation.
+   * @returns The turn, degrees, positive about the shank toward the knee; null for a degenerate leg or toes along the shank.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the turn is, why it decides the knee and the degenerate cases.
+   * @evidence contracts/development/implementation.md#principled-implementation An ankle with an immobile axial axis meets a foot rotation only at the swivel whose bend plane holds the toes' projection square to the shank (Tolani, Goswami and Badler 2000, section 3.2.4, a joint limit as a function of the swivel); the pole-vector knee gives that plane in closed form.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One closed form.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The knee is `bend`'s.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function twist(
+    body: IAutoMovieMotionHumanBody,
+    hip: IAutoMovieVector3,
+    goal: IAutoMovieHumanLimbGoal,
+  ): ITwist | null {
+    if (goal.rotation === undefined) return null;
+    const knee: IAutoMovieVector3 | null = kneeOf(
+      body,
+      hip,
+      goal.point,
+      goal.bend,
+    );
+    if (knee === null) return null;
+    const leg: IAutoMovieVector3 = Vector3.subtract(knee, goal.point);
+    if (Vector3.length(leg) < 1e-9) return null;
+    const shank: IAutoMovieVector3 = Vector3.normalize(leg);
+    const forward: IAutoMovieVector3 | null = square(
+      Vector3.subtract(goal.bend, hip),
+      shank,
+    );
+    const toes: IAutoMovieVector3 | null = square(
+      Quaternion.rotateVector(goal.rotation, { x: 0, y: 0, z: 1 }),
+      shank,
+    );
+    if (forward === null || toes === null) return null;
+    return {
+      degrees:
+        Math.atan2(
+          Vector3.dot(Vector3.cross(forward, toes), shank),
+          Vector3.dot(forward, toes),
+        ) / Quaternion.DEG2RAD,
+      shank,
+    };
+  }
+
+  /**
+   * A leg's goal with its foot turned about the shank to a given turn out
+   * of the knee's plane (`twist`), the ankle kept where it is: a law easing
+   * the turn between two feasible ends keeps the knee's closed-form root on
+   * its own side all the way.
+   *
+   * @param body The body.
+   * @param hip The hip joint, world metres.
+   * @param goal The leg's goal.
+   * @param degrees The turn the foot is to keep, degrees.
+   * @returns The goal, its foot turned; unchanged for a degenerate leg.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the turn applied and what is kept.
+   * @evidence contracts/development/implementation.md#principled-implementation One rotation about the shank through the ankle: the ankle and the pole stay, and the foot's turn out of the knee's plane becomes the asked one exactly.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One closed form.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the body's own measures.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `twist`, the one reading of the turn.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function squared(
+    body: IAutoMovieMotionHumanBody,
+    hip: IAutoMovieVector3,
+    goal: IAutoMovieHumanLimbGoal,
+    degrees: number,
+  ): IAutoMovieHumanLimbGoal {
+    const now: ITwist | null = twist(body, hip, goal);
+    if (now === null || goal.rotation === undefined) return goal;
+    return {
+      ...goal,
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.fromAxisAngle(now.shank, degrees - now.degrees),
+          goal.rotation,
+        ),
+      ),
+    };
+  }
+
+  /** A foot's turn about its shank out of the knee's plane (`twist`). */
+  export interface ITwist {
+    /** The turn, degrees. */
+    degrees: number;
+
+    /** The shank's unit direction, from the ankle to the knee. */
+    shank: IAutoMovieVector3;
+  }
+
+  /** The pole-vector knee of the two-link leg (`bend`), or null for a degenerate leg. */
+  function kneeOf(
+    body: IAutoMovieMotionHumanBody,
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    pole: IAutoMovieVector3,
+  ): IAutoMovieVector3 | null {
+    const thigh: number = body.measure.thigh;
+    const shank: number = body.measure.shank;
+    const reach: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
+    const distance: number = Vector3.length(reach);
+    if (distance < 1e-9) return null;
+    const down: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
+    const out: IAutoMovieVector3 | null = square(
+      Vector3.subtract(pole, hip),
+      down,
+    );
+    if (out === null) return null;
+    const span: number = Math.min(
+      thigh + shank,
+      Math.max(Math.abs(thigh - shank), distance),
+    );
+    const along: number =
+      (thigh * thigh + span * span - shank * shank) / (2 * span);
+    return Vector3.add(
+      hip,
+      Vector3.add(
+        Vector3.scale(down, along),
+        Vector3.scale(
+          out,
+          Math.sqrt(Math.max(0, thigh * thigh - along * along)),
+        ),
+      ),
+    );
   }
 
   /** The unit part of `v` square to the unit `axis`, or null where none is left. */

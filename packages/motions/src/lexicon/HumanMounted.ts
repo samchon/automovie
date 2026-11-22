@@ -250,9 +250,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const kept: Map<string, IAutoMovieMotionHumanContactWindow> = new Map();
   for (const side of ["left", "right"] as const)
     if (context.entry.feet[side].planted) {
-      const key: string = `${side}Foot:${figures[0]!.supports?.[`${side}Foot`] ?? "entry"}`;
+      const named: string | undefined = figures[0]!.supports?.[`${side}Foot`];
+      const key: string = `${side}Foot:${named ?? "entry"}`;
       held.add(key);
-      kept.set(key, HumanMountedPaths.window(`${side}Foot`, on));
+      kept.set(key, HumanMountedPaths.window(`${side}Foot`, on, named));
     }
   const members: Map<string, IAutoMovieMotionHumanContactWindow>[] =
     figures.map(
@@ -274,7 +275,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         for (const part of PARTS) {
           const id: string | undefined = figure.supports?.[part];
           if (id !== undefined)
-            member.set(`${part}:${id}`, HumanMountedPaths.window(part, on));
+            member.set(`${part}:${id}`, HumanMountedPaths.window(part, on, id));
         }
         return member;
       },
