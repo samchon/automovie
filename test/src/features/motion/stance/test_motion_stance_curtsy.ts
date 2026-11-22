@@ -18,7 +18,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A registered curtsy crosses behind its supporting foot, dips on both
@@ -37,7 +37,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Both handed variants at different headings, swing and double plant, recovery and the excluded zero-depth boundary.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable motion feature test uses the public performance and resident average-sized bodies.
  */
-export function test_human_motion_curtsy(): void {
+export function test_motion_stance_curtsy(): void {
   const Chain: IAutoMovieMotionHumanChain.IExtension<{
     curtsy: typeof curtsy;
   }> = HumanChain.extend({ curtsy });

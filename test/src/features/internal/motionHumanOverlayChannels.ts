@@ -11,11 +11,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditContinuity,
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  seated,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -218,7 +218,7 @@ export namespace motionHumanOverlayChannels {
     const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
-        y: seated.popliteal(body),
+        y: AutoMovieMotionHumanSeat.seated.popliteal(body),
         z: body.rest.get("leftFoot")!.z - 0.1,
       },
       yaw: 0,

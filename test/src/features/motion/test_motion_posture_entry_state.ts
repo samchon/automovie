@@ -11,11 +11,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -216,7 +216,7 @@ export function test_motion_posture_entry_state(): void {
     const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
-        y: seated.popliteal(body),
+        y: AutoMovieMotionHumanSeat.seated.popliteal(body),
         z: body.rest.get("leftFoot")!.z - 0.1,
       },
       yaw: 0,

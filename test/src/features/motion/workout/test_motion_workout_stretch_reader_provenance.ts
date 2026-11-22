@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { createHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Native reader admission inspects body and method identity.
@@ -18,7 +18,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Separates copied objects, outer reader changes and nested resolver and limb reader changes.
  * @evidence contracts/development/testing.md#execution-ownership Creates a private body and restores each tested descriptor in finally without modifying the shared body fixture.
  */
-export function test_motion_posture_stretch_reader_provenance(): void {
+export function test_motion_workout_stretch_reader_provenance(): void {
   const source: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const body: IAutoMovieMotionHumanBody = createHumanBody(
     source.skeleton,

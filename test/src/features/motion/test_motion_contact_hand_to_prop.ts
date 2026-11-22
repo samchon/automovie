@@ -16,12 +16,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanVerdicts,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,7 +78,7 @@ export function test_motion_contact_hand_to_prop(): void {
   const seat: IAutoMovieMotionHumanSeated.ISeat = {
     at: {
       x: 0,
-      y: seated.popliteal(body),
+      y: AutoMovieMotionHumanSeat.seated.popliteal(body),
       z: body.rest.get("leftFoot")!.z - 0.1,
     },
     yaw: 0,
@@ -132,8 +132,8 @@ export function test_motion_contact_hand_to_prop(): void {
         .sit({ seat, hold: 0.2 })
         .pickUp({ prop: "fork", handle: "grip", hand: side })
         .registered("handToFace", {
-          task: "eat",
-          side,
+          kind: "eat",
+          hand: side,
           prop: "fork",
           point: "face",
         }).node,

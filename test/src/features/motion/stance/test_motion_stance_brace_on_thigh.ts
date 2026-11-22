@@ -9,11 +9,11 @@ import {
   AutoMovieMotionHumanLean,
   braceOnThigh,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionContactArmFixture as fixture } from "../internal/motionContactArmFixture";
+import { motionContactArmFixture as fixture } from "../../internal/motionContactArmFixture";
 
 /**
  * The right palm braces on the posed right thigh and releases to its entering wrist position.
@@ -28,7 +28,7 @@ import { motionContactArmFixture as fixture } from "../internal/motionContactArm
  * @evidence contracts/development/testing.md#execution-ownership Runs the named public operation in memory and samples its observable outputs.
  * @evidence contracts/development/common.md#meaningful-documentation States the phase, coordinate frame and quantitative basis of the check.
  */
-export function test_motion_contact_primitive_brace_on_thigh_brace_on_thigh(): void {
+export function test_motion_stance_brace_on_thigh(): void {
   const f: fixture.IInputs = fixture();
   const rest: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
     f.body,

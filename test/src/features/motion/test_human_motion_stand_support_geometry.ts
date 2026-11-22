@@ -23,10 +23,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanFoot,
   HumanPerformance,
-  shiftStandingWeight,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -207,11 +207,14 @@ export function test_human_motion_stand_support_geometry(): void {
         proficiency: { level: "trained" },
       },
     ],
-    laws: [shiftStandingWeight],
+    laws: [AutoMovieMotionHumanStance.shiftStandingWeight],
     composition: HumanChain.subject("standing")
       .stand({ hold: 0.6, sway: 0 })
-      .registered("shiftStandingWeight", { by: -0.08, seconds: 0.8, hold: 0.6 })
-      .node,
+      .registered("shiftStandingWeight", {
+        by: -0.08,
+        duration: 0.8,
+        hold: 0.6,
+      }).node,
   });
   checkTransfer(
     body,

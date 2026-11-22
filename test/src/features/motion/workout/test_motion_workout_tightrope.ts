@@ -20,8 +20,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The wire's span and height, metres. */
 const SPAN: number = 8;
@@ -48,7 +48,7 @@ const SAG: number = 0.15;
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies and a too-shallow sag.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture.
  */
-export function test_motion_exercise_tightrope(): void {
+export function test_motion_workout_tightrope(): void {
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const film: HumanPerformance = take(body, SAG);

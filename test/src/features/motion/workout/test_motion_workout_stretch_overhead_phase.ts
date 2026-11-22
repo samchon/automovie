@@ -2,8 +2,8 @@ import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /**
  * The standing side stretch takes the same overhead arm course with the
@@ -20,7 +20,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Tests both arms, two body sizes, nonzero heading and fractions inside each phase.
  * @evidence contracts/development/testing.md#execution-ownership Each body has its own performance and posture readers. The shared body fixtures remain read-only.
  */
-export function test_motion_posture_stretch_overhead_phase(): void {
+export function test_motion_workout_stretch_overhead_phase(): void {
   for (const name of ["f-small", "m-average"] as const) {
     const body = motionHumanBody(name);
     const film = new HumanPerformance({

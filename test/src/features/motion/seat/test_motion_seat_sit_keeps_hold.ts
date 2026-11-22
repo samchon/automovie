@@ -12,8 +12,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Sitting down keeps what a hand holds, and a plain sit reads clean.
@@ -30,7 +30,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases An empty-handed sit against a sit holding a glass.
  * @evidence contracts/development/testing.md#execution-ownership In-memory archetype and Human performances; no host.
  */
-export function test_motion_posture_sit_keeps_hold(): void {
+export function test_motion_seat_sit_keeps_hold(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const chair: IAutoMovieMotionHumanSeated.ISeat = {
     at: { x: 0, y: seated.popliteal(body), z: -0.1 },

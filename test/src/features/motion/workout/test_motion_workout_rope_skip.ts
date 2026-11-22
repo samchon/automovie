@@ -21,9 +21,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
 
 /**
  * A forward single under sends the cord overhead and then from the toes to
@@ -51,7 +51,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers the direction, overhead and under passes, the action seam, backwards seeks, a slow turn and two unrepresentable timing cases.
  * @evidence contracts/development/testing.md#execution-ownership Builds one portable performance for the measured turns and uses two refusals that stop before the hop plans.
  */
-export function test_human_motion_rope_skip(): void {
+export function test_motion_workout_rope_skip(): void {
   const performer: IAutoMovieMotionHumanPerformer = {
     subject: "skipper",
     body: motionHumanBody("m-average"),

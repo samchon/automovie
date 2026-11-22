@@ -20,6 +20,7 @@ import type {
 import {
   AutoMovieMotionHumanAuditGround,
   AutoMovieMotionHumanAuditMotion,
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanColliders,
   HumanHand,
@@ -28,7 +29,6 @@ import {
   HumanRefusal,
   HumanSignature,
   HumanVerdicts,
-  seated,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -87,7 +87,7 @@ export function motionPickUpSeated(
     kind: "glass",
   });
   const chair: IAutoMovieMotionHumanSeated.ISeat = {
-    at: { x: 0, y: seated.popliteal(body), z: -0.1 },
+    at: { x: 0, y: AutoMovieMotionHumanSeat.seated.popliteal(body), z: -0.1 },
     yaw: 0,
     depth: 0.45,
   };
@@ -181,7 +181,10 @@ export function motionPickUpSeated(
       complaints.push(
         `${name}: at the grasp the chest has gone ${(forward * 1000).toFixed(0)} mm forward, at least 50 expected`,
       );
-    const sitting: IAutoMovieVector3 = seated.point(body, chair);
+    const sitting: IAutoMovieVector3 = AutoMovieMotionHumanSeat.seated.point(
+      body,
+      chair,
+    );
     const seat: typeof body.surfaces.sockets.seat = body.surfaces.sockets.seat;
     const soles: ReturnType<typeof HumanColliders.preparePlaced> =
       HumanColliders.preparePlaced(

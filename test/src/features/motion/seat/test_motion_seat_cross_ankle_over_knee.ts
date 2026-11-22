@@ -29,8 +29,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import PEOPLE from "../internal/MOTION_HUMAN_PEOPLE.json";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import PEOPLE from "../../internal/MOTION_HUMAN_PEOPLE.json";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A seated performer rests either ankle across the other knee and sets it
@@ -43,7 +43,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Opposite raised sides, rest versus recovery, and a standing refusal cover the entry condition and each distinct phase.
  * @evidence contracts/development/testing.md#execution-ownership Performs a registered action through the public chain over an in-memory polygon man.
  */
-export function test_human_motion_cross_ankle_over_knee(): void {
+export function test_motion_seat_cross_ankle_over_knee(): void {
   const body: IAutoMovieMotionHumanBody = calibratedBody();
   const subject: string = "actor";
   const performer: ConstructorParameters<
@@ -74,7 +74,7 @@ export function test_human_motion_cross_ankle_over_knee(): void {
       performers: [performer],
       composition: start()
         .sit({ seat: chair, back: "slump" })
-        .registered("crossAnkleOverKnee", { side, seconds: 1 }).node,
+        .registered("crossAnkleOverKnee", { side, hold: 1 }).node,
       laws: [crossAnkleOverKnee],
     });
     const crossing: IAutoMovieMotionHumanSegment =
@@ -247,7 +247,7 @@ export function test_human_motion_cross_ankle_over_knee(): void {
             at: { ...chair.at, y: seated.popliteal(standard) },
           },
         })
-        .registered("crossAnkleOverKnee", { side: "right", seconds: 1 }).node,
+        .registered("crossAnkleOverKnee", { side: "right", hold: 1 }).node,
       laws: [crossAnkleOverKnee],
     });
   } catch (error) {

@@ -13,13 +13,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanFloor,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  lieOnSurface,
-  logRoll,
-  turnOver,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -197,15 +195,21 @@ function bedtime(body: IAutoMovieMotionHumanBody, bed: Bed): HumanPerformance {
       seat: HumanObject.seat(bed, { at: ORIGIN, yaw: 0 }, "leftSide"),
       hold: 0.5,
     })
-    .registered(lieOnSurface.name, lie)
-    .registered(turnOver.name, left)
-    .registered(turnOver.name, prone)
-    .registered(turnOver.name, back)
-    .registered(lieOnSurface.name, { ...lie, rise: true })
+    .registered(AutoMovieMotionHumanFloor.lieOnSurface.name, lie)
+    .registered(AutoMovieMotionHumanFloor.turnOver.name, left)
+    .registered(AutoMovieMotionHumanFloor.turnOver.name, prone)
+    .registered(AutoMovieMotionHumanFloor.turnOver.name, back)
+    .registered(AutoMovieMotionHumanFloor.lieOnSurface.name, {
+      ...lie,
+      rise: true,
+    })
     .rise();
   return new HumanPerformance({
     seed: "bed",
-    laws: [lieOnSurface, turnOver],
+    laws: [
+      AutoMovieMotionHumanFloor.lieOnSurface,
+      AutoMovieMotionHumanFloor.turnOver,
+    ],
     props: [HumanObject.prop("bed", bed, { at: ORIGIN, yaw: 0, fixed: true })],
     performers: [
       {
@@ -228,7 +232,7 @@ function rolled(
   const roll: IAutoMovieMotionHumanLogRoll = { toward: "left", halfTurns };
   return new HumanPerformance({
     seed: "log-roll",
-    laws: [logRoll],
+    laws: [AutoMovieMotionHumanFloor.logRoll],
     performers: [
       {
         subject: "a",
@@ -240,7 +244,7 @@ function rolled(
     ],
     composition: HumanChain.subject("a")
       .lieDown({ kind: "supine" })
-      .registered(logRoll.name, roll).node,
+      .registered(AutoMovieMotionHumanFloor.logRoll.name, roll).node,
   });
 }
 

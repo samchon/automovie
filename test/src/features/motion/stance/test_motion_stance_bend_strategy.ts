@@ -10,11 +10,11 @@ import {
   HumanVerdicts,
 } from "@automovie/motions";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionCrouchSignature } from "../internal/motionCrouchSignature";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
-import { motionHumanSignature as M } from "../internal/motionHumanSignature";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionCrouchSignature } from "../../internal/motionCrouchSignature";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
+import { motionHumanSignature as M } from "../../internal/motionHumanSignature";
 
 /**
  * The three bend strategies have distinct motions of the knees, trunk and pelvis.
@@ -33,7 +33,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#distinguishing-cases Compares explicit strategies on one large body and checks the left semi-squat on both body sizes; the default selector is exercised separately.
  * @evidence contracts/development/testing.md#execution-ownership Each bend is constructed directly from the selected side and a target height relative to the ankle. Each admitted performance supplies its own quiet reference and physical verdict.
  */
-export function test_motion_posture_bend_strategy(): void {
+export function test_motion_stance_bend_strategy(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   checkCrouch(complaints);
   const observe = (

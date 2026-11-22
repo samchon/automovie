@@ -13,10 +13,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchDrink,
   HumanChain,
-  HumanHabit,
   HumanObject,
   HumanPerformance,
   HumanSignature,
@@ -104,7 +104,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "held",
-      laws: [HumanHabit.smoke],
+      laws: [AutoMovieMotionHumanStance.HumanHabit.smoke],
       props: [prop],
       performers: [
         {

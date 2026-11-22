@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanPerformance,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
-  HumanHabit,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
@@ -32,7 +32,7 @@ export function photographScene(
 ): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "verdict",
-    laws: [HumanHabit.photograph],
+    laws: [AutoMovieMotionHumanStance.HumanHabit.photograph],
     props: [
       HumanObject.prop("camera", createDevice({ kind: "camera" }), {
         at: {
@@ -58,6 +58,6 @@ export function photographScene(
         handle: "grip",
         use: { tip: "screen", line: "across", at: { region: "noseBridge" } },
       })
-      .registered("photograph", { seconds: 0.3, prop: "camera" }).node,
+      .registered("photograph", { hold: 0.3, prop: "camera" }).node,
   });
 }

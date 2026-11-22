@@ -12,11 +12,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanMutual,
   HumanObject,
   HumanPerformance,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -91,7 +91,7 @@ export function motionRecomposeMutual(
     const seat: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
-        y: seated.popliteal(body),
+        y: AutoMovieMotionHumanSeat.seated.popliteal(body),
         z:
           who === "a"
             ? body.rest.get("leftFoot")!.z - 0.1

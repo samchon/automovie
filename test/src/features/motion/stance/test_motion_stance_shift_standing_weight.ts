@@ -10,15 +10,15 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
-  HumanFrame,
   HumanPerformance,
   HumanRefusal,
   shiftStandingWeight,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose, qclose, vclose } from "../internal/predicates";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose, qclose, vclose } from "../../internal/predicates";
 
 /**
  * A standing performer shifts the pelvis sideways with both feet fixed.
@@ -37,7 +37,7 @@ import { nclose, qclose, vclose } from "../internal/predicates";
  * @evidence contracts/development/testing.md#distinguishing-cases Opposite sides and timings distinguish hold and return; a one-metre request distinguishes refusal from arbitrary root movement.
  * @evidence contracts/development/testing.md#execution-ownership Builds short performances of two polygon men in memory.
  */
-export function test_human_motion_shift_standing_weight(): void {
+export function test_motion_stance_shift_standing_weight(): void {
   const yaw: number = 37;
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);

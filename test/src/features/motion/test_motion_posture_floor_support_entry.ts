@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanFall,
+  AutoMovieMotionHumanFloor,
   HumanChain,
-  HumanFloorRoll,
   HumanPerformance,
   HumanVerdicts,
 } from "@automovie/motions";
@@ -36,8 +36,8 @@ export function test_motion_posture_floor_support_entry(): void {
   const findings = motionComplaints();
   const body = motionHumanBody("f-small");
   const laws = [
-    HumanFloorRoll.forwardRoll,
-    HumanFloorRoll.backwardRoll,
+    AutoMovieMotionHumanFloor.HumanFloorRoll.forwardRoll,
+    AutoMovieMotionHumanFloor.HumanFloorRoll.backwardRoll,
     AutoMovieMotionHumanFall.HumanFloorFall.goalkeeperDiveLeft,
     AutoMovieMotionHumanFall.HumanFloorFall.goalkeeperDiveRight,
     AutoMovieMotionHumanFall.HumanFloorFall.slidingTackle,

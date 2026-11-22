@@ -22,7 +22,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A 10-degree seated heel rocker repeats at the authored frequency while
@@ -35,7 +35,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Builds the public chain on prepared bodies with an in-memory rail platform.
  * @evidence contracts/development/common.md#meaningful-documentation Names the body motion, contact invariants and analytic sampling instants.
  */
-export function test_human_motion_seated_heel_bounce(): void {
+export function test_motion_seat_seated_heel_bounce(): void {
   const findings: string[] = [];
   const platform: ReturnType<typeof createRailPlatform> = createRailPlatform();
   for (const name of ["m-average", "f-small"] as const) {

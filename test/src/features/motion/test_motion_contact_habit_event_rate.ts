@@ -5,7 +5,11 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
-import { HumanChain, HumanHabit, HumanPerformance } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanStance,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -64,7 +68,7 @@ export function test_motion_contact_habit_event_rate(): void {
       const performance: IAutoMovieMotionHumanPerformance =
         new HumanPerformance({
           seed,
-          laws: [HumanHabit.smoke],
+          laws: [AutoMovieMotionHumanStance.HumanHabit.smoke],
           performers: [
             {
               subject: "a",

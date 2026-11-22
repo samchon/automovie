@@ -6,13 +6,15 @@ import type {
 import {
   AutoMovieMotionHumanAuditTangle,
   AutoMovieMotionHumanStance,
-  HumanArmClearance,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import {
+  HumanArmClearance,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** Hip abduction of the spread thigh, degrees: a wide stance (a board, a straddle) brings the thigh out under the hanging hand. */
 const SPREAD: number = 25;
@@ -41,7 +43,7 @@ const GIVE: number = 0.01;
  * @evidence contracts/development/testing.md#distinguishing-cases A posture the relaxed arm clears and one it sinks into.
  * @evidence contracts/development/testing.md#execution-ownership In-memory postures of generated bodies.
  */
-export function test_motion_rest_arm_clearance(): void {
+export function test_motion_stance_rest_arm_clearance(): void {
   for (const profile of ["m-average", "f-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
     const quiet: IAutoMovieMotionHumanPosture =

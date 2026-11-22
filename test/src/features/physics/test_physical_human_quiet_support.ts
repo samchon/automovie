@@ -14,9 +14,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanPerformance,
-  shiftStandingWeight,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -94,12 +94,12 @@ export async function test_physical_human_quiet_support(): Promise<void> {
         proficiency: { level: "trained" },
       },
     ],
-    laws: [shiftStandingWeight],
+    laws: [AutoMovieMotionHumanStance.shiftStandingWeight],
     composition: HumanChain.subject("a")
       .stand({ hold: 0.6, sway: 0 })
       .registered("shiftStandingWeight", {
         by: -SHIFT,
-        seconds: 0.8,
+        duration: 0.8,
         hold: 0.6,
       }).node,
   });

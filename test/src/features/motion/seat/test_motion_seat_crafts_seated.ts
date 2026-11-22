@@ -20,9 +20,9 @@ import {
   HumanPerformance,
 } from "@automovie/motions";
 
-import { everydayTake } from "../internal/everydayTake";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** A working point lies on its surface within this, metres. */
 const ON: number = 0.005;
@@ -48,7 +48,7 @@ const PALM: number = 0.03;
  * @evidence contracts/development/testing.md#distinguishing-cases Needle against wheel work, start against risen wall.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_crafts_seated(): void {
+export function test_motion_seat_crafts_seated(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
@@ -156,15 +156,15 @@ function knitting(
     .pickUp({ prop: "rightNeedle", handle: "grip", hand: "right", lift: 0.1 })
     .registered("workHeld", {
       prop: "leftNeedle",
-      side: "left",
+      hand: "left",
       at: { out: 0.1, up: 0.72, forward: 0.28 },
-      seconds: 0.5,
+      duration: 0.5,
     })
     .registered("workHeld", {
       prop: "rightNeedle",
-      side: "right",
+      hand: "right",
       at: { out: 0.1, up: 0.76, forward: 0.28 },
-      seconds: 0.5,
+      duration: 0.5,
     })
     .registered("write", {
       tool: "rightNeedle",
@@ -175,8 +175,8 @@ function knitting(
         [0, -0.01],
         [0, 0.01],
       ],
-      seconds: 0.5,
-      side: "right",
+      duration: 0.5,
+      hand: "right",
     });
   const take: HumanPerformance = play(`${label} knitting`, body, props, chain);
   const stitch: IAutoMovieMotionHumanSegment = named(take, "write")[0]!;
@@ -234,7 +234,7 @@ function pottery(
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .sit({ seat: HumanObject.seat(chair, placement), hold: 1 })
-    .registered("throwPottery", { wheel: "wheel", seconds: 2 });
+    .registered("throwPottery", { wheel: "wheel", duration: 2 });
   const take: HumanPerformance = play(`${label} pottery`, body, props, chain);
   const pull: IAutoMovieMotionHumanSegment = named(take, "throwPottery")[0]!;
   let rise: number = -1;

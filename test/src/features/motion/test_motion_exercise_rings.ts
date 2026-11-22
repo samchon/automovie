@@ -10,11 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanSportWorkout,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -117,7 +117,10 @@ function take(
 ): HumanPerformance {
   return new HumanPerformance({
     seed: "rings",
-    laws: [HumanSportWorkout.pullUp, HumanSportWorkout.barSwing],
+    laws: [
+      AutoMovieMotionHumanWorkout.HumanSportWorkout.pullUp,
+      AutoMovieMotionHumanWorkout.HumanSportWorkout.barSwing,
+    ],
     performers: [
       {
         subject: "a",
@@ -131,7 +134,7 @@ function take(
       HumanObject.prop("rings", rings, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
     ],
     composition: HumanChain.subject("a").registered(row, {
-      reps: row === "pullUp" ? 2 : 1,
+      count: row === "pullUp" ? 2 : 1,
       on: { prop: "rings", affordance, other: "rightGrip" },
     }).node,
   });

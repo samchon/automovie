@@ -16,7 +16,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A performer settles on one knee, approaches the floor, holds a plank,
@@ -29,7 +29,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases A small and large body, a lowered entry, a same-support handback and a misspelled target on an actual prop.
  * @evidence contracts/development/testing.md#execution-ownership Runs two complete authored takes and one refusal through HumanPerformance with no renderer or external state.
  */
-export function test_motion_exercise_continuous_workout(): void {
+export function test_motion_workout_continuous_workout(): void {
   const findings: string[] = [];
   const laws = [HumanSportWorkout.plank, HumanSportWorkout.pushUp];
   for (const specimen of ["f-small", "m-large"] as const) {
@@ -53,7 +53,7 @@ export function test_motion_exercise_continuous_workout(): void {
       laws,
       props: [],
       performers: [cast],
-      composition: floor.registered("pushUp", { reps: 1 }).stand({ hold: 0.25 })
+      composition: floor.registered("pushUp", { count: 1 }).stand({ hold: 0.25 })
         .node,
     });
     const read = HumanSignature.of(film, cast.subject, body, 0);
@@ -179,7 +179,7 @@ export function test_motion_exercise_continuous_workout(): void {
           props: [mat],
           performers: [cast],
           composition: floor.registered("pushUp", {
-            reps: 1,
+            count: 1,
             on: { prop: mat.subject, affordance: "missing" },
           }).node,
         });

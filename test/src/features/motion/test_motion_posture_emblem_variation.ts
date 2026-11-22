@@ -7,17 +7,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGesture,
+  AutoMovieMotionHumanStance,
   HumanChain,
-  HumanEmblem,
-  HumanHabit,
   HumanPerformance,
   HumanRefusal,
-  HumanSkill,
 } from "@automovie/motions";
+import { HumanSkill } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionContactArmFixture as fixture } from "../internal/motionContactArmFixture";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { HumanEmblem } = AutoMovieMotionHumanGesture;
 
 /**
  * An emblem varies by seed inside a band and never repeats (#3345's seed
@@ -104,7 +106,7 @@ export function test_motion_posture_emblem_variation(): void {
   // its declared viewing range. The eye baseline is measured on the live head.
   const watchShow = new HumanPerformance({
     seed: "viewing distance",
-    laws: [HumanHabit.checkWatch],
+    laws: [AutoMovieMotionHumanStance.HumanHabit.checkWatch],
     performers: [
       {
         subject: "a",

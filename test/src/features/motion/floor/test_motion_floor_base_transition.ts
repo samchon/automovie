@@ -1,10 +1,10 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { HumanChain, HumanRefusal } from "@automovie/motions";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionFloorRise } from "../internal/motionFloorRise";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionFloorRise } from "../../internal/motionFloorRise";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
 
 /**
  * An explicit supine rotation rolls onto the hands and knees before standing.
@@ -20,7 +20,7 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  * @evidence contracts/development/testing.md#distinguishing-cases The small specimen exposes the lower-leg seam and the large one the former 11.2 mm refusal at stance three.
  * @evidence contracts/development/testing.md#execution-ownership Two rolls retain their original independent body, seed and lying entry.
  */
-export function test_motion_posture_base_transition(): void {
+export function test_motion_floor_base_transition(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["f-small", "m-large"] as const)
     motionFloorRise(

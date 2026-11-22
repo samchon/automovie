@@ -16,12 +16,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   placeOverHead,
-  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -207,7 +207,7 @@ function scene(
   const edge: number = behind ? BEHIND : FRONT;
   const at: number = behind ? edge - foot : edge + foot;
   const seat: IAutoMovieMotionHumanSeated.ISeat = {
-    at: { x: 0, y: seated.popliteal(b), z: edge },
+    at: { x: 0, y: AutoMovieMotionHumanSeat.seated.popliteal(b), z: edge },
     yaw: behind ? 0 : 180,
     depth: 0.45,
   };

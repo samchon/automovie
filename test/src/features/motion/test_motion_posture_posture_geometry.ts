@@ -9,16 +9,16 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditDifference,
+  AutoMovieMotionHumanSeat,
   HUMAN_LEXICON,
   HumanChain,
   HumanFoot,
-  HumanFrame,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
   HumanVerdicts,
-  seated,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -303,7 +303,7 @@ function checkStandingSupports(findings: string[]): void {
 function checkCrossedSeat(findings: string[]): void {
   const body = motionHumanBody("m-average");
   const chair: IAutoMovieMotionHumanSeated.ISeat = {
-    at: { x: 0, y: seated.popliteal(body), z: -0.1 },
+    at: { x: 0, y: AutoMovieMotionHumanSeat.seated.popliteal(body), z: -0.1 },
     yaw: 0,
     depth: 0.45,
   };

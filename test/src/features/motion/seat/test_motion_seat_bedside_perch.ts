@@ -9,14 +9,14 @@ import type {
 import {
   HumanChain,
   HumanFoot,
-  HumanFrame,
   HumanPerformance,
   HumanSignature,
   bedsidePerch,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A person can sit on either long edge of a double bed with both feet
@@ -38,7 +38,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Opposite edges of a placed bed and a model with no edge seat. Other seat tests own high mounts and differing statures.
  * @evidence contracts/development/testing.md#execution-ownership In-memory feature test builds two performances for one polygon man and checks an authoring refusal.
  */
-export function test_human_motion_bedside_perch(): void {
+export function test_motion_seat_bedside_perch(): void {
   const height: number = 0.46;
   const bed: ReturnType<typeof createBed> = createBed({
     kind: "double",

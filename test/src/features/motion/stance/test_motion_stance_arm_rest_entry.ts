@@ -6,15 +6,15 @@ import type {
 import {
   AutoMovieMotionHumanAuditTangle,
   HumanVerdicts,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "../internal/MOTION_HUMAN_LAW_STAGES_POSTURE";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
-import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
-import { nclose } from "../internal/nclose";
+import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "../../internal/MOTION_HUMAN_LAW_STAGES_POSTURE";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
+import { motionHumanLawSweep } from "../../internal/motionHumanLawSweep";
+import { nclose } from "../../internal/nclose";
 
 /**
  * The resting arms and digits clear the torso and opposite hand while reaching their named support.
@@ -30,7 +30,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Samples the original adverse geometry and the adjacent display frames to cover the rounded failure time.
  * @evidence contracts/development/testing.md#execution-ownership Each action is planned once, with four display parity checks and three displayed collision probes.
  */
-export function test_motion_posture_arm_rest_entry(): void {
+export function test_motion_stance_arm_rest_entry(): void {
   const findings: string[] = [];
   for (const [value, name, seconds, first, second] of [
     ["pocket", "m-large", 0.33, "rightHand", "hips"],

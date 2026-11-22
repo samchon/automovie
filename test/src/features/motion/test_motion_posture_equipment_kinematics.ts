@@ -10,17 +10,15 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwing,
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
-  HumanSportGym,
-  HumanSportSwing,
-  HumanSportWorkout,
-  WorkoutLoad,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -70,12 +68,12 @@ export function test_motion_posture_equipment_kinematics(): void {
   const hip = new HumanPerformance({
     seed: "hip-thrust",
     performers: [performer],
-    laws: [HumanSportGym.hipThrust],
+    laws: [AutoMovieMotionHumanWorkout.HumanSportGym.hipThrust],
     props: [HumanObject.prop("bench", bench, { position: benchAt, rotation })],
     composition: HumanChain.subject("a")
       .stand({ hold: 0.3 })
       .registered("hipThrust", {
-        reps: 1,
+        count: 1,
         on: { prop: "bench", affordance: "edge" },
       }).node,
   });
@@ -138,7 +136,10 @@ export function test_motion_posture_equipment_kinematics(): void {
     const run: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "loaded",
       performers: [performer],
-      laws: [HumanSportGym.curl, HumanSportWorkout.kettlebellSwing],
+      laws: [
+        AutoMovieMotionHumanWorkout.HumanSportGym.curl,
+        AutoMovieMotionHumanWorkout.HumanSportWorkout.kettlebellSwing,
+      ],
       props: [
         HumanObject.prop("bell", model, {
           position: {
@@ -152,7 +153,7 @@ export function test_motion_posture_equipment_kinematics(): void {
       composition: HumanChain.subject("a")
         .stand({ hold: 0.3 })
         .pickUp({ prop: "bell", handle: "grip" })
-        .registered(name, { reps: 1, load: { prop: "bell" } }).node,
+        .registered(name, { count: 1, load: { prop: "bell" } }).node,
     });
     const phase = run.segments("a").at(-1)!,
       a = event(phase, low),
@@ -176,9 +177,9 @@ export function test_motion_posture_equipment_kinematics(): void {
         rise * stature,
     );
   }
-  const swings = Object.values(HumanSportSwing).filter(
-    (row) => typeof row === "object" && row !== null && "plan" in row,
-  );
+  const swings = Object.values(
+    AutoMovieMotionHumanSwing.HumanSportSwing,
+  ).filter((row) => typeof row === "object" && row !== null && "plan" in row);
   TestValidator.predicate(
     "sport swings have distinct registered laws",
     swings.length > 0 &&
@@ -214,12 +215,15 @@ export function test_motion_posture_equipment_kinematics(): void {
     ...original,
     entry: { ...original.entry, holds: { right: "bar" } },
   };
-  const both = WorkoutLoad.of(context, {
+  const both = AutoMovieMotionHumanWorkout.WorkoutLoad.of(context, {
     prop: "bar",
     handle: "gripRight",
     other: "gripLeft",
   });
-  const one = WorkoutLoad.of(context, { prop: "bar", handle: "gripRight" });
+  const one = AutoMovieMotionHumanWorkout.WorkoutLoad.of(context, {
+    prop: "bar",
+    handle: "gripRight",
+  });
   const pose = context.entry.posture;
   TestValidator.equals(
     "one hand leaves other arm goal untouched",

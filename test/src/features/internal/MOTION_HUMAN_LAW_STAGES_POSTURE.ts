@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
-import { HumanObject, seated } from "@automovie/motions";
+import { AutoMovieMotionHumanSeat, HumanObject } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -44,7 +44,7 @@ const keyboard = (a: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp => {
 const seat = (a: IAutoMovieMotionHumanBody): object => ({
   at: {
     x: 0,
-    y: seated.popliteal(a),
+    y: AutoMovieMotionHumanSeat.seated.popliteal(a),
     z: a.rest.get("leftFoot")!.z - 0.1,
   },
   yaw: 0,

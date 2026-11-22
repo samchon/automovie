@@ -10,11 +10,11 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   HumanVerdicts,
-  seated,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -149,7 +149,7 @@ export namespace motionCompositionProbe {
     const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
-        y: seated.popliteal(a),
+        y: AutoMovieMotionHumanSeat.seated.popliteal(a),
         z: a.rest.get("leftFoot")!.z - 0.1,
       },
       yaw: 0,

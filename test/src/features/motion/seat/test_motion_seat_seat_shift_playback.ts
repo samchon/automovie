@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 import { HumanPerformance } from "@automovie/motions";
 
-import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "../internal/MOTION_HUMAN_LAW_STAGES_POSTURE";
-import type { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
+import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "../../internal/MOTION_HUMAN_LAW_STAGES_POSTURE";
+import type { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLawSweep } from "../../internal/motionHumanLawSweep";
 
 /**
  * A lateral seat shift retains the authored planted-foot and thigh-palm
@@ -19,7 +19,7 @@ import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
  * @evidence contracts/development/testing.md#distinguishing-cases Uses two body sizes, event boundaries, and seeks before and after the slide in nonmonotonic order.
  * @evidence contracts/development/testing.md#execution-ownership Both films use the public scene with a real seated entry. Separate film caches isolate the native and replacement display routes.
  */
-export function test_motion_posture_seat_shift_playback(): void {
+export function test_motion_seat_seat_shift_playback(): void {
   const names: readonly motionHumanBody.Name[] = ["m-large", "f-small"];
   for (const name of names) {
     const stage: motionHumanLawSweep.Stage = MOTION_HUMAN_LAW_STAGES_POSTURE.shift!;

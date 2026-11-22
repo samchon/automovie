@@ -23,14 +23,13 @@ import type {
   IAutoMovieMotionHumanObject,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanThrowCatch,
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanSportCarry,
-  HumanSportGym,
-  HumanSportThrow,
-  HumanSportWorkout,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -91,15 +90,45 @@ export function test_motion_equipment_contact_height(): void {
     );
   };
   const tests = [
-    [bench, "surface", 1.2, HumanSportWorkout.benchPress],
-    [bar, "bar", 0.3, HumanSportWorkout.pullUp],
-    [station, "barLeft", -1.2, HumanSportGym.dip],
-    [box, "surface", -1.2, HumanSportGym.stepUp],
-    [bench, "surface", 1.2, HumanSportGym.inclinePushUp],
-    [bench, "surface", 1.2, HumanSportGym.declinePushUp],
-    [box, "surface", -1.2, HumanSportThrow.boxJump],
-    [createKerb({ kind: "kerb" }), "top", 1.2, HumanSportGym.stepUp],
-    [createKerb({ kind: "step" }), "top", -1.2, HumanSportGym.stepUp],
+    [
+      bench,
+      "surface",
+      1.2,
+      AutoMovieMotionHumanWorkout.HumanSportWorkout.benchPress,
+    ],
+    [bar, "bar", 0.3, AutoMovieMotionHumanWorkout.HumanSportWorkout.pullUp],
+    [station, "barLeft", -1.2, AutoMovieMotionHumanWorkout.HumanSportGym.dip],
+    [box, "surface", -1.2, AutoMovieMotionHumanWorkout.HumanSportGym.stepUp],
+    [
+      bench,
+      "surface",
+      1.2,
+      AutoMovieMotionHumanWorkout.HumanSportGym.inclinePushUp,
+    ],
+    [
+      bench,
+      "surface",
+      1.2,
+      AutoMovieMotionHumanWorkout.HumanSportGym.declinePushUp,
+    ],
+    [
+      box,
+      "surface",
+      -1.2,
+      AutoMovieMotionHumanThrowCatch.HumanSportThrow.boxJump,
+    ],
+    [
+      createKerb({ kind: "kerb" }),
+      "top",
+      1.2,
+      AutoMovieMotionHumanWorkout.HumanSportGym.stepUp,
+    ],
+    [
+      createKerb({ kind: "step" }),
+      "top",
+      -1.2,
+      AutoMovieMotionHumanWorkout.HumanSportGym.stepUp,
+    ],
   ] as const;
   for (const [model, affordance, z, law] of tests) {
     const p = { at: { x: 0, y: 0, z }, yaw: 0 },
@@ -215,7 +244,7 @@ export function test_motion_equipment_contact_height(): void {
           );
         let e: unknown;
         try {
-          stage(model, p, actor.registered(law.name, { reps: 1 }), [law]);
+          stage(model, p, actor.registered(law.name, { count: 1 }), [law]);
         } catch (error) {
           e = error;
         }
@@ -266,10 +295,17 @@ export function test_motion_equipment_contact_height(): void {
   if (!(loose instanceof HumanRefusal))
     findings.push("Loose ladder should be refused.");
   for (const [model, law, contact, event, x, z] of [
-    [createRowingMachine(), HumanSportWorkout.rowing, "seat", "catch1", 1.5, 0],
+    [
+      createRowingMachine(),
+      AutoMovieMotionHumanWorkout.HumanSportWorkout.rowing,
+      "seat",
+      "catch1",
+      1.5,
+      0,
+    ],
     [
       createExerciseBike(),
-      HumanSportWorkout.cycling,
+      AutoMovieMotionHumanWorkout.HumanSportWorkout.cycling,
       "saddle",
       "leftBottom1",
       -1.5,
@@ -277,7 +313,7 @@ export function test_motion_equipment_contact_height(): void {
     ],
     [
       createExerciseMat({ kind: "gym" }),
-      HumanSportWorkout.sitUp,
+      AutoMovieMotionHumanWorkout.HumanSportWorkout.sitUp,
       "surface",
       "down1",
       0,
@@ -290,7 +326,7 @@ export function test_motion_equipment_contact_height(): void {
       model,
       placement,
       actor.registered(law.name, {
-        reps: 1,
+        count: 1,
         on: { prop: "fixture", affordance: contact },
       }),
       [law],
@@ -371,7 +407,7 @@ export function test_motion_equipment_contact_height(): void {
     tap,
     tp,
     actor.stand({ hold: 0.3 }).registered("operate", {
-      mechanism: {
+      kind: {
         kind: "knob",
         at: { kind: "prop", subject: "fixture", point: "lever" },
         turn: 90,

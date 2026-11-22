@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAcrobatics,
+  AutoMovieMotionHumanWorkout,
   HumanChain,
   HumanPerformance,
-  HumanSportWorkout,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,9 +35,9 @@ export function test_motion_sport_native_playback(): void {
   const cases = [
     {
       name: "backSquat",
-      node: entry.registered("backSquat", { reps: 3 }).node,
+      node: entry.registered("backSquat", { count: 3 }).node,
     },
-    { name: "pushUp", node: entry.registered("pushUp", { reps: 3 }).node },
+    { name: "pushUp", node: entry.registered("pushUp", { count: 3 }).node },
     {
       name: "breaststroke",
       node: entry.swim({ kind: "breaststroke", count: 3 }).node,
@@ -67,8 +67,8 @@ export function test_motion_sport_native_playback(): void {
             },
           ],
           laws: [
-            HumanSportWorkout.backSquat,
-            HumanSportWorkout.pushUp,
+            AutoMovieMotionHumanWorkout.HumanSportWorkout.backSquat,
+            AutoMovieMotionHumanWorkout.HumanSportWorkout.pushUp,
             AutoMovieMotionHumanAcrobatics.cartwheel,
             AutoMovieMotionHumanAcrobatics.HumanGymnastics.roundOffLeft,
             AutoMovieMotionHumanAcrobatics.HumanGymnastics.frontHandspring,

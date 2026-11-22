@@ -10,16 +10,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAcrobatics,
   HumanChain,
-  HumanGymnastics,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The stilts' platform height, metres. */
 const HEIGHT: number = 0.6;
@@ -44,7 +44,7 @@ const HEIGHT: number = 0.6;
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, a walk, a stand in place and an entry off the stilts.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture.
  */
-export function test_motion_exercise_stilts(): void {
+export function test_motion_workout_stilts(): void {
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const half: number = Math.abs(body.rest.get("leftUpperLeg")!.x);
@@ -116,7 +116,7 @@ function take(
 ): HumanPerformance {
   return new HumanPerformance({
     seed: "stilts",
-    laws: [HumanGymnastics.stilts],
+    laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.stilts],
     performers: [
       {
         subject: "a",

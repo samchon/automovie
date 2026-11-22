@@ -10,8 +10,8 @@ import type {
 import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** How far a knee may land from its named floor point, metres (provisional: the knee's own radius). */
 const KNEE: number = 0.05;
@@ -55,7 +55,7 @@ const CASES: readonly ICase[] = [
  * @evidence contracts/development/testing.md#distinguishing-cases Forward, aside and back, one and both knees, on two bodies, and the reach refusal.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain.
  */
-export function test_motion_posture_kneel_at(): void {
+export function test_motion_seat_kneel_at(): void {
   for (const fit of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
     const right: number = body.rest.get("rightFoot")!.x;

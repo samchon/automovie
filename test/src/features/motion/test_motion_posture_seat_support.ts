@@ -12,22 +12,24 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSeat,
+  AutoMovieMotionHumanTouch,
   HumanChain,
-  HumanFrame,
   HumanMutual,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanSeatedReach,
   HumanSignature,
-  seated,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanRiseSignature } from "../internal/motionHumanRiseSignature";
 import { motionHumanSignature as M } from "../internal/motionHumanSignature";
 import { motionPostureBranches } from "../internal/motionPostureBranches";
+
+const { HumanSeatedReach } = AutoMovieMotionHumanTouch;
 
 /**
  * The three sitting modes retain the geometry of a chair at the body's
@@ -323,7 +325,7 @@ function checkSeatedHandshake(all: motionComplaints.IGatherer): void {
     const seat: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
-        y: seated.popliteal(body),
+        y: AutoMovieMotionHumanSeat.seated.popliteal(body),
         z:
           who === "a"
             ? body.rest.get("leftFoot")!.z - 0.1
