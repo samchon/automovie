@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -22,6 +23,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { courseArmGoal } from "../compose/courseArmGoal";
@@ -57,7 +59,10 @@ import { putDownTarget } from "./putDownTarget";
  * part run backward. The fitted hand is judged against its planned place on
  * the grip at plan time, and a draw it cannot follow is refused rather than
  * shown with the hand off the hilt. Events: `unseated` at the start and `drawn` at the end. A cut to
- * `stand` inside the draw, or to `walk` at its end, keeps the grip.
+ * `stand` inside the draw, or to `walk` at its end, keeps the grip. Over a
+ * carrier (a seated rider's draw), the draw claims only its hands and arms,
+ * their goals riding the bone the carrier is worn on so they follow the line
+ * as the body moves; there the fit is not judged against the line.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the entry state, the path, the timing, the held body, the events and the cut.
  * @evidence contracts/development/design.md#principled-representation The object rides the carrier's own slide socket on the authored line, so the displayed object follows the line exactly; the hand follows it within `GRIP` and owns it from the opening.
@@ -67,6 +72,8 @@ import { putDownTarget } from "./putDownTarget";
 export const drawFromCarrier: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDrawFromCarrier> =
   {
     name: "drawFromCarrier",
+    // Over a carrier, a seated rider's draw: the drawing arm and hand only.
+    overlay: true,
     interrupts: {
       stand: [
         {
@@ -272,6 +279,20 @@ function plan(
 
   // The hand keeps the object, its closed fingers and its use, through the draw.
   const use: IAutoMovieMotionPropHold["use"] = context.entry.uses[side];
+  if (context.carrier !== undefined)
+    return overCarrier({
+      context,
+      side,
+      prop,
+      from,
+      line,
+      duration,
+      transport,
+      bend,
+      use,
+      pulled,
+      retreat,
+    });
   const plan: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [
@@ -451,6 +472,183 @@ function plan(
       });
 }
 
+/** What a draw over a carrier is planned from, as the grounded draw read it. */
+interface IOver {
+  /** The action's context, its carrier present. */
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrawFromCarrier>;
+  /** The drawing hand. */
+  side: AutoMovieHumanSide;
+  /** The drawn object. */
+  prop: string;
+  /** The carrier and its affordances. */
+  from: IAutoMovieMotionHumanDrawFromCarrier.IFrom;
+  /** The draw line, world metres at the entry. */
+  line: IAutoMovieVector3;
+  /** The draw's length, seconds. */
+  duration: number;
+  /** The drawing wrist's transport, world at the entry. */
+  transport: IAutoMovieMotionHumanPrehension.ITransport;
+  /** The drawing elbow's hint, world at the entry. */
+  bend: IAutoMovieVector3;
+  /** The hand's use of the object. */
+  use: IAutoMovieMotionPropHold["use"];
+  /** The other hand's pull, when it pulls. */
+  pulled: IPulled | null;
+  /** The pulling wrist's transport, world at the entry. */
+  retreat: IAutoMovieMotionHumanPrehension.ITransport | null;
+}
+
+/**
+ * The draw over a carrier: a seated rider drawing from a carrier worn on
+ * its body. The carrier action keeps the body; the draw claims only its
+ * hands and arms, and their goals ride the bone the carrier is worn on, so
+ * the hands follow the line as the body moves under the rider. The path is
+ * the grounded draw's, carried into that bone's frame at the entry; the
+ * trunk's turn of a long draw is the carrier's, so it is left out.
+ */
+function overCarrier(over: IOver): IAutoMovieMotionHumanActionPlan {
+  const {
+    context,
+    side,
+    prop,
+    from,
+    line,
+    duration,
+    transport,
+    bend,
+    use,
+    pulled,
+    retreat,
+  }: IOver = over;
+  const worn: IAutoMovieMotionHumanProp["worn"] = context.prop(from.prop).prop
+    .worn;
+  const frame: AutoMovieHumanoidBone =
+    worn !== undefined && worn.subject === context.subject ? worn.bone : "hips";
+  const at: IAutoMovieResolvedBone = poseBones(
+    context.body,
+    context.entry.pose,
+    undefined,
+    new Set<AutoMovieHumanoidBone>([frame]),
+  ).get(frame)!;
+  const inverse: IAutoMovieQuaternion = Quaternion.inverse(at.worldRotation);
+  const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+    p: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
+    Quaternion.rotateVector(inverse, Vector3.subtract(p, at.worldPosition));
+  const turn: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
+    q: IAutoMovieQuaternion,
+  ): IAutoMovieQuaternion =>
+    Quaternion.normalize(Quaternion.multiply(inverse, q));
+  const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
+    context,
+    duration,
+  );
+  const part: IAutoMovieMotionHumanContactWindow["part"] = `${side}Hand`;
+  const goal: (
+    wrist: IAutoMovieMotionHumanPrehension.ITransport,
+    elbow: IAutoMovieVector3,
+    t: number,
+  ) => IAutoMovieHumanLimbGoal = (
+    wrist: IAutoMovieMotionHumanPrehension.ITransport,
+    elbow: IAutoMovieVector3,
+    t: number,
+  ): IAutoMovieHumanLimbGoal => ({
+    point: local(wrist.wrist(t)),
+    rotation: turn(wrist.turn(t)),
+    bend: local(elbow),
+    on: frame,
+  });
+  return {
+    duration,
+    events: [
+      { name: "unseated", share: 0 },
+      { name: "drawn", share: 1 },
+    ],
+    contacts: [
+      ...base.contacts,
+      {
+        part,
+        kind: "grip",
+        from: 0,
+        to: 1,
+        support: { kind: "prop", subject: prop, carries: false },
+      },
+      {
+        part,
+        kind: "grip",
+        from: 1,
+        to: 1,
+        support: { kind: "prop", subject: prop },
+      },
+      ...(pulled === null
+        ? []
+        : [
+            {
+              part: pulled.part,
+              kind: "grip" as const,
+              from: 0,
+              to: 1,
+              support: { kind: "prop" as const, subject: from.prop },
+            },
+          ]),
+    ],
+    channels: [
+      `${side}Arm`,
+      `${side}Hand`,
+      ...(pulled === null
+        ? []
+        : ([`${pulled.side}Arm`, `${pulled.side}Hand`] as const)),
+    ],
+    mounts: [{ prop, onto: from.prop, point: from.slide, from: 0 }],
+    ...(pulled === null
+      ? {}
+      : { wears: [{ prop: from.prop, bone: pulled.bone, from: 1 }] }),
+    drives: [
+      {
+        prop: from.prop,
+        articulation: from.slider,
+        from: 0,
+        to: 1,
+        travel: (seconds: number): number =>
+          Vector3.length(line) *
+          minimumJerk(Math.min(1, Math.max(0, seconds / duration))).s,
+      },
+    ],
+    holds: [
+      {
+        side,
+        prop,
+        from: 1,
+        fingers: HumanGrip.fingers(context.entry.pose, side),
+        ...(use === undefined ? {} : { use }),
+      },
+    ],
+    posture: (
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      const posture: IAutoMovieMotionHumanPosture = base.posture(
+        t,
+        channels,
+        resolution,
+        projection,
+      );
+      return {
+        ...posture,
+        limbs: {
+          ...posture.limbs,
+          [`${side}Arm`]: goal(transport, bend, t),
+          ...(pulled === null || retreat === null
+            ? {}
+            : { [`${pulled.side}Arm`]: goal(retreat, pulled.bend, t) }),
+        },
+      };
+    },
+  };
+}
 /** The other hand's pull on a worn carrier, read from the entry. */
 interface IPulled {
   /** The pulling hand. */
