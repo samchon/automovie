@@ -40,13 +40,13 @@ export function QuadrupedLead<Id extends string, Dimension extends string>(
 export namespace QuadrupedLead {
   /** All four lengths are positive finite metres; width also fits the actual neck. */
   export interface IParams {
-    /** Collar length along the neck. */
+    /** Collar length along the neck, metres. */
     width: number;
-    /** Collar radial thickness. */
+    /** Collar radial thickness, metres. */
     thickness: number;
-    /** Complete straight lead length. */
+    /** Complete straight lead length, metres. */
     leadLength: number;
-    /** Circular lead radius. */
+    /** Circular lead radius, metres. */
     leadRadius: number;
   }
 }

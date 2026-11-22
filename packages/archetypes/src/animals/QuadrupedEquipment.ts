@@ -93,10 +93,10 @@ export namespace QuadrupedEquipment {
       /** Complete lateral beam length; must span neck, beam radius and clearance. */
       width: number;
 
-      /** Circular crossbeam radius. */
+      /** Circular crossbeam radius, metres. */
       radius: number;
 
-      /** Distance along the actual neck axis from root, inside its positive span. */
+      /** Distance along the actual neck axis from its root, metres, inside the neck's positive span. */
       neckAt: number;
 
       /** Free beam/hitch separation from neck and trunk, metres, zero allowed; the separate visible bearing rail touches the neck. */
@@ -111,13 +111,13 @@ export namespace QuadrupedEquipment {
       /** Fore-aft pad/rail length; its crossbars fit the trunk behind the neck-root footprint. */
       length: number;
 
-      /** Each side pad's vertical width; must fit the actual barrel and stay above ground. */
+      /** Each side pad's vertical width, metres; must fit the actual barrel and stay above ground. */
       width: number;
 
-      /** Each side pad's lateral thickness. */
+      /** Each side pad's lateral thickness, metres. */
       thickness: number;
 
-      /** Supporting rail radius; its diameter must fit the pad thickness. */
+      /** Supporting rail radius, metres; its diameter must fit the pad thickness. */
       railRadius: number;
 
       /** Free pad/frame separation from the body, metres, zero allowed; separate visible bearing rails touch its upper flanks. */

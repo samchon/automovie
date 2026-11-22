@@ -260,7 +260,7 @@ export namespace createCohortQuadruped {
     body: (cohort: Cohort) => QuadrupedBody.IBody;
     /** Admitted authoring choices. */
     params: IParams;
-    /** Independent deterministic construction seed. */
+    /** The seed that draws the cohort and the free dimensions left open in `params`; absent, the cohort is `reference` and each free dimension takes the middle of its band. */
     seed?: number | string;
     /** Admit physical additions without emitting unselected model geometry. */
     prepare?: (rig: QuadrupedBody.IRig, cohort: Cohort) => Addition | undefined;
