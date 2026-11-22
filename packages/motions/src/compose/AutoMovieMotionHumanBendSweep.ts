@@ -50,7 +50,7 @@ import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain
  * @evidence contracts/development/implementation.md#principled-implementation The engine's analytic hinged-arm swivel sweep (`hingedArmArticulation`), the upper arm's range sparing swivels it refuses (`boxExcludedSwivels`), each candidate read for the rig's range overshoot, the forearm's clearance and the strain.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The fixed bases and ranges, one candidate reader, one engine sweep.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig without the lower arm's axes is null, never a guessed place; the returned candidate is read again at the solved rotations, so its overshoot is the true one.
- * @evidence contracts/development/implementation.md#efficient-algorithms The bases and ranges are admitted once a sweep, the lower joint's overshoot once a branch's shared lower rotation, and the clearance prepared once a sweep over the chain's placed shapes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The bases and ranges are admitted once a sweep, the lower joint's overshoot once a branch's shared lower rotation, and the clearance prepared once a sweep over the chain's placed shapes. With a hand rotation a candidate's strain is read at most once and only on demand, its shoulder's share standing as a certified lower bound (`AutoMovieMotionHumanBendStrain.least`), so a ranking that defers it (`AutoMovieMotionHumanBendSearch.strained`) reads the hand's split and decomposition only for comparisons the overshoot and the bound leave open.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `AutoMovieMotionHumanBendStrain` and `HumanArmOvershoot` with every search of the arm.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Readers and candidate closures end with the call; only the chosen candidate and its seed escape.
  */
@@ -99,6 +99,9 @@ export function AutoMovieMotionHumanBendSweep(
           handAxes = axes;
         },
   );
+
+  const least: ((u: IAutoMovieResolvedJointAngles) => number) | null =
+    AutoMovieMotionHumanBendStrain.least(chain, rotation, neutral);
 
   // The two joints' bases and ranges are the rig's, fixed over the search:
   // admitted and resolved once, as the engine's own candidate scoring
@@ -195,23 +198,34 @@ export function AutoMovieMotionHumanBendSweep(
       chain.shoulder,
       Quaternion.rotateVector(turned, prepared.lowerOffset),
     );
-    const strain: number = strained(
-      u,
-      (): IAutoMovieQuaternion =>
-        Quaternion.multiply(
-          Quaternion.multiply(turned, prepared.lowerRotation),
-          lower,
-        ),
-    );
-    return {
-      elbow,
-      angles: u,
-      overshoot:
-        upperOvershoot({ bone: upperBone, ...u }) +
-        midOf(lower) +
-        clear(elbow, point),
-      strain,
-    };
+    // With a hand rotation the strain's costly share is the hand's, read only
+    // when a comparison asks for it; the shoulder's share bounds it from
+    // below meanwhile (`AutoMovieMotionHumanBendStrain.least`).
+    let strain: number | undefined;
+    const exact: () => number = (): number =>
+      (strain ??= strained(
+        u,
+        (): IAutoMovieQuaternion =>
+          Quaternion.multiply(
+            Quaternion.multiply(turned, prepared.lowerRotation),
+            lower,
+          ),
+      ));
+    const overshoot: number =
+      upperOvershoot({ bone: upperBone, ...u }) +
+      midOf(lower) +
+      clear(elbow, point);
+    return least === null
+      ? { elbow, angles: u, overshoot, strain: exact() }
+      : {
+          elbow,
+          angles: u,
+          overshoot,
+          get strain(): number {
+            return exact();
+          },
+          least: least(u),
+        };
   };
   const solve = () =>
     hingedArmArticulation({

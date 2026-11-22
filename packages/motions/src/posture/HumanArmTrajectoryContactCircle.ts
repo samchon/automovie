@@ -40,7 +40,7 @@ import { HumanArmTrajectoryTravel } from "./HumanArmTrajectoryTravel";
  * @evidence contracts/development/implementation.md#principled-implementation Removes the measured hinge rotation from the elbow-to-contact vector, then uses the native two-link hinge and swivel equations. The peak quaternion dot locates the nearest shoulder on each circle.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the hinge roots once, visit their nearest swivels first and return a pose only after checking its projected FK.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unrepresented projected pose or a hard collision rejects the candidate, and callers verify the whole trajectory before adoption.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most the native angular grid on each hinge root of each contact circle at a failed hold waypoint; a continuing branch normally needs only its nearest candidate.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most the native angular grid on each hinge root of each contact circle at a failed hold waypoint; a continuing branch normally needs only its nearest candidate. A candidate's refusing tests run cheapest first (contact, probe steps, then pairs and sweep), and its pairs leave unread every pair whose bounding sphere shows it short of a refusal.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A root's harmonic and angular center serve both directions. Each proposed pose is placed once to measure its contact and collision pairs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All geometry belongs to the current waypoint, and only the chosen coordinates escape.
  */
@@ -103,6 +103,10 @@ export function HumanArmTrajectoryContactCircle(
   add(link, site.point);
   for (const hand of site.rotation === undefined ? [before.hand] : [before.hand, site.rotation])
     add(setup.rest.hand.translation, Vector3.subtract(site.point, Quaternion.rotateVector(hand, site.contact)), hand);
+  // The pairs' cut (`HumanArmTrajectoryPairs.deepest`) that leaves unread
+  // only pairs whose bounding spheres show them shallower than a refusal,
+  // the skin and the tolerance: the candidate's verdict reads no other.
+  const refuses: number = -(T.SKIN + M.TOLERANCE);
   const check = (branch: IBranch, swivel: number): number[] | undefined => {
     const arm: IAutoMovieMotionHumanArmClearance.IArm = G.arm(setup, reference, branch.pose(swivel).upper);
     const q: number[] = M.ranged(c, a, G.encode(setup, { ...arm, lower: [branch.angle, arm.lower[1], arm.lower[2]] }));
@@ -112,13 +116,15 @@ export function HumanArmTrajectoryContactCircle(
     const palm: IAutoMovieVector3 = P.pad(chain, site.contact);
     if (Vector3.distance(palm, site.point) > reach) return undefined;
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = placeHumanArmGeometry(setup, frame, chain, true);
-    for (const pair of P.deepest(c, a, k, placed, P.CUT).values())
-      if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
-    for (const pair of P.embedded(c, a, k, placed, P.CUT).values())
-      if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
-    if (prior !== undefined) {
-      const start: IAutoMovieMotionHumanArmGeometry.IPlaced = from! < k ? prior : placed;
-      const end: IAutoMovieMotionHumanArmGeometry.IPlaced = from! < k ? placed : prior;
+
+    // Every test below can only refuse the candidate, so the cheapest go
+    // first: the probes' steps, three distances, before the pairs and the
+    // sweep, which read the body's shapes.
+    const start: IAutoMovieMotionHumanArmGeometry.IPlaced | undefined =
+      prior === undefined ? undefined : from! < k ? prior : placed;
+    const end: IAutoMovieMotionHumanArmGeometry.IPlaced | undefined =
+      prior === undefined ? undefined : from! < k ? placed : prior;
+    if (start !== undefined && end !== undefined) {
       const limit: number = M.stepLimit(c, interval) + M.TOLERANCE;
       for (const probe of T.SPEED) {
         const delta: IAutoMovieVector3 = HumanArmTrajectoryTravel.step(
@@ -127,9 +133,17 @@ export function HumanArmTrajectoryContactCircle(
         );
         if (1000 * Vector3.length(delta) > limit) return undefined;
       }
+    }
+
+    // A pair refuses only past the skin and the tolerance, so a pair whose
+    // bounding sphere shows it short of that is left unread (`refuses`).
+    for (const pair of P.deepest(c, a, k, placed, refuses).values())
+      if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
+    for (const pair of P.embedded(c, a, k, placed, refuses).values())
+      if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
+    if (start !== undefined && end !== undefined)
       for (const sweep of HumanArmTrajectorySweep.of(c, a, interval, start, end))
         if (1000 * (sweep.lower - sweep.clear) > M.TOLERANCE) return undefined;
-    }
     return q;
   };
   if (from === undefined) {

@@ -212,13 +212,19 @@ export function wardrobeFoot(
       (seconds - finish) / (holdEnd - finish),
     );
   };
-  const posture: (seconds: number) => IAutoMovieMotionHumanPosture = (
+  // A demand that leaves the arm out (`courseArmGoal`, the arm on its
+  // course) takes no goal of it (`wardrobeHands.arm`).
+  const posture: (
     seconds: number,
+    channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+  ) => IAutoMovieMotionHumanPosture = (
+    seconds: number,
+    channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
   ): IAutoMovieMotionHumanPosture => {
     const support: IAutoMovieMotionHumanPosture = base.posture(seconds);
     return seconds < holdStart || seconds > holdEnd
       ? support
-      : wardrobeHands.arm(body, support, hand, target(seconds));
+      : wardrobeHands.arm(body, support, hand, target(seconds), channels);
   };
   for (const at of [gripTime, passTime, finish])
     wardrobeHands.verify(
@@ -234,11 +240,13 @@ export function wardrobeFoot(
   // The coursed plan, whose posture is the hand the performance shows: the
   // shell's custody reads that hand, so the shown shell lands on its target
   // whatever branch or swivel the course took. Set once the course is laid.
-  let shown: IAutoMovieMotionHumanActionPlan | undefined;
+  const course: ICourse = {};
   const held: (seconds: number) => IAutoMovieMotionHumanPosture = (
     seconds: number,
   ): IAutoMovieMotionHumanPosture =>
-    shown === undefined ? posture(seconds) : shown.posture(seconds);
+    course.shown === undefined
+      ? posture(seconds)
+      : course.shown.posture(seconds);
   const contact: IAutoMovieMotionHumanContactWindow = {
     ...wardrobeHands.contact(
       params.prop,
@@ -280,7 +288,7 @@ export function wardrobeFoot(
   // fresh fit at each second, whose seeded display could take another
   // forearm twist than the fit the shell's custody reads. The checks above
   // read the goal.
-  shown = courseArmGoal({
+  const shown: IAutoMovieMotionHumanActionPlan = courseArmGoal({
     body,
     side: hand,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, hand),
@@ -313,7 +321,14 @@ export function wardrobeFoot(
       posture,
     },
   });
+  course.shown = shown;
   return shown;
+}
+
+/** The coursed plan once it is laid, read by the shell's custody through the hand it shows. */
+interface ICourse {
+  /** The coursed plan; absent until the course is laid. */
+  shown?: IAutoMovieMotionHumanActionPlan;
 }
 
 /** Find an actual phase boundary in seconds. */

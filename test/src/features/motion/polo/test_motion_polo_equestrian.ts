@@ -310,7 +310,7 @@ function stage(
     acts: (seated) => {
       const ridden = seated.registered("ride", {
         on: "horse",
-        seconds: WAIT - 1,
+        duration: WAIT - 1,
         seat: "seat",
         feet: { left: "leftStirrup", right: "rightStirrup" },
         hands: { left: "leftRein" },

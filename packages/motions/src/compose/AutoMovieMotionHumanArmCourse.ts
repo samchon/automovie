@@ -8,13 +8,14 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMoviePose,
+  IAutoMovieSeededChainFit,
 } from "@automovie/interface";
 
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryContactContinuation } from "../posture/HumanArmTrajectoryContactContinuation";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 
 /**
@@ -26,7 +27,7 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
  * On the frame grid of the span (and its `ready` and `relax`):
  *
  * - the hold: every arm's goal at the instant, each arm fitted alone on the
- *   base the planner already solved (`resolveHumanPosture.limbSeeded`), the
+ *   base the planner already solved (`HumanLimbFit.fit`), the
  *   riding arm after the one it rides, on the pose that one placed, each
  *   instant after the first continuing the swivel, the branch and the arms
  *   the instant before chose (`IAutoMovieSwivelNear`), the per-frame
@@ -319,15 +320,19 @@ function solver(
     > = {};
     for (const a of order) {
       const limb: AutoMovieHumanLimb = `${props.arms[a]!.side}Arm`;
-      const fitted: ReturnType<typeof resolveHumanPosture.limbSeeded> =
-        resolveHumanPosture.limbSeeded(
-          props.body,
-          pose,
-          limb,
-          goals[a]!,
-          near[limb],
-          props.resolution,
-        );
+      // The fit itself, not `resolveHumanPosture.limbSeeded`'s independent
+      // copy of it: the course only reads the pose it returns and spreads its
+      // seed, and a fit leaves its input pose's records as they are.
+      const fitted: IAutoMovieSeededChainFit = HumanLimbFit.fit(
+        props.body,
+        pose,
+        limb,
+        goals[a]!,
+        ["left", "right"],
+        undefined,
+        near[limb],
+        props.resolution,
+      );
       pose = fitted.pose;
 
       // Refined to the cold sweep's own resolution, so a continued fit

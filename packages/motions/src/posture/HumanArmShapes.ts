@@ -90,14 +90,15 @@ export namespace HumanArmShapes {
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
     if (probe < G.SURFACE) return near(at, p, r + reach, gaps);
     const owner: "upper" | "lower" | "hand" = at.owners[probe - G.SURFACE]!;
-    return (screened ?? screen(at, placed, reach))[owner].filter(
-      (i: number): boolean => {
-        const shape: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[i]!;
-        const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
-        if (gaps !== undefined) gaps[i] = gap;
-        return gap < r + reach;
-      },
-    );
+    const among: readonly number[] = (screened ?? screen(at, placed, reach))[owner];
+    const out: number[] = [];
+    for (const i of among) {
+      const shape: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[i]!;
+      const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
+      if (gaps !== undefined) gaps[i] = gap;
+      if (gap < r + reach) out.push(i);
+    }
+    return out;
   }
 
   /**

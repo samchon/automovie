@@ -1,6 +1,7 @@
 import { hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -112,7 +113,7 @@ export namespace readHumanSegmentLegs {
    * @evidence contracts/development/implementation.md#principled-implementation Warm-starting each frame from the frame before, on the branch it chose, is the temporal coherence of engine two-bone IK; the root nearest the seed is the closed-form feasible swivel nearest the desired one (Tolani §3.2.4).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One kept list of frames per plan, extended in order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each frame is a full fit of the plan's own leg goals; a display only continues from it, against its own goals.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One legs-only fit per frame of the plan, each a closed-form root where it is legal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One legs-only fit per frame of the plan, each a closed-form root where it is legal, on a plan posture demanding only the root, trunk and leg channels.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The frames are kept per plan and shared by every read of it.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held weakly by its plan.
    */
@@ -140,7 +141,10 @@ export namespace readHumanSegmentLegs {
         frames.push(
           frame(
             body,
-            plan.posture(Math.min(plan.duration, frames.length * step)),
+            plan.posture(
+              Math.min(plan.duration, frames.length * step),
+              LEGGED,
+            ),
             frames[frames.length - 1],
           ),
         );
@@ -173,6 +177,19 @@ export namespace readHumanSegmentLegs {
 
   /** The legs a chain fits. */
   const LEGS: readonly AutoMovieHumanLimb[] = ["leftLeg", "rightLeg"];
+
+  /**
+   * The channels a chain frame demands of the plan: a leg fit reads the
+   * root, the trunk and the legs' own goals and joints alone
+   * (`HumanSegmentLegs`), so a plan that honours the demand evaluates no arm,
+   * head or hand writer for a frame.
+   */
+  const LEGGED: readonly AutoMovieMotionHumanChannel[] = [
+    "root",
+    "trunk",
+    "leftLeg",
+    "rightLeg",
+  ];
 
   /**
    * A plan's leg chain: its frames so far, from the plan's start.

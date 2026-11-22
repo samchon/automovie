@@ -165,13 +165,21 @@ export namespace wardrobeHands {
     };
   }
 
-  /** Assign a grip target to one arm while preserving every other part of the posture. */
+  /**
+   * Assign a grip target to one arm while preserving every other part of the
+   * posture. A channel demand that leaves the arm out (`courseArmGoal`'s, while
+   * the arm is on its planned course) takes the posture as it is, with no
+   * elbow search for a goal no reader takes.
+   */
   export function arm(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     target: IAutoMovieRigidTransform,
+    channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
   ): IAutoMovieMotionHumanPosture {
+    if (channels !== undefined && !channels.includes(`${side}Arm`))
+      return posture;
     const site: IAutoMovieVector3 = HumanHand.offset(body, side, "grip").point;
     const point: IAutoMovieVector3 = Vector3.subtract(
       target.position,

@@ -140,6 +140,49 @@ export namespace AutoMovieMotionHumanBendStrain {
     };
   }
 
+  /**
+   * A certified lower bound of the strain `of` reads, from the shoulder's
+   * angles alone, for a search that reads the hand's costly share only where
+   * the bound cannot decide a comparison (`hingedSwivelAhead`'s deferred
+   * deviation).
+   *
+   * @param chain The prepared chain.
+   * @param rotation The hand's world rotation; absent, the strain is the shoulder's share alone and nothing is deferred.
+   * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
+   * @returns The bound of a place from its shoulder angles, or null where the hand's turn adds no strain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is bounded, from what, and the null case.
+   * @evidence contracts/development/implementation.md#principled-implementation The strain is the shoulder's share plus the hand's non-negative shares, or `UNMADE` plus a positive excess; the shoulder's share, computed with the same terms in the same order, is at most the first (adding non-negative doubles never lowers a sum under rounding to nearest), and its minimum with `UNMADE` is at most the second, so it bounds both from below.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The ranges once, then the shoulder's three squares and one minimum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bound is never ranked as the strain: the comparator reads the exact strain wherever the bound leaves a comparison open.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three squares per place, against the hand's split and decomposition it defers.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `share` and the ranges' halves with `of`, so the shoulder's share is the same number in both.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the ranges' halves and the hanging arm's angles.
+   */
+  export function least(
+    chain: AutoMovieMotionHumanBendChain.IChain,
+    rotation: IAutoMovieQuaternion | undefined,
+    neutral: AutoMovieMotionHumanBendSearch.IAngles | null,
+  ): ((u: AutoMovieMotionHumanBendSearch.IAngles) => number) | null {
+    if (rotation === undefined) return null;
+    const upperRange: IAutoMovieJointConstraint | null =
+      chain.prepared.upperDomain.constraint;
+    const halves: [number | null, number | null, number | null] = [
+      half(upperRange?.flexion ?? null),
+      half(upperRange?.abduction ?? null),
+      half(upperRange?.twist ?? null),
+    ];
+    return (u: AutoMovieMotionHumanBendSearch.IAngles): number =>
+      Math.min(
+        neutral === null
+          ? 0
+          : share(u.flexion - neutral.flexion, halves[0]) +
+              share(u.abduction - neutral.abduction, halves[1]) +
+              share(u.twist - neutral.twist, halves[2]),
+        UNMADE,
+      );
+  }
+
   /** The strain from which a place counts as leaving the hand's turn unmade; every made place strains less. */
   const UNMADE: number = 1e6;
 

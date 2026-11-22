@@ -102,10 +102,21 @@ export namespace HumanArmConnect {
       const key: string = `${a.join(",")}|${b.join(",")}`;
       const seen: boolean | undefined = edges.get(key);
       if (seen !== undefined) return seen;
+      // The edge is open where every state at its spacing is valid. They are
+      // read the far end first, then by bisection, OMPL's discrete motion
+      // validator's order: an obstacle across the edge is met after a few
+      // states rather than after the states before it, and an open edge
+      // reads every state once all the same.
       const steps: number = Math.ceil(distance(a, b) / resolution);
-      let open: boolean = true;
-      for (let i: number = 1; i <= steps && open; ++i)
-        if (!query.valid(lerp(a, b, i / steps))) open = false;
+      let open: boolean = steps < 1 || query.valid(lerp(a, b, 1));
+      const intervals: [number, number][] = [[0, steps]];
+      for (let next: number = 0; open && next < intervals.length; ++next) {
+        const [low, high]: [number, number] = intervals[next]!;
+        if (high - low < 2) continue;
+        const middle: number = Math.floor((low + high) / 2);
+        if (!query.valid(lerp(a, b, middle / steps))) open = false;
+        intervals.push([low, middle], [middle, high]);
+      }
       edges.set(key, open);
       return open;
     };

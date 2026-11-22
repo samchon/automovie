@@ -102,8 +102,12 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
       const arrival: number = wardrobeHands.duration(carrying, kept);
       const release: number = arrival + params.hold + SETTLE;
       const duration: number = release + wardrobeHands.duration(kept, carrying);
-      const posture: (t: number) => IAutoMovieMotionHumanPosture = (
+      const posture: (
         t: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      ) => IAutoMovieMotionHumanPosture = (
+        t: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
       ): IAutoMovieMotionHumanPosture =>
         wardrobeHands.arm(
           body,
@@ -116,6 +120,7 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
                 carrying,
                 (t - release) / (duration - release),
               ),
+          channels,
         );
       wardrobeHands.verify(
         context,
@@ -173,13 +178,23 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
             },
           ],
           // The partner's body, behind which the arm carries the jacket, is
-          // the arm's obstacle too (`AutoMovieMotionHumanPartnerClear`).
-          posture: (t: number): IAutoMovieMotionHumanPosture =>
-            AutoMovieMotionHumanPartnerClear.onto(
-              posture(t),
-              `${hand}Arm`,
-              AutoMovieMotionHumanPartnerClear.at(partner, context.start + t),
-            ),
+          // the arm's obstacle too (`AutoMovieMotionHumanPartnerClear`). A
+          // demand that leaves the arm out (the arm on its course) reads
+          // neither its goal nor the partner.
+          posture: (
+            t: number,
+            channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+          ): IAutoMovieMotionHumanPosture =>
+            channels !== undefined && !channels.includes(`${hand}Arm`)
+              ? posture(t, channels)
+              : AutoMovieMotionHumanPartnerClear.onto(
+                  posture(t),
+                  `${hand}Arm`,
+                  AutoMovieMotionHumanPartnerClear.at(
+                    partner,
+                    context.start + t,
+                  ),
+                ),
         },
       });
     },

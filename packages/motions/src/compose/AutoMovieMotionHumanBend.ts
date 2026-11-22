@@ -13,6 +13,7 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
+import { AutoMovieMotionHumanBendMemo } from "./AutoMovieMotionHumanBendMemo";
 import { AutoMovieMotionHumanBendPreparation } from "./AutoMovieMotionHumanBendPreparation";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendTurn } from "./AutoMovieMotionHumanBendTurn";
@@ -265,12 +266,15 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through the engine's `hingedArmArticulation`, with legality ranked before a joint-range-normalised discomfort, the form of Cruse 1986 and of Kee and Karwowski 2001.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One search and one refusal check; the search and the strain live in `AutoMovieMotionHumanBendSearch`, shared with `level` and `strain`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable wrist and a circle with no allowed place are refused with the reason; the fallback is taken only when the caller names it, and no candidate is clamped into range.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics of the rig and at most 720 candidates plus their refinements, each two decompositions and four shape distances.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's chain preparation, swivel sweep, clinical decomposition and range overshoot, and `HumanArmClearance`, the owner of a forearm's clearance.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the hanging arm's angles are the body's (`IAutoMovieMotionHumanBody.hanging`).
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics of the rig and at most 720 candidates plus their refinements, each two decompositions and four shape distances; the hand's share of a candidate's strain is read only for a comparison the shoulder's share cannot decide (`AutoMovieMotionHumanBendStrain.least`), and a request already solved for the same genuine body is read from its table (`AutoMovieMotionHumanBendMemo`).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's chain preparation, swivel sweep, clinical decomposition and range overshoot, and `HumanArmClearance`, the owner of a forearm's clearance; a repeated request with the exact same inputs on the same genuine body shares the elbow its first solve returned (`AutoMovieMotionHumanBendMemo`).
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains, per genuine body, at most `AutoMovieMotionHumanBendMemo.CAPACITY` completed solves, released with the body; the hanging arm's angles are the body's (`IAutoMovieMotionHumanBody.hanging`).
    */
   export function solve(props: IAutoMovieMotionHumanBend.ISolve): IAutoMovieVector3 {
-    return prepare(props).solve(props);
+    return AutoMovieMotionHumanBendMemo.solve(
+      props,
+      (): IAutoMovieVector3 => prepare(props).solve(props),
+    );
   }
 
   /**

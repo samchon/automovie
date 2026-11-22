@@ -1,0 +1,146 @@
+import type {
+  IAutoMovieCrowdAgent,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
+
+/**
+ * The arrivals and the contacts of a steered crowd, read at the integration's
+ * knots (`steerAutoMovieCrowd`): an agent arrives at the first knot its centre
+ * lies within its radius of its destination, and a pair of agents, or an agent
+ * and an obstacle, is a contact when the two overlap at two successive knots,
+ * reported at the first of them with its depth there.
+ *
+ * Moved unchanged out of `steerAutoMovieCrowd` to keep that file under the
+ * repository's 500-line limit.
+ *
+ * @param agents The agents in the order given.
+ * @param obstacles The obstacles.
+ * @param slot Each given agent's index in the stacked state's canonical order.
+ * @param trajectory The integrated crowd.
+ * @param from The interval's first second.
+ * @param to The interval's last second.
+ * @returns Each agent's arrival (null when it never arrives) and the contacts in knot order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the arrival and contact rules, the inputs' orders and the result.
+ * @evidence contracts/development/implementation.md#principled-implementation Overlap of two discs is their summed radii past their centres' distance; of a disc and a footprint its radius past the signed distance; both read on the integrator's own knots.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the knots; each knot places the footprints, reads every agent's arrival and overlaps, and drops the overlaps that ended.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overlaps are reported, never repaired; the 1e-9 m roundoff floor and the two-knot rule are the original pass's.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(K (N^2 + N M)) for K knots, N agents and M obstacle edges; each obstacle's footprint is placed once a knot and each destination read once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A footprint placed at a knot serves every agent there.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one open record per overlapping pair until it ends; returns fresh arrays.
+ */
+export function steerAutoMovieCrowdContacts(
+  agents: readonly IAutoMovieCrowdAgent[],
+  obstacles: readonly IAutoMovieCrowdAgent.IObstacle[],
+  slot: readonly number[],
+  trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory,
+  from: number,
+  to: number,
+): steerAutoMovieCrowdContacts.IResult {
+  const n: number = agents.length;
+  const arrival: IAutoMovieCrowdAgent.ICourse["arrival"][] = new Array<
+    IAutoMovieCrowdAgent.ICourse["arrival"]
+  >(n).fill(null);
+  const contacts: IAutoMovieCrowdAgent.IContact[] = [];
+  const open: Map<string, steerAutoMovieCrowdContacts.IOpen> = new Map();
+
+  // Each agent's destination is its own constant, and each obstacle's
+  // footprint at a knot is one placement every agent reads.
+  const destinations: IAutoMovieVector3[] = agents.map(
+    steerAutoMovieCrowdGeometry.finalGoal,
+  );
+  for (let s: number = 0; s < trajectory.knots; ++s) {
+    const seconds: number = Math.min(to, from + s * trajectory.h);
+    const x: number[] = trajectory.at(seconds).x;
+    const footprints: IAutoMovieVector3[][] = obstacles.map(
+      (o: IAutoMovieCrowdAgent.IObstacle): IAutoMovieVector3[] =>
+        steerAutoMovieCrowdGeometry.footprintAt(o, seconds),
+    );
+    const seen: Set<string> = new Set();
+    const touch = (
+      key: string,
+      depth: number,
+      agent: number,
+      other: IAutoMovieCrowdAgent.IContact["other"],
+    ): void => {
+      seen.add(key);
+      const was: steerAutoMovieCrowdContacts.IOpen = open.get(key) ?? {
+        seconds,
+        depth,
+        ticks: 0,
+      };
+      was.ticks += 1;
+      open.set(key, was);
+      if (was.ticks === 2)
+        contacts.push({
+          agent,
+          other,
+          seconds: was.seconds,
+          depth: was.depth,
+        });
+    };
+    for (let i: number = 0; i < n; ++i) {
+      const a: number = slot[i]!;
+      const ax: number = x[4 * a]!;
+      const az: number = x[4 * a + 1]!;
+      const destination: IAutoMovieVector3 = destinations[i]!;
+      if (
+        arrival[i] === null &&
+        Math.hypot(destination.x - ax, destination.z - az) <= agents[i]!.radius
+      )
+        arrival[i] = seconds;
+      for (let j: number = i + 1; j < n; ++j) {
+        const b: number = slot[j]!;
+        const depth: number =
+          agents[i]!.radius +
+          agents[j]!.radius -
+          Math.hypot(x[4 * b]! - ax, x[4 * b + 1]! - az);
+        if (depth > 1e-9)
+          touch(`a${i}:${j}`, depth, i, { kind: "agent", index: j });
+      }
+      footprints.forEach((footprint: IAutoMovieVector3[], k: number): void => {
+        const depth: number =
+          agents[i]!.radius -
+          steerAutoMovieCrowdGeometry.signedDistance(ax, az, footprint);
+        if (depth > 1e-9)
+          touch(`o${i}:${k}`, depth, i, { kind: "obstacle", index: k });
+      });
+    }
+    for (const key of [...open.keys()]) if (!seen.has(key)) open.delete(key);
+  }
+  return { arrival, contacts };
+}
+
+/**
+ * Companion types of {@link steerAutoMovieCrowdContacts}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
+ * @evidence contracts/development/design.md#principled-representation Arrivals by given agent and contacts as the crowd's own records; an open overlap by its first knot, depth and count.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What `steerAutoMovieCrowd` reads back.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's contact record.
+ */
+export namespace steerAutoMovieCrowdContacts {
+  /** The pass's readings. */
+  export interface IResult {
+    /** Each given agent's first arrival, seconds; null when it never arrives. */
+    arrival: IAutoMovieCrowdAgent.ICourse["arrival"][];
+
+    /** The contacts, in the order they are confirmed. */
+    contacts: IAutoMovieCrowdAgent.IContact[];
+  }
+
+  /** An overlap still open at the latest knot. */
+  export interface IOpen {
+    /** The first knot it was read at, seconds. */
+    seconds: number;
+
+    /** Its depth there, metres. */
+    depth: number;
+
+    /** The successive knots it has been read at. */
+    ticks: number;
+  }
+}

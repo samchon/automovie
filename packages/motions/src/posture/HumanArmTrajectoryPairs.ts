@@ -182,7 +182,7 @@ export namespace HumanArmTrajectoryPairs {
    * @param a The arm.
    * @param k The waypoint.
    * @param placed The arm placed there.
-   * @param cut How far short of its bound a pair may be left unread, millimetres (`CUT` where the reading's users need no more); every pair in reach is read when absent.
+   * @param cut How far short of its bound a pair may be left unread, millimetres (`CUT` where the reading's users need no more; negative, how little past it, for a reader that refuses only past a slack); every pair in reach is read when absent.
    * @returns The pairs by part and shape.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines indexed deepest pairs, millimetre cut and own-part/joint exclusions.
@@ -213,6 +213,9 @@ export namespace HumanArmTrajectoryPairs {
     placed.probes.forEach(
       ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
         if (probe < G.SURFACE) return;
+
+        // A probe whose segment's screen holds no shape has none near it.
+        if (screened[frame.owners[probe - G.SURFACE]!].length === 0) return;
         const part: number = frame.segments[probe - G.SURFACE]!;
         for (const shape of S.nearby(frame, placed, probe, T.REACH, screened, gaps)) {
           const other: number = frame.shapes[shape]!.part;

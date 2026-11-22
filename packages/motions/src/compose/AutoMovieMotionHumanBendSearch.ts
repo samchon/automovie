@@ -72,8 +72,11 @@ export namespace AutoMovieMotionHumanBendSearch {
     /** Degrees out of range plus the forearm's depth inside its clearance of the body as degrees of upper arm turn; 0 when allowed. */
     overshoot: number;
 
-    /** The strain, unitless. */
+    /** The strain, unitless; read on demand where `least` is given. */
     strain: number;
+
+    /** A certified lower bound of `strain` known without reading it, where the hand's share of the strain is deferred (`AutoMovieMotionHumanBendStrain.least`); absent where `strain` is cheap. */
+    least?: number;
   }
 
   /**
@@ -88,8 +91,46 @@ export namespace AutoMovieMotionHumanBendSearch {
     /** The first key. */
     overshoot: number;
 
-    /** The second key. */
+    /** The second key, or its certified lower bound where `exact` is given. */
     deviation: number;
+
+    /**
+     * The exact second key, read only where its bound cannot decide a comparison (`hingedSwivelAhead`).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the reader returns and when it is read.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot a ranking fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot a ranking fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot a ranking fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot a ranking fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot a ranking fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot a ranking fills; the interface declares it and implements nothing.
+     */
+    exact?: () => number;
+  }
+
+  /**
+   * The ranking `solve` takes: overshoot first, then the strain, deferred to
+   * its certified lower bound where the candidate carries one.
+   *
+   * @param candidate The candidate.
+   * @returns Its score, whose comparisons are the same as with the strain read at once.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the order, the deferral and what it preserves.
+   * @evidence contracts/development/implementation.md#principled-implementation A deferred deviation whose bound is at most its exact value decides every comparison of the engine's comparator as the exact value does (`hingedSwivelAhead`), so the sweep's choice is unchanged.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record, the deferral only where a bound exists.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bound never stands for the strain: the exact strain is read for any comparison it leaves open.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per candidate.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The candidate's own lazy strain is the exact value, read at most once.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The score retains its candidate only while the sweep holds it.
+   */
+  export function strained(candidate: ICandidate): IScore {
+    return candidate.least === undefined
+      ? { overshoot: candidate.overshoot, deviation: candidate.strain }
+      : {
+          overshoot: candidate.overshoot,
+          deviation: candidate.least,
+          exact: (): number => candidate.strain,
+        };
   }
 
   /**
@@ -202,7 +243,7 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @evidence contracts/development/implementation.md#principled-implementation The engine's swivel search cold, or its continuation of a seed within one step either way on the seed's branch (`hingedArmArticulation`'s `near`), under `solve`'s ranking.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare once; each call refuses, then searches.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A continued candidate's overshoot is reported as scored, so a caller sees a seed that left the legal places.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One chain preparation for every search of the request, as a walk along one request makes many; cold, the bounded sweep; continued, the refinement's probes alone.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One chain preparation for every search of the request, as a walk along one request makes many; cold, the bounded sweep; continued, the refinement's probes alone; the hand's share of the strain is deferred to its certified bound (`strained`), the same choice.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The chain depends on the request's body, trunk and side alone, so every search of the request shares it; the hanging arm is the body's.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the chain until released.
    */
@@ -234,10 +275,7 @@ export namespace AutoMovieMotionHumanBendSearch {
           props.point,
           props.rotation,
           neutral,
-          (candidate: ICandidate): IScore => ({
-            overshoot: candidate.overshoot,
-            deviation: candidate.strain,
-          }),
+          strained,
           near,
         ) ?? "the arm chain is degenerate"
       );

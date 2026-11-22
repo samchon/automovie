@@ -207,9 +207,18 @@ export namespace HumanPerformancePlace {
         ? last
         : undefined;
     if (!trial) self.trial = undefined;
+
+    // Nothing is placed while the entry state is read, as while a plan is
+    // made, so its reads share the placed people's displayed poses by second
+    // (`HumanSegment.planning`): a pose its samples, anchors or a held prop's
+    // hand read again is read once.
     const entry: ReturnType<typeof HumanSegment.entry> =
       kept === undefined
-        ? HumanSegment.entry(person, previous, start, blend)
+        ? HumanSegment.planning(
+            self.people.values(),
+            (): ReturnType<typeof HumanSegment.entry> =>
+              HumanSegment.entry(person, previous, start, blend),
+          )
         : kept.context.entry;
     const instance: number = [...person.segments, ...person.overlays].filter(
       (s: IAutoMovieMotionHumanSegment): boolean =>

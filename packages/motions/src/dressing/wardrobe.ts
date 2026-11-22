@@ -285,8 +285,14 @@ function thread(
   const across: number = wardrobeHands.duration(first, last);
   const finish: number = prepare + across;
   const total: number = finish + 0.18;
-  const posture: (t: number) => IAutoMovieMotionHumanPosture = (
+  // A demand that leaves the arm out (`courseArmGoal`, the arm on its
+  // course) takes no goal of it (`wardrobeHands.arm`).
+  const posture: (
     t: number,
+    channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+  ) => IAutoMovieMotionHumanPosture = (
+    t: number,
+    channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
   ): IAutoMovieMotionHumanPosture =>
     wardrobeHands.arm(
       body,
@@ -295,6 +301,7 @@ function thread(
       t <= prepare
         ? wardrobeHands.path(home, first, t / prepare)
         : wardrobeHands.path(first, last, (t - prepare) / across),
+      channels,
     );
   wardrobeHands.verify(
     context,

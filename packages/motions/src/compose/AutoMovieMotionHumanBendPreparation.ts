@@ -49,7 +49,7 @@ export namespace AutoMovieMotionHumanBendPreparation {
      * @evidence contracts/development/implementation.md#principled-implementation of ranks each actual candidate by original overshoot and strain, then applies the unchanged allowed/fallback/refusal policy.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual shared-owner sweep precedes the original two policy branches.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original candidate/refinement and exact-zero legality condition remains, with no elbow result reused across wrists.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Reuses fixed chain/FK preparation while retaining the original bounded numerical sweep per actual wrist/rotation.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Reuses fixed chain/FK preparation while retaining the original bounded numerical sweep per actual wrist/rotation; without a trial the hand's share of a candidate's strain is read only for comparisons its certified bound leaves open (`AutoMovieMotionHumanBendSearch.strained`), the same choice.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/trunk/side share geometry only; each changed wrist/rotation is independently ranked and solved.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning selector or bounded authored support-state plan releases its fixed chain/collider context; each call returns a candidate/fallback point and stores no query result or external handle.
      */
@@ -95,12 +95,16 @@ export namespace AutoMovieMotionHumanBendPreparation {
             (): ((
               candidate: AutoMovieMotionHumanBendSearch.ICandidate,
             ) => AutoMovieMotionHumanBendSearch.IScore) =>
-              (
-                candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-              ): AutoMovieMotionHumanBendSearch.IScore => ({
-                overshoot: candidate.overshoot,
-                deviation: candidate.strain,
-              }),
+              // A trial's witness compares the first score's exact strain, so
+              // only a search without one defers it.
+              trial === undefined
+                ? AutoMovieMotionHumanBendSearch.strained
+                : (
+                    candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+                  ): AutoMovieMotionHumanBendSearch.IScore => ({
+                    overshoot: candidate.overshoot,
+                    deviation: candidate.strain,
+                  }),
             trial,
           );
         if (typeof found !== "string" && found.overshoot === 0)

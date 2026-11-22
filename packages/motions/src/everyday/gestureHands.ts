@@ -129,10 +129,13 @@ export namespace gestureHands {
         const own: readonly [number, number, number] | undefined = joints[entry.bone];
         const flexion: number = own?.[0] ?? entry.relaxed[0];
         const spread: number = own?.[1] ?? 0;
+        // The digit's own roll too (a thumb the entry turned), carried to the
+        // shape's none: dropped, it would snap at the gesture's first frame.
+        const twist: number = own?.[2] ?? 0;
         joints[entry.bone] = [
           flexion + (entry.at[0] + curl - flexion) * envelope,
           spread + (entry.at[1] - spread) * envelope,
-          0,
+          twist * (1 - envelope),
         ];
       }
       return joints;

@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanSide,
+  AutoMovieMotionHumanChannel,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
@@ -14,6 +15,7 @@ import type {
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHumanAction";
 
@@ -58,8 +60,8 @@ import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHuman
  * @evidence contracts/development/implementation.md#principled-implementation A moving effector goal is a trajectory problem solved once with branch continuity and clearance (the planner's), never a fresh inverse kinematics solve per sample.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan less its arm goal is the composer's base; the planned carry is its one primitive; the composed posture replaces the plan's.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is the plan's own at each instant; no goal, bound or timing is invented, and the planner's refusal stands.
- * @evidence contracts/development/implementation.md#efficient-algorithms One course per plan, solved when composed; at each second the plan's posture is evaluated once and shared by the base and the goal.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The last evaluated posture is reused while the second and the borrowed readers are the same.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One course per plan, solved when composed; at each second the plan's posture is evaluated once and shared by the base and the goal. Once laid, a second where every arm in its window is on its course asks the law for every channel but those arms, whose goals no reader takes there, so a law that honours the demand skips them.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The last evaluated posture is reused while the second, the borrowed readers and the demanded channels are the same; each set of skipped arms keeps one channel list, so the reads of a second share it.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan, the course, one posture and the arm's ending angles, released with the plan.
  */
 export function courseArmGoal(
@@ -79,20 +81,73 @@ export function courseArmGoal(
     seconds: number,
     resolution?: courseArmGoal.Resolution,
     projection?: courseArmGoal.Projection,
+    channels?: readonly AutoMovieMotionHumanChannel[],
   ): IAutoMovieMotionHumanPosture => {
     if (
       last === undefined ||
       last.seconds !== seconds ||
       last.resolution !== resolution ||
-      last.projection !== projection
+      last.projection !== projection ||
+      last.channels !== channels
     )
       last = {
         seconds,
         resolution,
         projection,
-        posture: plan.posture(seconds, undefined, resolution, projection),
+        channels,
+        posture: plan.posture(seconds, channels, resolution, projection),
       };
     return last.posture;
+  };
+
+  // Whether the course is laid: the composition below prepares it, and its
+  // planner reads each arm's goal at the seconds it reads the base at, so
+  // until then the base reads the whole posture, shared with the goal.
+  let laid: boolean = false;
+
+  // Once laid, an arm on its course (`AutoMovieMotionHumanArmCarry.carried`
+  // writes the planned trajectory there, not tracking a live goal) reads no
+  // goal, and the base deletes it: the base asks the law for every channel
+  // but those arms, so a law that honours the demand skips their goals
+  // (`IAutoMovieMotionHumanActionPlan.posture`'s `channels`). One list per set
+  // of such arms, so the reads of a second share one posture.
+  const demands: Map<string, readonly AutoMovieMotionHumanChannel[]> =
+    new Map();
+  const demand = (
+    seconds: number,
+  ): readonly AutoMovieMotionHumanChannel[] | undefined => {
+    if (!laid) return undefined;
+    const unread: courseArmGoal.Limb[] = [];
+    for (const arm of arms) {
+      const span: IAutoMovieMotionHumanArmPlanned.ISpan =
+        arm.span ?? props.span;
+      if (
+        arm.tracked !== true &&
+        seconds > span.start &&
+        (seconds <= span.end || props.after === "angles")
+      )
+        unread.push(`${arm.side}Arm`);
+      // An arm whose carry writes this second off its course reads its goal
+      // (`AutoMovieMotionHumanArmCarry.carried`): the whole posture is read
+      // once for both, as before.
+      else if (
+        seconds >= span.start - 1e-9 &&
+        seconds <= span.end + 1e-9
+      )
+        return undefined;
+    }
+    if (unread.length === 0) return undefined;
+    const key: string = unread.join();
+    let found: readonly AutoMovieMotionHumanChannel[] | undefined =
+      demands.get(key);
+    if (found === undefined) {
+      found = HumanChannels.ORDER.filter(
+        (channel: AutoMovieMotionHumanChannel): boolean =>
+          !unread.some((limb: courseArmGoal.Limb): boolean => limb === channel),
+      );
+      demands.set(key, found);
+    }
+    return found;
   };
   const base: IAutoMovieMotionHumanActionPlan = {
     ...plan,
@@ -105,10 +160,12 @@ export function courseArmGoal(
       // A law whose goal reads another performer gives its posture without
       // the coursed goals (`base`), so laying the course never evaluates the
       // live goal, and the other performer is read only as `perceived` says.
+      const channels: readonly AutoMovieMotionHumanChannel[] | undefined =
+        demand(seconds);
       const posture: IAutoMovieMotionHumanPosture =
         props.base === undefined
-          ? read(seconds, resolution, projection)
-          : props.base.posture(seconds, undefined, resolution, projection);
+          ? read(seconds, resolution, projection, channels)
+          : props.base.posture(seconds, channels, resolution, projection);
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
         ...posture.limbs,
       };
@@ -228,6 +285,7 @@ export function courseArmGoal(
       ),
       primitives,
     });
+  laid = true;
   const coursed: IAutoMovieMotionHumanActionPlan = {
     ...plan,
     posture: composed.posture,
@@ -354,6 +412,9 @@ export namespace courseArmGoal {
 
     /** The borrowed range-of-motion projector, if any. */
     projection: Projection | undefined;
+
+    /** The channels demanded of the plan; every channel when absent. */
+    channels: readonly AutoMovieMotionHumanChannel[] | undefined;
 
     /** The plan's posture at the second. */
     posture: IAutoMovieMotionHumanPosture;

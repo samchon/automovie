@@ -360,6 +360,16 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         const coming: number = strides.landing(limb, m + 1);
         const which: AutoMovieArchetypeQuadrupedGait.IGait =
           AutoMovieArchetypeQuadrupedGait.of(species, strides.strideOf(m).gait);
+        // A swing's lift and fold are its own stride's, the share of them called for by the speed against that stride's gait: read against the gait the body changes to, the share would jump where the body's stride changes mid-swing, folding the swinging limb at once and dropping the trunk the root's reach holds.
+        const swinging: number = Math.min(
+          1,
+          state.speed /
+            AutoMovieArchetypeQuadrupedGait.range(
+              species,
+              strides.strideOf(m).gait,
+              withers,
+            ).minimum,
+        );
         const step: ReturnType<typeof QuadrupedHoofTrack.step> =
           QuadrupedHoofTrack.step(
             phase,
@@ -395,7 +405,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           current,
           off,
           on,
-          going,
+          going: swinging,
           crossings,
         });
         goals.set(

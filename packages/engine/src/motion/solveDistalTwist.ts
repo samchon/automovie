@@ -48,9 +48,7 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  * retained; it does not globally minimize over both joints. Every candidate
  * is ranked through the same effector projection that final orientation uses.
  * A continued solve (`reference`, the twist a fit of a nearby pose chose)
- * takes the in-range solution of least miss, between equals the one nearest
- * the start; only where no solution lies inside the range does it start
- * from the alias nearest that twist and keep the start's basin,
+ * starts from the alias nearest that twist and keeps the start's basin,
  * descending over the candidates in twist order while a neighbour misses
  * less: the feasible value nearest the previous solution (Tolani, Goswami
  * and Badler 2000), where the least miss over all candidates jumps between
@@ -85,7 +83,7 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  * @returns The mid joint with its twist solved, clamped to the rig's range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the degree-valued lower/effector articulations, model/local rotation frames, bounded roots/range/start law and tie. withProjection's child documentation defines the selected lower joint plus copied actual effector joint/raw quaternion/local demand, exact-demand reuse condition and caller ownership; prepare documents lazy unchanged fixed-frame readings.
- * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes the clinical-zero twist condition a first-order trigonometric equation. Its at most two roots, range ends and reference are ranked by the actual rotation from prepareJointRotationProjection, the same effector owner final display uses; this finite outer law is not a global combined-joint optimizer. A continued solve takes the feasible value nearest the previous solution (Tolani, Goswami and Badler 2000): an in-range solution of the equation where one exists, and otherwise the start's basin, so the twist is continuous where the least miss would cross between the range's ends.
+ * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes the clinical-zero twist condition a first-order trigonometric equation. Its at most two roots, range ends and reference are ranked by the actual rotation from prepareJointRotationProjection, the same effector owner final display uses; this finite outer law is not a global combined-joint optimizer. A continued solve keeps the start's basin (Tolani, Goswami and Badler 2000, nearest feasible to the previous solution), so the twist is continuous where the least miss would cross between the range's ends.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Both ordinary and withProjection entries use one private bounded search; only paired mode retains the actual winning projection. prepare delegates fixed axis/clinical-zero readers to prepareDistalTwistEffector, leaving one equation/root/ranking owner here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every lower twist is clamped to actual ROM, and every miss is read from actual projected articulation. The existing angular TIE policy chooses nearer starts among small differences; it is not a roundoff proof or a claim that the residual is zero. The chosen twist always owns its stored score.
  * @evidence contracts/development/implementation.md#efficient-algorithms Setup is O(B) without shared clamps/projector. At most five distinct clamped twists query the projector; eligible queries score at most nineteen unique articulations and generic queries keep their bounded refinement. Paired mode additionally copies one fixed-size actual reading per query, retaining only current/selected readings, so matching immediate consumers avoid another complete query. Original TIE stopping and all candidate counts remain, with unmeasured speedup.
@@ -316,8 +314,6 @@ function solve(
   const low: number = at(-1e6).twist ?? 0;
   const high: number = at(1e6).twist ?? 0;
   const candidates: number[] = [low, high, start];
-  // The equation's solutions, each the alias nearest the range's middle.
-  const roots: number[] = [];
   const radius: number = Math.hypot(B!, C!);
   if (radius > 1e-12 && Math.abs(A!) <= radius) {
     const centre: number = Math.atan2(C!, B!);
@@ -327,10 +323,7 @@ function solve(
         toClinicalAngle((r * 180) / Math.PI, props.lowerFrame?.twist) ?? 0;
       // The alias of the solution nearest the range's middle.
       const middle: number = (low + high) / 2;
-      const alias: number =
-        clinical - 360 * Math.round((clinical - middle) / 360);
-      candidates.push(alias);
-      roots.push(alias);
+      candidates.push(clinical - 360 * Math.round((clinical - middle) / 360));
     }
   }
 
@@ -345,36 +338,14 @@ function solve(
   if (least <= TIE && at(start).twist === start)
     return { joint: at(start), projection: chosenProjection };
 
-  // A continued solve takes the feasible value nearest the previous solution
-  // (Tolani, Goswami and Badler 2000). A request a solution inside the
-  // forearm's range meets keeps the effector's twist at its zero: of those,
-  // the one that misses least, between equals the nearest the start. Only a
-  // request no in-range solution meets keeps the start's basin: from the
-  // start it descends over the candidates in the order of their twists while
-  // a neighbour misses less, and stops at the first that no neighbour beats.
+  // A continued solve keeps the start's basin (Tolani, Goswami and Badler
+  // 2000: the feasible value nearest the previous solution): from the start
+  // it descends over the candidates in the order of their twists while a
+  // neighbour misses less, and stops at the first that no neighbour beats.
   // The least miss over every candidate jumps from one end of the range to
   // the other where an unreachable request's two ends cross, between two
   // frames; the basin moves with the request instead.
   if (props.reference !== undefined) {
-    let root: number | undefined;
-    let rooted: number = Infinity;
-    let rootProjection: solveDistalTwist.IProjection | undefined;
-    for (const t of roots) {
-      if ((at(t).twist ?? 0) !== t) continue;
-      const m: number = missed(t);
-      if (
-        m < rooted - TIE ||
-        (root !== undefined &&
-          Math.abs(m - rooted) <= TIE &&
-          Math.abs(t - start) < Math.abs(root - start))
-      ) {
-        root = t;
-        rooted = m;
-        rootProjection = latestProjection;
-      }
-    }
-    if (root !== undefined)
-      return { joint: at(root), projection: rootProjection };
     const twists: number[] = [
       ...new Set<number>([
         at(start).twist ?? 0,
