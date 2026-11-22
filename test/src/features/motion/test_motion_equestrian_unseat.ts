@@ -47,6 +47,7 @@ const RELEASE: number = 1;
  * 7. A sideways fall pushed too gently to clear the flank is refused on `push`.
  * 9. Fall with the horse: as a trained horse goes down on its left from a canter, the rider steps clear on its right, landing on the feet more than 0.5 m to the right of the saddle's line at the fall and clear of the fallen horse.
  * 8. Thrown by a buck at a halt: the release at the buck's lift-off instant hands the rider to the fall, and the rider lands.
+ * 10. Backward fall from a galloping horse: the take is clean, the falling hand passing no part through the thighs, and the displayed hand is within 50 mm of the floor at the landing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States every fall checked, its bounds and their sources.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the unseat law over an actual trotting or bucking horse and reads the displayed hips, hands, balls and bones against its moving saddle, stirrup, mane and the floor; a jump in velocity, a contact kept bound, a penetration, a wrong side or a lost stirrup fails.
@@ -145,6 +146,22 @@ export function test_motion_equestrian_unseat(): void {
   if (palm > 0.05)
     findings.push(
       `back: the falling hand is ${palm.toFixed(3)} m above the floor at the landing`,
+    );
+
+  // 10. The backward fall at the gallop: the falling hand's way to the floor keeps clear of the thighs.
+  const gallop: mountedHorseScene.IScene = stage(
+    horse,
+    body,
+    mountedHorseScene.course(horse, "gallop"),
+    { fall: "back" },
+  );
+  assertTakeClean("a backward fall from a galloping horse", gallop.film);
+  const thrown: number = gallop.film
+    .bones("rider", instant(gallop, "land"))
+    .get("leftHand")!.worldPosition.y;
+  if (thrown > 0.05)
+    findings.push(
+      `gallop: the falling hand is ${thrown.toFixed(3)} m above the floor at the landing`,
     );
 
   // 2. Sideways falls land on their side.

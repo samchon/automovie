@@ -336,6 +336,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
                 Math.max(0, (t - leave) / Math.max(1e-6, touch - leave)),
               ),
             ),
+            // The hand's way to the floor keeps out of the thighs.
+            context.body,
           );
     },
   };

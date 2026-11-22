@@ -1,16 +1,19 @@
 import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { KnockdownFloor } from "../reaction/KnockdownFloor";
 import { HumanMountedFrame } from "./HumanMountedFrame";
@@ -195,6 +198,7 @@ export namespace HumanUnseatPose {
    * @param side The hand.
    * @param point The point, world metres.
    * @param share 0 hanging to 1 at the point.
+   * @param body The body, to keep the hand's way out of the posture's thighs (offThighs); the straight way when absent.
    * @returns The posture with the arm's goal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the reach.
@@ -210,6 +214,7 @@ export namespace HumanUnseatPose {
     side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     share: number,
+    body?: IAutoMovieMotionHumanBody,
   ): IAutoMovieMotionHumanPosture {
     if (share <= 0) return posture;
     const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
@@ -233,13 +238,81 @@ export namespace HumanUnseatPose {
               hanging,
               Quaternion.rotateVector(turn, { x: sign * 0.3, y: 0, z: -0.3 }),
             ),
-          point: Vector3.lerp(hanging, point, share),
+          point:
+            body === undefined
+              ? Vector3.lerp(hanging, point, share)
+              : offThighs(body, posture, Vector3.lerp(hanging, point, share)),
           planted: share >= 1,
         },
       },
     };
   }
 
+  /** The thighs' bones and the knees below them, the bones `offThighs` reads. */
+  const THIGHS: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+    "leftUpperLeg",
+    "rightUpperLeg",
+    "leftLowerLeg",
+    "rightLowerLeg",
+  ]);
+
+  /**
+   * A hand's goal point kept out of a posture's thighs: pushed out of each thigh, the segment from its hip joint to its knee as the posture places them, to the thigh's radius and a hand's length off that segment, so no part of the hand enters the thigh whichever way the hand turns.
+   *
+   * @param body The body.
+   * @param posture The posture, its legs as shown.
+   * @param point The hand's goal point, world metres.
+   * @returns The point, or the nearest point that keeps that room from both thighs.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the room and the push.
+   * @evidence contracts/development/implementation.md#principled-implementation The thighs are the posture's own, resolved for the four leg bones only; the room is the body's thigh radius and hand length; the push is the closed-form projection out of each segment's capsule, continuous in the point.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One resolve and one projection per thigh.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A point on a thigh's axis is pushed out along the posture's own lateral toward the thigh's side.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One resolve restricted to the leg bones.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read per instant.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function offThighs(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture.seeded(body, posture, undefined, {}, undefined, THIGHS)
+        .pose,
+      undefined,
+      THIGHS,
+    );
+    const room: number = body.measure.thighRadius + body.measure.hand;
+    let p: IAutoMovieVector3 = point;
+    for (const side of ["left", "right"] as const) {
+      const hip: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!.worldPosition;
+      const axis: IAutoMovieVector3 = Vector3.subtract(
+        bones.get(`${side}LowerLeg`)!.worldPosition,
+        hip,
+      );
+      const along: number =
+        Vector3.dot(Vector3.subtract(p, hip), axis) / Vector3.dot(axis, axis);
+      const nearest: IAutoMovieVector3 = Vector3.add(
+        hip,
+        Vector3.scale(axis, Math.max(0, Math.min(1, along))),
+      );
+      const off: IAutoMovieVector3 = Vector3.subtract(p, nearest);
+      const gap: number = Vector3.length(off);
+      if (gap >= room) continue;
+      const out: IAutoMovieVector3 =
+        gap > 0
+          ? Vector3.scale(off, 1 / gap)
+          : Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+              x: side === "left" ? 1 : -1,
+              y: 0,
+              z: 0,
+            });
+      p = Vector3.add(nearest, Vector3.scale(out, room));
+    }
+    return p;
+  }
   /**
    * Where the falling side's hand meets the floor: out from the falling side's shoulder by half the upper arm, below it on the floor.
    *
