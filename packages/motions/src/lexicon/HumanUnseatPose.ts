@@ -241,7 +241,7 @@ export namespace HumanUnseatPose {
   }
 
   /**
-   * Where the falling side's hand meets the floor: beside the hip, out by the shoulder's half width and the arm.
+   * Where the falling side's hand meets the floor: out from the falling side's shoulder by half the upper arm, below it on the floor.
    *
    * @param posture The posture.
    * @param side The falling side.
@@ -261,17 +261,16 @@ export namespace HumanUnseatPose {
     side: AutoMovieHumanSide,
     body: IAutoMovieMotionHumanBody,
   ): IAutoMovieVector3 {
+    // Out from the falling side's shoulder, not the hip: the hand comes down past the trunk's side, clear of the thigh.
     const sign: number = side === "left" ? 1 : -1;
     const out: IAutoMovieVector3 = Quaternion.rotateVector(
       resolveHumanPosture.heading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
-      {
-        x:
-          sign * (body.measure.shoulderHalfWidth + 0.5 * body.measure.upperArm),
-        y: 0,
-        z: 0,
-      },
+      { x: sign * 0.5 * body.measure.upperArm, y: 0, z: 0 },
     );
-    return { ...Vector3.add(posture.root, out), y: body.measure.forearmRadius };
+    return {
+      ...Vector3.add(shoulder(body, posture, side), out),
+      y: body.measure.forearmRadius,
+    };
   }
 
   /**

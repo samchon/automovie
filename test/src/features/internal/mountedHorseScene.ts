@@ -38,6 +38,12 @@ export namespace mountedHorseScene {
   /** The rider's chain once seated. */
   export type Seated = ReturnType<ReturnType<typeof HumanChain.subject>["sit"]>;
 
+  /** A rider's chain before sitting on. */
+  export type Chain = ReturnType<typeof HumanChain.subject>;
+
+  /** Acts on the ground before sitting on. */
+  export type Before = (chain: Chain) => Chain;
+
   /** A staged take and its readers. */
   export interface IScene {
     /** The horse. */
@@ -112,9 +118,7 @@ export namespace mountedHorseScene {
     acts: (seated: Seated) => Seated;
 
     /** Acts the rider does on the ground before sitting on, as picking up a sabre; none when absent. */
-    before?: (
-      chain: ReturnType<typeof HumanChain.subject>,
-    ) => ReturnType<typeof HumanChain.subject>;
+    before?: Before;
 
     /** Further performers beside the rider. */
     partners?: IPartner[];
@@ -225,6 +229,42 @@ export namespace mountedHorseScene {
       place,
       segments: film.segments("rider"),
     };
+  }
+
+  /**
+   * Where a prop waits for the rider to pick it up on the ground before sitting on: a little in front of and above where the standing rider's right hand hangs, so the reach is a clear one.
+   *
+   * @param horse The horse.
+   * @param body The rider's body.
+   * @param from Where the rider stands, in the seat's frame on the floor.
+   * @returns The right hand's grip target, world metres.
+   */
+  export function rack(
+    horse: Horse,
+    body: IAutoMovieMotionHumanBody,
+    from: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    const dry: IScene = build({
+      horse,
+      body,
+      gait: "walk",
+      wait: 2,
+      from,
+      acts: (seated) => seated,
+    });
+    const hangs = dry.film.bones("rider", 0.01);
+    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+      hangs.get("hips")!.worldRotation,
+      { x: 0, y: 0, z: 1 },
+    );
+    return Vector3.add(
+      HumanHand.frame(body, hangs, "right", "grip").point,
+      Vector3.add(Vector3.scale(Vector3.normalize({ ...ahead, y: 0 }), 0.3), {
+        x: 0,
+        y: 0.15,
+        z: 0,
+      }),
+    );
   }
 
   /**

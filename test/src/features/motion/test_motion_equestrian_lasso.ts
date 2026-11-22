@@ -8,11 +8,7 @@ import {
 } from "@automovie/archetypes";
 import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanRide,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
@@ -23,7 +19,6 @@ import {
   HumanLasso,
   HumanObject,
   HumanRefusal,
-  HumanRide,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,6 +26,9 @@ import { archetypeHorseRide } from "../internal/archetypeHorseRide";
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
+
+/** Where the rider stands before sitting on, in the seat's frame on the floor. */
+const FROM: IAutoMovieVector3 = { x: 0.6, y: 0, z: -0.2 };
 
 /** Seconds the horse stands while the rider sits on. */
 const WAIT: number = 6;
@@ -77,9 +75,9 @@ export function test_motion_equestrian_lasso(): void {
   const strides: { name: string; seconds: number }[] = archetypeHorseRide
     .footfalls(course, "leftFore")
     .map((seconds: number) => ({ name: "stride", seconds: WAIT + seconds }));
+  const rack: IAutoMovieVector3 = mountedHorseScene.rack(horse, body, FROM);
   const stage = (
     ahead: number,
-    grip: IAutoMovieVector3,
     rope: boolean = true,
   ): {
     scene: mountedHorseScene.IScene;
@@ -98,17 +96,6 @@ export function test_motion_equestrian_lasso(): void {
         local(at),
       );
     };
-    // The ride, holding the lariat by its spoke from its end: a fixture as the precision-sport specs use.
-    const holding: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRide> = {
-      ...HumanRide.ride,
-      name: "lassoFixtureRide",
-      plan: (
-        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide>,
-      ): IAutoMovieMotionHumanActionPlan => ({
-        ...HumanRide.ride.plan(context),
-        holds: [{ side: "right", prop: "lariat", from: 1 }],
-      }),
-    };
     const scene: mountedHorseScene.IScene = mountedHorseScene.build({
       horse,
       body,
@@ -116,20 +103,24 @@ export function test_motion_equestrian_lasso(): void {
       wait: WAIT,
       course,
       cues: { stride: strides },
-      laws: [holding, HumanLasso],
+      laws: [HumanLasso],
       props: [
         HumanObject.prop("calf", calf, place(0), place, head),
         HumanObject.prop("lariat", lariat, {
+          // On a rack where the standing rider's right hand rests.
           position: Vector3.subtract(
-            grip,
+            rack,
             lariat.affordance("spoke").frame.translation,
           ),
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         }),
       ],
-      from: { x: 0.6, y: 0, z: -0.2 },
+      from: FROM,
+      // Picked up on the ground before mounting, as an author would: the hold rides the hand through sitting on and riding.
+      before: (chain) =>
+        chain.pickUp({ prop: "lariat", handle: "spoke", hand: "right" }),
       acts: (seated) => {
-        const ridden = seated.registered("lassoFixtureRide", {
+        const ridden = seated.registered("ride", {
           on: "horse",
           seconds: WAIT,
           seat: "seat",
@@ -154,8 +145,8 @@ export function test_motion_equestrian_lasso(): void {
       head: (at: number): IAutoMovieVector3 => head("head", at).translation,
     };
   };
-  // A dry take, without the throw, finds where the right hand rests as the lasso act begins and where the horse is at the release, three strides on; the calf walks so that it is 4 m ahead of the horse then.
-  const dry = stage(0, { x: 0, y: -10, z: 0 }, false).scene;
+  // A dry take, without the throw, finds when the lasso act begins and where the horse is at the release, three strides on; the calf walks so that it is 4 m ahead of the horse then.
+  const dry: mountedHorseScene.IScene = stage(0, false).scene;
   const begun: number = dry.segments[dry.segments.length - 1]!.end;
   const released: number =
     begun + 3 * (strides[1]!.seconds - strides[0]!.seconds);
@@ -163,11 +154,7 @@ export function test_motion_equestrian_lasso(): void {
     course.at(Math.max(0, released - WAIT)).placement.translation.z +
     4 -
     0.71 * (released - WAIT);
-  const staged = stage(
-    near,
-    HumanHand.frame(body, dry.film.bones("rider", begun), "right", "grip")
-      .point,
-  );
+  const staged = stage(near);
   const scene: mountedHorseScene.IScene = staged.scene;
   assertTakeClean("roping a running calf", scene.film);
   const take: IAutoMovieMotionHumanSegment =
@@ -267,11 +254,7 @@ export function test_motion_equestrian_lasso(): void {
   // 5. A calf out of reach.
   let error: unknown = null;
   try {
-    const far: mountedHorseScene.IScene = stage(
-      near + 20,
-      HumanHand.frame(body, dry.film.bones("rider", begun), "right", "grip")
-        .point,
-    ).scene;
+    const far: mountedHorseScene.IScene = stage(near + 20).scene;
     far.film.bones("rider", far.film.duration - 0.1);
   } catch (failure) {
     error = failure;

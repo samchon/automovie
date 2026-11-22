@@ -8,11 +8,8 @@ import {
 } from "@automovie/archetypes";
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanRide,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
@@ -22,7 +19,6 @@ import {
   HumanClasp,
   HumanLasso,
   HumanObject,
-  HumanRide,
   HumanUnseat,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -30,6 +26,9 @@ import { TestValidator } from "@nestia/e2e";
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { mountedHorseScene } from "../internal/mountedHorseScene";
+
+/** Where the rider stands before sitting on, in the seat's frame on the floor. */
+const FROM: IAutoMovieVector3 = { x: 0.6, y: 0, z: -0.2 };
 
 /** Seconds the horse stands while the rider sits on. */
 const WAIT: number = 6;
@@ -64,6 +63,16 @@ export function test_motion_equestrian_cattle(): void {
     "canter",
   );
   const lariat: ReturnType<typeof createLariat> = createLariat();
+  // The lariat waits on a rack where the standing rider's right hand rests and is picked up on the ground before mounting, as an author would: the hold rides the hand through sitting on and riding.
+  const onRack: IAutoMovieMotionHumanProp = HumanObject.prop("lariat", lariat, {
+    position: Vector3.subtract(
+      mountedHorseScene.rack(horse, body, FROM),
+      lariat.affordance("spoke").frame.translation,
+    ),
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  });
+  const pick: mountedHorseScene.Before = (chain) =>
+    chain.pickUp({ prop: "lariat", handle: "spoke", hand: "right" });
   // Where an animal walking at the ox's 0.71 m/s must start to be beside the horse when the work begins, about the sit, the ride and two swings in: level with the horse a metre ahead.
   const MEET: number = 2 * WAIT + 1.5;
   const met = (horseRide: mountedHorseScene.Ride): number =>
@@ -99,17 +108,6 @@ export function test_motion_equestrian_cattle(): void {
     (["left", "right"] as const).map(
       (side) => scene.film.bones(who, at).get(`${side}Hand`)!.worldPosition,
     );
-  // The ride, holding the lariat by its spoke from its end: a fixture as the precision-sport specs use.
-  const holding: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRide> = {
-    ...HumanRide.ride,
-    name: "cattleFixtureRide",
-    plan: (
-      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide>,
-    ): IAutoMovieMotionHumanActionPlan => ({
-      ...HumanRide.ride.plan(context),
-      holds: [{ side: "right", prop: "lariat", from: 1 }],
-    }),
-  };
 
   // 0. The ox's roping contacts lie on its own geometry: the head's on the head's surface, the horns' halfway between the horns' roots, the heel loop's halfway between the hocks.
   const headPart = ox.parts.find((p) => p.id === "head")!;
@@ -192,18 +190,16 @@ export function test_motion_equestrian_cattle(): void {
     gait: "canter",
     wait: WAIT,
     course: tieCourse,
-    laws: [holding, HumanLasso, HumanUnseat, HumanClasp],
+    laws: [HumanLasso, HumanUnseat, HumanClasp],
     props: [
       HumanObject.prop("calf", ox, fleePlace(0), fleePlace, fleePart),
-      HumanObject.prop("lariat", lariat, {
-        position: { x: -0.3, y: 2, z: 0.2 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-      }),
+      onRack,
     ],
-    from: { x: 0.6, y: 0, z: -0.2 },
+    from: FROM,
+    before: pick,
     acts: (seated) =>
       seated
-        .registered("cattleFixtureRide", {
+        .registered("ride", {
           on: "horse",
           seconds: WAIT,
           seat: "seat",
@@ -324,7 +320,7 @@ export function test_motion_equestrian_cattle(): void {
     course,
     laws: [HumanUnseat, HumanClasp],
     props: [HumanObject.prop("steer", ox, place(0), place, part)],
-    from: { x: 0.6, y: 0, z: -0.2 },
+    from: FROM,
     acts: (seated) =>
       seated
         .registered("ride", {
@@ -372,18 +368,16 @@ export function test_motion_equestrian_cattle(): void {
     gait: "canter",
     wait: WAIT,
     course,
-    laws: [holding, HumanLasso],
+    laws: [HumanLasso],
     props: [
       HumanObject.prop("steer", ox, place(0), place, part),
-      HumanObject.prop("lariat", lariat, {
-        position: { x: -0.3, y: 2, z: 0.2 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-      }),
+      onRack,
     ],
-    from: { x: 0.6, y: 0, z: -0.2 },
+    from: FROM,
+    before: pick,
     acts: (seated) =>
       seated
-        .registered("cattleFixtureRide", {
+        .registered("ride", {
           on: "horse",
           seconds: WAIT,
           seat: "seat",
@@ -423,18 +417,16 @@ export function test_motion_equestrian_cattle(): void {
     gait: "canter",
     wait: WAIT,
     course,
-    laws: [holding, HumanLasso],
+    laws: [HumanLasso],
     props: [
       HumanObject.prop("steer", ox, place(0), place, part),
-      HumanObject.prop("lariat", lariat, {
-        position: { x: -0.3, y: 2, z: 0.2 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-      }),
+      onRack,
     ],
-    from: { x: 0.6, y: 0, z: -0.2 },
+    from: FROM,
+    before: pick,
     acts: (seated) =>
       seated
-        .registered("cattleFixtureRide", {
+        .registered("ride", {
           on: "horse",
           seconds: WAIT + 1,
           seat: "seat",

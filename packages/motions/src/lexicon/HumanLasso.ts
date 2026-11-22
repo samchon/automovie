@@ -23,12 +23,12 @@ import { HumanUnseatPose } from "./HumanUnseatPose";
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
 
-/** The swing's radius about the overhead centre and the centre's height over the head, metres; the throw's reach-out time, seconds; the dally's radius round the horn, metres, and seconds per turn (provisional stage readings). */
+/** The swinging hand's circle about the overhead centre, a forearm's small circle, and the centre's height over the head, metres; the throw's reach-out time, seconds; the dally's radius round the horn, metres, and seconds per turn (provisional stage readings). */
 const SWING: Readonly<
   Record<"radius" | "over" | "throw" | "wrap" | "turn", number>
 > = {
-  radius: 0.8,
-  over: 0.4,
+  radius: 0.3,
+  over: 0.2,
   throw: 0.25,
   wrap: 0.08,
   turn: 0.5,
@@ -38,7 +38,7 @@ const SWING: Readonly<
 const REACH: number = 12;
 
 /**
- * Rope from the saddle (`IAutoMovieMotionHumanLasso`, #3952): carried on the saddle, the rider swings the held lariat's loop round a circle over the head, one turn per stride of the horse's own stride cue (or per second), the hand placed so the loop's centre is on the circle (`StrikingHeld`); at the release the hand reaches out toward the target and the lariat is launched so its loop's centre flies the projectile that meets the target's contact at the catch; with a dally the hand then circles the horn its turns and holds there. Register `HumanLasso` to use it.
+ * Rope from the saddle (`IAutoMovieMotionHumanLasso`, #3952): carried on the saddle, the rider's hand circles over the head, one turn per stride of the horse's own stride cue (or per second), the held lariat running out from the hand along the circle's radius by its working length (`StrikingHeld`); at the release the hand reaches out toward the target and the lariat is launched so its loop's centre flies the projectile that meets the target's contact at the catch; with a dally the hand then circles the horn its turns and holds there. Register `HumanLasso` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the swing and its timing, the throw, the catch and the dally.
  * @evidence contracts/development/design.md#principled-representation One law; the swing as a phase locked to the stride, the throw as a closed-form launch.
@@ -110,7 +110,7 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
         params.lariat,
         { tip: "loop" },
       );
-      const goal = StrikingHeld.prepareGoal(context, tool, 0);
+      const goal = StrikingHeld.prepareGoal(context, tool, tool.length);
 
       // The swing's clock: the stride's mean period and its first instant, or a second a turn from the start.
       let period: number = 1;
@@ -180,11 +180,19 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
           params.target.contact,
           film,
         );
-      const from: IAutoMovieVector3 = loop(reach);
+      // The hand circles overhead and the loop runs out from it along the swing's radius by the lariat's working length; at the release the hand turns toward the target and the loop leaves from there.
       const at: IAutoMovieVector3 = target(context.start + caught);
+      const centreOut: IAutoMovieVector3 = centre(context.start + release);
+      const toward: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.subtract(at, centreOut),
+      );
+      const thrown: IAutoMovieVector3 = Vector3.add(
+        centreOut,
+        Vector3.scale(toward, SWING.radius),
+      );
       const out: IAutoMovieVector3 = Vector3.add(
-        from,
-        Vector3.scale(Vector3.normalize(Vector3.subtract(at, from)), 0.5),
+        thrown,
+        Vector3.scale(toward, tool.length),
       );
       const distance: number = Vector3.distance(out, at);
       if (distance > REACH)
@@ -205,7 +213,7 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
       const placed = (t: number): IAutoMovieVector3 => {
         if (t <= reach) return loop(t);
         const s: number = Math.min(1, (t - reach) / SWING.throw);
-        return Vector3.lerp(loop(reach), out, s);
+        return Vector3.lerp(loop(reach), thrown, s);
       };
       const windows: IAutoMovieMotionHumanContactWindow[] = StrikingHeld.grips(
         tool,
@@ -273,9 +281,10 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
           );
           if (t <= release) {
             const p: IAutoMovieVector3 = placed(t);
+            // The grip on the hand's circle, the lariat running out from it along the radius.
             const frame = StrikingHeld.hand(
               tool,
-              0,
+              tool.length,
               p,
               Vector3.subtract(p, centre(film)),
               { x: 0, y: 1, z: 0 },

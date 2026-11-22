@@ -5,24 +5,18 @@ import {
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPolo,
-  IAutoMovieMotionHumanRide,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanFoot,
-  HumanHand,
   HumanObject,
   HumanPolo,
   HumanRefusal,
-  HumanRide,
   HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -33,6 +27,9 @@ import { mountedHorseScene } from "../internal/mountedHorseScene";
 
 /** The campaign's held-contact bound, metres. */
 const CONTACT: number = 0.01;
+
+/** Where the rider stands before sitting on, in the seat's frame on the floor. */
+const FROM: IAutoMovieVector3 = { x: 0.6, y: 0, z: -0.2 };
 
 /** Seconds the horse stands while the rider sits on. */
 const WAIT: number = 6;
@@ -77,7 +74,9 @@ export function test_motion_equestrian_polo(): void {
   });
   const radius: number = ball.affordance("grip").aperture! / 2;
 
-  // A dry take finds when the polo act starts and where the right hand rests.
+  // The mallet stands on its head beside where the standing rider waits.
+  const rack: IAutoMovieVector3 = mountedHorseScene.rack(horse, body, FROM);
+  // A dry take finds when the polo act starts.
   const dry: mountedHorseScene.IScene = stage(
     horse,
     body,
@@ -85,7 +84,7 @@ export function test_motion_equestrian_polo(): void {
     mallet,
     ball,
     { x: 0, y: -10, z: 0 },
-    { x: 0, y: 0, z: 0 },
+    rack,
     "offside",
     "forehand",
     false,
@@ -93,12 +92,6 @@ export function test_motion_equestrian_polo(): void {
   // The polo act begins where the ride ends.
   const begun: number = dry.segments[dry.segments.length - 1]!.end;
   const struck: number = begun + AT;
-  const grip: IAutoMovieVector3 = HumanHand.frame(
-    body,
-    dry.film.bones("rider", begun),
-    "right",
-    "grip",
-  ).point;
 
   for (const side of ["offside", "nearside"] as const)
     for (const stroke of ["forehand", "backhand"] as const) {
@@ -123,7 +116,7 @@ export function test_motion_equestrian_polo(): void {
         mallet,
         ball,
         spot,
-        grip,
+        rack,
         side,
         stroke,
       );
@@ -252,7 +245,7 @@ export function test_motion_equestrian_polo(): void {
         x: dry.part("seat", struck).translation.x + 3,
         y: radius,
       },
-      grip,
+      rack,
       "nearside",
       "forehand",
     );
@@ -268,7 +261,7 @@ export function test_motion_equestrian_polo(): void {
   TestValidator.equals("polo strokes from the saddle", findings, []);
 }
 
-/** Sit, ride on with the left rein while the right hand takes the mallet, then strike. */
+/** Pick the mallet up, sit, ride on with the left rein, then strike. */
 function stage(
   horse: mountedHorseScene.Horse,
   body: IAutoMovieMotionHumanBody,
@@ -276,23 +269,11 @@ function stage(
   mallet: ReturnType<typeof createPoloMallet>,
   ball: ReturnType<typeof createSphericalBall>,
   spot: IAutoMovieVector3,
-  grip: IAutoMovieVector3,
+  rack: IAutoMovieVector3,
   side: IAutoMovieMotionHumanPolo.Side,
   stroke: IAutoMovieMotionHumanPolo.Stroke,
   strike: boolean = true,
 ): mountedHorseScene.IScene {
-  // The ride, holding the mallet from its end: a fixture as the precision-sport specs use.
-  const holding: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRide> = {
-    ...HumanRide.ride,
-    name: "poloFixtureRide",
-    plan: (
-      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide>,
-    ): IAutoMovieMotionHumanActionPlan => ({
-      ...HumanRide.ride.plan(context),
-      holds: [{ side: "right", prop: "mallet", from: 1 }],
-    }),
-  };
-  const handle: IAutoMovieVector3 = mallet.affordance("grip").frame.translation;
   // The ball's origin is its lowest point; `spot` is its centre.
   const centre: IAutoMovieVector3 = {
     x: 0,
@@ -305,10 +286,11 @@ function stage(
     gait: "canter",
     wait: WAIT,
     course,
-    laws: [holding, HumanPolo],
+    laws: [HumanPolo],
     props: [
       HumanObject.prop("mallet", mallet, {
-        position: Vector3.subtract(grip, handle),
+        // Standing on its head on the floor below the rack, the grip about chest high.
+        position: { x: rack.x, y: 0, z: rack.z },
         rotation: { x: 0, y: 0, z: 0, w: 1 },
       }),
       HumanObject.prop("ball", ball, {
@@ -316,9 +298,12 @@ function stage(
         rotation: { x: 0, y: 0, z: 0, w: 1 },
       }),
     ],
-    from: { x: 0.6, y: 0, z: -0.2 },
+    from: FROM,
+    // Picked up on the ground before mounting, as an author would: the hold rides the hand through sitting on and riding.
+    before: (chain) =>
+      chain.pickUp({ prop: "mallet", handle: "grip", hand: "right" }),
     acts: (seated) => {
-      const ridden = seated.registered("poloFixtureRide", {
+      const ridden = seated.registered("ride", {
         on: "horse",
         seconds: WAIT - 1,
         seat: "seat",

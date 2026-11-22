@@ -25,6 +25,9 @@ import { mountedHorseScene } from "../internal/mountedHorseScene";
 /** The campaign's held-contact bound, metres. */
 const CONTACT: number = 0.01;
 
+/** Where the rider stands before sitting on, in the seat's frame on the floor. */
+const FROM: IAutoMovieVector3 = { x: 0.6, y: 0, z: -0.2 };
+
 /** Seconds the horse stands while the rider sits on. */
 const WAIT: number = 6;
 
@@ -85,7 +88,6 @@ export function test_motion_equestrian_sabre(): void {
   const stage = (
     at: number,
     rack: IAutoMovieVector3,
-    pick: boolean = true,
     target?: IAutoMovieMotionTarget,
   ): mountedHorseScene.IScene =>
     mountedHorseScene.build({
@@ -106,12 +108,10 @@ export function test_motion_equestrian_sabre(): void {
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         }),
       ],
-      from: { x: 0.6, y: 0, z: -0.2 },
+      from: FROM,
       // Picked up on the ground before mounting, as an author would: the hold rides the hand through sitting on and riding.
       before: (chain) =>
-        pick
-          ? chain.pickUp({ prop: "sabre", handle: "grip", hand: "right" })
-          : chain,
+        chain.pickUp({ prop: "sabre", handle: "grip", hand: "right" }),
       acts: (seated) => {
         const ridden = seated.registered("ride", {
           on: "horse",
@@ -120,40 +120,19 @@ export function test_motion_equestrian_sabre(): void {
           feet: { left: "leftStirrup", right: "rightStirrup" },
           hands: { left: "leftRein" },
         });
-        return pick
-          ? ridden.registered("sabre", {
-              on: "horse",
-              prop: "sabre",
-              carry: "slope",
-              cue: "charge",
-              gaits: "gaits",
-              transition: TRANSITION,
-              ...(target === undefined ? {} : { target }),
-              seconds: charge - WAIT + 1.5,
-            })
-          : ridden;
+        return ridden.registered("sabre", {
+          on: "horse",
+          prop: "sabre",
+          carry: "slope",
+          cue: "charge",
+          gaits: "gaits",
+          transition: TRANSITION,
+          ...(target === undefined ? {} : { target }),
+          seconds: charge - WAIT + 1.5,
+        });
       },
     });
-  // A dry take finds where the standing rider's right hand rests.
-  const dry: mountedHorseScene.IScene = stage(
-    charge,
-    { x: 0, y: -10, z: 0 },
-    false,
-  );
-  // Held out a little in front of and above where the hand hangs, so the reach is a clear one.
-  const hangs = dry.film.bones("rider", 0.01);
-  const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
-    hangs.get("hips")!.worldRotation,
-    { x: 0, y: 0, z: 1 },
-  );
-  const rack: IAutoMovieVector3 = Vector3.add(
-    HumanHand.frame(body, hangs, "right", "grip").point,
-    Vector3.add(Vector3.scale({ ...ahead, y: 0 }, 0.3), {
-      x: 0,
-      y: 0.15,
-      z: 0,
-    }),
-  );
+  const rack: IAutoMovieVector3 = mountedHorseScene.rack(horse, body, FROM);
   const scene: mountedHorseScene.IScene = stage(charge, rack);
   assertTakeClean("a sabre at the slope and the charge", scene.film);
   const take: IAutoMovieMotionHumanSegment =
@@ -332,7 +311,7 @@ export function test_motion_equestrian_sabre(): void {
       z: 20,
     }),
   );
-  const turned: mountedHorseScene.IScene = stage(charge, rack, true, {
+  const turned: mountedHorseScene.IScene = stage(charge, rack, {
     kind: "point",
     frame: "world",
     at: aside,
