@@ -146,7 +146,7 @@ function painting(
     everydayTake.prop(
       "easel",
       easel,
-      { x: 0, y: centre - 1.35, z: 0.6 },
+      { x: 0, y: centre - 1.35, z: 0.45 },
       undefined,
       true,
     ),
@@ -353,7 +353,7 @@ function sewing(
   const cloth = createPalette({ id: "cloth", kind: "cloth" });
   const needle = createCraftTool({ id: "needle", kind: "needle" });
   const props: IAutoMovieMotionHumanProp[] = [
-    everydayTake.prop("cloth", cloth, { x: 0.15, y: 1.0, z: 0.3 }),
+    everydayTake.prop("cloth", cloth, { x: 0.25, y: 1.0, z: 0.35 }),
     everydayTake.prop("needle", needle, { x: -0.2, y: 1.0, z: 0.3 }),
   ];
   let chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")

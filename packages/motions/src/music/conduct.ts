@@ -60,7 +60,7 @@ const FIGURES: Readonly<
 };
 
 /** The figure's half width and half height, metres: provisional, a forearm's sweep. */
-const HALF: number = 0.18;
+const HALF: number = 0.15;
 
 /** The rebound's height between ictuses, as a share of `HALF`: provisional, above the largest rise between ictuses times 1/π so each ictus is a lowest point. */
 const REBOUND: number = 0.6;

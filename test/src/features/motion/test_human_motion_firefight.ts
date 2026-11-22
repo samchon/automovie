@@ -351,7 +351,7 @@ function flames(
       {
         subject: "victim",
         body,
-        at: { x: 0.1, y: 0, z: 0.75 },
+        at: { x: 0.1, y: 0, z: 0.5 },
         yaw: 90,
         chain: HumanChain.subject("victim").lieDown({}),
       },
@@ -401,7 +401,7 @@ function flames(
           {
             subject: "victim",
             body,
-            at: { x: 0.1, y: 0, z: 0.75 },
+            at: { x: 0.1, y: 0, z: 0.5 },
             yaw: 90,
             chain: HumanChain.subject("victim").lieDown({}),
           },

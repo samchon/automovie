@@ -180,7 +180,7 @@ function chess(
   };
   const white = createChessPiece({ id: "wp", kind: "pawn", side: "white" });
   const black = createChessPiece({ id: "bp", kind: "pawn", side: "black" });
-  const aside: IAutoMovieVector3 = onTable(s, 0.2, 0.04);
+  const aside: IAutoMovieVector3 = onTable(s, -0.2, 0.04);
   const props: IAutoMovieMotionHumanProp[] = [
     ...s.props,
     everydayTake.prop("board", board, centre, undefined, true),
@@ -272,7 +272,7 @@ function cards(
 ): void {
   const s: IStage = stage();
   const thickness: number = 0.0003;
-  const deck: IAutoMovieVector3 = onTable(s, 0.05, 0.06);
+  const deck: IAutoMovieVector3 = onTable(s, -0.05, 0.06);
   const card: (
     id: string,
     k: number,
@@ -412,11 +412,11 @@ function tokens(
   const s: IStage = stage();
   const chip: number = 0.0033;
   const note: number = 0.00011;
-  const stack: IAutoMovieVector3 = onTable(s, 0.1, 0.05);
+  const stack: IAutoMovieVector3 = onTable(s, -0.1, 0.05);
   const pot: IAutoMovieVector3 = onTable(s, 0, 0.17);
-  const bills: IAutoMovieVector3 = onTable(s, -0.15, 0.05);
-  const pile: IAutoMovieVector3 = onTable(s, -0.15, 0.15);
-  const roll: IAutoMovieVector3 = onTable(s, 0.12, 0.17);
+  const bills: IAutoMovieVector3 = onTable(s, -0.22, 0.05);
+  const pile: IAutoMovieVector3 = onTable(s, -0.25, 0.12);
+  const roll: IAutoMovieVector3 = onTable(s, -0.12, 0.17);
   const props: IAutoMovieMotionHumanProp[] = [
     ...s.props,
     everydayTake.prop("k0", createGamingChip({ id: "k0" }), stack),
@@ -439,7 +439,7 @@ function tokens(
       ...bills,
       y: bills.y + note,
     }),
-    everydayTake.prop("die", createDie({ id: "die" }), onTable(s, 0.18, 0.05)),
+    everydayTake.prop("die", createDie({ id: "die" }), onTable(s, -0.18, 0.05)),
   ];
   let chain: IAutoMovieMotionHumanChain = HumanTabletop.push(seated(s), {
     stack: "k0",

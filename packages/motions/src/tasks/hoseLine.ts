@@ -56,8 +56,8 @@ const SWEEP: number = 1.2;
 /** Sweeps when none are asked. */
 const SWEEPS: number = 3;
 
-/** The stream's sweep, degrees in all: provisional. */
-const SPAN: number = 30;
+/** The stream's sweep, degrees in all: provisional, kept small because the line is a rigid run whose backup grip swings with the nozzle. */
+const SPAN: number = 10;
 
 /** Seconds to set the hands and the lean: provisional. */
 const SET: number = 0.6;

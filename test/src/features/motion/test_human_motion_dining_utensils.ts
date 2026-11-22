@@ -152,7 +152,8 @@ function cut(
 ): void {
   const s: IStage = stage();
   const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
-  const sign: number = side === "right" ? 1 : -1;
+  // The dominant hand's side: world +X is the seated diner's left.
+  const sign: number = side === "right" ? -1 : 1;
   const steak = createFoodPortion({ id: "steak", kind: "steak" });
   const piece = createFoodPortion({ id: "piece", kind: "piece" });
   const plate: IAutoMovieVector3 = on(s, sign * 0.04, 0.08);
@@ -193,7 +194,7 @@ function cut(
       ],
       seconds: 1.2,
       side,
-      steady: { tool: "fork", tip: "face", at: [edge - sign * 0.02, 0] },
+      steady: { tool: "fork", tip: "face", at: [edge - sign * 0.07, 0] },
     })
     .registered("write", {
       tool: "fork",
@@ -318,7 +319,8 @@ function chopsticks(
 ): void {
   const s: IStage = stage();
   const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
-  const sign: number = side === "right" ? 1 : -1;
+  // The dominant hand's side: world +X is the seated diner's left.
+  const sign: number = side === "right" ? -1 : 1;
   const sticks = createChopsticks({ id: "sticks" });
   const rice: IAutoMovieVector3 = on(s, sign * 0.15, 0.08);
   const props: IAutoMovieMotionHumanProp[] = [
@@ -434,7 +436,8 @@ function serve(
   checks: motionComplaints.IGatherer,
 ): void {
   const s: IStage = stage();
-  const sign: number = side === "right" ? 1 : -1;
+  // The dominant hand's side: world +X is the seated diner's left.
+  const sign: number = side === "right" ? -1 : 1;
   const platter: IAutoMovieVector3 = on(s, sign * 0.04, 0.1);
   const plate: IAutoMovieVector3 = on(s, sign * 0.16, 0.06);
   const props: IAutoMovieMotionHumanProp[] = [
