@@ -21,13 +21,16 @@ import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
  * (`HumanSegmentOverlay.overlaid`), every subset of them since a fading
  * overlay keeps both the leaf with it and the one without. The seeds are the
  * plan's leg chain at the frame at or before the second
- * (`readHumanSegmentLegs.chain`); a leg is only continued from them, never
- * placed at them, so a planted foot is met exactly by its own fit.
+ * (`readHumanSegmentLegs.chain`), for a free leg alone (a goal neither
+ * planted nor in contact): a leg is only continued from them, never placed
+ * at them, and a planted leg keeps its own fit, which meets its foot
+ * exactly where the chain's branch could leave it no legal root.
  *
  * @param person The person.
  * @param segment The action.
  * @param t Film seconds.
  * @param local The action's plan second of `t`.
+ * @param limbs The read's limb goals, which tell a free leg from a planted one.
  * @returns The legs' seeds by fit name.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the names, the seeds' source and why a leg is only continued.
@@ -43,6 +46,7 @@ export function readHumanSegmentLegs(
   segment: IAutoMovieMotionHumanSegment,
   t: number,
   local: number,
+  limbs: IAutoMovieMotionHumanPosture["limbs"],
 ): Map<string, IAutoMovieSwivelSeed> {
   const chain: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
     readHumanSegmentLegs.chain(segment.plan, person.performer.body)(local);
@@ -59,7 +63,17 @@ export function readHumanSegmentLegs(
     const tag: string = ordinals
       .filter((_: number, i: number): boolean => (mask & (1 << i)) !== 0)
       .join(",");
-    for (const [limb, seed] of chain) out.set(`leaf:${tag}:${limb}`, seed);
+    for (const [limb, seed] of chain) {
+      const goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb] =
+        limbs[limb];
+      if (
+        goal === undefined ||
+        goal.planted === true ||
+        goal.contact !== undefined
+      )
+        continue;
+      out.set(`leaf:${tag}:${limb}`, seed);
+    }
   }
   return out;
 }
