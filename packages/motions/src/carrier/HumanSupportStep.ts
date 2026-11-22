@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountPush } from "../lexicon/HumanMountPush";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -81,7 +82,7 @@ function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
  *
  * @param context The standing entry, the arrival point and the two supports.
  * @returns The walk with each foot and the pelvis carried by its support.
- * @throws {HumanRefusal} When the walk refuses its path.
+ * @throws {HumanRefusal} When the walk refuses its path, or on `to` when the arrival lies a step above or below the floor the step leaves.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the planning frame, the support of each footprint, the edge fit, the touchdown carry, the swing and pelvis blends and the aim.
  * @evidence contracts/development/implementation.md#principled-implementation A planted foot keeps its material point on the support that bears it from touchdown; which support bears it is read from the supports' declared surfaces where it lands.
@@ -138,6 +139,25 @@ export function HumanSupportStep(
     Math.abs(standing - (ground.height ?? 0)) < context.body.measure.ankleHeight
       ? (ground.height ?? 0)
       : standing;
+  // A support step is level: an arrival above or below the floor the walk
+  // leaves by more than a tread's thickness is a step up or down, the
+  // swing clearing the edge and landing at the surface's height, which a
+  // one-tread climb plans (`climbStairs`).
+  const rise: number = to.y - level;
+  if (Math.abs(rise) > HumanSupportStepPlants.BEARING)
+    throw new HumanRefusal({
+      kind: "base",
+      axis: "to",
+      value: rise,
+      feasible: {
+        kind: "range",
+        minimum: -HumanSupportStepPlants.BEARING,
+        maximum: HumanSupportStepPlants.BEARING,
+        unit: "m",
+      },
+      reason: `the arrival lies ${rise.toFixed(3)} m ${rise > 0 ? "above" : "below"} the floor the step leaves: a step ${rise > 0 ? "up" : "down"}, not a level step`,
+      fix: `walk to the support's edge, then climb onto it with climbStairs: count 1, riser ${Math.abs(rise).toFixed(3)}, direction ${rise > 0 ? "up" : "down"}${onto === undefined ? "" : `, on ${onto}`}`,
+    });
   const lower: IAutoMovieMotionHumanSupportCarry.ICarry = translate(-level);
   const raise: IAutoMovieMotionHumanSupportCarry.ICarry = translate(level);
   const entry: IAutoMovieMotionHumanEntryState = context.entry;

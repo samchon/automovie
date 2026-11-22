@@ -11,6 +11,7 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
+  HumanRefusal,
   HumanSurface,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -19,12 +20,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 import { playgroundTake } from "../internal/playgroundTake";
 
 /**
- * A pusher runs a roundabout round by its grab bar, steps on and rides it
- * (#3989).
+ * A pusher runs a roundabout round by its grab bar, climbs onto it and
+ * rides it (#3989).
  *
  * Scenarios, on the average man and the small woman:
  * 1. The pusher's hand stays on the turning grab bar while walking round.
- * 2. After stepping on, the feet stay still in the disc's frame.
+ * 2. A level step onto the raised disc is refused on its arrival: it is a
+ *    step up.
+ * 3. Having walked to the rim facing the spindle and climbed the disc's
+ *    one riser, the feet stay still in the disc's frame.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the equipment, bodies, contacts and checked frames.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed wrist and ankles against the actual disc frame of the ride.
@@ -38,7 +42,10 @@ export function test_motion_exercise_playground_roundabout(): void {
     roundabout(key, failures);
   TestValidator.equals("roundabout ride", failures, []);
 }
-/** A pusher walks a roundabout round by its bar, then steps on and rides. */
+/** The climb's default distance from the toes to its first nosing, metres (`climbStairs`): the toes stop this short of the disc's rim. */
+const RISER_START: number = 0.05;
+
+/** A pusher walks a roundabout round by its bar, then climbs on and rides. */
 function roundabout(key: playgroundTake.BodyKey, failures: string[]): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   const base: ReturnType<typeof createRoundabout> = createRoundabout({
@@ -85,8 +92,12 @@ function roundabout(key: playgroundTake.BodyKey, failures: string[]): void {
   });
   const discAt = (seconds: number): IAutoMovieRigidTransform =>
     playgroundTake.rigid(ride.disc(seconds));
-  // The pusher steps on ahead and inward, onto the disc as it stands when
-  // the step begins.
+  const staged = (): ReturnType<typeof HumanObject.prop>[] => [
+    HumanObject.prop("base", base, playgroundTake.rigid(playgroundTake.ORIGIN)),
+    HumanObject.prop("disc", disc, discAt(0), discAt),
+  ];
+
+  // A level step onto the disc's top, 0.15 m above the ground, is a step up.
   const board: IAutoMovieVector3 = Quaternion.rotateVector(
     discAt(release).rotation,
     {
@@ -95,18 +106,46 @@ function roundabout(key: playgroundTake.BodyKey, failures: string[]): void {
       z: 0.7 * Math.cos(25 * Quaternion.DEG2RAD),
     },
   );
+  let refusal: unknown;
+  try {
+    new HumanPerformance({
+      seed: "roundabout",
+      performers: [performer],
+      props: staged(),
+      laws: [HumanSurface.roundaboutPush, HumanSurface.supportStep],
+      composition: HumanChain.subject("a")
+        .registered("roundaboutPush", {
+          ...path,
+          on: "disc",
+          bar: "bar0",
+          hand: "left",
+        })
+        .registered("supportStep", { to: board, onto: "disc" }).node,
+    }).duration;
+  } catch (error) {
+    refusal = error;
+  }
+  if (!(refusal instanceof HumanRefusal && refusal.axis === "to"))
+    failures.push(
+      `${key}: a level step onto the raised disc is not refused: ${String(refusal)}`,
+    );
+
+  // The pusher walks on to the rim, ahead round the ring, and turns to the
+  // spindle with its toes the climb's first-nosing distance short of the
+  // rim, then climbs the disc's one riser onto it.
+  const toes: number = body.measure.footLength - body.measure.heel;
+  const rim: number = 1 + RISER_START + toes;
+  const ahead: number = (110 * Math.PI) / 180;
+  const edge: IAutoMovieVector3 = {
+    x: rim * Math.sin(ahead),
+    y: 0,
+    z: rim * Math.cos(ahead),
+  };
   const film: HumanPerformance = new HumanPerformance({
     seed: "roundabout",
     performers: [performer],
-    props: [
-      HumanObject.prop(
-        "base",
-        base,
-        playgroundTake.rigid(playgroundTake.ORIGIN),
-      ),
-      HumanObject.prop("disc", disc, discAt(0), discAt),
-    ],
-    laws: [HumanSurface.roundaboutPush, HumanSurface.supportStep],
+    props: staged(),
+    laws: [HumanSurface.roundaboutPush],
     composition: HumanChain.subject("a")
       .registered("roundaboutPush", {
         ...path,
@@ -114,14 +153,18 @@ function roundabout(key: playgroundTake.BodyKey, failures: string[]): void {
         bar: "bar0",
         hand: "left",
       })
-      .registered("supportStep", { to: board, onto: "disc" })
+      .walk({
+        to: edge,
+        face: (Math.atan2(-edge.x, -edge.z) * 180) / Math.PI,
+      })
+      .climbStairs({ count: 1, riser: 0.15, start: RISER_START, on: "disc" })
       .stand({ seconds: 1.5, on: { prop: "disc" } }).node,
   });
   playgroundTake.clean(`${key} roundabout`, film, failures);
-  const [push, , riding]: readonly IAutoMovieMotionHumanSegment[] =
+  const [push, , , riding]: readonly IAutoMovieMotionHumanSegment[] =
     film.segments("a");
   if (push === undefined || riding === undefined) {
-    failures.push(`${key}: the push, step-on and ride did not all play`);
+    failures.push(`${key}: the push, climb and ride did not all play`);
     return;
   }
   const grip0: IAutoMovieVector3 = playgroundTake.local(
