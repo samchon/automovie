@@ -34,7 +34,8 @@ import { HumanFoot } from "../posture/HumanFoot";
  * ends, so the lift adds no velocity at toe-off and the foot meets the floor
  * at rest (the heel's vertical velocity at contact is near zero, Winter
  * 1992), and raised
- * further wherever the toe or heel would come within `CLEARANCE` of the floor. The
+ * further wherever the toe or heel would come nearer the floor than the lift
+ * itself, up to `CLEARANCE`, or within `CLEARANCE` of it at mid-swing. The
  * travel, the turn and the descent of the placements end early, at the share
  * of the swing where the lift has fallen to the contact height of the floor
  * (`AutoMovieMotionHumanAuditContact.HEIGHT`, half the minimum toe
@@ -230,7 +231,7 @@ export namespace walkFoot {
    * @returns The swinging foot at each share of the swing.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fixed inputs, random-access share reader and lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk travel with the carried departure rates, a raised-cosine lift, a sole-clearance correction and the lowest departing socket held horizontally until the lift interval passes.
+   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk travel with the carried departure rates, a raised-cosine lift, a sole-clearance correction that keeps the sole at least as high as the lift up to the least clearance, and the lowest departing socket held horizontally until the lift interval passes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed swing geometry precedes one reader of its varying share.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored lift, stiffness, rates, duration and landing rule enter as given; `CLEARANCE` is the cited minimum toe clearance.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and work per share; endpoint quaternion decompositions, coordinate deltas, lift height, fixed time prefixes and terminal-settle inverse trigonometry run once per prepared swing. Read the departure socket's horizontal components only while the release correction is active.
@@ -335,7 +336,18 @@ export namespace walkFoot {
         toe(toes)(placement),
         heel(placement),
       );
-      const clearance: number = (props.clearance ?? CLEARANCE) * bump;
+
+      // The sole rises at least with the lift until the least clearance
+      // takes over, then keeps that clearance through mid-swing: the toe,
+      // which the pitch and the relaxing toes turn down after toe-off, stays
+      // over the floor's contact height from the share the travel is
+      // released at (`settle`, where the lift reaches that height), so no
+      // sole is on the floor while it travels.
+      const least: number = props.clearance ?? CLEARANCE;
+      const clearance: number = Math.max(
+        least * bump,
+        Math.min(height * bump, least),
+      );
       if (low < clearance) ankle.y += clearance - low;
       if (departure !== undefined && u < settle + settle) {
         const sole: IAutoMovieVector3 = HumanFoot.point(body, side, departure.socket, placement, toes);
