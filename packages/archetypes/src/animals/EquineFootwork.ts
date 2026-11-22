@@ -137,6 +137,7 @@ export namespace EquineFootwork {
    * @param hooves The actual neutral hoof endpoints in model metres, which fix the pirouette heading.
    * @param centred The moving stance centres, under each attachment, which fix the shoulder-in heading.
    * @param reach The fore limb's length, attachment to hoof, metres, which bounds a scramble's climb per bound.
+   * @param tail The rigid tail, which bounds a bank slide's sit.
    * @returns Independent registration for the gait selector, event reader, goal sampler, lateral headings and the jump request.
    * @throws {ArchetypeRefusal} For an unsupported animal, travel context, inconsistent authored timing, an inadmissible lateral figure, jump or baulk, or a second jump.
    *
@@ -156,6 +157,7 @@ export namespace EquineFootwork {
     hooves: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
     centred: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
     reach: number,
+    tail: EquineBank.ITail,
   ): IPlan {
     const backing: Set<number> = new Set();
     const lateral: EquineLateral.IWindow[] = [];
@@ -226,6 +228,7 @@ export namespace EquineFootwork {
           plan,
           course.footing,
           hooves.leftHind.z,
+          tail,
         );
         bank.push(window);
         edges.push(...EquineEdge.of(course.legs, index, plan, hooves));
@@ -427,7 +430,7 @@ export namespace EquineFootwork {
    */
   export function sit(plan: IPlan, second: number): number {
     return (
-      -EquineBank.SIT * EquineBank.share(plan.bank, second) +
+      EquineBank.pitch(plan.bank, second) +
       (plan.edges.length === 0
         ? 0
         : EquineEdge.pitch(plan.edges, plan.distance(second)))

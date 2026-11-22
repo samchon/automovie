@@ -12,6 +12,7 @@ import {
 import { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
 import { EquineArc } from "./EquineArc";
 import { EquineFlightClock } from "./EquineFlightClock";
+import { EquineBank } from "./EquineBank";
 import { EquineFootwork } from "./EquineFootwork";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
@@ -149,6 +150,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       rightHind: { ...rig.limbs.rightHind[4]!, z: rig.limbs.rightHind[0]!.z },
     },
     rig.limbs.leftFore[0]!.y - rig.limbs.leftFore[4]!.y,
+    EquineBank.tail(animal.parts),
   );
   const ground: QuadrupedFooting.IPlan | undefined = QuadrupedFooting.prepare(
     species.archetype,

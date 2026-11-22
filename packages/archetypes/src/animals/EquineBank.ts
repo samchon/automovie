@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  IAutoMovieModelPart,
   IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -21,8 +22,26 @@ import type { rideQuadruped } from "./rideQuadruped";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The slide comes from the face's slope and friction, never a flag; the hooves stay on the authored face.
  */
 export namespace EquineBank {
-  /** The trunk's nose-up pitch against the face while the horse sits, degrees: authored, provisional. */
+  /** The trunk's nose-up pitch against the face while the horse sits, degrees, at most: authored, provisional; a rigid tail that would meet the face bounds it lower (`sit`). */
   export const SIT: number = 20;
+
+  /** The clearance the rigid tail keeps over the face while the horse sits, metres: authored, provisional. */
+  export const CLEAR: number = 0.03;
+
+  /**
+   * A rigid tail's lowest end in the neutral model and its radius.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit.
+   * @evidence contracts/development/design.md#principled-representation The end that hangs lowest and the bar's radius.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `tail`, read by `admit`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ITail {
+    /** The lower end of the tail bar's axis, model metres. */
+    end: IAutoMovieVector3;
+    /** The bar's radius, metres. */
+    radius: number;
+  }
 
   /** The share of the hind limb's length the sliding hind hooves come forward under the body: authored, provisional. */
   export const TUCK: number = 0.25;
@@ -74,6 +93,8 @@ export namespace EquineBank {
     entry: number;
     /** Seconds rising. */
     exit: number;
+    /** The nose-up pitch sat, degrees. */
+    sit: number;
   }
 
   /**
@@ -87,6 +108,7 @@ export namespace EquineBank {
    * @param plan The course plan.
    * @param footing The course's authored footing.
    * @param behind The hind hooves' distance behind the root, metres.
+   * @param tail The rigid tail, which bounds how far the horse sits.
    * @returns The window.
    * @throws {ArchetypeRefusal} For a leg that is not a straight descent over footing with a run-out at its foot, a face its hooves hold or one steeper than `STEEPEST`, and nonfinite or overlapping blends.
    *
@@ -107,6 +129,7 @@ export namespace EquineBank {
     plan: ArchetypeCourse.IPlan,
     footing: QuadrupedFooting.IScene | undefined,
     behind: number,
+    tail: ITail,
   ): IWindow {
     const refuse = (reason: string): never => {
       throw new ArchetypeRefusal({
@@ -154,7 +177,20 @@ export namespace EquineBank {
       return refuse(
         "A bank slide sits and rises over positive blends within the face, once the hindquarters are over it",
       );
-    return { from, to, entry, exit };
+    // The trunk turns nose-up about the root, which lowers the tail's end by its distance behind the root; the sit stops where the end keeps `CLEAR` over the face the body is aligned with.
+    const reach: number = Math.hypot(tail.end.y, tail.end.z);
+    const clear: number = tail.radius + CLEAR;
+    const sit: number =
+      clear >= tail.end.y
+        ? 0
+        : Math.min(
+            SIT,
+            ((Math.atan2(tail.end.z, tail.end.y) +
+              Math.acos(Math.min(1, clear / reach))) *
+              180) /
+              Math.PI,
+          );
+    return { from, to, entry, exit, sit };
   }
 
   /**
@@ -184,6 +220,70 @@ export namespace EquineBank {
       );
     }
     return 0;
+  }
+
+  /**
+   * The trunk's pitch the slides add at a film second, degrees, positive nose-down: the active slide's sit by its share.
+   *
+   * @param windows The admitted slides.
+   * @param seconds The film second.
+   * @returns The pitch, zero outside a slide.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit and sign.
+   * @evidence contracts/development/implementation.md#principled-implementation The window's own sit, bounded by its tail, by the sit's share.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one product.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the few windows.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
+   */
+  export function pitch(windows: readonly IWindow[], seconds: number): number {
+    for (const window of windows)
+      if (seconds > window.from && seconds < window.to)
+        return -window.sit * share([window], seconds);
+    return 0;
+  }
+
+  /**
+   * The rigid tail of a neutral model: its bar's lower end and its radius.
+   *
+   * @param parts The model's parts.
+   * @returns The tail.
+   * @throws {RangeError} When the model has no tail bar.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame and the failure.
+   * @evidence contracts/development/implementation.md#principled-implementation The bar's two axis ends from its transform and length; the lower one.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and two ends.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing tail refuses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, once per ride.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one record.
+   */
+  export function tail(parts: readonly IAutoMovieModelPart[]): ITail {
+    const bar: IAutoMovieModelPart | undefined = parts.find(
+      (part: IAutoMovieModelPart): boolean => part.id === "tail",
+    );
+    const geometry: IAutoMovieModelPart["geometry"] | undefined = bar?.geometry;
+    if (
+      bar?.transform === undefined ||
+      bar.transform === null ||
+      geometry?.type !== "primitive" ||
+      (geometry.shape.type !== "capsule" && geometry.shape.type !== "cylinder")
+    )
+      throw new RangeError("A bank slide needs the model's tail bar");
+    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+      bar.transform.rotation,
+      { x: 0, y: geometry.shape.height / 2, z: 0 },
+    );
+    const top: IAutoMovieVector3 = Vector3.add(bar.transform.translation, half);
+    const bottom: IAutoMovieVector3 = Vector3.subtract(
+      bar.transform.translation,
+      half,
+    );
+    return {
+      end: top.y < bottom.y ? top : bottom,
+      radius: geometry.shape.radius,
+    };
   }
 
   /**
