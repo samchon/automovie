@@ -15,8 +15,8 @@ import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHum
  * goal is the fist point less the hand-rotated socket offset, the elbow bend
  * hint and the shoulder carried by the trunk turn shape the arm, and the
  * engine's limb fit solves the joints. The target is tracked online with the
- * visuomotor latency ({@link StrikingAim}); the fist stops on the first
- * surface of the struck body it meets ({@link StrikingStroke}), so a guard on
+ * visuomotor latency (`StrikingAim`); the fist stops on the first
+ * surface of the struck body it meets (`StrikingStroke`), so a guard on
  * the line is struck instead of the face it covers, and two punches thrown at
  * once meet whichever arm or head is in the way.
  *
@@ -38,7 +38,7 @@ import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHum
  * pivots the rear foot on its ball; a lead hook turns the other way. A body
  * punch lowers the root through the knees. When the arm's band falls short,
  * the lead foot steps in by up to one stance length, never past the room in
- * front of the arms ({@link StrikingRoom}) and never toward a target that no
+ * front of the arms (`StrikingRoom`) and never toward a target that no
  * place on the line brings within the band, and the rear foot drags
  * from mid-delivery to mid-return (the IBA stepping jab), so no planted foot
  * is left behind a travelling hip; the trunk's turn is shared by the pelvis
@@ -46,7 +46,7 @@ import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHum
  * along the line at the band's reach and falls short, the declared
  * miss-at-maximum-reach rule.
  *
- * Timing, from launch to contact ({@link StrikingSkill.JAB_DELIVERY}): a lone
+ * Timing, from launch to contact (`StrikingSkill.JAB_DELIVERY`): a lone
  * punch takes 0.405 s at elite skill (Stanley et al. 2018); a punch that
  * follows another punch's contact reaches its own contact 0.35 s after that
  * contact when the hands alternate and 0.45 s when it is the same hand
@@ -54,17 +54,17 @@ import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHum
  * when it launches, never under 0.12 s. The return to the guard after contact takes 0.35 s at elite skill.
  * The performer's `speed` skill multiplies the delivery by 1.06 at novice,
  * 1.04 at amateur, 1.02 at trained and 1.0 at elite, so a lone punch takes
- * 0.43, 0.42, 0.41 and 0.405 s ({@link StrikingSkill.strike}, the novice
+ * 0.43, 0.42, 0.41 and 0.405 s (`StrikingSkill.strike`, the novice
  * ratio from Vagner et al. 2023, the levels between on a smoothstep,
- * {@link HumanSkill.LEVELS}), and its `recovery` skill the return by 1.4,
- * 1.3, 1.1 and 1.0 ({@link StrikingSkill.recovery}). A seeded timing
+ * `HumanSkill.LEVELS`), and its `recovery` skill the return by 1.4,
+ * 1.3, 1.1 and 1.0 (`StrikingSkill.recovery`). A seeded timing
  * variability, 7 % of the time and 25 ms at novice to 2.5 % and 10 ms at
- * elite, is added ({@link HumanSkill.jitter}), and a seeded guard drop may hold the returning
+ * elite, is added (`HumanSkill.jitter`), and a seeded guard drop may hold the returning
  * glove low before it reaches the guard. A feint shows a share of the
  * delivery without contact and returns in the same time. The fist peaks at
  * 3.2 m/s at novice to 7.16 m/s at elite (Liu et al. 2022; the novice end
  * provisional) and meets the target at 0.78 of that
- * ({@link StrikingSkill.PUNCH_PEAK_SPEED}). The performer's skill is its
+ * (`StrikingSkill.PUNCH_PEAK_SPEED`). The performer's skill is its
  * `proficiency` ({@link IAutoMovieMotionHumanPerformer}); `manner` does not
  * change these times.
  *

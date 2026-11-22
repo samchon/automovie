@@ -11,7 +11,7 @@ import type { IAutoMovieMotionHumanProxemics } from "./IAutoMovieMotionHumanProx
  * The goal is the stop, not the steps: the front of the performer's chest
  * (the sternum region) must end `gap` short of the target, horizontally,
  * along the line from where the performer stands to the target
- * ({@link HumanProxemics}). The law turns that goal into the floor point the
+ * (`HumanProxemics`). The law turns that goal into the floor point the
  * feet's midpoint must reach, `gap` plus the chest's lead over the feet back
  * from the target, and lets the walk law place whole steps to it, so the stop
  * is exact without sliding (the walk's footprints are inverse-kinematics
@@ -39,7 +39,7 @@ import type { IAutoMovieMotionHumanProxemics } from "./IAutoMovieMotionHumanProx
  * waypoint abeam that person takes the walk round on the side that deviates
  * least. Walkers moving past each other are not avoided here; reciprocal
  * avoidance belongs to the engine. An Effort sets the walk's step length,
- * arm swing and elbow width ({@link HumanEffort}); bound flow's elbows held
+ * arm swing and elbow width (`HumanEffort`); bound flow's elbows held
  * in cannot be shown, since the walk only widens them.
  *
  * With `track`, a person who moves is followed: their placed root is read
@@ -91,7 +91,7 @@ export namespace IAutoMovieMotionHumanApproach {
     /** The walk's pace ({@link IAutoMovieMotionHumanWalkParams.pace} gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`. */
     pace?: IAutoMovieMotionHumanWalkParams["pace"];
 
-    /** Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in ({@link HumanEffort.modifiers}); its `time` factor is not read. */
+    /** Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in (`HumanEffort.modifiers`); its `time` factor is not read. */
     effort?: IAutoMovieMotionHumanEffort.IEffort;
 
     /** How the walk there is performed (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent. */

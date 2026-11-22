@@ -21,9 +21,9 @@ export interface IAutoMovieMotionHumanWalkParams {
   to: IAutoMovieVector3;
 
   /**
-   * The gait, which fixes the speed ({@link walk.FROUDE}; the speed model is
+   * The gait, which fixes the speed (`walk.FROUDE`; the speed model is
    * {@link IAutoMovieMotionHumanGait}). No step exceeds 0.75 m
-   * ({@link walk.longestStep}):
+   * (`walk.longestStep`):
    *
    * - `slow`: about 1.05 m/s, about 96 steps a minute; a stroll, a weary,
    *   sad or cautious walk.
@@ -51,7 +51,7 @@ export interface IAutoMovieMotionHumanWalkParams {
    */
   stride?: number;
 
-  /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait ({@link walk.SHOULDER}, 15 degrees either way).
+  /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. It multiplies the shoulder swing of the gait (`walk.SHOULDER`, 15 degrees either way).
    * Inclusive range [0, 2]; schema default 1; unit dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    */
   armSwing?: number;
@@ -69,7 +69,7 @@ export interface IAutoMovieMotionHumanWalkParams {
    * `pace` gait's (a normal walk at the reference hip: about 2.3 m/s in
    * steps of at most 0.75 m, so about 180 steps a minute); `pace: 0.8` makes
    * it 0.8 times. An Effort `time` factor makes the speed
-   * `1 / (1 - 0.3 time)` times ({@link HumanEffort.modifiers}). Neutral when
+   * `1 / (1 - 0.3 time)` times (`HumanEffort.modifiers`). Neutral when
    * absent.
    */
   manner?: IAutoMovieMotionManner;

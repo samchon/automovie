@@ -53,7 +53,7 @@ export namespace IAutoMovieMotionHumanRun {
     to: IAutoMovieVector3;
 
     /**
-     * The gait, which fixes the speed ({@link run.GAITS}; the speed model is
+     * The gait, which fixes the speed (`run.GAITS`; the speed model is
      * {@link IAutoMovieMotionHumanGait}):
      *
      * - `jog`: about 2.3 m/s, about 165 steps a minute; an easy pace held for
@@ -77,7 +77,7 @@ export namespace IAutoMovieMotionHumanRun {
     /** Step-length scale in [0.6, 1.3]; 1 when absent. It changes the step and the steps a minute inversely and leaves the speed. */
     stride?: number;
 
-    /** Arm-swing scale in [0, 2]; 1 when absent. It multiplies the shoulder swing of the pace ({@link run.GAITS}: 25, 35 and 50 degrees either way). */
+    /** Arm-swing scale in [0, 2]; 1 when absent. It multiplies the shoulder swing of the pace (`run.GAITS`: 25, 35 and 50 degrees either way). */
     armSwing?: number;
 
     /** Elbows held out, degrees in [0, 30]; 0 when absent. */

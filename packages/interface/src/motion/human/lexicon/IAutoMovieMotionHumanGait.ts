@@ -6,11 +6,11 @@ import type { IAutoMovieMotionHumanDrillRegulation } from "./IAutoMovieMotionHum
  * destination. Register the ones a film uses.
  *
  * The speed model of every gait. A pace is a Froude number `Fr` and the
- * speed is `v = sqrt(Fr g l)` for the hip height `l` ({@link walk.FROUDE},
- * {@link run.GAITS}): a body with a longer leg is faster by the square root of
+ * speed is `v = sqrt(Fr g l)` for the hip height `l` (`walk.FROUDE`,
+ * `run.GAITS`): a body with a longer leg is faster by the square root of
  * `l`, its step is longer by `l` and its steps a minute fall by the square
  * root of `l`. Every speed and steps a minute stated in these types is at the
- * reference hip, 0.93 m ({@link walkRoot.REFERENCE_HIP}). `stride` changes
+ * reference hip, 0.93 m (`walkRoot.REFERENCE_HIP`). `stride` changes
  * the step and the steps a minute inversely and leaves the speed;
  * `manner.pace` multiplies the speed ({@link IAutoMovieMotionManner.pace}).
  *

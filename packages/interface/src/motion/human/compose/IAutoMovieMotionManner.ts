@@ -97,7 +97,7 @@ export namespace IAutoMovieMotionManner {
   }
 
   /**
-   * The names of {@link PRESETS}.
+   * The names of `PRESETS`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States that the names are the table's keys: the eight Effort actions of `HumanEffort.ACTIONS` and the four moods and two Shape poles the table adds.
    * @evidence contracts/development/design.md#principled-representation A closed union of the Effort actions' own names (Laban and Lawrence 1947, Effort) and six added names, so a name the table lacks fails the type check.

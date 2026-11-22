@@ -48,7 +48,7 @@ export namespace IAutoMovieMotionHumanFlinch {
     /** Where the threat comes from; a place ahead of the performer when absent. */
     from?: IAutoMovieMotionTarget;
 
-    /** How strong, in (0, 1]; 1 when absent. It scales the size and not the time: at 1 the trunk leans a quarter of the reach's lean limit, the hips shift 1.8 % of the stature and the neck ducks lightly ({@link flinch.LEAN}, {@link flinch.SHIFT}, {@link flinch.DUCK}, provisional); the peak comes at 0.2 s and the body is back by 0.6 s (Landis and Hunt 1939). 1 fits a start or a near miss; less fits a small twitch. */
+    /** How strong, in (0, 1]; 1 when absent. It scales the size and not the time: at 1 the trunk leans a quarter of the reach's lean limit, the hips shift 1.8 % of the stature and the neck ducks lightly (`flinch.LEAN`, `flinch.SHIFT`, `flinch.DUCK`, provisional); the peak comes at 0.2 s and the body is back by 0.6 s (Landis and Hunt 1939). 1 fits a start or a near miss; less fits a small twitch. */
     intensity?: number;
 
     /** How it is performed; its intensity is `intensity` unless it states one. */
