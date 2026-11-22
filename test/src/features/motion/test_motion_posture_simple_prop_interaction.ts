@@ -7,14 +7,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  operateInsert,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { operateInsert } = AutoMovieMotionHumanOperate;
 
 /**
  * `operate`'s `insert` mechanism (#3476): a held prop's working point goes

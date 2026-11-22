@@ -13,10 +13,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanPrehension,
   AutoMovieMotionHumanStance,
   HumanChain,
   HumanColliders,
-  HumanGrip,
   HumanHand,
   HumanPerformance,
   HumanVerdicts,
@@ -24,6 +24,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { HumanGrip } = AutoMovieMotionHumanPrehension;
 
 /**
  * A resting finger capsule may indent adjoining skin only by the physical skin allowance.

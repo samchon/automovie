@@ -9,17 +9,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  swipeTouchscreen,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { swipeTouchscreen } = AutoMovieMotionHumanOperate;
 
 /** One measured case dimension and its stated source bounds, metres. */
 interface IBand {

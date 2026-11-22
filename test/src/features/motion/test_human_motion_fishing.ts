@@ -16,16 +16,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  hookSet,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { hookSet } = AutoMovieMotionHumanOperate;
 
 /** Where the lure is cast, world metres: a spot on the water ahead. */
 const TARGET: IAutoMovieVector3 = { x: 0, y: 0, z: 12 };

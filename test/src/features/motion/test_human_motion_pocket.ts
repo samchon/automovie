@@ -9,15 +9,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanPrehension,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanPocket,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+import HumanPocket = AutoMovieMotionHumanPrehension.HumanPocket;
 
 /** The rigid custody bound: a stowed or held prop's drift in its carrier's frame, metres. */
 const RIGID: number = 0.001;

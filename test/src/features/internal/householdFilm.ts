@@ -11,12 +11,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanPrehension,
   HumanObject,
   HumanPerformance,
-  putDownAperture,
 } from "@automovie/motions";
 
 import { motionHumanLaw } from "./motionHumanLaw";
+
+const { putDownAperture } = AutoMovieMotionHumanPrehension;
 
 /**
  * Shared staging and readers for the household workflow specifications: one

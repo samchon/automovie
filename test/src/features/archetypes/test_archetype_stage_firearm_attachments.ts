@@ -17,11 +17,11 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import {
-  HumanCarrierCustody,
+  AutoMovieMotionHumanPrehension,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  putDownAperture,
+  AutoMovieMotionHumanDress,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,13 +29,15 @@ import { archetypeExtent } from "../internal/archetypeExtent";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
+const { putDownAperture } = AutoMovieMotionHumanPrehension;
+
 /** The two laws the bayonet take installs, by name. */
 interface IFixLaws {
   /** Return the bayonet through the musket's entry onto its seat. */
   putDownAperture: typeof putDownAperture;
 
   /** Take the bayonet off the musket's seat. */
-  takeFromCarrier: typeof HumanCarrierCustody;
+  takeFromCarrier: typeof AutoMovieMotionHumanDress.HumanCarrierCustody;
 }
 
 /** One museum silhouette and the figures its record reads. */
@@ -237,7 +239,7 @@ function fixTake(
   const laws: IAutoMovieMotionHumanChain.IExtension<IFixLaws> =
     HumanChain.extend({
       putDownAperture,
-      takeFromCarrier: HumanCarrierCustody,
+      takeFromCarrier: AutoMovieMotionHumanDress.HumanCarrierCustody,
     });
   const chain: IAutoMovieMotionHumanChain = laws
     .subject("drill")
