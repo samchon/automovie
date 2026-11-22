@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -25,6 +26,7 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { touchHold } from "../touch/touchHold";
 import { clinch } from "./clinch";
 
@@ -90,7 +92,7 @@ export function grappleArms(
         side,
         ["reach", "take"],
         ["release", "rest"],
-        shoulder(side) ? "flat" : "relaxed",
+        "flat",
       ),
   );
   const others: Record<string, ReturnType<typeof touchHold.others>> = {};
@@ -150,9 +152,9 @@ export function grappleArms(
       side,
       AutoMovieMotionHumanTarget.hand(body, posture, side, contact, {
         surface: "palm",
-        shape: shoulder(side) ? "flat" : "relaxed",
+        shape: "flat",
         bend: "forward",
-        // A palm on a shoulder stays open, its fingers up.
+        // The palm lies open on the region: curled fingers folded the thumb and tips into the partner's thigh or chest. On a shoulder its fingers point up.
         ...(shoulder(side) ? { forward: { x: 0, y: 1, z: 0 } } : {}),
       }),
     );
@@ -214,6 +216,11 @@ export function grappleArms(
     relax: release,
     end: rest,
   };
+  // The arms leave the floor's own arms as the reach starts, the angles
+  // shown before it; the entry's were not, and the reach jumped from them.
+  let begun: IAutoMoviePose | undefined;
+  const start = (): IAutoMoviePose =>
+    (begun ??= resolveHumanPosture(body, base.posture(reach)));
   let coursed: IAutoMovieMotionHumanActionPlan | undefined;
   const course = (): IAutoMovieMotionHumanActionPlan =>
     (coursed ??= courseArmGoal({
@@ -221,7 +228,7 @@ export function grappleArms(
       plan: goals,
       base,
       side: sides[0]!,
-      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, sides[0]!),
+      rest: AutoMovieMotionHumanArm.angles(start(), sides[0]!),
       span,
       perceived: perceived(sides[0]!),
       tracked: true,
@@ -231,10 +238,7 @@ export function grappleArms(
             with: [
               {
                 side: sides[1]!,
-                rest: AutoMovieMotionHumanArm.angles(
-                  context.entry.pose,
-                  sides[1]!,
-                ),
+                rest: AutoMovieMotionHumanArm.angles(start(), sides[1]!),
                 perceived: perceived(sides[1]!),
                 tracked: true,
               },
