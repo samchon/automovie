@@ -60,7 +60,7 @@ import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBod
  * range of pronation and supination, and the wrist the rest by flexion and
  * deviation. A rotation beyond either range is clamped and its surface
  * lands off the point by the clamped share; {@link HumanHand.frame} reads
- * where the surface really is, so audits report that residual. Asked about
+ * where the surface actually lands, so audits report that residual. Asked about
  * 140 degrees or more of forearm turn away from the hand's own rotation at
  * its place, the nearer limit changes sides and the hand with it, so a law
  * keeps an asked rotation on one side of that across its instants

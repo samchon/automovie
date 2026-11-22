@@ -1,5 +1,5 @@
 /**
- * How many times a repeated movement really goes out and back, and how far
+ * How many times a repeated movement goes out and back as displayed, and how far
  * each time: the turning points of one scalar read off a displayed motion.
  *
  * A pat that is asked three times shows three lifts of the hand, a wave of
