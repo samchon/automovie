@@ -14,7 +14,6 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -27,8 +26,6 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
-import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { touchHold } from "../touch/touchHold";
 import { clinch } from "./clinch";
@@ -220,7 +217,10 @@ export function grappleArms(
     ): IAutoMovieMotionHumanPosture => {
       const posture: IAutoMovieMotionHumanPosture = base.posture(...args);
       const seconds: number = args[0];
-      if (seconds < reach || seconds > rest) return posture;
+      // The course's seams read the plan's own arm at the reach's start and
+      // the return's end (`courseArmGoal`): there the floor's arm, not the
+      // hand already laid on the partner.
+      if (seconds <= reach || seconds >= rest) return posture;
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of sides)
         limbs[`${side}Arm`] = goal(side, posture, seconds);
@@ -232,26 +232,20 @@ export function grappleArms(
     (side: AutoMovieHumanSide) =>
     (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal =>
       goal(side, posture, reach);
-  const span: Parameters<typeof courseArmGoal>[0]["span"] = {
-    start: reach,
-    ready: take,
-    relax: release,
-    end: rest,
-  };
+
   // The arms leave the floor's own arms as the reach starts, the angles
   // shown before it; the entry's were not, and the reach jumped from them.
   let begun: IAutoMoviePose | undefined;
   const start = (): IAutoMoviePose =>
     (begun ??= resolveHumanPosture(body, base.posture(reach)));
-  let coursed: IAutoMovieMotionHumanActionPlan | undefined;
-  const course = (): IAutoMovieMotionHumanActionPlan =>
-    (coursed ??= courseArmGoal({
+  const lay = (end: number): IAutoMovieMotionHumanActionPlan => {
+    const laid: IAutoMovieMotionHumanActionPlan = courseArmGoal({
       body,
       plan: goals,
       base,
       side: sides[0]!,
       rest: AutoMovieMotionHumanArm.angles(start(), sides[0]!),
-      span,
+      span: { start: reach, ready: take, relax: release, end },
       perceived: perceived(sides[0]!),
       tracked: true,
       ...(sides.length < 2
@@ -266,7 +260,33 @@ export function grappleArms(
               },
             ],
           }),
-    }));
+    });
+    // The course is planned as it is first read.
+    laid.posture(take);
+    return laid;
+  };
+  // The return takes the time the course's own path back around the two
+  // bodies needs: where the planner finds the authored return too fast, it
+  // states the least seconds the action needs at its pace, and the return,
+  // the one phase no partner's beat fixes, is stretched by that ratio within
+  // the scene.
+  let coursed: IAutoMovieMotionHumanActionPlan | undefined;
+  const course = (): IAutoMovieMotionHumanActionPlan => {
+    if (coursed !== undefined) return coursed;
+    try {
+      coursed = lay(rest);
+    } catch (error: unknown) {
+      const end: number | undefined = grappleArms.stretched(
+        error,
+        floor.duration,
+        release,
+        rest,
+      );
+      if (end === undefined) throw error;
+      coursed = lay(end);
+    }
+    return coursed;
+  };
   const plan: IAutoMovieMotionHumanActionPlan = {
     ...floor,
     posture: (
@@ -292,63 +312,45 @@ export function grappleArms(
  */
 export namespace grappleArms {
   /**
-   * The least seconds the gripping hands take to come back from the
-   * partner: the farthest hand's travel from where it hangs at the entry to
-   * its region on the partner as the scene starts, on a minimum-jerk unit
-   * whose peak is a daily reach's fastest hand (`HumanArmTrajectoryModel`'s
-   * `UNIT` and `ENVELOPE`). A scene whose marks stand farther apart gives its
-   * return the time that distance needs.
+   * The return's end the planner's own answer asks for: when a course
+   * refuses its duration with the least seconds the action needs at its
+   * pace, the return (from `release` to `rest`) stretched by that ratio,
+   * kept within the action; none for any other refusal, or one the
+   * stretch cannot meet.
    *
-   * @param context The initiator's context.
-   * @param regions The partner's region each gripping hand is laid on.
-   * @returns Seconds; zero with no gripping hand.
+   * @param error What the course threw.
+   * @param duration The action's seconds.
+   * @param release The release, seconds since the start.
+   * @param rest The authored rest, seconds since the start.
+   * @returns The stretched rest, seconds since the start, or none.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the travel, the speed bound and why a scene reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation A minimum-jerk movement of length d whose peak is v takes UNIT d / v (Flash and Hogan 1985).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One travel per hand, the farthest timed.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The speed bound is the planner's own; the partner is read where the performer sees them as the scene starts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pose read and one partner read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses clinch placement and the planner's constants.
+   * @evidence contracts/development/common.md#meaningful-documentation States which refusal is read, the stretch and when none is given.
+   * @evidence contracts/development/implementation.md#principled-implementation The planner states the uniform time stretch its path needs; the free phase takes that stretch.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test of the refusal, one ratio.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the planner's own feasible range; a return that cannot fit the scene is refused as before.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the refusal.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function returning(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGrapple.IParams>,
-    regions: IProps["regions"],
-  ): number {
-    const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
-      context.params.partner,
-    );
-    const sides: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
-      (side: AutoMovieHumanSide): boolean => regions[side] !== undefined,
-    );
-    if (sides.length === 0) return 0;
-    const own: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      context.body,
-      context.entry.pose,
-    );
-    const seen: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =
-      partner.bones(
-        context.start,
-        new Set(
-          sides.map(
-            (side: AutoMovieHumanSide): AutoMovieHumanoidBone =>
-              partner.body.surfaces.regions[regions[side]!].bone,
-          ),
-        ),
-      );
-    let farthest: number = 0;
-    for (const side of sides)
-      farthest = Math.max(
-        farthest,
-        Vector3.distance(
-          own.get(`${side}Hand`)!.worldPosition,
-          clinch.place(partner.body, seen, regions[side]!, 0).point,
-        ),
-      );
-    return (
-      (HumanArmTrajectoryModel.UNIT * farthest) /
-      HumanArmTrajectoryModel.ENVELOPE
-    );
+  export function stretched(
+    error: unknown,
+    duration: number,
+    release: number,
+    rest: number,
+  ): number | undefined {
+    if (!(error instanceof HumanRefusal) || error.axis !== "duration")
+      return undefined;
+    const feasible: HumanRefusal["feasible"] = error.feasible;
+    if (
+      feasible === null ||
+      feasible.kind !== "range" ||
+      feasible.minimum === null ||
+      !(feasible.minimum > duration)
+    )
+      return undefined;
+    const end: number =
+      release + ((rest - release) * feasible.minimum) / duration;
+    return end <= duration ? end : undefined;
   }
   /** How far the shoulder throw's sleeve hand stands off the sleeve at the middle of its release, in hand lengths (provisional). */
   export const SEPARATION: number = 0.55;

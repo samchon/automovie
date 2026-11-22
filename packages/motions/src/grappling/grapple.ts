@@ -251,24 +251,13 @@ export namespace grapple {
 
     const regions: ReturnType<typeof grappleStances.regions> =
       grappleStances.regions(p.kind, p.side ?? "right");
-    // The MMA reset's fighters step back from marks set by their own bodies
-    // (`spacing`): the hands come back in the time their travel needs at the
-    // planner's pace (`grappleArms.returning`), not in a fixed share.
-    const rest: number =
-      p.kind === "mmaReset"
-        ? Math.min(
-            floor.duration,
-            floor.duration * timing.release +
-              grappleArms.returning(context, regions),
-          )
-        : floor.duration * timing.rest;
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       floor.duration,
       [
         { name: "reach", seconds: floor.duration * timing.reach },
         { name: "take", seconds: floor.duration * timing.take },
         { name: "release", seconds: floor.duration * timing.release },
-        { name: "rest", seconds: rest },
+        { name: "rest", seconds: floor.duration * timing.rest },
       ],
     );
     const contacts: IAutoMovieMotionHumanContactWindow[] = [...floor.contacts];
