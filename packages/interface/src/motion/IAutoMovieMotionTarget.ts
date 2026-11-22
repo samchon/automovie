@@ -67,6 +67,6 @@ export type IAutoMovieMotionTarget =
       kind: "none";
       /** The virtual opponent's height line; `middle` when absent. */
       line?: "low" | "middle" | "high";
-      /** Distance to the virtual opponent, metres; the technique's range when absent. */
+      /** Distance to the virtual opponent, metres; the performer's own arm length (upper arm, forearm and hand) when absent ({@link IAutoMovieMotionHumanPerformanceAim.range}). */
       range?: number;
     };
