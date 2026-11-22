@@ -2563,6 +2563,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/IAutoMovieMotionHumanPickUp.IParams",
       "description": "Grip a prop seated in a carrier, keeping the grip through an early stand or a draw."
     },
+    "taken": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanSwordParry.ITaken",
+      "description": "A taken blade: the attacker's blade kept on the parry that took it while it is carried aside, then held there (`against`, `until`)."
+    },
     "tap": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanTapDance.IParams",
       "description": "Tap steps whose strikes sound on the beat's subdivisions."
@@ -17363,6 +17367,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "riposte": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanSword.IAttack",
             "description": "A riposte: the thrust that answers out of a parry."
+          },
+          "taken": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSwordParry.ITaken",
+            "description": "A taken blade: the attacker's blade kept on the parry that took it while it is carried aside, then held there (`against`, `until`)."
           }
         },
         "required": [
@@ -17389,7 +17397,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "disengage",
           "feint",
           "voidStep",
-          "riposte"
+          "riposte",
+          "taken"
         ],
         "additionalProperties": false,
         "description": "Open parameters of the blade lexicon family, keyed by each runtime export name."
@@ -17736,6 +17745,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
+          },
+          "taken": {
+            "type": "boolean",
+            "description": "Whether the parry that meets a `parried` attack takes its blade: the attack then ends where it was stopped, not back in its entry hold, for the parry to carry it aside and a following action to hold it there; false when absent."
           }
         },
         "required": [],
@@ -17950,6 +17963,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
+          },
+          "taken": {
+            "type": "boolean",
+            "description": "Whether the parry that meets a `parried` attack takes its blade: the attack then ends where it was stopped, not back in its entry hold, for the parry to carry it aside and a following action to hold it there; false when absent."
           }
         },
         "required": [],
@@ -18151,6 +18168,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
+          },
+          "taken": {
+            "type": "boolean",
+            "description": "Whether the parry that meets a `parried` attack takes its blade: the attack then ends where it was stopped, not back in its entry hold, for the parry to carry it aside and a following action to hold it there; false when absent."
           }
         },
         "required": [],
@@ -18498,6 +18519,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             ],
             "description": "Whether it lands or is stopped short for a parry to meet; `lands` when absent."
           },
+          "taken": {
+            "type": "boolean",
+            "description": "Whether the parry that meets a `parried` attack takes its blade: the attack then ends where it was stopped, not back in its entry hold, for the parry to carry it aside and a following action to hold it there; false when absent."
+          },
           "from": {
             "oneOf": [
               {
@@ -18530,6 +18555,62 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         },
         "required": [],
         "additionalProperties": false
+      },
+      "IAutoMovieMotionHumanSwordParry.ITaken": {
+        "type": "object",
+        "properties": {
+          "blade": {
+            "type": "string",
+            "description": "The held blade's prop subject id; the bare hand when absent."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand that holds it; `right` when absent."
+          },
+          "hands": {
+            "oneOf": [
+              {
+                "const": 1
+              },
+              {
+                "const": 2
+              }
+            ],
+            "description": "How many hands are on the grip; 2 for a blade whose grip declares a two-hand grasp, else 1."
+          },
+          "tip": {
+            "type": "string",
+            "description": "The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent."
+          },
+          "edge": {
+            "type": "string",
+            "description": "See `tip`."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/IAutoMovieMotionManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
+          },
+          "against": {
+            "type": "string",
+            "description": "The anchor of the parry that took the blade."
+          },
+          "until": {
+            "type": "string",
+            "description": "The anchor of the action whose end it is held to; that parry's own end when absent."
+          }
+        },
+        "required": [
+          "against"
+        ],
+        "additionalProperties": false,
+        "description": "Parameters of a taken blade: the attacker's blade, stopped and taken by a parry, kept on the parrying blade while that parry carries it aside, then held where it was left."
       },
       "IAutoMovieMotionHumanLexiconFirearmParams": {
         "type": "object",
@@ -26491,6 +26572,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
+          },
+          "taken": {
+            "type": "boolean",
+            "description": "Whether the parry that meets a `parried` attack takes its blade: the attack then ends where it was stopped, not back in its entry hold, for the parry to carry it aside and a following action to hold it there; false when absent."
           }
         },
         "required": [],
@@ -26687,6 +26772,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "Whether it lands or is stopped short for a parry to meet; `lands` when absent."
+          },
+          "taken": {
+            "type": "boolean",
+            "description": "Whether the parry that meets a `parried` attack takes its blade: the attack then ends where it was stopped, not back in its entry hold, for the parry to carry it aside and a following action to hold it there; false when absent."
           }
         },
         "required": [],
@@ -28330,6 +28419,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "exclusiveMaximum": 1,
             "x-unit": ""
           },
+          "taken": {
+            "type": "boolean",
+            "description": "Whether the parry that meets a `parried` attack takes its blade: the attack then ends where it was stopped, not back in its entry hold, for the parry to carry it aside and a following action to hold it there; false when absent."
+          },
           "from": {
             "oneOf": [
               {
@@ -29103,6 +29196,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
             "x-unit": ""
+          },
+          "taken": {
+            "type": "boolean",
+            "description": "Whether the parry that meets a `parried` attack takes its blade: the attack then ends where it was stopped, not back in its entry hold, for the parry to carry it aside and a following action to hold it there; false when absent."
           }
         },
         "required": [],
