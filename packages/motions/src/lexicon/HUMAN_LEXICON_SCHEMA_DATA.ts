@@ -11601,6 +11601,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "type": "number",
             "description": "The sitting surface's sideways tilt, degrees, as a posture's roll; level when absent."
           },
+          "carrier": {
+            "type": "string",
+            "description": "The subject of the prop the seat belongs to, when that prop may move: the seat is then read where the prop stands when the sit begins, and the sit follows it in the prop's frame (`sitCarried`). A seat in the world when absent."
+          },
           "depth": {
             "type": "number",
             "description": "Depth back from the front edge, metres; deep enough for the thigh when absent."
@@ -11808,6 +11812,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "roll": {
             "type": "number",
             "description": "The sitting surface's sideways tilt, degrees, as a posture's roll; level when absent."
+          },
+          "carrier": {
+            "type": "string",
+            "description": "The subject of the prop the seat belongs to, when that prop may move: the seat is then read where the prop stands when the sit begins, and the sit follows it in the prop's frame (`sitCarried`). A seat in the world when absent."
           },
           "depth": {
             "type": "number",
