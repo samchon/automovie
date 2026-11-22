@@ -32,10 +32,7 @@ import { furnishRoom } from "./furnishRoom";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned module keeps the layout parameters. Each call owns its model draws and emits a population bounded by the requested stations. It owns no external resources.
  */
 export function createGymKit(
-  params: IAutoMovieFurnishingLayout & {
-    /** Positive integer count of free-weight stations. */
-    readonly stations: number;
-  },
+  params: createGymKit.IParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -77,4 +74,13 @@ export function createGymKit(
       ],
     });
   };
+}
+
+/** Types of the gym kit producer. */
+export namespace createGymKit {
+  /** The room layout and the positive integer count of the kit's repeated group. */
+  export interface IParams extends IAutoMovieFurnishingLayout {
+    /** Positive integer count of free-weight stations. */
+    readonly stations: number;
+  }
 }
