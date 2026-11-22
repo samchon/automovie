@@ -23,8 +23,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { wardrobeFilm } from "../internal/wardrobeFilm";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { wardrobeFilm } from "../../internal/wardrobeFilm";
 
 /** One labelled case of the specification. */
 type WardrobeCase = readonly [string, () => void];
@@ -48,10 +48,10 @@ const CASES: readonly WardrobeCase[] = [
  * @evidence contracts/development/common.md#meaningful-documentation Names the jacket, closure and its actual custody frames, and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Runs installed HumanPerformance, registered motion and concrete archetype producers for the complete wearable exchange.
  * @evidence contracts/development/testing.md#independent-expectations Converts the displayed hand geometry through the posed model, and reads closure travel from the visible slider, independently of a stored target pose.
- * @evidence contracts/development/testing.md#distinguishing-cases Observes actual signed passages, mirrored hands, a reversed closure, the worn and released frames, and named rejection; footwear is test_human_motion_wardrobe_footwear's.
+ * @evidence contracts/development/testing.md#distinguishing-cases Observes actual signed passages, mirrored hands, a reversed closure, the worn and released frames, and named rejection; footwear is test_motion_dress_wardrobe_footwear's.
  * @evidence contracts/development/testing.md#execution-ownership The focused public-entry feature test owns its performers, models and in-memory scene.
  */
-export function test_human_motion_wardrobe_custody(): void {
+export function test_motion_dress_wardrobe_custody(): void {
   const failures: string[] = [];
   for (const [label, run] of CASES) {
     try {

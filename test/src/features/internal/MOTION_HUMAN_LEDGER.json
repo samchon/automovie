@@ -544,7 +544,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanGaze.look",
+      "symbol": "AutoMovieMotionHumanGaze.lookPrimitive",
       "tests": [
         "test_human_motion_compose_gaze"
       ]
@@ -1281,7 +1281,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouch.touch",
+      "symbol": "AutoMovieMotionHumanTouch.touchPrimitive",
       "tests": [
         "test_human_motion_compose_touch_laid"
       ]

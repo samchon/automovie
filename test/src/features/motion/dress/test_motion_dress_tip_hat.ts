@@ -16,17 +16,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDress,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  tipHat,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 import { throws } from "node:assert/strict";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { vclose } from "../internal/vclose";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { vclose } from "../../internal/vclose";
 
 /**
  * Pin the staged hat's actual movement and custody through the public performance.
@@ -43,7 +43,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Uses the real wearable on the crown, then tests a loose hat and a wrong head attachment.
  * @evidence contracts/development/testing.md#execution-ownership One played sequence and three admission probes reuse the same polygon body and archetype.
  */
-export function test_human_motion_tip_hat(): void {
+export function test_motion_dress_tip_hat(): void {
   for (const fit of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
     const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -93,7 +93,7 @@ export function test_human_motion_tip_hat(): void {
           },
         ],
         props: [prop],
-        laws: [tipHat],
+        laws: [AutoMovieMotionHumanDress.tipHat],
         composition: HumanChain.subject("a")
           .stand({ hold: 0.3 })
           .registered("tipHat", { prop: "hat" })

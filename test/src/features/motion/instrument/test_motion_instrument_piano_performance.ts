@@ -25,10 +25,10 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { archetypeExtent } from "../internal/archetypeExtent";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { vclose } from "../internal/vclose";
+import { archetypeExtent } from "../../internal/archetypeExtent";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
 
 /**
  * A seated pianist fingers two notes while holding the damper across the
@@ -47,7 +47,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Both drives overlap and release independently. Each part outlasts the other in one case. The score and pedal feature tests own standalone admission and individual motion.
  * @evidence contracts/development/testing.md#execution-ownership Discovered by the motions feature suite and runs the in-memory performance on a generated body and archetype.
  */
-export function test_human_motion_piano_performance(): void {
+export function test_motion_instrument_piano_performance(): void {
   const piano: ReturnType<typeof createInstrument> = createInstrument(
     { kind: "uprightPiano" },
     5,

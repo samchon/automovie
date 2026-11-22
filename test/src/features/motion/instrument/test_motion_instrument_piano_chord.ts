@@ -18,12 +18,12 @@ import {
   HumanPerformance,
   HumanRefusal,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { archetypeExtent } from "../internal/archetypeExtent";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { archetypeExtent } from "../../internal/archetypeExtent";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A right-hand dyad and a left-hand note overlap on the upright piano.
@@ -41,7 +41,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Checks onset, concurrent full travel, independent release, an unscored neighbor and three distinct invalid assignments.
  * @evidence contracts/development/testing.md#execution-ownership A discovered motions feature test using the generated polygon body and installed archetypes.
  */
-export function test_human_motion_piano_chord(): void {
+export function test_motion_instrument_piano_chord(): void {
   const piano: ReturnType<typeof createInstrument> = createInstrument(
     { kind: "uprightPiano" },
     5,

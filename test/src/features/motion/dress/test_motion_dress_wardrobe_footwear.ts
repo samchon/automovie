@@ -22,8 +22,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { wardrobeFilm } from "../internal/wardrobeFilm";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { wardrobeFilm } from "../../internal/wardrobeFilm";
 
 /** One labelled case of the specification. */
 type WardrobeCase = readonly [string, () => void];
@@ -47,10 +47,10 @@ const CASES: readonly WardrobeCase[] = [
  * @evidence contracts/development/common.md#meaningful-documentation Names the shoe and sock and their actual custody frames.
  * @evidence contracts/development/testing.md#behavioral-verification Runs installed HumanPerformance, registered motion and concrete archetype producers for the complete exchange.
  * @evidence contracts/development/testing.md#independent-expectations Converts the displayed foot geometry through the posed model, independently of a stored target pose.
- * @evidence contracts/development/testing.md#distinguishing-cases Two casts, opposite feet, the worn and released frames; the jacket and the refusal are test_human_motion_wardrobe_custody's.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two casts, opposite feet, the worn and released frames; the jacket and the refusal are test_motion_dress_wardrobe_custody's.
  * @evidence contracts/development/testing.md#execution-ownership The focused public-entry feature test owns its performers, models and in-memory scene.
  */
-export function test_human_motion_wardrobe_footwear(): void {
+export function test_motion_dress_wardrobe_footwear(): void {
   const failures: string[] = [];
   for (const [label, run] of CASES) {
     try {

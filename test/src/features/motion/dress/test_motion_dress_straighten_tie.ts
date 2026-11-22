@@ -6,15 +6,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDress,
   AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPerformance,
-  composeHumanStraightenTie,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Stage a short smoothing movement along the front blade of a tie.
@@ -28,7 +28,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Contact at the center and movement across two opposite phases distinguish a reach, a stationary grasp and a horizontal rub from the vertical pass.
  * @evidence contracts/development/testing.md#execution-ownership Builds a polygon performer and samples three poses through the public performance, with no host.
  */
-export function test_human_motion_straighten_tie(): void {
+export function test_motion_dress_straighten_tie(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("f-average");
   const film: HumanPerformance = new HumanPerformance({
     seed: "tie",
@@ -41,7 +41,7 @@ export function test_human_motion_straighten_tie(): void {
         proficiency: { level: "trained" },
       },
     ],
-    composition: composeHumanStraightenTie(
+    composition: AutoMovieMotionHumanDress.composeHumanStraightenTie(
       HumanChain.subject("actor"),
       "left",
       "tie",

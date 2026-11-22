@@ -26,7 +26,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** Fingertip contact bound, metres, from the keyed digit target of #3446. */
 const CONTACT: number = 0.002;
@@ -45,7 +45,7 @@ const CONTACT: number = 0.002;
  * @evidence contracts/development/testing.md#distinguishing-cases An interior string differs from both bar origins, its reversed frame tests invariance to the bar axis sign, a rotated stage differs from model coordinates, and the phases distinguish pressing from crossing and releasing.
  * @evidence contracts/development/testing.md#execution-ownership Builds an archetype and a canonical polygon body without the viewer or a capture host.
  */
-export function test_human_motion_guitar_note(): void {
+export function test_motion_instrument_guitar_note(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const guitar: ReturnType<typeof createInstrument> = createInstrument({
     kind: "guitar",

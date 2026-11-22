@@ -21,8 +21,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { archetypeExtent } from "../internal/archetypeExtent";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { archetypeExtent } from "../../internal/archetypeExtent";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A seated right foot depresses and releases the upright damper twice
@@ -35,7 +35,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Samples approach, both presses, the released interval between them and recovery, while another key stays at rest.
  * @evidence contracts/development/testing.md#execution-ownership Discovered as a direct motion feature test without a viewer.
  */
-export function test_human_motion_piano_pedal(): void {
+export function test_motion_instrument_piano_pedal(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const piano: ReturnType<typeof createInstrument> = createInstrument(
     { kind: "uprightPiano" },

@@ -17,20 +17,22 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDress,
+  AutoMovieMotionHumanPrehension,
   AutoMovieMotionHumanStance,
-  HumanCarrierCustody,
   HumanChain,
   HumanHand,
   HumanPerformance,
   HumanPropFrame,
   HumanRefusal,
   poseBones,
-  putDownAperture,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+
+const { putDownAperture } = AutoMovieMotionHumanPrehension;
 
 /** Assert one boolean finding. */
 const predicate: typeof TestValidator.predicate = TestValidator.predicate;
@@ -45,7 +47,7 @@ interface ICustodyLaws {
   putDownAperture: typeof putDownAperture;
 
   /** Take the ornament from its case, keeping grip through an early cut. */
-  takeFromCarrier: typeof HumanCarrierCustody;
+  takeFromCarrier: typeof AutoMovieMotionHumanDress.HumanCarrierCustody;
 }
 /** The chain with the two custody laws installed. */
 type CustodyChain = IAutoMovieMotionHumanChain.Extended<ICustodyLaws>;
@@ -89,7 +91,7 @@ const SPHERES: readonly Sphere[] = [
 const Chain: IAutoMovieMotionHumanChain.IExtension<ICustodyLaws> =
   HumanChain.extend({
     putDownAperture,
-    takeFromCarrier: HumanCarrierCustody,
+    takeFromCarrier: AutoMovieMotionHumanDress.HumanCarrierCustody,
   });
 
 /**
@@ -107,7 +109,7 @@ const Chain: IAutoMovieMotionHumanChain.IExtension<ICustodyLaws> =
  * @evidence contracts/development/testing.md#distinguishing-cases Compares a resting case and a case the performer moves, measures at and on either side of closure, and removes one reference or fit at a time.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous native specification builds local bodies, compositions and display-frame readers. Website and installed replay own host checks.
  */
-export function test_human_motion_screen_carrier_custody(): void {
+export function test_motion_dress_screen_carrier_custody(): void {
   const failures: string[] = [];
   /** Collect each independent scenario's failure before reporting the round. */
   const run: (label: string, check: () => void) => void = (

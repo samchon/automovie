@@ -13,9 +13,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
 
 /**
  * A person inclines their head while walking and returns to the carrier's
@@ -32,7 +32,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Both signed directions include the largest admitted magnitude, on two different Human bodies. Adjacent invalid angle and duration values are refused.
  * @evidence contracts/development/testing.md#execution-ownership A native motion feature test using prepared Human bodies and public performance. It uses no viewer or external host.
  */
-export function test_human_motion_head_tilt(): void {
+export function test_motion_hand_to_body_head_tilt(): void {
   const Chain = HumanChain.extend(HUMAN_EVERYDAY_LAWS);
   for (const name of ["m-average", "f-small"] as const) {
     const walk = Chain.subject("a")

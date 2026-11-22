@@ -17,8 +17,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { archetypeExtent } from "../internal/archetypeExtent";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { archetypeExtent } from "../../internal/archetypeExtent";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A seated pianist depresses a white and black key with different hands
@@ -30,7 +30,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Separate hands overlap, return independently and switch fingers continuously between notes.
  * @evidence contracts/development/testing.md#execution-ownership Discovered as a motions feature test; no viewer or environment dependency.
  */
-export function test_human_motion_piano_score(): void {
+export function test_motion_instrument_piano_score(): void {
   const piano: ReturnType<typeof createInstrument> = createInstrument(
     { kind: "uprightPiano" },
     5,

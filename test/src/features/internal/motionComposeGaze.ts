@@ -13,10 +13,9 @@ import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanGaze,
   AutoMovieMotionHumanStance,
-  HumanGaze,
   poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -159,7 +158,7 @@ export function motionComposeGaze(
       recruit: IAutoMovieMotionHumanGaze.HeadRecruit,
       weight: number,
     ): IAutoMovieMotionHumanPosture =>
-      AutoMovieMotionHumanGaze.look({
+      AutoMovieMotionHumanGaze.lookPrimitive({
         body,
         recruit,
         from: 0.5,
@@ -189,7 +188,8 @@ export function motionComposeGaze(
       const cell: string = `${name}: a look at (${yaw}, ${pitch})`;
       const target: IAutoMovieVector3 = place(yaw, pitch);
       const near: boolean =
-        Math.abs(yaw) <= HumanGaze.EYES && Math.abs(pitch) <= HumanGaze.EYES;
+        Math.abs(yaw) <= AutoMovieMotionHumanGaze.HumanGaze.EYES &&
+        Math.abs(pitch) <= AutoMovieMotionHumanGaze.HumanGaze.EYES;
       const joined: IAutoMovieMotionHumanPosture = look(target, "head", 1);
       const pose: Bones = bones(joined);
       const head: number = turned(pose, "head");
@@ -203,7 +203,8 @@ export function motionComposeGaze(
           ? head <= 1e-3
           : head > 1 &&
               head <= Math.hypot(Math.abs(yaw), Math.abs(pitch)) &&
-              eccentricity(pose) <= Math.SQRT2 * HumanGaze.EYES + 1.5,
+              eccentricity(pose) <=
+                Math.SQRT2 * AutoMovieMotionHumanGaze.HumanGaze.EYES + 1.5,
       );
       all.check(
         `${cell} with the head turns no trunk and moves no limb`,
@@ -229,7 +230,7 @@ export function motionComposeGaze(
     all.check(
       `${name}: a look behind the shoulder stays short by ${miss(shortPose, behind).toFixed(1)} degrees with the head turned ${swung(shortPose).toFixed(1)} to the side`,
       miss(shortPose, behind) > 20 &&
-        swung(shortPose) <= HumanGaze.HEAD.yaw + 0.5 &&
+        swung(shortPose) <= AutoMovieMotionHumanGaze.HumanGaze.HEAD.yaw + 0.5 &&
         swung(shortPose) > 30 &&
         untouched(short, shortPose),
     );
@@ -250,20 +251,21 @@ export function motionComposeGaze(
 
     // 5. The span, the target's arguments and the glance.
     const asked: [IAutoMovieMotionHumanPosture, number][] = [];
-    const seen: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanGaze.look({
-      body,
-      recruit: "head",
-      from: 0.5,
-      to: 2,
-      target: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieVector3 => {
-        asked.push([posture, seconds]);
-        return far;
-      },
-      weight: (): number => 1,
-    });
+    const seen: IAutoMovieMotionHumanPrimitive =
+      AutoMovieMotionHumanGaze.lookPrimitive({
+        body,
+        recruit: "head",
+        from: 0.5,
+        to: 2,
+        target: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieVector3 => {
+          asked.push([posture, seconds]);
+          return far;
+        },
+        weight: (): number => 1,
+      });
     seen.write(standing, 1.5);
     all.check(
       `${name}: a look claims the head over its span and reads its target with the posture and the second`,

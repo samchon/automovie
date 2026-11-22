@@ -22,7 +22,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** Displayed fingertip tolerance, metres, for the keyed contact from #3446. */
 const CONTACT: number = 0.002;
@@ -40,7 +40,7 @@ const CONTACT: number = 0.002;
  * @evidence contracts/development/testing.md#distinguishing-cases Both directions must keep identical fretting contacts while changing the order of two distinct pitched crossings.
  * @evidence contracts/development/testing.md#execution-ownership Uses a canonical motion body and archetype without viewer or capture dependencies.
  */
-export function test_human_motion_guitar_chord(): void {
+export function test_motion_instrument_guitar_chord(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const guitar: ReturnType<typeof createInstrument> = createInstrument({
     kind: "guitar",

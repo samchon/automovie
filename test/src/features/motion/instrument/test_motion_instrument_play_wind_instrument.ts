@@ -14,7 +14,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Watch the modeled mouthpiece meet the lips and the bell point outward at
@@ -27,7 +27,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Builds the scene and short performances in memory.
  * @evidence contracts/development/common.md#meaningful-documentation Describes the measurements and their independent frames.
  */
-export function test_human_motion_play_wind_instrument(): void {
+export function test_motion_instrument_play_wind_instrument(): void {
   const body = motionHumanBody("m-average");
   const bugle = createInstrument({ kind: "bugle" });
   const params = {

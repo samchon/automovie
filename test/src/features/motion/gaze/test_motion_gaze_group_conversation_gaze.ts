@@ -11,14 +11,14 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanConversation,
+  AutoMovieMotionHumanGaze,
   AutoMovieMotionHumanStance,
-  HumanGaze,
-  HumanSkill,
 } from "@automovie/motions";
+import { HumanSkill } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /**
  * An authored exchange redirects the speaker and the listeners over time.
@@ -40,7 +40,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers redirection within a turn, a change of speaker, a silent participant, a pause, repeatability, the dyadic path and malformed authored turns.
  * @evidence contracts/development/testing.md#execution-ownership Synchronous in-memory feature test using the common standing body fixture.
  */
-export function test_motion_group_conversation_gaze(): void {
+export function test_motion_gaze_group_conversation_gaze(): void {
   const participants: readonly string[] = ["a", "b", "c"];
   const turns: readonly IAutoMovieMotionHumanConversation.IGroupTurn[] = [
     { speaker: "a", addressee: "b", from: 1, to: 2 },
@@ -131,7 +131,8 @@ export function test_motion_group_conversation_gaze(): void {
       0.75,
     ),
   );
-  const layer: IAutoMovieMotionHumanLayer = HumanGaze.layer(sustained);
+  const layer: IAutoMovieMotionHumanLayer =
+    AutoMovieMotionHumanGaze.HumanGaze.layer(sustained);
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const standing: IAutoMovieMotionHumanPosture =
     AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0);

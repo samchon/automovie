@@ -8,14 +8,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanHandToBody,
   HumanChain,
   HumanHand,
   HumanPerformance,
-  tuckHair,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * A hair tuck follows the same-side ear on a bare polygon man.
@@ -32,7 +32,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Opposite hands on two contrasting body sizes distinguish a mirrored tuck from a same-side-only or stationary pose.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two standard bare bodies and samples the public performance without a viewer.
  */
-export function test_human_motion_tuck_hair(): void {
+export function test_motion_hand_to_body_tuck_hair(): void {
   for (const [name, side] of [
     ["f-small", "right"],
     ["m-large", "left"],
@@ -40,7 +40,7 @@ export function test_human_motion_tuck_hair(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "hair-tuck",
-      laws: [tuckHair],
+      laws: [AutoMovieMotionHumanHandToBody.tuckHair],
       performers: [
         {
           subject: "a",
