@@ -1,7 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -9,6 +8,7 @@ import type {
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBoard,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSeated,
@@ -18,12 +18,12 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
-import { HumanColliders } from "../posture/HumanColliders";
 import { seated } from "../everyday/seated";
 import { sitPlace } from "../everyday/sitPlace";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
+import { HumanColliders } from "../posture/HumanColliders";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
@@ -47,11 +47,12 @@ const SETTLE: number = 0.3;
 const GRASP: number = 0.15;
 
 /** A partner's bones a hand resting on the partner keeps clear of: the trunk and the thighs. */
-const PARTNER: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-  ...HumanArmObstacleBones.TRUNK,
-  "leftUpperLeg",
-  "rightUpperLeg",
-]);
+const PARTNER: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>([
+    ...HumanArmObstacleBones.TRUNK,
+    "leftUpperLeg",
+    "rightUpperLeg",
+  ]);
 
 /** The share of the flight a held hand keeps its hold for: to the landing, so the support passes from the hold to the seat with no gap. */
 const LET_GO: number = 1;
@@ -223,6 +224,39 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       );
     return undefined;
   };
+  // The body without its holding hand: the boarding root and shape in the
+  // world at a local second.
+  const boarding = (time: number): IAutoMovieMotionHumanPosture => {
+    const t: number = Math.max(0, Math.min(duration, time));
+    const s: number = minimumJerk.share(Math.min(1, t / flight));
+    const shown: IAutoMovieMotionHumanPosture = mixHumanPosture(from, key, s);
+    shown.root = Vector3.add(Vector3.lerp(from.root, key.root, s), {
+      x: 0,
+      y: 4 * height * s * (1 - s),
+      z: 0,
+    });
+    return HumanMountedFrame.move(
+      shown,
+      HumanMountedFrame.LOCAL,
+      carrier(context.start + t),
+    );
+  };
+  // The hand lets go at the last sampled instant up to `LET_GO` of the
+  // flight at which its hold is still within the arm's reach of the
+  // shoulder (`HumanUnseatPose.reachable` read from that instant back to
+  // the take-off): a hold the vaulting body has carried beyond the arm is
+  // let go, never chased past the arm's length.
+  const release: number =
+    hand === undefined
+      ? LET_GO * flight
+      : (HumanUnseatPose.reachable(
+          context.body,
+          hand.side,
+          LET_GO * flight,
+          0,
+          boarding,
+          (t: number) => held(context.start + t)!,
+        ) ?? 0);
   const holdWindow: IAutoMovieMotionHumanContactWindow[] =
     hand === undefined
       ? []
@@ -231,7 +265,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             part: `${hand.side}Hand`,
             kind: "grip",
             from: 0,
-            to: (LET_GO * flight) / duration,
+            to: release / duration,
             support:
               hand.contact !== undefined
                 ? { kind: "prop", subject: params.on }
@@ -264,21 +298,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     },
     posture: (time: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.max(0, Math.min(duration, time));
-      const film: number = context.start + t;
-      const s: number = minimumJerk.share(Math.min(1, t / flight));
-      const shown: IAutoMovieMotionHumanPosture = mixHumanPosture(from, key, s);
-      shown.root = Vector3.add(Vector3.lerp(from.root, key.root, s), {
-        x: 0,
-        y: 4 * height * s * (1 - s),
-        z: 0,
-      });
-      const world: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
-        shown,
-        HumanMountedFrame.LOCAL,
-        carrier(film),
-      );
+      const world: IAutoMovieMotionHumanPosture = boarding(t);
       const point: IAutoMovieVector3 | undefined = held(
-        context.start + Math.min(t, LET_GO * flight),
+        context.start + Math.min(t, release),
       );
       if (point === undefined || hand === undefined) return world;
       const reached: IAutoMovieMotionHumanPosture = HumanUnseatPose.reach(
@@ -296,9 +318,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         ...reached.limbs,
         [`${hand.side}Arm`]: {
           ...reached.limbs[`${hand.side}Arm`]!,
-          rests: HumanColliders.preparePlaced(partner.body, PARTNER)(
-            partner.bones(context.start + Math.min(t, LET_GO * flight), PARTNER),
-          ),
+          rests: HumanColliders.preparePlaced(
+            partner.body,
+            PARTNER,
+          )(partner.bones(context.start + Math.min(t, release), PARTNER)),
         },
       };
       return reached;
@@ -326,8 +349,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     });
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: 0,
-    ready: Math.max(Math.min(GRASP, LET_GO * flight), grasped),
-    relax: LET_GO * flight,
+    ready: Math.max(Math.min(GRASP, release), grasped),
+    relax: Math.max(release, grasped),
     end: duration,
   };
   return HumanMountedFrame.coursed(

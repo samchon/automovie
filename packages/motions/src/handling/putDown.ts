@@ -4,6 +4,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanEffectorPointLimit,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
@@ -302,6 +303,34 @@ export namespace putDown {
       tool === undefined
         ? undefined
         : StrikingHeld.goal(context, tool, frame, 0, bend);
+    // An authored resting attitude (a card laid face up) is the placement's
+    // outcome, so the hand holds it as hard task limits over the placement
+    // and the opening: the prop's origin and a point a hand's length along
+    // its up axis, each in the hand's frame, kept within the held-tool bound
+    // (`StrikingRoll.MISS`) of where the asked attitude puts them. A planned
+    // hold treats a bare attitude as an objective it may trade away; a task
+    // limit it may not.
+    const authoredLimits: IAutoMovieHumanEffectorPointLimit[] | undefined =
+      attitude === undefined || constraint !== undefined
+        ? undefined
+        : [
+            offset.position,
+            Vector3.add(
+              offset.position,
+              Quaternion.rotateVector(offset.rotation, {
+                x: 0,
+                y: body.measure.hand,
+                z: 0,
+              }),
+            ),
+          ].map(
+            (
+              contact: IAutoMovieVector3,
+            ): IAutoMovieHumanEffectorPointLimit => ({
+              contact,
+              bound: StrikingRoll.MISS,
+            }),
+          );
     const mouth: IAutoMovieVector3 | undefined =
       aperture === undefined ? undefined : Vector3.add(place, aperture);
     if (aperture !== undefined) {
@@ -519,7 +548,9 @@ export namespace putDown {
               reference,
               ...(constraint === undefined ||
               (displacement === undefined && t > down)
-                ? {}
+                ? authoredLimits === undefined || t < down || t > down + OPEN
+                  ? {}
+                  : { limits: authoredLimits }
                 : {
                     contact: constraint.contact,
                     limits: constraint.limits,
