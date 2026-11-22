@@ -21,16 +21,18 @@ import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
  * (`HumanSegmentOverlay.overlaid`), every subset of them since a fading
  * overlay keeps both the leaf with it and the one without. The seeds are the
  * plan's leg chain at the frame at or before the second
- * (`readHumanSegmentLegs.chain`), for every leg the read gives a goal: a leg
- * is only continued from them, never placed at them, and its fit takes the
- * closed-form root nearest the seed (on another branch where the seed's has
- * no legal one), so a planted foot is met exactly.
+ * (`readHumanSegmentLegs.chain`), for a free leg alone (a goal neither
+ * planted nor in contact): a leg is only continued from them, never placed
+ * at them, and its fit takes the closed-form root nearest the seed (on
+ * another branch where the seed's has no legal one). A planted leg keeps
+ * its own fit: where its goal asks no turn of the foot, the chain's swivel
+ * would turn the foot about the ankle and move its sole.
  *
  * @param person The person.
  * @param segment The action.
  * @param t Film seconds.
  * @param local The action's plan second of `t`.
- * @param limbs The read's limb goals: a leg without one is not fitted.
+ * @param limbs The read's limb goals, which tell a free leg from a planted one.
  * @returns The legs' seeds by fit name.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the names, the seeds' source and why a leg is only continued.
@@ -66,7 +68,15 @@ export function readHumanSegmentLegs(
     for (const [limb, seed] of chain) {
       const goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb] =
         limbs[limb];
-      if (goal !== undefined) out.set(`leaf:${tag}:${limb}`, seed);
+      // A planted or contact leg keeps its own fit, which sets the foot's
+      // turn as authored where the goal asks none of it; the chain's swivel
+      // would turn that foot about its ankle.
+      if (
+        goal !== undefined &&
+        goal.planted !== true &&
+        goal.contact === undefined
+      )
+        out.set(`leaf:${tag}:${limb}`, seed);
     }
   }
   return out;
