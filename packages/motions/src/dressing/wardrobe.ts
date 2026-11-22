@@ -429,19 +429,21 @@ function sleeve(
         ),
       }),
   );
+  // One roll serves both ends: the hand keeps its turn about the sleeve's
+  // axis while it passes down the sleeve, as the zipper's hand keeps its own
+  // along the slider. Rolling between two separately chosen ends would turn
+  // the wrist inside the sleeve and pull the hand off the axis between them.
+  const rotation: IAutoMovieQuaternion = wardrobeHands.fittedGrip(
+    context,
+    side,
+    before,
+    after,
+    rotations,
+    "the hand cannot pass this sleeve within its posed reach",
+  );
   const endpoint: (position: IAutoMovieVector3) => IAutoMovieRigidTransform = (
     position: IAutoMovieVector3,
-  ): IAutoMovieRigidTransform => ({
-    position,
-    rotation: wardrobeHands.fittedGrip(
-      context,
-      side,
-      position,
-      position,
-      rotations,
-      "the hand cannot pass this sleeve within its posed reach",
-    ),
-  });
+  ): IAutoMovieRigidTransform => ({ position, rotation });
   const crossing: number = CLEAR / (2 * CLEAR + depth);
   let earlier: number = 0;
   let later: number = 1;
