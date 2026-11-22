@@ -88,7 +88,16 @@ export function test_motion_exercise_crossbow_take(): void {
         seed: "crossbow-take",
         laws: Object.values(HUMAN_LEXICON).flat(),
         props: [
-          HumanObject.prop("crossbow", crossbow, placed),
+          // Spanned: the crank held a third of its travel back, the string
+          // drawn off its rest, as the fixture stages a loaded crossbow.
+          HumanObject.prop("crossbow", crossbow, placed, undefined, undefined, [
+            {
+              articulation: "crank",
+              start: 0,
+              duration: 0.01,
+              travel: (): number => crossbow.affordance("crank").travel! / 3,
+            },
+          ]),
           loaded,
           carrier(),
         ],

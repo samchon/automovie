@@ -57,7 +57,8 @@ const STATIONS: Readonly<
   n2: { x: -0.9, y: 0, z: 1.2 },
   n3: { x: 0.7, y: 0, z: -0.9 },
   n4: { x: -0.7, y: 0, z: -0.9 },
-  n5: { x: -1.6, y: 0, z: -3.2 },
+  // No. 5 has brought the charge up beside No. 2, within the handover's reach.
+  n5: { x: -1.6, y: 0, z: 0.7 },
 };
 
 /** The drill's duties in their order, by anchor. */

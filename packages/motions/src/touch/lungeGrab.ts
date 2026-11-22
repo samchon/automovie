@@ -41,10 +41,13 @@ export namespace lungeGrab {
     touch.interrupts;
 
   /** The longest lunge, the hips' travel in hip heights: authored, with the leading foot stepping `STRIDE` times as far. */
-  export const LONGEST: number = 0.5;
+  export const LONGEST: number = 0.45;
 
   /** How far the leading foot steps for the hips' travel: the hips end between the planted rear foot and the landed front foot (authored). */
-  export const STRIDE: number = 1.8;
+  export const STRIDE: number = 1.5;
+
+  /** How long the weight takes to shift onto the rear foot before the leading foot lifts, seconds: authored, a gait initiation's anticipatory shift. */
+  export const SHIFT: number = 0.15;
 
   /** How high the leading foot lifts as it steps, metres: authored. */
   export const LIFT: number = 0.05;
@@ -148,7 +151,7 @@ export namespace lungeGrab {
 
     // The lunge: the leading foot steps the length, the rear foot stays.
     const duration: number = grabbed.duration;
-    const lunge: number = Math.min(step.period(context.body), duration);
+    const lunge: number = Math.min(step.period(context.body), duration - SHIFT);
     const from: IAutoMovieVector3 = entry.feet[side].ankle;
     const to: IAutoMovieVector3 = Vector3.add(
       from,
@@ -182,7 +185,10 @@ export namespace lungeGrab {
       grabbed;
     return {
       ...grabbing,
-      events: [...grabbed.events, { name: "lunged", share: lunge / duration }],
+      events: [
+        ...grabbed.events,
+        { name: "lunged", share: (SHIFT + lunge) / duration },
+      ],
       contacts: [
         ...grabbed.contacts.filter(
           (c: IAutoMovieMotionHumanContactWindow): boolean =>
@@ -198,7 +204,7 @@ export namespace lungeGrab {
         {
           part: `${side}Foot`,
           kind: "plant",
-          from: lunge / duration,
+          from: (SHIFT + lunge) / duration,
           to: 1,
           support: { kind: "ground" },
         },
@@ -216,7 +222,10 @@ export namespace lungeGrab {
           resolution,
           projection,
         );
-        const s: number = minimumJerk.share(Math.min(1, t / lunge));
+        // The weight shifts onto the rear foot before the leading foot lifts.
+        const s: number = minimumJerk.share(
+          Math.min(1, Math.max(0, (t - SHIFT) / lunge)),
+        );
         const lead: IAutoMovieVector3 = Vector3.add(Vector3.lerp(from, to, s), {
           x: 0,
           y: Math.sin(Math.PI * s) * LIFT,
