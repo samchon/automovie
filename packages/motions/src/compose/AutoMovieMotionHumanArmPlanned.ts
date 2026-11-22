@@ -406,9 +406,13 @@ export namespace AutoMovieMotionHumanArmPlanned {
           : undefined;
       if (separate !== undefined) solved = separate;
       else {
+        // A hold from the first instant (`ready` at `start`) has no reach:
+        // the arm is already on its site as it enters, so its hold starts
+        // from the rest it enters in, not from a cold fit of another branch
+        // that no path of no time could join.
         guesses = carries.map(
-          (_: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): IAutoMovieMotionHumanArmAngles.IAngles =>
-            fitted(a, span.ready),
+          (c: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): IAutoMovieMotionHumanArmAngles.IAngles =>
+            span.ready <= span.start ? c.rest : fitted(a, span.ready),
         );
         waypoints();
         const result: HumanArmTrajectory.ISolved = HumanArmTrajectory.solve(
