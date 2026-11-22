@@ -1,7 +1,12 @@
+import type { AutoMovieArchetypeQuadrupedEars } from "./AutoMovieArchetypeQuadrupedEars";
+import type { QuadrupedJaw } from "./QuadrupedJaw";
+import type { QuadrupedLip } from "./QuadrupedLip";
+import type { QuadrupedNostrils } from "./QuadrupedNostrils";
+
 /**
- * The proportions a quadruped body (`AutoMovieArchetypeQuadrupedBody.IBody`) states per limb and per segment: bone lengths as fractions of withers height, standing directions in degrees, and mass shares in percent of body mass.
+ * The proportions a quadruped body (`AutoMovieArchetypeQuadrupedBody.IBody`) states per limb and per segment: bone lengths as fractions of withers height, standing directions in degrees, mass shares in percent of body mass, and the neck, head and tail as fractions of withers height.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each record's unit and the limb order.
+ * @evidence contracts/development/common.md#meaningful-documentation States each record's unit, reference points and the limb order.
  * @evidence contracts/development/design.md#principled-representation Each limb's four values from the top bone down, in the forms the anatomical studies report.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeQuadrupedBody.IBody` and by each species' stated proportions, such as `createHorse.LENGTHS`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A species without a separate withers part states its share as 0 instead of omitting it.
@@ -92,5 +97,125 @@ export namespace QuadrupedProportions {
   export interface IBodyMass extends IMassShares {
     /** The withers' ball's share. */
     withers: number;
+  }
+
+  /**
+   * The neck, fractions of the height at the withers.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation Two fractions of the withers height.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeQuadrupedBody.IBody.neck`, the rig and the neck bar.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface INeck {
+    /** The neck's root below the back. */
+    root: number;
+
+    /** The neck bar's radius. */
+    radius: number;
+  }
+
+  /**
+   * The poll's place, fractions of the height at the withers.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's reference point and unit.
+   * @evidence contracts/development/design.md#principled-representation Two fractions of the withers height.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `IHead.poll`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IPoll {
+    /** Above the back. */
+    rise: number;
+
+    /** Ahead of the shoulder joints. */
+    ahead: number;
+  }
+
+  /**
+   * The nose's place, fractions of the height at the withers.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's reference point and unit.
+   * @evidence contracts/development/design.md#principled-representation Two fractions of the withers height.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `IHead.nose`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface INose {
+    /** Below the poll. */
+    drop: number;
+
+    /** Ahead of the poll. */
+    ahead: number;
+  }
+
+  /**
+   * The head, fractions of the height at the withers, with its optional authored parts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit, and which parts are optional.
+   * @evidence contracts/development/design.md#principled-representation Fractions of the withers height for the capsule and each optional part's own profile.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeQuadrupedBody.IBody.head` and `AutoMovieArchetypeQuadrupedHead`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An absent ear, jaw, lip or nostril profile lays no part instead of a default one.
+   */
+  export interface IHead {
+    /** The poll above the back and ahead of the shoulder joints. */
+    poll: Readonly<IPoll>;
+
+    /** The nose below and ahead of the poll. */
+    nose: Readonly<INose>;
+
+    /** The head bar's radius. */
+    radius: number;
+
+    /** The mouth's corners above and behind the nose. */
+    mouth: number;
+
+    /** Optional explicit reference pinnae and authored coarse plate construction. */
+    ears?: AutoMovieArchetypeQuadrupedEars.IProfile;
+
+    /** Optional authored coarse jaw inside the head capsule (`QuadrupedJaw`). */
+    jaw?: QuadrupedJaw.IProfile;
+
+    /** Optional authored coarse upper lip inside the head capsule (`QuadrupedLip`). */
+    lip?: QuadrupedLip.IProfile;
+
+    /** Optional authored coarse nostrils inside the head capsule (`QuadrupedNostrils`). */
+    nostrils?: QuadrupedNostrils.IProfile;
+  }
+
+  /**
+   * The tail: its bar's radius and its tip below and behind its root, fractions of the height at the withers, and its root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's reference and unit.
+   * @evidence contracts/development/design.md#principled-representation Three fractions of the withers height and one of the barrel's radius.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeQuadrupedBody.IBody.tail` and the tail bar.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ITail {
+    /** The tail bar's radius. */
+    radius: number;
+
+    /** The tip below the root. */
+    drop: number;
+
+    /** The tip behind the root. */
+    back: number;
+
+    /** The root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius. */
+    dock: number;
+  }
+
+  /**
+   * The body's display colours, as CSS colour strings.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each colour paints.
+   * @evidence contracts/development/design.md#principled-representation Two colour strings.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `AutoMovieArchetypeQuadrupedBody.IBody.colors` and the body's parts.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No material or friction is inferred from a colour.
+   */
+  export interface IColors {
+    /** The coat's colour. */
+    coat: string;
+
+    /** The tail's colour. */
+    tail: string;
   }
 }

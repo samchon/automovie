@@ -6,12 +6,8 @@ import {
   type AutoMovieArchetypeFriction,
   AutoMovieArchetypeUnits,
 } from "../core";
-import type { AutoMovieArchetypeQuadrupedEars } from "./AutoMovieArchetypeQuadrupedEars";
 import { AutoMovieArchetypeQuadrupedHead } from "./AutoMovieArchetypeQuadrupedHead";
 import { QuadrupedAttachments } from "./QuadrupedAttachments";
-import type { QuadrupedJaw } from "./QuadrupedJaw";
-import type { QuadrupedLip } from "./QuadrupedLip";
-import type { QuadrupedNostrils } from "./QuadrupedNostrils";
 import type { QuadrupedProportions } from "./QuadrupedProportions";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
@@ -135,33 +131,13 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     withers: number;
 
     /** The neck's root below the back and the neck bar's radius, fractions of the height at the withers. */
-    neck: Readonly<{ root: number; radius: number }>;
+    neck: Readonly<QuadrupedProportions.INeck>;
 
     /** The head, fractions of the height at the withers: the poll above the back and ahead of the shoulder joints, the nose below and ahead of the poll, the head bar's radius, and the mouth's corners above and behind the nose. */
-    head: Readonly<{
-      poll: Readonly<{ rise: number; ahead: number }>;
-      nose: Readonly<{ drop: number; ahead: number }>;
-      radius: number;
-      mouth: number;
-      /** Optional explicit reference pinnae and authored coarse plate construction. */
-      ears?: AutoMovieArchetypeQuadrupedEars.IProfile;
-      /** Optional authored coarse jaw inside the head capsule (`QuadrupedJaw`). */
-      jaw?: QuadrupedJaw.IProfile;
-
-      /** Optional authored coarse upper lip inside the head capsule (`QuadrupedLip`). */
-      lip?: QuadrupedLip.IProfile;
-
-      /** Optional authored coarse nostrils inside the head capsule (`QuadrupedNostrils`). */
-      nostrils?: QuadrupedNostrils.IProfile;
-    }>;
+    head: Readonly<QuadrupedProportions.IHead>;
 
     /** The tail: its bar's radius and its tip below and behind its root, fractions of the height at the withers, and its root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius. */
-    tail: Readonly<{
-      radius: number;
-      drop: number;
-      back: number;
-      dock: number;
-    }>;
+    tail: Readonly<QuadrupedProportions.ITail>;
 
     /** Each limb bone's radius, from the top down, as a fraction of the height at the withers. */
     bones: readonly [number, number, number, number];
@@ -170,7 +146,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     inset: number;
 
     /** The coat's colour, and the tail's. */
-    colors: Readonly<{ coat: string; tail: string }>;
+    colors: Readonly<QuadrupedProportions.IColors>;
 
     /** Known foot contact material; absent means unknown friction, never an assumed hoof or rubber paw. */
     foot?: AutoMovieArchetypeFriction.Material;

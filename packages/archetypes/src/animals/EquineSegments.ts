@@ -1,4 +1,4 @@
-import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { QuadrupedProportions } from "./QuadrupedProportions";
 import { createHorse } from "./createHorse";
 
 /**
@@ -169,9 +169,8 @@ export namespace EquineSegments {
    */
   export function lengths(
     breed: IBreed,
-  ): AutoMovieArchetypeQuadrupedBody.IBody["lengths"] {
-    const horse: AutoMovieArchetypeQuadrupedBody.IBody["lengths"] =
-      createHorse.LENGTHS;
+  ): Readonly<QuadrupedProportions.ILengths> {
+    const horse: Readonly<QuadrupedProportions.ILengths> = createHorse.LENGTHS;
     const reference: IBreed = BREEDS.thoroughbred;
     const ratio = (measure: keyof Omit<IBreed, "n" | "withers">): number =>
       breed[measure] / breed.withers / (reference[measure] / reference.withers);

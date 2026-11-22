@@ -8,6 +8,7 @@ import { AutoMovieArchetypeQuadrupedEars } from "./AutoMovieArchetypeQuadrupedEa
 import { QuadrupedJaw } from "./QuadrupedJaw";
 import { QuadrupedLip } from "./QuadrupedLip";
 import { QuadrupedNostrils } from "./QuadrupedNostrils";
+import type { QuadrupedProportions } from "./QuadrupedProportions";
 
 /**
  * Lay the head capsule, optional pinnae, an optional jaw and an optional upper lip under one source head budget.
@@ -41,7 +42,7 @@ export function AutoMovieArchetypeQuadrupedHead<
     "poll" | "nose" | "headRadius"
   >,
   withers: number,
-  profile: AutoMovieArchetypeQuadrupedBody.IBody["head"],
+  profile: Readonly<QuadrupedProportions.IHead>,
   color: string,
   share?: number,
 ): void {

@@ -9,7 +9,6 @@ import { AutoMovieArchetypeDogBody } from "./AutoMovieArchetypeDogBody";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import { AutoMovieArchetypeEquineGaitedProfile } from "./AutoMovieArchetypeEquineGaitedProfile";
 import { AutoMovieArchetypeOxBody } from "./AutoMovieArchetypeOxBody";
-import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { CamelGait } from "./CamelGait";
 import { CatBody } from "./CatBody";
@@ -19,6 +18,7 @@ import { DogGait } from "./DogGait";
 import { EquineHarness } from "./EquineHarness";
 import { EquineIcelandicProfile } from "./EquineIcelandicProfile";
 import { OxGait } from "./OxGait";
+import type { QuadrupedProportions } from "./QuadrupedProportions";
 import { createCamel } from "./createCamel";
 import { createCat } from "./createCat";
 import type { createCohortQuadruped } from "./createCohortQuadruped";
@@ -161,7 +161,7 @@ export namespace createQuadruped {
     archetype: string;
 
     /** Producer neutral standing directions, degrees: AutoMovieArchetypeQuadrupedBody.IBody.stance builds the declared form, while pose solvers recover constructed control directions. */
-    stance: AutoMovieArchetypeQuadrupedBody.IBody["stance"];
+    stance: Readonly<QuadrupedProportions.IStance>;
 
     /** The gaits. */
     table: AutoMovieArchetypeQuadrupedGait.ITable;

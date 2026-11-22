@@ -1,5 +1,6 @@
 import { AutoMovieArchetypeUnits } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { QuadrupedProportions } from "./QuadrupedProportions";
 
 /**
  * Map one declared coarse shape into the quadruped's shared rigid-bar format.
@@ -92,13 +93,13 @@ export function QuadrupedBodyProfile(
   const headPitch: number = c.headPitch * AutoMovieArchetypeUnits.DEGREE;
   const headControl: number = m.head - m.headDiameter;
   const tailPitch: number = c.tailPitch * AutoMovieArchetypeUnits.DEGREE;
-  const fore: AutoMovieArchetypeQuadrupedBody.IBody["lengths"]["fore"] = [
+  const fore: QuadrupedProportions.LimbValues = [
     props.fore[0] / h,
     props.fore[1] / h,
     props.fore[2] / h,
     props.fore[3] / h,
   ];
-  const hind: AutoMovieArchetypeQuadrupedBody.IBody["lengths"]["hind"] = [
+  const hind: QuadrupedProportions.LimbValues = [
     props.hind[0] / h,
     props.hind[1] / h,
     props.hind[2] / h,
@@ -239,7 +240,7 @@ export namespace QuadrupedBodyProfile {
     construction: IConstruction;
 
     /** Authored display colors; no photometric measurement is implied. */
-    colors: AutoMovieArchetypeQuadrupedBody.IBody["colors"];
+    colors: Readonly<QuadrupedProportions.IColors>;
 
     /** Admitted instance height in metres, defaulting to the reference height. */
     withersHeight?: number;
