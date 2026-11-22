@@ -112,7 +112,7 @@ export namespace HumanSocial {
    * performs `fistBump` with its glass as the prop. `glasses` names each
    * role's held glass; without it the toast is mimed and the fists meet.
    * `window`, film seconds, holds the clink over it as `bump`'s does.
- *
+   *
    * Each glass reaches the shared point in the reach-to-grasp time of its travel, about 0.5 s for 0.4 m (`IAutoMovieMotionHumanPickUp`), and the glasses stay together 0.1 s (`highFive.REBOUND`, provisional); a celebration, a dinner.
    */
   export const toast: IAutoMovieMotionHumanMutual<
@@ -166,10 +166,10 @@ export namespace HumanSocial {
     manner: AutoMovieMotionManner.PRESETS.press,
   });
 
-  /** A light, quick flick of the fingertips on the partner, as brushing lint off a shoulder (Laban's flick: light, sudden, indirect); the composition gives the region. A stroke at the caress's 5 cm/s peak, about 5 s for a 0.2 m hand (`AutoMovieMotionHumanTouchForm.FORMS`): far slower than a flick (wrong value, #4020); brushing lint off, dismissing. */
+  /** A light, quick flick of the fingertips on the partner, as brushing lint off a shoulder (Laban's flick: light, sudden, indirect); the composition gives the region. One stroke lasting a flick's 0.151 s, a proxy from a flick gesture's duration (`touch.FLICK`, Moyle and Cockburn 2003), sped further by the flick manner; brushing lint off, dismissing. */
   export const flickOff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["flickOff"]
-  > = HumanActionRow.of("flickOff", touch, {
+  > = HumanActionRow.of("flickOff", touch.stroked(touch.FLICK), {
     with: "fingertips",
     kind: "stroke",
     manner: AutoMovieMotionManner.PRESETS.flick,

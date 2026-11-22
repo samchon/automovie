@@ -130,13 +130,66 @@ export namespace touch {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    return touchCrossedSupport.plan(context, planned);
+    return touchCrossedSupport.plan(
+      context,
+      (
+        c: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
+        attempt?: touchCrossedSupport.IAttempt,
+      ): IAutoMovieMotionHumanActionPlan => planned(c, attempt),
+    );
   }
 
-  /** Build one reach using its actual girdle posture, material sites and transport clock. */
+  /**
+   * A light, sudden flick of the hand's surface, seconds a stroke: no study
+   * of a hair flick or a brushing flick was found, so the duration of a
+   * natural flick gesture stands in as a proxy, 0.151 s (151 +- 53 ms,
+   * Moyle and Cockburn 2003, "A Flick in the Right Direction", AUIC 2003,
+   * CRPIT 18; 29 participants, 5200 flicks measured at a pointing device).
+   */
+  export const FLICK: number = 0.151;
+
+  /**
+   * The touch law with each repetition lasting a given time, for a row whose
+   * stroke is measured on its own (a flick) rather than read off its form's
+   * speed (`AutoMovieMotionHumanTouchForm.FORMS`). Internal to the rows; it
+   * adds no parameter to the touch's schema.
+   *
+   * @param seconds Each repetition's length, seconds, before the manner's time scale.
+   * @returns The law, the touch's name, cancel table and refusals with the repetition fixed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is fixed, its unit and that no parameter is added.
+   * @evidence contracts/development/implementation.md#principled-implementation The touch's own plan with the repetition's period given instead of read off its form; the reach, the hold and the manner apply unchanged.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One law record over the shared plan.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the repetition's period changes; every refusal and fit is the touch's.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over the touch's plan.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds a law record once per row.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the period only.
+   */
+  export function stroked(
+    seconds: number,
+  ): IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTouch.IParams> {
+    return {
+      name,
+      interrupts,
+      overlay,
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
+      ): IAutoMovieMotionHumanActionPlan =>
+        touchCrossedSupport.plan(
+          context,
+          (
+            c: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
+            attempt?: touchCrossedSupport.IAttempt,
+          ): IAutoMovieMotionHumanActionPlan => planned(c, attempt, seconds),
+        ),
+    };
+  }
+
+  /** Build one reach using its actual girdle posture, material sites and transport clock; a given repetition's period replaces the form's. */
   function planned(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
     attempt?: touchCrossedSupport.IAttempt,
+    repeated?: number,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanTouch.IParams = context.params;
     // A person naming the performer is the performer's own body, touched as
@@ -149,7 +202,7 @@ export namespace touch {
       own(p.target) !== p.target ||
       (p.other !== undefined && own(p.other) !== p.other)
     )
-      return touch.plan({
+      return (repeated === undefined ? touch : stroked(repeated)).plan({
         ...context,
         params: {
           ...p,
@@ -352,13 +405,15 @@ export namespace touch {
         laid,
       ),
     );
-    const repetition: number = AutoMovieMotionHumanTouchForm.period(
-      body,
-      kind,
-      AutoMovieMotionHumanTiming.seconds(
-        AutoMovieMotionHumanTouchForm.FORMS[kind].period,
-      ),
-    );
+    const repetition: number =
+      repeated ??
+      AutoMovieMotionHumanTouchForm.period(
+        body,
+        kind,
+        AutoMovieMotionHumanTiming.seconds(
+          AutoMovieMotionHumanTouchForm.FORMS[kind].period,
+        ),
+      );
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,

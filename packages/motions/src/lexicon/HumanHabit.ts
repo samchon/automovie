@@ -227,10 +227,10 @@ export namespace HumanHabit {
     },
   });
 
-  /** Flicking the hair back: the back of the hand stroked up the temple. One stroke of the touch form at the caress's 5 cm/s peak, about 5 s for a 0.2 m hand (`AutoMovieMotionHumanTouchForm.FORMS`): far slower than a flick (wrong value, #4020). */
+  /** Flicking the hair back: the back of the hand stroked up the temple. One stroke lasting a flick's 0.151 s, a proxy from a flick gesture's duration (`touch.FLICK`, Moyle and Cockburn 2003). */
   export const flickHair: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["flickHair"]
-  > = HumanActionRow.of("flickHair", touch, {
+  > = HumanActionRow.of("flickHair", touch.stroked(touch.FLICK), {
     target: { kind: "self", region: "templeRight" },
     with: "handBack",
     kind: "stroke",
