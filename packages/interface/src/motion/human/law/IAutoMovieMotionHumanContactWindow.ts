@@ -2,6 +2,7 @@ import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternio
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
+import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHumanFoot";
 
 /**
  * A span of an action during which a body part bears on something: a foot
@@ -100,6 +101,18 @@ export interface IAutoMovieMotionHumanContactWindow {
   region?: AutoMovieHumanoidRegion;
 
   /**
+   * The point of a planted foot that holds its place, when the law holds one
+   * through the window: the ball a heel rises about, the heel a forefoot
+   * lowers about, or the leg goal's own `contact`. The slip and lift audits
+   * then read that point instead of the sole's lowest socket, so a foot
+   * turning about its held ball is not read as slipping where its toe tip
+   * rolls under it, and a ball that slides still is. Absent, the contact is
+   * the lowest socket at each instant, as a foot rolls through the rockers
+   * of stance.
+   */
+  socket?: IAutoMovieMotionHumanContactWindow.Socket;
+
+  /**
    * The share of the body's weight this contact bears, in [0, 1] (#3425).
    * Absent, a plant, a pivot, a seat, a lie and a bear share the weight
    * equally among the bearing windows open at the instant, and a grip and a
@@ -116,6 +129,18 @@ export interface IAutoMovieMotionHumanContactWindow {
  *
  */
 export namespace IAutoMovieMotionHumanContactWindow {
+  /**
+   * The held point of a planted foot: a named sole socket, or a point in the
+   * foot's rest frame relative to its ankle joint, metres, as a leg goal's
+   * `contact` names it (`IAutoMovieHumanLimbGoal.contact`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both forms, the frame and the unit.
+   * @evidence contracts/development/design.md#principled-representation A sole socket by name, or the same rest-frame offset a leg goal turns its foot about.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the slip and lift audits (audit/AutoMovieMotionHumanAuditGround.ts, plants).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanFoot.Socket and IAutoMovieVector3 identities.
+   */
+  export type Socket = IAutoMovieMotionHumanFoot.Socket | IAutoMovieVector3;
+
   /**
    * The frame a contact bears on: the ground, a prop subject, a person's
    * region, or a person's segment, the bone an arm's segment lies along (a

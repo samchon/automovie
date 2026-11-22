@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -24,7 +25,11 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * heel, flat, then on its ball and its toe pad, so its contact at an instant
  * is its lowest sole socket, the heel winning a tie within a micrometre and
  * then the ball, which keeps a flat foot from flickering between sockets. A
- * socket that is not the lowest is lifted and free to travel. A plant window
+ * socket that is not the lowest is lifted and free to travel. A window that
+ * declares the point its law holds (`IAutoMovieMotionHumanContactWindow.socket`:
+ * the ball a heel rises about, or the leg goal's own contact) is read at that
+ * point throughout instead, so the toe tip rolling under a held ball is not
+ * a slip, and a held ball that slides is. A plant window
  * is read at its two ends and at the motion's own grid instants between
  * them, the poses the other checks read as well. Slip is the
  * contact's horizontal distance from where that socket first was the contact
@@ -35,7 +40,7 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * stationary surface, such as the world floor or a stair tread.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the floor, the contact rule with its source and what each reading measures.
- * @evidence contracts/development/implementation.md#principled-implementation Exact collider bounds from the engine's shape owner, and the sole sockets from `HumanFoot.sockets`, the one place that puts them on displayed bones.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact collider bounds from the engine's shape owner, and the sole sockets from `HumanFoot.sockets`, the one place that puts them on displayed bones; a declared rest-frame contact is placed by the displayed foot bone's own frame.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Three readings over one grid, the two foot readings sharing one window walk.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones, never a law's goals; no foot or window is exempt.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames times shapes; a plant window adds at most its two ends to the poses of the motion's grid.
@@ -148,9 +153,12 @@ const plants = (
     const elevation: number =
       surface.kind === "ground" ? (surface.height ?? 0) : 0;
     // Slip is read in the support's frame: each anchor is kept in it.
-    const anchors:
-      | Map<IAutoMovieMotionHumanFoot.Socket, IAutoMovieVector3>
-      | undefined = height ? undefined : new Map();
+    const anchors: Map<string, IAutoMovieVector3> | undefined = height
+      ? undefined
+      : new Map();
+    const declared: IAutoMovieMotionHumanContactWindow.Socket | undefined =
+      window.contact.socket;
+    const side: "left" | "right" = part === "leftFoot" ? "left" : "right";
     const frame = (seconds: number): IAutoMovieRigidTransform | null =>
       surface.kind === "ground" || motion.support === undefined
         ? null
@@ -162,14 +170,9 @@ const plants = (
       ),
       ...(window.to > window.from ? [window.to] : []),
     ]) {
-      const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
-        body,
-        motion.bones(subject, t),
-        part === "leftFoot" ? "left" : "right",
-      );
-      let contact: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
-      for (const socket of sole)
-        if (socket.point.y < contact.point.y - 1e-6) contact = socket;
+      const bones: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =
+        motion.bones(subject, t);
+      const contact: IHeld = holding(body, bones, side, declared);
       let value: number = Math.abs(contact.point.y - elevation);
       if (anchors !== undefined) {
         const carrier: IAutoMovieRigidTransform | null = frame(t);
@@ -180,8 +183,8 @@ const plants = (
                 Quaternion.inverse(carrier.rotation),
                 Vector3.subtract(contact.point, carrier.position),
               );
-        const anchor: IAutoMovieVector3 = anchors.get(contact.socket) ?? local;
-        anchors.set(contact.socket, anchor);
+        const anchor: IAutoMovieVector3 = anchors.get(contact.key) ?? local;
+        anchors.set(contact.key, anchor);
         const held: IAutoMovieVector3 =
           carrier === null
             ? anchor
@@ -196,4 +199,51 @@ const plants = (
     }
   }
   return worst;
+};
+
+/** A planted foot's contact point at an instant, keyed by which point it is. */
+interface IHeld {
+  /** The socket's name, or `contact` for a declared rest-frame point. */
+  key: string;
+
+  /** Where it is, world metres. */
+  point: IAutoMovieVector3;
+}
+
+/**
+ * A planted foot's contact at an instant: the point its window declares
+ * held, else its lowest sole socket, the heel winning a tie within a
+ * micrometre and then the ball.
+ */
+const holding = (
+  body: IAutoMovieMotionHumanBody,
+  bones: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>,
+  side: "left" | "right",
+  declared: IAutoMovieMotionHumanContactWindow.Socket | undefined,
+): IHeld => {
+  if (declared !== undefined && typeof declared !== "string") {
+    const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
+    return {
+      key: "contact",
+      point: Vector3.add(
+        foot.worldPosition,
+        Quaternion.rotateVector(foot.worldRotation, declared),
+      ),
+    };
+  }
+  const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+    body,
+    bones,
+    side,
+  );
+  let contact: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
+  if (declared !== undefined)
+    contact = sole.find(
+      (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+        socket.socket === declared,
+    )!;
+  else
+    for (const socket of sole)
+      if (socket.point.y < contact.point.y - 1e-6) contact = socket;
+  return { key: contact.socket, point: contact.point };
 };
