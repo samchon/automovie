@@ -156,12 +156,12 @@ export function test_motion_equestrian_unseat(): void {
     { fall: "back" },
   );
   assertTakeClean("a backward fall from a galloping horse", gallop.film);
-  const thrown: number = gallop.film
+  const galloped: number = gallop.film
     .bones("rider", instant(gallop, "land"))
     .get("leftHand")!.worldPosition.y;
-  if (thrown > 0.05)
+  if (galloped > 0.05)
     findings.push(
-      `gallop: the falling hand is ${thrown.toFixed(3)} m above the floor at the landing`,
+      `gallop: the falling hand is ${galloped.toFixed(3)} m above the floor at the landing`,
     );
 
   // 2. Sideways falls land on their side.
