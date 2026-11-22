@@ -47,6 +47,19 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * is where the stopped attack stands, so a parry does not beat the attacking
  * blade aside, and a bind is not planned.
  *
+ * What the row fixes: the parry meets the attacking blade at the middle of
+ * its foible, 1/6 of its length back from the point (`WEAK`), slides to the
+ * middle of the blade, 1/2, when the arm cannot hold it there (`SLIDE`), the
+ * two centre lines 5 mm apart (`HumanSword.GAP`), and the blade may lean about
+ * 30 degrees (29.7) from the square to the attacker's (`LEAN`, the friction angle of
+ * steel). The attack is stopped at 0.85 of its path
+ * (`HumanSword.STOPPED`, provisional). The parry's own travel is timed as the
+ * thrust's, at 2.6 to 3.2 m/s by skill, and it never arrives faster than its
+ * skill: a parry that starts late meets late. It waits in its hold until
+ * its meeting falls on the attack's decisive instant, so a parry synced to
+ * the attack's `stroke` is in time; the hold afterwards is the stopped
+ * attack's own stay.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what a parry answers, where and when the blades meet, the drill, the refusal and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner; the attack is read through its anchor, the outcome having been declared on the attack.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters and the closed union of the lines a drill closes.

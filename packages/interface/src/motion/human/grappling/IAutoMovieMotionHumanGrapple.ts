@@ -49,11 +49,11 @@ export namespace IAutoMovieMotionHumanGrapple {
     | "guardPass"
     /** MMA reset after a mat exchange, 4.2 s. */
     | "mmaReset"
-    /** Sumo push out, 4.5 s: a charge from the shikiri lines 0.7 m apart, a drive of 2.1 m in 0.35 m steps over the 4.55 m ring (`grappleSumo`). */
+    /** Sumo push out, 4.5 s: the crouch at the shikiri lines 0.7 m apart to 22 % of the scene, the tachiai charge to 32 %, a drive of 2.1 m in 0.35 m steps over the 4.55 m ring to 82 % (`grappleSumo.LINES`, `RING`, `DRIVE`, `STEP`, `SHIKIRI`, `TACHIAI`, `FINISH`; the lengths are provisional). The roots meet 0.3 stature apart, at arm's length. */
     | "oshiDashi"
-    /** Sumo belt-grip force-out, 5 s, driven the same way. */
+    /** Sumo belt-grip force-out, 5 s, timed and driven as `oshiDashi`; the roots meet 0.22 stature apart, chest to chest. */
     | "yoriKiri"
-    /** Sumo overarm belt throw, 4 s. */
+    /** Sumo overarm belt throw, 4 s, timed as `oshiDashi`; the roots meet 0.22 stature apart. */
     | "uwateNage";
 
   /**

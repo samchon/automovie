@@ -27,7 +27,10 @@ import type {
  * the prop, and the change from the planned point is carried in by one
  * minimum-jerk unit over the attack (Flash and Henis 1991: a second unit
  * superposed on the first, not a re-planned movement), so the displacement
- * is zero at the start, continuous throughout and whole at the contact. A
+ * is zero at the start, continuous throughout and whole at the contact. The
+ * row fixes no number: its only value is the attack's own duration, which is
+ * the sword timing model's (`IAutoMovieMotionHumanSword`), and the follower
+ * takes all of it, a minimum-jerk unit from the start to the contact. A
  * fixed point, or no target, is not followed.
  *
  * Two performers attacking each other read each other's bodies at the same

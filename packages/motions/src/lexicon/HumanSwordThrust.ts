@@ -33,6 +33,17 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * (`HumanSword.SPEED`). Parameters, the advance and the parried outcome are
  * `HumanSword`'s.
  *
+ * What the row fixes: the point lands at the decisive instant (`stroke`) on
+ * a line that may leave the shoulder-to-target line by at most 40 degrees
+ * (`HumanSword.CONE`); the chamber holds the upper arm 25 degrees out from
+ * the trunk (`CHAMBER`); a target nearer than 0.3 of the arm from the
+ * shoulder in a pose the arm cannot hold is refused (`NEAR`); a target
+ * beyond 0.9 of the arm less the blade takes an advance (`HumanSword.REACH`).
+ * The duration is the sword timing model's (`IAutoMovieMotionHumanSword`):
+ * 1.875 times the path over a point speed of 2.6 m/s at novice to 3.2 m/s
+ * at elite, so a 0.8 m thrust takes 0.47 s at elite. The row fixes no
+ * duration of its own; all its values are provisional but the speeds.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what a thrust fixes, what is chosen for it and where its timing comes from.
  * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner, sharing the cut's aim, clock and parameters.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law alone.
