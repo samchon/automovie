@@ -207,6 +207,9 @@ export namespace walkFoot {
     /** The mid-swing lift, hip heights. */
     lift: number;
 
+    /** The least clearance of the toe and heel at mid-swing, metres; `CLEARANCE` when absent. */
+    clearance?: number;
+
     /** Whether the leg is kept straight (`STIFF`, `LEVEL`); false when absent. */
     stiff?: boolean;
 
@@ -328,7 +331,7 @@ export namespace walkFoot {
         toe(toes)(placement),
         heel(placement),
       );
-      const clearance: number = CLEARANCE * bump;
+      const clearance: number = (props.clearance ?? CLEARANCE) * bump;
       if (low < clearance) ankle.y += clearance - low;
       if (departure !== undefined && u < settle + settle) {
         const sole: IAutoMovieVector3 = HumanFoot.point(body, side, departure.socket, placement, toes);

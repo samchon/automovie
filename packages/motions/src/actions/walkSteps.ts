@@ -36,9 +36,8 @@ import { walkStepsTempo } from "./walkStepsTempo";
  * full stride and closer while the pelvis gathers and sheds its speed, and no
  * landing is further ahead of the pelvis than in full stride. Each is turned
  * to the path's heading averaged over one step so a corner is taken over a
- * step, alternately half a step width to either side (step width 0.1 hip
- * heights, about 9 cm, inside the 7 to 12 cm of normal adult gait, Perry and
- * Burnfield; a run passes its swing share, mid-swing lift and vertical
+ * step, alternately half a step width to either side (the gait's `width`,
+ * else `WIDTH`; a run passes its swing share, mid-swing lift and vertical
  * oscillation), the foot behind stepping first and the last two ending at
  * the body's rest separation, facing `face` when given: the two footfalls
  * before the closing pair turn a third and two thirds of the way, a stepping
@@ -90,6 +89,9 @@ export namespace walkSteps {
 
   /** The stream a take's tempo is drawn from (walkStepsTempo). */
   export const tempo: typeof walkStepsTempo = walkStepsTempo;
+
+  /** The step width of a gait that names none, hip heights: 0.1, about 9 cm, inside the 7 to 12 cm of normal adult gait (Perry and Burnfield). */
+  export const WIDTH: number = 0.1;
 
   /**
    * Plan the footsteps of a walk.
@@ -230,7 +232,7 @@ export namespace walkSteps {
     const frame: IAutoMovieMotionHumanFrame = { origin: S, yaw: heading };
     const along: (side: "left" | "right") => number = (side: "left" | "right"): number =>
       HumanFrame.local(frame, start[side].ankle).z;
-    const half: number = 0.05 * l;
+    const half: number = ((input.gait?.width ?? WIDTH) / 2) * l;
     const restWidth: Record<"left" | "right", number> = {
       left: Math.abs(body.rest.get("leftFoot")!.x), right: Math.abs(body.rest.get("rightFoot")!.x),
     };
@@ -339,6 +341,7 @@ export namespace walkSteps {
       { seconds: 0, yaw: yaw0 },
     ];
     let faced: number = yaw0;
+    const lastOf: Partial<Record<"left" | "right", walkHeading.ISeparated>> = {};
     for (let j: number = 1; j <= n + 1; j++) {
       const side: "left" | "right" =
         j % 2 === 1 ? lead : lead === "left" ? "right" : "left";
@@ -357,10 +360,16 @@ export namespace walkSteps {
           ? rest(side)
           : half + (rest(side) - half) * aside);
       const toward: number = towardAt(j);
-      const point: IAutoMovieVector3 = HumanFrame.point(
+      // A walk facing off its way closes a foot up rather than cross it; the closing pair already stands apart at the arrival.
+      const laid: IAutoMovieVector3 = HumanFrame.point(
         { origin: path.at(distance), yaw: toward },
         { x: lateral, y: m.ankleHeight, z: 0 },
       );
+      const point: IAutoMovieVector3 =
+        facing === undefined || j >= n
+          ? laid
+          : walkHeading.separated(laid, lastOf[side === "left" ? "right" : "left"], toward, side, lateral);
+      lastOf[side] = { point, lateral };
       // A footprint the pelvis leaves behind leans its leg no further than
       // the ankle holds when the foot lifts, at the toe-off two footfalls on,
       // the hip then being furthest past it and the pelvis facing between

@@ -29,7 +29,7 @@ export interface IAutoMovieMotionHumanWalkGait {
    */
   step(froude: number): number;
 
-  /** Swing duration in step periods. */
+  /** Swing duration in step periods; each foot then stands `1 - swing / 2` of the stride, and both stand `1 - swing` of each step: 0.8 gives a walk's 60 % stance and 40 % swing. A frail gait's longer double support is a shorter swing. */
   swing: number;
 
   /** Vertical oscillation lowest at mid-stance, hip heights; a walk's own when absent. A gait with a flight rides its spring-mass stance's instead (`runStance`). */
@@ -42,6 +42,12 @@ export interface IAutoMovieMotionHumanWalkGait {
 
   /** Mid-swing ankle lift, hip heights. */
   lift: number;
+
+  /** The step width, the feet's side-to-side distance in stride, hip heights; `walkSteps.WIDTH` (0.1) when absent. A frail gait walks wider. */
+  width?: number;
+
+  /** The least clearance of a swinging foot's toe and heel at mid-swing, metres; `walkFoot.CLEARANCE` (15 mm) when absent. A shuffling gait clears less. */
+  toeClearance?: number;
 
   /** Shoulder swing amplitude, elbow flexion and its swing, degrees. */
   arms: {

@@ -79,6 +79,7 @@ export function walkSwing(
       to: at(side, swing.on, resolution),
       seconds: swing.on - swing.off,
       lift: gait.lift,
+      ...(gait.toeClearance === undefined ? {} : { clearance: gait.toeClearance }),
       stiff: gait.stiff === side,
       // A walking foot sets down at rest; a running one strikes moving,
       // except into a closing stance, which lands flat to bear a body coming

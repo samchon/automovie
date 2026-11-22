@@ -227,6 +227,66 @@ export namespace walkHeading {
   }
 
   /**
+   * A footprint kept on its own side of the other foot's last footprint: a
+   * walk that faces away from its way (aside, a sidestep) places each foot
+   * its rest separation to its side of the way, and a step longer than the
+   * two separations would land the trailing foot past the leading one, a
+   * crossover through the stance leg. The footprint then closes up to the
+   * other foot instead, the step-close of a sidestep.
+   *
+   * @param point The footprint's ankle, world metres.
+   * @param other The other foot's last footprint and its own offset across the facing, or undefined before it has one.
+   * @param toward The footprint's facing, degrees.
+   * @param side The footprint's foot.
+   * @param lateral The footprint's own offset across the facing, metres.
+   * @returns The footprint, moved across the facing only as far as keeps the two feet their offsets apart.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the crossing, the rule and each input.
+   * @evidence contracts/development/implementation.md#principled-implementation The separation across the facing is read along the facing's own +X, and a shortfall from the two feet's own offsets is made up by moving this footprint toward its side.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One projection and one shift.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A footprint already its offsets apart is returned as it is, so a walk facing its way is unchanged.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function separated(
+    point: IAutoMovieVector3,
+    other: ISeparated | undefined,
+    toward: number,
+    side: "left" | "right",
+    lateral: number,
+  ): IAutoMovieVector3 {
+    if (other === undefined) return point;
+    const a: number = (toward * Math.PI) / 180;
+    // The facing's +X, the body's left.
+    const lx: number = Math.cos(a);
+    const lz: number = -Math.sin(a);
+    const sign: number = side === "left" ? 1 : -1;
+    const gap: number = Math.abs(lateral) + Math.abs(other.lateral);
+    const apart: number =
+      sign * ((point.x - other.point.x) * lx + (point.z - other.point.z) * lz);
+    if (apart >= gap) return point;
+    const shift: number = sign * (gap - apart);
+    return { x: point.x + shift * lx, y: point.y, z: point.z + shift * lz };
+  }
+
+  /**
+   * A foot's last footprint for `separated`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member.
+   * @evidence contracts/development/design.md#principled-representation The ankle and its offset across its facing.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What `separated` reads of the other foot.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Written by the footstep planner as it places each footprint.
+   */
+  export interface ISeparated {
+    /** The ankle, world metres. */
+    point: IAutoMovieVector3;
+
+    /** Its offset across its facing, metres. */
+    lateral: number;
+  }
+
+  /**
    * A footprint's heading turned no further from the line to its hip than
    * the ankle can lean sideways when the foot lifts.
    *
