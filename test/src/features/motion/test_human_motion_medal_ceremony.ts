@@ -84,7 +84,8 @@ function ceremony(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody, me
     ],
     props: [
       HumanObject.prop("medal", medal, {
-        position: { x: -0.25, y: 1.1, z: 0.2 },
+        // On a stand at the presenter's right, beside rather than toward the receiver.
+        position: { x: -0.3, y: 1.0, z: -0.05 },
         rotation: { x: 0, y: 0, z: 0, w: 1 },
       }),
     ],
