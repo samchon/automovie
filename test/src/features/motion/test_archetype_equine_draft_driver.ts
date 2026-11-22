@@ -18,6 +18,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanRide,
   IAutoMovieMotionHumanSeated,
   IAutoMovieResolvedBone,
@@ -350,7 +351,7 @@ export function test_archetype_equine_draft_driver(): void {
   /** Seat a performer from the ground beside its seat and ride the support for the take. */
   function perform<Id extends string, D extends string>(
     subject: string,
-    model: Archetype<Id, D>,
+    model: Archetype<Id, D> & IAutoMovieMotionHumanObject.IModel,
     seat: IAutoMovieMotionHumanSeated.ISeat,
     placement: (seconds: number) => IAutoMovieRigidTransform,
     part: (id: string, seconds: number) => IAutoMovieTransform,

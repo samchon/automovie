@@ -9,7 +9,10 @@ import {
   type rideQuadruped,
 } from "@automovie/archetypes";
 import { Vector3, closestPointsBetweenSegments } from "@automovie/engine";
-import type { IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { equineExpressionObservation as Look } from "../internal/equineExpressionObservation";

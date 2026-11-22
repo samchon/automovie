@@ -241,7 +241,7 @@ export function test_motion_equestrian_cattle(): void {
   const head = (at: number): IAutoMovieVector3 =>
     fleePart("head", at).translation;
   const length: number =
-    Vector3.distance(tie.part("horn", caught), head(caught)) + 0.5;
+    Vector3.distance(tie.part("horn", caught).translation, head(caught)) + 0.5;
   // The rope: its ends on the horn and the catch at every sample, slack just after the catch, taut while the horse sets back.
   for (let k: number = 0; k <= 20; ++k) {
     const at: number = caught + ((tie.film.duration - caught) * k) / 20;
@@ -369,10 +369,7 @@ export function test_motion_equestrian_cattle(): void {
     wait: WAIT,
     course,
     laws: [HumanLasso],
-    props: [
-      HumanObject.prop("steer", ox, place(0), place, part),
-      onRack,
-    ],
+    props: [HumanObject.prop("steer", ox, place(0), place, part), onRack],
     from: FROM,
     before: pick,
     acts: (seated) =>
@@ -418,10 +415,7 @@ export function test_motion_equestrian_cattle(): void {
     wait: WAIT,
     course,
     laws: [HumanLasso],
-    props: [
-      HumanObject.prop("steer", ox, place(0), place, part),
-      onRack,
-    ],
+    props: [HumanObject.prop("steer", ox, place(0), place, part), onRack],
     from: FROM,
     before: pick,
     acts: (seated) =>

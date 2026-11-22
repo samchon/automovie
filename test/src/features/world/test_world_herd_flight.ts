@@ -136,33 +136,7 @@ export function test_world_herd_flight(): void {
   });
   TestValidator.predicate("the band passes the gate one at a time", pairs);
   TestValidator.equals("no two horses touch", steered.contacts.length, 0);
-  // 5. The stallion drives from behind: it follows the band's centroid path a fixed distance back and never meets a mare.
-  const centroid: ArchetypeCourse.IPlan = ArchetypeCourse.timed(
-    "band",
-    times
-      .filter(
-        (seconds: number): boolean =>
-          seconds >= ALARM + REACTION && seconds <= ALARM + 6,
-      )
-      .map(
-        (seconds: number): ArchetypeCourse.ISample => ({
-          seconds,
-          x:
-            grazing.reduce(
-              (sum: number, _: IAutoMovieVector3, k: number): number =>
-                sum + at(k, seconds).x,
-              0,
-            ) / grazing.length,
-          y: 0,
-          z:
-            grazing.reduce(
-              (sum: number, _: IAutoMovieVector3, k: number): number =>
-                sum + at(k, seconds).z,
-              0,
-            ) / grazing.length,
-        }),
-      ),
-  );
+  // 5. The stallion drives from behind: it follows the rearmost mare's path a fixed distance back and never meets a mare.
   const DRIVE: number = 4;
   const rear: number = grazing.length - 1;
   const stallion: ArchetypeCourse.IPlan = ArchetypeCourse.timed(

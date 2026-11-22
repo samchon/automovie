@@ -39,7 +39,7 @@ interface IProfile {
   beat: IAutoMovieMotionHumanStageProp["beat"];
 
   /** The prop-local mark the beat shows. */
-  mark: string;
+  mark: Parameters<Model["affordance"]>[0];
 
   /** Whether the prop's link swings on the film cue. */
   linked: boolean;

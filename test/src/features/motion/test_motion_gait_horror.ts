@@ -148,7 +148,7 @@ export function test_motion_gait_horror(): void {
 
   // Ten shamblers: no two strike the floor first at the same instant.
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const subjects: string[] = [...Array(10).keys()].map(
+  const subjects: string[] = [...new Array(10).keys()].map(
     (k: number): string => "z" + k,
   );
   const crowd: HumanPerformance = new HumanPerformance({

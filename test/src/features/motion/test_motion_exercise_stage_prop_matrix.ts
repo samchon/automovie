@@ -160,7 +160,7 @@ function guard(failures: string[], label: string, run: () => void): void {
   try {
     run();
   } catch (error: unknown) {
-    failures.push(`: `);
+    failures.push(`${label}: ${String(error)}`);
   }
 }
 

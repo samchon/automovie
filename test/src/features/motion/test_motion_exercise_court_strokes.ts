@@ -8,6 +8,7 @@ import {
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -177,7 +178,9 @@ export function test_motion_exercise_court_strokes(): void {
         body,
         "right",
         stroke.tool.affordance("grip").frame,
-        stroke.tool.affordance(stroke.point).frame.translation,
+        stroke.tool.affordances!.find(
+          (a: IAutoMovieAffordance): boolean => a.id === stroke.point,
+        )!.frame.translation,
       );
       const held = (
         bones: ReturnType<HumanPerformance["bones"]>,

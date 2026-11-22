@@ -148,7 +148,7 @@ export function test_human_motion_bathing(): void {
     const mat: Archetype<
       createExerciseMat.Affordance,
       createExerciseMat.Dimension
-    > = createExerciseMat();
+    > = createExerciseMat({ kind: "yoga" });
     const outside: IAutoMovieMotionHumanProp = HumanObject.prop("mat", mat, {
       at: { x: 0, y: 0, z: NEAR - MAT },
       yaw: 90,
