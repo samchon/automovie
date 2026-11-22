@@ -2,11 +2,11 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -15,6 +15,7 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -48,13 +49,13 @@ export namespace HumanTrunkLean {
    * @param body The body.
    * @param posture The posture; its legs keep their goals.
    * @param degrees The forward pitch about the hip axis, degrees.
-   * @param riding The arms whose goals ride the trunk: arms that hang or hold from the shoulder rather than reach a world target; none when absent, so a goal the hinge is leaning toward stays where it is.
+   * @param hanging The arms that hang free under gravity, as they hang before the hinge (`hang`); none when absent.
    * @returns The hinged posture.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the pivot, the unit, what stays and which arms ride the trunk.
-   * @evidence contracts/development/implementation.md#principled-implementation `AutoMovieMotionHumanLean.about` turns the whole body about a world point along its left axis; the point is the midpoint of the two hip joints, which lie on that axis, so both joints stay put and the world leg goals keep the knees and feet where they are. A riding arm hangs from its shoulder, which rides the trunk, so its goal (its point, its bend point and its hand's rotation) is turned by the same rotation about the same axis, and a hanging hand stays clear of the thighs; a world-target goal stays put.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis read, one turn of the body and one rigid turn of the riding arms' goals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Which arms ride is the caller's, who knows which goals are world targets; none ride by default.
+   * @evidence contracts/development/common.md#meaningful-documentation States the pivot, the unit, what stays and how a free arm hangs through the hinge.
+   * @evidence contracts/development/implementation.md#principled-implementation `AutoMovieMotionHumanLean.about` turns the whole body about a world point along its left axis; the point is the midpoint of the two hip joints, which lie on that axis, so both joints stay put and the world leg goals keep the knees and feet where they are. A free arm hangs plumb under gravity rather than turning with the trunk, so its shoulder is carried by the hinge's rotation while the arm keeps its world attitude: its wrist and elbow move by the shoulder's displacement and the hand keeps its rotation, so the hanging hand stays where the trunk does not fold it into the thighs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis read, one turn of the body and one translation per hanging arm.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Which arms hang free is the caller's, who knows which reach a target; none by default.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanLean.about`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -63,7 +64,7 @@ export namespace HumanTrunkLean {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     degrees: number,
-    riding: readonly AutoMovieHumanSide[] = [],
+    hanging: readonly HumanTrunkLean.IHanging[] = [],
   ): IAutoMovieMotionHumanPosture {
     const hip: IAxis = axis(body, posture);
     const hinged: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.about(
@@ -71,35 +72,75 @@ export namespace HumanTrunkLean {
       hip.point,
       { pitch: degrees, roll: 0 },
     );
+    if (hanging.length === 0) return hinged;
 
-    // A riding arm hangs from a shoulder the hinge carries: its goal turns
-    // with the trunk about the same axis by the same angle.
-    if (riding.length === 0) return hinged;
+    // A free arm hangs plumb from the shoulder the hinge carries: the arm
+    // moves by the shoulder's displacement and keeps its world attitude.
     const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
       hip.axis,
       degrees,
     );
-    const carried: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
-      p: IAutoMovieVector3,
-    ): IAutoMovieVector3 =>
-      Vector3.add(
-        hip.point,
-        Quaternion.rotateVector(turn, Vector3.subtract(p, hip.point)),
-      );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...hinged.limbs };
-    for (const side of riding) {
-      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Arm`];
-      if (goal === undefined) continue;
-      limbs[`${side}Arm`] = {
-        ...goal,
-        point: carried(goal.point),
-        bend: carried(goal.bend),
-        ...(goal.rotation === undefined
-          ? {}
-          : { rotation: Quaternion.multiply(turn, goal.rotation) }),
+    for (const arm of hanging) {
+      const shift: IAutoMovieVector3 = Vector3.subtract(
+        Vector3.add(
+          hip.point,
+          Quaternion.rotateVector(
+            turn,
+            Vector3.subtract(arm.shoulder, hip.point),
+          ),
+        ),
+        arm.shoulder,
+      );
+      limbs[`${arm.side}Arm`] = {
+        point: Vector3.add(arm.wrist, shift),
+        bend: Vector3.add(arm.elbow, shift),
+        rotation: arm.rotation,
       };
     }
     return { ...hinged, limbs };
+  }
+
+  /**
+   * How a free arm hangs before a hinge: its shoulder, elbow and wrist joints
+   * and its hand's attitude as the pose shows them, read once for the hinge
+   * to carry (`lean`).
+   *
+   * @param body The body.
+   * @param pose The pose the arm hangs in, the act's entry.
+   * @param side The arm.
+   * @returns The hanging arm, world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and where from.
+   * @evidence contracts/development/implementation.md#principled-implementation The joints the arm's goal names, read off the shown pose's bones.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One demanded bone read.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics read of the arm's three bones per plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `poseBones`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function hang(
+    body: IAutoMovieMotionHumanBody,
+    pose: IAutoMoviePose,
+    side: AutoMovieHumanSide,
+  ): HumanTrunkLean.IHanging {
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([
+        `${side}UpperArm`,
+        `${side}LowerArm`,
+        `${side}Hand`,
+      ]),
+    );
+    return {
+      side,
+      shoulder: bones.get(`${side}UpperArm`)!.worldPosition,
+      elbow: bones.get(`${side}LowerArm`)!.worldPosition,
+      wrist: bones.get(`${side}Hand`)!.worldPosition,
+      rotation: bones.get(`${side}Hand`)!.worldRotation,
+    };
   }
 
   /**
@@ -269,6 +310,31 @@ export namespace HumanTrunkLean {
       undefined,
       new Set<AutoMovieHumanoidBone>([bone]),
     ).get(bone)!.worldPosition;
+  }
+
+  /**
+   * A free arm as it hangs before a hinge (`hang`), world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the arm, its three joints and the hand's attitude.
+   * @evidence contracts/development/design.md#principled-representation World metres and a world attitude.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What `lean` carries.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
+   */
+  export interface IHanging {
+    /** The arm. */
+    side: AutoMovieHumanSide;
+
+    /** The shoulder joint. */
+    shoulder: IAutoMovieVector3;
+
+    /** The elbow joint. */
+    elbow: IAutoMovieVector3;
+
+    /** The wrist joint. */
+    wrist: IAutoMovieVector3;
+
+    /** The hand's attitude. */
+    rotation: IAutoMovieQuaternion;
   }
 
   /**

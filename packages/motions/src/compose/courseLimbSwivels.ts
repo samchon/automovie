@@ -58,6 +58,9 @@ export namespace courseLimbSwivels {
 
     /** Seconds inside the span the course keeps a knot at (the plan's events); none when absent. */
     instants?: readonly number[];
+
+    /** Each limb's swivel and branch as the span is entered (the arm a display showed at the cut into the plan), at which the first knot is placed; the first knot is cold when absent. */
+    entry?: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
   }
 
   /**
@@ -120,8 +123,9 @@ export namespace courseLimbSwivels {
    * The swivel-and-branch course of a plan's limb goals, for a display that
    * keeps the goals and places each limb in closed form at the course's
    * swivel (`IAutoMovieSwivelNear.prescribed`): each knot, at the span's
-   * ends and the plan's instants, is a full fit there, the first cold and
-   * each later one continuing the knot before it (the middle of an interval
+   * ends and the plan's instants, is a full fit there, the first placed at
+   * the swivels the limbs enter the span with (`IPrepare.entry`), cold
+   * without them, and each later one continuing the knot before it (the middle of an interval
    * continues its start), so the course keeps a branch until it turns
    * infeasible and depends on the span alone; between two knots of one
    * branch the swivel is interpolated, the interval split at its middle
@@ -188,20 +192,24 @@ export namespace courseLimbSwivels {
         };
       return out;
     };
-    const fit = (seconds: number, from?: ISwivelKnot): ISwivelKnot => {
+    const fit = (
+      seconds: number,
+      from?: ISwivelKnot,
+      prescribed: boolean = false,
+    ): ISwivelKnot => {
       const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
         resolveHumanPosture.seeded(
           body,
           goals(seconds),
           undefined,
           // The knots are chained from the span's start: the first is the
-          // cold fit, and each later one continues the knot before it (its
+          // cold fit, or is placed at the entered swivels, and each later one continues the knot before it (its
           // branch and swivel, refined, where they stay legal), the warm
           // start a display holds a limb's branch by, so the course changes
           // branch only where the continued one turns infeasible. The chain
           // is fixed by the span and its instants, so no knot depends on the
           // order the course is read in.
-          from === undefined ? {} : near(from.seeds, false),
+          from === undefined ? {} : near(from.seeds, prescribed),
         );
       const seeds: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
       for (const limb of limbs) {
@@ -297,9 +305,22 @@ export namespace courseLimbSwivels {
       ]),
     ].sort((x: number, y: number): number => x - y);
     const roots: ISwivelKnot[] = [];
+    // The first knot places the limbs at the swivels they enter the span
+    // with (prescribed: refined only where that placement does not stand),
+    // so the course leaves the cut where the display showed the arm; the
+    // knots after it continue it, and the interpolation between eases the
+    // arm from there.
+    const entered: ISwivelKnot | undefined =
+      props.entry === undefined
+        ? undefined
+        : { seconds: span.start, seeds: props.entry };
     const root = (i: number): ISwivelKnot => {
       while (roots.length <= i)
-        roots.push(fit(times[roots.length]!, roots[roots.length - 1]));
+        roots.push(
+          roots.length === 0
+            ? fit(times[0]!, entered, true)
+            : fit(times[roots.length]!, roots[roots.length - 1]),
+        );
       return roots[i]!;
     };
     const intervals: Map<number, ISwivelInterval> = new Map();

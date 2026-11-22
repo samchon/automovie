@@ -39,8 +39,8 @@ import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
  * @evidence contracts/development/implementation.md#principled-implementation Every leaf the overlays build fits the same legs, so each name takes the same frame's seed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One chain read, one name per leaf and leg.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The seeds only start each leg's own fit against its own goal.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two to the running overlays' count names a leg, in practice one to four.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The chain is the plan's, kept per plan.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two to the running overlays' count names a leg, in practice one to four. A second with no free leg goal returns before the chain is read, so no chain frame (a plan posture and a legs-only fit each) is built for a read that takes no seed.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The chain is the plan's, kept per plan; its frames are built from the plan's start in order whichever seconds read them, so leaving it unread at a second changes no frame.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new map of borrowed seeds and retains nothing.
  */
 export function readHumanSegmentLegs(
@@ -50,6 +50,9 @@ export function readHumanSegmentLegs(
   local: number,
   limbs: IAutoMovieMotionHumanPosture["limbs"],
 ): Map<string, IAutoMovieSwivelSeed> {
+  // Only a free leg takes a seed (below): with none at this second the
+  // plan's chain is not read, so none of its frames is fitted for nothing.
+  if (!free(limbs.leftLeg) && !free(limbs.rightLeg)) return new Map();
   const chain: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
     readHumanSegmentLegs.chain(segment.plan, person.performer.body)(local);
   const out: Map<string, IAutoMovieSwivelSeed> = new Map();
@@ -65,21 +68,22 @@ export function readHumanSegmentLegs(
     const tag: string = ordinals
       .filter((_: number, i: number): boolean => (mask & (1 << i)) !== 0)
       .join(",");
-    for (const [limb, seed] of chain) {
-      const goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb] =
-        limbs[limb];
+    for (const [limb, seed] of chain)
       // A planted or contact leg keeps its own fit, which sets the foot's
       // turn as authored where the goal asks none of it; the chain's swivel
       // would turn that foot about its ankle.
-      if (
-        goal !== undefined &&
-        goal.planted !== true &&
-        goal.contact === undefined
-      )
-        out.set(`leaf:${tag}:${limb}`, seed);
-    }
+      if (free(limbs[limb])) out.set(`leaf:${tag}:${limb}`, seed);
   }
   return out;
+}
+
+/** Whether a leg goal is free: given, neither planted nor in contact, so the leg continues the chain's seed. */
+function free(
+  goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb],
+): boolean {
+  return (
+    goal !== undefined && goal.planted !== true && goal.contact === undefined
+  );
 }
 
 /** The plan-level leg chain the display's legs continue. */

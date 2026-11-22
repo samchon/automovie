@@ -22,6 +22,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { wardrobeFilm } from "../../internal/wardrobeFilm";
 
@@ -38,9 +39,9 @@ const CASES: readonly WardrobeCase[] = [
  * Seated footwear moves one prop identity between hand, foot and set.
  *
  * Scenarios:
- * 1. A seated performer gets footwear onto the raised foot, stands with it,
- *    and puts it down after a reverse pass; the heel and toe pass into the
- *    opening and back out.
+ * 1. A seated performer gets footwear onto the raised foot with the opposite
+ *    hand, stands with it, and puts it down after a reverse pass; the heel
+ *    and toe pass into the opening and back out, and the take is clean.
  * 2. Two different actors and opposite feet exercise the chair support and
  *    fit, and the footwear keeps its pose across each custody change.
  *
@@ -69,6 +70,8 @@ function footwear(
   side: AutoMovieHumanSide,
   kind: createStageFootwear.Kind,
 ): void {
+  // The opposite hand pulls the footwear on: in the seated lean the raised
+  // thigh lies under the same-side shoulder, so that arm would pass through it.
   const hand: AutoMovieHumanSide = side === "right" ? "left" : "right";
   const sign: number = hand === "left" ? 1 : -1;
   const body: IAutoMovieMotionHumanBody = motionHumanBody(cast);
@@ -127,6 +130,7 @@ function footwear(
       .until({ event: "deepest" })
       .putDown({ prop: "footwear", to: touch.position, hand }).node,
   );
+  assertTakeClean(`${kind}, ${cast}`, performance);
   const segments: readonly IAutoMovieMotionHumanSegment[] =
     performance.segments("actor");
   const forward: IAutoMovieMotionHumanSegment = wardrobeFilm.withEvent(

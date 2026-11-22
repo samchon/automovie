@@ -14,6 +14,7 @@ import type {
 
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { courseLimbSwivels } from "../compose/courseLimbSwivels";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import type { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
@@ -112,6 +113,7 @@ export function readHumanSegmentLeaf(
       ? readHumanSegmentLeaf.swivels(
           segment.plan,
           person.performer.body,
+          segment.context.entry.pose,
         )(localSeconds)
       : undefined;
 
@@ -218,9 +220,15 @@ export namespace readHumanSegmentLeaf {
    * refined where interpolation leaves a knot's own fit. A displayed second
    * places each limb at the course's swivel and branch against the goal it
    * shows, so a near-tie no longer hops between frames and no read sweeps.
+   * The course's first knot is placed at each arm as the entry displays it
+   * (`HumanLimbFit.seed` on the entry's pose), so an arm whose goal carries
+   * on across a cut keeps the branch and swivel it was shown with rather
+   * than a cold fit's, which may take the other elbow side for the same
+   * goal.
    *
    * @param plan The segment's plan.
    * @param body The performer's body.
+   * @param entry The displayed pose the segment is entered with.
    * @returns The course, made once per plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is coursed, where it is read and why.
@@ -234,10 +242,21 @@ export namespace readHumanSegmentLeaf {
   export function swivels(
     plan: IAutoMovieMotionHumanActionPlan,
     body: IAutoMovieMotionHumanBody,
+    entry: IAutoMoviePose,
   ): courseLimbSwivels.Swivels {
     let found: courseLimbSwivels.Swivels | undefined = COURSES.get(plan);
     if (found === undefined) {
+      const entered: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
+      for (const limb of ARMS) {
+        const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(
+          body,
+          entry,
+          limb,
+        );
+        if (seed !== null) entered.set(limb, seed);
+      }
       found = courseLimbSwivels.swivels({
+        entry: entered,
         body,
         posture: (seconds: number): IAutoMovieMotionHumanPosture =>
           plan.posture(seconds),

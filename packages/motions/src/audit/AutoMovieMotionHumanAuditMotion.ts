@@ -17,7 +17,10 @@ export namespace AutoMovieMotionHumanAuditMotion {
    * Every declared contact window of a person in film seconds: a window's
    * shares are of its action's own duration from the action's start, and the
    * action only holds the body from its entry to its end, so the window is
-   * clipped to that span. A window the clip empties is dropped.
+   * clipped to that span. A window the clip empties is dropped. After their
+   * last action a person holds the pose it ended on to the film's end, so a
+   * window that holds them at that action's own end goes on holding them to
+   * the film's end.
    *
    * @param motion The motion.
    * @param subject The person.
@@ -28,18 +31,27 @@ export namespace AutoMovieMotionHumanAuditMotion {
     subject: string,
   ): IAutoMovieMotionHumanAuditMotionContract.IWindow[] {
     const out: IAutoMovieMotionHumanAuditMotionContract.IWindow[] = [];
-    for (const span of motion.segments(subject))
+    const spans: readonly IAutoMovieMotionHumanAuditMotionContract.ISpan[] =
+      motion.segments(subject);
+    let final: number = -Infinity;
+    for (const span of spans) final = Math.max(final, span.end);
+    for (const span of spans) {
+      // The last action, ended at its own end rather than cut.
+      const held: boolean =
+        span.end >= final - 1e-9 &&
+        span.end >= span.start + span.plan.duration - 1e-9;
       for (const contact of span.plan.contacts) {
         const from: number = Math.max(
           span.entryTime,
           span.start + contact.from * span.plan.duration,
         );
-        const to: number = Math.min(
-          span.end,
-          span.start + contact.to * span.plan.duration,
-        );
+        const to: number =
+          held && contact.to >= 1 - 1e-9
+            ? Math.max(span.end, motion.duration)
+            : Math.min(span.end, span.start + contact.to * span.plan.duration);
         if (to >= from) out.push({ action: span.name, contact, from, to });
       }
+    }
     return out;
   }
 

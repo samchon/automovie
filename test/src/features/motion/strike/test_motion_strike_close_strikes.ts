@@ -197,7 +197,7 @@ function perform(
     seed: `close-${row}`,
     laws: [
       ...Object.values(AutoMovieMotionHumanStrike.HumanStrike),
-      ...Object.values(AutoMovieMotionHumanStageFight.stageBladeFootwork),
+      AutoMovieMotionHumanStageFight.stageBladeFootwork,
     ],
     performers: [
       {

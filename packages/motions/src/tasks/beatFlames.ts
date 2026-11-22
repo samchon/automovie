@@ -187,6 +187,11 @@ function plan(
     context,
     clock.duration,
   );
+  const free: HumanTrunkLean.IHanging = HumanTrunkLean.hang(
+    context.body,
+    context.entry.pose,
+    side === "left" ? "right" : "left",
+  );
   const composed: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({
       base: {
@@ -197,9 +202,8 @@ function plan(
             base.posture(seconds),
             forward *
               clock.envelope(["start", "ready"], ["relax", "end"], seconds),
-            // Both base arms hang or hold from the shoulders; the beating
-            // arm's target is its primitive's.
-            HumanHand.SIDES,
+            // The free arm hangs plumb as the trunk leans over it.
+            [free],
           );
           return { ...posture, joints: { ...posture.joints, ...kept.fingers } };
         },

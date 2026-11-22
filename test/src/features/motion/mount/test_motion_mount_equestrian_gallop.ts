@@ -180,7 +180,7 @@ export function test_motion_mount_equestrian_gallop(): void {
             {
               seat: "entered",
               transfer: 0.3,
-              seconds: WAIT - 2,
+              hold: WAIT - 2,
               supports: {
                 leftFoot: "leftStirrup",
                 rightFoot: "rightStirrup",
@@ -191,7 +191,7 @@ export function test_motion_mount_equestrian_gallop(): void {
             {
               seat: "crouch",
               transfer: 0.8,
-              seconds: 3,
+              hold: 3,
               supports: {
                 leftFoot: "leftStirrup",
                 rightFoot: "rightStirrup",
@@ -202,7 +202,7 @@ export function test_motion_mount_equestrian_gallop(): void {
             {
               seat: "entered",
               transfer: 0.8,
-              seconds: 0.5,
+              hold: 0.5,
               supports: {
                 leftFoot: "leftStirrup",
                 rightFoot: "rightStirrup",

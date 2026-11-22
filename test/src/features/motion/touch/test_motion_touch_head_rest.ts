@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
@@ -27,6 +28,12 @@ const NEAR: number = 0.01;
 
 /** How long the head rests, seconds. */
 const REST: number = 3;
+
+/** One of the two on the bench: `a` rests, `b` is rested on. */
+type BenchSubject = "a" | "b";
+
+/** How long each sit holds before what follows, seconds (staging). */
+const SAT: number = 1.5;
 
 /** How much deeper the resting one sits on the bench, metres (provisional: sitting back, the temple comes over the partner's shoulder rather than ahead of it). */
 const DEEPER: number = 0.08;
@@ -168,50 +175,70 @@ function bench(
     yaw: 0,
     depth: 0.45,
   });
+  const performers: IAutoMovieMotionHumanPerformer[] = [
+    {
+      subject: "a",
+      body: a,
+      at: { x: -apart(a, b) / 2, y: 0, z: -DEEPER },
+      yaw: 0,
+      proficiency: { level: "trained" },
+    },
+    {
+      subject: "b",
+      body: b,
+      at: { x: apart(a, b) / 2, y: 0, z: 0 },
+      yaw: 0,
+      proficiency: { level: "trained" },
+    },
+  ];
+  const sits: Record<BenchSubject, IAutoMovieMotionHumanSeated.ISeat> = {
+    a: seat(-apart(a, b) / 2, a, DEEPER),
+    b: seat(apart(a, b) / 2, b, 0),
+  };
+  // Each one's sit read once alone, from where it is staged: when she is
+  // seated, and how long his sit takes before its hold. He holds his sit
+  // until she is seated, so his wrap reaches for her back where it rests,
+  // not where it passes while she sits down.
+  const alone = (subject: BenchSubject): IAutoMovieMotionHumanSegment =>
+    new HumanPerformance({
+      seed: "head-rest",
+      performers: performers.filter(
+        (p: IAutoMovieMotionHumanPerformer): boolean => p.subject === subject,
+      ),
+      composition: HumanChain.subject(subject).sit({
+        seat: sits[subject],
+        hold: SAT,
+      }).node,
+    }).segments(subject)[0]!;
+  const seatedAt: number = mark(alone("a"), "seated");
+  const settling: number = alone("b").plan.duration - SAT;
+  const wait: number = Math.max(SAT, seatedAt - settling);
   return new HumanPerformance({
     seed: "head-rest",
     laws: [headRest],
-    performers: [
-      {
-        subject: "a",
-        body: a,
-        at: { x: -apart(a, b) / 2, y: 0, z: -DEEPER },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-      {
-        subject: "b",
-        body: b,
-        at: { x: apart(a, b) / 2, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-    ],
+    performers,
     // The partner's right arm wraps around behind the resting one, the palm
     // on her upper back, and holds there through the rest, so his upper arm
     // lies behind her back, not beside her shoulder where her lean would
     // press into it. Her far shoulder lies 83 mm beyond his arm at his seated
-    // lean's limit. The wrap starts once she is seated (her sit's `seated`),
-    // so it reaches for her back where it rests, not where it passes while
-    // she sits down; and her chain is composed first, so her rest reads the
-    // partner placed up to its own start, his wrap reading her seated back.
-    composition: HumanChain.subject("a")
-      .sit({ seat: seat(-apart(a, b) / 2, a, DEEPER), hold: 1.5 }, "aSat")
-      .registered(headRest.name, {
-        partner: "b",
-        region: "shoulderRight",
-        hold: REST,
+    // lean's limit. The partner is placed first, so the resting head reads
+    // where the partner sits.
+    composition: HumanChain.subject("b")
+      .sit({ seat: sits.b, hold: wait })
+      .touch({
+        target: { kind: "person", subject: "a", region: "lowerBack" },
+        hand: "right",
+        kind: "hold",
+        hold: REST + 2,
       })
       .with(
-        HumanChain.subject("b")
-          .sit({ seat: seat(apart(a, b) / 2, b, 0), hold: 1.5 })
-          .touch({
-            target: { kind: "person", subject: "a", region: "upperBack" },
-            hand: "right",
-            kind: "hold",
-            hold: REST + 2,
-          })
-          .sync({ of: "aSat", event: "seated" }),
+        HumanChain.subject("a")
+          .sit({ seat: sits.a, hold: SAT })
+          .registered(headRest.name, {
+            partner: "b",
+            region: "shoulderRight",
+            hold: REST,
+          }),
       ).node,
   });
 }

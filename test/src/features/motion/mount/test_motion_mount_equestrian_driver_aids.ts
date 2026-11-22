@@ -149,7 +149,7 @@ export function test_motion_mount_equestrian_driver_aids(): void {
           {
             seat: "entered",
             transfer: 0.3,
-            seconds: gather + 1.5,
+            hold: gather + 1.5,
             supports: { leftHand: "leftLineGrip", rightHand: "rightLineGrip" },
           },
         ],

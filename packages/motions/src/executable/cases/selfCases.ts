@@ -69,7 +69,7 @@ export function selfCases(
       {
         target: self("forearmLeft"),
         kind: "scratch",
-        with: "fingertips",
+        effector: "fingertips",
         count: 4,
       },
     ],
@@ -101,7 +101,7 @@ export function selfCases(
       {
         target: self("forehead"),
         kind: "rub",
-        with: "handBack",
+        effector: "handBack",
         count: 1,
         tangent: "across",
       },
@@ -126,7 +126,7 @@ export function selfCases(
       const form: IAutoMovieMotionHumanTouchForm.IForm =
         AutoMovieMotionHumanTouchForm.FORMS[kind];
       const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
-        touch.EFFECTORS[params.with ?? "palm"];
+        touch.EFFECTORS[params.effector ?? "palm"];
       const ready: number = TouchVerdicts.event(performance, "a", "ready");
       const strokeStart: number = TouchVerdicts.event(
         performance,

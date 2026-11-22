@@ -6,6 +6,7 @@ import {
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieIntent,
   IAutoMovieIntentTiming,
   IAutoMovieMotionEvent,
@@ -60,10 +61,8 @@ export namespace HumanPerformanceSchedule {
           intent: IAutoMovieIntent,
           context: IAutoMovieScheduleContext,
         ): IAutoMovieIntentTiming => {
-          const where: IAutoMovieMotionHumanRefusal.IWhere = HumanPerformanceRead.where(
-            self,
-            intent,
-          );
+          const where: IAutoMovieMotionHumanRefusal.IWhere =
+            HumanPerformanceRead.where(self, intent);
           // A read of a person whose actions a later part of an open group
           // holds places that part first, through the resolver's demand;
           // the previous timing's demand comes back after a nested one.
@@ -108,25 +107,17 @@ export namespace HumanPerformanceSchedule {
             HumanPerformanceRead.person(self, entry.subject);
           if (overlay) HumanPerformanceOverlays.finish(person, entry);
           if (entry.cut !== undefined)
-            HumanPerformanceContacts.cutHolds(
-              person,
-              entry.index,
-              entry.end,
-            );
+            HumanPerformanceContacts.cutHolds(person, entry.index, entry.end);
         },
         // A struck subject's hits are a track computed from what is placed.
-        instants: (
-          of: string,
-        ): readonly IAutoMovieScheduleCue[] | undefined =>
+        instants: (of: string): readonly IAutoMovieScheduleCue[] | undefined =>
           HumanHitTrack.instants(self, of),
         cues: {
           ...self.cues,
           ...Object.fromEntries(
             [...self.layered].filter(
-              ([, cues]: [
-                string,
-                readonly IAutoMovieScheduleCue[],
-              ]): boolean => cues.length !== 0,
+              ([, cues]: [string, readonly IAutoMovieScheduleCue[]]): boolean =>
+                cues.length !== 0,
             ),
           ),
         },
@@ -136,10 +127,8 @@ export namespace HumanPerformanceSchedule {
           target: number,
           context: IAutoMovieScheduleAlignment,
         ): number => {
-          const where: IAutoMovieMotionHumanRefusal.IWhere = HumanPerformanceRead.where(
-            self,
-            intent,
-          );
+          const where: IAutoMovieMotionHumanRefusal.IWhere =
+            HumanPerformanceRead.where(self, intent);
           try {
             return HumanPerformanceSchedule.align(
               self,
@@ -182,10 +171,8 @@ export namespace HumanPerformanceSchedule {
     where: IAutoMovieMotionHumanRefusal.IWhere,
   ): number {
     const entries: readonly IAutoMovieScheduleEntry[] = context.entries;
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      intent.subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, intent.subject);
     const previous: IAutoMovieMotionHumanSegment | undefined =
       intent.parameters?.over === true ? undefined : person.segments.at(-1);
     const floor: number = Math.max(0, previous?.entryTime ?? 0);
@@ -206,24 +193,28 @@ export namespace HumanPerformanceSchedule {
         string,
         { subject: string; meeting: IAutoMovieMotionMeeting },
       ][] = [...self.meetings];
-      const timing: IAutoMovieIntentTiming =
-        HumanPerformancePlace.place(
-          self,
-          intent,
-          Math.max(floor, start),
-          entries,
-          where,
-          true,
-        );
+      const timing: IAutoMovieIntentTiming = HumanPerformancePlace.place(
+        self,
+        intent,
+        Math.max(floor, start),
+        entries,
+        where,
+        true,
+      );
 
       // The meetings this planning recorded go with its kept plan, for the
       // placement that takes it (`IAutoMovieMotionHumanPerformanceTrial`).
       if (self.trial !== undefined)
         self.trial.meetings = [...self.meetings].filter(
-          ([key, value]: [string, { subject: string; meeting: IAutoMovieMotionMeeting }]): boolean =>
+          ([key, value]: [
+            string,
+            { subject: string; meeting: IAutoMovieMotionMeeting },
+          ]): boolean =>
             !meetings.some(
-              ([before, kept]: [string, { subject: string; meeting: IAutoMovieMotionMeeting }]): boolean =>
-                before === key && kept === value,
+              ([before, kept]: [
+                string,
+                { subject: string; meeting: IAutoMovieMotionMeeting },
+              ]): boolean => before === key && kept === value,
             ),
         );
       self.meetings.clear();
@@ -273,8 +264,7 @@ export namespace HumanPerformanceSchedule {
     if (start < floor - 1e-9) {
       // The instants of the same name the anchor or track still offers: the
       // first one late enough is what the author can sync to instead.
-      const anchor: IAutoMovieScheduleAlignment["anchor"] =
-        context.anchor;
+      const anchor: IAutoMovieScheduleAlignment["anchor"] = context.anchor;
       const same: readonly IAutoMovieScheduleCue[] =
         anchor.event === undefined
           ? []
@@ -336,17 +326,14 @@ export namespace HumanPerformanceSchedule {
           ? { mean: Number(raw.mean), spread: Number(raw.spread) }
           : undefined;
     if (kind === undefined) return 0;
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      intent.subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, intent.subject);
     const event: string | undefined = context.anchor.event;
     const index: number = context.anchor.index ?? 0;
     const warned: boolean =
       event !== undefined &&
       context.anchor.instants.filter(
-        (cue: IAutoMovieScheduleCue): boolean =>
-          cue.name === `${event}Caution`,
+        (cue: IAutoMovieScheduleCue): boolean => cue.name === `${event}Caution`,
       ).length > index;
     return HumanResponse.latency(
       person.skill,
@@ -376,6 +363,8 @@ export namespace HumanPerformanceSchedule {
    * happens: the 24 Hz grid is scanned for the first frame within the
    * distance, and the crossing is found between it and the frame before by
    * the Illinois false-position search (`bracketedRoot`) to `CUT` seconds.
+   * Each reading demands only the effector's bone of the performer's
+   * displayed bones.
    */
   export function proximity(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -384,23 +373,28 @@ export namespace HumanPerformanceSchedule {
   ): number | undefined {
     const until = intent.until;
     if (until === undefined || !("proximity" in until)) return undefined;
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      intent.subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, intent.subject);
 
     // A proximity cut reads the carrier's reach; an overlay's is not found.
     if (intent.parameters?.over === true) return undefined;
     const segment: IAutoMovieMotionHumanSegment = person.segments.at(-1)!;
     const frame =
       person.performer.body.surfaces.regions[until.proximity.effector];
+
+    // The effector's bone alone is read at each second: the bone demand
+    // keeps that bone's displayed frame and computes no other bone.
+    const demanded: ReadonlySet<AutoMovieHumanoidBone> = new Set([frame.bone]);
     const gap = (seconds: number): number => {
       const effector: IAutoMovieVector3 =
         resolveAutoMovieHumanoidSurfaces.place(
           frame,
-          HumanPerformanceRead.bones(self, intent.subject, seconds).get(
-            frame.bone,
-          )!,
+          HumanPerformanceRead.bones(
+            self,
+            intent.subject,
+            seconds,
+            demanded,
+          ).get(frame.bone)!,
         ).point;
       return (
         Vector3.length(
@@ -425,7 +419,12 @@ export namespace HumanPerformanceSchedule {
         // The cut is the latest second measured within the distance, the
         // bracket's near end, so the action is never cut while still short
         // of it. The two ends are the scan's own readings.
-        const ends: readonly [number, number, number, number] = [previous, clear, t, reached];
+        const ends: readonly [number, number, number, number] = [
+          previous,
+          clear,
+          t,
+          reached,
+        ];
         let within: number = t;
         bracketedRoot(
           (seconds: number): number => {

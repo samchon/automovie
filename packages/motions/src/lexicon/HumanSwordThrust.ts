@@ -1,6 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -12,7 +11,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -202,54 +200,18 @@ export namespace HumanSwordThrust {
           rotation: landed.rotation,
         };
 
-        // The arm sets from its entry hold to the guard, the chamber: its
-        // own travel there is the greater of the hand's and the elbow's, the
-        // elbow swinging from the hold's arm to the landing's, read once on
-        // the two fitted arms (the guard's elbow hinted from the landing's,
-        // carried with the hand), so the setting takes as long as the arm
-        // needs, not the tool's travel alone.
+        // The arm sets from its entry hold to the guard, the chamber, over
+        // its own travel there, the hand's or the elbow's
+        // (`HumanSwordTiming.setting`).
         const entered: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
           HumanSword.held(context, s.tool.side);
-        const side: AutoMovieHumanSide = s.tool.side;
-        const elbows: ReadonlySet<AutoMovieHumanoidBone> =
-          new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]);
-        const goalAt: ReturnType<typeof StrikingHeld.prepareGoal> =
-          StrikingHeld.prepareGoal(context, s.tool, 0);
-        const elbowOf = (
-          posture: IAutoMovieMotionHumanPosture,
-          frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
-          bend: IAutoMovieVector3,
-        ): IAutoMovieVector3 =>
-          poseBones(
-            context.body,
-            resolveHumanPosture(context.body, {
-              ...posture,
-              limbs: { ...posture.limbs, [`${side}Arm`]: goalAt(frame, bend) },
-            }),
-            undefined,
-            elbows,
-          ).get(`${side}LowerArm`)!.worldPosition;
-        const landedElbow: IAutoMovieVector3 = elbowOf(
-          a.posture,
-          landed,
-          AutoMovieMotionHumanBend.hang(context.body, a.posture, side),
-        );
-        const guardElbow: IAutoMovieVector3 = elbowOf(
-          context.entry.posture,
+        const armTravel: number = HumanSwordTiming.setting(
+          context,
+          s.tool,
+          entered,
           drawn,
-          Vector3.add(
-            landedElbow,
-            Vector3.subtract(drawn.point, landed.point),
-          ),
-        );
-        const armTravel: number = Math.max(
-          HumanSwordTiming.travel(s.tool, entered, drawn),
-          Vector3.distance(
-            poseBones(context.body, context.entry.pose, undefined, elbows).get(
-              `${side}LowerArm`,
-            )!.worldPosition,
-            guardElbow,
-          ),
+          landed,
+          a.posture,
         );
 
         // A one-handed thrust recovers along its line to the guard

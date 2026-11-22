@@ -122,7 +122,7 @@ export const SCENES_ASSISTANCE: readonly IScene[] = [
           from: { prop: "chair", point: "seat" },
           to: { prop: "bed", point: "rightSide", along: -0.62 },
           clasp: { x: -0.2, y: 0.88, z: -0.43 },
-          duration: 0.55,
+          seconds: 0.55,
         },
       ),
     ],

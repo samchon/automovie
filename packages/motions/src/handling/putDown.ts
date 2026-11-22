@@ -508,6 +508,9 @@ export namespace putDown {
                 onto: onto.prop,
                 point: onto.point,
                 from: down / duration,
+                // Set exactly on its seat, its own `via` socket on the
+                // receiving one; the hand brings it there.
+                offset: putDownTarget.seated(context),
               },
             ],
           }),

@@ -56,7 +56,7 @@ const AIR: number = 0.025;
  * @throws {HumanRefusal} For a failed seat, reach, identity or fit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the seated support, foot side, passage, hold phase and study.
- * @evidence contracts/development/implementation.md#principled-implementation Reads the posed heel and toe to construct a foot-relative model frame and directs the held shell along its real top opening.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads the posed heel and ball, both rigid on the foot bone, to construct a foot-relative model frame and directs the held shell along its real top opening.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit the raised leg, admit the model opening, fit hand targets, then attach transfer contacts and events.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The admitted seat and contralateral support stay fixed while the existing articulated leg lifts.
  * @evidence contracts/development/implementation.md#efficient-algorithms The raised ankle is fixed during insertion. The moving hand is one arm course over its limb target, laid once for the action (`courseArmGoal`).
@@ -230,6 +230,15 @@ export function wardrobeFoot(
     );
   const from: number = remove ? gripTime : 0;
   const to: number = remove ? base.duration : finish;
+
+  // The coursed plan, whose posture is the hand the performance shows: the
+  // shell's custody reads that hand, so the shown shell lands on its target
+  // whatever branch or swivel the course took. Set once the course is laid.
+  let shown: IAutoMovieMotionHumanActionPlan | undefined;
+  const held: (seconds: number) => IAutoMovieMotionHumanPosture = (
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture =>
+    shown === undefined ? posture(seconds) : shown.posture(seconds);
   const contact: IAutoMovieMotionHumanContactWindow = {
     ...wardrobeHands.contact(
       params.prop,
@@ -249,15 +258,9 @@ export function wardrobeFoot(
       const rollEnd: number = remove ? passTime : gripTime;
       const fraction: number = (at - rollStart) / (rollEnd - rollStart);
       if (!(fraction > 0))
-        return wardrobeHands.roll(
-          body,
-          posture(at),
-          hand,
-          target(at),
-          fraction,
-        );
+        return wardrobeHands.roll(body, held(at), hand, target(at), fraction);
       const full: IAutoMovieRigidTransform = HumanPropFrame.relative(
-        wardrobeHands.grip(body, posture(at), hand),
+        wardrobeHands.grip(body, held(at), hand),
         target(at),
       );
       const u: number = minimumJerk.share(fraction);
@@ -277,7 +280,7 @@ export function wardrobeFoot(
   // fresh fit at each second, whose seeded display could take another
   // forearm twist than the fit the shell's custody reads. The checks above
   // read the goal.
-  return courseArmGoal({
+  shown = courseArmGoal({
     body,
     side: hand,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, hand),
@@ -310,6 +313,7 @@ export function wardrobeFoot(
       posture,
     },
   });
+  return shown;
 }
 
 /** Find an actual phase boundary in seconds. */
@@ -321,7 +325,7 @@ function event(plan: IAutoMovieMotionHumanActionPlan, name: string): number {
   );
 }
 
-/** Construct the actual heel-based foot frame held during the seated lift. */
+/** Construct the actual heel-based foot frame held during the seated lift: the heel, its forward axis toward the ball and its across axis from the ankle, all rigid on the foot bone. */
 function footFrame(
   body: IAutoMovieMotionHumanActionContext["body"],
   posture: IAutoMovieMotionHumanPosture,
@@ -331,7 +335,11 @@ function footFrame(
     body,
     resolveHumanPosture(body, posture),
   );
-  const [heel, , toe]: ReturnType<typeof HumanFoot.sockets> = HumanFoot.sockets(
+  // The heel and the ball both ride the foot bone (the toe socket rides the
+  // toes, whose joint differs from one seating to the next), so the frame is
+  // rigid on the foot: footwear worn on the foot bone keeps it whatever the
+  // toes do, and a removal finds the shoe where it was put on.
+  const [heel, ball]: ReturnType<typeof HumanFoot.sockets> = HumanFoot.sockets(
     body,
     bones,
     side,
@@ -340,7 +348,7 @@ function footFrame(
     side === "left" ? "leftFoot" : "rightFoot",
   )!.worldPosition;
   const forward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(toe!.point, heel!.point),
+    Vector3.subtract(ball!.point, heel!.point),
   );
   const across: IAutoMovieVector3 = Vector3.normalize(
     Vector3.cross(Vector3.subtract(ankle, heel!.point), forward),

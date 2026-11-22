@@ -64,11 +64,11 @@ export namespace HumanRideHands {
 
   /**
    * Where a law is entered with hands already holding: the pose displayed
-   * there and the hands that hold in it.
+   * there, the hands that hold in it and the posture the law before wrote.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The entry's own displayed pose and its holding sides.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Both members are read by `of`.
+   * @evidence contracts/development/design.md#principled-representation The entry's own displayed pose, posture and holding sides.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Every member is read by `of` and `crossRideReinGrip`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IShown {
@@ -77,6 +77,9 @@ export namespace HumanRideHands {
 
     /** The hands that hold in it. */
     holding: ReadonlySet<AutoMovieHumanSide>;
+
+    /** The posture the law before wrote there, whose arm goals asked the holding hands' turns. */
+    posture: IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -423,7 +426,7 @@ export namespace HumanRideHands {
         (reaching ??= bow(lean(begun, origin))),
         grip,
         handle.reinPalm,
-        shown?.holding.has(side) === true ? shown.pose : undefined,
+        shown?.holding.has(side) === true ? shown : undefined,
       );
       begun[side] = { ...grip, cross: handle.cross };
     }

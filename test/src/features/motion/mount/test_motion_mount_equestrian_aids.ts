@@ -347,7 +347,7 @@ function stage(
             {
               seat: "entered",
               transfer: 0.3,
-              seconds: course.duration + WAIT - 4,
+              hold: course.duration + WAIT - 4,
               supports: HOLD,
             },
           ],

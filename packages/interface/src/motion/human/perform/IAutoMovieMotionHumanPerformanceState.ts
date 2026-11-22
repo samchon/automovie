@@ -136,13 +136,19 @@ export interface IAutoMovieMotionHumanPerformanceState {
   trial: IAutoMovieMotionHumanPerformanceTrial | undefined;
 
   /** Incumbent arm solutions lent between plans of one intent while resolving the schedule. */
-  readonly handovers: Map<IAutoMovieIntent, IAutoMovieMotionHumanActionContext.IHandover["last"]>;
+  readonly handovers: Map<
+    IAutoMovieIntent,
+    IAutoMovieMotionHumanActionContext.IHandover["last"]
+  >;
 
   /** Each performer's solved soft parts, by subject, kept once the performance is placed (`HumanPerformanceSoft.of`). */
   readonly soft: Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved>;
 
   /** Each prop's articulation writers in film order, by the prop, kept once the performance is placed (`HumanPerformanceObject.writers`). */
-  readonly writers: Map<string, readonly IAutoMovieMotionHumanPerformanceState.IWriter[]>;
+  readonly writers: Map<
+    string,
+    readonly IAutoMovieMotionHumanPerformanceState.IWriter[]
+  >;
 
   /** Each prop's last posed reading with its film second, by the prop, kept once the performance is placed (`HumanPerformanceObject.posed`). */
   readonly posed: Map<
@@ -156,7 +162,10 @@ export interface IAutoMovieMotionHumanPerformanceState {
   >;
 
   /** Each launched prop's flights, by the prop, kept once the performance is placed (`HumanPropFlight.flights`). */
-  readonly flights: Map<string, readonly IAutoMovieMotionHumanPropFlight.IFlight[]>;
+  readonly flights: Map<
+    string,
+    readonly IAutoMovieMotionHumanPropFlight.IFlight[]
+  >;
 
   /** The flights of each prop being found, so a launch reading its prop sees the flights before it; emptied of a prop when its flights are found. */
   readonly flying: Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]>;
@@ -212,6 +221,8 @@ export namespace IAutoMovieMotionHumanPerformanceState {
       prop: string;
       /** Socket affordance id on the other prop used by the mount. */
       point: string;
+      /** Whether the prop is set exactly on the socket (`IAutoMovieMotionPropMount.seated`). */
+      seated?: boolean;
     };
 
     /** The span's first film second. */

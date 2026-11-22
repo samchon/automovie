@@ -96,9 +96,14 @@ export namespace HumanPerformanceGrips {
               worn.push({
                 subject: person.performer.subject,
                 side: "right",
-                mount: { prop: m.onto, point: m.point },
+                mount: {
+                  prop: m.onto,
+                  point: m.point,
+                  ...(m.offset === undefined ? {} : { seated: true }),
+                },
                 from,
                 to: Infinity,
+                ...(m.offset === undefined ? {} : { offset: m.offset }),
               });
           }
       for (const held of person.holds)

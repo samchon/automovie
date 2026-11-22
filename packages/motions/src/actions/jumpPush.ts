@@ -263,20 +263,29 @@ export namespace jumpPush {
     const P: number = props.push;
     // What an entry rate adds to a push-off path that starts at rest: the
     // rate times this term, whose slope is one at the cut.
-    const carry: (t: number) => number = (t: number): number => carriedRate(P, t);
+    const carry: (t: number) => number = (t: number): number =>
+      carriedRate(P, t);
     const stride: IAutoMovieVector3 = entry.feet[reaching].velocity;
     const spin: IAutoMovieVector3 = entry.feet[reaching].spin;
     const spinRate: number = Math.hypot(spin.x, spin.y, spin.z);
     // A spin below a nanoradian per second has no axis to normalize.
-    const spinAxis: IAutoMovieVector3 | undefined = spinRate < 1e-9 ? undefined : {
-      x: spin.x / spinRate, y: spin.y / spinRate, z: spin.z / spinRate,
-    };
+    const spinAxis: IAutoMovieVector3 | undefined =
+      spinRate < 1e-9
+        ? undefined
+        : {
+            x: spin.x / spinRate,
+            y: spin.y / spinRate,
+            z: spin.z / spinRate,
+          };
     const reachingTurn: IAutoMovieQuaternion = HumanFoot.rotation(heading, 0);
     const reachingRotation: ReturnType<typeof Quaternion.prepareSlerp> =
       Quaternion.prepareSlerp(entry.feet[reaching].rotation, reachingTurn);
     const spinTurn: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined =
-      spinAxis === undefined ? undefined : Quaternion.prepareAxisAngle(spinAxis);
-    const reachingPoint: ReturnType<typeof HumanFrame.preparePoint> = HumanFrame.preparePoint(heading, tuck);
+      spinAxis === undefined
+        ? undefined
+        : Quaternion.prepareAxisAngle(spinAxis);
+    const reachingPoint: ReturnType<typeof HumanFrame.preparePoint> =
+      HumanFrame.preparePoint(heading, tuck);
     // The reaching foot's velocity and spin are one rigid motion, carried for
     // no longer than brings a sole point to the floor: a point `h` above it
     // coming down at `v` affords `h / (PEAK v)` seconds. A point descending
@@ -323,7 +332,9 @@ export namespace jumpPush {
     const listing: readonly [number, number, number] =
       entry.velocity.joints.get("hips") ?? [0, 0, 0];
     const pelvisDelta: readonly [number, number, number] = [
-      level[0] - listed[0], level[1] - listed[1], level[2] - listed[2],
+      level[0] - listed[0],
+      level[1] - listed[1],
+      level[2] - listed[2],
     ];
     const fromYaw: number = entry.posture.yaw;
     const yawDelta: number = heading - fromYaw;
@@ -332,26 +343,46 @@ export namespace jumpPush {
       const s: number = minimumJerk.share(t / P);
       const k: number = carry(t);
       return {
-        seconds: t, root: rootAt(t), progress: s, carry: k,
+        seconds: t,
+        root: rootAt(t),
+        progress: s,
+        carry: k,
         yaw: t >= P ? heading : fromYaw + yawDelta * s + turning * k,
-        pelvis: t >= P ? level : [
-          listed[0] + pelvisDelta[0] * s + listing[0] * k,
-          listed[1] + pelvisDelta[1] * s + listing[1] * k,
-          listed[2] + pelvisDelta[2] * s + listing[2] * k,
-        ],
+        pelvis:
+          t >= P
+            ? level
+            : [
+                listed[0] + pelvisDelta[0] * s + listing[0] * k,
+                listed[1] + pelvisDelta[1] * s + listing[1] * k,
+                listed[2] + pelvisDelta[2] * s + listing[2] * k,
+              ],
       };
     };
-    const prepareArm: (side: "left" | "right") => IArmTrack = (side: "left" | "right"): IArmTrack => {
+    const prepareArm: (side: "left" | "right") => IArmTrack = (
+      side: "left" | "right",
+    ): IArmTrack => {
       const from: number = entry.posture.joints[`${side}UpperArm`]?.[0] ?? 0;
-      return { from, delta: jumpJoints.TAKEOFF - from, rate: entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0 };
+      return {
+        from,
+        delta: jumpJoints.TAKEOFF - from,
+        rate: entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0,
+      };
     };
     const arms: Record<"left" | "right", IArmTrack> = {
-      left: prepareArm("left"), right: prepareArm("right"),
+      left: prepareArm("left"),
+      right: prepareArm("right"),
     };
-    const swinging: (side: "left" | "right") => number = (side: "left" | "right"): number => arms[side].rate;
-    const armAt: IPush["arm"] = (phase: IPhase, side: "left" | "right"): number => {
+    const swinging: (side: "left" | "right") => number = (
+      side: "left" | "right",
+    ): number => arms[side].rate;
+    const armAt: IPush["arm"] = (
+      phase: IPhase,
+      side: "left" | "right",
+    ): number => {
       const track: IArmTrack = arms[side];
-      return track.from + track.delta * phase.progress + track.rate * phase.carry;
+      return (
+        track.from + track.delta * phase.progress + track.rate * phase.carry
+      );
     };
 
     // A foot entered on its heel rocker is laid flat before its heel rises,
@@ -371,24 +402,54 @@ export namespace jumpPush {
         : 0;
     const span: number = P - lowered;
     const start: number = Math.min(supportPitch, 0);
-    const heelAt: ReturnType<typeof HumanFoot.preparePivot> | undefined = lowered > 0
-      ? HumanFoot.preparePivot(body, takeoff, "heel", heel, supportHeading) : undefined;
+    const heelAt: ReturnType<typeof HumanFoot.preparePivot> | undefined =
+      lowered > 0
+        ? HumanFoot.preparePivot(body, takeoff, "heel", heel, supportHeading)
+        : undefined;
     const ballAt: ReturnType<typeof HumanFoot.preparePivot> =
       HumanFoot.preparePivot(body, takeoff, "mtp", ball, supportHeading);
-    const heelContact: ReturnType<typeof HumanFoot.prepareOffset> | undefined = lowered > 0
-      ? HumanFoot.prepareOffset(body, takeoff, "heel") : undefined;
-    const ballContact: ReturnType<typeof HumanFoot.prepareOffset> = HumanFoot.prepareOffset(body, takeoff, "mtp");
+    const heelContact: ReturnType<typeof HumanFoot.prepareOffset> | undefined =
+      lowered > 0 ? HumanFoot.prepareOffset(body, takeoff, "heel") : undefined;
+    const ballContact: ReturnType<typeof HumanFoot.prepareOffset> =
+      HumanFoot.prepareOffset(body, takeoff, "mtp");
     const heelRise: ReturnType<typeof walkLeg.prepareHeelRise> =
-      walkLeg.prepareHeelRise(body, takeoff, ball, supportHeading, walkLeg.ROCKER);
+      walkLeg.prepareHeelRise(
+        body,
+        takeoff,
+        ball,
+        supportHeading,
+        walkLeg.ROCKER,
+      );
     // The flat foot's heel then rises by the rule a walking stance rises by:
     // asked from flat to its take-off pitch, and no later than the ankle's
     // dorsal limit asks. A foot the walk held by that rule is met by it.
-    const ruled: (phase: IPhase, resolution?: ReturnType<typeof prepareHumanPoseResolution>) => number = (phase: IPhase, resolution?: ReturnType<typeof prepareHumanPoseResolution>): number =>
-      heelRise(
-        hipJoints(body, phase.root,
-          resolveHumanPosture.heading({ yaw: phase.yaw, pitch: 0, roll: 0 }), phase.pelvis, resolution?.())[takeoff],
-        Math.min(start, -HEEL) * minimumJerk.share((phase.seconds - lowered) / span),
-      );
+    // While the hip is farther from the ball than the leg and the foot can
+    // reach (a sprint's foot lands well ahead of its hip), the leg's lean
+    // has no value and the rule's rise is its farthest, 75 degrees at the
+    // long jump's cut, which the ease below carried as a 55 degree gap and
+    // swung the planted foot toes up; there the asked pitch stands.
+    const ballReach: number = body.measure.thigh + body.measure.shank;
+    const ruled: (
+      phase: IPhase,
+      resolution?: ReturnType<typeof prepareHumanPoseResolution>,
+    ) => number = (
+      phase: IPhase,
+      resolution?: ReturnType<typeof prepareHumanPoseResolution>,
+    ): number => {
+      const hip: IAutoMovieVector3 = hipJoints(
+        body,
+        phase.root,
+        resolveHumanPosture.heading({ yaw: phase.yaw, pitch: 0, roll: 0 }),
+        phase.pelvis,
+        resolution?.(),
+      )[takeoff];
+      const asked: number =
+        Math.min(start, -HEEL) *
+        minimumJerk.share((phase.seconds - lowered) / span);
+      return Vector3.distance(hip, ball) > ballReach
+        ? asked
+        : heelRise(hip, asked);
+    };
     // What the entry's pitch and pitch rate differ from the rule's by is
     // eased out over the rise. A heel coming down about the ball is carried
     // no longer than lays the foot flat, where the pivot would pass to the
@@ -396,28 +457,39 @@ export namespace jumpPush {
     // one-sided difference over two steps of `STEP` seconds, whose O(STEP^2)
     // error is far below a degree per second for a rule that changes over
     // the push's tenths of a second.
-    const edge: { met: number; excess: number } = ((): { met: number; excess: number } => {
-      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const edge: { met: number; excess: number } = ((): {
+      met: number;
+      excess: number;
+    } => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
       const met: number = ruled(sample(lowered), read);
       const excess: number =
         (supportPitch > 0 ? 0 : rolling) -
-        (-3 * met + 4 * ruled(sample(lowered + STEP), read) - ruled(sample(lowered + 2 * STEP), read)) / (2 * STEP);
+        (-3 * met +
+          4 * ruled(sample(lowered + STEP), read) -
+          ruled(sample(lowered + 2 * STEP), read)) /
+          (2 * STEP);
       return { met, excess };
     })();
     const gap: number = start - edge.met;
     const excess: number = edge.excess;
     const carried: number =
       excess > 0 ? Math.min(span, -start / (carriedRate.PEAK * excess)) : span;
-    const pitchAt: (phase: IPhase, resolution?: ReturnType<typeof prepareHumanPoseResolution>) => number = (phase: IPhase, resolution?: ReturnType<typeof prepareHumanPoseResolution>): number => {
+    const pitchAt: (
+      phase: IPhase,
+      resolution?: ReturnType<typeof prepareHumanPoseResolution>,
+    ) => number = (
+      phase: IPhase,
+      resolution?: ReturnType<typeof prepareHumanPoseResolution>,
+    ): number => {
       const t: number = phase.seconds;
-      return (
-        t < lowered
-          ? supportPitch * (1 - minimumJerk.share(t / lowered)) +
+      return t < lowered
+        ? supportPitch * (1 - minimumJerk.share(t / lowered)) +
             rolling * carriedRate(lowered, t)
-          : ruled(phase, resolution) +
+        : ruled(phase, resolution) +
             gap * (1 - minimumJerk.share((t - lowered) / span)) +
-            (carried > CARRY ? excess * carriedRate(carried, t - lowered) : 0)
-      );
+            (carried > CARRY ? excess * carriedRate(carried, t - lowered) : 0);
     };
 
     // The reaching foot passes the take-off shank on its own side: along the
@@ -454,7 +526,12 @@ export namespace jumpPush {
         aside,
       );
       const bump: number = Math.max(0, clearance - gap);
-      return Vector3.scale(aside, (bump * s * (1 - s)) / (at * (1 - at)));
+      // Held at the full bump from the pass to its mirror share, so a pass
+      // near either end does not swell the bump past it in between.
+      return Vector3.scale(
+        aside,
+        bump * Math.min(1, (s * (1 - s)) / (at * (1 - at))),
+      );
     };
 
     return {
@@ -470,7 +547,8 @@ export namespace jumpPush {
         const t: number = phase.seconds;
         const root: IAutoMovieVector3 = phase.root;
         if (t >= P) {
-          const end: Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> = jumpPushEnd(props, root, resolution);
+          const end: Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> =
+            jumpPushEnd(props, root, resolution);
           Object.assign(joints, end.joints);
           Object.assign(limbs, end.limbs);
           return;
@@ -481,7 +559,8 @@ export namespace jumpPush {
         // its heel or its ball keeps rolling.
         const pitch: number = pitchAt(phase, resolution);
         const about: "heel" | "mtp" = t < lowered ? "heel" : "mtp";
-        const foot: IAutoMovieMotionHumanFoot.IPlacement = about === "heel" ? heelAt!(pitch) : ballAt(pitch);
+        const foot: IAutoMovieMotionHumanFoot.IPlacement =
+          about === "heel" ? heelAt!(pitch) : ballAt(pitch);
         limbs[`${takeoff}Leg`] = {
           point: foot.ankle,
           rotation: foot.rotation,
@@ -494,8 +573,12 @@ export namespace jumpPush {
         // The reaching foot leaves at once on a minimum-jerk path, carrying
         // the velocity and the spin it was entered with.
         const s: number = phase.progress;
-        const k: number = reachingCarry > CARRY
-          ? reachingCarry === P ? phase.carry : carriedRate(reachingCarry, t) : 0;
+        const k: number =
+          reachingCarry > CARRY
+            ? reachingCarry === P
+              ? phase.carry
+              : carriedRate(reachingCarry, t)
+            : 0;
         const b: number = reachBend(t);
         const from: IAutoMovieVector3 = entry.feet[reaching].ankle;
         const into: IAutoMovieVector3 = reachingPoint(root);

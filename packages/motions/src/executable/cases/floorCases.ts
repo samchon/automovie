@@ -49,7 +49,7 @@ export function floorCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
 
     for (const position of ["supine", "prone", "lateralLeft"] as const) {
-      const params: IAutoMovieMotionHumanLieDown.IParams = { position };
+      const params: IAutoMovieMotionHumanLieDown.IParams = { kind: position };
       const performance: IAutoMovieMotionHumanPerformance =
         FamilyCaseKit.perform(
           "floor",
@@ -92,7 +92,7 @@ export function floorCases(
     }
 
     {
-      const params: IAutoMovieMotionHumanCrawl.IParams = { cycles: 3 };
+      const params: IAutoMovieMotionHumanCrawl.IParams = { count: 3 };
       const performance: IAutoMovieMotionHumanPerformance =
         FamilyCaseKit.perform(
           "floor",

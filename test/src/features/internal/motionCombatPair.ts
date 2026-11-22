@@ -51,7 +51,7 @@ export namespace motionCombatPair {
       seed,
       laws: [
         ...Object.values(AutoMovieMotionHumanStrike.HumanStrike),
-        ...Object.values(AutoMovieMotionHumanStageFight.stageBladeFootwork),
+        AutoMovieMotionHumanStageFight.stageBladeFootwork,
         ...Object.values(AutoMovieMotionHumanThrowCatch.HumanSportThrow),
         AutoMovieMotionHumanGrapple.grapple,
       ],

@@ -228,13 +228,13 @@ export namespace HumanSignature {
     return (Math.asin(Math.max(-1, Math.min(1, -f.y))) * 180) / Math.PI;
   }
 
-  /** The whole-body centre of mass of the performer, world metres. */
+  /** The whole-body centre of mass of the performer, world metres, on the body's own mass model (`body.massModel`, built once with the body). */
   export function centre(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
   ): IAutoMovieVector3 {
     return resolveAutoMovieCenterOfMass.place(
-      resolveAutoMovieCenterOfMass(reader.body.skeleton, reader.body.profile),
+      reader.body.massModel,
       bones(reader, seconds),
     );
   }
@@ -288,10 +288,18 @@ export namespace HumanSignature {
     // The same socket a moment either side, so a heel handing the load to
     // the ball does not read as a slide.
     const h: number = 1 / 120;
-    const k: number = origin === undefined ? NaN : Math.round((seconds - origin) * 120);
-    const on: boolean = origin !== undefined && k >= 1 && origin + k / 120 === seconds;
-    const from: number = Math.max(0, on ? origin! + (k - 1) / 120 : seconds - h);
-    const to: number = Math.min(reader.motion.duration, on ? origin! + (k + 1) / 120 : seconds + h);
+    const k: number =
+      origin === undefined ? NaN : Math.round((seconds - origin) * 120);
+    const on: boolean =
+      origin !== undefined && k >= 1 && origin + k / 120 === seconds;
+    const from: number = Math.max(
+      0,
+      on ? origin! + (k - 1) / 120 : seconds - h,
+    );
+    const to: number = Math.min(
+      reader.motion.duration,
+      on ? origin! + (k + 1) / 120 : seconds + h,
+    );
     const a: IAutoMovieVector3 = at(from)[low]!;
     const b: IAutoMovieVector3 = at(to)[low]!;
     const span: number = to - from;
@@ -306,7 +314,8 @@ export namespace HumanSignature {
    */
   export function times(from: number, to: number, rate: number = 60): number[] {
     const out: number[] = [];
-    for (let k: number = 0; from + k / rate <= to + 1e-9; k++) out.push(from + k / rate);
+    for (let k: number = 0; from + k / rate <= to + 1e-9; k++)
+      out.push(from + k / rate);
     return out;
   }
 

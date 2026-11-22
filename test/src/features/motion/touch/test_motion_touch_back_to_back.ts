@@ -46,7 +46,7 @@ interface IPair {
  * Scenarios, the average man with the small woman and two small women,
  * each take clean:
  * 1. Through the hold, the two upper backs meet: they lie within 20 mm of
- *    each other.
+ *    each other across the floor, each at its own height.
  * 2. Each back bears on the other's in a loaded window.
  * 3. One partner sitting up while the other still leans is refused, naming
  *    the lean left on nothing.
@@ -75,9 +75,17 @@ export function test_motion_touch_back_to_back(): void {
       )!;
     const from: number = mark(lean, "lean");
     const to: number = mark(lean, "part");
+    // Across the floor: two bodies of unequal stature carry their upper
+    // backs at unequal heights, and the backs meet on the upright plane
+    // between them, each at its own height.
     const gaps: readonly number[] = [from, (from + to) / 2, to].map(
-      (t: number): number =>
-        Vector3.distance(back(film, "a", a, t), back(film, "b", b, t)),
+      (t: number): number => {
+        const apart: IAutoMovieVector3 = Vector3.subtract(
+          back(film, "a", a, t),
+          back(film, "b", b, t),
+        );
+        return Math.hypot(apart.x, apart.z);
+      },
     );
     TestValidator.predicate(
       `${label}: the upper backs meet (${gaps.map((g: number): string => (g * 1000).toFixed(0)).join(", ")} mm)`,
@@ -163,19 +171,18 @@ function scene(
     return -back(alone, "x", body, alone.duration).z;
   };
   const d: number = (behind(a) + behind(b) + GAP) / 2;
-  // Both sit down, then both lean from the same instant: each lean reads the
-  // other's seated back at its start, and the law needs the two leans to
-  // begin within a frame. Two bodies take unequal times to sit, so leans
-  // chained straight after each sit would start apart, one reading a partner
-  // still sitting down. `a`'s lean is placed first; `b` checks its own
-  // against `a`'s by its anchor.
+  // One sits down, then the other, then both lean from the same instant.
+  // Each lowers itself with its hands on the bench behind it, which is where
+  // the other's hands go, so the two sit in turn rather than at once (at once
+  // a's fingers met b's hand 20 mm deep). Each lean reads the other's seated
+  // back at its start, and the law needs the two leans to begin within a
+  // frame, so neither lean is chained straight after its own sit. `a`'s lean
+  // is placed first; `b` checks its own against `a`'s by its anchor.
   const composition: IAutoMovieComposition = {
     kind: "sequence",
     parts: [
-      HumanChain.subject("a")
-        .sit({ seat: seat(a, -1, d), hold: 0.5 })
-        .with(HumanChain.subject("b").sit({ seat: seat(b, 1, d), hold: 0.5 }))
-        .node,
+      HumanChain.subject("a").sit({ seat: seat(a, -1, d), hold: 0.5 }).node,
+      HumanChain.subject("b").sit({ seat: seat(b, 1, d), hold: 0.5 }).node,
       HumanChain.subject("a")
         .registered(backToBack.name, { partner: "b", hold: HOLD }, "leanA")
         .with(

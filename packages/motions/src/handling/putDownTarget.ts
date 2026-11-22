@@ -267,6 +267,52 @@ export namespace putDownTarget {
   }
 
   /**
+   * The prop's frame in the frame of the socket it is set on (`onto`): the
+   * inverse of its own `via` socket, so that socket lands on the receiving
+   * one, as `of` places it; the identity without a `via`.
+   *
+   * @param context The authored destination, props and entry second.
+   * @returns The prop's frame in the receiving socket's frame, metres and a unit quaternion.
+   * @throws {HumanRefusal} On onto when the prop's `via` socket is absent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, its two cases and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The rigid inverse of the source socket, the same relation `of` composes on the receiving socket.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One case without a via, one rigid inverse with it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The source socket is read from the prop's posed affordances, as `of` reads it.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One socket read.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reader.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function seated(
+    context: Pick<
+      IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
+      "params" | "prop" | "start"
+    >,
+  ): IAutoMovieRigidTransform {
+    const via: string | undefined = context.params.onto?.via;
+    if (via === undefined)
+      return {
+        position: { x: 0, y: 0, z: 0 },
+        rotation: Quaternion.identity(),
+      };
+    const source: IAutoMovieRigidTransform = socketFrame(
+      context.prop(context.params.prop),
+      via,
+      context.start,
+    );
+    const inverse: IAutoMovieRigidTransform["rotation"] = Quaternion.inverse(
+      source.rotation,
+    );
+    return {
+      position: Quaternion.rotateVector(
+        inverse,
+        Vector3.scale(source.position, -1),
+      ),
+      rotation: inverse,
+    };
+  }
+
+  /**
    * The prop's fixed placing frame, or undefined for a free world placement.
    *
    * @param context The authored destination, body, props and entry second.

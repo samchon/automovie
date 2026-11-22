@@ -6,9 +6,7 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
   IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -17,6 +15,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 import { HumanMountRider } from "./HumanMountRider";
+import type { HumanRideHands } from "./HumanRideHands";
 
 /**
  * The angle a rein crosses the holding palm at (`HumanRideHands`): the turn
@@ -29,23 +28,25 @@ import { HumanMountRider } from "./HumanMountRider";
  * same rein show the arm on two branches. The crossing is chosen once per
  * plan. A hand that takes the rein takes the reachable turn nearest the
  * square (`AutoMovieMotionHumanArmReach.attitude`). A hand already holding
- * where the plan begins keeps the turn it is displayed with: the twist about
- * the normal of its displayed rotation from the square hold.
+ * where the plan begins keeps the turn it was held with: the twist about the
+ * normal, from the square hold, of the rotation its arm's goal asked in the
+ * law before (the displayed hand's where that law gave none), so the goal
+ * continues across the cut.
  *
  * @param body The body.
  * @param side The holding hand.
  * @param posture The rider's posture where the hold begins, leant to the grips.
  * @param grip The hold where it begins, its fingers' side chosen.
  * @param palm The hand's palm frame the rein is met with.
- * @param shown The pose displayed where the plan begins, for a hand already holding; none for a hand that takes the rein.
+ * @param shown The pose and posture where the plan begins, for a hand already holding; none for a hand that takes the rein.
  * @returns The turn about the hold's outward normal, degrees.
  * @throws {HumanRefusal} When no turn about the normal brings the asked attitude within the forearm's twist and wrist ranges at the hand's place (`AutoMovieMotionHumanArmReach.attitude`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the freedom, the defect a square hold causes, both ways the turn is read and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The crossing is the one free coordinate of a fist's hold on a round line. A taking hand reads the reachable turn nearest the square by the rig's own arm fit (Tolani, Goswami and Badler 2000, §3.2.4); a holding hand reads the twist about the normal of its own displayed rotation (swing-twist decomposition), so a law that continues a hold keeps its attitude.
+ * @evidence contracts/development/implementation.md#principled-implementation The crossing is the one free coordinate of a fist's hold on a round line. A taking hand reads the reachable turn nearest the square by the rig's own arm fit (Tolani, Goswami and Badler 2000, §3.2.4); a holding hand reads the twist about the normal (swing-twist decomposition) of the turn the law before asked it, so a law that continues a hold continues its goal.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The square hold, then one of two readings.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable crossing is refused by the reach owner, never clamped.
- * @evidence contracts/development/implementation.md#efficient-algorithms Once per plan and holding hand: one forward-kinematics read for a holding hand; the reach owner's bounded scan for a taking one.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Once per plan and holding hand: a read of the entry's goal, or one forward-kinematics read where it has none, for a holding hand; the reach owner's bounded scan for a taking one.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanMountRider.wrist` for the square hold, `placeHumanHandSurface` for the wrist and `AutoMovieMotionHumanArmReach.attitude` for the reach.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a number and retains nothing.
  */
@@ -55,7 +56,7 @@ export function crossRideReinGrip(
   posture: IAutoMovieMotionHumanPosture,
   grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
   palm: IAutoMovieMotionHumanHand.IFrame,
-  shown?: IAutoMoviePose,
+  shown?: HumanRideHands.IShown,
 ): number {
   const square: IAutoMovieQuaternion = HumanMountRider.wrist(
     body,
@@ -64,15 +65,20 @@ export function crossRideReinGrip(
   ).rotation!;
   const normal: IAutoMovieVector3 = Vector3.normalize(grip.normal);
   if (shown !== undefined) {
+    // The hand's turn as the law before asked it, its arm's goal, so the hold continues that goal exactly; the displayed hand where it gave none.
+    const asked: IAutoMovieQuaternion | undefined =
+      shown.posture.limbs[`${side}Arm`]?.rotation;
     const bone: AutoMovieHumanoidBone = `${side}Hand`;
-    const hand: IAutoMovieResolvedBone = poseBones(
-      body,
-      shown,
-      undefined,
-      new Set<AutoMovieHumanoidBone>([bone]),
-    ).get(bone)!;
+    const turned: IAutoMovieQuaternion =
+      asked ??
+      poseBones(
+        body,
+        shown.pose,
+        undefined,
+        new Set<AutoMovieHumanoidBone>([bone]),
+      ).get(bone)!.worldRotation;
     const delta: IAutoMovieQuaternion = Quaternion.multiply(
-      hand.worldRotation,
+      turned,
       Quaternion.inverse(square),
     );
     const twist: number =

@@ -219,12 +219,18 @@ export namespace HumanPerformancePlace {
       person.performer.body;
     // The overlays an overlay is laid on: those placed before it.
     const laid: number = person.overlays.length;
+
+    // The performer's own bones are those of the entry pose, fixed for the
+    // action: admitted once, at the first read, and every read takes fresh
+    // bones of that one reading (`poseBones.read`), as a kept displayed pose
+    // gives its readers (`HumanSegmentShown.bones`).
+    let entered: ReturnType<typeof poseBones.read> | undefined;
     const ownBones: (
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ) => ReturnType<typeof poseBones> = (
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ): ReturnType<typeof poseBones> =>
-      poseBones(body, entry.pose, undefined, requested);
+      (entered ??= poseBones.read(body, entry.pose)).map(requested);
     let performers:
       | Map<string, IAutoMovieMotionHumanPerformerReader>
       | undefined;

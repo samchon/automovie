@@ -314,7 +314,11 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           placed,
           figures[0]!.transfer,
           // A hand that enters holding keeps the crossing its rein is displayed with.
-          { pose: context.entry.pose, holding: gripped },
+          {
+            pose: context.entry.pose,
+            holding: gripped,
+            posture: context.entry.posture,
+          },
         );
   return {
     duration: clock.duration,

@@ -77,7 +77,7 @@ export function affectionCases(
         {
           target: { kind: "person", subject: "b", region: "shoulderLeft" },
           kind: "tap",
-          with: "fingertips",
+          effector: "fingertips",
           count: 2,
         },
         true,
@@ -114,7 +114,7 @@ export function affectionCases(
           body,
           facing,
           HumanChain.subject("a").act("touch", params),
-          HumanChain.subject("b").stand({ seconds: 8 }),
+          HumanChain.subject("b").stand({ hold: 8 }),
         );
       const performance: IAutoMovieMotionHumanPerformance | null = attempt(
         out,
@@ -124,7 +124,7 @@ export function affectionCases(
       if (performance === null) continue;
       const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
       const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
-        touch.EFFECTORS[params.with ?? "palm"];
+        touch.EFFECTORS[params.effector ?? "palm"];
       const region: TouchVerdicts.IRegion = {
         subject: "b",
         body,
@@ -251,7 +251,7 @@ export function affectionCases(
             body,
             true,
             HumanChain.subject("a").act("kiss", { partner: "b", region }),
-            HumanChain.subject("b").stand({ seconds: 6 }),
+            HumanChain.subject("b").stand({ hold: 6 }),
             0.45,
           ),
       );

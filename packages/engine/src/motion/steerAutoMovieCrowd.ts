@@ -28,7 +28,7 @@ import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the agents, fix the canonical order, define the right-hand side, integrate, then read the courses, the arrivals and the contacts at the knots.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No agent is moved apart after the fact: overlaps are reported, not repaired. The force cap is named and provisional, documented as the cure for the gradient's grazing singularity the implicit-crowds work describes, not a tuning of one scene.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is O(N^2 + N M) for N agents and M obstacle edges, plus N half-plane programs of N - 1 + O half-planes each for O obstacles, expected linear, four per step over `(to - from) / step` steps; each pair's contact, avoidance change and capacities are computed once an evaluation, the second agent reading them negated, which is exactly its own reading wherever no component is zero (it computes them otherwise); a new film second reads the stacked state in O(N), after which each course at that same second projects its own state in O(1).
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One integration serves every agent's course and every read of it; successive course reads at the same second share one private state read, and within an evaluation one reading of a pair serves both its agents.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One integration serves every agent's course and every read of it; successive course reads at the same second share one private state read, within an evaluation one reading of a pair serves both its agents, and the contact pass places each obstacle's footprint once a knot for every agent and reads each agent's destination once.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the trajectory's knots, 4 N numbers per step, for as long as the caller keeps the courses; the integration also holds 13 numbers a pair of agents, rewritten every evaluation and dropped with it. Course readers share one additional 4 N number snapshot.
  */
 export function steerAutoMovieCrowd(
@@ -397,9 +397,18 @@ export function steerAutoMovieCrowd(
   const contacts: IAutoMovieCrowdAgent.IContact[] = [];
   const open: Map<string, { seconds: number; depth: number; ticks: number }> =
     new Map();
+  // Each agent's destination is its own constant, and each obstacle's
+  // footprint at a knot is one placement every agent reads.
+  const destinations: IAutoMovieVector3[] = agents.map(
+    steerAutoMovieCrowdGeometry.finalGoal,
+  );
   for (let s: number = 0; s < trajectory.knots; ++s) {
     const seconds: number = Math.min(props.to, props.from + s * trajectory.h);
     const x: number[] = trajectory.at(seconds).x;
+    const footprints: IAutoMovieVector3[][] = obstacles.map(
+      (o: IAutoMovieCrowdAgent.IObstacle): IAutoMovieVector3[] =>
+        steerAutoMovieCrowdGeometry.footprintAt(o, seconds),
+    );
     const seen: Set<string> = new Set();
     const touch = (
       key: string,
@@ -425,8 +434,7 @@ export function steerAutoMovieCrowd(
       const a: number = slot[i]!;
       const ax: number = x[4 * a]!;
       const az: number = x[4 * a + 1]!;
-      const destination: IAutoMovieVector3 =
-        steerAutoMovieCrowdGeometry.finalGoal(agents[i]!);
+      const destination: IAutoMovieVector3 = destinations[i]!;
       if (
         arrival[i] === null &&
         Math.hypot(destination.x - ax, destination.z - az) <= agents[i]!.radius
@@ -441,19 +449,13 @@ export function steerAutoMovieCrowd(
         if (depth > 1e-9)
           touch(`a${i}:${j}`, depth, i, { kind: "agent", index: j });
       }
-      obstacles.forEach(
-        (o: IAutoMovieCrowdAgent.IObstacle, k: number): void => {
-          const depth: number =
-            agents[i]!.radius -
-            steerAutoMovieCrowdGeometry.signedDistance(
-              ax,
-              az,
-              steerAutoMovieCrowdGeometry.footprintAt(o, seconds),
-            );
-          if (depth > 1e-9)
-            touch(`o${i}:${k}`, depth, i, { kind: "obstacle", index: k });
-        },
-      );
+      footprints.forEach((footprint: IAutoMovieVector3[], k: number): void => {
+        const depth: number =
+          agents[i]!.radius -
+          steerAutoMovieCrowdGeometry.signedDistance(ax, az, footprint);
+        if (depth > 1e-9)
+          touch(`o${i}:${k}`, depth, i, { kind: "obstacle", index: k });
+      });
     }
     for (const key of [...open.keys()]) if (!seen.has(key)) open.delete(key);
   }

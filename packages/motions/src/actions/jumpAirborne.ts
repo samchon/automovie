@@ -281,7 +281,8 @@ export namespace jumpAirborne {
         ? { x: 0, y: 0, z: 0 }
         : Vector3.scale(
             rightward,
-            (passBump / 2) * ((s * (1 - s)) / (passAt * (1 - passAt))),
+            (passBump / 2) *
+              Math.min(1, (s * (1 - s)) / (passAt * (1 - passAt))),
           );
     const posture: (
       root: IAutoMovieVector3,

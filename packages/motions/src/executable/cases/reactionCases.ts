@@ -83,7 +83,7 @@ export function reactionCases(
       };
       const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
-        HumanChain.subject("a").flinch({ from }),
+        HumanChain.subject("a").flinch({ target: from }),
       );
       const peak: number = event(performance, "stroke");
       const gap = (seconds: number): number =>
@@ -151,7 +151,7 @@ export function reactionCases(
       const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
         HumanChain.subject("a").stagger({
-          from: { kind: "point", at, frame: "world" },
+          target: { kind: "point", at, frame: "world" },
           speed: 1,
         }),
       );
@@ -187,7 +187,7 @@ export function reactionCases(
       const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
         HumanChain.subject("a").knockdown({
-          from: { kind: "point", at, frame: "world" },
+          target: { kind: "point", at, frame: "world" },
         }),
       );
       const end: number = performance.duration;
