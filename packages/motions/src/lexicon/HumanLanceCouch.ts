@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -21,6 +22,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanMountedPresentation } from "./HumanMountedPresentation";
@@ -29,17 +31,11 @@ import { HumanUnseatPose } from "./HumanUnseatPose";
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLanceCouch>;
 
-/** The carry's forearm direction the arm prefers in the seat frame: out and down beside the horse's shoulder, a little forward, so the hand and the shaft pass outside the horse's neck and withers (provisional). */
-const FOREARM: Readonly<IAutoMovieVector3> = { x: -1, y: -0.5, z: 0.2 };
-
 /** The carry's upper arm from the shoulder in the seat frame, as shares of its length: out to the side and down at about 45 degrees (provisional). */
 const UPPER: Readonly<IAutoMovieVector3> = { x: -0.7, y: -0.7, z: 0 };
 
 /** The carried shaft's direction in the seat frame: along the travel, the point a little down and in, so the butt behind the grip rises clear of the horse's croup and passes outside the rider's arm (provisional). */
 const LEVEL: Readonly<IAutoMovieVector3> = { x: 0.05, y: -0.2, z: 1 };
-
-/** The lowered hand's station from the right shoulder in the seat frame, metres: the arm down, out and forward beside the horse's shoulder, about 0.6 m, nine tenths of an average arm's reach (provisional). */
-const LOWERED: Readonly<IAutoMovieVector3> = { x: -0.18, y: -0.5, z: 0.27 };
 
 /** The step the strike is first sought at, seconds: a film frame at 60 per second. */
 const FRAME: number = 1 / 60;
@@ -115,7 +111,17 @@ export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
         z: 0,
       });
       const level: IAutoMovieVector3 = Vector3.normalize(LEVEL);
-      const lowered: IAutoMovieVector3 = Vector3.add(shoulder, LOWERED);
+      // The hand the rider enters with, in the seat frame: the carry turns from it as little as it can.
+      const holding: IAutoMovieQuaternion = Quaternion.multiply(
+        Quaternion.inverse(carrier(context.start).rotation),
+        poseBones(
+          context.body,
+          context.entry.pose,
+          undefined,
+          new Set<AutoMovieHumanoidBone>(["rightHand"]),
+        ).get("rightHand")!.worldRotation,
+      );
+      const carried: ICarriage = hanging(m, shoulder, tool, level, holding);
 
       // The target's point in the seat frame at an act second.
       const seen = (t: number): IAutoMovieVector3 => {
@@ -132,7 +138,7 @@ export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
       const armReach: number = m.upperArm + m.forearm + 0.5 * m.hand;
       // A carriage that lays the point on the target at an act second, if any.
       const at = (t: number): ICarriage | undefined =>
-        striking(m, shoulder, tool, seen(t), lowered);
+        striking(m, shoulder, tool, seen(t), carried.hand.rotation);
 
       // The strike: the first frame at which a carriage lays the point on the target.
       let strike: number | undefined;
@@ -184,7 +190,6 @@ export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
         "target",
       );
       // The two carriages, laid once in the seat frame from the arm's own line: the carry along `level`, the strike on the line to the target exactly, so the point meets it.
-      const carried: ICarriage = hanging(m, shoulder, tool, level);
 
       const duration: number = params.seconds;
       const shapes: NonNullable<IAutoMovieMotionHumanPropReader["prop"]["shapes"]> =
@@ -412,41 +417,76 @@ function carriage(
 }
 
 /**
- * The carry from the arm's own line: the upper arm out and down from the shoulder (`UPPER`), the forearm at the grasp's angle to the shaft and as near FOREARM as that angle lets it, the grip at the forearm's end.
+ * The carry from the arm's own line: the upper arm out and down from the shoulder (`UPPER`), the forearm at the grasp's angle to the shaft and out from the elbow, away from the horse, turned about the shaft to the place whose hand turns least from the hand the rider enters with, so the forearm twists no further than it must; the grip at the forearm's end.
  *
  * @param m The rider's measures.
  * @param shoulder The right shoulder, seat-frame metres.
  * @param tool The held lance in the hand's frame.
  * @param along The direction the shaft runs, seat frame.
+ * @param entered The entry hand's rotation, seat frame.
  * @returns The hand's frame and the elbow.
+ * @throws {HumanRefusal} On `target` when no forearm about the shaft lays the carry.
  */
 function hanging(
   m: IAutoMovieMotionHumanBody["measure"],
   shoulder: IAutoMovieVector3,
   tool: IAutoMovieMotionHumanStrikingHeld.ITool,
   along: IAutoMovieVector3,
+  entered: IAutoMovieQuaternion,
 ): ICarriage {
   const d: IAutoMovieVector3 = Vector3.normalize(along);
   const alpha: number = Math.acos(
     Math.max(-1, Math.min(1, Vector3.dot(HAND, Vector3.normalize(tool.axis)))),
   );
-  const prefer: IAutoMovieVector3 = Vector3.normalize(FOREARM);
-  const square: IAutoMovieVector3 = Vector3.subtract(
-    prefer,
-    Vector3.scale(d, Vector3.dot(prefer, d)),
+  const seed: IAutoMovieVector3 =
+    Math.abs(d.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 };
+  const p: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(seed, Vector3.scale(d, Vector3.dot(seed, d))),
   );
-  const u: IAutoMovieVector3 =
-    Vector3.length(square) < 1e-9 ? { x: 0, y: -1, z: 0 } : Vector3.normalize(square);
-  const f: IAutoMovieVector3 = Vector3.add(
-    Vector3.scale(d, Math.cos(alpha)),
-    Vector3.scale(u, Math.sin(alpha)),
-  );
+  const q: IAutoMovieVector3 = Vector3.cross(d, p);
   const elbow: IAutoMovieVector3 = Vector3.add(
     shoulder,
     Vector3.scale(Vector3.normalize(UPPER), m.upperArm),
   );
-  const grip: IAutoMovieVector3 = Vector3.add(elbow, Vector3.scale(f, m.forearm + 0.5 * m.hand));
-  return carriage(m, shoulder, tool, grip, d);
+  let best: ICarriage | undefined;
+  let least: number = Infinity;
+  for (let around: number = 0; around < 360; around += AROUND) {
+    const phi: number = (around * Math.PI) / 180;
+    const u: IAutoMovieVector3 = Vector3.add(
+      Vector3.scale(p, Math.cos(phi)),
+      Vector3.scale(q, Math.sin(phi)),
+    );
+    const f: IAutoMovieVector3 = Vector3.add(
+      Vector3.scale(d, Math.cos(alpha)),
+      Vector3.scale(u, Math.sin(alpha)),
+    );
+    // The forearm goes out from the elbow, away from the horse's body under the rider.
+    if (f.x >= 0) continue;
+    const grip: IAutoMovieVector3 = Vector3.add(
+      elbow,
+      Vector3.scale(f, m.forearm + 0.5 * m.hand),
+    );
+    try {
+      const laid: ICarriage = carriage(m, shoulder, tool, grip, d);
+      const turn: number = Quaternion.angle(laid.hand.rotation, entered);
+      if (turn < least) {
+        least = turn;
+        best = laid;
+      }
+    } catch (error: unknown) {
+      if (!(error instanceof HumanRefusal)) throw error;
+    }
+  }
+  if (best === undefined)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "target",
+      value: (alpha * 180) / Math.PI,
+      feasible: null,
+      reason: `no forearm at the grasp's ${((alpha * 180) / Math.PI).toFixed(0)} degrees to the lance lays its carry from the upper arm out and down`,
+      fix: "take the lance by a grasp nearer its own line",
+    });
+  return best;
 }
 
 /** The directions a strike's grip is sought from the target in: around the target's vertical, in degrees. */
@@ -456,13 +496,13 @@ const AROUND: number = 15;
 const UPDOWN: number = 10;
 
 /**
- * A carriage that lays the lance's point on a target, if any: the grip one lance length from the target, within the arm's reach, with an elbow that lays the forearm at the grasp's angle to the line to the target; of those found, the grip nearest the preferred station.
+ * A carriage that lays the lance's point on a target, if any: the grip one lance length from the target, within the arm's reach, with an elbow that lays the forearm at the grasp's angle to the line to the target; of those found, the one whose hand turns least from the carry's.
  *
  * @param m The rider's measures.
  * @param shoulder The right shoulder, seat-frame metres.
  * @param tool The held lance in the hand's frame.
  * @param target The target's point, seat-frame metres.
- * @param prefer The preferred grip station, seat-frame metres.
+ * @param from The carry's hand rotation, seat frame.
  * @returns The carriage, or undefined when none lays the point on the target.
  */
 function striking(
@@ -470,7 +510,7 @@ function striking(
   shoulder: IAutoMovieVector3,
   tool: IAutoMovieMotionHumanStrikingHeld.ITool,
   target: IAutoMovieVector3,
-  prefer: IAutoMovieVector3,
+  from: IAutoMovieQuaternion,
 ): ICarriage | undefined {
   const reach: number = m.upperArm + m.forearm + 0.5 * m.hand;
   let best: ICarriage | undefined;
@@ -489,11 +529,13 @@ function striking(
         Vector3.scale(back, tool.length),
       );
       if (Vector3.distance(grip, shoulder) > reach) continue;
-      const away: number = Vector3.distance(grip, prefer);
-      if (away >= cost) continue;
       try {
-        best = carriage(m, shoulder, tool, grip, Vector3.scale(back, -1));
-        cost = away;
+        const laid: ICarriage = carriage(m, shoulder, tool, grip, Vector3.scale(back, -1));
+        const turn: number = Quaternion.angle(laid.hand.rotation, from);
+        if (turn < cost) {
+          cost = turn;
+          best = laid;
+        }
       } catch (error: unknown) {
         if (!(error instanceof HumanRefusal)) throw error;
       }

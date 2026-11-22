@@ -272,18 +272,8 @@ export namespace HumanWeaponPose {
               0,
               supported,
             );
-          if (!p.extended) return held((s.long ? 0.3 : 0.7) * s.arm);
-
-          // An extended arm (a bow's) keeps only the solver's angular
-          // resolution short of straight: the law of cosines at
-          // ROM_TOLERANCE. A skin-sized setback bends a bow arm visibly.
-          // The hand frame is
-          // chosen once, where the line meets that length with the grip's
-          // distance beyond the wrist; the tool is rigid in the hand, so sliding
-          // that frame along the line moves its wrist by the same step, and the
-          // step that brings the wrist to the length is the larger root of
-          // `|w + s u - c|^2 = r^2` (the wrist `w`, the line `u`, the shoulder
-          // `c`, the length `r`). A line the length never meets is refused.
+          // The arm's length short of straight by only the solver's angular
+          // resolution: the law of cosines at ROM_TOLERANCE.
           const upper: number = context.body.measure.upperArm;
           const lower: number = context.body.measure.forearm;
           const goal: number = Math.sqrt(
@@ -291,6 +281,42 @@ export namespace HumanWeaponPose {
               lower * lower +
               2 * upper * lower * Math.cos((ROM_TOLERANCE * Math.PI) / 180),
           );
+          if (!p.extended) {
+            // Held a share of the arm out along the line, or nearer where the
+            // arm's length ends first: the wrist rides the rigid frame along
+            // the line, so the step back that brings it to the length is the
+            // root of `|w + k u - c|^2 = r^2` nearest none.
+            const first: IAutoMovieMotionHumanStrikingHeld.IHandFrame = held(
+              (s.long ? 0.3 : 0.7) * s.arm,
+            );
+            const v: IAutoMovieVector3 = Vector3.subtract(
+              HumanHand.place(
+                context.body,
+                s.tool.side,
+                "grip",
+                first.point,
+                first.rotation,
+                "relaxed",
+              ).point,
+              shoulder,
+            );
+            const excess: number = Vector3.dot(v, v) - goal * goal;
+            if (excess <= 0) return first;
+            const along: number = Vector3.dot(v, sight);
+            const room: number = along * along - excess;
+            if (room < 0) return first;
+            return held((s.long ? 0.3 : 0.7) * s.arm - along + Math.sqrt(room));
+          }
+
+          // An extended arm (a bow's) keeps only that resolution short of
+          // straight. A skin-sized setback bends a bow arm visibly.
+          // The hand frame is
+          // chosen once, where the line meets that length with the grip's
+          // distance beyond the wrist; the tool is rigid in the hand, so sliding
+          // that frame along the line moves its wrist by the same step, and the
+          // step that brings the wrist to the length is the larger root of
+          // `|w + s u - c|^2 = r^2` (the wrist `w`, the line `u`, the shoulder
+          // `c`, the length `r`). A line the length never meets is refused.
           const outward = (from: IAutoMovieVector3, r: number): number => {
             const step: number | undefined = reach(
               Vector3.subtract(from, shoulder),
