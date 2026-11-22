@@ -203,6 +203,6 @@ export function ropeTraverse(
   return support.plan({
     ...context,
     params: { stances },
-    aim: ropeLine.aim(context, p.rope, staged),
+    aim: ropeLine.aim(context, p.rope, staged, line),
   });
 }

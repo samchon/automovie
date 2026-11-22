@@ -159,10 +159,11 @@ export namespace ropeLine {
    * @param context The action's context.
    * @param rope The rope prop.
    * @param staged The rope's staged points by name, world metres.
+   * @param line The rope's line, which a hand's grip faces square across toward the climber.
    * @returns The aim the support law reads.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the lookup and the fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation A prop target on this rope reads its staged point, facing up; any other target the context's own aim.
+   * @evidence contracts/development/implementation.md#principled-implementation A prop target on this rope reads its staged point: a hand's facing from the rope toward the climber square to its axis, a foot's up; any other target the context's own aim.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unstaged point falls back to the context rather than a guess.
    * @evidence contracts/development/implementation.md#efficient-algorithms One map lookup per read.
@@ -173,15 +174,38 @@ export namespace ropeLine {
     context: IAutoMovieMotionHumanActionContext,
     rope: string,
     staged: ReadonlyMap<string, IAutoMovieVector3>,
+    line: ILine,
   ): IAutoMovieMotionHumanActionContext["aim"] {
+    // A hand closes round the rope from the climber's side of it: its grip
+    // faces from the rope toward the body, square to the rope's axis, so it
+    // keeps one attitude wherever along the rope the hand is, never one the
+    // wrist must turn through as the hands pass above and below the
+    // shoulders. A foot stands on a hold that faces up.
+    const d: IAutoMovieVector3 = Vector3.subtract(
+      context.entry.posture.root,
+      line.low,
+    );
+    const across: IAutoMovieVector3 = Vector3.subtract(
+      d,
+      Vector3.scale(line.axis, Vector3.dot(d, line.axis)),
+    );
+    const out: IAutoMovieVector3 =
+      Vector3.length(across) > 1e-6
+        ? Vector3.normalize(across)
+        : { x: 0, y: 1, z: 0 };
     return (reference: IAutoMovieMotionTarget, seconds: number) => {
       const point: IAutoMovieVector3 | undefined =
         reference.kind === "prop" && reference.subject === rope
           ? staged.get(reference.point)
           : undefined;
-      return point === undefined
-        ? context.aim(reference, seconds)
-        : { point, normal: { x: 0, y: 1, z: 0 } };
+      if (point === undefined) return context.aim(reference, seconds);
+      return {
+        point,
+        normal:
+          reference.kind === "prop" && reference.point.includes("Hand")
+            ? out
+            : { x: 0, y: 1, z: 0 },
+      };
     };
   }
 }

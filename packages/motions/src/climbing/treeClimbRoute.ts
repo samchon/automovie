@@ -14,6 +14,9 @@ import { treeLimbs } from "./treeLimbs";
 /** Seconds per single hand or foot move (provisional). */
 const BEAT: number = 0.6;
 
+/** The names of the change groups a step expands into, by rank: holds taken, feet moved, hands moved, holds let go. */
+const GROUPS: readonly string[] = ["Take", "Feet", "Hands", "Release"];
+
 /** The near and far hold on a branch, metres out from the trunk face (provisional: two hands' widths apart, near the strong root). */
 const HOLDS: readonly [number, number] = [0.15, 0.45];
 
@@ -392,7 +395,7 @@ export namespace treeClimbRoute {
     ];
   }
   /**
-   * Expand stances so one hold changes at a time, and check every one against the branches' loads.
+   * Expand stances so the holds change a group at a time (taken, feet, hands, let go), and check every one against the branches' loads.
    *
    * @param body The canonical motion body.
    * @param tree The tree.
@@ -401,7 +404,7 @@ export namespace treeClimbRoute {
    * @throws {HumanRefusal} If a stance loads a branch past its limit, naming the branch and the load.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the expansion, the load share and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Additions first, then moves with the feet before the hands, then removals, so the contact count stays at its highest between stances; each contact bears the weight over the count.
+   * @evidence contracts/development/implementation.md#principled-implementation Additions first, then the feet's moves, then the hands', then removals, each group one stance, so the contact count stays at its highest between stances; each contact bears the weight over the count.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the stances, one over each change.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An overloaded branch refuses; no hold is dropped to pass.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the stances times the parts.
@@ -477,14 +480,20 @@ export namespace treeClimbRoute {
             of(current, part)?.key !== of(stance.holds, part)?.key,
         )
         .sort((a: string, b: string): number => rank(a) - rank(b));
-      changes.forEach((part: string, i: number): void => {
-        const next: IHold | undefined = of(stance.holds, part);
-        current = current.filter((hold: IHold): boolean => hold.part !== part);
-        if (next !== undefined) current.push(next);
-        const last: boolean = i === changes.length - 1;
+      // The changes of one rank go together: the new holds, then the feet,
+      // then the hands, then the holds let go, each group one stance, so a
+      // step costs at most four keys whatever the number of limbs it moves.
+      const ranks: number[] = [...new Set(changes.map(rank))];
+      ranks.forEach((r: number, i: number): void => {
+        for (const part of changes.filter((p: string): boolean => rank(p) === r)) {
+          const next: IHold | undefined = of(stance.holds, part);
+          current = current.filter((hold: IHold): boolean => hold.part !== part);
+          if (next !== undefined) current.push(next);
+        }
+        const last: boolean = i === ranks.length - 1;
         emit(
           current,
-          last ? stance.event : `${stance.event}${part}`,
+          last ? stance.event : `${stance.event}${GROUPS[r]}`,
           last ? stance.prefer : undefined,
         );
       });
