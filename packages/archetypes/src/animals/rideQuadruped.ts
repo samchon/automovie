@@ -21,6 +21,7 @@ import { EquinePitch } from "./EquinePitch";
 import { EquineTuck } from "./EquineTuck";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedChange } from "./QuadrupedChange";
+import { QuadrupedCorner } from "./QuadrupedCorner";
 import { QuadrupedFooting } from "./QuadrupedFooting";
 import { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
@@ -158,6 +159,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     course.footing,
     footwork.slide !== undefined,
   );
+  const corner: QuadrupedCorner.Clear = QuadrupedCorner.of(course.footing);
 
   /** Choose the next stride from the current route state or explicit footwork. */
   function decide(
@@ -369,6 +371,15 @@ export function rideQuadruped<Affordance extends string, D extends string>(
               : ground,
             carry,
             rest[0]!.z + rest[4]!.z - rest[3]!.z,
+            (point: IAutoMovieVector3): IAutoMovieVector3 =>
+              corner(
+                point,
+                Math.hypot(
+                  rest[4]!.x - rest[3]!.x,
+                  rest[4]!.y - rest[3]!.y,
+                  rest[4]!.z - rest[3]!.z,
+                ),
+              ),
           ),
           lift: (going * height + (ground?.swingLift ?? 0)) * step.rise,
           fold: going * which.fold[end] * step.rise,

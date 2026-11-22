@@ -365,6 +365,7 @@ export namespace QuadrupedHoofTrack {
    * @param footing Optional independently placed world surfaces and authored obstacles.
    * @param carry The body displacement carrying a swing through a hoof-clock hold, when the swing spans one.
    * @param under The model fore-aft position the hoof is centred toward (`footprint`'s).
+   * @param clear Moves a world foothold clear of the footing's concave edges (`QuadrupedCorner`); footholds stand where the course puts them when absent.
    * @returns Model-space coordinates in metres. The world-anchor path also returns the relative terminal axis rotation.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines frames, units and the optional next stance.
@@ -385,6 +386,7 @@ export namespace QuadrupedHoofTrack {
     footing?: QuadrupedFooting.IPlan,
     carry?: ICarry,
     under?: number,
+    clear?: (point: IAutoMovieVector3) => IAutoMovieVector3,
   ): Pick<QuadrupedRidePose.IGoal, "x" | "z" | "orientation" | "surface"> {
     if (!worldAnchors && footing === undefined) {
       // Each stance's centre moves toward the attachment by at most half its travel, as ootprint places it.
@@ -406,7 +408,11 @@ export namespace QuadrupedHoofTrack {
                 amount,
       };
     }
-    const foot: IAutoMovieVector3 = footprint(rest, from, under);
+    const placed = (stance: IStance): IAutoMovieVector3 => {
+      const point: IAutoMovieVector3 = footprint(rest, stance, under);
+      return clear === undefined ? point : clear(point);
+    };
+    const foot: IAutoMovieVector3 = placed(from);
     const landed: IAutoMovieQuaternion = from.landed.placement.rotation;
     const oldGround: QuadrupedFooting.ILanding | undefined = footing?.landing(
       foot,
@@ -416,7 +422,7 @@ export namespace QuadrupedHoofTrack {
       state.placement.rotation,
     );
     const nextFoot: IAutoMovieVector3 | undefined =
-      to === undefined ? undefined : footprint(rest, to, under);
+      to === undefined ? undefined : placed(to);
     const nextGround: QuadrupedFooting.ILanding | undefined =
       nextFoot === undefined
         ? undefined

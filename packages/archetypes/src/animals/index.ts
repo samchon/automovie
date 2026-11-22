@@ -49,6 +49,7 @@ export * from "./QuadrupedLameness";
 export * from "./QuadrupedNostrils";
 export * from "./QuadrupedWorldPose";
 export * from "./QuadrupedFootingClearance";
+export * from "./QuadrupedCorner";
 export * from "./QuadrupedDatumRide";
 export * from "./QuadrupedTail";
 export * from "./HorseDraft";
