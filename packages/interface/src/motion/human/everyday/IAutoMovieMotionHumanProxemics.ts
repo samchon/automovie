@@ -45,7 +45,7 @@ export namespace IAutoMovieMotionHumanProxemics {
   export type Band =
     /** 0.3 m ({@link HumanProxemics.GAPS}): an embrace, a whisper. */
     | "intimate"
-    /** 0.6 m: squared up within arm's reach; a confrontation or a fight at punching range. */
+    /** 0.6 m: squared up within arm's reach; a confrontation. A fight that keeps its distance takes metres, not a band: a punch steps in by up to one stance length when the arm falls short ({@link IAutoMovieMotionHumanPunch}). */
     | "faceToFace"
     /** 1.0 m: acquaintances talking; out of arm's reach. */
     | "personal"

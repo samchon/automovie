@@ -55,12 +55,12 @@ export namespace IAutoMovieMotionHumanStretch {
     /** The side stretched or lifted; `right` when absent. */
     side?: "left" | "right";
 
-    /** Seconds held; `HOLD` when absent.
+    /** Seconds held at the end of the range, after 1.5 s to enter and before 1.5 s to release; `HOLD` when absent ({@link stretch.HOLD}, 30 s, Bandy et al. 1997).
      * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     seconds?: number;
 
-    /** How far into the range; `moderate` when absent. */
+    /** How far into the joint's own range ({@link stretch.INTENSITY}): `mild` half of it, a gentle stretch; `moderate` deep, a working stretch or a held pose. `moderate` when absent. */
     intensity?: "mild" | "moderate";
 
     /** How it is performed. */
