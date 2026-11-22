@@ -21,13 +21,11 @@ import { HumanSegmentLayer } from "./HumanSegmentLayer";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import type { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
 /** The arms, placed at the anchor course (`readHumanSegmentLeaf.anchors`) where the plan's own course does not place them. */
 const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
-
-/** The legs, continued from the anchor course (`readHumanSegmentLeaf.anchors`) while free: never placed at it, and a planted leg keeps its own fit. */
-const LEGS: readonly AutoMovieHumanLimb[] = ["leftLeg", "rightLeg"];
 
 /**
  * Read the action before its entering offset, including current holds and
@@ -122,17 +120,6 @@ export function readHumanSegmentLeaf(
   // anchor course (`anchors`): the swivel interpolated between the anchor
   // seconds around this one, so no read sweeps or refines and every read of
   // a second shows the same pose, whatever was read before it.
-  const free: AutoMovieHumanLimb[] = still(segment.plan, localSeconds)
-    ? []
-    : LEGS.filter((limb: AutoMovieHumanLimb): boolean => {
-        const goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb] =
-          written.limbs[limb];
-        return (
-          goal !== undefined &&
-          goal.planted !== true &&
-          goal.contact === undefined
-        );
-      });
   const anchoring: boolean =
     fits === undefined &&
     (borne.length !== 0 ||
@@ -141,34 +128,29 @@ export function readHumanSegmentLeaf(
       ARMS.some(
         (limb: AutoMovieHumanLimb): boolean =>
           written.limbs[limb] !== undefined && course?.get(limb) === undefined,
-      ) ||
-      free.length !== 0);
-
-  // A free leg (a goal neither planted nor in contact, outside a legs-still
-  // window: a swinging or mounting leg) continues the anchors' fit of it, so
-  // its knee keeps the side the chain chose instead of leaving for whichever
-  // closed-form root a cold fit scores best; a planted leg keeps its own fit,
-  // which holds the foot.
-  const anchored: HumanSegmentPose.IFits | undefined = anchoring
+      ));
+  const anchors: HumanSegmentPose.IFits | undefined = anchoring
     ? readHumanSegmentLeaf.anchors(person, segment, t, prepared)
     : undefined;
-  const anchors: HumanSegmentPose.IFits | undefined =
-    anchored === undefined
-      ? undefined
-      : new Map(
-          [...anchored].filter(
-            ([name]: [string, IAutoMovieSwivelSeed | null]): boolean =>
-              !name.endsWith("Leg") ||
-              free.some((limb: AutoMovieHumanLimb): boolean =>
-                name.endsWith(`:${limb}`),
-              ),
-          ),
-        );
+
+  // Every leg fitted at this second (outside a legs-still window, where the
+  // legs keep one fit) continues the plan's leg chain at the frame at or
+  // before it (`readHumanSegmentLegs`): the closed-form root on the
+  // branch the frame before chose, so a knee keeps its side from frame to
+  // frame. A leg is never placed at the chain's seed, only continued from
+  // it, so a planted foot is met exactly by its own fit.
+  const legs: ReadonlyMap<string, IAutoMovieSwivelSeed> =
+    fits === undefined && !still(segment.plan, localSeconds)
+      ? readHumanSegmentLegs(person, segment, t, localSeconds)
+      : new Map();
   const placing: HumanSegmentPose.INear | undefined =
-    (course === undefined || course.size === 0) && anchors === undefined
+    (course === undefined || course.size === 0) &&
+    anchors === undefined &&
+    legs.size === 0
       ? fits
       : {
           seeds: new Map<string, IAutoMovieSwivelSeed | null>([
+            ...legs,
             ...(anchors ?? []),
             ...[...(course ?? [])]
               // Legs kept over a legs-still window keep their own fit there.
@@ -420,7 +402,7 @@ export namespace readHumanSegmentLeaf {
       }
       const arms: Map<string, IAutoMovieSwivelSeed | null> = new Map();
       for (const [name, seed] of reading.seeds)
-        if (name.endsWith("Arm") || name.endsWith("Leg")) arms.set(name, seed);
+        if (name.endsWith("Arm")) arms.set(name, seed);
       (segment.anchors ??= new Map()).set(key(i), arms);
       kept = arms;
     }
