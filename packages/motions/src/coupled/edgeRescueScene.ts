@@ -4,13 +4,18 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEdgeRescue,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { lieDown } from "../floor/lieDown";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { stuntFallPose } from "../reaction/stuntFallPose";
 
 /** Seconds the faller hangs when the scene states none. */
 const HOLD: number = 1.2;
@@ -21,8 +26,9 @@ const DROP: number = 0.8;
 /** The rescuer's shoulder past the lip when the scene states none, metres. */
 const REACH: number = 0.1;
 
-/** The chest's depth the prone rescuer's shoulder rides above the top, metres (provisional). */
-const CHEST: number = 0.15;
+
+/** The share of the arm's length the hanging grip lies below the shoulders (provisional: the arm reached down nearly straight). */
+const HANG: number = 0.95;
 
 /** Seconds the catch takes to stop the fall in the grip (provisional). */
 const ARREST: number = 0.3;
@@ -80,6 +86,9 @@ export namespace edgeRescueScene {
   export interface IScene {
     /** The lip under the faller's hands, world metres. */
     lip: IAutoMovieVector3;
+
+    /** How far past the lip the prone rescuer's shoulders lie, metres. */
+    reach: number;
 
     /** Unit horizontal out over the drop. */
     out: IAutoMovieVector3;
@@ -195,11 +204,17 @@ export namespace edgeRescueScene {
         `the rescuer's centre of mass would lie ${margin.toFixed(3)} m behind the lip, under the ${MARGIN} m margin`,
       );
 
-    // The grip most of an arm below the lip, where the prone rescuer's hand hangs.
-    const arm: number = rescuer.measure.upperArm + rescuer.measure.forearm;
+    // The grip most of an arm below the prone rescuer's shoulders, which lie
+    // `reach` past the lip at the height the lying pose holds them over the
+    // top.
+    // The arm to the grip's centre in the hand: the upper arm, the forearm and
+    // half the hand.
+    const arm: number =
+      rescuer.measure.upperArm + rescuer.measure.forearm + rescuer.measure.hand / 2;
+    const shoulder: number = proneShoulder(rescuer);
     const grip: IAutoMovieVector3 = Vector3.add(
       Vector3.add(lip, Vector3.scale(out, reach)),
-      { x: 0, y: CHEST - 0.8 * arm, z: 0 },
+      { x: 0, y: shoulder - HANG * arm, z: 0 },
     );
     const fall: number = Math.sqrt((2 * Math.max(0, lip.y - grip.y)) / g);
     const release: number = hold;
@@ -229,6 +244,7 @@ export namespace edgeRescueScene {
     };
     return {
       lip,
+      reach,
       out,
       along,
       release,
@@ -240,6 +256,42 @@ export namespace edgeRescueScene {
       grip,
       gripAt,
     };
+  }
+
+  /**
+   * How high a body lying prone holds its shoulder joints over the surface
+   * it lies on.
+   *
+   * @param body The body.
+   * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the height and its unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The lying law's prone pose resolved at the origin: its shoulder joints' mean height over its lowest collider surface.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose, two reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's own prone pose, no typed chest depth.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two resolves per scene.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The scene keeps the height.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function proneShoulder(body: IAutoMovieMotionHumanBody): number {
+    const prone: IAutoMovieMotionHumanPosture = {
+      root: { x: 0, y: 0, z: 0 },
+      yaw: 0,
+      pitch: lieDown.POSES.prone.pitch,
+      roll: lieDown.POSES.prone.roll,
+      joints: lieDown.POSES.prone.joints,
+      limbs: {},
+    };
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      resolveHumanPosture.seeded(body, prone).pose,
+    );
+    return (
+      (bones.get("leftUpperArm")!.worldPosition.y +
+        bones.get("rightUpperArm")!.worldPosition.y) /
+        2 -
+      stuntFallPose.lowest(body, prone)
+    );
   }
 
   /** The rescue's refusal. */

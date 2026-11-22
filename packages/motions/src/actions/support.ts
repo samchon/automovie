@@ -49,7 +49,9 @@ type Place = (contact: IAutoMovieMotionHumanSupport.IContact) => Point;
  * stance from its parent. Between two stances the planner solves a third key
  * on the union of both stances' contacts, so the new contacts bear before
  * the old ones release (Escande et al.'s transition configurations, in
- * both stances at once), and the body moves between keys on a minimum-jerk
+ * both stances at once), except a part the stance lets go free
+ * (`IStance.free`), which bears no more from the stance's start and hangs as
+ * the posture carries it; the body moves between keys on a minimum-jerk
  * course in joint space (Flash and Hogan 1985), each joint on its own range
  * (`blendHumanJoint`). A part that bears in two stances in a row on
  * different targets steps: the planner first solves a key without its old
@@ -256,8 +258,15 @@ export namespace support {
         const place: Place = locate(i);
         const before: IAutoMovieMotionHumanPosture =
           keys[keys.length - 1]!.posture;
+        // A part the stance lets go free bears no more from its start: it is
+        // neither held through the move nor kept beside the new contacts.
         const previous: readonly IAutoMovieMotionHumanSupport.IContact[] =
-          i === 0 ? [] : stances[i - 1]!.contacts;
+          i === 0
+            ? []
+            : stances[i - 1]!.contacts.filter(
+                (c: IAutoMovieMotionHumanSupport.IContact): boolean =>
+                  stance.free?.includes(c.part) !== true,
+              );
         const added: IAutoMovieMotionHumanSupport.IContact[] =
           stance.contacts.filter(
             (c: IAutoMovieMotionHumanSupport.IContact): boolean =>
@@ -318,7 +327,7 @@ export namespace support {
             from,
             kept,
             added,
-            leaving: stances[i - 1]!,
+            leaving: { ...stances[i - 1]!, contacts: previous },
             stance,
             oldPlace: keys.at(-1)!.place,
             place,
