@@ -32,8 +32,9 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * share of the reach, from the rest arms to the hold's first configuration
  * (`HumanArmConnect`), the return its path from the exit arms to the hold's
  * last, each state valid by the one reading the trajectory refuses by
- * (`HumanArmTrajectoryModel.invalid`) at the waypoint its share reaches, so
- * every state is read where it happens (time-indexed RRT-Connect, EXOTica). A
+ * (`HumanArmTrajectoryModel.invalid`) at the waypoint its share reaches, the
+ * hold's own only for the hold itself, so every state is read where it
+ * happens (time-indexed RRT-Connect, EXOTica). A
  * reach waypoint is the path's state at the share the carry has made at its
  * second.
  */
@@ -77,9 +78,13 @@ export namespace HumanArmSeed {
     // A path from an end of the action to the hold, through the waypoints
     // `passes` from that end's to the hold's: each configuration carries its
     // share of the reach (0 at rest, 1 on the hold) as its last coordinate,
-    // and is valid where that share puts it, at the waypoint whose share is
-    // nearest, so the rest arm is read where it rests and the hold where it
-    // holds (time-indexed RRT-Connect, `HumanArmConnect`).
+    // and is valid against its own instant (time-indexed RRT-Connect,
+    // `HumanArmConnect`): the hold itself, at share 1, at the hold's
+    // waypoint, whose task points bind it; a configuration short of the hold,
+    // still on its way there, at the waypoint before the hold whose share is
+    // nearest. The rest arm is read where it rests and the hold where it
+    // holds, and the hold's task points never bind its approach, which would
+    // wall the hold off from every edge that leaves it.
     const path = (
       from: number[][],
       to: number[][],
@@ -95,10 +100,10 @@ export namespace HumanArmSeed {
       );
       const dims: number = from.length * G.DIMENSIONS;
       const where: (s: number) => number = (s: number): number => {
+        if (s >= 1) return k;
         let best: number = 0;
-        shares.forEach((v: number, i: number): void => {
-          if (Math.abs(v - s) < Math.abs(shares[best]! - s)) best = i;
-        });
+        for (let i: number = 1; i < shares.length - 1; ++i)
+          if (Math.abs(shares[i]! - s) < Math.abs(shares[best]! - s)) best = i;
         return passes[best]!;
       };
       const found: number[][] | null = HumanArmConnect.connect({
