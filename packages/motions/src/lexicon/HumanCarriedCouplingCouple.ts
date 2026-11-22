@@ -216,7 +216,7 @@ export namespace HumanCarriedCouplingCouple {
       read: HumanCarriedNeckClear(
         bearer,
         borne,
-        HumanCarriedPitch(bearer, borne, row, chosen.held, chosen.read),
+        HumanCarriedPitch(borne, row, chosen.held, chosen.read),
       ),
     };
     // The key frame is the bone the resting region rides on, so the borne

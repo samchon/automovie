@@ -40,7 +40,7 @@ import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
  * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the mirror record and the refusal; HumanArmTrajectory.solve documents the method.
  * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's few knots with a continuous reading between them, refined where the frame-grid admission fails, as HumanArmTrajectory.solve states.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The site refinement, one optimisation, then the admit-split-continue loop; solve keeps only the mirror-name translation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading admits it; otherwise the refusal stands. A pinned hold's frame (its attitude bounded by hard task limits) is refused only where no swivel clears it, or where its tracked course still misses it, which no path at that pose can; a hold whose attitude is only asked leaves the trade to the optimiser, its rotation an objective.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading admits it; otherwise the refusal stands. A prescribed hold's frame that no swivel clears at the exact asked attitude leaves the course as laid: the hold's task limits bound points within metres, so the optimiser trades the attitude within them, and the course's own reading refuses what they cannot hold.
  * @evidence contracts/development/implementation.md#efficient-algorithms The optimiser's variables and its rounds' readings are the knots'; refinement splits only failing intervals.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A warm solution and a laid course's reading are reused only for this action's span.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers retain only the setups, final times and solution state.
@@ -262,10 +262,12 @@ export function planHumanArmTrajectory(
   // before (`HumanArmTrajectoryContactCircle`), as an animation system
   // tracks a prescribed effector path. The course's hold is that fit
   // already; from the first frame of a prescribed hold the course fails at,
-  // the rest of that hold is tracked again. A frame no swivel clears is
-  // refused at once: the pose is the law's, so no path holds it there. A
-  // swivel blocked only by its step from the frame before leaves the course
-  // as it was laid, to the repair.
+  // the rest of that hold is tracked again. A frame where no swivel clears
+  // the exact attitude, or none within a step of the frame before, leaves
+  // the course as it was laid: the hold's task limits bound points within
+  // metres of the asked frame, never the attitude exactly, so the optimiser
+  // may trade it within them, and the course's own reading refuses what
+  // they cannot hold.
   const tracked = (
     laid: HumanArmTrajectory.IAdmitted,
     verdict: M.IEvaluation,
@@ -283,13 +285,8 @@ export function planHumanArmTrajectory(
       if (!prescribed(fine, g - 1)) {
         for (let a: number = 0; a < x.length; ++a) {
           const clear: number[] | undefined = entered(fine, a, k, x);
-          if (clear === undefined) {
-            // No swivel clears the asked pose: a pinned attitude is the
-            // law's pose refused; an asked one is the optimiser's to trade.
-            if (pinned(fine, k))
-              throw unswivelled(fine, k, x, problem.arms[a]!.side);
-            return laid;
-          }
+          // No swivel clears the exact asked pose: the course stays as laid.
+          if (clear === undefined) return laid;
           x[a]![k] = clear;
         }
         changed[k++] = true;
@@ -303,20 +300,9 @@ export function planHumanArmTrajectory(
             x[a]![k - 1]!,
             k - 1,
           )[0];
-          if (next === undefined) {
-            // No swivel clear of the body at all is the law's pose refused
-            // where its attitude is pinned (hard task limits); an attitude
-            // only asked is an objective the optimiser may trade, and one
-            // blocked only by its step from the frame before is the
-            // repair's to rejoin.
-            if (
-              pinned(fine, k) &&
-              HumanArmTrajectoryContactCircle(fine, a, k, x[a]![k - 1]!)
-                .length === 0
-            )
-              throw unswivelled(fine, k, x, problem.arms[a]!.side);
-            return laid;
-          }
+          // None clears the exact asked pose, or none within a step of the
+          // frame before: the course stays as laid.
+          if (next === undefined) return laid;
           x[a]![k] = next;
         }
         changed[k] = true;
@@ -518,33 +504,6 @@ export function planHumanArmTrajectory(
         trajectories: course.trajectories,
         state: { times: [...fine.times], x: course.read.x, penalty: 0 },
       };
-
-    // A tracked course that still misses a site or a task point at an
-    // instant of a pinned hold (its attitude held by hard task limits,
-    // riding no other arm) missed it with the limb fit's own search there,
-    // against the same clearance: the arm's one freedom is the swivel, which
-    // that search reads whole, so the optimiser has no configuration there
-    // the fit did not, only a long solve to the same refusal. It is refused
-    // at once, naming what holds the hand off. A hold whose attitude is
-    // only asked (an objective, `HumanArmTrajectoryTerms.ROTATION`), or
-    // whose site rides another arm, leaves the optimiser freedoms the fit
-    // did not search, and goes on to it.
-    const missed: M.IEvaluation["worst"] | undefined =
-      warm === undefined &&
-      (course.refused === "site" || course.refused === "limit") &&
-      course.read.evaluation !== undefined &&
-      pinned(fine, course.read.evaluation.worst.at)
-        ? course.read.evaluation.worst
-        : undefined;
-    if (missed !== undefined && missed.value > M.TOLERANCE)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: missed.axis,
-        value: missed.value,
-        feasible: null,
-        reason: `no path of the ${problem.arms.map((a: HumanArmTrajectory.IArm): string => a.side).join(" and ")} arm over the action keeps the hand on its site: ${missed.what}`,
-        fix: "put the hand on a site its arm reaches with the body clear",
-      });
   }
 
   // An earlier plan's solution of this action is tried next: on its own
@@ -688,17 +647,6 @@ function prescribed(c: M.IContext, g: number): boolean {
   );
 }
 
-/** Whether a prescribed hold's frame pins the hand's pose: every arm's site there also bounds the hand's attitude by hard task limits, so no other configuration of the arm holds it. */
-function pinned(c: M.IContext, g: number): boolean {
-  return (
-    prescribed(c, g) &&
-    c.sites.every(
-      (sites: readonly (M.ISite | undefined)[]): boolean =>
-        (sites[g]?.limits?.length ?? 0) > 0,
-    )
-  );
-}
-
 /** An arm's configuration at a prescribed hold's first frame: of the clear swivels there, the one nearest the course's own; none where no swivel is clear. */
 function entered(
   c: M.IContext,
@@ -720,27 +668,6 @@ function entered(
   return best;
 }
 
-/** The refusal of a prescribed hold's frame no swivel of the arm clears, naming what holds the course's arm there. */
-function unswivelled(
-  c: M.IContext,
-  k: number,
-  x: readonly (readonly number[][])[],
-  side: string,
-): HumanRefusal {
-  const blocked: ReturnType<typeof M.invalid> = M.invalid(
-    c,
-    k,
-    x.map((arm: readonly number[][]): number[] => arm[k]!),
-  );
-  return new HumanRefusal({
-    kind: "reach",
-    axis: "region",
-    value: Math.max(0, blocked.value),
-    feasible: null,
-    reason: `no swivel of the ${side} arm keeps the hand on its site in its asked attitude with the arm clear at ${c.times[k]!.toFixed(3)} s; the course's arm there: ${blocked.what}`,
-    fix: "put the hand on a site its arm reaches with the body clear",
-  });
-}
 
 /** The most refinement passes a planned course takes over its frame grid's failing intervals: four halvings bring a knot interval of sixteen frames to single frames (provisional). */
 const REFINEMENTS: number = 4;

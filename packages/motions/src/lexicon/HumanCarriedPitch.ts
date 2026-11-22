@@ -29,7 +29,6 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
  * sagittal plane, turned until its forward reach is nil. A body already over
  * its supports is left as the fit put it.
  *
- * @param bearer The bearer's body.
  * @param borne The borne body.
  * @param row The carry's row.
  * @param held The borne regions the bearer's hands hold.
@@ -45,7 +44,6 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned placement closes over one point and one turn.
  */
 export function HumanCarriedPitch(
-  bearer: IAutoMovieMotionHumanBody,
   borne: IAutoMovieMotionHumanBody,
   row: IAutoMovieMotionHumanCarried.IRow,
   held: readonly [
