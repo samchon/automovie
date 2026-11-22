@@ -276,12 +276,12 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
   if (hand === undefined) return goals;
   // The holding arm is laid as a planned course on its hold: the reach at the take-off, the hold to the landing, the return in the settle.
-  // The hand closes on its hold at the first instant of the flight that brings the hold within the arm's reach of the moving shoulder.
+  // The hold is taken before the take-off, from the ground, as a swing-up takes the rider's waist and a running mount the horn: a hold beyond the arm's reach of the shoulder at the take-off is refused.
   const grasped: number | undefined = HumanUnseatPose.reachable(
     context.body,
     hand.side,
     0,
-    LET_GO * flight,
+    0,
     (t: number) => goals.posture(t),
     (t: number) => held(context.start + t)!,
   );
@@ -289,10 +289,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     throw new HumanRefusal({
       kind: "reach",
       axis: "hand",
-      value: context.start + LET_GO * flight,
+      value: context.start,
       feasible: null,
-      reason: `the ${hand.side} hand's hold stays beyond the arm's reach until the landing at film second ${(context.start + LET_GO * flight).toFixed(3)}`,
-      fix: "take off nearer the hold, or board without it",
+      reason: `the ${hand.side} hand's hold is beyond the arm's reach at the take-off, film second ${context.start.toFixed(3)}`,
+      fix: "take the hold before boarding",
     });
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: 0,

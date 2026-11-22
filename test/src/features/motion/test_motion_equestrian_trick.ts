@@ -35,7 +35,7 @@ const FOOT: number = 0.03;
  * Speed mounts, trick-riding figures and Roman riding (#3950).
  *
  * Scenarios:
- * 1. Running mount: a performer beside the riderless trick-saddled horse as it moves off boards the seat holding the horn; at the take-off and at the landing the hips move with the seat's own velocity within 0.1 m/s, and the left wrist is within 0.7 hand lengths of the horn at the take-off.
+ * 1. Running mount: a performer beside the riderless trick-saddled horse as it moves off boards the seat holding the horn with the near hand; at the take-off and at the landing the hips move with the seat's own velocity within 0.1 m/s, and the right wrist is within 0.7 hand lengths of the horn at the take-off.
  * 2. Trick figures on the moving horse, each held: the hippodrome stand with both ankles at the hippodrome strap, a left side drag with the left ankle at its strap, a back drag with both ankles at their straps, and a right pickup with the left wrist on the horn and the right wrist within 0.7 hand lengths of a ball on the ground; the ankles within 30 mm of their contacts plus the ankle's height.
  * 3. Roman riding: over the stand each ankle lies within 30 mm of its own horse's seat plus the ankle's height while both horses go.
  * 4. A pickup of a ball four metres out is refused on its figure's `object`, and a Roman stand across horses three metres apart is refused on `right`.
@@ -94,7 +94,7 @@ export function test_motion_equestrian_trick(): void {
       chain.stand({ seconds: WAIT + 0.8 }).registered("board", {
         on: "horse",
         seat: "seat",
-        hand: { side: "left", contact: "horn" },
+        hand: { side: "right", contact: "horn" },
       }),
   });
   assertTakeClean("a running mount", boarding.film);
@@ -132,13 +132,13 @@ export function test_motion_equestrian_trick(): void {
       );
   }
   const horn: number = Vector3.distance(
-    boarding.film.bones("rider", board.start + 0.02).get("leftHand")!
+    boarding.film.bones("rider", board.start + 0.02).get("rightHand")!
       .worldPosition,
     boarding.part("horn", board.start + 0.02).translation,
   );
   if (horn > 0.7 * body.measure.hand)
     findings.push(
-      `running mount: the left wrist is ${horn.toFixed(3)} m from the horn`,
+      `running mount: the right wrist is ${horn.toFixed(3)} m from the horn`,
     );
 
   // 2. The trick figures on the moving horse.

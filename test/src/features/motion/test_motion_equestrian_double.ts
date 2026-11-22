@@ -33,7 +33,7 @@ const WAIT: number = 6;
  * Two people on or around one ridden horse (#3951): a swing-up onto the pillion of a double saddle and the passenger's waist hold, a limp body carried across the saddle, ponying a second horse by its lead, and a leg-up.
  *
  * Scenarios:
- * 1. Swing-up at a walk: the passenger's right hand grips the rider's left thigh from the take-off until the landing and the pillion seat window opens at the landing, so the support passes from the ground through the rider to the horse with no gap; after the landing the passenger's seat region lies within 10 mm of the pillion's surface.
+ * 1. Swing-up at a walk: the passenger takes the rider's waist standing, then the right hand grips the rider's left thigh from the take-off until the landing and the pillion seat window opens at the landing, so the support passes from the ground through the rider to the horse with no gap; after the landing the passenger's seat region lies within 10 mm of the pillion's surface.
  * 2. Pillion hold: both of the passenger's wrists stay within 0.7 hand lengths of the rider's hip joints, and the passenger's chest stays behind the rider's along the saddle by more than the rider's chest depth.
  * 3. Limp carry: the body's hips rest within a chest depth above the saddle and its head hangs below the seat on the authored side.
  * 4. Ponying: the rider's right wrist stays within 0.7 hand lengths of the led horse's lead while both horses go, the led horse on its own slower clock.
@@ -110,7 +110,12 @@ export function test_motion_equestrian_double(): void {
           from: { x: 0.45, y: 0, z: -0.45 },
           acts: (chain) =>
             chain
-              .stand({ seconds: WAIT + 0.6 })
+              .stand({ seconds: WAIT - 0.4 })
+              // The rider's waist taken standing, before the swing-up.
+              .registered("clasp", {
+                seconds: 1,
+                right: { subject: "rider", bone: "leftUpperLeg" },
+              })
               .registered("board", {
                 on: "horse",
                 seat: "pillion",
@@ -128,7 +133,7 @@ export function test_motion_equestrian_double(): void {
     });
   const swung: mountedHorseScene.IScene = pickup(easy);
   assertTakeClean("a swing-up onto the pillion", swung.film);
-  const board: IAutoMovieMotionHumanSegment = take(swung, "passenger", 1);
+  const board: IAutoMovieMotionHumanSegment = take(swung, "passenger", 2);
   const span: number = board.end - board.start;
   const grip: IAutoMovieMotionHumanContactWindow | undefined =
     board.plan.contacts.find((c) => c.part === "rightHand");
@@ -155,7 +160,7 @@ export function test_motion_equestrian_double(): void {
         `pillion: the seat region is ${local.y.toFixed(3)} m off the pillion at ${at.toFixed(2)} s`,
       );
   }
-  const clasp: IAutoMovieMotionHumanSegment = take(swung, "passenger", 2);
+  const clasp: IAutoMovieMotionHumanSegment = take(swung, "passenger", 3);
   for (let k: number = 1; k <= 4; ++k) {
     const at: number =
       clasp.start + 0.4 + ((clasp.end - clasp.start - 0.5) * k) / 4;
