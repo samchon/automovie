@@ -39,9 +39,6 @@ export namespace stepOverPath {
   /** How far beyond the far side the lead heel lands, as a share of the foot's length (provisional, as `stepOver` states). */
   const BEYOND: number = 0.1;
 
-  /** The nearest the obstacle's near side may stand, as a share of the foot's length, so the lead toe does not start on it (provisional). */
-  const NEAR: number = 0.5;
-
   /** The highest obstacle a standing step clears, as a share of the hip height (provisional, as `stepOver` states). */
   const HIGH: number = 0.55;
 
@@ -149,18 +146,24 @@ export namespace stepOverPath {
     const near: number = framed.local(obstacle.at).z;
     const leg: number = m.thigh + m.shank;
 
-    if (near < NEAR * m.footLength || near > leg)
+    // A foot whose toe already stands over the near side starts inside the
+    // obstacle: the nearest admitted near side is the farther toe as entered.
+    const toes: number = Math.max(
+      framed.local(HumanFoot.point(body, "left", "toe", context.entry.feet.left)).z,
+      framed.local(HumanFoot.point(body, "right", "toe", context.entry.feet.right)).z,
+    );
+    if (near < toes || near > leg)
       throw new HumanRefusal({
         kind: "reach",
         axis: "obstacle",
         value: near,
         feasible: {
           kind: "range",
-          minimum: NEAR * m.footLength,
+          minimum: toes,
           maximum: leg,
           unit: "m",
         },
-        reason: `the obstacle's near side is ${near.toFixed(3)} m ahead; stand ${(NEAR * m.footLength).toFixed(3)} to ${leg.toFixed(3)} m before it`,
+        reason: `the obstacle's near side is ${near.toFixed(3)} m ahead; stand ${toes.toFixed(3)} to ${leg.toFixed(3)} m before it`,
         fix: "stand before the obstacle within that distance of its near side",
       });
     if (obstacle.height > HIGH * m.hipHeight)

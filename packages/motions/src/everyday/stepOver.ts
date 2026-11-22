@@ -73,7 +73,9 @@ import { stepOverPath } from "./stepOverPath";
  * so the folded trailing knee keeps its range. The pelvis is lowered wherever a planted leg could not reach its foot,
  * and over the second half of each swing toward where the swinging leg
  * will reach its landing, so it has come down when the foot lands instead
- * of dropping at the contact.
+ * of dropping at the contact; over the first half the swinging leg lets go
+ * of the lowering it asked where it left, so the pelvis does not rise at
+ * the toe-off.
  *
  * Time scales with leg length by dynamic similarity (Alexander 1984): the
  * whole action takes `2.4 sqrt(l / walkRoot.REFERENCE_HIP)` seconds for a hip height `l`
@@ -85,7 +87,8 @@ import { stepOverPath } from "./stepOverPath";
  * Draganich 1997, J Biomech 30:331).
  *
  * The obstacle lies ahead along the performer's heading; its near side must
- * be within one leg length of the feet and its height at most 0.55 of the hip
+ * lie past both toes as entered and within one leg length of the feet, and
+ * its height at most 0.55 of the hip
  * height (provisional, near the hip flexion a standing step can use),
  * otherwise the step is refused with the limits. Events: `leadToeOff`,
  * `leadContact`, `trailToeOff`, `trailContact`.
@@ -336,7 +339,9 @@ export namespace stepOver {
         );
         // A swinging foot's leg reaches for its landing over the second half
         // of its swing, so the pelvis has come down to where that leg stands
-        // when it lands rather than dropping at the contact.
+        // when it lands rather than dropping at the contact; over the first
+        // half it lets go of the lowering it asked from where it left, so
+        // the pelvis does not rise at the toe-off a planted leg had held down.
         const side: AutoMovieHumanSide | undefined = !footings[lead].planted
           ? lead : !footings[trail].planted ? trail : undefined;
         if (side === undefined) return posture;
@@ -344,12 +349,12 @@ export namespace stepOver {
         const limb: AutoMovieHumanLimb = side === "left" ? "leftLeg" : "rightLeg";
         const observed: boolean = channels === undefined || channels.includes(limb);
         const middle: number = (from + to) / 2;
-        if (!observed && t <= middle) return posture;
         const hip: IAutoMovieVector3 = hipJoints(
           body, posture.root, resolveHumanPosture.heading(posture), posture.joints.hips, resolution(),
         )[side];
-        const landing: number = t <= middle ? 0 :
-          Math.max(0, smooth(t, middle, to) * short(hip, end[side]));
+        const landing: number = t <= middle
+          ? Math.max(0, (1 - smooth(t, from, middle)) * short(hip, footAt(side, from).placement.ankle))
+          : Math.max(0, smooth(t, middle, to) * short(hip, end[side]));
         if (landing > 0) {
           posture.root = { ...posture.root, y: posture.root.y - landing };
           hip.y -= landing;
