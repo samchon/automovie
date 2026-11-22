@@ -91,6 +91,7 @@ export function test_human_motion_bag_search(): void {
         "tote",
         "phone",
         "grip",
+        height,
       ).node,
     });
     assertTakeClean(`${fit} searches the tote`, film);
