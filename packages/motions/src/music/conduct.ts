@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -23,6 +24,7 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { courseArmAtPace } from "../compose/courseArmAtPace";
 import { prepareDanceBeats } from "../exercise/prepareDanceBeats";
 import { writeWith } from "../handling/writeWith";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -65,12 +67,6 @@ const HALF: number = 0.18;
 /** The rebound's height between ictuses, as a share of `HALF`: provisional, above the largest rise between ictuses times 1/π so each ictus is a lowest point. */
 const REBOUND: number = 0.6;
 
-/** The grid the figure's speed is read on, seconds: a 120 Hz frame. */
-const FRAME: number = 1 / 120;
-
-/** The headroom over the figure's fastest tip speed the arm is admitted against: provisional. */
-const MARGIN: number = 1.5;
-
 /** The tempo when none is given, beats per minute. */
 const BPM: number = 120;
 
@@ -89,8 +85,8 @@ const BPM: number = 120;
  * (`prepareDanceBeats`): at `bpm`, or on a cue track's beats when locked.
  * The hand comes in over the lead before the first beat and returns over
  * one beat after the last. A beat is a delivered stroke, so the arm is
- * admitted against the figure's own fastest tip speed with `MARGIN`, not a
- * reach's pace. Events: `strokeStart` at the first ictus and
+ * coursed at its goal's own peak speed (`courseArmAtPace`), not a reach's
+ * pace. Events: `strokeStart` at the first ictus and
  * `strokeEnd` at the last.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the plane, the figure, the rebound, the beat clock and the events.
@@ -190,14 +186,6 @@ function plan(
       (seconds - beats.at(k)) / (beats.at(k + 1) - beats.at(k)),
     );
   };
-  // The tip's fastest speed along the figure, read on a frame grid.
-  let fastest: number = 0;
-  for (let s: number = 0; s + FRAME <= clock.duration; s += FRAME)
-    fastest = Math.max(
-      fastest,
-      Vector3.distance(tip(s + FRAME), tip(s)) / FRAME,
-    );
-  const pace: number = MARGIN * fastest;
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
     context.body,
     posture,
@@ -221,45 +209,55 @@ function plan(
         },
       },
       clock,
-      primitives: [
-        AutoMovieMotionHumanArm.carried({
-          body: context.body,
-          side,
-          from: 0,
-          to: clock.duration,
-          // A beat is a delivered stroke, not a reach: its speed bound is the
-          // figure's own, the tip's fastest over the bars with a margin.
-          pace: (): number => pace,
-          span: { start: 0, ready: first, relax: last, end: clock.duration },
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-          disc: 0,
-          weight: (seconds: number): number => {
-            const u: number =
-              seconds < last
-                ? Math.min(1, seconds / (first / 2))
-                : Math.max(0, 1 - (seconds - last) / beats.period);
-            return u * u * (3 - 2 * u);
-          },
-          goal: (
-            _posture: IAutoMovieMotionHumanPosture,
-            seconds: number,
-          ): IAutoMovieHumanLimbGoal => ({
-            point: Vector3.subtract(tip(seconds), lever),
-            rotation,
-            contact,
-            bend,
-          }),
-        }),
-      ],
+      primitives: [],
       contact: "strokeStart",
     });
-  return {
+  // The baton hand's goal at each second: the wrist that puts the tip on
+  // the figure. A beat is a delivered stroke, so the arm is coursed at the
+  // goal's own peak speed (`courseArmAtPace`), not a reach's pace.
+  const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
+  const goals: IAutoMovieMotionHumanActionPlan = {
     ...composed,
+    posture: (
+      seconds: number,
+      ...rest: PostureRest
+    ): IAutoMovieMotionHumanPosture => {
+      const at: IAutoMovieMotionHumanPosture = composed.posture(
+        seconds,
+        ...rest,
+      );
+      const goal: IAutoMovieHumanLimbGoal = {
+        point: Vector3.subtract(tip(seconds), lever),
+        rotation,
+        contact,
+        bend,
+      };
+      return { ...at, limbs: { ...at.limbs, [limb]: goal } };
+    },
+  };
+  const coursed: IAutoMovieMotionHumanActionPlan = courseArmAtPace(
+    context.body,
+    goals,
+    side,
+    AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+    { start: 0, ready: first, relax: last, end: clock.duration },
+  );
+  return {
+    ...coursed,
     hands: [side],
-    contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
-    holds: [...(composed.holds ?? []), { ...kept, from: 1 }],
+    contacts: [...coursed.contacts, AutoMovieMotionHumanHeld.grip(held)],
+    holds: [...(coursed.holds ?? []), { ...kept, from: 1 }],
   };
 }
+
+/** The posture reader's arguments after the second. */
+type PostureRest =
+  Parameters<IAutoMovieMotionHumanActionPlan["posture"]> extends [
+    number,
+    ...infer R,
+  ]
+    ? R
+    : never;
 
 /** The tip between two ictuses: their line lifted by the rebound arc. */
 function arc(

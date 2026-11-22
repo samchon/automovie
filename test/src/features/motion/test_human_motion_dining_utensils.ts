@@ -38,6 +38,9 @@ const ON: number = 0.01;
 const HOLD: number = 0.005;
 /** A bite reaches the mouth within this, metres: the lips' half width. */
 const MOUTH: number = 0.06;
+/** A hand's breadth as a share of its length: the cited survey's P50 ratio. */
+const BREADTH: number = 0.45;
+
 /** The seated diner's chair. */
 const CHAIR: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
@@ -194,12 +197,15 @@ function cut(
       ],
       seconds: 1.2,
       side,
-      // The fork pins a hand's breadth from the knife: about 0.4 of the
-      // hand's length (provisional ratio).
+      // The fork pins a hand's breadth from the knife: 0.45 of the hand's
+      // length, as a 2016 adult hand survey gives P50 breadths of 86 and 80 mm
+      // against lengths of 188 and 177 mm for men and women
+      // (https://pmc.ncbi.nlm.nih.gov/articles/PMC9225906/, read through a
+      // search summary).
       steady: {
         tool: "fork",
         tip: "face",
-        at: [edge - sign * 0.4 * body.measure.hand, 0],
+        at: [edge - sign * BREADTH * body.measure.hand, 0],
       },
     })
     .registered("write", {
