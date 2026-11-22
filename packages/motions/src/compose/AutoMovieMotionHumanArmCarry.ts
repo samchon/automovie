@@ -267,7 +267,7 @@ export namespace AutoMovieMotionHumanArmCarry {
         props.tracked !== true &&
         props.attitude === undefined &&
         seconds > span.start &&
-        (seconds < span.end || span.relax >= span.end)
+        (seconds <= span.end || span.relax >= span.end)
           ? []
           : HumanChannels.ORDER,
       from: props.from,
@@ -321,10 +321,14 @@ export namespace AutoMovieMotionHumanArmCarry {
           delete limbs[limb];
           return { ...posture, joints, limbs };
         };
+        // The planned course holds through its span's last instant: a return
+        // ends on its `back` there, and the rest-to-goal blend outside the
+        // span, whose weight has fallen to none at that instant, would show
+        // the rest instead.
         const onPlan: boolean =
           span !== undefined &&
           seconds > span.start &&
-          (seconds < span.end || span.relax >= span.end);
+          (seconds <= span.end || span.relax >= span.end);
         const goaled = (
           at: IAutoMovieMotionHumanPosture,
           t: number,
