@@ -182,13 +182,13 @@ export function planHumanArmTrajectory(
     from: number[][][],
     penalty?: number,
   ): Solved => {
-    let seed: number[][][] = from;
-    for (
-      let split: number[] = HumanArmRefine.unbounded(context, fine);
-      split.length > 0;
-      split = HumanArmRefine.unbounded(context, fine)
-    )
-      seed = refine(seed, split);
+    // The knots stay few, TrajOpt's few timesteps: a moving site is held at
+    // every frame through the knots' interpolant, which the optimiser reads
+    // and linearises on the whole grid, and an interval is split only where
+    // the solved path's frame-grid reading fails it (below), never ahead of
+    // a solve on the site points' own interpolant, which split a stroke's
+    // knots down to the frame grid before anything was solved.
+    const seed: number[][][] = from;
     // The waypoints are knots of the frame grid: the optimiser reads and
     // linearises every grid instant on their interpolant and steps the
     // knots (`HumanArmTrajectoryKnots`), so its last evaluation is the
@@ -496,7 +496,20 @@ export function planHumanArmTrajectory(
   // initialisations (Schulman et al. 2013, section VI).
   const initial: HumanArmTrajectory.IProblem = problem;
 
-  // An earlier plan's solution of this action is tried first: on its own
+  // A hold whose hand pose its law prescribes is tracked frame by frame
+  // before anything is optimised (`tracked`), a warm start included: it
+  // needs no solve. Only what it leaves failing, the reach and the return
+  // about it, goes on to the warm start, the repair and the optimiser.
+  if (course?.read.evaluation !== undefined) {
+    course = tracked(course, course.read.evaluation);
+    if (course.admitted)
+      return {
+        trajectories: course.trajectories,
+        state: { times: [...fine.times], x: course.read.x, penalty: 0 },
+      };
+  }
+
+  // An earlier plan's solution of this action is tried next: on its own
   // knots as it stands, returned where the model admits it at them and on
   // the frame grid, and continued from at its penalty where not.
   let solved: Solved | undefined;
@@ -534,18 +547,9 @@ export function planHumanArmTrajectory(
     }
   }
   if (solved === undefined && course?.read.evaluation !== undefined) {
-    // A hold whose hand pose its law prescribes is tracked frame by frame
-    // before anything is optimised (`tracked`); only what it leaves failing,
-    // the reach and the return about it, goes on to the repair.
-    course = tracked(course, course.read.evaluation);
-    if (course.admitted)
-      return {
-        trajectories: course.trajectories,
-        state: { times: [...fine.times], x: course.read.x, penalty: 0 },
-      };
     const repaired: HumanArmTrajectory.ISolved | undefined = repair(
       course,
-      course.read.evaluation!,
+      course.read.evaluation,
     );
     if (repaired !== undefined) return repaired;
   }

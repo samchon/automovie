@@ -171,8 +171,9 @@ export namespace HumanArmTrajectory {
   /**
    * Solve the problem on its knots and admit it on the frame grid.
    *
-   * The knots are first split where their sites' interpolant leaves the
-   * act's own site (`HumanArmRefine.unbounded`), which needs no solve. The
+   * A refused course's hold whose hand pose its law prescribes is tracked
+   * frame by frame on the swivel first, and needs no solve. The knots stay
+   * few, a moving site held at every frame through their interpolant. The
    * trajectory is then optimised on the knots, its interpolant read on the
    * frame grid (`HumanArmTrajectoryAdmission.read`), and every interval the
    * reading fails in, and those about a knot the solve itself could not
