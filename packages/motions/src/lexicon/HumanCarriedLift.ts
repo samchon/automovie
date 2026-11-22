@@ -90,19 +90,28 @@ export namespace HumanCarriedLift {
     );
     const ease: (x: number) => number = (x: number): number =>
       minimumJerk.share(x);
-    // The blend at a raw progress `x`. The joints, the heading and the
-    // attitude go on one minimum-jerk share; the root rises before it
-    // crosses and crosses before it comes down, each on a minimum-jerk half
-    // of the phase, so the body goes over the carrier, never through it, and
-    // the two halves meet at rest, the root's velocity continuous there.
+    // The blend at a raw progress `x`. The root rises before it crosses and
+    // crosses before it comes down, each on a minimum-jerk half of the
+    // phase, so the body goes over the carrier, never through it, and the
+    // two halves meet at rest, the root's velocity continuous there. The
+    // joints, the heading and the attitude go with the height: the body
+    // takes the carry's shape (a straddle's legs open) as it rises, before
+    // it crosses, and the stand's as it comes down, after it has crossed.
     const mix = (
       from: IAutoMovieMotionHumanPosture,
       to: IAutoMovieMotionHumanPosture,
       x: number,
     ): IAutoMovieMotionHumanPosture => {
-      const w: number = ease(x);
       const lead: number = ease(Math.min(1, 2 * x));
       const lag: number = ease(Math.max(0, 2 * x - 1));
+      const a: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+        turnHumanPosture(from);
+      const b: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+        turnHumanPosture(to);
+      const rising: boolean = b.position.y >= a.position.y;
+      const up: number = rising ? lead : lag;
+      const across: number = rising ? lag : lead;
+      const w: number = up;
       const joints: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const bone of new Set([
         ...Object.keys(from.joints),
@@ -121,18 +130,11 @@ export namespace HumanCarriedLift {
         ];
       }
       const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-      const a: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
-        turnHumanPosture(from);
-      const b: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
-        turnHumanPosture(to);
       const rotation: IAutoMovieQuaternion = Quaternion.slerp(
         a.rotation,
         b.rotation,
         w,
       );
-      const rising: boolean = b.position.y >= a.position.y;
-      const up: number = rising ? lead : lag;
-      const across: number = rising ? lag : lead;
       const blended: IAutoMovieMotionHumanPosture = {
         root: {
           x: a.position.x + (b.position.x - a.position.x) * across,

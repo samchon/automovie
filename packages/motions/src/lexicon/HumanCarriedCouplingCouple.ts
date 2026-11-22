@@ -29,6 +29,7 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
 import type { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
 import { HumanCarriedNeckClear } from "./HumanCarriedNeckClear";
+import { HumanCarriedPitch } from "./HumanCarriedPitch";
 
 /** The borne regions held by the bearer's left and right hands. */
 type Grip = Parameters<typeof HumanCarriedCouplingFit.read>[3];
@@ -203,14 +204,20 @@ export namespace HumanCarriedCouplingCouple {
       }
     };
     const chosen: IGripFit = choose(0);
-    // The borne pelvis is set back off the bearer's neck where the key
-    // rests it there (`HumanCarriedNeckClear`).
+    // The borne body is pitched forward over its supports where its centre
+    // lies behind all of them (`HumanCarriedPitch`), and then its pelvis set
+    // back off the bearer's neck where the pitched key rests it there
+    // (`HumanCarriedNeckClear`).
     const {
       read: { fit, mine, theirs },
       held,
     }: IGripFit = {
       ...chosen,
-      read: HumanCarriedNeckClear(bearer, borne, chosen.read),
+      read: HumanCarriedNeckClear(
+        bearer,
+        borne,
+        HumanCarriedPitch(bearer, borne, row, chosen.held, chosen.read),
+      ),
     };
     // The key frame is the bone the resting region rides on, so the borne
     // body goes with that bone wherever the bearer's action takes it.
@@ -379,11 +386,15 @@ export namespace HumanCarriedCouplingCouple {
         (b: IBearingContact): IAutoMovieVector3 =>
           fit.place(HumanCarriedCouplingPose.region(borne, mine, b.region)),
       ),
+      // A clinging palm presses where it clings, on the first bearer's
+      // region (its goal there), not where the key's arm happens to hang.
       ...clinging.map(
         (c: IClingContact): IAutoMovieVector3 =>
-          fit.place(
-            HumanCarriedCouplingPose.region(borne, mine, palmOf(c.hand)),
-          ),
+          c.role === rules.BEARER
+            ? HumanCarriedCouplingPose.region(bearer, theirs, c.cling)
+            : fit.place(
+                HumanCarriedCouplingPose.region(borne, mine, palmOf(c.hand)),
+              ),
       ),
     ];
     const loads: number[] = HumanCarriedCouplingLoad.shares(points, centre);
