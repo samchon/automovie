@@ -50,17 +50,11 @@ const FACING: IAutoMovieVector3 = {
   z: Math.cos((ACTOR_YAW * Math.PI) / 180),
 };
 
-/** The receiver's mark, metres: ahead of the initiator's along its facing by a spacing, moved on the floor by a separation. */
-const receiverMark = (
-  along: number,
-  moved: IAutoMovieVector3,
-): IAutoMovieVector3 =>
-  Vector3.add(Vector3.add(ACTOR_MARK, Vector3.scale(FACING, along)), moved);
+/** The receiver's mark, metres: ahead of the initiator's along its facing by a spacing. */
+const receiverMark = (along: number): IAutoMovieVector3 =>
+  Vector3.add(ACTOR_MARK, Vector3.scale(FACING, along));
 
-/** The move the overlap's normal is read over, metres: a centimetre. */
-const STEP: number = 0.01;
-
-/** The trunk parts whose meeting the marks keep apart. */
+/** The trunk parts whose meeting the spacing keeps apart. */
 const TRUNK: ReadonlySet<string> = new Set([
   "head",
   "neck",
@@ -69,25 +63,24 @@ const TRUNK: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * How far to move the receiver's mark on the floor so the two fighters'
- * heads and trunks never meet over a played scene, world metres. The
- * receiver's whole motion is its own on its mark, the stances read nothing
- * of the initiator, so moving its mark by m moves every collider of it by m.
- * A pair of colliders `d` apart (negative overlapping,
- * `physicalShapePairDistance`, exact for the convex shapes) has the floor
- * gradient g of that distance (read over a centimetre's move each way), the
- * overlap's normal on the floor; it clears by `skin` once moved
- * `g (skin - d) / |g|^2`. The move is the largest such over the scene's
- * instants: the closest approach of the two bodies' solved stances, sideways
- * as well as head on.
+ * The least spacing of the marks at which the two fighters' heads and
+ * trunks never meet over a played scene, metres. The receiver's whole motion
+ * is its own on its mark, the stances read nothing of the initiator, so
+ * moving its mark by s along the facing moves every collider of it by s; the
+ * two face each other along that line, so a pair of colliders `d` apart
+ * (negative overlapping, `physicalShapePairDistance`, exact for the convex
+ * shapes) clears by `skin` once moved `skin - d` farther. The spacing is the
+ * played one plus the greatest such move over the scene's instants: the
+ * closest approach of the two bodies' solved stances.
  */
-const separation = (
+const spacing = (
   film: HumanPerformance,
   body: IAutoMovieMotionHumanBody,
+  played: number,
   from: number,
   to: number,
-): IAutoMovieVector3 => {
-  let move: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+): number => {
+  let more: number = 0;
   for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
     const trunk = (subject: string): IAutoMovieMotionHumanColliders.IPlaced[] =>
       HumanColliders.placed(body, film.bones(subject, t)).filter(
@@ -97,44 +90,13 @@ const separation = (
     for (const a of trunk("a"))
       for (const b of trunk("b"))
         for (const one of a.shapes)
-          for (const other of b.shapes) {
-            const d: number = physicalShapePairDistance(
-              a.pose,
-              one,
-              b.pose,
-              other,
+          for (const other of b.shapes)
+            more = Math.max(
+              more,
+              SKIN - physicalShapePairDistance(a.pose, one, b.pose, other),
             );
-            if (d >= SKIN) continue;
-            const along = (axis: IAutoMovieVector3): number =>
-              (physicalShapePairDistance(
-                a.pose,
-                one,
-                {
-                  position: Vector3.add(
-                    b.pose.position,
-                    Vector3.scale(axis, STEP),
-                  ),
-                  rotation: b.pose.rotation,
-                },
-                other,
-              ) -
-                d) /
-              STEP;
-            const g: IAutoMovieVector3 = {
-              x: along({ x: 1, y: 0, z: 0 }),
-              y: 0,
-              z: along({ x: 0, y: 0, z: 1 }),
-            };
-            const square: number = Vector3.dot(g, g);
-            if (!(square > 1e-12)) continue;
-            const needed: IAutoMovieVector3 = Vector3.scale(
-              g,
-              (SKIN - d) / square,
-            );
-            if (Vector3.length(needed) > Vector3.length(move)) move = needed;
-          }
   }
-  return move;
+  return played + more;
 };
 
 /**
@@ -195,10 +157,9 @@ function scene(
     "clinch",
   );
   // The marks are set by the two bodies' own solved stances: played once at
-  // the spacing their entry lean gives (`grapple.spacing`), then with the
-  // receiver moved by the closest-approach separation that play reads.
-  const first: number = grapple.spacing("mmaReset", body, body);
-  const played = (moved: IAutoMovieVector3): HumanPerformance =>
+  // the spacing their entry lean gives (`grapple.spacing`), then at the
+  // closest-approach spacing that play reads (`spacing`).
+  const played = (along: number): HumanPerformance =>
     new HumanPerformance({
       seed: "mma-clinch",
       laws: [grapple],
@@ -213,7 +174,7 @@ function scene(
         {
           subject: "b",
           body,
-          at: receiverMark(first, moved),
+          at: receiverMark(along),
           yaw: RECEIVER_YAW,
           proficiency: { level: "trained" },
         },
@@ -232,9 +193,10 @@ function scene(
         ],
       },
     });
-  const trial: HumanPerformance = played({ x: 0, y: 0, z: 0 });
+  const first: number = grapple.spacing("mmaReset", body, body);
+  const trial: HumanPerformance = played(first);
   const film: HumanPerformance = played(
-    separation(trial, body, 0, trial.duration),
+    spacing(trial, body, first, 0, trial.duration),
   );
   assertTakeClean(`staged_mma_reset ${film.duration}`, film);
   const entry = (anchor: string): IAutoMovieScheduleEntry =>
