@@ -430,8 +430,11 @@ const remember = (
           position: { x: 0, y: support.height ?? 0, z: 0 },
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         };
+      // A contact on a moving part rides the part's frame, not the prop's.
       if (support.kind === "prop")
-        return performance.prop(support.subject, seconds);
+        return support.point !== undefined && performance.site !== undefined
+          ? performance.site(support.subject, support.point, seconds)
+          : performance.prop(support.subject, seconds);
       const bone: AutoMovieHumanoidBone =
         "bone" in support
           ? support.bone

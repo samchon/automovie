@@ -24,7 +24,8 @@ import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical AutoMovieHumanoidRegion, AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanContactWindow {
-  /** The body part in contact; head and chest bear through their egion, as a head resting on a partner's shoulder (#4012). */
+  /** The body part in contact; head and chest bear through their 
+egion, as a head resting on a partner's shoulder (#4012). */
   part: (readonly [
     "leftFoot",
     "rightFoot",
@@ -163,6 +164,8 @@ export namespace IAutoMovieMotionHumanContactWindow {
         carries?: boolean;
         /** Scene subject id of the supporting prop or person. */
         subject: string;
+        /** The prop's named point whose frame bears the contact, for a contact on a moving part (a pedal on its crank, a tread's plate); the whole prop's frame when absent. */
+        point?: string;
       }
     | {
         /** Support discriminant: ground, prop or another person. */

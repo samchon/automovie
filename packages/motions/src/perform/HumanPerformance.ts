@@ -29,6 +29,7 @@ import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceSite } from "./HumanPerformanceSite";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
@@ -165,6 +166,23 @@ export class HumanPerformance {
   }
 
   /**
+   * A prop's named point as a world frame at a film second (`HumanPerformanceSite`).
+   *
+   * @param subject The prop.
+   * @param point The point's name.
+   * @param seconds Film seconds.
+   * @returns The point's world frame, metres.
+   * @throws {HumanRefusal} When the prop or its point is unknown.
+   */
+  public site(
+    subject: string,
+    point: string,
+    seconds: number,
+  ): IAutoMovieRigidTransform {
+    return HumanPerformanceSite(this.resolved, subject, point, seconds);
+  }
+
+  /**
    * A line between props at a film second (`IAutoMovieMotionHumanTether`):
    * its ends, its line out, whether it runs taut, and the points it is
    * drawn through, straight when taut and a catenary when slack.
@@ -174,13 +192,18 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns The line as it lies.
    */
-  public tether(subject: string, id: string, seconds: number): IAutoMovieMotionHumanTether.ISpan {
+  public tether(
+    subject: string,
+    id: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanTether.ISpan {
     return HumanPerformanceTether.span(
       this.resolved,
       subject,
       id,
       seconds,
-      (prop: string, at: number): IAutoMovieRigidTransform => HumanPerformanceRead.prop(this.resolved, prop, at),
+      (prop: string, at: number): IAutoMovieRigidTransform =>
+        HumanPerformanceRead.prop(this.resolved, prop, at),
     );
   }
 
