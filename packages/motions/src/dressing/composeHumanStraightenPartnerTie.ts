@@ -4,9 +4,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Stage straightening a partner's tie, facing them (#4015): the fingertips
- * of one hand smooth the tie's front blade along the partner's sternum with
- * one short sweep, as `composeHumanStraightenTie` does on one's own. The
+ * Stage straightening a partner's tie, facing them (#4015): the flat palm
+ * of one hand smooths the tie's front blade along the partner's sternum with
+ * one short sweep, as `composeHumanStraightenTie` does on one's own with the
+ * fingertips; on another's chest the palm lays the blade flat. The
  * partner's sternum is the garment's landmark, read where the partner
  * stands when the touch starts, so the partner is placed first.
  *
@@ -38,7 +39,7 @@ export function composeHumanStraightenPartnerTie<
       target: { kind: "person", subject: partner, region: "sternum" },
       side,
       kind: "rub",
-      with: "fingertips",
+      with: "palm",
       tangent: "up",
       count: 1,
       hold: 0,

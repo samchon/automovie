@@ -32,9 +32,16 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { HumanWornItem } from "./HumanWornItem";
 import { placeOverHeadPath } from "./placeOverHeadPath";
+
+/** How far ahead of the root the loop is presented for the second hand, metres (provisional: a forearm's reach before the chest). */
+const PRESENT: number = 0.35;
+
+/** How far below the shoulders the loop is presented, metres (provisional: at the chest). */
+const BELOW: number = 0.2;
 
 /** The handle names a neck loop declares. */
 type Handle = "holdLeft" | "holdRight";
@@ -43,10 +50,11 @@ type Handle = "holdLeft" | "holdRight";
  * Set a neck loop over a partner's head (#4015). The loop's path is
  * `placeOverHeadPath`'s, read on the partner's displayed body at the
  * action's start, so a partner who bows, kneels or sits first is met where
- * they are. The hand that holds the loop at entry keeps it on the path; the
- * other hand closes on the loop's other handle by `ready`, without carrying
- * it, and both hands carry it over the stroke; at `strokeEnd` it is worn on
- * the partner's upper chest (the sternum region's bone) and both grips end,
+ * they are. The hand that holds the loop at entry first presents it level
+ * before the chest (`PRESENT` ahead, `BELOW` the shoulders), turned as it
+ * will go over the head, and the other hand closes on the loop's other
+ * handle there by `ready`, without carrying it. Both hands carry it along
+ * the path over the stroke; at `strokeEnd` it is worn on the partner's upper chest (the sternum region's bone) and both grips end,
  * and the hands return. Both arms are laid in one course (`courseArmGoal`
  * with `with`). Before any of it, the loop's inner half-breadth is checked
  * against the partner's head radius, and the hands' highest places, above
@@ -127,21 +135,47 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
       // The loop's inside: its centre half the opening's length in from its
       // back edge, and its half-breadth.
       const opening: IAutoMovieAffordance = site("opening");
-      const path: placeOverHeadPath.IPath = placeOverHeadPath.prepare({
-        start,
-        wear: site("wear").frame.translation,
-        front: site("front").frame.translation,
-        centre: Vector3.add(
-          opening.frame.translation,
-          Quaternion.rotateVector(opening.frame.rotation, {
+      const centre: IAutoMovieVector3 = Vector3.add(
+        opening.frame.translation,
+        Quaternion.rotateVector(opening.frame.rotation, {
+          x: 0,
+          y: (opening.height ?? 0) / 2,
+          z: 0,
+        }),
+      );
+      const along = (from: IAutoMovieRigidTransform): placeOverHeadPath.IPath =>
+        placeOverHeadPath.prepare({
+          start: from,
+          wear: site("wear").frame.translation,
+          front: site("front").frame.translation,
+          centre,
+          body: partner.body,
+          bones,
+        });
+      // The holding hand first presents the loop level before the chest,
+      // turned as it will go over the head, where the other hand takes it:
+      // `PRESENT` ahead of the root, `BELOW` the shoulders.
+      const lead: IAutoMovieMotionHumanPosture = context.entry.posture;
+      const presented: IAutoMovieRigidTransform = (() => {
+        const rotation: IAutoMovieRigidTransform["rotation"] =
+          along(start).apex.rotation;
+        const at: IAutoMovieVector3 = HumanFrame.point(
+          { origin: lead.root, yaw: lead.yaw },
+          {
             x: 0,
-            y: (opening.height ?? 0) / 2,
-            z: 0,
-          }),
-        ),
-        body: partner.body,
-        bones,
-      });
+            y: body.measure.shoulderHeight - BELOW - lead.root.y,
+            z: PRESENT,
+          },
+        );
+        return {
+          position: Vector3.subtract(
+            at,
+            Quaternion.rotateVector(rotation, centre),
+          ),
+          rotation,
+        };
+      })();
+      const path: placeOverHeadPath.IPath = along(presented);
       const inner: number = (opening.width ?? 0) / 2;
       if (inner <= partner.body.measure.headRadius)
         throw new HumanRefusal({
@@ -227,7 +261,7 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
       const prepare: number = AutoMovieMotionHumanTiming.transport(
         Vector3.distance(
           AutoMovieMotionHumanArmTarget.point(entry, origins[other]),
-          grasping(start).point,
+          grasping(presented).point,
         ),
       );
       const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({

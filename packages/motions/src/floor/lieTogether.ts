@@ -39,9 +39,6 @@ const APART: number = 0.3;
 /** How far two lying headings may differ, degrees (provisional). */
 const ALIGNED: number = 25;
 
-/** The partner's bone that carries the settled body: the upper chest, which breathes and turns with the trunk. */
-const CARRIER: AutoMovieHumanoidBone = "upperChest";
-
 /** A posture's limb. */
 type Limb = keyof IAutoMovieMotionHumanPosture["limbs"];
 
@@ -70,7 +67,7 @@ interface INeck {
  * miss over `NEAR` refused. The slide is horizontal, so the body stays on
  * the support; it takes the transport time of its distance on a
  * minimum-jerk share. From the start the settled posture is carried
- * rigidly by the partner's upper chest (`carryHumanPosture`), so the
+ * rigidly by the bone under the partner's sternum (`carryHumanPosture`), so the
  * contact holds as the partner breathes or shifts. Windows: the body lies
  * on the support throughout, and from the settle the chest bears on the
  * partner's back or the cheek on the partner's chest.
@@ -244,14 +241,16 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
     },
   };
 
-/** The partner's carrying bone's frame at a film second. */
+/** The partner's carrying bone's frame at a film second: the sternum region's bone, which breathes and turns with the trunk. */
 function frame(
   partner: IAutoMovieMotionHumanPerformerReader,
   seconds: number,
 ): IAutoMovieMotionHumanCarryHumanPosture.IFrame {
+  const carrier: AutoMovieHumanoidBone =
+    partner.body.surfaces.regions.sternum.bone;
   const bone: IAutoMovieResolvedBone = partner
-    .bones(seconds, new Set([CARRIER]))
-    .get(CARRIER)!;
+    .bones(seconds, new Set([carrier]))
+    .get(carrier)!;
   return { position: bone.worldPosition, rotation: bone.worldRotation };
 }
 

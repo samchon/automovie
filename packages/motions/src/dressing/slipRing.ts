@@ -42,6 +42,9 @@ const SEAT: number = 0.35;
 /** How far beyond the fingertip the ring lines up before it slides on, metres (provisional: clear of the fingertip by a ring's width). */
 const LINE_UP: number = 0.015;
 
+/** The step the band's free roll about the finger is searched by, degrees. */
+const ROLL: number = 15;
+
 /** World up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
@@ -53,7 +56,8 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * the ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by
  * `ready`, then slides it along the axis to `SEAT` of the proximal phalanx
  * over the stroke: the ring's `wear` axis lies along the finger, from the
- * fingertip toward the hand. From `strokeEnd` the ring is worn on the
+ * fingertip toward the hand, its roll about the finger the one, by `ROLL`
+ * steps, that turns the holding hand least from how it holds the ring. From `strokeEnd` the ring is worn on the
  * partner's proximal bone and the ring hand's grip ends, so custody passes
  * without a gap; both hands then return. Both arms are laid in one course
  * (`courseArmGoal` with `with`), the hands excused from each other.
@@ -135,8 +139,7 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
         palmRegion,
       );
 
-      // The ring's frame on the axis: its `wear` socket's `+Y` along the
-      // axis, its band's top (`hold`) as near the world's up as that allows.
+      // The ring's frame on the axis: its `wear` socket's `+Y` along the axis.
       const wear: IAutoMovieAffordance | undefined = held.affordances.find(
         (a: IAutoMovieAffordance): boolean => a.id === "wear",
       );
@@ -148,7 +151,7 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           reason: `${p.prop} declares no wear socket to put on a finger`,
           fix: "give the ring a wear socket along its hole's axis",
         });
-      const turn: IAutoMovieQuaternion = HumanHand.align(
+      const lined: IAutoMovieQuaternion = HumanHand.align(
         {
           normal: Quaternion.rotateVector(wear.frame.rotation, UP),
           forward: Quaternion.rotateVector(wear.frame.rotation, {
@@ -163,6 +166,33 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
             Math.abs(Vector3.dot(axis, UP)) > 0.9 ? { x: 1, y: 0, z: 0 } : UP,
         },
       );
+      // A band is round, so its roll about the finger is free: the roll
+      // that turns the holding hand least from how it holds the ring now.
+      const holding: IAutoMovieQuaternion = poseBones(
+        body,
+        context.entry.pose,
+      ).get(`${side}Hand`)!.worldRotation;
+      let turn: IAutoMovieQuaternion = lined;
+      let nearest: number = -1;
+      for (let roll: number = 0; roll < 360; roll += ROLL) {
+        const candidate: IAutoMovieQuaternion = Quaternion.normalize(
+          Quaternion.multiply(Quaternion.fromAxisAngle(axis, roll), lined),
+        );
+        const hand: IAutoMovieQuaternion = Quaternion.multiply(
+          candidate,
+          Quaternion.inverse(held.frame.rotation),
+        );
+        const near: number = Math.abs(
+          hand.x * holding.x +
+            hand.y * holding.y +
+            hand.z * holding.z +
+            hand.w * holding.w,
+        );
+        if (near > nearest) {
+          nearest = near;
+          turn = candidate;
+        }
+      }
       const ring = (centre: IAutoMovieVector3): IAutoMovieRigidTransform => ({
         position: Vector3.subtract(
           centre,

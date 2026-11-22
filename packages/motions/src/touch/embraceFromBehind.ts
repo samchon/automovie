@@ -41,6 +41,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingBody } from "../striking/StrikingBody";
+import { kiss } from "./kiss";
 import { kissBody } from "./kissBody";
 import { kissPose } from "./kissPose";
 
@@ -62,10 +63,19 @@ const TILT: number = 40;
 /** The neck's two bones a resting head bends over. */
 type NeckBone = "neck" | "head";
 
-/** One solved embrace: the lean's pitch, and the neck's flexion and side bend. */
+/** How far the head turns toward the shoulder, either way, degrees (provisional: inside a cervical rotation of about 70 to 80 degrees). */
+const TWIST: number = 60;
+
+/** One solved embrace: the lean's pitch and roll, the head's turn, and the neck's flexion and side bend. */
 interface ISolved {
   /** The forward lean from the hips, degrees. */
   pitch: number;
+
+  /** The side lean from the hips, degrees. */
+  roll: number;
+
+  /** The head's turn, degrees. */
+  twist: number;
 
   /** The neck's flexion, degrees. */
   flexion: number;
@@ -81,8 +91,11 @@ interface ISolved {
  * Embrace a partner from behind (#4012). The lean from the hips is solved
  * first, the least forward pitch that lays the chest's sternum region on
  * the partner's upper back (the kiss's lean model, `kissBody`, on planted
- * feet); then the neck's flexion and side bend that bring the chin nearest
- * the partner's shoulder region, on a coarse grid refined by degrees. A
+ * feet); then the side lean (within the kiss's `ROLL`), the head's turn
+ * (`TWIST`) and the neck's flexion and side bend that bring the chin nearest
+ * the top of the partner's shoulder beside the neck (halfway between the
+ * shoulder's region and the neck's side), by turns on coarse grids refined by
+ * degrees. A
  * chest already in the partner's back, a back the lean cannot reach, or a
  * chin left farther than `NEAR` from the shoulder is refused with the gap or
  * the miss. The hands go palm in onto the partner's abdomen, one each side
@@ -123,11 +136,17 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
         partner.bones(context.start);
       const back: IAutoMovieMotionHumanStrikingBody.IRegionResult =
         StrikingBody.region(partner.body, bones, "upperBack");
-      const rest: IAutoMovieVector3 = StrikingBody.region(
-        partner.body,
-        bones,
-        shoulder,
-      ).point;
+      // The chin rests on the top of the shoulder beside the neck: halfway
+      // between the side of the neck and the shoulder's region.
+      const rest: IAutoMovieVector3 = Vector3.lerp(
+        StrikingBody.region(partner.body, bones, shoulder).point,
+        StrikingBody.region(
+          partner.body,
+          bones,
+          shoulder === "shoulderLeft" ? "neckLeft" : "neckRight",
+        ).point,
+        0.5,
+      );
       const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
       const stance: IAutoMovieMotionHumanRise.Stance = {
         left: {
@@ -243,7 +262,7 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
                   body,
                   posture,
                   stance,
-                  { pitch: solved.pitch, roll: 0, raise: 0 },
+                  { pitch: solved.pitch, roll: solved.roll, raise: 0 },
                   share(seconds),
                   false,
                 ),
@@ -327,7 +346,7 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
     },
   };
 
-/** The neck's flexion and side bend at a share, added over the posture's own. */
+/** The neck's flexion, side bend and turn at a share, added over the posture's own. */
 function neck(
   posture: IAutoMovieMotionHumanPosture,
   s: ISolved,
@@ -337,11 +356,17 @@ function neck(
     AutoMovieMotionHumanHead.share(0, s.flexion * k);
   const bend: IAutoMovieMotionHumanJoints.Angles =
     AutoMovieMotionHumanHead.share(1, s.tilt * k);
+  const turn: IAutoMovieMotionHumanJoints.Angles =
+    AutoMovieMotionHumanHead.share(2, s.twist * k);
   const added = (bone: NeckBone): readonly [number, number, number] => {
     const held: readonly [number, number, number] = posture.joints[bone] ?? [
       0, 0, 0,
     ];
-    return [held[0] + flexion[bone]![0], held[1] + bend[bone]![1], held[2]];
+    return [
+      held[0] + flexion[bone]![0],
+      held[1] + bend[bone]![1],
+      held[2] + turn[bone]![2],
+    ];
   };
   return {
     ...posture,
@@ -372,11 +397,19 @@ function solve(
   const chin: ReturnType<typeof HumanTrunk.preparePoint> =
     HumanTrunk.preparePoint(body, "chin");
   const posed = (s: ISolved): IAutoMovieMotionHumanPosture =>
-    neck(leaned({ pitch: s.pitch, roll: 0, flexion: 0, raise: 0 }), s, 1);
+    neck(leaned({ pitch: s.pitch, roll: s.roll, flexion: 0, raise: 0 }), s, 1);
+  const upright: ISolved = {
+    pitch: 0,
+    roll: 0,
+    twist: 0,
+    flexion: 0,
+    tilt: 0,
+    miss: 0,
+  };
   const gap = (pitch: number): number =>
     Vector3.dot(
       Vector3.subtract(
-        sternum(posed({ pitch, flexion: 0, tilt: 0, miss: 0 }), resolution),
+        sternum(posed({ ...upright, pitch }), resolution),
         back.point,
       ),
       back.normal,
@@ -407,41 +440,67 @@ function solve(
     pitch = hi;
   }
 
-  // The neck's flexion and side bend nearest the shoulder.
-  const scored = (flexion: number, tilt: number): ISolved => {
-    const s: ISolved = { pitch, flexion, tilt, miss: 0 };
-    return { ...s, miss: Vector3.distance(chin(posed(s), resolution), rest) };
+  // Then the side lean and the head's turn, and the neck's flexion and side
+  // bend, by turns on coarse grids, the chin nearest the shoulder; then each
+  // pair refined by degrees.
+  const scored = (s: ISolved): ISolved => ({
+    ...s,
+    miss: Vector3.distance(chin(posed(s), resolution), rest),
+  });
+  const least = (candidates: readonly ISolved[], best: ISolved): ISolved =>
+    candidates
+      .map(scored)
+      .reduce(
+        (a: ISolved, b: ISolved): ISolved => (b.miss < a.miss ? b : a),
+        best,
+      );
+  const grid = (from: number, to: number, step: number): number[] => {
+    const out: number[] = [];
+    for (let v: number = from; v <= to + 1e-9; v += step) out.push(v);
+    return out;
   };
-  let best: ISolved = scored(0, 0);
-  for (let flexion: number = FLEXION[0]; flexion <= FLEXION[1]; flexion += 5)
-    for (let tilt: number = -TILT; tilt <= TILT; tilt += 4) {
-      const s: ISolved = scored(flexion, tilt);
-      if (s.miss < best.miss) best = s;
-    }
-  const coarse: ISolved = best;
-  for (
-    let flexion: number = coarse.flexion - 4;
-    flexion <= coarse.flexion + 4;
-    flexion += 1
-  )
-    for (let tilt: number = coarse.tilt - 3; tilt <= coarse.tilt + 3; tilt += 1)
-      if (
-        flexion >= FLEXION[0] &&
-        flexion <= FLEXION[1] &&
-        Math.abs(tilt) <= TILT
-      ) {
-        const s: ISolved = scored(flexion, tilt);
-        if (s.miss < best.miss) best = s;
-      }
+  const sideways = (s: ISolved, step: number, span: number): ISolved =>
+    least(
+      grid(
+        Math.max(-kiss.ROLL, s.roll - span),
+        Math.min(kiss.ROLL, s.roll + span),
+        step / 2,
+      ).flatMap((roll: number): ISolved[] =>
+        grid(
+          Math.max(-TWIST, s.twist - 5 * span),
+          Math.min(TWIST, s.twist + 5 * span),
+          step * 5,
+        ).map((twist: number): ISolved => ({ ...s, roll, twist })),
+      ),
+      s,
+    );
+  const necked = (s: ISolved, step: number, span: number): ISolved =>
+    least(
+      grid(
+        Math.max(FLEXION[0], s.flexion - span),
+        Math.min(FLEXION[1], s.flexion + span),
+        step,
+      ).flatMap((flexion: number): ISolved[] =>
+        grid(
+          Math.max(-TILT, s.tilt - span),
+          Math.min(TILT, s.tilt + span),
+          step,
+        ).map((tilt: number): ISolved => ({ ...s, flexion, tilt })),
+      ),
+      s,
+    );
+  let best: ISolved = scored({ ...upright, pitch });
+  for (let round: number = 0; round < 2; ++round)
+    best = necked(sideways(best, 4, 2 * TILT), 5, 2 * TILT);
+  best = necked(sideways(best, 1, 4), 1, 4);
   if (best.miss > NEAR)
     throw refusal(
       partner,
-      `the chin stays ${(best.miss * 1000).toFixed(0)} mm from the partner's shoulder with the chest on the back, the neck flexed ${best.flexion.toFixed(0)} and bent ${best.tilt.toFixed(0)} degrees`,
+      `the chin stays ${(best.miss * 1000).toFixed(0)} mm from the partner's shoulder with the chest on the back, leaning ${best.roll.toFixed(0)} degrees aside, the head turned ${best.twist.toFixed(0)}, flexed ${best.flexion.toFixed(0)} and bent ${best.tilt.toFixed(0)}`,
       "embrace a partner whose shoulder is near the chin's height, or rest the chin elsewhere",
     );
   return best;
 }
-
 /** A reach refusal of the embrace. */
 function refusal(partner: string, reason: string, fix: string): HumanRefusal {
   return new HumanRefusal({
