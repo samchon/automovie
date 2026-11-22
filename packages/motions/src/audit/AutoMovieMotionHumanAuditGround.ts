@@ -20,7 +20,9 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *
  * The floor is the floor under the person (`AutoMovieMotionHumanAuditMotion.floors`):
  * the ground their bearing contacts declare, none while a prop, a person or
- * the water bears them. A planted foot rolls through the
+ * the water bears them; a leg is read against the floor under its own foot
+ * (`AutoMovieMotionHumanAuditMotion.feet`), so a person on two treads has
+ * one leg over each. A planted foot rolls through the
  * rockers of stance (Perry and Burnfield, Gait Analysis, 2nd ed.): on its
  * heel, flat, then on its ball and its toe pad, so its contact at an instant
  * is its lowest sole socket, the heel winning a tie within a micrometre and
@@ -72,15 +74,31 @@ export namespace AutoMovieMotionHumanAuditGround {
       motion,
       subject,
     );
+    // A leg is read against the floor under its own foot, the rest of the
+    // body against the floor under the person: a person on two treads has
+    // one leg over each.
+    const legs: Record<"left" | "right", (seconds: number) => number | null> = {
+      left: HumanAuditMotion.feet(motion, subject, "left"),
+      right: HumanAuditMotion.feet(motion, subject, "right"),
+    };
     for (const t of HumanAuditMotion.grid(0, motion.duration, rate)) {
       const floor: number | null = under(t);
       if (floor === null) continue;
+      const leg: Record<"left" | "right", number | null> = {
+        left: legs.left(t),
+        right: legs.right(t),
+      };
       for (const { bone, pose, shapes } of HumanColliders.placed(
         body,
         motion.bones(subject, t),
       ))
         for (const shape of shapes) {
-          const depth: number = floor - physicalShapeBounds(pose, shape).min.y;
+          const side: "left" | "right" | undefined = LEG.test(bone)
+            ? bone.startsWith("left") ? "left" : "right"
+            : undefined;
+          const level: number | null = side === undefined ? floor : leg[side];
+          if (level === null) continue;
+          const depth: number = level - physicalShapeBounds(pose, shape).min.y;
           if (depth > worst.value)
             worst = { value: depth, seconds: t, where: bone };
         }
@@ -187,6 +205,9 @@ export namespace AutoMovieMotionHumanAuditGround {
     point: IAutoMovieVector3;
   }
 }
+
+/** The bones of a leg, thigh to toes, which the floor under their own foot bears. */
+const LEG: RegExp = /^(left|right)(UpperLeg|LowerLeg|Foot|Toes)$/;
 
 /** The worst slip, or the worst height off the floor, over every foot plant window. */
 const plants = (

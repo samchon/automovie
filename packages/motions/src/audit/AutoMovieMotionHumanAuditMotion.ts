@@ -94,6 +94,59 @@ export namespace AutoMovieMotionHumanAuditMotion {
   }
 
   /**
+   * The floor under one foot and its leg, where the person stands on two
+   * levels (a tread and the next, the two sides of a step): the ground the
+   * foot's own bearing contact declares while it bears; between its
+   * contacts, the lower of the ground it left and the ground it lands on,
+   * the levels its swing travels between; the person's floor (`floors`)
+   * where the foot declares no ground of its own, and none where the person
+   * has none.
+   *
+   * @param motion The motion.
+   * @param subject The person.
+   * @param side The foot.
+   * @returns The reader: world metres, or `null` where no floor is under the person.
+   */
+  export function feet(
+    motion: IAutoMovieMotionHumanAuditMotionContract,
+    subject: string,
+    side: "left" | "right",
+  ): (seconds: number) => number | null {
+    const person: (seconds: number) => number | null = floors(motion, subject);
+    const part: "leftFoot" | "rightFoot" = `${side}Foot`;
+    const own: IAutoMovieMotionHumanAuditMotionContract.IWindow[] = windows(
+      motion,
+      subject,
+    ).filter(
+      (w: IAutoMovieMotionHumanAuditMotionContract.IWindow): boolean =>
+        w.contact.part === part && BEARING.includes(w.contact.kind),
+    );
+    const ground = (
+      w: IAutoMovieMotionHumanAuditMotionContract.IWindow | undefined,
+    ): number | undefined =>
+      w?.contact.support.kind === "ground"
+        ? (w.contact.support.height ?? 0)
+        : undefined;
+    return (seconds: number): number | null => {
+      const floor: number | null = person(seconds);
+      if (floor === null) return null;
+      let last: IAutoMovieMotionHumanAuditMotionContract.IWindow | undefined;
+      let next: IAutoMovieMotionHumanAuditMotionContract.IWindow | undefined;
+      for (const w of own) {
+        if (w.from <= seconds + 1e-9 && seconds <= w.to + 1e-9)
+          return ground(w) ?? floor;
+        if (w.to < seconds && (last === undefined || w.to > last.to)) last = w;
+        if (w.from > seconds && (next === undefined || w.from < next.from))
+          next = w;
+      }
+      const left: number | undefined = ground(last);
+      const landing: number | undefined = ground(next);
+      if (left === undefined) return landing === undefined ? floor : Math.min(floor, landing);
+      return landing === undefined ? left : Math.min(left, landing);
+    };
+  }
+
+  /**
    * The film seconds a check samples between two instants: `from`, then every
    * `1 / rate` after it, and `to` itself when the grid does not land on it, so
    * neither end of a window is left unread.

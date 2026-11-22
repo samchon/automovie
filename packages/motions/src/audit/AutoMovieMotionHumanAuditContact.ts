@@ -23,7 +23,7 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * declared on it goes unread. This reading infers contact the way gait
  * analysis does from kinematics alone: a sole socket (heel, ball or toe) is
  * on the floor while it is no higher than {@link HEIGHT} above the floor under
- * the person (`AutoMovieMotionHumanAuditMotion.floors`; where none is, in water
+ * that foot (`AutoMovieMotionHumanAuditMotion.feet`; where none is, in water
  * or on a saddle, no step is read for a skate), and a socket on the
  * floor is at rest while its horizontal speed is no more than {@link SPEED}.
  * Each step between two grid instants is then read twice:
@@ -120,9 +120,6 @@ export namespace AutoMovieMotionHumanAuditContact {
     const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
       HumanAuditMotion.windows(motion, subject);
     const skated: boolean[] = frames.map((): boolean => false);
-    const floors: (number | null)[] = frames.map(
-      HumanAuditMotion.floors(motion, subject),
-    );
     // A socket's point in a support's frame at an instant: the world point
     // itself on the ground or on a motion that moves no support.
     const local = (
@@ -140,6 +137,11 @@ export namespace AutoMovieMotionHumanAuditContact {
     };
     for (const side of ["left", "right"] as const) {
       const part: "leftFoot" | "rightFoot" = `${side}Foot`;
+      // Each foot is read against the floor under it, so a foot on one
+      // tread is not read against the other foot's.
+      const floors: (number | null)[] = frames.map(
+        HumanAuditMotion.feet(motion, subject, side),
+      );
       const declared: IAutoMovieMotionHumanAuditMotion.IWindow[] =
         windows.filter(
           (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
