@@ -184,11 +184,11 @@ export function solvePhysicalTargetForest(
     if (baseline.length !== errors.length || !baseline.every(Number.isFinite))
       throw new Error("Invalid articulated target linearization");
     // One-sided columns: a row that is the least of several linear pieces
-    // (a contact patch) has a different slope each way. The step is solved
-    // with each coordinate's slope on the side it moves to, re-solving while
-    // a coordinate changes side, so the model is exact to first order in the
-    // orthant the step lands in (the orthant-wise linearization of Andrew and
-    // Gao 2007); a smooth row has equal slopes and one solve.
+    // (a contact patch) has a different slope each way. The one-sided step
+    // solves with each coordinate's slope on the side it moves to, re-solving
+    // while a coordinate changes side, so its model is exact to first order
+    // in the orthant the step lands in (the orthant-wise linearization of
+    // Andrew and Gao 2007).
     const probe = (index: number, direction: number): number[] => {
       const { joint, axis }: (typeof coordinates)[number] = coordinates[index]!;
       const room: number =
@@ -236,67 +236,75 @@ export function solvePhysicalTargetForest(
           maximum: axis.maximum,
         }),
       );
-    const sides: number[] = coordinates.map((): number => 1);
-    let delta: number[] = solvePhysicalTargetStep({
-      columns: forward,
-      errors,
-      coordinates: bounds,
-      damping: 0.001,
-    });
-    for (let round: number = 0; round < coordinates.length; round++) {
-      let changed: boolean = false;
-      for (let index: number = 0; index < coordinates.length; index++) {
-        const side: number = delta[index]! < 0 ? -1 : 1;
-        if (side === sides[index]) continue;
-        sides[index] = side;
-        if (side < 0) backward[index] ??= probe(index, -1);
-        changed = true;
-      }
-      if (!changed) break;
-      delta = solvePhysicalTargetStep({
-        columns: coordinates.map(
-          (_: (typeof coordinates)[number], index: number): number[] =>
-            sides[index]! < 0 ? backward[index]! : forward[index]!,
-        ),
+    const solve = (columns: number[][]): number[] =>
+      solvePhysicalTargetStep({
+        columns,
         errors,
         coordinates: bounds,
         damping: 0.001,
       });
-    }
-    // A coordinate still on the other side than its slope is held, so the
-    // step stays inside the orthant its model describes.
-    delta = delta.map((value: number, index: number): number =>
-      (value < 0 ? -1 : 1) === sides[index] ? value : 0,
-    );
-    const scale: number = Math.min(
-      1,
-      0.25 / Math.max(1e-30, Math.hypot(...delta)),
-    );
+    // The ordinary step reads every slope forward; when no backtrack of it
+    // lowers the measured residual, the one-sided step is tried.
+    const plain: number[] = solve(forward);
+    const oneSided = (): number[] => {
+      const sides: number[] = coordinates.map((): number => 1);
+      let delta: number[] = plain;
+      for (let round: number = 0; round < coordinates.length; round++) {
+        let changed: boolean = false;
+        for (let index: number = 0; index < coordinates.length; index++) {
+          const side: number = delta[index]! < 0 ? -1 : 1;
+          if (side === sides[index]) continue;
+          sides[index] = side;
+          if (side < 0) backward[index] ??= probe(index, -1);
+          changed = true;
+        }
+        if (!changed) break;
+        delta = solve(
+          coordinates.map(
+            (_: (typeof coordinates)[number], index: number): number[] =>
+              sides[index]! < 0 ? backward[index]! : forward[index]!,
+          ),
+        );
+      }
+      // A coordinate still on the other side than its slope is held, so the
+      // step stays inside the orthant its model describes.
+      return delta.map((value: number, index: number): number =>
+        (value < 0 ? -1 : 1) === sides[index] ? value : 0,
+      );
+    };
     let accepted: boolean = false;
     const before: number = Math.hypot(...errors);
-    for (let backtrack: number = 0; backtrack < 8; backtrack++) {
-      const candidate: number[] = values.map(
-        (value: number, index: number): number =>
-          Math.max(
-            coordinates[index]!.axis.minimum,
-            Math.min(
-              coordinates[index]!.axis.maximum,
-              value + delta[index]! * scale * 2 ** -backtrack,
+    for (const direction of [(): number[] => plain, oneSided]) {
+      const delta: number[] = direction();
+      const scale: number = Math.min(
+        1,
+        0.25 / Math.max(1e-30, Math.hypot(...delta)),
+      );
+      for (let backtrack: number = 0; backtrack < 8; backtrack++) {
+        const candidate: number[] = values.map(
+          (value: number, index: number): number =>
+            Math.max(
+              coordinates[index]!.axis.minimum,
+              Math.min(
+                coordinates[index]!.axis.maximum,
+                value + delta[index]! * scale * 2 ** -backtrack,
+              ),
             ),
-          ),
-      );
-      const poses: Record<string, IAutoMovieRigidTransform> = build(
-        candidate,
-        targets,
-        values,
-      );
-      const residual: number[] = measure(poses);
-      if (Math.hypot(...residual) >= before) continue;
-      values = candidate;
-      targets = poses;
-      errors = residual;
-      accepted = true;
-      break;
+        );
+        const poses: Record<string, IAutoMovieRigidTransform> = build(
+          candidate,
+          targets,
+          values,
+        );
+        const residual: number[] = measure(poses);
+        if (Math.hypot(...residual) >= before) continue;
+        values = candidate;
+        targets = poses;
+        errors = residual;
+        accepted = true;
+        break;
+      }
+      if (accepted) break;
     }
     if (
       !accepted ||
