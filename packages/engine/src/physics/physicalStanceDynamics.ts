@@ -379,6 +379,8 @@ export namespace physicalStanceDynamics {
       moment: IAutoMovieVector3;
       origin: IAutoMovieVector3;
     };
+    /** Articulated degrees of freedom outside the stance legs, hanging from the base (`IBranches`); absent keeps them in the rigid base. */
+    branches?: IBranches;
     /** The previous solve's point forces, by leg and point, which the change penalty holds the new ones near. */
     previous?: readonly (readonly IAutoMovieVector3[])[];
   }
@@ -393,6 +395,39 @@ export namespace physicalStanceDynamics {
     torque: number[][];
     /** The base's acceleration: linear at its centre of mass, then angular. */
     base: number[];
+    /** The branches' accelerations and torques, when there are branches. */
+    branches?: { acceleration: number[]; torque: number[] };
+  }
+
+  /**
+   * Degrees of freedom outside the stance legs that hang from the base, such
+   * as the spine and arms, supplied by their own model. `evaluate` returns,
+   * for the base's linear (at its centre of mass) and angular accelerations
+   * and the branches' joint accelerations, the force the base exerts on the
+   * branches and its moment about the base's centre of mass, and each branch
+   * joint's torque; with `moving` false, velocities and gravity are removed.
+   */
+  export interface IBranches {
+    /** Their number of degrees of freedom. */
+    size: number;
+    /** Their resultant on the base and their joint torques. */
+    evaluate(input: {
+      linear: IAutoMovieVector3;
+      angular: IAutoMovieVector3;
+      acceleration: readonly number[];
+      moving: boolean;
+      gravity: IAutoMovieVector3;
+    }): {
+      force: IAutoMovieVector3;
+      moment: IAutoMovieVector3;
+      torque: number[];
+    };
+    /** Soft posture rows over their accelerations: weights over the branch degrees of freedom, and the target. */
+    posture: readonly { weights: readonly number[]; target: number }[];
+    /** The posture rows' weight. */
+    weight: number;
+    /** Each degree of freedom's torque bounds, N m. */
+    bounds: readonly { lower: number; upper: number }[];
   }
 
   /**
@@ -424,7 +459,8 @@ export namespace physicalStanceDynamics {
       (sum: number, count: number) => sum + count,
       0,
     );
-    const size: number = 6 + joints;
+    const branchSize: number = input.branches?.size ?? 0;
+    const size: number = 6 + joints + branchSize;
     const pointCounts: number[] = input.legs.map(
       (leg: ILeg) => leg.points.length,
     );
@@ -528,6 +564,20 @@ export namespace physicalStanceDynamics {
           ]);
         offset += counts[index]!;
       });
+      // The branches hanging from the base add their resultant to its rows
+      // and their joint torques after the legs'.
+      if (input.branches) {
+        const branch = input.branches.evaluate({
+          linear,
+          angular,
+          acceleration: acceleration.slice(6 + joints),
+          moving,
+          gravity: input.gravity,
+        });
+        force = Vector3.add(force, branch.force);
+        moment = Vector3.add(moment, branch.moment);
+        torques.push(...branch.torque);
+      }
       return {
         residual: [
           force.x,
@@ -618,6 +668,15 @@ export namespace physicalStanceDynamics {
           upper: bound.upper - offset,
         });
         axis++;
+      });
+    });
+    input.branches?.bounds.forEach((bound, k: number): void => {
+      const offset: number = rest.residual[6 + joints + k]!;
+      rows.push({
+        indices: all,
+        weights: residualRow(6 + joints + k),
+        lower: bound.lower - offset,
+        upper: bound.upper - offset,
       });
     });
     // Friction pyramids, load bounds and yaw.
@@ -777,18 +836,33 @@ export namespace physicalStanceDynamics {
         -(k % 3 === 1 ? normalWeight * share : 0) -
         (Number.isFinite(value) ? changeWeight * value : 0),
     );
+    // The branches' posture rows, soft through their own slack.
+    const slackPosture: number = slackTask + 6;
+    const posture = input.branches?.posture ?? [];
+    posture.forEach((row, k: number): void => {
+      rows.push({
+        indices: [
+          ...row.weights.map((_: number, c: number): number => 6 + joints + c),
+          slackPosture + k,
+        ],
+        weights: [...row.weights, -1],
+        lower: row.target,
+        upper: row.target,
+      });
+    });
     const result = solveAutoMovieQuadraticProgram({
       diagonal: [
         ...new Array<number>(6).fill(1e-6),
-        ...new Array<number>(joints).fill(1e-4),
+        ...new Array<number>(joints + branchSize).fill(1e-4),
         ...forceDiagonal,
         ...new Array<number>(6 * held).fill(1e6),
         ...[1, 1, 1, 1, 1, 1].map((): number => 1e2 / (weight * weight)),
+        ...posture.map((): number => input.branches!.weight),
       ],
       linear: [
         ...new Array<number>(size).fill(0),
         ...forceLinear,
-        ...new Array<number>(6 * held + 6).fill(0),
+        ...new Array<number>(6 * held + 6 + posture.length).fill(0),
       ],
       rows,
     });
@@ -831,11 +905,27 @@ export namespace physicalStanceDynamics {
       torque.push(values);
       at += counts[index]!;
     });
+    const torqueAt = (r: number): number =>
+      rest.residual[r]! +
+      residualRow(r).reduce(
+        (sum: number, w: number, c: number) => sum + w * result.primal[c]!,
+        0,
+      );
     return {
       acceleration,
       forces: solvedForces,
       torque,
       base: result.primal.slice(0, 6),
+      ...(input.branches
+        ? {
+            branches: {
+              acceleration: result.primal.slice(6 + joints, size),
+              torque: [...Array(branchSize).keys()].map((k: number) =>
+                torqueAt(6 + joints + k),
+              ),
+            },
+          }
+        : {}),
     };
   }
 
