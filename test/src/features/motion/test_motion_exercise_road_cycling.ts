@@ -27,6 +27,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
+import { fittedBicycle } from "../internal/fittedBicycle";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -50,7 +52,33 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership Only a seeded production archetype, its authored course and the average Human performance.
  */
 export function test_motion_exercise_road_cycling(): void {
-  const bicycle: ReturnType<typeof createBicycle> = createBicycle({}, 8);
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("road cycling", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
+  const bicycle: ReturnType<typeof createBicycle> = fittedBicycle(body, 8);
   const startSpeed: number = 0.75;
   const cruise: number = 3.2;
   const turnSpeed: number = 2.2;
@@ -79,7 +107,6 @@ export function test_motion_exercise_road_cycling(): void {
     sprocket: 17,
     coast: [coastStart, route.length],
   });
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const origin: IAutoMovieRigidTransform = rigid(ride.at(0).placement);
   const saddle: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
     bicycle,
@@ -145,6 +172,7 @@ export function test_motion_exercise_road_cycling(): void {
       lift,
     }).node,
   });
+  collectTakeClean(`${key} road cycling performance`, performance, failures);
   const segment: IAutoMovieMotionHumanSegment =
     performance.segments("cyclist")[1]!;
   const rider: ReturnType<typeof HumanSignature.of> = HumanSignature.of(

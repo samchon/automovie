@@ -21,6 +21,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -44,7 +45,32 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One seeded production wheelchair and one average Human in memory, with a seat-only entry for the rest reference.
  */
 export function test_motion_exercise_wheelchair_turn(): void {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("wheelchair turn", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   const chair: ReturnType<typeof createWheelchair> = createWheelchair(
     { kind: "selfPropelled" },
     2,
@@ -136,6 +162,7 @@ export function test_motion_exercise_wheelchair_turn(): void {
       recovery,
     }).node,
   });
+  collectTakeClean(`${key} wheelchair turn performance`, performance, failures);
   const stroke: IAutoMovieMotionHumanSegment =
     performance.segments("player")[1]!;
   const catchAt: number = stroke.entryTime + approach;

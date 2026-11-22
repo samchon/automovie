@@ -27,6 +27,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
+import { fittedBicycle } from "../internal/fittedBicycle";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
@@ -51,7 +53,33 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership One seeded rigid bicycle and Human performance, with adjacent invalid courses.
  */
 export function test_motion_exercise_bicycle_hop(): void {
-  const bicycle: ReturnType<typeof createBicycle> = createBicycle({}, 8);
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("bicycle hop", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
+  const bicycle: ReturnType<typeof createBicycle> = fittedBicycle(body, 8);
   const course: ArchetypeCourse.ICourse = {
     start: { x: 2, z: -4, heading: 0 },
     legs: [{ kind: "straight", length: 12 }],
@@ -74,7 +102,6 @@ export function test_motion_exercise_bicycle_hop(): void {
     touchdown,
   ]);
 
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const origin: IAutoMovieRigidTransform = rigid(ride.at(0).placement);
   const saddle: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
     bicycle,
@@ -134,6 +161,7 @@ export function test_motion_exercise_bicycle_hop(): void {
       lift,
     }).node,
   });
+  collectTakeClean(`${key} bicycle hop film`, film, failures);
   const segment: IAutoMovieMotionHumanSegment = film.segments("cyclist")[1]!;
   const rider: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
     film,

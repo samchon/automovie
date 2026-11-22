@@ -15,6 +15,7 @@ import { HumanSurfaceBoard } from "../carrier/HumanSurfaceBoard";
 import { HumanSwingLeap } from "../carrier/HumanSwingLeap";
 import { HumanSwingPump } from "../carrier/HumanSwingPump";
 import { measureSurfaceGlide } from "../carrier/measureSurfaceGlide";
+import { swungArms } from "../carrier/swungArms";
 
 /** The channels a surface carrier leaves to a tool action or a gaze layer. */
 const YIELDS: IAutoMovieMotionHumanActionLaw["yields"] = [
@@ -51,7 +52,8 @@ export namespace HumanSurface {
       name: "skate",
       interrupts: AT_END,
       yields: YIELDS,
-      plan: HumanIceGlide.skate,
+      plan: (context: Parameters<typeof HumanIceGlide.skate>[0]) =>
+        swungArms(HumanIceGlide.skate(context), context.body),
     };
 
   /** Slide on a flat leading shoe with a trailing forefoot for a curling delivery. */
@@ -69,7 +71,8 @@ export namespace HumanSurface {
       name: "snowGlide",
       interrupts: AT_END,
       yields: YIELDS,
-      plan: HumanSnowGlide,
+      plan: (context: Parameters<typeof HumanSnowGlide>[0]) =>
+        swungArms(HumanSnowGlide(context), context.body),
     };
 
   /** Carry the acquired stance on a moving deck. */
@@ -78,7 +81,8 @@ export namespace HumanSurface {
       name: "boardRide",
       interrupts: AT_END,
       yields: YIELDS,
-      plan: HumanSurfaceBoard,
+      plan: (context: Parameters<typeof HumanSurfaceBoard>[0]) =>
+        swungArms(HumanSurfaceBoard(context), context.body),
     };
 
   /** Publish the skateboard's support cues for the independently posed deck. */
@@ -90,8 +94,13 @@ export namespace HumanSurface {
     HumanSurfaceBoard.SURFBOARD;
 
   /** Push, pop, land and recover on an authored skateboard track. */
-  export const skateboardPhrase: typeof HumanSurfaceBoard.skateboardPhrase =
-    HumanSurfaceBoard.skateboardPhrase;
+  export const skateboardPhrase: typeof HumanSurfaceBoard.skateboardPhrase = {
+    ...HumanSurfaceBoard.skateboardPhrase,
+    plan: (
+      context: Parameters<typeof HumanSurfaceBoard.skateboardPhrase.plan>[0],
+    ) =>
+      swungArms(HumanSurfaceBoard.skateboardPhrase.plan(context), context.body),
+  };
 
   /** Enter, paddle and transfer from the palms to the surfboard stance. */
   export const surfboardPhrase: typeof HumanSurfaceBoard.surfboardPhrase =

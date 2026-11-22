@@ -19,6 +19,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
+import { fittedBicycle } from "../internal/fittedBicycle";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
@@ -40,8 +42,33 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership In-memory typed performance with the average Human and a seeded production bicycle held at the boundary.
  */
 export function test_motion_exercise_bike_transfer(): void {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const bicycle: ReturnType<typeof createBicycle> = createBicycle({}, 8);
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("bike transfer", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
+  const bicycle: ReturnType<typeof createBicycle> = fittedBicycle(body, 8);
   const route: ReturnType<typeof rideBicycle> = rideBicycle(bicycle, {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 1 }],
@@ -104,6 +131,7 @@ export function test_motion_exercise_bike_transfer(): void {
     });
 
   const film: HumanPerformance = take(mountLine);
+  collectTakeClean(`${key} bike transfer`, film, failures);
   const [mount, off]: readonly IAutoMovieMotionHumanSegment[] =
     film.segments("athlete");
   const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(

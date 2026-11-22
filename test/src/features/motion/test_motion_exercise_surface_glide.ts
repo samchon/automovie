@@ -169,6 +169,18 @@ function take(key: BodyKey, failures: string[]): void {
           proficiency: { level: "trained" },
         },
       ],
+      // The descent glides on a slope the scene declares, at its grade.
+      props: [
+        {
+          subject: "slope",
+          fixed: true,
+          frame: {
+            position: { x: 0, y: 1, z: 0 },
+            rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 8),
+          },
+          points: {},
+        },
+      ],
       laws: [HumanSurface.snowGlide],
       composition: HumanChain.subject("a").registered(
         HumanSurface.snowGlide.name,
@@ -176,6 +188,7 @@ function take(key: BodyKey, failures: string[]): void {
           seconds: 2,
           speed: 2,
           grade: 8,
+          slope: "slope",
         } satisfies IAutoMovieMotionHumanSurface.ISnowGlideParams,
       ).node,
     }),

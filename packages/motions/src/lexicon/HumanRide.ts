@@ -155,14 +155,16 @@ export namespace HumanRide {
       }
 
       // A foot that hung when the ride began keeps hanging. A foot on a
-      // turning pedal (a `pedal` contact) bears on it: the contact model
-      // names no moving part's frame for a plant to be read in, and in the
-      // bicycle's frame the pedal's own turn reads as the foot slipping. A
-      // foot in a stirrup or on a fixed rest stays planted on it.
+      // turning pedal (a `pedal` contact) is planted on the pedal's own
+      // point, whose frame turns with it, so the pedal's turn about the crank
+      // does not read as the foot slipping. A foot in a stirrup or on a
+      // fixed rest stays planted on the support.
       const { pedals, placed }: placeRideFeet.ISupports =
         placeRideFeet.supports(context, support);
-      const turning = (side: AutoMovieHumanSide): boolean =>
-        pedals.some(
+      const turning = (
+        side: AutoMovieHumanSide,
+      ): (typeof pedals)[number] | undefined =>
+        pedals.find(
           (pedal: (typeof pedals)[number]): boolean =>
             pedal.side === side &&
             support.prop.affordances?.find(
@@ -170,12 +172,22 @@ export namespace HumanRide {
             )?.kind === "pedal",
         );
       const contacts: IAutoMovieMotionHumanContactWindow[] = [...kept.contacts];
-      for (const side of ["left", "right"] as const)
+      for (const side of ["left", "right"] as const) {
         if (
-          context.entry.feet[side].planted &&
-          (!placeFeet || context.params.feet?.[side] === undefined)
+          !context.entry.feet[side].planted ||
+          (placeFeet && context.params.feet?.[side] !== undefined)
         )
-          contacts.push(bears(`${side}Foot`, turning(side) ? "bear" : "plant"));
+          continue;
+        const pedal: (typeof pedals)[number] | undefined = turning(side);
+        contacts.push(
+          pedal === undefined
+            ? bears(`${side}Foot`, "plant")
+            : {
+                ...bears(`${side}Foot`, "plant"),
+                support: { kind: "prop", subject: on, point: pedal.id },
+              },
+        );
+      }
       const post: number = POST * context.body.measure.thigh;
 
       // How far through a stride a second of the ride is, 0 to 1; none outside the strides of a cue track.

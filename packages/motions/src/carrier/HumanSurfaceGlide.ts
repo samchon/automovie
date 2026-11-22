@@ -53,12 +53,13 @@ export namespace HumanSurfaceGlide {
   export const BRAKE: number = 0.35;
 
   /**
-   * Plan a straight glide or one arc on the plane of the entered stance.
+   * Plan a straight glide or one arc on the plane of the entered stance;
+   * a descent bears its skis on the slope the scene names (`slope`).
    *
    * @param context The entered stance, body and authored speed and arc.
    * @returns The bearing windows, speed events and pure posture query.
    * @throws {HumanRefusal} For a non-standing entry, missing ground support,
-   * infeasible arc radius or parameters outside the authored bounds.
+   * a grade with no slope named, infeasible arc radius or parameters outside the authored bounds.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the support and timing assumptions and the refusal conditions.
    * @evidence contracts/development/implementation.md#principled-implementation Integrates the cubic speed ramps in closed form, transports ankle positions along circles about the common arc center, and fits each ankle with its own tangent.
@@ -88,6 +89,19 @@ export namespace HumanSurfaceGlide {
       20,
       "deg",
     );
+    // A descent glides on the slope the scene declares: the skis bear on
+    // its surface, and with no slope under them a grade would carry the
+    // body below the level ground it stands on.
+    const slope: string | undefined = params.slope;
+    if (grade !== 0 && slope === undefined)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "slope",
+        value: grade,
+        feasible: null,
+        reason: `a ${grade} degree descent glides on a slope, and no slope is named under the skis`,
+        fix: "name the scene's slope the skis glide on, or glide on level snow",
+      });
     if (
       entry.base.kind !== "standing" ||
       SIDES.some(
@@ -186,7 +200,10 @@ export namespace HumanSurfaceGlide {
         kind: "bear",
         from: 0,
         to: 1,
-        support: { kind: "ground" },
+        support:
+          slope === undefined
+            ? { kind: "ground" }
+            : { kind: "prop", subject: slope, carries: false },
       }),
     );
     if (braking > 0 && grade === 0)

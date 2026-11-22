@@ -30,6 +30,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -62,11 +63,36 @@ const FLOOR_GAP: number = 0.001;
  * @evidence contracts/development/testing.md#execution-ownership One seeded wheelchair and canonical Human body run through in-memory motion entry points and model parts. No host is required.
  */
 export function test_motion_exercise_wheelchair_travel(): void {
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("wheelchair travel", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   const chair: ReturnType<typeof createWheelchair> = createWheelchair(
     { kind: "selfPropelled" },
     2,
   );
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const position: IAutoMovieVector3 = { x: 2, y: 0, z: -1 };
   const heading: number = 63;
   const origin: IAutoMovieRigidTransform = HumanObject.frame({
@@ -179,6 +205,11 @@ export function test_motion_exercise_wheelchair_travel(): void {
       .registered("handrimStroke", brake, "brake")
       .registered("ride", { on: "chair", seconds: 0.2 }).node,
   });
+  collectTakeClean(
+    `${key} wheelchair travel performance`,
+    performance,
+    failures,
+  );
   const push: IAutoMovieMotionHumanSegment = performance.segments("rider")[1]!;
   const stop: IAutoMovieMotionHumanSegment = performance.segments("rider")[2]!;
   const ready: IAutoMovieMotionHumanSegment = performance.segments("rider")[3]!;

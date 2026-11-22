@@ -207,6 +207,9 @@ export namespace IAutoMovieMotionHumanSurface {
 
     /** Descent angle in degrees along the entry heading, in [-20, 20]. Absent is level. */
     grade?: number;
+
+    /** Scene subject id of the slope the skis glide on, whose surface descends at `grade`; required with a nonzero grade, and absent on level snow, where the skis bear on the ground. */
+    slope?: string;
   }
 
   /**

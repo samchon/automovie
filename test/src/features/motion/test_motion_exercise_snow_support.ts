@@ -28,6 +28,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { vclose } from "../internal/vclose";
 
@@ -58,7 +59,32 @@ const Z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @evidence contracts/development/testing.md#execution-ownership In-memory production skis, snowboard, pole frame and Human performance.
  */
 export function test_motion_exercise_snow_support(): void {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("snow support", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   const performer: ConstructorParameters<
     typeof HumanPerformance
   >[0]["performers"][number] = {
@@ -105,19 +131,31 @@ export function test_motion_exercise_snow_support(): void {
   const normal: IAutoMovieVector3 = Quaternion.rotateVector(slope, Y);
   const inner: ReturnType<typeof pivots> = pivots("rightEdge");
   const outer: ReturnType<typeof pivots> = pivots("leftEdge");
-  const alpine: HumanPerformance = snowGlide({
-    seconds: 3.2,
-    speed: 1.4,
-    grade: downhill,
-    turn: 24,
-    stop: true,
-    edgeTransfer: {
-      first: { degrees: 8, pivots: inner },
-      next: { degrees: -8, pivots: outer },
-      at: 1.6,
-      counter: 13,
+  // The run descends a declared slope: the skis glide on its surface.
+  const hill: IAutoMovieMotionHumanProp = {
+    subject: "slope",
+    fixed: true,
+    frame: { position: { x: 0, y: 0, z: 0 }, rotation: slope },
+    points: {},
+  };
+  const alpine: HumanPerformance = snowGlide(
+    {
+      seconds: 3.2,
+      speed: 1.4,
+      grade: downhill,
+      slope: "slope",
+      turn: 24,
+      stop: true,
+      edgeTransfer: {
+        first: { degrees: 8, pivots: inner },
+        next: { degrees: -8, pivots: outer },
+        at: 1.6,
+        counter: 13,
+      },
     },
-  });
+    [hill],
+  );
+  collectTakeClean(`${key} alpine turns`, alpine, failures);
   const findings: string[] = [];
   const check = (label: string, valid: boolean): void => {
     if (!valid) findings.push(label);
@@ -256,6 +294,7 @@ export function test_motion_exercise_snow_support(): void {
       [pole],
     );
   const nordic: HumanPerformance = skiStroke("grip");
+  collectTakeClean(`${key} nordic stroke`, nordic, failures);
   for (const at of [0.5, 0.8, 1.1]) {
     const shown: IAutoMovieRigidTransform = nordic.prop("pole", at);
     const point = (id: PoleAffordance): IAutoMovieVector3 =>
@@ -312,7 +351,9 @@ export function test_motion_exercise_snow_support(): void {
       Math.abs(offset(2.2) - offset(0.5)) < 0.02,
   );
 
-  snowboard(performer, check);
+  snowboard(performer, check, (board: HumanPerformance): void =>
+    collectTakeClean(`${key} snowboard`, board, failures),
+  );
   TestValidator.equals("snow support observations", findings, []);
 }
 
@@ -322,6 +363,7 @@ function snowboard(
     typeof HumanPerformance
   >[0]["performers"][number],
   check: (label: string, valid: boolean) => void,
+  verdicts: (take: HumanPerformance) => void,
 ): void {
   const board: ReturnType<typeof createSnowboard> = createSnowboard({}, 8);
   const binding: number = board.affordance("frontBinding").frame.translation.y;
@@ -410,6 +452,7 @@ function snowboard(
       })
       .registered("boardRide", { on: "board", seconds: 2.6 }).node,
   });
+  verdicts(performed);
   const start: number = performed.segments("snow")[1]!.start;
   const read = (at: number): ReturnType<HumanPerformance["bones"]> =>
     performed.bones("snow", at);

@@ -21,6 +21,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
+import { fittedBicycle } from "../internal/fittedBicycle";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -42,11 +44,36 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#behavioral-verification Reads wheel articulation and displayed Human seat, hands and soles at ordered and repeated film seconds.
  * @evidence contracts/development/testing.md#independent-expectations The wheel travels one circumference per revolution. An authored clearance and physical contact targets provide the lift and placement witnesses.
  * @evidence contracts/development/testing.md#distinguishing-cases Wheel travel is positive during a static crank interval, and the raised and reseated positions have different saddle contacts.
- * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the average Human with the same seeded bicycle.
+ * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the average man and the small woman with the same seeded bicycle, each take read by the shipped verdicts.
  */
 export function test_motion_exercise_bicycle_effort(): void {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const bicycle: ReturnType<typeof createBicycle> = createBicycle({}, 8);
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("bicycle effort", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The effort take on one body.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
+  const bicycle: ReturnType<typeof createBicycle> = fittedBicycle(body, 8);
   const ride: ReturnType<typeof rideBicycle> = rideBicycle(
     bicycle,
     {
@@ -146,6 +173,7 @@ export function test_motion_exercise_bicycle_effort(): void {
       composition: sit.registered("bicycleEffort", params).node,
     });
   const effort: HumanPerformance = performEffort(sitting);
+  collectTakeClean(`${key} bicycle effort`, effort, failures);
   const segment: IAutoMovieMotionHumanSegment = effort.segments("cyclist")[1]!;
   const readsBefore: number = frameReads;
   segment.plan.posture(1.6);
