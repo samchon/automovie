@@ -125,7 +125,7 @@ export function test_motion_exercise_artillery_drill(): void {
         fixed: true,
       }),
       rammer(Vector3.add(STATIONS.n1, { x: -0.2, y: 0.95, z: 0.35 })),
-      HumanObject.prop("charge", createProjectile({ kind: "cartridge" }), {
+      HumanObject.prop("charge", createProjectile({ kind: "roundShot" }), {
         at: Vector3.add(STATIONS.n5, { x: -0.22, y: 0.85, z: 0.35 }),
         yaw: 0,
       }),

@@ -110,7 +110,12 @@ export function test_motion_exercise_crossbow_take(): void {
           )
           .act(
             "presentCrossbow",
-            { target: { kind: "point", at: TARGET, frame: "world" } },
+            {
+              gun: "crossbow",
+              hand: "right",
+              hands: 2,
+              target: { kind: "point", at: TARGET, frame: "world" },
+            },
             "present",
           )
           .act(

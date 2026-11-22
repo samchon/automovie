@@ -240,7 +240,9 @@ export namespace crabWalk {
     const trunk: number =
       (body.rest.get("leftUpperArm")?.y ?? hip + 0.3 * stature) -
       (body.rest.get("hips")?.y ?? hip);
-    const shoulderBack: number = trunk * Math.sin(-radians) + 0.05 * stature;
+    // The hands sit well behind the shoulders, so the forearms incline and
+    // the wrists extend within their range to lay the palms flat.
+    const shoulderBack: number = trunk * Math.sin(-radians) + 0.15 * stature;
     const feetAhead: number = 0.32 * stature;
     const limbs: readonly ILimb[] = [
       {
@@ -339,7 +341,8 @@ export namespace crabWalk {
           ),
           Vector3.add(frame(l.stance), { x: 0, y: lift, z: 0 }),
         );
-        const planted: boolean = lift === 0;
+        // An end bears only once the body has settled onto its supports.
+        const planted: boolean = lift === 0 && seconds >= SETTLE;
         if (l.part === "leftHand" || l.part === "rightHand") {
           // The palm lies flat on the floor, the fingers toward the feet.
           const side: AutoMovieHumanSide =

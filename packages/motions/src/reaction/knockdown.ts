@@ -314,16 +314,15 @@ export namespace knockdown {
           delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
             KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).joints,
         }),
-        // The fold turns and pitches the body about its root; the feet stay
-        // flat where they stood until the seat lands, so no heel skates.
-        ReactionFeet.planted(context.entry, SEATED, 0.5 * body.measure.hipHeight),
       ],
     });
     // The fold has reached its grounded endpoint at "down"; an authored
     // lying hold extends only the film clock after that event.
     const defaultSource: boolean = context.params.from === undefined;
+    // The fold turns and pitches the body about its root; the feet stay
+    // flat where they stood until the seat lands, so no heel skates.
     const out: IAutoMovieMotionHumanActionPlan = {
-      ...plan,
+      ...ReactionFeet.hold(plan, context.entry, SEATED, 0.5 * body.measure.hipHeight),
       ...(defaultSource && duration > DOWN
         ? { still: [DOWN, duration] as const }
         : {}),

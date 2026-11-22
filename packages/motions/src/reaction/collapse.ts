@@ -274,16 +274,19 @@ export namespace collapse {
             delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
               fold(seconds).joints,
           }),
-          // The fold pitches and rolls the body about its root; the feet stay
-          // flat where they stood until the knees land, so no heel skates.
-          ReactionFeet.planted(
-            context.entry,
-            kneel,
-            0.5 * context.body.measure.hipHeight,
-          ),
         ],
       });
-    return { ...plan, physicalWindow: { from: 0, to: down } };
+    // The fold pitches and rolls the body about its root; the feet stay
+    // flat where they stood until the knees land, so no heel skates.
+    return {
+      ...ReactionFeet.hold(
+        plan,
+        context.entry,
+        kneel,
+        0.5 * context.body.measure.hipHeight,
+      ),
+      physicalWindow: { from: 0, to: down },
+    };
   }
 
   /** How long an in-place collapse takes to fold into its heap after the knees land, seconds, as the knockdown's roll-down measures it. */

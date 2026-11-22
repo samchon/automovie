@@ -26,6 +26,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { KnockdownFloor } from "./KnockdownFloor";
+import { ReactionFeet } from "./ReactionFeet";
 import { ReactionSource } from "./ReactionSource";
 
 /**
@@ -142,6 +143,7 @@ export namespace thrown {
       (rise + Math.sqrt(rise * rise + 2 * g * (start - floor))) / g;
     const speed: number = distance / flight;
     const takeoff: number = WINDUP;
+    const shape: KnockdownFloor.IFold = SHAPES[rig];
 
     // A named wall in the path stops the flight where the back meets its
     // face; the body then slides down it, braked to half of gravity, to sit
@@ -150,18 +152,48 @@ export namespace thrown {
       context.params.wall === undefined
         ? undefined
         : context.aim(context.params.wall, context.start);
+    // The body faces against its travel and leans back into it, so what
+    // meets the wall first is the back at the trunk's lean: the back's half
+    // depth behind the root plus the head's height laid along the travel by
+    // the flight's pitch, the pitch it would have flown with.
     const back: number = body.measure.chestDepth / 2;
     const closing: number =
       wall === undefined ? 0 : speed * Vector3.dot(travel, wall.normal);
-    const reach: number =
-      wall === undefined || !(closing < 0)
-        ? Infinity
-        : (back -
-            Vector3.dot(
-              Vector3.subtract(entry.root, wall.point),
-              wall.normal,
-            )) /
-          closing;
+    const leading: (t: number) => number = (t: number): number => {
+      const pitch: number =
+        shape.pitch + (lying.pitch - shape.pitch) * Math.min(1, t / flight);
+      return (
+        back +
+        HEAD *
+          body.measure.stature *
+          Math.max(0, Math.sin((-pitch * Math.PI) / 180))
+      );
+    };
+    const reach: number = ((): number => {
+      if (wall === undefined || !(closing < 0)) return Infinity;
+      const d0: number = Vector3.dot(
+        Vector3.subtract(entry.root, wall.point),
+        wall.normal,
+      );
+      const gap: (t: number) => number = (t: number): number =>
+        d0 + closing * t - leading(t);
+      if (gap(0) <= 0) return 0;
+      const steps: number = 200;
+      for (let k: number = 1; k <= steps; ++k) {
+        const t: number = (flight * k) / steps;
+        if (gap(t) > 0) continue;
+        // Refine between the last open sample and this one.
+        let lo: number = (flight * (k - 1)) / steps;
+        let hi: number = t;
+        for (let n: number = 0; n < 30; ++n) {
+          const mid: number = (lo + hi) / 2;
+          if (gap(mid) > 0) lo = mid;
+          else hi = mid;
+        }
+        return hi;
+      }
+      return Infinity;
+    })();
     const struck: boolean = reach > 0 && reach < flight;
     const flown: number = struck ? reach : flight;
     const contactHeight: number =
@@ -179,7 +211,6 @@ export namespace thrown {
       { name: "stroke", seconds: struck ? impact : land },
     ]);
     const duration: number = clock.duration;
-    const shape: KnockdownFloor.IFold = SHAPES[rig];
     const blend: (seconds: number) => KnockdownFloor.IFold = (
       seconds: number,
     ): KnockdownFloor.IFold => {
@@ -327,8 +358,20 @@ export namespace thrown {
           }),
         ],
       });
-    return { ...plan, physicalWindow: null };
+    // The feet stay flat where they stood until they leave the floor.
+    return {
+      ...ReactionFeet.hold(
+        plan,
+        context.entry,
+        takeoff,
+        0.5 * body.measure.hipHeight,
+      ),
+      physicalWindow: null,
+    };
   }
+
+  /** The head's top above the feet, in statures: the reach of a body laid back along its travel. */
+  const HEAD: number = 0.95;
 
   /**
    * Each rig's take-off shape, degrees (provisional stage readings): a

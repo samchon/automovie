@@ -1,10 +1,10 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
 import { mixHumanPosture } from "../posture/mixHumanPosture";
@@ -28,27 +28,38 @@ export namespace ReactionFeet {
   export const FADE: number = 0.2;
 
   /**
-   * The primitive that keeps the feet planted until a second.
+   * A plan whose feet stay planted until a second: its posture with both
+   * legs' goals at the entry feet, faded back to the plan's own legs over
+   * `FADE` after. Written over the composed posture, so the fall's own leg
+   * joints stay one movement and the planted goals take over from them.
    *
+   * @param plan The fall's plan.
    * @param entry The entry state, its feet.
    * @param until Seconds since the action's start the feet stay planted until.
    * @param knee How high above the ankle the knee's hint lies, metres; it leans ahead along the heading by four tenths of that.
-   * @returns The primitive writing both legs.
+   * @returns The plan with its feet held.
    */
-  export function planted(
+  export function hold(
+    plan: IAutoMovieMotionHumanActionPlan,
     entry: IAutoMovieMotionHumanEntryState,
     until: number,
     knee: number,
-  ): IAutoMovieMotionHumanPrimitive {
+  ): IAutoMovieMotionHumanActionPlan {
+    const yaw: number = (entry.posture.yaw * Math.PI) / 180;
     return {
-      channels: ["leftLeg", "rightLeg"],
-      reads: [],
-      from: 0,
-      to: until + FADE,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
+      ...plan,
+      posture: (
         seconds: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
+        const posture: IAutoMovieMotionHumanPosture = plan.posture(
+          seconds,
+          channels,
+          resolution,
+          projection,
+        );
         const weight: number =
           seconds <= until
             ? 1
@@ -63,9 +74,9 @@ export namespace ReactionFeet {
             point: foot.ankle,
             rotation: foot.rotation,
             bend: Vector3.add(foot.ankle, {
-              x: 0.4 * knee * Math.sin((entry.posture.yaw * Math.PI) / 180),
+              x: 0.4 * knee * Math.sin(yaw),
               y: knee,
-              z: 0.4 * knee * Math.cos((entry.posture.yaw * Math.PI) / 180),
+              z: 0.4 * knee * Math.cos(yaw),
             }),
             planted: true,
           } satisfies IAutoMovieHumanLimbGoal;
