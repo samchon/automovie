@@ -31,7 +31,7 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
   /**
    * A hostage hold from behind: the holder's free arm lies across the hostage's chest or neck, the other hand presents a held weapon at the hostage's head or throat, and the pair walks backward together.
    *
-   * @param params The `partner`, `arm`, `prop`, `point`, `region`, `back` and `seconds` of `IAutoMovieMotionHumanHostageHold.IParams`.
+   * @param params The `partner`, `arm`, `prop`, `point`, `region`, `back` and `duration` of `IAutoMovieMotionHumanHostageHold.IParams`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    *
@@ -45,6 +45,46 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    */
   hostageHold(
     params: IAutoMovieMotionHumanHostage.IHostageHold,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * The hostage of a hold: the body keeps the posture it entered with and walks backward with the holder, its root following the holder's displayed root and its feet stepping the same displacement, so the pair keeps its order. The holder is composed before the hostage, so its root is placed to be read.
+   *
+   * @param params The `partner` of `IAutoMovieMotionHumanHostageHold.IHeld`, the holder.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   */
+  heldHostage(
+    params: IAutoMovieMotionHumanHostage.IHeldHostage,
+    anchor?: string,
+  ): Chain;
+
+  /**
+   * The armed partner of a disarm: the hand that gives the weapon up opens at the instant the defender's disarm takes it, following the defender's lever.
+   *
+   * @param params The `partner` and `of` of `IAutoMovieMotionHumanDisarm.IYield`, the defender and the anchor of its disarm.
+   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @returns The chain with the action appended.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
+   */
+  disarmed(
+    params: IAutoMovieMotionHumanHostage.IDisarmed,
     anchor?: string,
   ): Chain;
 }
@@ -72,4 +112,24 @@ export namespace IAutoMovieMotionHumanHostage {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
    */
   export type IHostageHold = IAutoMovieMotionHumanHostageHold.IParams;
+
+  /**
+   * The parameters of `heldHostage`: `IAutoMovieMotionHumanHostageHold.IHeld`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHostageHold.IHeld`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHostageHold.IHeld` owns the shape; the alias serves `heldHostage` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type IHeldHostage = IAutoMovieMotionHumanHostageHold.IHeld;
+
+  /**
+   * The parameters of `disarmed`: `IAutoMovieMotionHumanDisarm.IYield`, the type its law takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
+   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanDisarm.IYield`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanDisarm.IYield` owns the shape; the alias serves `disarmed` of this family, naming its parameters in the family namespace without a second definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
+   */
+  export type IDisarmed = IAutoMovieMotionHumanDisarm.IYield;
 }

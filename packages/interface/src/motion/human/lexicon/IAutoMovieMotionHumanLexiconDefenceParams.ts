@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanBrace } from "../everyday/IAutoMovieMotionHumanBrace";
-import type { IAutoMovieMotionHumanDefend } from "../striking/IAutoMovieMotionHumanDefend";
+import type { IAutoMovieMotionHumanDefence } from "../next/IAutoMovieMotionHumanDefence";
 
 /**
  * Open parameters of the defence lexicon family, keyed by each runtime export name: the named blocks, evasions and braces of #3362.
@@ -11,28 +11,28 @@ import type { IAutoMovieMotionHumanDefend } from "../striking/IAutoMovieMotionHu
  */
 export interface IAutoMovieMotionHumanLexiconDefenceParams {
   /** Both forearms brought up to cover the head. */
-  cover: Omit<IAutoMovieMotionHumanDefend.IParams, "kind">;
+  cover: IAutoMovieMotionHumanDefence.IDefendRow;
 
   /** The incoming fist deflected by the hand. */
-  handParry: Omit<IAutoMovieMotionHumanDefend.IParams, "kind">;
+  handParry: IAutoMovieMotionHumanDefence.IDefendRow;
 
   /** A body strike taken on the elbow. */
-  elbowBlock: Omit<IAutoMovieMotionHumanDefend.IParams, "kind">;
+  elbowBlock: IAutoMovieMotionHumanDefence.IDefendRow;
 
   /** A high strike taken on the raised forearm. */
-  highBlock: Omit<IAutoMovieMotionHumanDefend.IParams, "kind">;
+  highBlock: IAutoMovieMotionHumanDefence.IDefendRow;
 
   /** A kick checked with the raised shin. */
-  checkKick: Omit<IAutoMovieMotionHumanDefend.IParams, "kind">;
+  checkKick: IAutoMovieMotionHumanDefence.IDefendRow;
 
   /** The head moved off the line of a straight punch. */
-  slip: Omit<IAutoMovieMotionHumanDefend.IParams, "kind">;
+  slip: IAutoMovieMotionHumanDefence.IDefendRow;
 
   /** The body rolled under a hook. */
-  rollUnder: Omit<IAutoMovieMotionHumanDefend.IParams, "kind">;
+  rollUnder: IAutoMovieMotionHumanDefence.IDefendRow;
 
   /** The trunk swayed back from a strike. */
-  swayBack: Omit<IAutoMovieMotionHumanDefend.IParams, "kind">;
+  swayBack: IAutoMovieMotionHumanDefence.IDefendRow;
 
   /** The stance widened and lowered for an impact. */
   braceImpact: Omit<IAutoMovieMotionHumanBrace.IParams, "kind">;

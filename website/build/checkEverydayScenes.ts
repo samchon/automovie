@@ -7,7 +7,11 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { HumanColliders, HumanFoot, StrikingBody } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanStrike,
+  HumanColliders,
+  HumanFoot,
+} from "@automovie/motions";
 import { strict as assert } from "node:assert";
 import { Group, type Object3D, PointLight } from "three";
 
@@ -202,7 +206,8 @@ function checkHipHold(
     const distance: number = HumanColliders.distance(
       body,
       new Map([["rightHand", bones.get("rightHand")!]]),
-      StrikingBody.region(body, bones, "hipRight").point,
+      AutoMovieMotionHumanStrike.StrikingBody.region(body, bones, "hipRight")
+        .point,
     ).distance;
     assert(
       distance <= 0 && distance >= -PRESS,

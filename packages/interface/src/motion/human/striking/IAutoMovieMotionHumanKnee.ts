@@ -56,6 +56,16 @@ export namespace IAutoMovieMotionHumanKnee {
     at: IAutoMovieMotionTarget;
 
     /** Which leg: lead or rear; rear when absent. A knee is the kick's chamber alone: contact 0.22 s after the start at elite skill (0.074 s plus the 0.14 s chamber) and 0.65 s of recoil, the chamber and recoil 1.4 times at novice ({@link IAutoMovieMotionHumanKick}). */
-    leg?: "lead" | "rear";
+    leg?: IAutoMovieMotionHumanKnee.Leg;
   }
+
+  /**
+   * The kneeing leg: the stance's lead leg or its rear leg.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two legs by the stance.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the stance's two legs, so no other leg type-checks.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the knee law's `leg` member and by the strike family's knee presets.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Explicit literals; the stance owns which physical leg each names.
+   */
+  export type Leg = "lead" | "rear";
 }

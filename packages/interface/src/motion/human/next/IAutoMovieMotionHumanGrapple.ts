@@ -9,8 +9,6 @@ import type { IAutoMovieMotionHumanArmWrestle } from "../touch/IAutoMovieMotionH
  * Holds, throws, clinches and arm wrestling between two bodies. The grappling law reads no skill: its scene lengths are authored.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Grapple family, each taking the law's own parameter type.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The Grapple laws and nothing the other families own.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
@@ -212,8 +210,6 @@ export namespace IAutoMovieMotionHumanGrapple {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States that both roles share one authored scene.
  * @evidence contracts/development/design.md#principled-representation A closed scene kind and explicit staged outcome separate choreography from partner identity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the shared scene settings and the settings of each action role.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither the venue nor the rulebook's award is inferred from a pose.
  */
 export namespace IAutoMovieMotionHumanGrapple {
   /**
@@ -314,4 +310,30 @@ export namespace IAutoMovieMotionHumanGrapple {
     /** The other actor's subject in the same performance. */
     partner: string;
   }
+
+  /**
+   * A clinch preset: the grip and the hold a named clinch fixes, such as judo's grip (kumikata) for a throw. Spread into `clinch`'s parameters with the partner; each value means what the clinch's member of the same name does.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and where its members' meanings are.
+   * @evidence contracts/development/design.md#principled-representation Two required members typed by the clinch law's own named members, so a preset always fixes exactly the grip and the hold and the clinch keeps every other default.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `AutoMovieMotionHumanGrapple.JUDO_GRIP` is its data and the `judoGrip` row reads it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the clinch's parameters.
+   */
+  export interface IClinchPreset {
+    /** The grip, as `IAutoMovieMotionHumanClinch.IParams.grip`. */
+    grip: IAutoMovieMotionHumanClinch.Grip;
+
+    /** Seconds the grip is held, as `IAutoMovieMotionHumanClinch.IParams.hold`. */
+    hold: number;
+  }
+
+  /**
+   * The parameters a clinch row leaves to the composition: the clinch's parameters without the grip and the hold its preset fixes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameters a clinch row takes and the two it fixes.
+   * @evidence contracts/development/design.md#principled-representation The clinch's own parameters less exactly the members of `IClinchPreset`, so a row cannot be given what its preset fixes.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanClinch.IParams` owns the shape; the lexicon's social map names the row's parameters by this alias.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: one named projection instead of an inline `Omit`.
+   */
+  export type IClinchRow = Omit<IClinch, keyof IClinchPreset>;
 }

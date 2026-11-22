@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChainCore,
@@ -8,13 +8,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanBlade,
   AutoMovieMotionHumanGrapple,
+  AutoMovieMotionHumanStageFight,
+  AutoMovieMotionHumanStrike,
+  AutoMovieMotionHumanThrowCatch,
   HumanFoot,
   HumanPerformance,
   HumanSignature,
-  HumanSportThrow,
-  HumanStrike,
 } from "@automovie/motions";
 
 /**
@@ -50,9 +50,9 @@ export namespace motionCombatPair {
     return new HumanPerformance({
       seed,
       laws: [
-        ...Object.values(HumanStrike),
-        ...Object.values(AutoMovieMotionHumanBlade.stageBladeFootwork),
-        ...Object.values(HumanSportThrow),
+        ...Object.values(AutoMovieMotionHumanStrike.HumanStrike),
+        ...Object.values(AutoMovieMotionHumanStageFight.stageBladeFootwork),
+        ...Object.values(AutoMovieMotionHumanThrowCatch.HumanSportThrow),
         AutoMovieMotionHumanGrapple.grapple,
       ],
       performers: [

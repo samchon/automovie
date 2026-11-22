@@ -59,15 +59,7 @@ export namespace IAutoMovieMotionHumanDefend {
    */
   export interface IParams {
     /** The defence. */
-    kind:
-      | "cover"
-      | "parry"
-      | "elbowBlock"
-      | "highBlock"
-      | "slip"
-      | "roll"
-      | "sway"
-      | "check";
+    kind: IAutoMovieMotionHumanDefend.Kind;
 
     /** The anchor of the strike it answers. */
     against: string;
@@ -75,4 +67,22 @@ export namespace IAutoMovieMotionHumanDefend {
     /** The forced outcome; drawn from the defender's skill when absent. The defender starts after a reaction time drawn around 0.335 s at novice to 0.29 s at elite (the ex-Gaussian mu, Liu et al. 2018, `StrikingSkill.reaction`), less the anticipation the strike's preparation shows, and its limb or head takes 0.30 s at novice to 0.20 s at elite to move (`StrikingSkill.defence`, provisional). `inTime`: in place at the contact, the strike lands on the glove; `late`: caught half-made within half the movement time, the strike lands through the guard; `fail`: the strike lands as if undefended. A forced outcome is refused when no plausible timing reaches it. Against a kick or a fast strike a reactive defence is late: only anticipation, which skill buys, makes it in time. */
     outcome?: IAutoMovieMotionHumanDefenceOutcome.Outcome;
   }
+
+  /**
+   * The defence: `cover`, `parry`, `elbowBlock`, `highBlock`, `slip`, `roll`, `sway` or `check`, each as the namespace's list of kinds describes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the eight kinds and points to where each is described.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the eight kinds, so only a kind the law builds geometry for type-checks.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the defend law's `kind` member and by the Defence family's defence presets.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Explicit literals; the defence geometry owns each kind's posture.
+   */
+  export type Kind =
+    | "cover"
+    | "parry"
+    | "elbowBlock"
+    | "highBlock"
+    | "slip"
+    | "roll"
+    | "sway"
+    | "check";
 }

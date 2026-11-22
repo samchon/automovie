@@ -2,9 +2,9 @@ import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotio
 import type { IAutoMovieMotionHumanHandToFace } from "../daily/IAutoMovieMotionHumanHandToFace";
 import type { IAutoMovieMotionHumanApproach } from "../everyday/IAutoMovieMotionHumanApproach";
 import type { IAutoMovieMotionHumanCurtsy } from "../everyday/IAutoMovieMotionHumanCurtsy";
-import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
 import type { IAutoMovieMotionHumanKuzushi } from "../grappling/IAutoMovieMotionHumanKuzushi";
 import type { IAutoMovieMotionHumanRelayPass } from "../handling/IAutoMovieMotionHumanRelayPass";
+import type { IAutoMovieMotionHumanGrapple } from "../next/IAutoMovieMotionHumanGrapple";
 import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanHighFive } from "../touch/IAutoMovieMotionHumanHighFive";
 import type { IAutoMovieMotionHumanKiss } from "../touch/IAutoMovieMotionHumanKiss";
@@ -85,7 +85,7 @@ export interface IAutoMovieMotionHumanLexiconSocialParams {
   >;
 
   /** Judo's grip (kumikata) for a throw: the right hand on the partner's left collar and the left on the right sleeve, held two seconds (provisional). The composition gives the partner. */
-  judoGrip: Omit<IAutoMovieMotionHumanClinch.IParams, "grip" | "hold">;
+  judoGrip: IAutoMovieMotionHumanGrapple.IClinchRow;
 
   /** The receiver of a judo throw drawn off balance forward (`kuzushi`), the body tipped about the ankles over the toes and held a second. */
   judoBroken: Omit<IAutoMovieMotionHumanKuzushi.IParams, "depth">;

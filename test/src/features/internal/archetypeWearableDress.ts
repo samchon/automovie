@@ -15,11 +15,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanDress,
+  AutoMovieMotionHumanStrike,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  StrikingRoll,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -137,9 +137,9 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
           ).point,
         ),
       );
-      if (!(on <= StrikingRoll.MISS))
+      if (!(on <= AutoMovieMotionHumanStrike.StrikingRoll.MISS))
         complaints.push(
-          `${label}: at the stroke the wear socket is ${mm(on)} mm from its region, within ${mm(StrikingRoll.MISS)} mm expected`,
+          `${label}: at the stroke the wear socket is ${mm(on)} mm from its region, within ${mm(AutoMovieMotionHumanStrike.StrikingRoll.MISS)} mm expected`,
         );
 
       // 2. The head wears it.

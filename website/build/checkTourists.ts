@@ -12,8 +12,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditTangle,
+  AutoMovieMotionHumanStrike,
   HumanColliders,
-  StrikingBody,
 } from "@automovie/motions";
 import { strict as assert } from "node:assert";
 
@@ -91,7 +91,11 @@ export function checkTourists(): void {
         performance.bones("ivy", at);
       assert(
         Vector3.distance(
-          StrikingBody.region(body, bones, "noseBridge").point,
+          AutoMovieMotionHumanStrike.StrikingBody.region(
+            body,
+            bones,
+            "noseBridge",
+          ).point,
           screen,
         ) <= TOUCH,
         take.label + " screen at the eye",

@@ -12,11 +12,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStrike,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanSignature,
-  HumanStrike,
   chiSau,
 } from "@automovie/motions";
 
@@ -152,11 +152,11 @@ function rollingHands(
     body,
     0.45 * body.measure.stature,
     HumanChain.subject("a")
-      .registered("chiSau", { partner: "b", cycles: 4 }, "rollA")
+      .registered("chiSau", { partner: "b", count: 4 }, "rollA")
       .with(
         HumanChain.subject("b").registered(
           "chiSau",
-          { partner: "a", cycles: 4 },
+          { partner: "a", count: 4 },
           "rollB",
         ),
       ),
@@ -221,7 +221,7 @@ function dummy(
   });
   const film: HumanPerformance = new HumanPerformance({
     seed: "dummy",
-    laws: [...Object.values(HumanStrike)],
+    laws: [...Object.values(AutoMovieMotionHumanStrike.HumanStrike)],
     performers: [
       {
         subject: "a",
@@ -242,7 +242,7 @@ function dummy(
       .registered("palmHeel", { at: at("trunk") }, "trunk")
       .registered(
         "touch",
-        { target: at("armRight"), kind: "tap", with: "palm" },
+        { target: at("armRight"), kind: "tap", effector: "palm" },
         "arm",
       )
       .registered("sideKick", { at: at("leg") }, "leg").node,

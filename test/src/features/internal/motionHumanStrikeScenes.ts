@@ -10,12 +10,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStrike,
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  StrikingRecord,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -126,7 +126,9 @@ export namespace motionHumanStrikeScenes {
       .segments("a")
       .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "punch");
     const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
-      punch === undefined ? undefined : StrikingRecord.of(punch.plan);
+      punch === undefined
+        ? undefined
+        : AutoMovieMotionHumanStrike.StrikingRecord.of(punch.plan);
     if (punch === undefined || record === undefined)
       return [`${label}: planned without a punch record`];
     const out: string[] = [];
