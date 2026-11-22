@@ -67,6 +67,9 @@ const HALF: number = 0.18;
 /** The rebound's height between ictuses, as a share of `HALF`: provisional, above the largest rise between ictuses times 1/π so each ictus is a lowest point. */
 const REBOUND: number = 0.6;
 
+/** The share of the lead before the first beat the arm takes to reach the figure: the rest of the lead is the preparatory arc into the first ictus, which the figure holds, as a conductor's preparation is part of the beat (provisional). */
+const PREP: number = 0.25;
+
 /** The tempo when none is given, beats per minute. */
 const BPM: number = 120;
 
@@ -240,7 +243,7 @@ function plan(
     goals,
     side,
     AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-    { start: 0, ready: first, relax: last, end: clock.duration },
+    { start: 0, ready: first * PREP, relax: last, end: clock.duration },
   );
   return {
     ...coursed,

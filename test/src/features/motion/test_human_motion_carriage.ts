@@ -180,8 +180,8 @@ function arrival(
   );
   const props: IAutoMovieMotionHumanProp[] = [
     everydayTake.prop("pack", pack, { x: 0.35, y: 0.75, z: 0.25 }, BEHIND),
-    // Standing by the left foot, the side of the hand that draws and pulls it.
-    everydayTake.prop("case", case_, { x: 0.2, y: 0, z: 0.16 }),
+    // Standing ahead on the left, by the hand that draws and pulls it.
+    everydayTake.prop("case", case_, { x: 0.2, y: 0, z: 0.4 }),
   ];
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()

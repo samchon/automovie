@@ -150,7 +150,7 @@ function painting(
       undefined,
       true,
     ),
-    everydayTake.prop("palette", palette, { x: 0.3, y: 0.95, z: 0.25 }),
+    everydayTake.prop("palette", palette, { x: 0.12, y: 0.95, z: 0.3 }),
     everydayTake.prop("brush", brush, { x: -0.25, y: 1.0, z: 0.3 }),
   ];
   const strokes: readonly IAutoMovieMotionHumanWrite["stroke"][] = [
@@ -310,18 +310,21 @@ function conducting(
       const figure: IFigure = figures[f]!;
       figure.directions.forEach((direction: Direction, b: number): void => {
         const beat: number = segment.start + (b + 1) * period;
-        // The ictus is the tip's lowest point: below it one frame and a
-        // quarter beat either side.
-        const low: number = tip(beat).y;
-        const lowest: boolean = [
-          -period / 4,
-          -1 / 24,
-          1 / 24,
-          period / 4,
-        ].every((dt: number): boolean => tip(beat + dt).y > low);
+        // The ictus is the tip's lowest point: the lowest within a quarter
+        // beat either side falls within a film frame of the beat.
+        let lowest: number = beat;
+        let low: number = Infinity;
+        for (let i: number = -30; i <= 30; ++i) {
+          const t: number = beat + (i * period) / 120;
+          const y: number = tip(t).y;
+          if (y < low) {
+            low = y;
+            lowest = t;
+          }
+        }
         checks.check(
-          `${label} ${figure.meter}: beat ${b + 1}'s ictus falls on its instant`,
-          lowest,
+          `${label} ${figure.meter}: beat ${b + 1}'s ictus falls on its instant (${(lowest - beat).toFixed(3)} s)`,
+          Math.abs(lowest - beat) <= 1 / 24,
         );
         const move: IAutoMovieVector3 = Vector3.subtract(
           tip(beat),
@@ -353,7 +356,7 @@ function sewing(
   const cloth = createPalette({ id: "cloth", kind: "cloth" });
   const needle = createCraftTool({ id: "needle", kind: "needle" });
   const props: IAutoMovieMotionHumanProp[] = [
-    everydayTake.prop("cloth", cloth, { x: 0.25, y: 1.0, z: 0.35 }),
+    everydayTake.prop("cloth", cloth, { x: 0.1, y: 1.05, z: 0.38 }),
     everydayTake.prop("needle", needle, { x: -0.2, y: 1.0, z: 0.3 }),
   ];
   let chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
