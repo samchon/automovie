@@ -144,6 +144,7 @@ export function test_archetype_animal_rest(): void {
       rightStirrup: "trunk",
       leftRein: "head",
       rightRein: "head",
+      mane: "trunk",
       lead: "head",
     },
   };
