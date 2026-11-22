@@ -380,7 +380,7 @@ function obstruction(
   return undefined;
 }
 
-/** Accept a fixed or overridden position only when its actual proxy fits. */
+/** Accept a fixed or overridden position only when its proxy fits. */
 function claim(
   id: string,
   role: string,

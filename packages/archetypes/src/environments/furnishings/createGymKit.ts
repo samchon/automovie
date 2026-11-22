@@ -24,7 +24,7 @@ import { furnishRoom } from "./furnishRoom";
  * @throws When the requested stations or their clearances do not fit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the room origin, orientation, bench and weight roles, attached contact paths and failure condition.
- * @evidence contracts/development/implementation.md#principled-implementation Positions the actual measured rest boxes of flat benches and dumbbells. The two weights stand alongside a bench without crossing its sides. FurnishRoom uses the lowest rest extent on Y to place each model on the floor.
+ * @evidence contracts/development/implementation.md#principled-implementation Positions the measured rest boxes of flat benches and dumbbells. The two weights stand alongside a bench without crossing its sides. FurnishRoom uses the lowest rest extent on Y to place each model on the floor.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Chooses the room's two model prototypes and their group relationship. Common layout and prop instantiation stay in furnishRoom.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The station does not claim movement or manufacturer clearances for training equipment. Capacity, useful aisle and approach reservations are checked by the shared planner.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds and measures two model prototypes once per occurrence. Cost then follows the shared room planner's candidate and requested population sizes.

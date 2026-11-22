@@ -29,7 +29,7 @@ type Build = AutoMovieArchetypeBuilder<
 /**
  * A sit-inside kayak based on the published Pungo 120 envelope. The bow
  * points along +Z and Y = 0 is the reference waterline. The cockpit has an
- * actual opening, a low seat and separate tilted footbraces. The deck and
+ * opening, a low seat and separate tilted footbraces. The deck and
  * floor share the same hull section family. Wall thickness and the
  * installed seat and brace geometry are staging estimates.
  *
@@ -202,7 +202,7 @@ function hull(
   }
 }
 
-/** Put an actual angled brace face and foot contact inside the coaming. */
+/** Put an angled brace face and foot contact inside the coaming. */
 function brace(builder: Build, id: createKayak.Brace, sign: number): void {
   const at: IAutoMovieVector3 = v(sign * 0.16, FLOOR + 0.125, 0.53);
   const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -235,7 +235,7 @@ function brace(builder: Build, id: createKayak.Brace, sign: number): void {
 /**
  * Fixed dimension sites and the three contact affordance names.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the measured sites, units and actual cockpit contacts.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the measured sites, units and cockpit contacts.
  * @evidence contracts/development/design.md#principled-representation A closed dimension and contact vocabulary for one sit-inside hull.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Independent of canoes and the shape of the hand-held paddle.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Provenance for the published dimensions is separate from the installed geometry estimates.

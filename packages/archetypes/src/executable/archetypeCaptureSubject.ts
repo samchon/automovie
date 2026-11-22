@@ -77,10 +77,10 @@ export namespace archetypeCaptureSubject {
    *
    * @param name The member's name.
    * @param ride The ride.
-   * @param reference Actual immutable neutral model for independent quadruped rig marks; optional for unrelated rides.
+   * @param reference Immutable neutral model for independent quadruped rig marks; optional for unrelated rides.
    * @returns The subject.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the actual ride, optional immutable neutral animal for independent marks, duration and instants carried by the subject.
+   * @evidence contracts/development/common.md#meaningful-documentation States the ride, optional immutable neutral animal for independent marks, duration and instants carried by the subject.
    * @evidence contracts/development/implementation.md#principled-implementation The member's sampler is the ride's own, its archetype and placement at each second.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One literal.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.

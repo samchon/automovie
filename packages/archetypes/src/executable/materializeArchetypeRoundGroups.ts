@@ -8,18 +8,18 @@ import { ArchetypeRoundPlan as Round } from "./ArchetypeRoundPlan";
 import { ArchetypeRoundTiming } from "./ArchetypeRoundTiming";
 
 /**
- * Resolve the reviewed archetype purpose groups into actual time/pass requests.
+ * Resolve the reviewed archetype purpose groups into time/pass requests.
  *
- * @param props The admitted plan, its groups, cached actual-subject reader and shared failure collector.
+ * @param props The admitted plan, its groups, cached subject reader and shared failure collector.
  * @returns Draft requests, ordinary reused cells and the four explicit fresh-session comparisons.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the finite 28-purpose inspection scope, actual clock/event inputs, native time normalization, duplicate-cell reuse, existing restart-anchor job separation and failure collection.
- * @evidence contracts/development/implementation.md#principled-implementation Purpose recipes read actual subject durations and instants; native frame planning owns rounding and event windows. A steady stride uses consecutive leftForeOn events inside cruise/brake, and source depart/stop events set the three towing branches. The source plan supplies static identities and finite allowances.
+ * @evidence contracts/development/common.md#meaningful-documentation States the finite 28-purpose inspection scope, clock/event inputs, native time normalization, duplicate-cell reuse, existing restart-anchor job separation and failure collection.
+ * @evidence contracts/development/implementation.md#principled-implementation Purpose recipes read subject durations and instants; native frame planning owns rounding and event windows. A steady stride uses consecutive leftForeOn events inside cruise/brake, and source depart/stop events set the three towing branches. The source plan supplies static identities and finite allowances.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One expansion dispatch serves the existing purpose groups; timing, request admission and source-field readers stay separate. Source preparation and lifetime remain with the injected reader.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No neutral replacement, guessed missing event or dropped required frame repairs unavailable evidence. Millisecond filename collisions split requests rather than discard distinct instants; authored inspection choices remain review content.
- * @evidence contracts/development/implementation.md#efficient-algorithms Expansion stores the finite requested cells and scans only the actual event lists. Cell identity deduplication uses one Set; rare filename collisions distribute cells into separate native jobs without changing their count.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual subject preparation is reused through get; ordinary identical cells reuse the original evidence while explicit fresh-session comparisons retain their requested repeated draw.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function owns plain request arrays and a finite identity set for this call. It borrows actual scenes through get and opens no renderer, process, file or handle.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Expansion stores the finite requested cells and scans only the event lists. Cell identity deduplication uses one Set; rare filename collisions distribute cells into separate native jobs without changing their count.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Subject preparation is reused through get; ordinary identical cells reuse the original evidence while explicit fresh-session comparisons retain their requested repeated draw.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function owns plain request arrays and a finite identity set for this call. It borrows scenes through get and opens no renderer, process, file or handle.
  */
 export async function materializeArchetypeRoundGroups(props: {
   plan: Record<string, unknown>;

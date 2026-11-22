@@ -17,7 +17,7 @@ interface Job {
   request: Readonly<Record<string, string>>;
 }
 
-/** A reviewed source revision and finite list of actual instrument requests. */
+/** A reviewed source revision and finite list of instrument requests. */
 interface Round {
   /** Clean source commit required throughout the round. */
   revision: string;
@@ -45,7 +45,7 @@ interface Result {
   out: string;
   /** Failed native cells or one preparation/host failure. */
   failures: readonly string[];
-  /** Actual completed native cell count; zero when planning failed. */
+  /** Completed native cell count; zero when planning failed. */
   cells: number;
 }
 
@@ -60,12 +60,12 @@ interface Result {
  * @param manifest Path to the complete reviewed round's plain-data manifest.
  * @returns After all admissible requests finish and owned host resources close.
  * @throws {Error} For invalid input, source drift or any failed plan/capture cell, after recording every collected group result.
- * @evidence contracts/development/common.md#meaningful-documentation States the package cwd/command, JSON shape, clean pinned revision, full preplanning, actual instrument consumer, sequential draw ownership, evidence output and all failure propagation.
+ * @evidence contracts/development/common.md#meaningful-documentation States the package cwd/command, JSON shape, clean pinned revision, full preplanning, instrument consumer, sequential draw ownership, evidence output and all failure propagation.
  * @evidence contracts/development/implementation.md#principled-implementation Native AutoMovieCaptureHost supplies the real subjects page, renderer, browser and capture records. Every request is parsed and its complete native cell plan materialized before drawing; the same pinned source and original native request then drive capture. No surrogate render, fixture result or pixel verdict is introduced.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the finite data manifest, pin source, open one host, prepare every request, write the complete plan ledger, draw valid groups in order, record their results and close in finally.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Planning/cell failures remain recorded failures and never trigger fallback, backend substitution, source mutation or retry. Native failed-cell records remain authoritative; completion of this tool establishes capture availability, not visual correctness.
  * @evidence contracts/development/implementation.md#efficient-algorithms One page build/browser launch serves J requests and C cells. Successful preparation opens U pages for U distinct subjects, rather than J pages; drawing still opens J fresh pages. A failed open/close is not cached, so preparation can attempt up to J pages. Planning and ledger serialization are linear in C plus the subject descriptions serialized with each plan. Requests run sequentially and the native capture core bounds live image storage.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Every request shares the exact built page, browser, pinned clean revision and null props. This fixed archetype module describes each named subject deterministically, so its plain RPC metadata is reused by exact subject identity within this invocation; the planner does not mutate it. Every request still gets its full native plan, and actual capture independently describes and draws a fresh session. No metadata survives into another invocation.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Every request shares the exact built page, browser, pinned clean revision and null props. This fixed archetype module describes each named subject deterministically, so its plain RPC metadata is reused by exact subject identity within this invocation; the planner does not mutate it. Every request still gets its full native plan, and capture independently describes and draws a fresh session. No metadata survives into another invocation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function owns one host until its finally attempts close. Every preparation session has a finally close attempt and its metadata is cached only after close succeeds; native capture also owns its page's close attempt. A failed close is recorded and may leave that page until the final host close attempt. At most U distinct plain subject descriptions, O(C+J) plans/results and the temporary serialized ledger live for this invocation; evidence files remain caller-owned. Cached descriptions retain no page, renderer or process. No background worker or compiler is created.
  */
 export async function captureArchetypeRound(manifest: string): Promise<void> {

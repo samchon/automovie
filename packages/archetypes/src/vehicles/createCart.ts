@@ -298,7 +298,7 @@ export namespace createCart {
    * - `pintle`: a limber's hook at its rear, which takes a gun's trail.
    * - `leftSpin`, `rightSpin`: a two-wheeled drawn kind's road wheels' roll about the axle, a positive travel rolling them forward.
    * - `frontAxle`: a wagon's or carriage's front axle turning about its pivot over the axle, positive to the left; the front wheels and drawbar pitch pivot ride it.
-   * - `drawbarPitch`: the actual front-axle hinge of a four-wheeler's fixed-length pole, about +X, positive lowering the forward end; coupling rides it. Its ±180 degrees are a principal-angle chart, not a measured working limit.
+   * - `drawbarPitch`: the front-axle hinge of a four-wheeler's fixed-length pole, about +X, positive lowering the forward end; coupling rides it. Its ±180 degrees are a principal-angle chart, not a measured working limit.
    * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: a four-wheeled kind's road wheels' roll, the front pair riding `frontAxle`.
    * - `bed`: a wagon body's floor, inside.
    * - `box`: a carriage driver's seat on the box at its front, facing forward.
@@ -441,11 +441,11 @@ export namespace createCart {
   > = CART_BANDS;
 
   /**
-   * Actual wheel/pivot support for generic towing; cartTowing owns admission.
+   * Wheel/pivot support for generic towing; cartTowing owns admission.
    *
-   * @param cart Actual createCart output in its neutral steering/drawbar pose.
+   * @param cart CreateCart output in its neutral steering/drawbar pose.
    * @returns Independent model-space metre support: one freely pitching wheel axle, or grounded front/rear axles with the declared drawbar hinge.
-   * @throws {RangeError} For another producer, invalid actual wheel-axis geometry or a front steering pivot outside its axle.
+   * @throws {RangeError} For another producer, invalid wheel-axis geometry or a front steering pivot outside its axle.
    * @throws {AutoMovieArchetypeRefusal} If the selected variant lacks a required wheel/steering affordance, including a pushed carrier without towing roles.
    */
   export const towing: typeof cartTowing = cartTowing;

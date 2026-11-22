@@ -275,7 +275,7 @@ export namespace HandToolDraw {
    * @param options The material, grip style and position on the handle.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Add a straight grip to a one-hand tool standing along +Y.
-   * @evidence contracts/development/implementation.md#principled-implementation Take the shorter of the handle and the saved ergonomic span. Center the grip inside the actual handle.
+   * @evidence contracts/development/implementation.md#principled-implementation Take the shorter of the handle and the saved ergonomic span. Center the grip inside the handle.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The owning tool supplies the finish, grip symmetry and whether the grip sits at the butt.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The steel finish appears only when the supplied prop uses a steel handle.
    * @evidence contracts/development/implementation.md#efficient-algorithms Adds one rod and one contact.

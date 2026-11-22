@@ -281,7 +281,7 @@ const WOOD: string = "#8b6a43";
 const CLOTH: string = "#6b2f2f";
 
 /**
- * Add the running gear: the rear pair under the origin and a steering front axle wheelbase ahead. The fixed-length pole pitches on the actual front axle through drawbarPitch, riding frontAxle; its coupling rides that pitch. The ±180 degree travel is a principal-angle representation chart, not a measured mechanical limit or load rating.
+ * Add the running gear: the rear pair under the origin and a steering front axle wheelbase ahead. The fixed-length pole pitches on the front axle through drawbarPitch, riding frontAxle; its coupling rides that pitch. The ±180 degree travel is a principal-angle representation chart, not a measured mechanical limit or load rating.
  *
  * @param builder The carrier under construction.
  * @param d The drawn dimensions: `wheelDiameter`, `frontWheelDiameter` and `wheelbase` are read.

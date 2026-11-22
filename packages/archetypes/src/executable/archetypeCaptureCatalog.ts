@@ -471,14 +471,14 @@ export namespace archetypeCaptureCatalog {
     /** The object's name in the scene, the first segment of its parts' and marks' paths. */
     name: string;
 
-    /** Actual immutable neutral model; quadruped sources enable independent rig observations. */
+    /** Immutable neutral model; quadruped sources enable independent rig observations. */
     reference?: AutoMovieArchetype;
 
     /** The archetype at a second of the subject's clock, and its root's placement in the world when it moves. */
     at(seconds: number): {
       archetype: AutoMovieArchetype;
       placement?: IAutoMovieTransform;
-      /** Authored/solved terminal axis goals from this same actual sample, model metres; absent when the consumer exposes none. */
+      /** Authored/solved terminal axis goals from this same sample, model metres; absent when the consumer exposes none. */
       goals?: ReadonlyMap<
         AutoMovieArchetypeQuadrupedBody.Bone,
         IAutoMovieVector3

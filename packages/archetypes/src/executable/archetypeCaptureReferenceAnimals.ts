@@ -17,16 +17,16 @@ import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
 /**
- * Actual reference species, equipment and authored faster-gait consumers.
+ * Reference species, equipment and authored faster-gait consumers.
  *
- * @returns Actual bare and combined-equipment subjects, their walks and explicitly authored faster rides.
+ * @returns Bare and combined-equipment subjects, their walks and explicitly authored faster rides.
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes measured reference dimensions and walking clocks from authored presentation mass, equipment dimensions and faster clocks.
- * @evidence contracts/development/implementation.md#principled-implementation Actual public producers make each model and real equipment; the shared ride samples their species tables or explicitly authored faster clocks. Every picture uses those actual model/placement outputs.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build three bare references, a combined yoke/pack/lead ox, pack/lead camel and lead deer, then actual walks and explicitly authored faster rides. Local equipment helpers derive gallery dimensions from each actual source rig.
+ * @evidence contracts/development/implementation.md#principled-implementation Public producers make each model and real equipment; the shared ride samples their species tables or explicitly authored faster clocks. Every picture uses those model/placement outputs.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Build three bare references, a combined yoke/pack/lead ox, pack/lead camel and lead deer, then walks and explicitly authored faster rides. Local equipment helpers derive gallery dimensions from each source rig.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No renderer-only animal, biological default clock, source weight for an unweighed cohort, hidden override or perfect-fit/load claim supplies the subject. Construction inputs here are inspection choices, not producer defaults.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed collection of reference models and existing bounded ride plans is prepared once; current poses are read through their actual samplers.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A fixed collection of reference models and existing bounded ride plans is prepared once; current poses are read through their samplers.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Static and moving subjects share immutable source references and the same capture/model/ride owners as production consumers.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Catalogue records retain only their models/plans, opening no process or renderer here; the host owns actual drawing resources.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Catalogue records retain only their models/plans, opening no process or renderer here; the host owns drawing resources.
  */
 export function archetypeCaptureReferenceAnimals(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
@@ -54,7 +54,7 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
     Vector3.subtract(oxRig.poll, oxRig.neck),
   );
 
-  // Explicit gallery dimensions derived from the actual rest landmarks, not maker or population data.
+  // Explicit gallery dimensions derived from the rest landmarks, not maker or population data.
   const beam: number = oxRig.neckRadius / 8;
   const equippedOx: ReturnType<typeof createOx> = createOx(
     {
@@ -197,7 +197,7 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
   return entries;
 }
 
-/** Authored inspection collar/lead ratios fit the actual neck; they are not maker dimensions. */
+/** Authored inspection collar/lead ratios fit the neck; they are not maker dimensions. */
 function lead(
   rig: AutoMovieArchetypeQuadrupedBody.IRig,
 ): AutoMovieArchetypeQuadrupedLead.IParams {
@@ -209,7 +209,7 @@ function lead(
   };
 }
 
-/** Explicit gallery pack dimensions use the actual free trunk span, barrel and neck footprint. */
+/** Explicit gallery pack dimensions use the free trunk span, barrel and neck footprint. */
 function pack(
   rig: AutoMovieArchetypeQuadrupedBody.IRig,
 ): NonNullable<AutoMovieArchetypeQuadrupedEquipment.IParams["pack"]> {

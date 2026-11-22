@@ -11,7 +11,7 @@ import type { createScenicContainer } from "./createScenicContainer";
  * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A closed plank coffer with a rectangular top suitable for stacking.
- * @evidence contracts/development/implementation.md#principled-implementation The top frame and its footprint are on the actual modeled lid.
+ * @evidence contracts/development/implementation.md#principled-implementation The top frame and its footprint are on the modeled lid.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Call the corresponding geometry owner with this producer's parameters.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the documented illustrative width, depth and height bands in metres.
  * @evidence contracts/development/implementation.md#efficient-algorithms Four boxes and one contact.

@@ -5,7 +5,7 @@ import type {
 import { planAutoMovieCaptureFrames } from "@automovie/render";
 
 /**
- * Actual-clock timing rules of the current archetype inspection round.
+ * Clock timing rules of the current archetype inspection round.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States native frame sampling, steady-stride boundaries and required source events in subject seconds.
  * @evidence contracts/development/design.md#principled-representation Installed render metadata and numeric seconds represent the clock; the native planner validates finite grid inputs.
@@ -16,7 +16,7 @@ export namespace ArchetypeRoundTiming {
   /**
    * Resolve native samples, event windows and explicit endpoints.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs use actual subject seconds/fps, positive sample rate, numeric events and exact extra seconds.
+   * @evidence contracts/development/common.md#meaningful-documentation Inputs use subject seconds/fps, positive sample rate, numeric events and exact extra seconds.
    * @evidence contracts/development/implementation.md#principled-implementation Render's existing frame planner owns rounding, endpoint identity, event clipping and deduplication.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan even samples, then join them with explicit endpoints and event windows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No absent event or approximate frame grid is fabricated here.
@@ -54,12 +54,12 @@ export namespace ArchetypeRoundTiming {
   }
 
   /**
-   * Find one actual complete steady left-fore stride.
+   * Find one complete steady left-fore stride.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Cruise/brake bound steady travel; flying-start subjects without those events use their actual full duration. Missing complete strides refuse.
-   * @evidence contracts/development/implementation.md#principled-implementation Consecutive actual leftForeOn events inside the steady interval define the stride.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Filter and order actual landings, then take the first admissible adjacent pair.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species period or pose snapshot replaces missing actual clock data.
+   * @evidence contracts/development/common.md#meaningful-documentation Cruise/brake bound steady travel; flying-start subjects without those events use their full duration. Missing complete strides refuse.
+   * @evidence contracts/development/implementation.md#principled-implementation Consecutive leftForeOn events inside the steady interval define the stride.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Filter and order landings, then take the first admissible adjacent pair.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species period or pose snapshot replaces missing clock data.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the event count plus sorting its left-fore landings.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable native description supplies every clock value.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local event list and pair are plain data with no retained state.
@@ -90,11 +90,11 @@ export namespace ArchetypeRoundTiming {
   /**
    * Read a required source-owned instant.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Returns the named actual subject second and refuses an absent event.
-   * @evidence contracts/development/implementation.md#principled-implementation The actual native description owns labels and their subject timebase.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns the named subject second and refuses an absent event.
+   * @evidence contracts/development/implementation.md#principled-implementation The native description owns labels and their subject timebase.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One exact label search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fallback second hides missing source evidence.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the actual event list.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the event list.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing subject metadata is read without resampling.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No process, scene or retained data is acquired.
    */

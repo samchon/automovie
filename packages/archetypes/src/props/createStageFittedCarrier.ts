@@ -32,7 +32,7 @@ const MASS: number = 0.25;
  * @throws {AutoMovieArchetypeRefusal} If the display model or the proposed identity cannot be fitted.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the carrier axes, display dependency and four contact frames.
- * @evidence contracts/development/implementation.md#principled-implementation Derives a rectangular channel from the actual spherical cap and shaft of the digital producer. Separate boxes represent the channel walls and closed bottom.
+ * @evidence contracts/development/implementation.md#principled-implementation Derives a rectangular channel from the spherical cap and shaft of the digital producer. Separate boxes represent the channel walls and closed bottom.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the display envelope, build the hollow carrier, and place the mouth, opening, seated and wear frames.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No box closes the opening or overlaps the seated cap. The carried model keeps its own geometry and identity.
  * @evidence contracts/development/implementation.md#efficient-algorithms Reads three parts of a fixed-size model and builds five boxes and four contacts.

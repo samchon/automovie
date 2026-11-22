@@ -128,7 +128,7 @@ export namespace createBalanceBeam {
   /** The flat top where hands and feet contact the beam. */
   export type Affordance = "surface";
 
-  /** Length along Z, top height, top width, actual section width and depth, and total mass. */
+  /** Length along Z, top height, top width, section width and depth, and total mass. */
   export type Dimension =
     | "length"
     | "height"

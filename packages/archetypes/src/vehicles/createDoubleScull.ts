@@ -148,7 +148,7 @@ function shell(builder: Build, length: number, beam: number): void {
   }
 }
 
-/** Build one actual seat on two rails, the angled feet and a pair of articulated sculls. */
+/** Build one seat on two rails, the angled feet and a pair of articulated sculls. */
 function station(
   builder: Build,
   id: createDoubleScull.Station,

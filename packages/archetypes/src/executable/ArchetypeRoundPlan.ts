@@ -11,7 +11,7 @@ import {
 /**
  * Data admission and native request records for the current archetype round.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the current 28-purpose host contract, actual subject ownership, string-only execution boundary and complete native restart/layout admission.
+ * @evidence contracts/development/common.md#meaningful-documentation States the current 28-purpose host contract, subject ownership, string-only execution boundary and complete native restart/layout admission.
  * @evidence contracts/development/design.md#principled-representation Existing render types carry scenes, clocks and legends; runtime readers admit finite JSON values and the exact reviewed purpose set.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The coordinator, purpose expander and camera resolver share only the records/readers and native text construction each currently consumes.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts This inspection-only module introduces no product registry, recipe framework, species runtime policy or renderer substitute.
@@ -20,7 +20,7 @@ export namespace ArchetypeRoundPlan {
   /**
    * One finite inspection request before camera resolution.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents actual identities, native view/pass meaning and finite subject seconds.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents identities, native view/pass meaning and finite subject seconds.
    * @evidence contracts/development/design.md#principled-representation Source names and numeric seconds describe one current capture selection; runtime frame planning rejects invalid times.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The group materializer, camera resolver and coordinator share this record.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No scene, species-specific field or renderer result is encoded here.
@@ -29,10 +29,10 @@ export namespace ArchetypeRoundPlan {
     /** Purpose-group identity and finite allowance owner. */
     group: string;
 
-    /** Actual offered subject identity. */
+    /** Offered subject identity. */
     subject: string;
 
-    /** Actual member identity, empty for the whole panel. */
+    /** Member identity, empty for the whole panel. */
     member: string;
 
     /** Native named view shared across all equivalent passes. */
@@ -44,12 +44,12 @@ export namespace ArchetypeRoundPlan {
     /** Explicit native-normalized subject seconds; finite at admission. */
     seconds: number[];
 
-    /** Native inspection text resolved from the actual scene before admission. */
+    /** Native inspection text resolved from the scene before admission. */
     inspection?: Record<string, string>;
   }
 
   /**
-   * One actual scene and its native portable description.
+   * One scene and its native portable description.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States borrowed scene resources and their native metadata.
    * @evidence contracts/development/design.md#principled-representation The installed render contracts own clocks, paths, marks and Three scene data.
@@ -57,10 +57,10 @@ export namespace ArchetypeRoundPlan {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No duplicate scene representation or fabricated subject facts are introduced.
    */
   export interface IPrepared {
-    /** Actual subject scene owned until the coordinator disposes it. */
+    /** Subject scene owned until the coordinator disposes it. */
     scene: IAutoMovieDrawScene;
 
-    /** Native portable description of that same actual scene. */
+    /** Native portable description of that same scene. */
     metadata: IAutoMovieCaptureSubject;
   }
 
@@ -97,7 +97,7 @@ export namespace ArchetypeRoundPlan {
   }
 
   /**
-   * Actual native selection and legend facts from one prepared state.
+   * Native selection and legend facts from one prepared state.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents subject/member/view/pass identities, subject seconds and native selection/legend outputs.
    * @evidence contracts/development/design.md#principled-representation Render owns the selected paths and legend contract; numeric seconds retain the subject timebase.
@@ -105,10 +105,10 @@ export namespace ArchetypeRoundPlan {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts These preparation facts claim no captured pixels or visual correctness.
    */
   export interface IObservation {
-    /** Actual subject and member selected at the observed second. */
+    /** Subject and member selected at the observed second. */
     subject: string;
 
-    /** Actual member selected within that subject. */
+    /** Member selected within that subject. */
     member: string;
 
     /** Source named view and existing pass-recipe identities. */
@@ -120,10 +120,10 @@ export namespace ArchetypeRoundPlan {
     /** Subject seconds after native frame normalization. */
     seconds: number;
 
-    /** Paths actually admitted by native inspection. */
+    /** Paths admitted by native inspection. */
     selected: string[];
 
-    /** Actual native kind counts/colors, without a second legend scheme. */
+    /** Native kind counts/colors, without a second legend scheme. */
     legend: IAutoMovieInspectionHandle["legend"];
   }
 
@@ -197,8 +197,8 @@ export namespace ArchetypeRoundPlan {
   /**
    * Construct the execution driver's native string-only request.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Reads an existing pass recipe, exact subject/member/times/view and actual subject raster. The native smallest budget equals that raster's shortest edge, preserving scale1 across different job lengths.
-   * @evidence contracts/development/implementation.md#principled-implementation Native request text combines the finite draft, actual-scene section override and actual raster budget. Native layout and draw-call admission independently require one cell per sheet and label scale1.
+   * @evidence contracts/development/common.md#meaningful-documentation Reads an existing pass recipe, exact subject/member/times/view and subject raster. The native smallest budget equals that raster's shortest edge, preserving scale1 across different job lengths.
+   * @evidence contracts/development/implementation.md#principled-implementation Native request text combines the finite draft, scene section override and raster budget. Native layout and draw-call admission independently require one cell per sheet and label scale1.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy the pass fields, then write subject, selection, seconds, view and reader budget.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No invented pass name or unsupported CLI option is emitted.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the pass fields and explicit time text.
@@ -250,7 +250,7 @@ export namespace ArchetypeRoundPlan {
    * @param items Current or previously recorded finite drafts.
    * @returns Their sorted exact purpose/subject/member/view/pass/time identities.
    * @evidence contracts/development/common.md#meaningful-documentation States that grouping may differ while every original exact cell remains accounted for.
-   * @evidence contracts/development/implementation.md#principled-implementation Admits the recorded fields, unfolds every actual time and sorts exact JSON tuples as a multiset.
+   * @evidence contracts/development/implementation.md#principled-implementation Admits the recorded fields, unfolds every time and sorts exact JSON tuples as a multiset.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One field-admission pass and one sorted serialization.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance, rounded time, set deduplication or group removal hides a missing original.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(C log C) sorting for C finite purpose cells.
@@ -285,11 +285,11 @@ export namespace ArchetypeRoundPlan {
    * @param jobs All original and repeat native plans in this finite round.
    * @returns Four pairs with their full native drawing inputs and unchanged label size.
    * @throws {Error} For missing, ambiguous or unequal originals, or enlarged labels.
-   * @evidence contracts/development/common.md#meaningful-documentation States exact pair count, complete frame/raster/request/scale comparison and native layout admission. Actual source/backend equality remains the capture record's obligation.
+   * @evidence contracts/development/common.md#meaningful-documentation States exact pair count, complete frame/raster/request/scale comparison and native layout admission. Source/backend equality remains the capture record's obligation.
    * @evidence contracts/development/implementation.md#principled-implementation Render's planAutoMovieDrawCall supplies the complete drawing inputs. Original/repeat jobs contain the same two times, so their frame arrays agree without removing a field.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit every layout, then require one identical original per repeated cell.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reduced equality, tolerance or dropped label scale admits a mismatch; refusal prevents a manifest.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four repeats each scan the finite round's actual cells.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four repeats each scan the finite round's cells.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the native plans and draw-call owner.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain result records retain no external resource.
    */
@@ -364,7 +364,7 @@ export namespace ArchetypeRoundPlan {
   /**
    * Read one native text field without coercion.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Only actual strings are admitted, including the native grammar's valid empty value.
+   * @evidence contracts/development/common.md#meaningful-documentation Only strings are admitted, including the native grammar's valid empty value.
    * @evidence contracts/development/implementation.md#principled-implementation A typeof guard preserves the original string.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One guard and one return.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Numbers, booleans and absent values do not silently become command text.

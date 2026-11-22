@@ -433,7 +433,7 @@ export namespace HandheldDevice {
    * @evidence contracts/development/common.md#meaningful-documentation States the constructed result and its local coordinates or dimensions.
    * @evidence contracts/development/implementation.md#principled-implementation Build the case and place the back grip and front surface on it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The caller identifies the model table and names its front contact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The grip and face dimensions use the actual drawn slab dimensions.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The grip and face dimensions use the drawn slab dimensions.
    * @evidence contracts/development/implementation.md#efficient-algorithms Build one part and two contacts.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Tablet and radio share the slab and grip construction.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the constructed records and builder.

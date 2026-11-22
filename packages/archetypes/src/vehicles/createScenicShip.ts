@@ -86,7 +86,7 @@ const UNITS: Readonly<
 };
 
 /**
- * A rigid, fictional ship for people on deck. The root sits at the still-water line, with the bow toward +Z and +Y up. The boarding side and its passage are along +X. The deck and boarding frames lie on the actual deck top. Boarding faces inward along the frame's +Z. Each oared bench's seat frame points its +Z axis toward the ship's aft (−Z). Each kind has an unobstructed aft work area and helm standing position.
+ * A rigid, fictional ship for people on deck. The root sits at the still-water line, with the bow toward +Z and +Y up. The boarding side and its passage are along +X. The deck and boarding frames lie on the deck top. Boarding faces inward along the frame's +Z. Each oared bench's seat frame points its +Z axis toward the ship's aft (−Z). Each kind has an unobstructed aft work area and helm standing position.
  *
  * Pair the ship with AutoMovieArchetypeRide.along and optionally AutoMovieArchetypeSea.float to carry the same contact frames through a turn or swell. Hull solids, fixed oars and sails, and a wheelhouse with an open aft entry model film silhouettes. The model has no interior below deck or propulsion simulation.
  *
@@ -167,7 +167,7 @@ export function createScenicShip(
       builder.convex(`hull-${course}-${index}`, points, undefined, { color });
     }
 
-    // A rail on the entry side stops at the two edges of the actual gap.
+    // A rail on the entry side stops at the two edges of the gap.
     const railY: number = deckY + PASSAGE.rail;
     for (const side of [-1, 1]) {
       const byGap: boolean = side === 1 && aft[0] < 0 && fore[0] > 0;

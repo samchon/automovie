@@ -67,7 +67,7 @@ const WALL: number = 0.012;
  * @returns A model with separate hold, wear, sleeve, exit and closure contacts.
  * @throws {AutoMovieArchetypeRefusal} When an authored dimension is outside its band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names model origin, axes, actual empty sleeve passages, and zipper geometry.
+ * @evidence contracts/development/common.md#meaningful-documentation Names model origin, axes, empty sleeve passages, and zipper geometry.
  * @evidence contracts/development/implementation.md#principled-implementation Builds real wall parts around each sleeve opening and one driven closure that shares its pose with the pull grip.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve dimensions, draw the garment and sleeve walls, then record one articulation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Empty sleeves use separate wall volumes. The actor's appearance model is independent.
@@ -246,7 +246,7 @@ export function createStageJacket(
  * Authorable dimensions and declared contact identities.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names metre dimensions and stable in-model contact ids.
- * @evidence contracts/development/design.md#principled-representation The closed union names the actual apertures, grip, wear site and slider.
+ * @evidence contracts/development/design.md#principled-representation The closed union names the apertures, grip, wear site and slider.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Choices apply only to the coarse jacket geometry.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The wearer is a separate model with an independently resolved skeleton.
  */

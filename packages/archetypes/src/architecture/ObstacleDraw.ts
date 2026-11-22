@@ -16,7 +16,7 @@ import type { createObstacle } from "./createObstacle";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the shared seeded dimensions and the contact coordinates.
  * @evidence contracts/development/design.md#principled-representation Per-profile construction uses the measured bounding dimensions and its own top depth to supply the ledge.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Seeded input validation and the common top and edge only; each producer defines its actual geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Seeded input validation and the common top and edge only; each producer defines its geometry.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Ties keep the two original whole-model axes. No support frame is inferred from an object's category.
  */
 export namespace ObstacleDraw {
@@ -99,7 +99,7 @@ export namespace ObstacleDraw {
   export type LedgeContact = "top" | "edge";
 
   /**
-   * Put a standing surface and a ledge on the actual top rectangle.
+   * Put a standing surface and a ledge on the top rectangle.
    *
    * @param builder The builder holding the obstacle's parts.
    * @param height The top above the floor, metres.

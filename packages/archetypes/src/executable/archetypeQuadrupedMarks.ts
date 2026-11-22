@@ -12,28 +12,28 @@ import { AutoMovieArchetypeQuadrupedSkeleton } from "../animals/AutoMovieArchety
 import { QuadrupedRestFloor } from "../animals/QuadrupedRestFloor";
 import type { AutoMovieArchetype } from "../core";
 
-/** An actual primitive's two axis endpoints and joint frame, in model metres. */
+/** A primitive's two axis endpoints and joint frame, in model metres. */
 interface Bar {
-  /** Lower local-Y endpoint: the actual generic joint origin. */
+  /** Lower local-Y endpoint: the generic joint origin. */
   from: IAutoMovieVector3;
   /** Upper local-Y endpoint: the bar's distal axis end. */
   to: IAutoMovieVector3;
-  /** Rigid frame at from, with the actual part rotation. */
+  /** Rigid frame at from, with the part rotation. */
   frame: IAutoMovieTransform;
 }
 
 /**
- * Prepare actual quadruped bone, attachment, sole and floor observations.
+ * Prepare quadruped bone, attachment, sole and floor observations.
  *
- * @param reference Immutable actual neutral source, absent for unrelated rides.
- * @returns Marks for one actual posed model, named scene anchor and optional same-sample producer terminal goals. Non-quadrupeds produce none.
+ * @param reference Immutable neutral source, absent for unrelated rides.
+ * @returns Marks for one posed model, named scene anchor and optional same-sample producer terminal goals. Non-quadrupeds produce none.
  * @throws {RangeError} For an incomplete source or missing/non-bar posed bone.
- * @evidence contracts/development/common.md#meaningful-documentation States model-metre coordinates, actual neutral/posed ownership, independently carried parent attachment expectations, exact primitive floor heights and binary64-only gap admission. Marks expose geometry, not anatomical ROM or force fidelity.
- * @evidence contracts/development/implementation.md#principled-implementation Neutral actual bar frames supply parent-local joint offsets once. Each drawn model supplies fresh endpoints and parent frames; their rigidly carried expected origins are compared with actual child origins. The existing exact primitive support owner measures floor clearance. Support functions locate actual terminal soles, and only explicitly supplied producer goals are compared with terminal axes.
+ * @evidence contracts/development/common.md#meaningful-documentation States model-metre coordinates, neutral/posed ownership, independently carried parent attachment expectations, exact primitive floor heights and binary64-only gap admission. Marks expose geometry, not anatomical ROM or force fidelity.
+ * @evidence contracts/development/implementation.md#principled-implementation Neutral bar frames supply parent-local joint offsets once. Each drawn model supplies fresh endpoints and parent frames; their rigidly carried expected origins are compared with child origins. The existing exact primitive support owner measures floor clearance. Support functions locate terminal soles, and only explicitly supplied producer goals are compared with terminal axes.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Recognize the quadruped vocabulary, prepare its neutral hierarchy, then index one current model and emit separately named bone, joint, attachment-gap, sole-height and floor marks.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No renderer proxy, second pose sample, achieved-point-as-goal assertion, strict posed-chain decoder, biological tolerance or guessed foot radius hides a failure. A floor-height witness is explicitly a vertical projection at the part centre, not a claimed physical contact point.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(P+B) time and storage for actual parts and 21 bones per draw; source hierarchy preparation is O(P+B) once per member.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Retains only the source hierarchy and reuses Quaternion, Vector3 and QuadrupedRestFloor. One actual sampled model supplies both drawing and every current observation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(P+B) time and storage for parts and 21 bones per draw; source hierarchy preparation is O(P+B) once per member.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Retains only the source hierarchy and reuses Quaternion, Vector3 and QuadrupedRestFloor. One sampled model supplies both drawing and every current observation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The draw subject owns the prepared closure; returned marks contain fresh numeric arrays and acquire no geometry, process, cache, file or renderer handle.
  */
 export function archetypeQuadrupedMarks(
@@ -199,7 +199,7 @@ export function archetypeQuadrupedMarks(
     }
     return marks;
 
-    /** Keep every diagnostic in its actual model's frame and stable named mark family. */
+    /** Keep every diagnostic in its model's frame and stable named mark family. */
     function mark(
       suffix: string,
       label: string,
@@ -220,7 +220,7 @@ export function archetypeQuadrupedMarks(
   };
 }
 
-/** Decode the actual part directly so a disconnected posed chain remains observable. */
+/** Decode the part directly so a disconnected posed chain remains observable. */
 function bar(part: IAutoMovieModelPart | undefined): Bar {
   if (
     part === undefined ||
@@ -252,7 +252,7 @@ function xyz(point: IAutoMovieVector3): number[] {
   return [point.x, point.y, point.z];
 }
 
-/** The actual cylinder rim or capsule support in -Y, rather than an axis-end proxy. */
+/** The cylinder rim or capsule support in -Y, rather than an axis-end proxy. */
 function sole(part: IAutoMovieModelPart): IAutoMovieVector3 {
   if (
     part.geometry.type !== "primitive" ||

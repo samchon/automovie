@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Keep walking support inside the inner faces of the plan's actual walls.
+ * Keep walking support inside the inner faces of the plan's walls.
  *
  * The slab geometry remains unchanged. Its already planned flight apertures
  * keep their exact shapes, while every original wall ring moves inward into

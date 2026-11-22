@@ -61,7 +61,7 @@ const LIP_SIDES: number = 12;
  * drawing does not give the porthole diameter. Use the related WAN282X0GB's
  * 300 mm porthole as an estimate. The polygonal drum width and lip depth are
  * proxy construction estimates. A flat bottom chord gives a folded bundle an
- * actual support. The back remains solid.
+ * support. The back remains solid.
  *
  * Sources: https://media3.bosch-home.com/Documents/specsheet/en-GB/WAN28255GB.pdf
  * and https://media3.bosch-home.com/Documents/specsheet/en-GB/WAN282X0GB.pdf.
@@ -72,8 +72,8 @@ const LIP_SIDES: number = 12;
  * @param front The body plane behind the closed door, metres from the back.
  * @param centre The door center height, metres.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the aperture, solid shell, assumptions, actual support and dimensions.
- * @evidence contracts/development/implementation.md#principled-implementation Extrudes disjoint convex sections between the rectangular exterior and the polygonal cavity. The drum depth solves volume divided by polygon area. The support is the actual bottom chord and the two placement sockets have the same attitude.
+ * @evidence contracts/development/common.md#meaningful-documentation States the aperture, solid shell, assumptions, support and dimensions.
+ * @evidence contracts/development/implementation.md#principled-implementation Extrudes disjoint convex sections between the rectangular exterior and the polygonal cavity. The drum depth solves volume divided by polygon area. The support is the bottom chord and the two placement sockets have the same attitude.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the solid back, the drum cross section and the narrower lip, then publish the independent clear opening and loading sites.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The port, shelf and collision cavity are built from the same geometry. The estimates for the polygon, lip and landing depth are documented.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds a bounded number of convex prisms, one between each pair of angular stations, and an end block.
@@ -143,7 +143,7 @@ export function WasherDrum(
 
   // The outside stops pull laundry clear of the side before it aligns with
   // the loading port. The next two stops take it through the port and past
-  // the lip before it descends to the actual drum floor.
+  // the lip before it descends to the drum floor.
   for (const [id, x, y, z] of [
     ["loadApproach", 0.41, centre, front + 0.165],
     ["loadAlign", 0, centre, front + 0.165],

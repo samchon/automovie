@@ -54,7 +54,7 @@ export function createStationery(
  * @evidence contracts/development/common.md#meaningful-documentation Compatibility tables and types for saved stationery recipes.
  * @evidence contracts/development/design.md#principled-representation The kind union retains the saved spelling and order. Each kind selects the named producer with the same geometry.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the existing recipe tables and names for authored and saved callers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The named producers draw the actual sizes and model figures from the saved bands.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The named producers draw the sizes and model figures from the saved bands.
  */
 export namespace createStationery {
   /** The original kind for the saved stationery recipe. */

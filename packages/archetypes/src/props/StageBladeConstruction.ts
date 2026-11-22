@@ -204,7 +204,7 @@ export function StageBladeConstruction(
  * @evidence contracts/development/common.md#meaningful-documentation Names each project-owned display measurement in metres.
  * @evidence contracts/development/design.md#principled-representation Keeps guard parameters in the same model frame as the grip and shaft.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The decoration callback receives the builder and the existing dimensions used by the guard and binding.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the actual dimensions already used by the visible shaft.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the dimensions already used by the visible shaft.
  */
 export namespace StageBladeConstruction {
   /** Model-space locations and sizes for a form’s additional geometry. */

@@ -34,10 +34,10 @@ import { subjects } from "./subjects";
  * @throws {Error} For dirty/drifting source, invalid plan/round, unavailable subjects, times, marks or selections, native planning failure or a purpose/round budget overflow. A refused ledger never issues an executable partial manifest.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States cwd, command, clean source gate, current plan scope, exact driver manifest, explicit times/fixed cameras, ignored output ownership, failure ledger and absence of drawing.
- * @evidence contracts/development/implementation.md#principled-implementation Actual subjects prepare the catalog models, clocks, events and marks used by capture. The pinned ledger supplies verbatim cameras for its unchanged 496 purpose cells; only the declared van section, armour-opening and long-ear complements fit current bounds. Native plans and complete drawing inputs admit every all-string job and four exact restart pairs before drawing.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure ArchetypeRoundPlan owns admission, request text and exact native restart matching; materializeArchetypeRoundGroups expands 28 purposes and separates existing restart anchors. This coordinator owns scene lifetime, the original cameras, actual van half-space selection, three finite complementary camera purposes, complete ledgers and manifest issuance.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Explicit fixture/group recipes are inspection content, not product runtime policy. Actual cruise/leftForeOn/catch/release events determine moving times; missing data and mark/selection failures remain failures instead of neutral substitutions. Dense continuity keeps the plan's selected overlays and matched anchor triplets without a blind cross product.
- * @evidence contracts/development/implementation.md#efficient-algorithms For S finite subjects, C<=536 cells and P actual primitive vertices per sampled scene, preparation retains O(SP) scene data and camera fitting costs O(CP). Each subject is created once; per-camera time/pass inputs are deduplicated. No unmeasured performance claim is made.
+ * @evidence contracts/development/implementation.md#principled-implementation Subjects prepare the catalog models, clocks, events and marks used by capture. The pinned ledger supplies verbatim cameras for its unchanged 496 purpose cells; only the declared van section, armour-opening and long-ear complements fit current bounds. Native plans and complete drawing inputs admit every all-string job and four exact restart pairs before drawing.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure ArchetypeRoundPlan owns admission, request text and exact native restart matching; materializeArchetypeRoundGroups expands 28 purposes and separates existing restart anchors. This coordinator owns scene lifetime, the original cameras, van half-space selection, three finite complementary camera purposes, complete ledgers and manifest issuance.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Explicit fixture/group recipes are inspection content, not product runtime policy. Cruise/leftForeOn/catch/release events determine moving times; missing data and mark/selection failures remain failures instead of neutral substitutions. Dense continuity keeps the plan's selected overlays and matched anchor triplets without a blind cross product.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For S finite subjects, C<=536 cells and P primitive vertices per sampled scene, preparation retains O(SP) scene data and camera fitting costs O(CP). Each subject is created once; per-camera time/pass inputs are deduplicated. No unmeasured performance claim is made.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared scenes/descriptions serve all groups of their subject. Original camera text is reused verbatim by subject/member/view; only declared complementary views fit their complete time/pass union. A complement never overwrites original framing or proves an occluded face; unreadable construction remains visually unverified. Duplicate non-restart cells reuse their first job's evidence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One invocation owns at most one scene per finite selected subject and disposes every successfully prepared scene in finally. Inspection handles restore after every sampled bound. Files remain in the caller's task-owned round directory; no host, renderer, GPU, watcher or background process is created.
  */
@@ -283,7 +283,7 @@ export async function planArchetypeRound(round: string): Promise<void> {
     }),
   );
 
-  /** Actual portable subject preparation is cached once, including unavailable subjects. */
+  /** Portable subject preparation is cached once, including unavailable subjects. */
   async function get(name: string): Promise<Round.IPrepared> {
     const known: Round.IPrepared | undefined = prepared.get(name);
     if (known !== undefined) return known;
@@ -418,7 +418,7 @@ export async function planArchetypeRound(round: string): Promise<void> {
             legend: [...handle.legend],
           });
 
-          // Surface/overlay partners supply the actual shared framing bounds.
+          // Surface/overlay partners supply the shared framing bounds.
           // Marks-alone is still admitted above; a contact-only focus is located
           // by its real overlay mark rather than fabricated geometry in clay.
           if (

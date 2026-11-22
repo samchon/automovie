@@ -44,7 +44,7 @@ const DISPLAY_HEIGHTS: Readonly<Record<createStageWeaponProp.Kind, number>> = {
  *
  * @param kind Catalogue silhouette label.
  * @param shaftRatio Fraction of display height occupied by the shaft.
- * @param decorate Adds the selected silhouette's actual parts and contacts.
+ * @param decorate Adds the selected silhouette's parts and contacts.
  * @param params An optional scene id and height in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
@@ -119,7 +119,7 @@ export function StageShaftConstruction(
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the model and its visible display dimensions.
  * @evidence contracts/development/design.md#principled-representation The three distances are metres in the stage form’s origin and axes.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Only the dimensions required to place the top silhouette are available.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The geometry builder receives the actual computed shaft dimensions.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The geometry builder receives the computed shaft dimensions.
  */
 export namespace StageShaftConstruction {
   /** Builder for named digital stage silhouette contacts. */

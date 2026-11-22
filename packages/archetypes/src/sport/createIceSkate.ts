@@ -131,7 +131,7 @@ export function createIceSkate(
  * @evidence contracts/development/common.md#meaningful-documentation Describes the boot and runner locations and the input units.
  * @evidence contracts/development/design.md#principled-representation One mass input and four physical alignment sites.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Gives scene placement one boot socket and measurable runner positions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the actual part coordinates for every contact.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the part coordinates for every contact.
  */
 export namespace createIceSkate {
   /** The boot socket, runner centerline and its two lower edges. */

@@ -130,7 +130,7 @@ export namespace GoalBuild {
    * @evidence contracts/development/common.md#meaningful-documentation States the contact's section and where each bar is centred in the goal plane.
    * @evidence contracts/development/implementation.md#principled-implementation Attach bar frames to the post centrelines with each post section determining its symmetry and aperture.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Declare the two symmetric posts with one loop and a shared frame constructor.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Use the given height and section for the actual post rather than deriving a contact from the net.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Use the given height and section for the post rather than deriving a contact from the net.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The fixed pair requires two bar records.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Field goals, volleyball nets and tennis nets share the post frame.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or draw state between calls.

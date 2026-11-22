@@ -110,7 +110,7 @@ export function createCanoePaddle(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the three grips or markers and the exact reference values.
  * @evidence contracts/development/design.md#principled-representation Each dimension has an explicit physical measurement site and provenance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the actual shaft and T-grip contacts plus the blade-tip surface are published.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only the shaft and T-grip contacts plus the blade-tip surface are published.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Includes the measured 56 inch model as one reference, without inventing other sizes.
  */
 export namespace createCanoePaddle {

@@ -29,20 +29,20 @@ const FPS: number = 30;
  *
  * Each subject holds one or several archetypes, each built by `render`'s `buildModel` with its parts named by their ids under an object named after the member inside the group `set`, several set along a diagonal so that a front and a side view each show every member apart, on a light background under an ambient light and one key light, over a floor grid named `ground` with lines every 0.25 m. Its affordances are marks of the kinds `affordance/<kind>` from `AutoMovieArchetypeMarks`, so `--marks affordance/*` draws every contact frame and extent over the model. A still archetype lasts one frame; a ridden one lasts its ride, and seeking rebuilds the model at that second under its root's placement. The delivery camera stands three-quarters to the front; the instrument's named views, fitted to what is drawn, are how it is read. The props are not read.
  *
- * Quadrupeds with an actual neutral reference also expose native `rig/*` marks:
- * actual bar axes and joints, independently carried parent attachments, lowest
- * primitive-height rulers and actual sole supports. Rest consumers additionally
- * supply their same-sample terminal goals and actual goal-error segments.
+ * Quadrupeds with a neutral reference also expose native `rig/*` marks:
+ * bar axes and joints, independently carried parent attachments, lowest
+ * primitive-height rulers and sole supports. Rest consumers additionally
+ * supply their same-sample terminal goals and goal-error segments.
  * `surface=false` draws these marks alone; `xray=true` explicitly shows them
  * through surfaces. These are model-space observations anchored to the same
  * current member object that drawing uses, including its ride/layout transform.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States actual draw/mark ownership, native rig families and same-sample rest goals, model-space anchoring, surface/xray inspection, scene layout, seeking and the delivery camera.
- * @evidence contracts/development/implementation.md#principled-implementation Models use render's real buildModel; affordances use AutoMovieArchetypeMarks and quadruped diagnostics independently observe those same sampled parts against actual neutral sources or explicit producer goals. Anchored marks inherit the exact rendered member transform. Floor and camera extents cover the subject's whole clock.
+ * @evidence contracts/development/common.md#meaningful-documentation States draw/mark ownership, native rig families and same-sample rest goals, model-space anchoring, surface/xray inspection, scene layout, seeking and the delivery camera.
+ * @evidence contracts/development/implementation.md#principled-implementation Models use render's real buildModel; affordances use AutoMovieArchetypeMarks and quadruped diagnostics independently observe those same sampled parts against neutral sources or explicit producer goals. Anchored marks inherit the exact rendered member transform. Floor and camera extents cover the subject's whole clock.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Lay the members out, build them at a second, measure the floor, add the grid and the camera.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No substituted geometry or second pose sample supplies marks; only explicit producer goals receive effector-error marks. The grid is dressing and diagnostics are labelled construction observations, not anatomical or dynamic proof.
- * @evidence contracts/development/implementation.md#efficient-algorithms A seek rebuilds each actual member and observes its parts/bones linearly; a moving subject's floor is measured at 24 evenly spaced samples of its clock.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Member offsets, arrow lengths and neutral diagnostic hierarchy are prepared once; one actual sampled model supplies geometry, contacts and all diagnostics per placed frame.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A seek rebuilds each member and observes its parts/bones linearly; a moving subject's floor is measured at 24 evenly spaced samples of its clock.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Member offsets, arrow lengths and neutral diagnostic hierarchy are prepared once; one sampled model supplies geometry, contacts and all diagnostics per placed frame.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each seek releases replaced geometry/materials, and any failed seek releases all partial current builds before rethrowing. Dispose releases the last models and grid; plain diagnostic records retain no rendering handles.
  *
  * ```powershell
