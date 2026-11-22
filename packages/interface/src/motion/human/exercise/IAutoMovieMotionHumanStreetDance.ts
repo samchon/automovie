@@ -38,7 +38,7 @@ export namespace IAutoMovieMotionHumanStreetDance {
      */
     bpm?: number;
 
-    /** How many beats; 8 when absent, at the dance law's tempo ({@link dance.BPM}, 0.5 s a beat): 4 s plus one beat.
+    /** How many beats; 8 when absent, at the dance law's tempo (`dance.BPM`, 0.5 s a beat): 4 s plus one beat.
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     beats?: number;

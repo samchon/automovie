@@ -64,7 +64,7 @@ export namespace IAutoMovieMotionHumanDance {
      */
     bpm?: number;
 
-    /** How many beats; 8 when absent. At the default 120 beats a minute a beat is 0.5 s ({@link dance.BPM}), so 8 beats take 4 s plus one beat.
+    /** How many beats; 8 when absent. At the default 120 beats a minute a beat is 0.5 s (`dance.BPM`), so 8 beats take 4 s plus one beat.
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     beats?: number;

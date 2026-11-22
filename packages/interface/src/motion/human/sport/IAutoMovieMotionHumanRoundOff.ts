@@ -45,7 +45,7 @@ export namespace IAutoMovieMotionHumanRoundOff {
     /** The hand that goes down first; `left` when absent. */
     lead?: "left" | "right";
 
-    /** Seconds the round-off takes; `SECONDS` when absent ({@link roundOff.SECONDS}, 1.2 s, provisional: quicker than the cartwheel, the entry to a tumbling run).
+    /** Seconds the round-off takes; `SECONDS` when absent (`roundOff.SECONDS`, 1.2 s, provisional: quicker than the cartwheel, the entry to a tumbling run).
      * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     seconds?: number;

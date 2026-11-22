@@ -68,7 +68,7 @@ export namespace IAutoMovieMotionHumanExercise {
     /** The exercise. */
     kind: IAutoMovieMotionHumanExercise.Kind;
 
-    /** Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top ({@link exercise}): 3.3 s at the default tempo, so 3 repetitions take 9.9 s.
+    /** Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top (`exercise`): 3.3 s at the default tempo, so 3 repetitions take 9.9 s.
      * Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     reps?: number;

@@ -53,7 +53,7 @@ export namespace IAutoMovieMotionHumanMartialArt {
     /** The named form or unpartnered screen reset. */
     kind: IAutoMovieMotionHumanMartialArt.Kind;
 
-    /** Punches of a choku-zuki series; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s ({@link martialArt}).
+    /** Punches of a choku-zuki series; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s (`martialArt`).
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     count?: number;
