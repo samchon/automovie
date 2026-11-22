@@ -88,11 +88,11 @@ export interface IAutoMovieMotionHumanSegment {
   >;
 
   /**
-   * The arms' and legs' fits of the action's displayed leaf at its anchor seconds,
+   * The arms' fits of the action's displayed leaf at its anchor seconds,
    * each read cold once, keyed by the person's overlay count and the anchor
    * (the plan second over the anchor spacing, rounded), as `<overlays>:<anchor>`.
    * A displayed second with no fits of its own places its arms at the swivels
-   * interpolated between the anchors around it, and continues a free leg from them, so a verdict, a sub-frame
+   * interpolated between the anchors around it, so a verdict, a sub-frame
    * and playback read one closed-form placement instead of sweeping every
    * swivel. Absent until a read needs one, and
    * released when anything is placed or the person's memos are forgotten.

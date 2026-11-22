@@ -214,7 +214,7 @@ export namespace HumanMountRider {
     share: number,
   ): Taking {
     let free:
-      | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+      | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieRigidTransform>
       | undefined;
     return (side, grip, closed) =>
       held(body, side, posture, grip, share, closed, () => {
@@ -238,7 +238,7 @@ export namespace HumanMountRider {
     grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
     share: number,
     closed: IAutoMovieMotionHumanPosture["joints"],
-    free: () => IAutoMovieResolvedBone,
+    free: () => IAutoMovieRigidTransform,
   ): IAutoMovieMotionHumanMountRider.IHoldResult {
     const s: number = Math.min(1, Math.max(0, share));
     const {
@@ -256,9 +256,9 @@ export namespace HumanMountRider {
     let point: IAutoMovieVector3 = target;
     let rotation: IAutoMovieQuaternion = turned;
     if (s < 1) {
-      const hand: IAutoMovieResolvedBone = free();
-      point = Vector3.lerp(hand.worldPosition, target, s);
-      rotation = Quaternion.slerp(hand.worldRotation, turned, s);
+      const hand: IAutoMovieRigidTransform = free();
+      point = Vector3.lerp(hand.position, target, s);
+      rotation = Quaternion.slerp(hand.rotation, turned, s);
     }
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
       side,
@@ -289,31 +289,65 @@ export namespace HumanMountRider {
     };
   }
 
-  /** Resolve the wrists as the posture shows them, before either grip is assigned: an arm the posture already places, such as a hand resting on a thigh, starts from there. */
+  /**
+   * The wrists as the posture shows them, before either grip is assigned: an
+   * arm the posture already places, such as a hand resting on a thigh,
+   * starts from there. A hand whose arm goal the posture gives in the world,
+   * turned, is where that goal puts it, the wrist on its point turned to its
+   * rotation, the arm fit's own closed-form answer, so no read fits that arm
+   * again; the others are read off the posture resolved without those arms.
+   */
   function freeHands(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieRigidTransform> {
+    const out: Map<AutoMovieHumanoidBone, IAutoMovieRigidTransform> = new Map();
+    const rest: Set<AutoMovieHumanoidBone> = new Set();
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    for (const bone of requested) {
+      const arm: "leftArm" | "rightArm" = bone.startsWith("left")
+        ? "leftArm"
+        : "rightArm";
+      const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[arm];
+      if (
+        goal !== undefined &&
+        goal.on === undefined &&
+        goal.rotation !== undefined
+      ) {
+        out.set(bone, { position: goal.point, rotation: goal.rotation });
+        delete limbs[arm];
+      } else rest.add(bone);
+    }
+    if (rest.size === 0) return out;
     const read = prepareHumanPoseResolution(resolution);
-    return poseBones(
-      body,
-      resolveHumanPosture.seeded(
+    const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(
         body,
-        posture,
-        undefined,
-        undefined,
-        read,
-        prepareHumanPoseResolution.isNativeSource(resolution)
-          ? requested
-          : undefined,
-        projection,
-      ).pose,
-      read(),
-      requested,
-    );
+        resolveHumanPosture.seeded(
+          body,
+          { ...posture, limbs },
+          undefined,
+          undefined,
+          read,
+          prepareHumanPoseResolution.isNativeSource(resolution)
+            ? rest
+            : undefined,
+          projection,
+        ).pose,
+        read(),
+        rest,
+      );
+    for (const bone of rest) {
+      const found: IAutoMovieResolvedBone = bones.get(bone)!;
+      out.set(bone, {
+        position: found.worldPosition,
+        rotation: found.worldRotation,
+      });
+    }
+    return out;
   }
 
   /**
