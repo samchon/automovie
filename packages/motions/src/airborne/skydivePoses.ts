@@ -11,7 +11,7 @@ import { HumanHand } from "../posture/HumanHand";
  * belly-to-earth arch with the hips pressed forward, the limbs spread and
  * bent and the head up, as the USPA Skydiver's Information Manual teaches
  * it; the upright hang under the canopy with the hands up on the toggles;
- * the flare with both toggles pulled down and the feet and knees together;
+ * hands a riser's width apart; the flare with both toggles pulled down and the feet and knees together;
  * and the parachute landing fall's keys from the feet to the side of the
  * back, as US Army FM 3-21.220 orders its five points of contact.
  *
@@ -34,16 +34,25 @@ export namespace skydivePoses {
   export const HANG: IAutoMovieMotionHumanLieDown.IPose = pose(0, 0, {
     leg: [10, 5, 0],
     knee: 15,
-    arm: [150, 20, 0],
-    elbow: 30,
+    arm: [15, 150, 0],
+    elbow: 20,
     neck: 0,
+  });
+
+  /** The arms spread out level at the deployment's snatch, on their way from the arch up to the risers: the hands pass wide of the head. */
+  export const SPREAD: IAutoMovieMotionHumanLieDown.IPose = pose(45, 0, {
+    leg: [0, 15, 0],
+    knee: 30,
+    arm: [20, 90, 0],
+    elbow: 10,
+    neck: -15,
   });
 
   /** The flare: both toggles down, feet and knees together, knees bent. */
   export const FLARE: IAutoMovieMotionHumanLieDown.IPose = pose(0, 0, {
     leg: [20, 0, 0],
     knee: 25,
-    arm: [15, 15, 0],
+    arm: [30, 30, 0],
     elbow: 20,
     neck: 0,
   });
@@ -52,7 +61,7 @@ export namespace skydivePoses {
    * One key of the parachute landing fall.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The key's share of the fall, its pose and its hips height as a share of the hip height.
+   * @evidence contracts/development/design.md#principled-representation The key's share of the fall and its pose, which rests its lowest point on the ground.
    * @evidence contracts/development/design.md#minimal-and-owned-surface What the landing blends.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Provisional and stated as such.
    */
@@ -62,16 +71,12 @@ export namespace skydivePoses {
 
     /** The pose, its roll toward the left side; the right side mirrors it. */
     pose: IAutoMovieMotionHumanLieDown.IPose;
-
-    /** The hips' height, a share of the hip height. */
-    hips: number;
   }
 
   /** The landing fall's keys after the flare: the calf, the thigh, the buttock and the push-up muscle; the lying side ends it. */
   export const PLF: readonly IKey[] = [
     {
       at: 0.2,
-      hips: 0.6,
       pose: pose(10, -20, {
         leg: [50, 0, 0],
         knee: 70,
@@ -82,7 +87,6 @@ export namespace skydivePoses {
     },
     {
       at: 0.4,
-      hips: 0.35,
       pose: pose(5, -50, {
         leg: [70, 0, 0],
         knee: 90,
@@ -93,7 +97,6 @@ export namespace skydivePoses {
     },
     {
       at: 0.6,
-      hips: 0.2,
       pose: pose(-20, -70, {
         leg: [70, 0, 0],
         knee: 90,
@@ -104,7 +107,6 @@ export namespace skydivePoses {
     },
     {
       at: 0.8,
-      hips: 0.15,
       pose: pose(-40, -88, {
         leg: [50, 0, 0],
         knee: 70,

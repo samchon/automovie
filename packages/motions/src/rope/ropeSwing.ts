@@ -18,6 +18,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { poseBones } from "../posture/poseBones";
+import { stuntFallPose } from "../reaction/stuntFallPose";
 import { ropeLine } from "./ropeLine";
 
 /** How far the landing may lie from the nearest reachable touchdown, metres (provisional: within a step). */
@@ -25,6 +26,9 @@ const TOLERANCE: number = 0.3;
 
 /** Seconds to absorb the landing into the stand (provisional). */
 const ABSORB: number = 0.35;
+
+/** Seconds the body takes to swing off the take-off onto the rope (provisional). */
+const STEP_OFF: number = 0.3;
 
 /** Release instants searched over the forward half swing. */
 const SAMPLES: number = 96;
@@ -163,41 +167,74 @@ export function ropeSwing(
     };
   };
 
+  // The hanging arms reach up the rope; the body leans along it.
+  const hangJoints: IAutoMovieMotionHumanPosture["joints"] = {
+    ...end.joints,
+    leftUpperArm: [170, 15, 0],
+    rightUpperArm: [170, 15, 0],
+    leftLowerArm: [15, 0, 0],
+    rightLowerArm: [15, 0, 0],
+  };
+  const lean: (toward: IAutoMovieVector3) => number = (
+    toward: IAutoMovieVector3,
+  ): number => (Math.atan2(Vector3.dot(toward, u), toward.y) * 180) / Math.PI;
+  const released: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(anchor, hipsOf(release.release)),
+  );
+  const shape: (
+    hips: IAutoMovieVector3,
+    toward: IAutoMovieVector3,
+    joints: IAutoMovieMotionHumanPosture["joints"],
+  ) => IAutoMovieMotionHumanPosture = (
+    hips: IAutoMovieVector3,
+    toward: IAutoMovieVector3,
+    joints: IAutoMovieMotionHumanPosture["joints"],
+  ): IAutoMovieMotionHumanPosture => ({
+    root: Vector3.subtract(hips, Vector3.scale(toward, measure.hipHeight)),
+    yaw,
+    pitch: lean(toward),
+    roll: 0,
+    joints,
+    limbs: {},
+  });
+  const landed: IAutoMovieMotionHumanPosture = { ...end, limbs: {} };
+  const entered: IAutoMovieMotionHumanPosture = {
+    ...context.entry.posture,
+    limbs: {},
+  };
+
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
   ): IAutoMovieMotionHumanPosture => {
     const t: number = Math.max(0, Math.min(duration, seconds));
-    if (t >= touchdown) {
-      const w: number = minimumJerk.share((t - touchdown) / ABSORB);
-      const hips: IAutoMovieVector3 = hipsOf(touchdown);
-      const root: IAutoMovieVector3 = Vector3.lerp(
-        { ...hips, y: hips.y - measure.hipHeight },
-        end.root,
-        w,
+    if (t >= touchdown)
+      return stuntFallPose.blend(
+        shape(hipsOf(touchdown), up, end.joints),
+        landed,
+        minimumJerk.share((t - touchdown) / ABSORB),
       );
-      return { ...end, root };
-    }
     const hips: IAutoMovieVector3 = hipsOf(t);
-    const hanging: boolean = t <= release.release;
-    // While hanging, the body lies along the rope; in flight it rights itself.
-    const toward: IAutoMovieVector3 = hanging
-      ? Vector3.normalize(Vector3.subtract(anchor, hips))
-      : up;
-    const pitch: number = hanging
-      ? (Math.atan2(Vector3.dot(toward, u), toward.y) * 180) / Math.PI
-      : 0;
-    const root: IAutoMovieVector3 = Vector3.subtract(
-      hips,
-      Vector3.scale(toward, measure.hipHeight),
+    if (t > release.release) {
+      // In flight the body rights itself and lowers its arms by touchdown.
+      const k: number = minimumJerk.share(
+        (t - release.release) / (touchdown - release.release),
+      );
+      const joints: IAutoMovieMotionHumanPosture["joints"] =
+        stuntFallPose.blend(
+          shape(hips, released, hangJoints),
+          shape(hips, up, end.joints),
+          k,
+        ).joints;
+      return shape(
+        hips,
+        Vector3.normalize(Vector3.lerp(released, up, k)),
+        joints,
+      );
+    }
+    // Hanging, the hands on the rope where it reached them at the take-off.
+    const toward: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(anchor, hips),
     );
-    const base: IAutoMovieMotionHumanPosture = {
-      ...end,
-      root,
-      yaw,
-      pitch,
-      limbs: {},
-    };
-    if (!hanging) return base;
     const hand: IAutoMovieVector3 = Vector3.add(
       anchor,
       Vector3.scale(Vector3.normalize(Vector3.subtract(hips, anchor)), hold),
@@ -207,8 +244,8 @@ export function ropeSwing(
       hand,
       Vector3.scale(u, -measure.upperArm),
     );
-    return {
-      ...base,
+    const hung: IAutoMovieMotionHumanPosture = {
+      ...shape(hips, toward, hangJoints),
       limbs: {
         leftArm: {
           point: Vector3.add(
@@ -226,6 +263,14 @@ export function ropeSwing(
         },
       },
     };
+    // Off the take-off, the body swings onto the rope over `STEP_OFF`.
+    return t >= STEP_OFF
+      ? hung
+      : stuntFallPose.blend(
+          entered,
+          { ...hung, limbs: {} },
+          minimumJerk.share(t / STEP_OFF),
+        );
   };
   return {
     duration,

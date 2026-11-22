@@ -1,12 +1,12 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCover,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanWalkGait,
   IAutoMovieMotionHumanWalkParams,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -27,6 +27,9 @@ const CROUCH: number = 0.45;
 
 /** The trunk's forward pitch at the deepest crouch, degrees (provisional). */
 const PITCH: number = 30;
+
+/** The crouched creep's Froude number (provisional: the stalk's slow creep, HumanHorrorGait.STALK). */
+const CREEP: number = 0.08;
 
 /**
  * Travel along a staged wall in cover: a sidle steps sideways along the
@@ -104,8 +107,8 @@ export namespace coverTravel {
    * @throws {HumanRefusal} If the window has no sill or aperture, or the head cannot get under the sill.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the crouch, where it applies and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The pelvis drop that puts the head under the sill follows from the standing head height; it eases in a step before the window's width and out a step after.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the window, admit the crouch, then the walk with one posture layer.
+   * @evidence contracts/development/implementation.md#principled-implementation The pelvis drop that puts the head under the sill follows from the standing head height; the walk carries it as its own lowered pelvis, so its feet are planned for the crouch.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the window, admit the crouch, then one crouched walk.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The crouch is the sill's own need; a sill too low for it refuses.
    * @evidence contracts/development/implementation.md#efficient-algorithms One walk plan and constant work per sample.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
@@ -165,31 +168,17 @@ export namespace coverTravel {
       via: [lane(here)],
       pace: "slow",
     };
-    const walked: IAutoMovieMotionHumanActionPlan = walk.plan({
-      ...context,
-      params,
-    });
-    const step: number = body.measure.hipHeight;
-    const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
-      ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
-    ): IAutoMovieMotionHumanPosture => {
-      const base: IAutoMovieMotionHumanPosture = walked.posture(...args);
-      const along: number = Math.abs(
-        Vector3.dot(Vector3.subtract(base.root, face.center), face.axis),
-      );
-      const outside: number = Math.max(0, along - face.half);
-      const w: number = minimumJerk.share(
-        Math.max(0, Math.min(1, 1 - outside / step)),
-      );
-      if (w === 0) return base;
-      return {
-        ...base,
-        root: { ...base.root, y: base.root.y - drop * w },
-        pitch:
-          base.pitch + PITCH * (drop / (CROUCH * body.measure.hipHeight)) * w,
-      };
-    };
-    return { ...walked, posture };
+    // A crouched creep: the walk's own pelvis rides lower by the drop, so the
+    // feet are planned for the crouch and the trunk leans over it.
+    const walking: IAutoMovieMotionHumanWalkGait = walk.walking(CREEP);
+    return walk.locomote(
+      { ...context, params },
+      {
+        ...walking,
+        lean: PITCH * (drop / (CROUCH * body.measure.hipHeight)),
+        bob: { mean: -drop / body.measure.hipHeight, amplitude: 0 },
+      },
+    );
   }
 
   /** The heading, degrees, of a horizontal direction; 0 faces +Z. */

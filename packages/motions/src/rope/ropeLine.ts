@@ -3,6 +3,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionTarget,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -15,8 +16,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * upright line is its anchor.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the representation, frame and anchor.
- * @evidence contracts/development/design.md#principled-representation Two world ends, a unit axis and a length.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The line record, its reader and the rope refusal the crossings share.
+ * @evidence contracts/development/design.md#principled-representation Two world ends, a unit axis, a length and the floor under the prop.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The line record, its reader, the staged-point aim and the rope refusal the crossings share.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Read from the placed prop; a moving prop or a missing bar is refused.
  */
 export namespace ropeLine {
@@ -24,7 +25,7 @@ export namespace ropeLine {
    * A rope line in world metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit.
-   * @evidence contracts/development/design.md#principled-representation Ends ordered by height, a unit axis from low to high (or along +X when level) and a length.
+   * @evidence contracts/development/design.md#principled-representation Ends ordered by height, a unit axis from low to high (or along +X when level), a length and the floor.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the crossings read.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Built only by read.
    */
@@ -40,6 +41,9 @@ export namespace ropeLine {
 
     /** Length, metres. */
     length: number;
+
+    /** The floor the rope's prop stands on, its origin's height, world metres. */
+    floor: number;
   }
 
   /**
@@ -90,6 +94,7 @@ export namespace ropeLine {
       high: Vector3.add(center, Vector3.scale(axis, bar.length / 2)),
       axis,
       length: bar.length,
+      floor: world.position.y,
     };
   }
 
@@ -146,5 +151,37 @@ export namespace ropeLine {
       reason,
       fix: "stage a longer rope or a nearer landing",
     });
+  }
+
+  /**
+   * Aim a staged point of the named rope, else the action's own target.
+   *
+   * @param context The action's context.
+   * @param rope The rope prop.
+   * @param staged The rope's staged points by name, world metres.
+   * @returns The aim the support law reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the lookup and the fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation A prop target on this rope reads its staged point, facing up; any other target the context's own aim.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unstaged point falls back to the context rather than a guess.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One map lookup per read.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the staged map for the plan.
+   */
+  export function aim(
+    context: IAutoMovieMotionHumanActionContext,
+    rope: string,
+    staged: ReadonlyMap<string, IAutoMovieVector3>,
+  ): IAutoMovieMotionHumanActionContext["aim"] {
+    return (reference: IAutoMovieMotionTarget, seconds: number) => {
+      const point: IAutoMovieVector3 | undefined =
+        reference.kind === "prop" && reference.subject === rope
+          ? staged.get(reference.point)
+          : undefined;
+      return point === undefined
+        ? context.aim(reference, seconds)
+        : { point, normal: { x: 0, y: 1, z: 0 } };
+    };
   }
 }

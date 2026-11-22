@@ -55,7 +55,7 @@ const MARGIN: number = 0.15;
  * The edge rescue's shared scene, the same for both roles: the lip and the
  * edge's frame, the timeline (the hang, the release, the catch, the haul and
  * the kneel) and the grip's path. The faller's hands hang on the lip; at
- * release they fall freely until the grip, a forearm below the lip where
+ * release they fall freely until the grip, most of an arm below the lip where
  * the prone rescuer's hand reaches, stops them over `ARREST`. The haul draws
  * the grip up `LIFT` past the lip and back `BACK` over the top. The pull
  * over the lip reaches the rescuer reduced by the capstan `e^(mu pi / 2)`
@@ -195,11 +195,11 @@ export namespace edgeRescueScene {
         `the rescuer's centre of mass would lie ${margin.toFixed(3)} m behind the lip, under the ${MARGIN} m margin`,
       );
 
-    // The grip a forearm below the lip, where the prone rescuer's hand hangs.
+    // The grip most of an arm below the lip, where the prone rescuer's hand hangs.
     const arm: number = rescuer.measure.upperArm + rescuer.measure.forearm;
     const grip: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(lip, Vector3.scale(out, reach + 0.05)),
-      { x: 0, y: CHEST - 0.9 * arm, z: 0 },
+      Vector3.add(lip, Vector3.scale(out, reach)),
+      { x: 0, y: CHEST - 0.8 * arm, z: 0 },
     );
     const fall: number = Math.sqrt((2 * Math.max(0, lip.y - grip.y)) / g);
     const release: number = hold;
@@ -208,7 +208,7 @@ export namespace edgeRescueScene {
     const kneel: number = haul + HAUL;
     const end: number = holds ? kneel + KNEEL : caught + ARREST;
     const raised: IAutoMovieVector3 = Vector3.add(lip, {
-      ...Vector3.scale(out, reach + 0.05),
+      ...Vector3.scale(out, reach),
       y: LIFT,
     });
     const over: IAutoMovieVector3 = Vector3.add(lip, {

@@ -1,6 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidRegion,
+  IAutoMovieResolvedBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -15,6 +17,8 @@ import { support } from "../actions/support";
 import { getUp } from "../floor/getUp";
 import { lieDown } from "../floor/lieDown";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { stuntFallPose } from "../reaction/stuntFallPose";
 import { edgeRescueScene } from "./edgeRescueScene";
 
 /** A staged point on the ledge's top: its world point and its normal. */
@@ -28,6 +32,9 @@ interface IStaged {
 
 /** The knees' half spacing across the edge, metres (provisional). */
 const KNEES: number = 0.12;
+
+/** How far behind the lip the prone shoulders lie, metres (provisional: at the lip, so the arm hangs over it to the grip with the palm in reach); the front bears a trunk further back, at the hips. */
+const CHEST_BACK: number = 0.05;
 
 /** The free hand's place along the edge from the grip, metres (provisional: a shoulder's width). */
 const BRACE: number = 0.3;
@@ -139,19 +146,52 @@ export function edgeRescueRescuer(
     back(0.15, -BRACE),
   );
   const kneelAt: number = measure.hipHeight + 0.2;
-  const proneFeet: IAutoMovieMotionHumanSupport.IContact[] = (
-    ["left", "right"] as const
-  ).map(
-    (side: AutoMovieHumanSide): IAutoMovieMotionHumanSupport.IContact =>
-      bear(
-        `${side}Foot`,
-        `${side}FootProne`,
-        back(measure.stature * 0.85, side === "left" ? -KNEES : KNEES),
-      ),
+  // Prone, the body bears on its front and its knees (a prone foot's sole
+  // faces up, so it bears nothing), each where the lying pose itself puts
+  // its surface: behind the shoulders at the lip, aside of them, and above
+  // the top by its height over the pose's lowest point.
+  const prone0: IAutoMovieMotionHumanPosture = {
+    root: { x: 0, y: 0, z: 0 },
+    yaw: 0,
+    pitch: lieDown.POSES.prone.pitch,
+    roll: lieDown.POSES.prone.roll,
+    joints: lieDown.POSES.prone.joints,
+    limbs: {},
+  };
+  const lying: ReturnType<typeof poseBones> = poseBones(
+    context.body,
+    resolveHumanPosture.seeded(context.body, prone0).pose,
   );
+  const shoulders: IAutoMovieVector3 = Vector3.lerp(
+    lying.get("leftUpperArm")!.worldPosition,
+    lying.get("rightUpperArm")!.worldPosition,
+    0.5,
+  );
+  const low: number = stuntFallPose.lowest(context.body, prone0);
+  // At yaw 0 the prone head lies toward +Z and the body's left toward +X;
+  // the edge's `along` runs to the right of a body facing out over it, as
+  // the knees and the brace are placed.
+  const lain: (
+    region: AutoMovieHumanoidRegion,
+  ) => IAutoMovieVector3 = (
+    region: AutoMovieHumanoidRegion,
+  ): IAutoMovieVector3 => {
+    const area: IAutoMovieMotionHumanActionContext["body"]["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+      context.body.surfaces.regions[region];
+    const bone: IAutoMovieResolvedBone = lying.get(area.bone)!;
+    const at: IAutoMovieVector3 = Vector3.add(
+      bone.worldPosition,
+      Quaternion.rotateVector(bone.worldRotation, area.point),
+    );
+    return Vector3.add(
+      back(CHEST_BACK + (shoulders.z - at.z), shoulders.x - at.x),
+      { x: 0, y: at.y - low, z: 0 },
+    );
+  };
   const prone: IAutoMovieMotionHumanSupport.IContact[] = [
-    bear("front", "chest", back(0.3, 0)),
-    ...proneFeet,
+    bear("front", "chest", lain("abdomen")),
+    bear("leftKnee", "leftKneeProne", lain("kneeLeft")),
+    bear("rightKnee", "rightKneeProne", lain("kneeRight")),
     brace,
     grip("catch", scene.grip),
   ];

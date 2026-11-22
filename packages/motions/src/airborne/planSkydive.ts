@@ -31,9 +31,6 @@ const PLF: number = 1.2;
 /** Seconds a stand-up landing takes to absorb (provisional). */
 const ABSORB: number = 0.5;
 
-/** How deep the hips dip in a stand-up landing, a share of the hip height (provisional). */
-const DIP: number = 0.15;
-
 /** The landing fall's events in order. */
 const POINTS: readonly string[] = ["calf", "thigh", "buttock", "pushUp"];
 
@@ -50,7 +47,7 @@ const POINTS: readonly string[] = ["calf", "thigh", "buttock", "pushUp"];
  * @throws {HumanRefusal} If the edge is missing or the deployment is refused by the path.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the phases, the poses, the landing and its contacts.
- * @evidence contracts/development/implementation.md#principled-implementation Each posture is the phase's key poses blended by minimum jerk and placed with its hips on the path; the landing fall's hips descend through the keys' heights.
+ * @evidence contracts/development/implementation.md#principled-implementation Each posture is the phase's key poses blended by minimum jerk and placed with its hips on the path; each landing-fall key rests its lowest bone on the ground.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the edge, prepare the path, then one posture writer over the flight and the landing.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flight is the path's closed form; the durations are provisional and stated as such.
  * @evidence contracts/development/implementation.md#efficient-algorithms A few resolves at plan time; constant work per sample.
@@ -89,11 +86,16 @@ export function planSkydive(
     body,
     posed(skydivePoses.FLARE),
   );
+  // The flight ends with the flare's lowest bone, its feet, on the ground.
+  const flareLow: number = stuntFallPose.lowest(
+    body,
+    posed(skydivePoses.FLARE),
+  );
   const path: skydivePath.IPath = skydivePath.prepare(
     p,
     hips0,
     yaw,
-    ground + flareOffset.y,
+    ground + flareOffset.y - flareLow,
   );
   const landing: IAutoMovieMotionHumanSkydive.Landing = p.landing ?? "plf";
   const touchdown: number = path.touchdown;
@@ -114,12 +116,35 @@ export function planSkydive(
     return found;
   };
   const entryOffset: IAutoMovieVector3 = stuntFallPose.offset(body, entry);
-  const place = (
+  // An offset read at the exit's yaw, turned about +Y to a heading.
+  const turned: (
+    offset: IAutoMovieVector3,
+    heading: number,
+  ) => IAutoMovieVector3 = (
+    offset: IAutoMovieVector3,
+    heading: number,
+  ): IAutoMovieVector3 => {
+    const d: number = ((heading - yaw) * Math.PI) / 180;
+    return {
+      x: offset.x * Math.cos(d) + offset.z * Math.sin(d),
+      y: offset.y,
+      z: -offset.x * Math.sin(d) + offset.z * Math.cos(d),
+    };
+  };
+  const place: (
+    pose: IAutoMovieMotionHumanLieDown.IPose,
+    hips: IAutoMovieVector3,
+    heading: number,
+  ) => IAutoMovieMotionHumanPosture = (
     pose: IAutoMovieMotionHumanLieDown.IPose,
     hips: IAutoMovieVector3,
     heading: number,
   ): IAutoMovieMotionHumanPosture =>
-    stuntFallPose.at({ ...posed(pose), yaw: heading }, hips, offsetOf(pose));
+    stuntFallPose.at(
+      { ...posed(pose), yaw: heading },
+      hips,
+      turned(offsetOf(pose), heading),
+    );
   const pulled = (t: number, side: "left" | "right"): number => {
     let w: number = 0;
     for (const toggle of p.toggles ?? []) {
@@ -133,23 +158,32 @@ export function planSkydive(
   };
   const lying: IAutoMovieMotionHumanLieDown.IPose = lieDown.POSES.lateralLeft;
   const keys: skydivePoses.IKey[] = [
-    {
-      at: 0,
-      hips: flareOffset.y / body.measure.hipHeight,
-      pose: skydivePoses.FLARE,
-    },
+    { at: 0, pose: skydivePoses.FLARE },
     ...skydivePoses.PLF,
-    { at: 1, hips: offsetOf(lying).y / body.measure.hipHeight, pose: lying },
+    { at: 1, pose: lying },
   ];
   const touched: skydivePath.IAt = path.at(touchdown);
-  const rest: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    {
-      ...Vector3.add(touched.hips, Vector3.scale(path.landing, ABSORB / 2)),
-      y: ground,
-    },
+  const rest: IAutoMovieMotionHumanPosture = {
+    ...stand.posture(body, { ...touched.hips, y: ground }, touched.heading),
+    limbs: {},
+  };
+  const flared: IAutoMovieMotionHumanPosture = skydivePoses.at(
+    skydivePoses.FLARE,
     touched.heading,
+    false,
   );
+  // The feet stand where the flare touched them down.
+  const planted: stuntFallPose.IFeet | undefined =
+    landing === "standUp"
+      ? stuntFallPose.feet(
+          body,
+          stuntFallPose.rest(body, flared, {
+            x: touched.hips.x,
+            y: ground,
+            z: touched.hips.z,
+          }),
+        )
+      : undefined;
 
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
@@ -157,33 +191,24 @@ export function planSkydive(
     const t: number = Math.max(0, Math.min(duration, seconds));
     if (t >= touchdown) {
       const s: number = t - touchdown;
-      if (landing === "standUp") {
-        const w: number = minimumJerk.share(s / ABSORB);
-        const from: IAutoMovieMotionHumanPosture = place(
-          skydivePoses.FLARE,
-          touched.hips,
-          touched.heading,
+      if (planted !== undefined)
+        // The flare's bent knees straighten into the stand on the feet
+        // planted where they touched down.
+        return stuntFallPose.plant(
+          body,
+          stuntFallPose.blend(flared, rest, minimumJerk.share(s / ABSORB)),
+          planted,
+          ground,
         );
-        const blended: IAutoMovieMotionHumanPosture = stuntFallPose.blend(
-          from,
-          rest,
-          w,
-        );
-        return {
-          ...blended,
-          root: {
-            ...blended.root,
-            y:
-              blended.root.y -
-              DIP * body.measure.hipHeight * Math.sin(Math.PI * w),
-          },
-        };
-      }
       const u: number = s / PLF;
+      // The forward speed is spent while the feet still bear, over the first
+      // quarter; the body then rolls where it came down.
+      const v: number = Math.min(1, u / 0.25);
       const drift: number =
         Vector3.length(path.landing) *
+        0.25 *
         PLF *
-        (u - (2.5 * u ** 4 - 3 * u ** 5 + u ** 6));
+        (v - (2.5 * v ** 4 - 3 * v ** 5 + v ** 6));
       const along: IAutoMovieVector3 = Vector3.add(
         touched.hips,
         Vector3.scale(Vector3.normalize(path.landing), drift),
@@ -193,13 +218,15 @@ export function planSkydive(
       const a: skydivePoses.IKey = keys[k]!;
       const b: skydivePoses.IKey = keys[k + 1]!;
       const w: number = minimumJerk.share((u - a.at) / (b.at - a.at));
-      const height: number =
-        ground + (a.hips + (b.hips - a.hips) * w) * body.measure.hipHeight;
-      const hips: IAutoMovieVector3 = { ...along, y: height };
-      return stuntFallPose.blend(
-        place(a.pose, hips, touched.heading),
-        place(b.pose, hips, touched.heading),
-        w,
+      // The blend rests its own lowest bone on the ground.
+      return stuntFallPose.rest(
+        body,
+        stuntFallPose.blend(
+          skydivePoses.at(a.pose, touched.heading, false),
+          skydivePoses.at(b.pose, touched.heading, false),
+          w,
+        ),
+        { x: along.x, y: ground, z: along.z },
       );
     }
     const at: skydivePath.IAt = path.at(t);
@@ -209,7 +236,7 @@ export function planSkydive(
         const from: IAutoMovieMotionHumanPosture = stuntFallPose.at(
           { ...entry, yaw: at.heading },
           at.hips,
-          entryOffset,
+          turned(entryOffset, at.heading),
         );
         return stuntFallPose.blend(
           from,
@@ -218,11 +245,18 @@ export function planSkydive(
         );
       }
       case "opening":
-        return stuntFallPose.blend(
-          place(skydivePoses.ARCH, at.hips, at.heading),
-          place(skydivePoses.HANG, at.hips, at.heading),
-          minimumJerk.share(at.share),
-        );
+        // The arms spread out first, then rise to the risers, wide of the head.
+        return at.share < 0.5
+          ? stuntFallPose.blend(
+              place(skydivePoses.ARCH, at.hips, at.heading),
+              place(skydivePoses.SPREAD, at.hips, at.heading),
+              minimumJerk.share(at.share * 2),
+            )
+          : stuntFallPose.blend(
+              place(skydivePoses.SPREAD, at.hips, at.heading),
+              place(skydivePoses.HANG, at.hips, at.heading),
+              minimumJerk.share(at.share * 2 - 1),
+            );
       case "canopy": {
         const hang: IAutoMovieMotionHumanPosture = place(
           skydivePoses.HANG,
@@ -283,14 +317,14 @@ export function planSkydive(
             kind: "bear",
             support: { kind: "ground" },
             from: share(touchdown),
-            to: share(touchdown + 0.25 * PLF),
+            to: share(touchdown + 0.5 * PLF),
           },
           {
             part: "rightFoot",
             kind: "bear",
             support: { kind: "ground" },
             from: share(touchdown),
-            to: share(touchdown + 0.25 * PLF),
+            to: share(touchdown + 0.5 * PLF),
           },
           {
             part: "leftLowerLeg",

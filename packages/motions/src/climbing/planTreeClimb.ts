@@ -91,7 +91,7 @@ export function planTreeClimb(
   let drop: boolean = false;
   if (p.kind === "climb") stances = up;
   else if (p.kind === "sit")
-    stances = [up.at(-1)!, treeClimbRoute.sit(tree, p.branch)];
+    stances = [up.at(-1)!, ...treeClimbRoute.sit(tree, up.at(-1)!, p.branch)];
   else {
     drop = p.drop !== false;
     const down: treeClimbRoute.IStance[] = [...up].reverse();

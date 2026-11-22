@@ -65,7 +65,10 @@ export function treeClimbDrop(
     ...Vector3.lerp(left, right, 0.5),
     y: ground,
   };
-  const end: IAutoMovieMotionHumanPosture = stand.posture(body, feet, hang.yaw);
+  const end: IAutoMovieMotionHumanPosture = {
+    ...stand.posture(body, feet, hang.yaw),
+    limbs: {},
+  };
   const scale = (share: number): number => (share * release) / duration;
 
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (

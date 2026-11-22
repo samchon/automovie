@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionHumanWallRun,
@@ -19,6 +20,9 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** How far from the wall's face the take-off foot plants, hip heights (provisional: a step in, under half a leg). */
+const STEP_IN: number = 0.45;
+
 /** The first wall step's toe height, hip heights (provisional: a running step planted about knee high). */
 const FIRST: number = 0.55;
 
@@ -28,11 +32,17 @@ const SECOND: number = 1.05;
 /** The toe joint's distance off the face, metres (provisional: the sole's thickness ahead of the joint). */
 const SOLE: number = 0.03;
 
+/** The toes' depth below the hands that grip the top in a hang on the face, statures (provisional: the body near straight along the wall, its arms bent). */
+const HANG: number = 0.95;
+
 /** Static friction of a shoe sole on a wall, dimensionless (provisional: rubber on concrete). */
 const FRICTION: number = 0.8;
 
 /** Seconds per support change (provisional: a running wall step). */
 const BEAT: number = 0.35;
+
+/** Seconds the opening stance holds both feet where they stand (provisional: the edge rescue's own opening stance). */
+const SET: number = 0.3;
 
 /**
  * Use a wall's face as a brief foot support: a wall step plants one foot on
@@ -40,7 +50,8 @@ const BEAT: number = 0.35;
  * wall's top edge with both hands and draws the other foot onto the face, a
  * cat hang. The shared support law fits the stances on points of the named
  * face and top. Every foot window on the face is then checked against its
- * friction cone: the line from the planted toe to the hips must lean off the
+ * friction cone while the foot carries the body alone, before the hands
+ * take the top: the line from the planted toe to the hips must lean off the
  * face's normal by no more than `atan(FRICTION)` (a static stand-in for the
  * contact force's direction). A top beyond the hands' reach from the first
  * step is refused with the shortfall.
@@ -95,7 +106,11 @@ export function planWallRun(
     staged.set(key, point);
     return { kind: "prop", subject: p.wall, point: key };
   };
-  // A foot on the floor where it stands, or on the face at a height.
+  // The floor the performer stands on: the take-off foot's target on it is
+  // a floor contact, the toes over the point and the sole borne flat on the
+  // floor rather than turning about its toes' joint as the body leans in.
+  const floor: number = context.entry.posture.root.y;
+  // A foot where it stands, or on the face at a height.
   const foot = (
     side: AutoMovieHumanSide,
     height?: number,
@@ -112,10 +127,29 @@ export function planWallRun(
           }
         : target(`${side}Face${height!.toFixed(3)}`, onFace(side, height!)),
   });
+  const takeOff: IAutoMovieMotionHumanSupport.IContact = {
+    part: `${trail}Foot`,
+    kind: "bear",
+    target: {
+      kind: "point",
+      frame: "world",
+      at: {
+        ...Vector3.add(
+          onFace(trail, 0),
+          Vector3.scale(face.normal, STEP_IN * measure.hipHeight),
+        ),
+        y: floor,
+      },
+      normal: { x: 0, y: 1, z: 0 },
+    },
+  };
   const stances: IAutoMovieMotionHumanSupport.IStance[] = [
-    { contacts: [foot(lead), foot(trail)], seconds: BEAT, event: "approach" },
+    // Both feet where they stand, so the step in is a swing, not a slide.
+    { contacts: [foot(lead), foot(trail)], seconds: SET, event: "set" },
+    // The take-off foot steps in to the wall, where the wall step reaches.
+    { contacts: [foot(lead), takeOff], seconds: BEAT, event: "approach" },
     {
-      contacts: [foot(lead, FIRST * measure.hipHeight), foot(trail)],
+      contacts: [foot(lead, FIRST * measure.hipHeight), takeOff],
       seconds: BEAT,
       event: "wallStep",
     },
@@ -152,17 +186,15 @@ export function planWallRun(
         ),
       ),
     });
-    const hang: number = Math.max(
-      SECOND * measure.hipHeight,
-      top.y - 0.95 * measure.stature,
-    );
+    // The feet stand on the face as far below the top as the body hangs
+    // from its hands: a short body pushes off the wall step to a higher
+    // foothold before its hands reach the top.
+    const below: number = top.y - HANG * measure.stature;
+    const hang: number = Math.max(SECOND * measure.hipHeight, below);
+    const caught: number = Math.max(FIRST * measure.hipHeight, below);
     stances.push(
       {
-        contacts: [
-          foot(lead, FIRST * measure.hipHeight),
-          hand("left"),
-          hand("right"),
-        ],
+        contacts: [foot(lead, caught), hand("left"), hand("right")],
         seconds: BEAT,
         event: "catch",
       },
@@ -192,22 +224,33 @@ export function planWallRun(
         return context.aim(reference, seconds);
       return {
         point,
-        normal: key.endsWith("Top")
-          ? { x: 0, y: 1, z: 0 }
-          : face.normal,
+        normal: key.endsWith("Top") ? { x: 0, y: 1, z: 0 } : face.normal,
       };
     },
   });
 
-  // Each foot on the face stays within its friction cone at mid-window.
+  // Each foot on the face stays within its friction cone while it carries
+  // the body alone, at the middle of its window before the hands take the
+  // top: once they hang from it, the toe-to-hips line is no longer the
+  // foot's force.
+  const gripped: number = Math.min(
+    1,
+    ...plan.contacts
+      .filter((window: IAutoMovieMotionHumanContactWindow): boolean =>
+        window.part.endsWith("Hand"),
+      )
+      .map((window: IAutoMovieMotionHumanContactWindow): number => window.from),
+  );
   for (const window of plan.contacts) {
     if (
       !window.part.endsWith("Foot") ||
       window.support.kind !== "prop" ||
-      window.support.subject !== p.wall
+      window.support.subject !== p.wall ||
+      window.from >= gripped
     )
       continue;
-    const middle: number = ((window.from + window.to) / 2) * plan.duration;
+    const middle: number =
+      ((window.from + Math.min(window.to, gripped)) / 2) * plan.duration;
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       resolveHumanPosture.seeded(body, plan.posture(middle)).pose,

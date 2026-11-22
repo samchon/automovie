@@ -38,7 +38,7 @@ const FIR_MOISTURE: string =
 
 /** The lower branches' bands' source. */
 const BRANCHES: string =
-  "provisional: a staged climbable tree's lower limbs, the lowest from a standing adult's overhead reach to beyond a jump's, set a hand-to-foot climbing step apart, and a forearm to a thigh thick";
+  "provisional: a staged climbable tree's lower limbs, the lowest from a short climber's overhead reach to beyond a jump's, set a hand-to-foot climbing step apart, and a forearm to a thigh thick";
 
 /**
  * A standing tree: a mature white oak or an old-growth Douglas-fir.
@@ -384,7 +384,7 @@ export namespace createTree {
   /** Each branch dimension's band, provisional: no forestry source states a climbable tree's lower limbs, so the bands stage one, the lowest branch from a standing reach to beyond a jump's. */
   export const BRANCH_BANDS: Readonly<Record<BranchDimension, IArchetypeBand>> =
     {
-      branchHeight: ArchetypeBand.of("m", 1.6, 3.2, BRANCHES, true),
+      branchHeight: ArchetypeBand.of("m", 1.4, 3.2, BRANCHES, true),
       branchGap: ArchetypeBand.of("m", 0.6, 0.9, BRANCHES, true),
       branchDiameter: ArchetypeBand.of("m", 0.1, 0.18, BRANCHES, true),
       branchLength: ArchetypeBand.of("m", 1.5, 2.5, BRANCHES, true),

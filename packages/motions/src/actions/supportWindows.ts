@@ -20,6 +20,9 @@ type ContextField = "subject" | "params";
  * @evidence contracts/development/design.md#minimal-and-owned-surface One schedule reader for support.plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the shared target and contact types.
  */
+/** The least upward component of a world point's normal for it to be ground under a contact: within about 45 degrees of level. */
+const UPWARD: number = 0.7;
+
 export namespace supportWindows {
   /**
    * Describe how and where a stance contact bears.
@@ -27,7 +30,7 @@ export namespace supportWindows {
    * @evidence contracts/development/common.md#meaningful-documentation Resolves the body part, bearing kind and support frame of a stance contact.
    * @evidence contracts/development/implementation.md#principled-implementation The same canonical part, kind and frame identify both entry bearings and emitted windows.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolves the part, then the target frame and bearing kind.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A self region keeps the performing subject and the target region.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A self region keeps the performing subject and the target region; a world point facing up is ground at its own height.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The part vocabulary has fixed size.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry selection and window emission share this mapping.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No state outlives the call.
@@ -61,7 +64,13 @@ export namespace supportWindows {
                 subject: context.subject,
                 region: target.region,
               }
-            : { kind: "ground" };
+            : target?.kind === "point" &&
+                target.frame === "world" &&
+                (target.normal === undefined || target.normal.y > UPWARD)
+              ? // A world point bearing up is ground at its own height: a
+                // foot on a raised floor is not afloat over the world's.
+                { kind: "ground", height: target.at.y }
+              : { kind: "ground" };
     return {
       part,
       kind:

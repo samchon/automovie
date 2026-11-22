@@ -6,6 +6,7 @@ import type {
 
 import { ropeSupport } from "./ropeSupport";
 import { ropeSwing } from "./ropeSwing";
+import { ropeTraverse } from "./ropeTraverse";
 
 /**
  * Plan a rope crossing by its kind: a climb or a descent of an upright rope,
@@ -32,7 +33,7 @@ export function planRope(
     case "descend":
       return ropeSupport.upright(context, p);
     case "traverse":
-      return ropeSupport.level(context, p);
+      return ropeTraverse(context, p);
     case "swing":
       return ropeSwing(context, p);
   }

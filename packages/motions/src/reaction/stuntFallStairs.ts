@@ -29,28 +29,26 @@ const TUMBLE: number = 0.3;
 /** Kinetic friction of a seat sliding down treads, dimensionless (provisional: a controlled slide). */
 const SLIDE: number = 0.55;
 
-/** The speed the fall starts with, metres per second (provisional: a missed step). */
-const START: number = 1.2;
-
 /** The least speed between contacts, metres per second (provisional: the body keeps going over each nosing). */
 const CRAWL: number = 0.4;
 
 /** How far past the last nosing the body comes to rest, metres (provisional). */
 const RUNOUT: number = 0.5;
 
+/** Seconds the body takes to go down from standing onto the flight (provisional: a backward fall's half second and more). */
+const FALL: number = 0.6;
+
 /** Seconds the body settles after its last contact (provisional). */
 const SETTLE: number = 0.6;
 
-/** The hips' height above a nosing while a part rests on it, metres (provisional: the trunk's half depth). */
-const RIDE: number = 0.12;
-
 /**
  * Fall down a staircase from the tread the performer stands on: a tumble on
- * the back and the sides, or a controlled slide on the seat. The hips pass
- * over each lower tread's nosing in turn, `RIDE` above it, sliding along the
+ * the back and the sides, or a controlled slide on the seat. The body rests
+ * on each lower tread's nosing in turn, its lowest part on it, sliding along the
  * flight with Coulomb friction (`a = g (sin α - μ cos α)`, `α` the flight's
  * slope), never slower than `CRAWL`; each nosing is a contact of the back,
- * the side or the seat on the stair prop. The body comes to rest `RUNOUT`
+ * the side or the seat on the stair prop, after the body has gone down onto
+ * the tread it stood on over `FALL`. The body comes to rest `RUNOUT`
  * past the last nosing, lying on its back (or sitting, for the slide).
  *
  * @param context The action's context, standing on a tread of the flight.
@@ -60,7 +58,7 @@ const RIDE: number = 0.12;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the path, the friction law, the contacts, the end and the refusals.
  * @evidence contracts/development/implementation.md#principled-implementation Each stretch between nosings is solved in closed form under constant acceleration along the flight; contact times are those arrivals, in descending order.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the treads, time the contacts, then one posture writer along the hips path.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the treads, time the contacts, then one posture writer resting the body on the surface path.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every contact is a tread of the named flight; the friction and speeds are provisional and stated as such.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the treads at plan time; a binary search per sample.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
@@ -111,30 +109,30 @@ export function stuntFallStairs(
     y: 0,
     z: steps[0]!.centre.z - steps.at(-1)!.centre.z,
   });
-  const nosing = (tread: ITread): IAutoMovieVector3 =>
-    Vector3.add(
-      tread.centre,
-      Vector3.add(Vector3.scale(downhill, tread.depth / 2), {
-        x: 0,
-        y: RIDE,
-        z: 0,
-      }),
-    );
+  // The surface points the body rests on: the tread under the hips, each
+  // lower nosing, and the floor past the flight.
+  const nosing: (tread: ITread) => IAutoMovieVector3 = (
+    tread: ITread,
+  ): IAutoMovieVector3 =>
+    Vector3.add(tread.centre, Vector3.scale(downhill, tread.depth / 2));
+  const hips0: IAutoMovieVector3 = entry.get("hips")!.worldPosition;
   const path: IAutoMovieVector3[] = [
-    entry.get("hips")!.worldPosition,
+    { ...hips0, y: sole },
     ...below.map(nosing),
   ];
   const last: IAutoMovieVector3 = path.at(-1)!;
   path.push({
     ...Vector3.add(last, Vector3.scale(downhill, RUNOUT)),
-    y: world.position.y + RIDE,
+    y: world.position.y,
   });
 
   // Contact arrivals: constant acceleration along each stretch.
   const mu: number = p.slide === true ? SLIDE : TUMBLE;
   const g: number = AutoMovieGravity.STANDARD;
-  const times: number[] = [0];
-  let speed: number = START;
+  // The body goes down onto the tread it stood on over `FALL`, then slides.
+  const times: number[] = [FALL];
+  // The body has come down onto the tread; it slides on from rest.
+  let speed: number = 0;
   for (let i: number = 1; i < path.length; i++) {
     const delta: IAutoMovieVector3 = Vector3.subtract(path[i]!, path[i - 1]!);
     const length: number = Vector3.length(delta);
@@ -147,8 +145,19 @@ export function stuntFallStairs(
   }
   const end: number = times.at(-1)!;
   const duration: number = end + SETTLE;
+  // The flight's slope down its nosings, degrees.
+  const first: IAutoMovieVector3 = path[1]!;
+  const lowest: IAutoMovieVector3 = path.at(-2)!;
+  const slope: number =
+    (Math.atan2(
+      first.y - lowest.y,
+      Math.hypot(first.x - lowest.x, first.z - lowest.z),
+    ) *
+      180) /
+    Math.PI;
 
-  const yaw: number = (Math.atan2(-downhill.x, -downhill.z) * 180) / Math.PI;
+  // Feet first down the flight, the head uphill.
+  const yaw: number = (Math.atan2(downhill.x, downhill.z) * 180) / Math.PI;
   const pose = (
     position: IAutoMovieMotionHumanLieDown.IPose,
   ): IAutoMovieMotionHumanPosture => ({
@@ -159,13 +168,29 @@ export function stuntFallStairs(
     joints: position.joints,
     limbs: {},
   });
-  const resting: IAutoMovieMotionHumanPosture = pose(
+  // A tumbling body braces with its arms out, the same on its back and its
+  // side, so the roll turns the trunk and legs and never whips the arms.
+  const braced: IAutoMovieMotionHumanPosture["joints"] = {
+    leftUpperArm: [30, 45, 0],
+    rightUpperArm: [30, 45, 0],
+    leftLowerArm: [30, 0, 0],
+    rightLowerArm: [30, 0, 0],
+  };
+  const lying: IAutoMovieMotionHumanPosture = pose(
     p.slide === true ? lieDown.POSES.sit : lieDown.POSES.supine,
   );
-  const side: IAutoMovieMotionHumanPosture = pose(lieDown.POSES.lateralLeft);
-  const restOffset: IAutoMovieVector3 = stuntFallPose.offset(body, resting);
-  const sideOffset: IAutoMovieVector3 = stuntFallPose.offset(body, side);
-  const hipsAt = (t: number): IAutoMovieVector3 => {
+  const resting: IAutoMovieMotionHumanPosture =
+    p.slide === true
+      ? lying
+      : { ...lying, joints: { ...lying.joints, ...braced } };
+  const rolled: IAutoMovieMotionHumanPosture = pose(lieDown.POSES.lateralLeft);
+  const side: IAutoMovieMotionHumanPosture = {
+    ...rolled,
+    joints: { ...rolled.joints, ...braced },
+  };
+  const surfaceAt: (t: number) => IAutoMovieVector3 = (
+    t: number,
+  ): IAutoMovieVector3 => {
     let k: number = 0;
     while (k < times.length - 2 && times[k + 1]! <= t) k++;
     const span: number = times[k + 1]! - times[k]!;
@@ -177,23 +202,44 @@ export function stuntFallStairs(
     seconds: number,
   ): IAutoMovieMotionHumanPosture => {
     const t: number = Math.max(0, Math.min(duration, seconds));
-    const hips: IAutoMovieVector3 = hipsAt(Math.min(t, end));
-    // A tumble turns from the back to the side and back over each tread; the
-    // slide stays seated.
+    const surface: IAutoMovieVector3 = surfaceAt(Math.min(t, end));
+    // A tumble turns from the back onto the side and back once over the
+    // flight, slowly enough that no limb swings out and back between two
+    // frames; the slide stays seated.
     const turn: number =
       p.slide === true
         ? 0
         : 0.5 -
           0.5 *
             Math.cos(
-              (2 * Math.PI * Math.min(t, end)) /
-                Math.max(1e-6, end / Math.max(1, below.length)),
+              2 * Math.PI * Math.max(0, Math.min(1, (t - FALL) / (end - FALL))),
             );
-    const into: number = minimumJerk.share(Math.min(1, t / 0.3));
-    const placed: IAutoMovieMotionHumanPosture = stuntFallPose.blend(
-      stuntFallPose.at(resting, hips, restOffset),
-      stuntFallPose.at(side, hips, sideOffset),
-      turn,
+    const into: number = minimumJerk.share(Math.min(1, t / FALL));
+    // On its back the body lies along the flight, the head uphill, so it is
+    // its back that rests on the nosings and not its heels a leg further
+    // down; it lies level again over the run to the floor.
+    const level: number = minimumJerk.share(
+      Math.max(0, Math.min(1, (t - times.at(-2)!) / (end - times.at(-2)!))),
+    );
+    const tilt: number = p.slide === true ? 0 : slope * (1 - level);
+    const along: IAutoMovieMotionHumanPosture = {
+      ...resting,
+      pitch: resting.pitch + tilt,
+    };
+    // The plane of the nosings under the body, tilted down the flight.
+    const r: number = (tilt * Math.PI) / 180;
+    const normal: IAutoMovieVector3 = {
+      x: downhill.x * Math.sin(r),
+      y: Math.cos(r),
+      z: downhill.z * Math.sin(r),
+    };
+    // The blend of the back and the side rests its own furthest collider on
+    // that plane, so it never dips into the tread between the two.
+    const placed: IAutoMovieMotionHumanPosture = stuntFallPose.rest(
+      body,
+      stuntFallPose.blend(along, side, turn),
+      surface,
+      normal,
     );
     return into >= 1
       ? placed

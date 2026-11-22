@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanStuntFall,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -134,11 +135,10 @@ export function stuntFallHigh(
     joints: lieDown.POSES.supine.joints,
     limbs: {},
   };
-  const stood: IAutoMovieMotionHumanPosture = stand.posture(
-    body,
-    { ...touch, y: base },
-    yaw,
-  );
+  const stood: IAutoMovieMotionHumanPosture = {
+    ...stand.posture(body, { ...touch, y: base }, yaw),
+    limbs: {},
+  };
   const flatOffset: IAutoMovieVector3 = stuntFallPose.offset(body, lying);
   const upright: IAutoMovieMotionHumanPosture = {
     ...context.entry.posture,
@@ -156,8 +156,18 @@ export function stuntFallHigh(
       y: heightAt(flying),
     };
     if (descend) {
-      if (t < flight) return stuntFallPose.at(upright, hips, uprightOffset);
-      return stood;
+      // Landed on the feet, the body eases into the stand over the settle.
+      const shown: IAutoMovieMotionHumanPosture = stuntFallPose.at(
+        upright,
+        hips,
+        uprightOffset,
+      );
+      if (t < flight) return shown;
+      return stuntFallPose.blend(
+        shown,
+        stood,
+        minimumJerk.share((t - flight) / SETTLE),
+      );
     }
     // The pad yields under the landing and the body settles on it.
     const sink: number =
@@ -248,7 +258,10 @@ function padTop(
   if (top?.width === undefined || top.depth === undefined)
     throw refusal("top", id, `${subject} has no dimensioned top ${id}`);
   const world: IAutoMovieRigidTransform = reader.frame(context.start);
-  const turn = Quaternion.multiply(world.rotation, top.frame.rotation);
+  const turn: IAutoMovieQuaternion = Quaternion.multiply(
+    world.rotation,
+    top.frame.rotation,
+  );
   return {
     centre: Vector3.add(
       world.position,

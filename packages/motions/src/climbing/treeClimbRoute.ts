@@ -29,6 +29,24 @@ const SPLAY: number = 0.12;
 /** A hand's slide either side on the bole when no branch is above, metres (provisional: a hug's span). */
 const HUG: number = 0.2;
 
+/** The heel hook: hanging from the branch, the left leg drawn up to hook its heel over it, the right foot on the bole (provisional angles, degrees). */
+const HOOK: IAutoMovieMotionHumanLieDown.IPose = {
+  pitch: -10,
+  roll: 0,
+  joints: {
+    ...HumanHand.shape("left", "fist"),
+    ...HumanHand.shape("right", "fist"),
+    leftUpperLeg: [120, 10, 0],
+    rightUpperLeg: [60, 5, 0],
+    leftLowerLeg: [110, 0, 0],
+    rightLowerLeg: [80, 0, 0],
+    leftUpperArm: [160, 15, 0],
+    rightUpperArm: [160, 15, 0],
+    leftLowerArm: [40, 0, 0],
+    rightLowerArm: [40, 0, 0],
+  },
+};
+
 /** The astride sitting pose: the thighs spread over the branch, the shins hanging, the hands forward on it (provisional). */
 const ASTRIDE: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 10,
@@ -245,9 +263,27 @@ export namespace treeClimbRoute {
         }),
       };
     };
-    const hands = (k: number): IHold[] => {
+    // Standing on branch k the hands take the next branch, unless its grips
+    // lie further round or out than an arm from the feet; then they hug the
+    // bole at shoulder height.
+    const arm: number = measure.upperArm + measure.forearm;
+    const hands: (k: number) => IHold[] = (k: number): IHold[] => {
       const next: treeLimbs.IBranch | undefined = tree.branches[k + 1];
-      if (next !== undefined) return [grip(next, "left"), grip(next, "right")];
+      const feet: IAutoMovieVector3 = Vector3.lerp(
+        stand(tree.branches[k]!, "left").point,
+        stand(tree.branches[k]!, "right").point,
+        0.5,
+      );
+      const grips: IHold[] =
+        next === undefined ? [] : [grip(next, "left"), grip(next, "right")];
+      if (
+        grips.length > 0 &&
+        grips.every(
+          (hold: IHold): boolean =>
+            Math.hypot(hold.point.x - feet.x, hold.point.z - feet.z) <= arm,
+        )
+      )
+        return grips;
       const at: number =
         tree.branches[k]!.root.y - tree.bole.foot.y + measure.shoulderHeight;
       return [bole("left", at, true), bole("right", at, true)];
@@ -281,6 +317,7 @@ export namespace treeClimbRoute {
           grip(lowest, "right"),
         ],
         event: "hook",
+        prefer: HOOK,
       },
       {
         holds: [stand(lowest, "left"), stand(lowest, "right"), ...hands(0)],
@@ -305,52 +342,55 @@ export namespace treeClimbRoute {
   }
 
   /**
-   * Sit astride a branch from standing on it.
+   * Sit astride a branch from standing on it: the hands keep their holds
+   * above while the feet leave the branch, the body hanging from them, then
+   * the seat comes down onto the branch's seat with the legs either side.
    *
    * @param tree The tree.
+   * @param standing The stance stood in on the branch.
    * @param index The branch.
-   * @returns The stance sat in: the seat on the branch's seat, the hands on the branch ahead.
+   * @returns The hang and the astride stance.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the stance.
-   * @evidence contracts/development/implementation.md#principled-implementation The seat on the published seat point and two grips further out on the same branch, shaped by the astride pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One stance.
+   * @evidence contracts/development/common.md#meaningful-documentation States the two stances and their holds.
+   * @evidence contracts/development/implementation.md#principled-implementation The standing hands' holds carry the body while the feet leave; the seat then bears on the published seat point, the legs hung by the astride pose.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two stances from the standing one.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The legs hang by the preferred pose, with no hold.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function sit(tree: treeLimbs.ITree, index: number): IStance {
+  export function sit(
+    tree: treeLimbs.ITree,
+    standing: IStance,
+    index: number,
+  ): IStance[] {
     const branch: treeLimbs.IBranch = tree.branches[index]!;
     const seatOut: number = Vector3.dot(
       Vector3.subtract(branch.seat, branch.root),
       branch.direction,
     );
-    const hold = (side: AutoMovieHumanSide, out: number): IHold => ({
-      part: `${side}Hand`,
-      kind: "grip",
-      key: `${side}Hand@seat${index}`,
-      point: treeLimbs.on(branch, out, 0),
-      normal: { x: 0, y: 1, z: 0 },
-      branch: { index, out },
-    });
-    return {
-      holds: [
-        {
-          part: "seat",
-          kind: "bear",
-          key: `seat${index}`,
-          point: branch.seat,
-          normal: { x: 0, y: 1, z: 0 },
-          branch: { index, out: seatOut },
-        },
-        hold("left", seatOut + 0.25),
-        hold("right", seatOut + 0.4),
-      ],
-      event: "astride",
-      prefer: ASTRIDE,
-    };
+    const hands: IHold[] = standing.holds.filter(
+      (hold: IHold): boolean => hold.kind === "grip",
+    );
+    return [
+      { holds: hands, event: "lift", prefer: ASTRIDE },
+      {
+        holds: [
+          {
+            part: "seat",
+            kind: "bear",
+            key: `seat${index}`,
+            point: branch.seat,
+            normal: { x: 0, y: 1, z: 0 },
+            branch: { index, out: seatOut },
+          },
+          ...hands,
+        ],
+        event: "astride",
+        prefer: ASTRIDE,
+      },
+    ];
   }
-
   /**
    * Expand stances so one hold changes at a time, and check every one against the branches' loads.
    *
@@ -361,7 +401,7 @@ export namespace treeClimbRoute {
    * @throws {HumanRefusal} If a stance loads a branch past its limit, naming the branch and the load.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the expansion, the load share and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Additions first, then moves, then removals, so the contact count stays at its highest between stances; each contact bears the weight over the count.
+   * @evidence contracts/development/implementation.md#principled-implementation Additions first, then moves with the feet before the hands, then removals, so the contact count stays at its highest between stances; each contact bears the weight over the count.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the stances, one over each change.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An overloaded branch refuses; no hold is dropped to pass.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the stances times the parts.
@@ -421,12 +461,16 @@ export namespace treeClimbRoute {
       ];
       const of = (holds: readonly IHold[], part: string): IHold | undefined =>
         holds.find((hold: IHold): boolean => hold.part === part);
-      const rank = (part: string): number =>
+      // New holds first, then moves, the feet before the hands as a climber
+      // steps before reaching on, then the holds let go.
+      const rank: (part: string) => number = (part: string): number =>
         of(current, part) === undefined
           ? 0
           : of(stance.holds, part) === undefined
-            ? 2
-            : 1;
+            ? 3
+            : part.endsWith("Foot")
+              ? 1
+              : 2;
       const changes: string[] = parts
         .filter(
           (part: string): boolean =>
