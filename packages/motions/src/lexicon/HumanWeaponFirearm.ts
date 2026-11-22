@@ -7,6 +7,7 @@ import type {
 import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_FIREARM_DRAW } from "../next/presets/HUMAN_FIREARM_DRAW";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
 /**
@@ -54,11 +55,7 @@ export namespace HumanWeaponFirearm {
   /** Draw: take the holstered firearm by its grip, the bore continuing the forearm, and lift it clear. The composition gives the firearm (`prop`). */
   export const draw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponFirearm"]["draw"]
-  > = HumanActionRow.of("drawFirearm", pickUp, {
-    handle: "grip",
-    lift: 0.15,
-    use: { tip: "muzzle", line: "forearm" },
-  });
+  > = HumanActionRow.of("drawFirearm", pickUp, HUMAN_FIREARM_DRAW);
 
   /** Holster: put the firearm back where the composition says its holster holds it (`prop` and `at`). */
   export const holster: IAutoMovieMotionHumanActionLaw<

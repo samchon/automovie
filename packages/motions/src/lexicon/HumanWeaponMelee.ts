@@ -4,6 +4,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_BLADE_CLUB_STRIKE } from "../next/presets/HUMAN_BLADE_CLUB_STRIKE";
+import { HUMAN_BLADE_CLUB_SWING } from "../next/presets/HUMAN_BLADE_CLUB_SWING";
+import { HUMAN_BLADE_RELOAD } from "../next/presets/HUMAN_BLADE_RELOAD";
 import { touch } from "../touch/touch";
 import { HumanSword } from "./HumanSword";
 import { HumanSwordThrust } from "./HumanSwordThrust";
@@ -31,18 +34,12 @@ export namespace HumanWeaponMelee {
   /** A club or a bat swung level at a person or a thing. */
   export const clubSwing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["clubSwing"]
-  > = HumanActionRow.of("clubSwing", HumanSword.cut, {
-    from: "forehand",
-    tip: "strike",
-  });
+  > = HumanActionRow.of("clubSwing", HumanSword.cut, HUMAN_BLADE_CLUB_SWING);
 
   /** A club or a baton brought down from overhead. */
   export const clubStrike: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["clubStrike"]
-  > = HumanActionRow.of("clubStrike", HumanSword.cut, {
-    from: "above",
-    tip: "strike",
-  });
+  > = HumanActionRow.of("clubStrike", HumanSword.cut, HUMAN_BLADE_CLUB_STRIKE);
 
   /** A knife slashed across from the knife hand's side. */
   export const knifeSlash: IAutoMovieMotionHumanActionLaw<
@@ -69,10 +66,5 @@ export namespace HumanWeaponMelee {
   /** A reload: the support hand's palm pressed once to the magazine well the composition names. */
   export const reload: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["reload"]
-  > = HumanActionRow.of("reloadFirearm", touch, {
-    effector: "palm",
-    kind: "press",
-    count: 1,
-    hand: "left",
-  });
+  > = HumanActionRow.of("reloadFirearm", touch, HUMAN_BLADE_RELOAD);
 }

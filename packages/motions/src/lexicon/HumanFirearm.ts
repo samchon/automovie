@@ -5,6 +5,8 @@ import type {
 
 import { gesture } from "../everyday/gesture";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_FIREARM_REACH_HOLSTER } from "../next/presets/HUMAN_FIREARM_REACH_HOLSTER";
+import { HUMAN_FIREARM_SURRENDER } from "../next/presets/HUMAN_FIREARM_SURRENDER";
 import { touch } from "../touch/touch";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 
@@ -28,13 +30,7 @@ export namespace HumanFirearm {
   /** Reach for a holster at the right hip. */
   export const reachHolster: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["reachHolster"]
-  > = HumanActionRow.of("reachHolster", touch, {
-    target: { kind: "self", region: "hipRight" },
-    effector: "palm",
-    kind: "hold",
-    hand: "right",
-    hold: 0.3,
-  });
+  > = HumanActionRow.of("reachHolster", touch, HUMAN_FIREARM_REACH_HOLSTER);
 
   /** Level the weapon at the target and hold the aim. */
   export const takeAim: IAutoMovieMotionHumanActionLaw<
@@ -65,8 +61,5 @@ export namespace HumanFirearm {
   /** Hands up at gunpoint. */
   export const surrender: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["surrender"]
-  > = HumanActionRow.of("surrender", gesture, {
-    kind: "cheer",
-    hold: 2,
-  });
+  > = HumanActionRow.of("surrender", gesture, HUMAN_FIREARM_SURRENDER);
 }

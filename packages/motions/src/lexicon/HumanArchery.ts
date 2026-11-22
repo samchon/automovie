@@ -24,6 +24,7 @@ import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HUMAN_ARCHERY_PRESENT_BOW } from "../next/presets/HUMAN_ARCHERY_PRESENT_BOW";
 import { HumanHand } from "../posture/HumanHand";
 import { release } from "../throwing/release";
 import { HumanArcheryCue } from "./HumanArcheryCue";
@@ -114,14 +115,11 @@ export namespace HumanArchery {
   /** Hold the bow out in one hand on the line from the face to the target. */
   export const presentBow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["presentBow"]
-  > = HumanActionRow.of("presentBow", HumanWeaponPresent.present, {
-    anchor: "face",
-    hands: 1,
-    from: "nock",
-    tip: "rest",
-    edge: "grip",
-    extended: true,
-  });
+  > = HumanActionRow.of(
+    "presentBow",
+    HumanWeaponPresent.present,
+    HUMAN_ARCHERY_PRESENT_BOW,
+  );
 
   /** The draw as a plain operation row, before the bow is read off the bow arm. */
   const drawRow: IAutoMovieMotionHumanActionLaw<
