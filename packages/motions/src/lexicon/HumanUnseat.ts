@@ -13,6 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { KnockdownFloor } from "../reaction/KnockdownFloor";
@@ -63,10 +65,10 @@ export const HumanUnseat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanUn
      * Admit the fall, find the release, solve the flight or the drag once, then sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: a non-seated entry, a bad instant, speed or time, a release outside the act, a drag without its stirrup and a fall that would pass through the carrier.
-     * @evidence contracts/development/implementation.md#principled-implementation Before the release the entry posture is carried by the carrier's contact (`HumanMountedFrame.move`); the release velocity is the carried root's central difference; the flight is `HumanUnseatFlight`'s closed form; the shape blends from the carried posture to the lie by the minimum-jerk share of the flight.
+     * @evidence contracts/development/implementation.md#principled-implementation Before the release the entry posture is carried by the carrier's contact (`HumanMountedFrame.move`); the release velocity is the carried root's central difference; the flight is `HumanUnseatFlight`'s closed form; the shape blends from the carried posture to the lie by the minimum-jerk share of the flight; the falling hand's way to the floor is one planned arm course in the world (courseArmGoal), clear of the trunk and the thighs, reaching the floor by the touch.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, release, the fall's path, windows, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A fall that would cross the carrier's flank below the seat is refused, never bent around it.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One lie fit and one flight per plan; a sample reads at most two carrier frames and one stirrup.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One lie fit, one flight and one arm course per plan; a sample reads at most two carrier frames and one stirrup.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The lie, the flight and the release state are shared by every sample.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its flight, lie and the carrier reader.
      */
@@ -322,27 +324,28 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     base: { kind: standing ? "standing" : "lying" },
     posture: (time: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.max(0, Math.min(duration, time));
-      if (t <= leave) return seatedAt(t);
+      if (t < leave || (standing && t === leave)) return seatedAt(t);
       const shown: IAutoMovieMotionHumanPosture = flown(t);
+      // From the release on the falling hand's goal is its place on the floor beside the shoulder, which the course reaches by the touch.
       return standing
         ? shown
         : HumanUnseatPose.reach(
             shown,
             side,
             HumanUnseatPose.beside(shown, side, context.body),
-            minimumJerk.share(
-              Math.min(
-                1,
-                Math.max(0, (t - leave) / Math.max(1e-6, touch - leave)),
-              ),
-            ),
-            // The hand's way to the floor keeps out of the thighs.
-            context.body,
+            1,
           );
     },
   };
-  // The falling body flies free of any carrier; its hand reaches the floor goal by goal, keeping the held elbow's point.
-  return goals;
+  if (standing) return goals;
+  // The falling body flies free of any carrier, so the hand's way to the floor is laid as one planned course in the world: the reach from the release to the touch, clear of the trunk and the thighs, then the hold on the floor.
+  return courseArmGoal({
+    body: context.body,
+    plan: goals,
+    side,
+    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+    span: { start: leave, ready: touch, relax: duration, end: duration },
+  });
 }
 /** A contact window over shares of the act, on the carrier or the ground. */
 function window(
