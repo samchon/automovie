@@ -27,6 +27,8 @@ interface Bar {
 /**
  * Admit the neutral quadruped bars and read their fixed body connections.
  *
+ * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Defines primitive admission, closed bone identities, adjacent endpoint closure and physically connected parent-local roots, all in the source model frame.
  * @evidence contracts/development/design.md#principled-representation The 21 bars supply finite rigid frames, positive shapes and their directed endpoints; no body dimensions or species pose table rebuilds another animal.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One read prepares the limbs, neck and fixed attachment observations needed by locomotion and rest. Primitive validation stays here and torso connection geometry stays with QuadrupedAttachments.

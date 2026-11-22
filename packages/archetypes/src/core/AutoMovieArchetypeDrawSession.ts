@@ -1,6 +1,7 @@
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
 
 import { ArchetypeDraw } from "./ArchetypeDraw";
+import type { AutoMovieArchetypeBandUnit } from "./AutoMovieArchetypeBandUnit";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { IAutoMovieArchetypeBand } from "./IAutoMovieArchetypeBand";
 
@@ -299,14 +300,14 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
  */
 export namespace AutoMovieArchetypeDrawSession {
   /**
-   * A dimension's unit: `m`, `kg`, `degrees`, `N`, or empty for a ratio or a count, as a band states it.
+   * A dimension's unit, the band's unit type (`AutoMovieArchetypeBandUnit`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each unit is and where it is written.
+   * @evidence contracts/development/common.md#meaningful-documentation States that it is the band's unit and where the units are listed.
    * @evidence contracts/development/design.md#principled-representation The band's own unit type, so a producer's declared unit and a band's are one closed union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface An alias of the band's member, read by the session's constructor, its unit check and its provenance.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the session's constructor, its unit check and its provenance.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No second list of units: a band and a declaration cannot name different sets.
    */
-  export type Unit = IAutoMovieArchetypeBand["unit"];
+  export type Unit = AutoMovieArchetypeBandUnit;
 
   /**
    * Where an archetype's values came from: the band of each drawn dimension, the model picked on each axis, the axis whose model gave each figure, and every value's unit; a figure has no band.

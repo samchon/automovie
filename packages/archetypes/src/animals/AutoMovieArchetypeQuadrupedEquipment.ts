@@ -82,43 +82,66 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
    */
   export interface IParams {
     /** Crossbeam in front of the neck root, with a connected hitch hook. */
-    yoke?: {
-      /** Complete lateral beam length; must span neck, beam radius and clearance. */
-      width: number;
-
-      /** Circular crossbeam radius, metres. */
-      radius: number;
-
-      /** Distance along the neck axis from its root, metres, inside the neck's positive span. */
-      neckAt: number;
-
-      /** Free beam/hitch separation from neck and trunk, metres, zero allowed; the separate visible bearing rail touches the neck. */
-      clearance: number;
-
-      /** Authored hitch geometry; its radius cannot exceed the beam's. */
-      hook: IHook;
-    };
+    yoke?: IYoke;
 
     /** Two side pads, longitudinal rails and over-back crossbars, with two load hooks. */
-    pack?: {
-      /** Fore-aft pad/rail length; its crossbars fit the trunk behind the neck-root footprint. */
-      length: number;
+    pack?: IPack;
+  }
 
-      /** Each side pad's vertical width, metres; must fit the barrel and stay above ground. */
-      width: number;
+  /**
+   * A yoke's authored dimensions, metres: a lateral crossbeam at a distance
+   * along the neck axis, kept a clearance off neck and trunk, with its hitch
+   * hook.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit, the neck-axis reference of its placement and the limits that admit it.
+   * @evidence contracts/development/design.md#principled-representation Positive lengths in metres, a nonnegative clearance and the shared hook record; the fit to the neck and the hook radius limit are checked at runtime before any builder mutation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by this namespace's yoke builder and by QuadrupedEquipmentBearing's yoke rail.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required, so a present yoke is complete; no dimension defaults from a species.
+   */
+  export interface IYoke {
+    /** Complete lateral beam length; must span neck, beam radius and clearance. */
+    width: number;
 
-      /** Each side pad's lateral thickness, metres. */
-      thickness: number;
+    /** Circular crossbeam radius, metres. */
+    radius: number;
 
-      /** Supporting rail radius, metres; its diameter must fit the pad thickness. */
-      railRadius: number;
+    /** Distance along the neck axis from its root, metres, inside the neck's positive span. */
+    neckAt: number;
 
-      /** Free pad/frame separation from the body, metres, zero allowed; separate visible bearing rails touch its upper flanks. */
-      clearance: number;
+    /** Free beam/hitch separation from neck and trunk, metres, zero allowed; the separate visible bearing rail touches the neck. */
+    clearance: number;
 
-      /** Both load hooks share these explicit dimensions; each fits within the pad's length. */
-      hook: IHook;
-    };
+    /** Authored hitch geometry; its radius cannot exceed the beam's. */
+    hook: IHook;
+  }
+
+  /**
+   * A pack frame's authored dimensions, metres: two side pads on rails,
+   * kept a clearance off the body, with one shared load hook shape.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit, the pad's vertical width and the fit each member must meet.
+   * @evidence contracts/development/design.md#principled-representation Positive lengths in metres, a nonnegative clearance and the shared hook record; the fits to the trunk, pad and ground are checked at runtime before any builder mutation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by this namespace's pack builder and by QuadrupedEquipmentBearing's pack rails; both load hooks share one hook record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required, so a present pack is complete; no dimension defaults from a species.
+   */
+  export interface IPack {
+    /** Fore-aft pad/rail length; its crossbars fit the trunk behind the neck-root footprint. */
+    length: number;
+
+    /** Each side pad's vertical width, metres; must fit the barrel and stay above ground. */
+    width: number;
+
+    /** Each side pad's lateral thickness, metres. */
+    thickness: number;
+
+    /** Supporting rail radius, metres; its diameter must fit the pad thickness. */
+    railRadius: number;
+
+    /** Free pad/frame separation from the body, metres, zero allowed; separate visible bearing rails touch its upper flanks. */
+    clearance: number;
+
+    /** Both load hooks share these explicit dimensions; each fits within the pad's length. */
+    hook: IHook;
   }
 
   /** Authored coarse wood/pad color, not a physical material declaration. */
@@ -198,7 +221,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
   function planYoke(
     plan: QuadrupedEquipmentPlan,
     rig: AutoMovieArchetypeQuadrupedBody.IRig,
-    yoke: NonNullable<IParams["yoke"]>,
+    yoke: IYoke,
   ): void {
     for (const key of ["width", "radius", "neckAt"] as const)
       plan.positive(`yoke.${key}`, yoke[key]);
@@ -278,7 +301,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
   function planPack(
     plan: QuadrupedEquipmentPlan,
     rig: AutoMovieArchetypeQuadrupedBody.IRig,
-    pack: NonNullable<IParams["pack"]>,
+    pack: IPack,
   ): void {
     for (const key of ["length", "width", "thickness", "railRadius"] as const)
       plan.positive(`pack.${key}`, pack[key]);

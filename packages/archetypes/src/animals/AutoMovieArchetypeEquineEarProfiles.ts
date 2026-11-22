@@ -19,6 +19,8 @@ import type { AutoMovieArchetypeQuadrupedEars } from "./AutoMovieArchetypeQuadru
  * unchanged. Their ear-only uniform transfer is provisional cross-cohort
  * construction, not measured pairing, individual allometry or a population band.
  *
+ * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Names the two donor papers, exact table/columns/units, adult/age caveat, 15 raw mule rows, same-cohort normalization and distinct current body references; plate thickness and pose are explicitly authored.
  * @evidence contracts/development/design.md#principled-representation Complete donor height/length/breadth records preserve their source pairing. Only deterministic cohort ratios and named plate construction reach the optional common body profile.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One reference-data owner supplies donkey/mule ear profiles to their existing producers; common geometry and head attachment stay with their own owners.

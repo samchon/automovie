@@ -40,7 +40,7 @@ export namespace QuadrupedEquipmentBearing {
   export function yoke(
     plan: QuadrupedEquipmentPlan,
     rig: AutoMovieArchetypeQuadrupedBody.IRig,
-    yoke: NonNullable<AutoMovieArchetypeQuadrupedEquipment.IParams["yoke"]>,
+    yoke: AutoMovieArchetypeQuadrupedEquipment.IYoke,
     beam: IAutoMovieVector3,
     color: string,
   ): void {
@@ -101,7 +101,7 @@ export namespace QuadrupedEquipmentBearing {
   export function pack(
     plan: QuadrupedEquipmentPlan,
     rig: AutoMovieArchetypeQuadrupedBody.IRig,
-    pack: NonNullable<AutoMovieArchetypeQuadrupedEquipment.IParams["pack"]>,
+    pack: AutoMovieArchetypeQuadrupedEquipment.IPack,
     side: "left" | "right",
     rail: IAutoMovieVector3,
     color: string,

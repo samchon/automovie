@@ -1,4 +1,5 @@
 export * from "./ARCHETYPE_FAMILIES";
+export * from "./IAutoMovieArchetypeFamilies";
 export * from "./animals";
 export * from "./architecture";
 export {
@@ -29,7 +30,11 @@ export {
   AutoMovieArchetypeTrack,
   AutoMovieArchetypeUnits,
 } from "./core";
-export type { IAutoMovieArchetypeBand, IAutoMovieArchetypeProps } from "./core";
+export type {
+  AutoMovieArchetypeBandUnit,
+  IAutoMovieArchetypeBand,
+  IAutoMovieArchetypeProps,
+} from "./core";
 export * from "./furniture";
 export * from "./gym";
 export * from "./music";

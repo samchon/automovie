@@ -1,3 +1,5 @@
+import type { AutoMovieArchetypeBandUnit } from "./AutoMovieArchetypeBandUnit";
+
 /**
  * The band one free dimension of an archetype may take, with the source that states it.
  *
@@ -15,8 +17,8 @@ export interface IAutoMovieArchetypeBand {
   /** The greatest value, in `unit`; equal to `minimum` for a dimension a standard fixes. */
   maximum: number;
 
-  /** The unit of both ends: `m`, `kg`, `degrees`, `N`, `m/s` for a speed, `s` for a time, or empty for a ratio or a count. */
-  unit: "m" | "kg" | "degrees" | "N" | "m/s" | "s" | "";
+  /** The unit of both ends. */
+  unit: AutoMovieArchetypeBandUnit;
 
   /** Where the band comes from: the standard's clause or the measurement, with the address it was read at. */
   source: string;

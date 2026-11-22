@@ -1,3 +1,4 @@
+import type { AutoMovieArchetypeBandUnit } from "./AutoMovieArchetypeBandUnit";
 import type { IAutoMovieArchetypeBand } from "./IAutoMovieArchetypeBand";
 
 /**
@@ -33,7 +34,7 @@ export namespace AutoMovieArchetypeBand {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    unit: IAutoMovieArchetypeBand["unit"],
+    unit: AutoMovieArchetypeBandUnit,
     minimum: number,
     maximum: number,
     source: string,

@@ -12,6 +12,7 @@ import { QuadrupedAttachments } from "./QuadrupedAttachments";
 import type { QuadrupedJaw } from "./QuadrupedJaw";
 import type { QuadrupedLip } from "./QuadrupedLip";
 import type { QuadrupedNostrils } from "./QuadrupedNostrils";
+import type { QuadrupedProportions } from "./QuadrupedProportions";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /**
@@ -116,17 +117,10 @@ export namespace AutoMovieArchetypeQuadrupedBody {
    */
   export interface IBody {
     /** Bone lengths as fractions of withers height, from the top of each limb down, and the torso's axial control span. */
-    lengths: Readonly<{
-      fore: readonly [number, number, number, number];
-      hind: readonly [number, number, number, number];
-      trunk: number;
-    }>;
+    lengths: Readonly<QuadrupedProportions.ILengths>;
 
     /** Initial neutral directions, degrees from down toward the front. Shared grounding and parent-solid construction may articulate the first two links, preserving all lengths, footprint and distal directions. */
-    stance: Readonly<{
-      fore: readonly [number, number, number, number];
-      hind: readonly [number, number, number, number];
-    }>;
+    stance: Readonly<QuadrupedProportions.IStance>;
 
     /** The back's height as a fraction of the height at the withers. */
     back: number;
@@ -135,15 +129,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     buttock: number;
 
     /** Optional measured mass shares, percent of body mass as printed; normalized by their sum. Without shares the builder distributes the authored total mass by solid volume, an explicit coarse uniform-density approximation. */
-    mass?: Readonly<{
-      trunk: number;
-      neck: number;
-      head: number;
-      tail: number;
-      withers: number;
-      fore: readonly [number, number, number, number];
-      hind: readonly [number, number, number, number];
-    }>;
+    mass?: Readonly<QuadrupedProportions.IBodyMass>;
 
     /** The withers' ball's radius as a fraction of the height at the withers; its top stands at the withers height, just behind the neck's root. */
     withers: number;

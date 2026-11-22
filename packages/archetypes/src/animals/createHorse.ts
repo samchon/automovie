@@ -16,6 +16,7 @@ import { EquineIcelandicProfile } from "./EquineIcelandicProfile";
 import { EquinePack } from "./EquinePack";
 import { EquineTack } from "./EquineTack";
 import { HORSE_BANDS } from "./HORSE_BANDS";
+import type { QuadrupedProportions } from "./QuadrupedProportions";
 
 /**
  * A horse with its tack: a coarse body of one bar per bone, under a riding saddle with stirrups, reins and a lead rope, in a driving harness, under a pack saddle with a lead rope, or without tack.
@@ -233,11 +234,7 @@ export namespace createHorse {
   /**
    * Bone lengths as fractions of the height at the withers, from the top of each limb down: Kubo et al. 1992, Jpn J Equine Sci 3:149, Table 4 (antebrachium 0.382 m, metacarpus 0.280 m, fore digit 0.185 m, crus 0.384 m, metatarsus 0.368 m, hind digit 0.183 m, shoulder to hip 1.317 m, on thoroughbreds of about 1.62 m; https://www.jstage.jst.go.jp/article/jes1990/3/2/3_2_149/_pdf) and Matsuura et al. 2008, J Equine Sci 19:9, Table 2 (humerus 0.300 m and femur 0.350 m at 1.584 m; https://www.ebi.ac.uk/europepmc/webservices/rest/PMC4019204/fullTextXML).
    */
-  export const LENGTHS: Readonly<{
-    fore: readonly [number, number, number, number];
-    hind: readonly [number, number, number, number];
-    trunk: number;
-  }> = {
+  export const LENGTHS: Readonly<QuadrupedProportions.ILengths> = {
     fore: [0.189, 0.236, 0.173, 0.114],
     hind: [0.221, 0.237, 0.227, 0.113],
     trunk: 0.813,
@@ -246,10 +243,7 @@ export namespace createHorse {
   /**
    * Each bone's standing direction, degrees from straight down toward the front, from the top of each limb down. The cannons stand upright and the pasterns slope forward so the fetlock stands as high as Kubo's digit length allows; the humerus, the femur and the tibia take the slopes that put the shoulder joint at 0.635 and the hip joint at 0.717 of the withers height. These are a consistent standing pose built from the lengths, not measured angles.
    */
-  export const STANCE: Readonly<{
-    fore: readonly [number, number, number, number];
-    hind: readonly [number, number, number, number];
-  }> = {
+  export const STANCE: Readonly<QuadrupedProportions.IStance> = {
     fore: [-46.5, 0, 0, 32.6],
     hind: [25, -35, 0, 32.6],
   };
@@ -260,14 +254,7 @@ export namespace createHorse {
   /**
    * Mass shares, percent of body mass (Kubo et al. 1992, Table 5): the torso 59.5 with the tail's 0.1 apart, the neck 7.0, the head 4.4; down a fore limb the scapula and brachium 4.6, the antebrachium 0.9, the metacarpus 0.3 and the digit 0.3; down a hind limb the thigh 6.9, the crus 1.0, the metatarsus 0.4 and the digit 0.3.
    */
-  export const MASS: Readonly<{
-    trunk: number;
-    neck: number;
-    head: number;
-    tail: number;
-    fore: readonly [number, number, number, number];
-    hind: readonly [number, number, number, number];
-  }> = {
+  export const MASS: Readonly<QuadrupedProportions.IMassShares> = {
     trunk: 59.5,
     neck: 7,
     head: 4.4,

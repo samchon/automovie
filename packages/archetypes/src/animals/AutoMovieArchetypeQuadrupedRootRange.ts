@@ -8,6 +8,8 @@ import { QuadrupedScapula } from "./QuadrupedScapula";
 /**
  * A common vertical body-root interval satisfying four fixed limb attachments.
  *
+ * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Defines model-space metre constraints, one shared vertical translation, the above-foot branch and refusal of an empty intersection.
  * @evidence contracts/development/design.md#principled-representation Each limb combines its fixed neutral attachment, unchanged terminal goal and folded-chain reach; all four constrain the same scalar root translation.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owns vertical feasibility only; limb reach, contact goals, neutral body construction and pose lowering retain their separate owners.

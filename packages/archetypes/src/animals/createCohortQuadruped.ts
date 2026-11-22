@@ -2,6 +2,7 @@ import {
   ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeBand,
+  type AutoMovieArchetypeBandUnit,
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeRefusal,
@@ -201,7 +202,7 @@ export function createCohortQuadruped<Cohort extends string>(
   function positive(
     axis: string,
     value: number | undefined,
-    unit: "m" | "kg",
+    unit: AutoMovieArchetypeBandUnit,
   ): void {
     if (!(value !== undefined && Number.isFinite(value) && value > 0))
       throw new AutoMovieArchetypeRefusal({

@@ -8,6 +8,8 @@ import { EquineLine } from "./EquineLine";
 /**
  * The lunge line of a lunged equid (`AutoMovieArchetypeEquineLunge`): its own lead paid out from the halter to the handler's line hand at the circle's centre, and carried from one hand to the other at a change of rein.
  *
+ * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what is laid and where the hand is.
  * @evidence contracts/development/design.md#principled-representation The hand in the handler's frame, a change on the film clock and one layer.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The line's hand, change and layer; the line itself is `EquineLine`'s.

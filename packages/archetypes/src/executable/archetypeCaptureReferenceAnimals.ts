@@ -212,7 +212,7 @@ function lead(
 /** Explicit gallery pack dimensions use the free trunk span, barrel and neck footprint. */
 function pack(
   rig: AutoMovieArchetypeQuadrupedBody.IRig,
-): NonNullable<AutoMovieArchetypeQuadrupedEquipment.IParams["pack"]> {
+): AutoMovieArchetypeQuadrupedEquipment.IPack {
   const length: number = (rig.trunk - 2 * rig.neckRadius) / 2;
   const thickness: number = rig.barrel / 8;
   return {

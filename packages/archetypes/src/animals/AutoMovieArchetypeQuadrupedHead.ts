@@ -21,6 +21,8 @@ import { QuadrupedNostrils } from "./QuadrupedNostrils";
  * A supplied budget for pinnae must be finite and positive; unknown
  * biological weights remain the existing volume allocation rather than zero.
  *
+ * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States neutral metre geometry, optional normalized ear profile, complete source head share and the uniform coarse allocation; no ear density or biological ear mass is asserted.
  * @evidence contracts/development/implementation.md#principled-implementation Prepare optional ears once. For a supplied complete-head share, the exact capsule volume and prepared pair volume divide that same budget. Emit the unchanged capsule primitive and the admitted pair with those weights; unprofiled heads retain the original share directly.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Optional preparation, optional source-budget allocation, one capsule and one pair emission.

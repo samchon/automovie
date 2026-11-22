@@ -12,6 +12,8 @@ import { solveQuadrupedSupportPlane } from "./solveQuadrupedSupportPlane";
  * The upper bar and its folded lower carriage form one exact triangle; an
  * oriented terminal goal fixes the fourth bar and solves the proximal three.
  *
+ * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States the source controls, the two-piece triangle, degrees/metres and fixed root/terminal goals; unreachable requests refuse instead of changing the support.
  * @evidence contracts/development/design.md#principled-representation Four control-bar lengths and the lower carriage's neutral relative angles define each solve independently of species proportions or a gait's follow coefficient.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One prepared chain exposes its geometric distance band and exact-root solve to the shared ride; the ride owns support planning and the rest-pose solver keeps its different distal-carriage contract.

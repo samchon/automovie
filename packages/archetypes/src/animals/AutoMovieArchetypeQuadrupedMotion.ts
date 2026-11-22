@@ -6,6 +6,8 @@ import type { createQuadruped } from "./createQuadruped";
 /**
  * How a quadruped's swinging foot and its head move through a stride: the foot brought to its next landing by the minimum-jerk path, and the head's nod timed to the footfalls as its species' gait states.
  *
+ * Public only so the package's specs can reach it: it is not part of the authoring surface, and it moves to an internal subpath when one exists.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what it gives and from what.
  * @evidence contracts/development/design.md#principled-representation A swing's share along and up as functions of its normalised time, and the head's pitch as a function of the stride's phase.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two profiles `rideQuadruped` poses with, kept apart so the ride stays readable.

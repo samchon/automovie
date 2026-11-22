@@ -2,6 +2,7 @@ export * from "./AutoMovieArchetype";
 export * from "./AutoMovieArchetypeArticulation";
 export * from "./AutoMovieArchetypeAssembly";
 export * from "./AutoMovieArchetypeBand";
+export * from "./AutoMovieArchetypeBandUnit";
 export * from "./ArchetypeBody";
 export * from "./AutoMovieArchetypeBuilder";
 export * from "./ArchetypeBuilderTypes";

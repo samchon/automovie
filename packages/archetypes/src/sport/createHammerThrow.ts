@@ -4,6 +4,7 @@ import {
   ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBand,
+  type AutoMovieArchetypeBandUnit,
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
@@ -168,7 +169,7 @@ export namespace createHammerThrow {
 
   /** A band of the rule. */
   const band = (
-    unit: IAutoMovieArchetypeBand["unit"],
+    unit: AutoMovieArchetypeBandUnit,
     minimum: number,
     maximum: number,
     what: string,
