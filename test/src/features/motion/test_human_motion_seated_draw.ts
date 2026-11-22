@@ -1,11 +1,9 @@
-import { createHolster, createSeat, createSword } from "@automovie/archetypes";
+import { createHolster, createSword } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSheath,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -23,7 +21,7 @@ import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** A seated pelvis stays this near its seat through the draw, metres: the carrier keeps the body. */
+/** A settled pelvis stays this near where it settled through the draw, metres: the carrier keeps the body. */
 const SEATED: number = 0.03;
 /** A held or seated blade keeps its carrier's frame within this, metres: the mount bound. */
 const RIGID: number = 0.002;
@@ -31,12 +29,13 @@ const RIGID: number = 0.002;
 const CLEARANCE: number = 0.03;
 
 /**
- * A seated performer draws a knife from the sheath at the hip and sheathes
- * it again, both over the sit that keeps the body (#3956's need: a rider's
- * draw from the hip), on two bodies.
+ * A performer sat back on the heels draws a knife from the sheath at the hip
+ * and sheathes it again, both over the kneel that keeps the body and yields
+ * the arms, as a rider's seat does (#3956's need: a rider's draw from the
+ * hip), on two bodies.
  *
  * Scenarios:
- * 1. The pelvis stays on the seat through the draw and the return: the
+ * 1. The pelvis stays where it settled through the draw and the return: the
  *    handling claims only its arm.
  * 2. The blade rides the sheath until the hand closes on it, the hand from
  *    the draw's end to the return, and the sheath again after it.
@@ -44,7 +43,7 @@ const CLEARANCE: number = 0.03;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the seated draw and what each check pins.
  * @evidence contracts/development/testing.md#behavioral-verification Composes HumanSheath's draw and return over a sit through HumanPerformance and reads the pelvis, the blade's custody and the verdict report.
- * @evidence contracts/development/testing.md#independent-expectations The seat's tolerance is authored; the rigid bound is the mount bound.
+ * @evidence contracts/development/testing.md#independent-expectations The settled pelvis's tolerance is authored; the rigid bound is the mount bound.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; seated, held and returned custody.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
@@ -53,19 +52,6 @@ export function test_human_motion_seated_draw(): void {
   for (const label of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(label);
     try {
-      const chair: ReturnType<typeof createSeat> = createSeat({
-        id: "chair",
-        kind: "dining",
-      });
-      const placement: IAutoMovieMotionHumanObject.Placement = {
-        at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
-        fixed: true,
-      };
-      const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
-        chair,
-        placement,
-      );
       const sheath: ReturnType<typeof createHolster> = createHolster({
         id: "sheath",
         kind: "sheath",
@@ -97,7 +83,7 @@ export function test_human_motion_seated_draw(): void {
         { mouth: "mouth", tip: "point", handle: "grip", clearance: CLEARANCE },
       );
       const sitting: IAutoMovieMotionHumanChain = HumanChain.subject("s")
-        .sit({ seat, seconds: 8 }, "sit")
+        .kneel({ kind: "sitBack", hold: 8, rise: false }, "sit")
         .over(
           (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             HumanSheath.sheathe(
@@ -105,13 +91,9 @@ export function test_human_motion_seated_draw(): void {
               staged.sheath,
               "right",
               "sheathe",
-            ).sync({ of: "sit", event: "seated" }),
+            ).sync({ of: "sit", event: "settled" }),
         );
-      const props: IAutoMovieMotionHumanProp[] = [
-        HumanObject.prop("chair", chair, placement),
-        staged.carrier,
-        staged.blade,
-      ];
+      const props: IAutoMovieMotionHumanProp[] = [staged.carrier, staged.blade];
       const film: HumanPerformance = new HumanPerformance({
         seed: "seated-draw",
         laws: Object.values(HUMAN_LEXICON).flat(),
@@ -127,7 +109,7 @@ export function test_human_motion_seated_draw(): void {
         ],
         composition: sitting.node,
       });
-      const seated: number = film.instant({ of: "sit", event: "seated" });
+      const seated: number = film.instant({ of: "sit", event: "settled" });
       const drawn: number = film.instant({ of: "draw", event: "drawn" });
       const placed: number = film.instant({ of: "sheathe", event: "placed" });
       const pelvis: IAutoMovieVector3 = film
@@ -136,7 +118,7 @@ export function test_human_motion_seated_draw(): void {
       for (let i: number = 0; i <= 12; ++i) {
         const t: number = seated + ((placed + 0.3 - seated) * i) / 12;
         checks.check(
-          `${label}: the pelvis stays on the seat at ${t.toFixed(2)}`,
+          `${label}: the pelvis stays settled at ${t.toFixed(2)}`,
           Vector3.distance(
             film.bones("s", t).get("hips")!.worldPosition,
             pelvis,

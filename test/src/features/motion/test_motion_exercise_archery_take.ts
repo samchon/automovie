@@ -44,9 +44,8 @@ const BOWS: readonly createBow.Kind[] = ["longbow", "recurve"];
 
 /**
  * One inert arrow through a whole archery take (#3867): the archer picks the
- * bow up in the left hand, holds it low before him, takes the arrow from the
- * counter and nocks it, presents the bow on the line to the target, draws
- * and looses, and the same arrow
+ * bow up in the left hand, takes the arrow from the counter by its nock and
+ * nocks it, presents the bow on the line to the target, draws and looses, and the same arrow
  * flies on an authored carrier to a declared hit.
  *
  * Scenarios, for a longbow and a recurve on two bodies:
@@ -116,16 +115,6 @@ export function test_motion_exercise_archery_take(): void {
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "bow", handle: "grip", hand: "left" }, "bow")
-          // The bow is held low before the archer, its string within the right
-          // hand's reach, while the arrow is taken and nocked.
-          .act(
-            "presentBow",
-            {
-              target: { kind: "point", at: TARGET, frame: "world" },
-              carriage: "lowReady",
-            },
-            "ready",
-          )
           .act("takeArrow", { prop: "arrow", hand: "right" }, "take")
           .act(
             "nockArrow",
