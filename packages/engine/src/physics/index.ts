@@ -103,6 +103,7 @@ export * from "./physicalShapeSegmentDistance";
 export * from "./physicalShapeSpan";
 export * from "./physicalShapeSurfaceAnchor";
 export * from "./physicalSingularBudget";
+export * from "./physicalStanceBranches";
 export * from "./physicalStanceDynamics";
 export * from "./physicalSupportPoint";
 export * from "./physicalSupportRootDrop";
