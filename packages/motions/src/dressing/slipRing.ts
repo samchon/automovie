@@ -52,7 +52,7 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * Slip a ring onto a partner's finger (#4015). The partner's presented hand
  * is read where it is at the action's start, so the partner presents it
  * first (`presentHand`). The dresser's other hand goes palm up under the
- * partner's wrist, its fingers along the partner's forearm, and holds it from `ready` to `relax`. The ring hand brings
+ * far side of the partner's hand, its fingers toward the partner's wrist, and holds it from `ready` to `relax`. The ring hand brings
  * the ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by
  * `ready`, then slides it along the axis to `SEAT` of the proximal phalanx
  * over the stroke: the ring's `wear` axis lies along the finger, from the
@@ -218,14 +218,35 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           bend(side),
         );
 
-      // The steadying palm under the partner's wrist, its fingers along the
-      // partner's forearm: the wrist, not the palm, so the two hands work a
-      // hand's length apart instead of crossing at the fingers (they met
-      // 25 mm deep with both on the palm). The palm lies the forearm's
-      // radius under the wrist's joint, against the partner's palm side.
-      const wrist: IAutoMovieVector3 = bones.get(
-        `${hand}Hand` as AutoMovieHumanoidBone,
-      )!.worldPosition;
+      // The steadying palm under the far side of the partner's hand, the
+      // side away from the ringed finger, its fingers toward the partner's
+      // wrist: both hands on the palm crossed their forearms 25 mm deep, and
+      // the wrist lay past the steadying arm's reach. The far side is the
+      // knuckle farther from the ringed finger's, half the hand's breadth
+      // across the palm from its centre.
+      const knuckles: AutoMovieHumanoidBone[] = (
+        ["Index", "Little"] as const
+      ).map(
+        (name: "Index" | "Little"): AutoMovieHumanoidBone =>
+          `${hand}${name}Proximal` as AutoMovieHumanoidBone,
+      );
+      const far: IAutoMovieVector3 = knuckles
+        .map(
+          (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+            bones.get(bone)?.worldPosition ?? palm.point,
+        )
+        .reduce(
+          (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 =>
+            Vector3.distance(b, knuckle.worldPosition) >
+            Vector3.distance(a, knuckle.worldPosition)
+              ? b
+              : a,
+        );
+      const across: IAutoMovieVector3 = Vector3.subtract(far, palm.point);
+      const lateral: IAutoMovieVector3 = Vector3.subtract(
+        across,
+        Vector3.scale(palm.normal, Vector3.dot(across, palm.normal)),
+      );
       const under: IAutoMovieMotionHumanArmTarget.ITarget =
         AutoMovieMotionHumanArmTarget.prepareTarget(
           body,
@@ -233,15 +254,12 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           "palm",
           "flat",
         )({
-          point: Vector3.add(
-            wrist,
-            Vector3.scale(palm.normal, partner.body.measure.forearmRadius),
-          ),
+          point: Vector3.add(palm.point, Vector3.scale(lateral, 0.5)),
           rotation: HumanHand.align(
             HumanHand.offset(body, steady, "palm", "flat"),
             {
               normal: Vector3.scale(palm.normal, -1),
-              forward: Vector3.normalize(Vector3.subtract(wrist, tip)),
+              forward: Vector3.normalize(Vector3.subtract(palm.point, tip)),
             },
           ),
           bend: bend(steady),

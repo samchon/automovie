@@ -1,5 +1,9 @@
 import { type Archetype, createMedal } from "@automovie/archetypes";
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
@@ -8,7 +12,12 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanObject, HumanPerformance, dressPartner } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  dressPartner,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -47,13 +56,22 @@ export function test_human_motion_medal_ceremony(): void {
     const label: string = `${presenter} decorates ${receiver}`;
     const b: IAutoMovieMotionHumanBody = motionHumanBody(receiver);
     const medal: Medal = createMedal({ id: "medal" });
-    const film: HumanPerformance = ceremony(motionHumanBody(presenter), b, medal);
+    const film: HumanPerformance = ceremony(
+      motionHumanBody(presenter),
+      b,
+      medal,
+    );
     assertTakeClean(label, film);
     const dress: IAutoMovieMotionHumanSegment = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "dressPartner")!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "dressPartner",
+      )!;
     const worn: number = mark(dress, "stroke");
-    const face: IAutoMovieVector3 = point(film.prop("medal", worn + 0.01), medal);
+    const face: IAutoMovieVector3 = point(
+      film.prop("medal", worn + 0.01),
+      medal,
+    );
     const region: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
       b.surfaces.regions.chestLeft,
       film.bones("b", worn + 0.01).get(b.surfaces.regions.chestLeft.bone)!,
@@ -64,7 +82,10 @@ export function test_human_motion_medal_ceremony(): void {
     );
     const first: IAutoMovieVector3 = local(film, worn + 0.01);
     const drifts: readonly number[] = [0.5, 1].map((share: number): number =>
-      Vector3.distance(local(film, worn + share * (film.duration - worn)), first),
+      Vector3.distance(
+        local(film, worn + share * (film.duration - worn)),
+        first,
+      ),
     );
     TestValidator.predicate(
       `${label}: the medal rides the chest (${drifts.map((d: number): string => (d * 1000).toFixed(2)).join(", ")} mm)`,
@@ -74,18 +95,46 @@ export function test_human_motion_medal_ceremony(): void {
 }
 
 /** `a` faces `b`, picks up the medal and pins it on `b`'s left chest, then `b` turns away. */
-function ceremony(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody, medal: Medal): HumanPerformance {
+function ceremony(
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
+  medal: Medal,
+): HumanPerformance {
   return new HumanPerformance({
     seed: "medal-ceremony",
     laws: [dressPartner],
     performers: [
-      { subject: "a", body: a, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
-      { subject: "b", body: b, at: { x: 0, y: 0, z: 0.6 }, yaw: 180, proficiency: { level: "trained" } },
+      {
+        subject: "a",
+        body: a,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+      {
+        subject: "b",
+        body: b,
+        at: { x: 0, y: 0, z: 0.6 },
+        yaw: 180,
+        proficiency: { level: "trained" },
+      },
     ],
     props: [
       HumanObject.prop("medal", medal, {
-        // On a stand at the presenter's right, beside rather than toward the receiver.
-        position: { x: -0.3, y: 1.0, z: -0.05 },
+        // On a stand at the presenter's right, beside rather than toward the
+        // receiver, its hold at the presenter's hanging wrist height (the
+        // shoulder's height less the arm's two segments), so taking it needs
+        // no bow toward the receiver: a hold at 0.53 m bowed the presenter's
+        // neck into the receiver's hips.
+        position: {
+          x: -0.3,
+          y:
+            a.measure.shoulderHeight -
+            a.measure.upperArm -
+            a.measure.forearm -
+            medal.affordance("hold").frame.translation.y,
+          z: -0.05,
+        },
         rotation: { x: 0, y: 0, z: 0, w: 1 },
       }),
     ],
@@ -97,14 +146,28 @@ function ceremony(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody, me
         HumanChain.extend({ dressPartner })
           .subject("a")
           .pickUp({ prop: "medal", handle: "hold", hand: "right", lift: 0.05 })
-          .dressPartner({ prop: "medal", partner: "b", region: "chestLeft", point: "wear" }),
+          .dressPartner({
+            prop: "medal",
+            partner: "b",
+            region: "chestLeft",
+            point: "wear",
+          }),
       ).node,
   });
 }
 
 /** The medal's displayed worn face. */
-function point(frame: IAutoMovieRigidTransform, medal: Medal): IAutoMovieVector3 {
-  return Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, medal.affordance("wear").frame.translation));
+function point(
+  frame: IAutoMovieRigidTransform,
+  medal: Medal,
+): IAutoMovieVector3 {
+  return Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(
+      frame.rotation,
+      medal.affordance("wear").frame.translation,
+    ),
+  );
 }
 
 /** The medal's position in the partner's displayed chest frame. */
@@ -121,6 +184,8 @@ function mark(segment: IAutoMovieMotionHumanSegment, name: string): number {
   return (
     segment.start +
     segment.plan.duration *
-      segment.plan.events.find((event: IAutoMovieMotionEvent): boolean => event.name === name)!.share
+      segment.plan.events.find(
+        (event: IAutoMovieMotionEvent): boolean => event.name === name,
+      )!.share
   );
 }

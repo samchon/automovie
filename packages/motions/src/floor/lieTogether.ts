@@ -1,4 +1,8 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  minimumJerk,
+  physicalShapePairDistance,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -9,6 +13,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarryHumanPosture,
+  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanLieTogether,
@@ -24,8 +29,11 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanColliders } from "../posture/HumanColliders";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 
 /** How far off the partner's skin the resting region lies, metres (provisional: a skin contact). */
@@ -181,6 +189,39 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
           Vector3.dot(lower, normal) > Vector3.dot(upper, normal)
             ? lower
             : upper;
+        // The pelvis is read on its own colliders: where the slid hips come
+        // nearer the partner's than `REST`, the slide stops that much short
+        // along the back's normal (the regions let the hips overlap 41 mm).
+        const hips = (
+          of: IAutoMovieMotionHumanBody,
+          bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+        ): IAutoMovieMotionHumanColliders.IPlaced[] =>
+          HumanColliders.placed(of, bones).filter(
+            (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+              s.bone === "hips",
+          );
+        const mine: IAutoMovieMotionHumanColliders.IPlaced[] = hips(
+          body,
+          poseBones(body, resolveHumanPosture(body, shifted(entry, slide))),
+        );
+        const yours: IAutoMovieMotionHumanColliders.IPlaced[] = hips(
+          partner.body,
+          partner.bones(context.start),
+        );
+        let gap: number = Infinity;
+        for (const m of mine)
+          for (const y of yours)
+            for (const s of m.shapes)
+              for (const t of y.shapes)
+                gap = Math.min(
+                  gap,
+                  physicalShapePairDistance(m.pose, s, y.pose, t),
+                );
+        if (gap < REST)
+          slide = Vector3.add(
+            slide,
+            Vector3.scale(Vector3.normalize(flat(normal)), REST - gap),
+          );
       } else {
         const left: IAutoMovieVector3 = HumanTrunk.region(
           body,

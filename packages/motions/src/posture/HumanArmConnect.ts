@@ -62,11 +62,27 @@ export namespace HumanArmConnect {
    * @returns The path's vertices from the start to the goal, or `null` when the goal is invalid, the start is invalid and no draw near it repairs it, or the trees did not meet.
    * @throws {RangeError} For an extent that is not positive and finite, across which no step advances a tree.
    */
-  export function connect(query: IQuery): number[][] | null {
-    if (!(Number.isFinite(query.extent) && query.extent > 0))
+  export function connect(input: IQuery): number[][] | null {
+    if (!(Number.isFinite(input.extent) && input.extent > 0))
       throw new RangeError(
-        `A joint space's extent must be positive and finite for a tree to step across it, not ${query.extent}`,
+        `A joint space's extent must be positive and finite for a tree to step across it, not ${input.extent}`,
       );
+    // Each state is checked once: the trees, their extensions and the
+    // shortcut meet the same states again, and a state's validity is a pure
+    // function of it, so it is kept by its coordinates for the query.
+    const known: Map<string, boolean> = new Map();
+    const query: IQuery = {
+      ...input,
+      valid: (q: readonly number[]): boolean => {
+        const key: string = q.join(",");
+        let found: boolean | undefined = known.get(key);
+        if (found === undefined) {
+          found = input.valid(q);
+          known.set(key, found);
+        }
+        return found;
+      },
+    };
     if (!query.valid(query.goal)) return null;
     const range: number = RANGE * query.extent;
     const resolution: number = RESOLUTION * query.extent;
@@ -80,11 +96,18 @@ export namespace HumanArmConnect {
     // A repaired start's path leaves the start itself for the repaired state.
     const leave = (path: number[][]): number[][] =>
       fixed ? [[...query.start], ...path] : path;
+    // Each edge is checked once, whichever tree or the shortcut asks.
+    const edges: Map<string, boolean> = new Map();
     const clear = (a: readonly number[], b: readonly number[]): boolean => {
+      const key: string = `${a.join(",")}|${b.join(",")}`;
+      const seen: boolean | undefined = edges.get(key);
+      if (seen !== undefined) return seen;
       const steps: number = Math.ceil(distance(a, b) / resolution);
-      for (let i: number = 1; i <= steps; ++i)
-        if (!query.valid(lerp(a, b, i / steps))) return false;
-      return true;
+      let open: boolean = true;
+      for (let i: number = 1; i <= steps && open; ++i)
+        if (!query.valid(lerp(a, b, i / steps))) open = false;
+      edges.set(key, open);
+      return open;
     };
     const from: ITree = {
       nodes: [root],

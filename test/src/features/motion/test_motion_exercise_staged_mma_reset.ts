@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanKickboxingRing,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -54,6 +55,12 @@ const FACING: IAutoMovieVector3 = {
 const receiverMark = (along: number): IAutoMovieVector3 =>
   Vector3.add(ACTOR_MARK, Vector3.scale(FACING, along));
 
+/** The move the overlap's normal is read over, metres: a centimetre. */
+const STEP: number = 0.01;
+
+/** The least share of a move along the facing that opens a gap: the overlap's normal no more than 84 degrees off the facing (cos 84 deg). */
+const OPENING: number = Math.cos((84 * Math.PI) / 180);
+
 /** The trunk parts whose meeting the spacing keeps apart. */
 const TRUNK: ReadonlySet<string> = new Set([
   "head",
@@ -66,10 +73,11 @@ const TRUNK: ReadonlySet<string> = new Set([
  * The least spacing of the marks at which the two fighters' heads and
  * trunks never meet over a played scene, metres. The receiver's whole motion
  * is its own on its mark, the stances read nothing of the initiator, so
- * moving its mark by s along the facing moves every collider of it by s; the
- * two face each other along that line, so a pair of colliders `d` apart
- * (negative overlapping, `physicalShapePairDistance`, exact for the convex
- * shapes) clears by `skin` once moved `skin - d` farther. The spacing is the
+ * moving its mark by s along the facing moves every collider of it by s; a
+ * pair of colliders `d` apart (negative overlapping,
+ * `physicalShapePairDistance`, exact for the convex shapes) whose gap opens
+ * by n.f per metre of that move (the overlap normal on the facing) clears by
+ * `skin` once moved `(skin - d) / (n.f)` farther. The spacing is the
  * played one plus the greatest such move over the scene's instants: the
  * closest approach of the two bodies' solved stances.
  */
@@ -90,11 +98,28 @@ const spacing = (
     for (const a of trunk("a"))
       for (const b of trunk("b"))
         for (const one of a.shapes)
-          for (const other of b.shapes)
-            more = Math.max(
-              more,
-              SKIN - physicalShapePairDistance(a.pose, one, b.pose, other),
+          for (const other of b.shapes) {
+            const d: number = physicalShapePairDistance(
+              a.pose,
+              one,
+              b.pose,
+              other,
             );
+            if (d >= SKIN) continue;
+            // How much the gap opens per metre the receiver moves along
+            // the facing: the overlap's normal on the facing (n.f), read
+            // as the distance's change over a centimetre's move.
+            const moved: IAutoMovieRigidTransform = {
+              position: Vector3.add(
+                b.pose.position,
+                Vector3.scale(FACING, STEP),
+              ),
+              rotation: b.pose.rotation,
+            };
+            const opens: number =
+              (physicalShapePairDistance(a.pose, one, moved, other) - d) / STEP;
+            more = Math.max(more, (SKIN - d) / Math.max(opens, OPENING));
+          }
   }
   return played + more;
 };
