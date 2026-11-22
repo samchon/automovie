@@ -71,7 +71,8 @@ export function seatedFlatHand(
       1,
       (): number => made.share,
     );
-    hands[side] = hand = made;
+    hands[side] = made;
+    hand = made;
   }
   hand.share = share;
   return hand.primitive.write(posture, 0);
