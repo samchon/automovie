@@ -26,6 +26,15 @@ import type { IAutoMovieMotionHumanFrame } from "../posture/IAutoMovieMotionHuma
  * `<limb>Contact<n>`, the limb one of `rightHand`, `rightFoot`, `leftHand`,
  * `leftFoot`.
  *
+ * Support climbing, the model of the ladder, the rope and the tree: one limb
+ * moves at a time so three contacts always bear, each move a beat. A beat is
+ * 0.8 s on a ladder ({@link climbLadder.BEAT}) and 0.6 s on a rope or a tree
+ * ({@link ropeSupport.BEAT}); all provisional, no study of a climbing tempo
+ * was read. A ladder gains one rung every four beats, 3.2 s, so about 0.08 to
+ * 0.11 m/s at the rung spacings the rule admits; a rope climb moves a hand
+ * 0.45 arm lengths a beat ({@link ropeSupport.STEP}). `manner.pace` scales the
+ * beat (`1.5` makes it 1.5 times faster).
+ *
  * Not yet: the two-beat patterns, rail grips, climbing down, the top-out,
  * and hanging, traversing, mantling and vaulting (the rest of #3238); the
  * A8 `bar` and `ledge` kinds the core owns.
@@ -51,7 +60,7 @@ export namespace IAutoMovieMotionHumanLadder {
     /** The rungs' distance ahead in that frame, metres: 0, the frame's origin lying in their plane. */
     ahead: number;
 
-    /** The rung spacing, metres. */
+    /** The rung spacing, metres, from 0.25 to 0.36 (OSHA 1910.23(b)(2)); it sets the climb's rise per beat cycle ({@link climbLadder.BEAT}). */
     spacing: number;
 
     /** How many rungs the ladder has. */

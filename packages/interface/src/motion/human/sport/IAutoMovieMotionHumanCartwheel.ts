@@ -43,7 +43,7 @@ export namespace IAutoMovieMotionHumanCartwheel {
     /** The side the body wheels to; `left` when absent. */
     to?: "left" | "right";
 
-    /** Seconds the cartwheel takes; `SECONDS` when absent.
+    /** Seconds the cartwheel takes; `SECONDS` when absent ({@link cartwheel.SECONDS}, 1.6 s, provisional: no study of a cartwheel's duration was read).
      * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     seconds?: number;

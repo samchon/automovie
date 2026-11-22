@@ -62,7 +62,7 @@ export namespace IAutoMovieMotionHumanSwimStroke {
     /** The keys of one cycle and the seconds to reach each. */
     keys: readonly (readonly [IAutoMovieMotionHumanExerciseKey.IKey, number])[];
 
-    /** The hips' speed, metres a second, along the way the stroke travels (provisional). */
+    /** The hips' speed, metres a second, along the way the stroke travels (provisional): 0.9 for the breaststroke, 1 for the backstroke, 0 for floating ({@link SwimStroke.strokes}); the front crawl glides at 1 m/s ({@link swim}). Skill does not change it. */
     speed: number;
 
     /** Whether the swimmer lies on the back and so travels head first, the way the back faced. */

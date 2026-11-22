@@ -12,6 +12,9 @@
  * the ground, or walks down the bole. A lowest branch beyond the standing
  * reach, or a stance that loads a branch past its rupture load, is refused.
  *
+ * Each hand or foot move takes 0.6 s (provisional), the support-climbing beat
+ * of {@link IAutoMovieMotionHumanLadder}.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States the three moves, what each reads and the refusals.
  * @evidence contracts/development/design.md#principled-representation A discriminated union on kind; each names the tree and a branch by its index from the lowest.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One registered vocabulary entry; planTreeClimb in motions is the only consumer.

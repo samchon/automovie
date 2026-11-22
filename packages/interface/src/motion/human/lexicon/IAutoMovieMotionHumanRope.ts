@@ -81,7 +81,7 @@ export namespace IAutoMovieMotionHumanRope {
     /** The technique; `rappel` when absent. */
     style?: Descent;
 
-    /** The fastest the hands may move down the rope, metres per second; 1 when absent. */
+    /** The fastest the hands may move down the rope, metres per second; 1 when absent. A move takes the larger of one beat (0.6 s, {@link ropeSupport.BEAT}) and twice the 0.45 arm length step ({@link ropeSupport.STEP}) over this speed: a faster bound than the beat allows changes nothing, a slower one stretches the descent. A controlled descent, not a slide. */
     speed?: number;
   }
 

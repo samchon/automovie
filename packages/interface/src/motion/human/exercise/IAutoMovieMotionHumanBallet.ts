@@ -88,7 +88,7 @@ export namespace IAutoMovieMotionHumanBallet {
      */
     bpm?: number;
 
-    /** How many beats a position is danced over; 4 when absent.
+    /** How many beats a position is danced over; 4 when absent, at the dance law's tempo ({@link dance.BPM}, 0.5 s a beat): 2 s.
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     beats?: number;

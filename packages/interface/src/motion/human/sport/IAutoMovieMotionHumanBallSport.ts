@@ -53,7 +53,7 @@ export namespace IAutoMovieMotionHumanBallSport {
     /** Dribbling or throwing hand; `right` when absent. */
     side?: "left" | "right";
 
-    /** Dribble bounces; 4 when absent.
+    /** Dribble bounces; 4 when absent, at 2 bounces a second ({@link ballSport.BOUNCES}, provisional): a 2 s dribble.
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     count?: number;

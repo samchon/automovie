@@ -33,7 +33,7 @@ export namespace IAutoMovieMotionHumanChiSau {
     /** The other performer, who performs chi sau naming this one. */
     partner: string;
 
-    /** Roll cycles; 4 when absent.
+    /** Roll cycles; 4 when absent, each {@link chiSau.CYCLE} (1.2 s, provisional), so 4.8 s of rolling.
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     cycles?: number;

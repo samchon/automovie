@@ -68,7 +68,7 @@ export namespace IAutoMovieMotionHumanExercise {
     /** The exercise. */
     kind: IAutoMovieMotionHumanExercise.Kind;
 
-    /** Whole-number repetitions, at least one; 3 when absent.
+    /** Whole-number repetitions, at least one; 3 when absent. A repetition takes the `tempo` seconds plus 0.3 s at the top ({@link exercise}): 3.3 s at the default tempo, so 3 repetitions take 9.9 s.
      * Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     reps?: number;
@@ -76,7 +76,7 @@ export namespace IAutoMovieMotionHumanExercise {
     /** A squat's depth; `parallel` when absent. */
     depth?: IAutoMovieMotionHumanExercise.Depth;
 
-    /** Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent. */
+    /** Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent: a controlled 2 s lowering and a 1 s rise. `manner.pace` scales the three; the 0.3 s at the top is fixed. */
     tempo?: readonly [number, number, number];
 
     /** The lunge's lead leg, or the first knee raised; `right` when absent. */
