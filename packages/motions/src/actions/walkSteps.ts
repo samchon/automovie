@@ -278,11 +278,12 @@ export namespace walkSteps {
     // so a support need not spin to make the next step; a gait that turns by
     // shorter steps takes its share of that.
     const turnStep: number = (walkReach.TWIST - stand.TOE_OUT) * (input.gait?.turn ?? 1);
-    const n: number = inPlace
-      ? Math.max(1, Math.ceil(Math.abs(ending - yaw0) / turnStep))
-      : pace.steps + turning;
+    // An arrival turned about takes step turns at the arrival (`walkHeading.closing`).
+    const closing: number = walkHeading.closing(inPlace || facing !== undefined ? 0 : ending - along$(D), turnStep);
+    const extra: number = closing - walkHeading.CLOSING;
+    const n: number = inPlace ? Math.max(1, Math.ceil(Math.abs(ending - yaw0) / turnStep)) : pace.steps + turning + extra;
     const lag: number = turning * T;
-    const last: number = inPlace ? first + swing + n * T : pace.last + lag;
+    const last: number = inPlace ? first + swing + n * T : pace.last + lag + extra * T;
     const front: number = pace.front;
     // The stop is made over the final step (`walkRoot`): the take arrives
     // once the closing foot has accepted the weight, its loading response
@@ -311,8 +312,8 @@ export namespace walkSteps {
         ? D
         : Math.min(D, progress(first + swing + (j - 1) * T + front * T));
 
-    // The footfalls before the closing pair turn a third and two thirds; the
-    // pair faces the arrival. A walk that sets off away from its facing turns
+    // The `closing` footfalls turn by equal shares, a third and two thirds
+    // for an ordinary arrival; the pair faces the arrival. A walk that sets off away from its facing turns
     // about over its first footfalls, each foot as far as a swing turns it.
     const asked: number[] = Array.from(
       { length: n + 1 },
@@ -323,7 +324,7 @@ export namespace walkSteps {
           return i >= n - 1 ? ending : faced$(path.at(d));
         if (i >= n - 1) return ending;
         const along: number = along$(d);
-        return i >= n - 3 ? along + ((ending - along) * (i - n + 4)) / 3 : along;
+        return i >= n - closing ? along + ((ending - along) * (i - n + closing + 1)) / closing : along;
       },
     );
     const towards: number[] =
@@ -361,10 +362,8 @@ export namespace walkSteps {
           ? rest(side)
           : half + (rest(side) - half) * aside);
       const toward: number = towardAt(j);
-      // A walk facing off its way closes a foot up rather than cross it. The
-      // first footprint of the closing pair is kept from the other foot's
-      // last one as well, which still stands when it lands; the last
-      // footprint already stands apart from it at the arrival.
+      // A walk facing off its way closes a foot up rather than cross it, the closing pair's first footprint
+      // too (the other foot's last still stands); the last already stands apart from it at the arrival.
       const laid: IAutoMovieVector3 = HumanFrame.point(
         { origin: path.at(distance), yaw: toward },
         { x: lateral, y: m.ankleHeight, z: 0 },

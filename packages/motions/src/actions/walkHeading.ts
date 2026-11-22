@@ -57,6 +57,32 @@ export namespace walkHeading {
     return STEP.at(-1)![1];
   }
 
+  /** The footfalls an ordinary arrival turns over: the two before the closing pair turn a third and two thirds of the arrival's turn, and the pair faces it. */
+  export const CLOSING: number = 3;
+
+  /**
+   * The footfalls a walk turns its arrival over: `CLOSING`, or, for an
+   * arrival turned about further than `CLOSING` step turns carry, as many
+   * step turns as it needs, the extra ones taken in place at the arrival,
+   * so no footfall turns further from the one before than a step turn and
+   * the feet never cross (a step turn, Hase and Stein 1999).
+   *
+   * @param turn The arrival's heading less the way in, degrees.
+   * @param stepTurn The most one footfall turns from the one before, degrees.
+   * @returns The footfalls, at least `CLOSING`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the rule.
+   * @evidence contracts/development/implementation.md#principled-implementation The turn over the step turn, rounded up, never under the ordinary ramp.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One division and one bound.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arrival the ordinary ramp carries keeps it exactly.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function closing(turn: number, stepTurn: number): number {
+    return Math.max(CLOSING, Math.ceil(Math.abs(turn) / stepTurn));
+  }
+
   /**
    * How many opening footfalls a walk steps in place to turn about: when a
    * foot's first swing cannot face the way the walk sets off (turning at
