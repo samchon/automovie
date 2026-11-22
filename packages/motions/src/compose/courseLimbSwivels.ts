@@ -125,11 +125,21 @@ export namespace courseLimbSwivels {
    */
   export function swivels(props: IPrepare): Swivels {
     const { body, posture: goals, limbs, span }: IPrepare = props;
+    // A limb's interpolation is judged where its swivel shows: the elbow or
+    // knee, the end joint, and a point past it (the hand's middle knuckle,
+    // the toes), so a swivel that keeps the end joint on its goal but turns
+    // the arm or the hand differently from the fit is split too.
     const ends: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>(
-        limbs.map(
-          (limb: AutoMovieHumanLimb): AutoMovieHumanoidBone => chain(limb)[2]!,
-        ),
+        limbs.flatMap((limb: AutoMovieHumanLimb): AutoMovieHumanoidBone[] => [
+          chain(limb)[1]!,
+          chain(limb)[2]!,
+          limb.endsWith("Arm")
+            ? limb === "leftArm"
+              ? "leftMiddleProximal"
+              : "rightMiddleProximal"
+            : chain(limb)[3]!,
+        ]),
       );
     const tolerance: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
     const near = (
