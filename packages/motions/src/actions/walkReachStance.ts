@@ -16,7 +16,7 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFootRotation } from "../posture/HumanFootRotation";
-import type { walkFoot } from "./walkFoot";
+import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 
 /**
@@ -24,7 +24,9 @@ import { walkLeg } from "./walkLeg";
  * (`walkReach.ground` places each stance by it): a stance whose shank leans
  * toward the ankle's dorsal limit raises its heel about its ball
  * (`walkLeg.heelRise`), or lowers its toes about its heel in the heel
- * rocker; one whose thigh would trail more than `TRAIL` raises its heel
+ * rocker, the heel rise its flat foot would keep coming in by the heel
+ * rocker's progress so the rocker hands over to the ball with the same
+ * height and rate; one whose thigh would trail more than `TRAIL` raises its heel
  * further, by the same rounded rule from `EASE` short of it on; a foot
  * pivots on its toe pad by the turn it is given; and a foot whose leg leans
  * further to its side than `SIDE` rolls onto the border nearer its hip.
@@ -67,10 +69,10 @@ export namespace walkReachStance {
    * @returns The stance rule evaluated at a hip in world metres: the stance as reached and its contact point in the foot's frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which stance inputs stay fixed, angular units and the varying world-space hip.
-   * @evidence contracts/development/implementation.md#principled-implementation The forefoot rocker begins where the ankle can bend no further and the trailing thigh is held at terminal stance's (Perry and Burnfield), so the ball never slides; past the ankle's side range the shank carries the foot about the border nearer the hip, which stays down, so that border never slides. The foot's heading, initial pitch, sole pivot and rigid pivot reader are resolved once.
+   * @evidence contracts/development/implementation.md#principled-implementation The forefoot rocker begins where the ankle can bend no further and the trailing thigh is held at terminal stance's (Perry and Burnfield), so the ball never slides; a heel-strike stance adds the heel rise its flat foot keeps about its ball, weighted by the heel rocker's minimum-jerk progress (0 with zero slope at the strike, 1 with zero slope at the hand-over), turning about the heel while the sum is toes-up and about the ball once it is heel-up, so the hand-over to the ball keeps height and rate; past the ankle's side range the shank carries the foot about the border nearer the hip, which stays down, so that border never slides. The foot's heading, initial pitch, sole pivot and rigid pivot reader are resolved once.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed stance geometry precedes one hip reader running the rocker, the trail, the pivot, then the edge.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Raising the heel only brings the thigh forward, so the trail's room has no fold to search; no trial hip or fit result is memoized.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per scheduled stance; per hip at most `TOES_DOWN` heel-rocker passes, one rounded rise and one pass over the sole's points. A toe-pad turn lazily prepares its yaw/roll and socket geometry, then computes its toe-angle offset once for both rigid transforms.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per scheduled stance; per hip at most `TOES_DOWN` heel-rocker passes, one rounded rise and one pass over the sole's points; a heel-strike stance prepares its ball rocker once, on its first hip, and reads one rounded rise per hip. A toe-pad turn lazily prepares its yaw/roll and socket geometry, then computes its toe-angle offset once for both rigid transforms.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, scheduled foot, pelvis heading, pivot turn, rocker width and dorsal limit determine the shared geometry. A toe-pad turn's articulated offset is the same under its old and new rotation, so one local value serves both transforms; every trial computes its own toe angle and placed contact.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one fixed foot and rigid-pivot reader until its root solve and deferred endpoint result release it, with no hip/query history.
    */
@@ -116,16 +118,24 @@ export namespace walkReachStance {
         ? walkLeg.prepareLean(body, heading) : undefined;
     let trailing: ReturnType<typeof walkLeg.prepareTrailing> | undefined;
     let trailAnkle: ReturnType<typeof HumanFoot.prepareAnkle> | undefined;
+
+    // The heel rocker's progress toward flat: its scheduled pitch falls from
+    // `walkFoot.STRIKE` to none on a minimum-jerk profile, so this share
+    // rises from 0 at the strike to 1 at the hand-over with zero slope at
+    // both ends.
+    const handing: number = Math.min(1, Math.max(0, 1 - starting / walkFoot.STRIKE));
+    let ball: IHandover | undefined;
     return (h: IAutoMovieVector3): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } => {
       let placement: IAutoMovieMotionHumanFoot.IPlacement = initial;
       let pitch: number = starting;
+      let held: IAutoMovieVector3 = contact;
       // The heel rises about the ball once the shank leans past the ankle's
       // dorsal limit: the forefoot rocker begins where the ankle can bend no
       // further (Perry and Burnfield), so the ball never slides. A heel
       // strike's toes come down about the heel the same way, to the fixed
       // point where the lowered toes leave the shank at that limit.
       if (bears)
-        if (about === "heel")
+        if (about === "heel") {
           for (let k: number = 0; k < TOES_DOWN; k++) {
             const top: number =
               -lean!(h, placement.ankle) +
@@ -135,7 +145,28 @@ export namespace walkReachStance {
             pitch = Math.max(0, top);
             placement = at(pitch);
           }
-        else {
+
+          // The forefoot rocker the flat foot keeps under this hip comes in
+          // by the heel rocker's progress, so at the hand-over the stance
+          // has the height and the rate the ball's rule gives it: the two
+          // turns add, about the heel while the sum is toes-up and about the
+          // ball once it is heel-up, and both pivots give the flat foot
+          // where the sum is none.
+          // A flat foot the straight leg cannot yet reach asks nothing: its
+          // heel rise would be the reach's, not the ankle's.
+          ball ??= handover(body, side, at(0), heading, rocker, dorsal);
+          if (handing > 0 && Vector3.distance(ball.flat, h) <= ball.span) {
+            const risen: number = ball.rise(h, 0);
+            if (risen < 0) {
+              pitch += handing * risen;
+              if (pitch >= 0) placement = at(pitch);
+              else {
+                placement = ball.at(pitch);
+                held = ball.contact;
+              }
+            }
+          }
+        } else {
           const risen: number = (rockerRise ??= walkLeg.prepareHeelRise(
             body,
             side,
@@ -213,7 +244,7 @@ export namespace walkReachStance {
       const down: number = h.y - placement.ankle.y;
       const excess: number =
         (Math.atan2(Math.abs(aside), down) * 180) / Math.PI - SIDE;
-      let bearing: IAutoMovieVector3 = contact;
+      let bearing: IAutoMovieVector3 = held;
       if (down > 0 && excess > 0) {
         // The border it rolls about is the sole point nearest the hip of those
         // that bear, within the sole's bearing height of its lowest
@@ -285,4 +316,45 @@ export namespace walkReachStance {
   function flat(v: IAutoMovieVector3): IAutoMovieVector3 {
     return Vector3.normalize({ x: v.x, y: 0, z: v.z });
   }
+
+  /**
+   * The forefoot rocker of a heel-strike stance: the ball of the flat foot
+   * as its fixed pivot, the heel-rise rule a flat stance keeps
+   * (`walkLeg.prepareHeelRise`) and the ball as the contact.
+   */
+  function handover(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+    flatFoot: IAutoMovieMotionHumanFoot.IPlacement,
+    heading: number,
+    rocker: number,
+    dorsal: number,
+  ): IHandover {
+    const pivot: IAutoMovieVector3 = HumanFoot.point(body, side, "mtp", flatFoot);
+    return {
+      at: HumanFoot.preparePivot(body, side, "mtp", pivot, heading),
+      rise: walkLeg.prepareHeelRise(body, side, pivot, heading, rocker, dorsal),
+      contact: HumanFoot.offset(body, side, "mtp"),
+      flat: flatFoot.ankle,
+      span: body.measure.thigh + body.measure.shank,
+    };
+  }
+}
+
+/** A heel-strike stance's forefoot rocker, prepared on its first hip. */
+interface IHandover {
+  /** The flat foot's ankle, world metres. */
+  flat: IAutoMovieVector3;
+
+  /** The leg's length, hip to ankle, metres: the reach the flat foot must lie within. */
+  span: number;
+
+  /** The foot pitched about its ball, degrees negative heel up. */
+  at: (degrees: number) => IAutoMovieMotionHumanFoot.IPlacement;
+
+  /** The pitch the heel rises to under a hip from a flat foot. */
+  rise: (hip: IAutoMovieVector3, pitch: number, dorsalAt?: number) => number;
+
+  /** The ball in the foot's frame, the contact while the heel is up. */
+  contact: IAutoMovieVector3;
 }
