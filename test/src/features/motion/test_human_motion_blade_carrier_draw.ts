@@ -126,8 +126,8 @@ const CASTS: readonly ICast[] = [
  * 4. A cut before grip closure leaves the blade seated; a cut during the
  *    withdrawal keeps the grip with no jump.
  * 6. A longsword, longer than the arm draws alone, leaves its left-hip
- *    scabbard as the left hand pulls the scabbard back at its throat and the
- *    trunk turns: the blade stays on the line, the tip clears the mouth, the
+ *    scabbard as the left hand turns the scabbard at its throat toward the
+ *    right shoulder and the trunk turns: the blade stays on the line, the tip clears the mouth, the
  *    left hand keeps the throat through the draw and the scabbard hangs from
  *    the hips again after it, and the take passes the verdict report.
  * 5. A missing carrier, an unknown mouth and an off-axis tip are refused at
@@ -531,8 +531,6 @@ export function test_human_motion_blade_carrier_draw(): void {
   TestValidator.equals("blade carrier findings", failures, []);
 }
 
-/** How far the scabbard retreats along its line in the long draw, metres: an authored share of the blade. */
-const RETREAT: number = 0.15;
 /** The longsword's scabbard tilts forward from plumb by this, degrees: steep enough that the drawn hilt rises toward the drawing shoulder, authored. */
 const CANT: number = 20;
 /** The longsword's mouth from the body's midline, metres on a 1.75 m body: worn forward of the hip for the cross draw, authored. */
@@ -542,7 +540,7 @@ const AHEAD: number = 0.24;
 /** How far the trunk turns away from the drawing side in the long draw, degrees: authored. */
 const OPEN: number = 45;
 
-/** A longsword drawn from the left hip with the scabbard pulled back. */
+/** A longsword drawn from the left hip, the scabbard turned toward the drawing shoulder. */
 function longsword(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const staged: IStage = stage(
@@ -597,7 +595,7 @@ function longsword(): void {
       staged.sheath,
       "right",
       "draw",
-      { handle: "throat", back: RETREAT, turn: OPEN },
+      { handle: "throat", turn: OPEN },
     ).stand({ seconds: HOLD, sway: 0 }).node,
   });
   const draw: IAutoMovieMotionHumanSegment = film
