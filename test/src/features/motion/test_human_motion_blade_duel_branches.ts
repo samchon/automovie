@@ -215,24 +215,45 @@ export function test_human_motion_blade_duel_branches(): void {
           );
         const rest: IAutoMovieRigidTransform = worn(from);
         let clear: number = Infinity;
+        let when: number = from;
         for (let i: number = 0; i <= 24; ++i) {
           const t: number = from + ((to - from) * i) / 24;
           checks.check(
             `${branch.name}: the cuirass rides the chest at ${t.toFixed(2)}`,
             Vector3.distance(worn(t).position, rest.position) <= HOLD,
           );
-          clear = Math.min(
-            clear,
-            outside(
-              film.prop("a.blade", t),
-              tip,
-              film.prop("cuirass", t),
-              shell,
+          const gap: number = outside(
+            film.prop("a.blade", t),
+            tip,
+            film.prop("cuirass", t),
+            shell,
+          );
+          if (gap < clear) {
+            clear = gap;
+            when = t;
+          }
+        }
+        // Where the blade's axis stands in the shell's frame at the closest
+        // instant, grip to tip, so a failure names the part and the phase.
+        const local = (share: number): IAutoMovieVector3 => {
+          const blade: IAutoMovieRigidTransform = film.prop("a.blade", when);
+          const frame: IAutoMovieRigidTransform = film.prop("cuirass", when);
+          return Quaternion.rotateVector(
+            Quaternion.inverse(frame.rotation),
+            Vector3.subtract(
+              Vector3.add(
+                blade.position,
+                Quaternion.rotateVector(
+                  blade.rotation,
+                  Vector3.scale(tip, share),
+                ),
+              ),
+              frame.position,
             ),
           );
-        }
+        };
         checks.check(
-          `${branch.name}: the blade stays outside the cuirass (${clear.toFixed(3)} m)`,
+          `${branch.name}: the blade stays outside the cuirass (${clear.toFixed(3)} m at ${when.toFixed(3)} s; opening ${opening.start.toFixed(3)}-${opening.end.toFixed(3)}, contact ${contact.toFixed(3)}, reply ${reply?.start.toFixed(3)}-${reply?.end.toFixed(3)}; blade at 0, 0.5, 0.83, 1 of its length ${JSON.stringify([0, 0.5, 0.83, 1].map(local))}; shell ${JSON.stringify(shell)})`,
           clear > 0,
         );
       }
