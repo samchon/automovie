@@ -34,7 +34,6 @@ export function HumanArmTrajectoryContactContinuation(
   problem: HumanArmTrajectory.IProblem,
   held: readonly number[],
   course: HumanArmTrajectoryLaid.IAdmitted,
-  stretches: boolean,
   tempo?: number,
 ): HumanArmTrajectoryLaid.IAdmitted {
   const previous: M.IEvaluation | undefined = course.read.evaluation;
@@ -302,7 +301,6 @@ export function HumanArmTrajectoryContactContinuation(
               : undefined,
         ),
       ),
-      stretches,
       tempo,
       c.speed,
     );

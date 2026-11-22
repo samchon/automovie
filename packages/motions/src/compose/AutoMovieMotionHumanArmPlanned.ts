@@ -105,13 +105,16 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * place among the plan's groups, so a replan at a slower time
    * (`HumanPerformanceTempo`) starts each solve where the last plan's ended.
    * Scopes nest: an inner plan's groups are its own, and the enclosing
-   * scope is restored on return or throw.
+   * scope is restored on return or throw. A group of the plan whose solve
+   * refuses names itself in `refusal`, so the replan can tell one group's
+   * need from another's.
    *
    * @param handover The action's handover (`IHumanActionContext.handover`); absent, the plan runs with no scope.
    * @param run The plan.
+   * @param refusal Where the group whose solve refused is named; absent, none is named.
    * @returns What the plan returns.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the scope gives each group, why, and how scopes nest.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the scope gives each group, why, how scopes nest and what a refusing group records.
    * @evidence contracts/development/implementation.md#principled-implementation A replan of one law at a slower time makes the same groups in the same order, so a group's place keys the solution of the same problem; a handed solution is only a start (`HumanArmTrajectory.solve`'s `warm`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoped record, saved and restored in finally, as `HumanLimbIncumbent.within` scopes its seeds.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing of a handed solution is trusted; a group made outside any plan keeps no handover.
@@ -122,10 +125,15 @@ export namespace AutoMovieMotionHumanArmPlanned {
   export function within<T>(
     handover: IAutoMovieMotionHumanActionContext.IHandover | undefined,
     run: () => T,
+    refusal?: IRefusal,
   ): T {
     if (handover === undefined) return run();
     const enclosing: IScope | undefined = scope;
-    scope = { handover, made: 0 };
+    scope = {
+      handover,
+      made: 0,
+      ...(refusal === undefined ? {} : { refusal }),
+    };
     try {
       return run();
     } finally {
@@ -133,13 +141,32 @@ export namespace AutoMovieMotionHumanArmPlanned {
     }
   }
 
-  /** The plan in scope (`within`): its action's handover and how many groups it has made. */
+  /**
+   * The group of a plan whose solve refused (`within`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is named and by whom.
+   * @evidence contracts/development/design.md#principled-representation A group is named by the key its handover is filed under, its place among the plan's groups and its arms, which a replan of the same law repeats.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, written by `planned` and read by `HumanPerformanceTempo`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The key, not the refusal's text, names the group, and the very error it threw ties the name to the refusal the plan ended in: a refusal caught inside the plan and followed by another is not mistaken for it.
+   */
+  export interface IRefusal {
+    /** The refusing group's handover key (`IWarm`'s key with its ordinal); absent until a group of the plan refuses. */
+    group?: string;
+
+    /** What that group's solve threw. */
+    error?: unknown;
+  }
+
+  /** The plan in scope (`within`): its action's handover, how many groups it has made and where a refusing group is named. */
   interface IScope {
     /** The action's handover. */
     handover: IAutoMovieMotionHumanActionContext.IHandover;
 
     /** The groups the plan has made so far. */
     made: number;
+
+    /** Where a refusing group is named. */
+    refusal?: IRefusal;
   }
 
   /** The plan in scope, while one runs (`within`). */
@@ -607,7 +634,6 @@ export namespace AutoMovieMotionHumanArmPlanned {
         {
           body,
           span,
-          stretches: plan?.stretches === true,
           tempo: plan?.tempo,
           arms: carries,
           at,
@@ -675,6 +701,11 @@ export namespace AutoMovieMotionHumanArmPlanned {
         } catch (error: unknown) {
           if (plan !== undefined && told.state !== undefined)
             (plan.last ??= new Map()).set(key, { span, state: told.state });
+          // The plan's replan reads which group refused (`within`).
+          if (scope?.refusal !== undefined) {
+            scope.refusal.group = key;
+            scope.refusal.error = error;
+          }
           throw error;
         }
         if (plan !== undefined)

@@ -96,8 +96,7 @@ export namespace HumanArmTrajectoryLaid {
    *
    * @param problem The problem on the course's waypoints.
    * @param held Each arm's clinical triples at each waypoint of the hold, in the problem's order; a waypoint of the reach or the return is not read.
-   * @param stretches Whether the span is the law's own, which a slower replan lengthens; a span fixed from outside paces a detour no slower than `M.ENVELOPE`.
-   * @param tempo The explicit replan's duration multiplier. It recovers the original seconds for the law's pace.
+   * @param tempo The explicit replan's duration multiplier. It recovers the original seconds for the law's pace, which is never held below `M.ENVELOPE`, whether or not the span stretches.
    * @param inheritedPace The original action's speed bound in metres per second by time, retained on another contact branch.
    * @returns The course's readers, its admission with the refusing term, and its reading; a course not admitted is `solve`'s seed.
    *
@@ -115,7 +114,6 @@ export namespace HumanArmTrajectoryLaid {
       | IAutoMovieMotionHumanArmClearance.IArm
       | undefined
     )[])[],
-    stretches: boolean = false,
     tempo: number = 1,
     inheritedPace?: M.IContext["speed"],
   ): IAdmitted {
@@ -388,14 +386,15 @@ export namespace HumanArmTrajectoryLaid {
     })() : 0;
     const [reach, back]: ITransport[] = transports as [ITransport, ITransport];
     const widest: number = Math.max(reach.laid.pace, back.laid.pace, holding);
-    // A span fixed from outside cannot stretch for a detour, so there the
-    // course may move as fast as a daily reach's fastest hand (`M.ENVELOPE`)
-    // where the law's own pace is slower.
+    // The course may move as fast as a daily reach's fastest hand
+    // (`M.ENVELOPE`) where the law's own pace is slower, whether or not its
+    // span stretches: stretching decides only what a refusal for speed
+    // does (`HumanArmTrajectory.solve`), never what is fast enough.
     const paced = (pace: number): number => {
       const own: number = pace > 0 ? pace : widest > 0 ? widest : Infinity;
-      // Replanning gives this path more seconds, so the limit continues to
-      // read the original seconds (current seconds / tempo).
-      return stretches ? own * tempo : Math.max(own, M.ENVELOPE);
+      // Replanning gives this path more seconds, so the law's pace continues
+      // to read the original seconds (current seconds / tempo).
+      return Math.max(own * tempo, M.ENVELOPE);
     };
     const onHold: number = paced(widest);
     const reachPace: number = paced(reach.laid.pace);

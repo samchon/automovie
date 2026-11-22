@@ -61,9 +61,6 @@ export namespace AutoMovieMotionHumanArmCourse {
     /** The span's instants, seconds. */
     span: { start: number; ready: number; relax: number; end: number };
 
-    /** Whether the span is the law's own, which a slower replan lengthens (`IAutoMovieMotionHumanArmPlanned.ITogether.stretches`); a fixed one otherwise. */
-    stretches?: boolean;
-
     /** The current duration divided by the law's original duration, for an explicit replan. */
     tempo?: number;
 
@@ -214,11 +211,10 @@ export namespace AutoMovieMotionHumanArmCourse {
                 course.get(t)?.[a],
             ),
         ),
-        props.stretches === true,
         props.tempo,
         inheritedPace,
       );
-    return HumanArmTrajectoryContactContinuation(problem, held, read, props.stretches === true, props.tempo);
+    return HumanArmTrajectoryContactContinuation(problem, held, read, props.tempo);
   }
 
   /**
