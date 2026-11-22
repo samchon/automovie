@@ -33,7 +33,7 @@ import {
 import { equineLeadOut } from "./equineLeadOut";
 
 /**
- * The staged handler-and-horse takes of `test_motion_equestrian_handler`, one short take per task, each starting where its acceptance begins: leading the horse in, brushing it with a picked-up brush, putting the halter on, saddling it, and holding a lifted hoof through the horse's weight shift and startle.
+ * The staged handler-and-horse takes of `test_motion_mount_equestrian_handler`, one short take per task, each starting where its acceptance begins: leading the horse in, brushing it with a picked-up brush, putting the halter on, saddling it, and holding a lifted hoof through the horse's weight shift and startle.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each take stages and who reads it.
  * @evidence contracts/development/design.md#principled-representation A scene name, a take record and its builder.
@@ -274,8 +274,8 @@ export namespace equestrianHandlerTake {
               (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
                 hand.registered("leadHorse", {
                   on: "horse",
-                  side: "right",
-                  seconds: 0.79 * leading,
+                  hand: "right",
+                  duration: 0.79 * leading,
                   transition: 0.1 * leading,
                 }),
             );
@@ -291,7 +291,7 @@ export namespace equestrianHandlerTake {
                 side: "right",
                 point: brushPoint,
                 task: "brush",
-                seconds: 3.6,
+                duration: 3.6,
                 transition: 0.6,
                 stroke: 0.3,
                 tool: { prop: "brush", face: "face" },
@@ -324,7 +324,7 @@ export namespace equestrianHandlerTake {
             side: "right",
             point: "leftForeHoof",
             task: "hoof",
-            seconds: 3.4,
+            duration: 3.4,
             transition: 0.6,
           }),
       );

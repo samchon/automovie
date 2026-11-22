@@ -23,11 +23,11 @@ import {
   AutoMovieMotionHumanSwim,
   HumanChain,
   HumanFoot,
-  HumanFrame,
   HumanHand,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -428,7 +428,7 @@ function take(
     .registered("bikeGuide", {
       on: "bike",
       side: "left",
-      seconds: arrive - timing.take,
+      duration: arrive - timing.take,
     })
     .registered("bikeTransfer", {
       on: "bike",
@@ -453,7 +453,7 @@ function take(
           : lane
               .registered("ride", {
                 on: "bike",
-                seconds: Math.max(1, stop - (timing.depart - SETTLE)),
+                duration: Math.max(1, stop - (timing.depart - SETTLE)),
                 feet: { left: "leftPedal", right: "rightPedal" },
                 hands: { left: "leftGrip", right: "rightGrip" },
               })
@@ -465,7 +465,7 @@ function take(
               .registered("bikeGuide", {
                 on: "bike",
                 side: "left",
-                seconds: plan.when(plan.length) - stop,
+                duration: plan.when(plan.length) - stop,
               })
               .pickUp({ prop: "helmet", handle: "hold", hand: "left" })
               .putDown({ prop: "helmet", to: rest, yaw: 0, hand: "left" })

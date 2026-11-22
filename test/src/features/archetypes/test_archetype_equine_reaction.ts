@@ -18,6 +18,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { equineExpressionObservation as Look } from "../internal/equineExpressionObservation";
+
 /** The horse producer's model. */
 type Horse = ReturnType<typeof createHorse>;
 
@@ -57,7 +59,7 @@ interface IHoof {
  * @evidence contracts/development/testing.md#behavioral-verification Plays the public stance over the public horse ride and reads displayed limb bars, trunk and instants.
  * @evidence contracts/development/testing.md#independent-expectations Contact is the displayed terminal bar's lowest point against the floor plane; weight transfer is the static-stability rule that the centre of mass projects inside the remaining supports, computed from the producer's rest centre of mass carried by the displayed trunk; pitch is the displayed trunk axis's elevation against the authored angle.
  * @evidence contracts/development/testing.md#distinguishing-cases Planted versus lifted hooves, before versus after release, rear versus buck, returning responses versus the step aside, admitted versus refused cues.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous in-memory scenario; the handler's side is `test_motion_equestrian_handler`'s.
+ * @evidence contracts/development/testing.md#execution-ownership A synchronous in-memory scenario; the handler's side is `test_motion_mount_equestrian_handler`'s.
  */
 export function test_archetype_equine_reaction(): void {
   const horse: Horse = createHorse(

@@ -19,12 +19,12 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanMount,
+  AutoMovieMotionHumanSwim,
   HumanChain,
-  HumanFloatBeside,
-  HumanFrame,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 
 import { equineFordScene } from "./equineFordScene";
 
@@ -33,7 +33,7 @@ import { equineFordScene } from "./equineFordScene";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stages and who reads them.
  * @evidence contracts/development/design.md#principled-representation A mount record, the ford stage and their builders.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by test_archetype_equine_ford_rider, test_archetype_equine_ford_float and equineLeadOut.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by test_motion_mount_equine_ford_rider, test_motion_mount_equine_ford_float and equineLeadOut.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace equineFordRider {
@@ -301,7 +301,7 @@ export namespace equineFordRider {
       .sit({ seat: staged.seat, hold: SAT })
       .registered("ride", {
         on: "horse",
-        seconds: SETTLE,
+        duration: SETTLE,
         seat: "seat",
         feet: { left: "leftStirrup", right: "rightStirrup" },
         hands: { left: "mane", right: "rightRein" },
@@ -371,7 +371,7 @@ export namespace equineFordRider {
         AutoMovieMotionHumanMount.rideHorse.ride,
         AutoMovieMotionHumanMount.mounted,
         AutoMovieMotionHumanMount.leadHorse,
-        HumanFloatBeside,
+        AutoMovieMotionHumanSwim.HumanFloatBeside,
       ],
       performers: [
         {

@@ -17,7 +17,7 @@ import type { HumanPerformance } from "@automovie/motions";
 import { equineFordRider } from "./equineFordRider";
 
 /**
- * Leading a horse on foot in the equestrian specs: where a handler stands at the horse's head, the trapezoidal course matched to a handler's rehearsed walk so that the horse's progress follows the handler's hips, and the far-bank exit of `test_archetype_equine_ford_leadout`, where a rider climbs out mounted, dismounts and leads the horse out.
+ * Leading a horse on foot in the equestrian specs: where a handler stands at the horse's head, the trapezoidal course matched to a handler's rehearsed walk so that the horse's progress follows the handler's hips, and the far-bank exit of `test_motion_mount_equine_ford_leadout`, where a rider climbs out mounted, dismounts and leads the horse out.
  *
  * A handler keeping station on the horse's moving lead would trail it by the cruise speed over the station gain (`walkStation`, 1.2 m/s over 1.87 per second, 0.64 m), beyond the arm's slack on the rope, so the led horse follows its handler instead, as a led horse does.
  *

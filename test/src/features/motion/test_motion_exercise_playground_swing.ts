@@ -123,7 +123,7 @@ function swingFilm(
         on: "seat",
         seat: "seat",
         hands: { left: "leftChain", right: "rightChain" },
-        seconds: (halves - 0.15) * ride.half,
+        duration: (halves - 0.15) * ride.half,
         lean,
       })
       .registered("swingLeap", { on: "seat" }).node,

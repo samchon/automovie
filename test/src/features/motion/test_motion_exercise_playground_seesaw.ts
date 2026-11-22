@@ -117,7 +117,7 @@ function seesaw(failures: string[]): void {
             on: "beam",
             seat: `${end}Seat`,
             hands: { left: `${end}LeftHandle`, right: `${end}RightHandle` },
-            seconds: settle + 7 - seated,
+            duration: settle + 7 - seated,
           }).node,
       ),
     },

@@ -12,13 +12,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   poseBones,
-  spacecraftGlide,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -61,7 +61,7 @@ export function test_human_motion_microgravity_glide(): void {
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "spacecraft-glide",
-      laws: [spacecraftGlide],
+      laws: [AutoMovieMotionHumanRide.spacecraftGlide],
       performers: [
         {
           subject: "crew",

@@ -18,7 +18,7 @@ import { equineFordScene } from "./equineFordScene";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stage and who reads it.
  * @evidence contracts/development/design.md#principled-representation A face's grade and run with the planes and course they make.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by test_archetype_equine_bank_slide and test_archetype_equine_bank_scramble.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by test_motion_mount_equine_bank_slide and test_motion_mount_equine_bank_scramble.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace equineBankStage {

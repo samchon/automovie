@@ -524,7 +524,7 @@ function snowboard(
           },
         ],
       })
-      .registered("boardRide", { on: "board", seconds: 2.6 }).node,
+      .registered("boardRide", { on: "board", duration: 2.6 }).node,
   });
   verdicts(performed);
   const start: number = performed.segments("snow")[1]!.start;
