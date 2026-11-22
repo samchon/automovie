@@ -76,7 +76,7 @@ export interface IAutoMovieAffordance {
   /** An `aperture`'s clear height along `+Y` from the frame, metres, positive; other kinds ignore it. */
   height?: number;
 
-  /** A `crank`'s arm length from the axle to its site along `+X`, a `wheel`'s rim radius in the frame's XZ plane, or a `bar`'s cross-section radius about its `+X` axis (absent, a hand-sized bar), metres, positive; other kinds ignore it. */
+  /** A `crank`'s arm length from the axle to its site along `+X`, a `wheel`'s rim radius in the frame's XZ plane, a `bar`'s cross-section radius about its `+X` axis (absent, a hand-sized bar), or the radius of the contact a `socket` that is a tool's working point makes (a brush's bristles, a needle's point; absent, a point), metres, positive; other kinds ignore it. */
   radius?: number;
 
   /** The most weight a `bar`, `ledge`, `seat` or `surface` bears at its frame before it fails, newtons, positive; absent, the contact bears any load. A support law refuses a stance that loads it past this. Other kinds ignore it. */

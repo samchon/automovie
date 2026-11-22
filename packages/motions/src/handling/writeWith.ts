@@ -155,6 +155,12 @@ export namespace writeWith {
       AutoMovieMotionHumanHeld.point(held, steady.tip).point,
     );
     const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
+    // The steadying tip presses over the radius it declares; none, a point.
+    const radius: number =
+      held.affordances.find(
+        (affordance: IAutoMovieAffordance): boolean =>
+          affordance.id === steady.tip,
+      )?.radius ?? 0;
     const target: IAutoMovieVector3 = Vector3.add(
       origin,
       Quaternion.rotateVector(facing, {
@@ -186,7 +192,7 @@ export namespace writeWith {
           end: clock.duration,
         },
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
-        disc: 0,
+        disc: radius,
         weight: (seconds: number): number =>
           clock.envelope(["start", "ready"], ["relax", "end"], seconds),
         goal: (

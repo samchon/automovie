@@ -64,7 +64,7 @@ interface IVertex {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No specific tool, glyph, in-hand regrasp or paper geometry is required. The author supplies the stroke.
  * @evidence contracts/development/implementation.md#principled-implementation The rigid transform fixes the tip relative to the wrist. Each target is on the surface plane, along a minimum-jerk leg of the authored stroke.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the input, place the surface and tool frames, then compose one planned arm over the entered base.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tip and surface come from the props' affordances. The contact radius is the campaign's bound.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tip and surface come from the props' affordances. The contact radius is the radius the tip declares, a point when it declares none.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation in the stroke's vertices. The shared arm planner reads target sites by binary edge lookup and solves one trajectory.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The posture reads the planned arm trajectory through the carried-arm primitive. The world surface path is formed once for that plan.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns the path and trajectory samples. It starts no process and acquires no external handle.
@@ -281,11 +281,9 @@ function planWrite(
       context.tempo,
     ),
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-    // The stroke asks the tool's tip on a point, and the tip declares no
-    // width, so the site has no radius of its own: the planner admits only
-    // its own convergence (`HumanArmTrajectoryTerms.TOLERANCE`, 1 mm), which
-    // is no physical tolerance of the mark.
-    disc: 0,
+    // The mark is as wide as the tip that makes it: the stroke's point may
+    // land within the radius the tip declares; a tip declaring none is a point.
+    disc: site.radius ?? 0,
     weight: (seconds: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], seconds),
     goal: (
