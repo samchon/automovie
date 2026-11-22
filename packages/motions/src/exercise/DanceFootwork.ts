@@ -109,6 +109,12 @@ export namespace DanceFootwork {
         minimumJerk.share(Math.min(1, Math.max(0, u))),
       );
     }
+    function gesture(t: number): boolean {
+      const key: IAutoMovieMotionHumanDanceFootKey = keys[last(keys, t)]!;
+      return (
+        !key.bears && key.hold !== undefined && t >= key.at && t <= key.leave
+      );
+    }
     function planted(t: number): boolean {
       const key: IAutoMovieMotionHumanDanceFootKey = keys[last(keys, t)]!;
       return key.bears && t >= key.at && t <= key.leave;
@@ -159,22 +165,25 @@ export namespace DanceFootwork {
         posture: IAutoMovieMotionHumanPosture,
         t: number,
       ): IAutoMovieMotionHumanFoot.IPlacement =>
-        AutoMovieMotionHumanFootRelax.of(
-          body,
-          posture,
-          side,
-          placed(t),
-          planted(t)
-            ? AutoMovieMotionHumanFootRelax.load(
-                t,
-                last(keys, t) + 1 < keys.length
-                  ? keys[last(keys, t)]!.leave
-                  : Infinity,
-              )
-            : 0,
-          planted(t) ||
-            HumanFoot.point(body, side, "ball", placed(t)).y - floor < TOUCH,
-        ),
+        // A gesture the law holds in the air (a retiré at the knee) is its
+        // own placement, the foot turned as the law turns it.
+        gesture(t)
+          ? placed(t)
+          : AutoMovieMotionHumanFootRelax.of(
+              body,
+              posture,
+              side,
+              placed(t),
+              planted(t)
+                ? AutoMovieMotionHumanFootRelax.load(
+                    t,
+                    last(keys, t) + 1 < keys.length
+                      ? keys[last(keys, t)]!.leave
+                      : Infinity,
+                    keys[last(keys, t)]!.at,
+                  )
+                : 0,
+            ),
       planted,
     });
     // A foot risen on its ball at the floor bends its toes back by the heel's

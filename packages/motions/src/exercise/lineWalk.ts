@@ -304,6 +304,12 @@ export namespace lineWalk {
           minimumJerk.share((t - lift) / (SWING * PERIOD)),
         );
       };
+      // The second the foot last landed, or the start.
+      const lands: (t: number) => number = (t: number): number => {
+        let at: number = -Infinity;
+        for (const f of list) if (f.at > 0 && f.at <= t) at = f.at;
+        return at;
+      };
       // The second the foot next lifts, or never.
       const lifts: (t: number) => number = (t: number): number => {
         for (const f of list)
@@ -331,8 +337,9 @@ export namespace lineWalk {
               posture,
               side,
               placementAt(t),
-              planted(t) ? AutoMovieMotionHumanFootRelax.load(t, lifts(t)) : 0,
-              planted(t),
+              planted(t)
+                ? AutoMovieMotionHumanFootRelax.load(t, lifts(t), lands(t))
+                : 0,
             ),
           planted,
         }),

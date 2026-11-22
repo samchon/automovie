@@ -9,7 +9,6 @@ import type {
   IAutoMovieMotionHumanLineWalk,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
-  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,6 +16,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanHand } from "../posture/HumanHand";
 
 /**
  * A balancing pole held across a line walker (#3997): each hand grips the
@@ -56,7 +56,7 @@ export namespace lineWalkPole {
    * @throws {HumanRefusal} When the pole declares no left or right grip.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the output and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each grip's world point and rotation at the start, expressed in the hips' start frame and re-placed in the current one.
+   * @evidence contracts/development/implementation.md#principled-implementation Each grip's world point at the start, expressed in the hips' start frame and re-placed in the current one; the fist overhand, its fingers ahead over the pole and the palm down.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read, localise, place.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing grip is refused.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample.
@@ -87,11 +87,6 @@ export namespace lineWalkPole {
       limbs: (
         frame: IAutoMovieMotionHumanFrame,
       ): IAutoMovieMotionHumanPosture["limbs"] => {
-        const turn: number = frame.yaw - start.yaw;
-        const spin: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-          { x: 0, y: 1, z: 0 },
-          turn,
-        );
         const goal: (side: AutoMovieHumanSide) => IAutoMovieHumanLimbGoal = (
           side: AutoMovieHumanSide,
         ): IAutoMovieHumanLimbGoal => {
@@ -103,7 +98,11 @@ export namespace lineWalkPole {
             surface: "grip",
             shape: "fist",
             point,
-            rotation: Quaternion.multiply(spin, grips[side].rotation),
+            // An overhand grip: the fingers ahead over the pole, the palm down.
+            rotation: HumanHand.rotation(side, {
+              fingers: HumanFrame.forward(frame.yaw),
+              palm: { x: 0, y: -1, z: 0 },
+            }),
             bend: Vector3.add(
               point,
               HumanFrame.point(
@@ -122,9 +121,6 @@ export namespace lineWalkPole {
   interface ILocal {
     /** The grip's point in the frame. */
     point: IAutoMovieVector3;
-
-    /** The grip's world rotation at the start. */
-    rotation: IAutoMovieQuaternion;
   }
 
   /** A grip's point in the hips' start frame. */
@@ -150,9 +146,6 @@ export namespace lineWalkPole {
       placed.position,
       Quaternion.rotateVector(placed.rotation, found.frame.translation),
     );
-    return {
-      point: HumanFrame.local(start, world),
-      rotation: Quaternion.multiply(placed.rotation, found.frame.rotation),
-    };
+    return { point: HumanFrame.local(start, world) };
   }
 }

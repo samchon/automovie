@@ -26,9 +26,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * shank's lean (`prepareWalkLegLean`): the forefoot stays where the law put
  * it, so a foot on the floor rises onto its ball rather than driving its
  * toes into the floor; a foot in the air turns toes down about its ankle, a
- * pointed foot left pointed. A foot leaving a plant sheds its weight over
- * the last `LEAD` seconds of the plant (`load`), so its heel is already up
- * within the passive limit when it leaves.
+ * pointed foot left pointed. A planted foot takes the weight over the first
+ * `LEAD` seconds of the plant and sheds it over the last (`load`), so it
+ * lands on its ball and lowers its heel, and its heel is already up within
+ * the passive limit when it leaves.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two limits, the weight's share, the rocker, the fixed forefoot and the shedding before a lift.
  * @evidence contracts/development/design.md#principled-representation A pure correction of a foot placement against the load's dorsal range.
@@ -43,11 +44,13 @@ export namespace AutoMovieMotionHumanFootRelax {
   export const PASSES: number = 3;
 
   /**
-   * The share of the weight a planted foot bears as it nears its lift.
+   * The share of the weight a planted foot bears: it takes the weight over
+   * the lead after it lands and sheds it over the lead before it lifts.
    *
    * @param seconds The action second.
    * @param leave The second the foot lifts.
-   * @returns 1 until `LEAD` before the lift, falling on a minimum-jerk share to 0 at it.
+   * @param at The second the plant began; a plant shorter than twice `LEAD` takes and sheds over its halves.
+   * @returns Rising on a minimum-jerk share from 0 at the landing, 1 between the leads, falling to 0 at the lift.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the share and its fall.
    * @evidence contracts/development/implementation.md#principled-implementation A minimum-jerk fall over the lead, so the heel's rise is smooth.
@@ -57,10 +60,16 @@ export namespace AutoMovieMotionHumanFootRelax {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared minimum-jerk share.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function load(seconds: number, leave: number): number {
-    return minimumJerk.share(
-      Math.min(1, Math.max(0, (leave - seconds) / LEAD)),
-    );
+  export function load(
+    seconds: number,
+    leave: number,
+    at: number = -Infinity,
+  ): number {
+    const lead: number = Math.min(LEAD, (leave - at) / 2);
+    if (!(lead > 0)) return 1;
+    const share: (u: number) => number = (u: number): number =>
+      minimumJerk.share(Math.min(1, Math.max(0, u / lead)));
+    return Math.min(share(seconds - at), share(leave - seconds));
   }
 
   /**
