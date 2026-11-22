@@ -187,7 +187,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @param span The span's instants.
    * @param carries The arms.
    * @param before The prefix posture at any second, accepting this same-body plan's synchronous FK/ROM loans through the shared posture signature.
-   * @param plan The group's handover: its `warm` read for an earlier plan's solution of these arms, its `last` written with this plan's own when the optimiser ran. Absent, nothing is read or kept.
+   * @param plan The group's handover: its `warm` read for an earlier plan's solution of these arms, its `last` written with this plan's own when the optimiser ran, or with the path a refusal for time was reached at (`IMirrorTold.state`), which the replan at the slower time starts from. Absent, nothing is read or kept.
    * @param inheritedPace Exact original group pace, supplied only for a trial of one member.
    * @returns Each arm's trajectory.
    * @throws {HumanRefusal} When no trajectory meets the constraints (`HumanArmTrajectory.solve`).
@@ -657,15 +657,26 @@ export namespace AutoMovieMotionHumanArmPlanned {
             span.ready <= span.start ? c.rest : fitted(a, span.ready),
         );
         waypoints();
-        const result: HumanArmTrajectory.ISolved = HumanArmTrajectory.solve(
-          problem,
-          times,
-          laid,
-          earlier === undefined
-            ? undefined
-            : AutoMovieMotionHumanArmRetimed(earlier, span),
-          plan?.stretches === true,
-        );
+        // A refusal for time hands on the path it was reached at: the replan
+        // at the slower time the refusal names starts from it (`warm`).
+        const told: HumanArmTrajectory.IMirrorTold = { flip: false };
+        let result: HumanArmTrajectory.ISolved;
+        try {
+          result = HumanArmTrajectory.solve(
+            problem,
+            times,
+            laid,
+            earlier === undefined
+              ? undefined
+              : AutoMovieMotionHumanArmRetimed(earlier, span),
+            plan?.stretches === true,
+            told,
+          );
+        } catch (error: unknown) {
+          if (plan !== undefined && told.state !== undefined)
+            (plan.last ??= new Map()).set(key, { span, state: told.state });
+          throw error;
+        }
         if (plan !== undefined)
           (plan.last ??= new Map()).set(key, { span, state: result.state });
         solved = result.trajectories;
