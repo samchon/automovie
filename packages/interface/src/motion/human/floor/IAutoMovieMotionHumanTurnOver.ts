@@ -46,7 +46,7 @@ export namespace IAutoMovieMotionHumanTurnOver {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the prop and its surface affordance, with the default.
    * @evidence contracts/development/design.md#principled-representation A prop by scene id and one of its `surface` affordances by id.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, the `on` of turnOver and lieTogether, read by turnOver and composeHumanSleep to place the lying body.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, the `on` of turnOver and lieTogether, read by turnOver and `AutoMovieMotionHumanSleep.sleep` to place the lying body.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing prop or surface remains for runtime refusal.
    */
   export interface IOn {

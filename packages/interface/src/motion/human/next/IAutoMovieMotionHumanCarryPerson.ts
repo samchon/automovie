@@ -1,9 +1,8 @@
 import type { IAutoMovieMotionHumanCarried } from "../lexicon/IAutoMovieMotionHumanCarried";
 import type { IAutoMovieMotionHumanCarriedLift } from "../lexicon/IAutoMovieMotionHumanCarriedLift";
-import type { IAutoMovieMotionHumanHoldInfant } from "../tasks/IAutoMovieMotionHumanHoldInfant";
 
 /**
- * Carrying a person: the carry, its lift and an infant held.
+ * Carrying a person: the carry and its lift. An infant held is `IAutoMovieMotionHumanCare.holdInfant`.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -51,26 +50,6 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
     params: IAutoMovieMotionHumanCarryPerson.ICarriedLift,
     anchor?: string,
   ): Chain;
-
-  /**
-   * Holding an infant taken up before (`pickUp` at its `seat`), standing or seated as the body entered: in the cradle hold, against the shoulder with the other hand patting its back, or feeding it from a bottle in the other hand, optionally rocking it.
-   *
-   * @param params The `hold`, `prop`, `hand`, `seconds`, `rock`, `pats` and `bottle` of `IAutoMovieMotionHumanHoldInfant.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCarryPerson.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCarryPerson.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCarryPerson.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCarryPerson.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCarryPerson.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCarryPerson.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
-   */
-  holdInfant(
-    params: IAutoMovieMotionHumanCarryPerson.IHoldInfant,
-    anchor?: string,
-  ): Chain;
 }
 
 /**
@@ -96,14 +75,4 @@ export namespace IAutoMovieMotionHumanCarryPerson {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `carriedLift` takes the type its law reads.
    */
   export type ICarriedLift = IAutoMovieMotionHumanCarriedLift.IParams;
-
-  /**
-   * The parameters of `holdInfant`: the law's own `IAutoMovieMotionHumanHoldInfant.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHoldInfant` owns the type; the alias serves this family's `holdInfant` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `holdInfant` takes the type its law reads.
-   */
-  export type IHoldInfant = IAutoMovieMotionHumanHoldInfant.IParams;
 }
