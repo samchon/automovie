@@ -33834,6 +33834,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "side": {
             "$ref": "#/components/schemas/AutoMovieHumanSide",
             "description": "The arm in the sleeve, or the hand on the slider."
+          },
+          "held": {
+            "type": "boolean",
+            "description": "Whether another performer holds the jacket open at this performer's collar, as `coatPartner` does: the sleeve is threaded where that hold puts the jacket. The jacket already worn when absent."
           }
         },
         "required": [
