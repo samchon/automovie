@@ -17,8 +17,9 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { bendLower } from "../everyday/bendLower";
 import { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -41,6 +42,8 @@ import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
  * The hand turns to the handle's frame and closes on the door's own
  * colliders (`HumanMountRider.hold`, `HumanMountRider.closed`), reaching it
  * over `TAKE` seconds on the minimum-jerk profile (Flash and Hogan 1985).
+ * The arm is laid as one course over that goal (`courseArmGoal`), so it
+ * keeps one branch while the leaf swings.
  * A handle the standing arm does not reach as the hand takes it, such as a
  * car door's below the shoulder, is taken leaning toward it, the body
  * lowered as a pick up lowers it. While the arm's own fit keeps the wrist
@@ -395,17 +398,6 @@ export namespace HumanTravelLeaf {
           support: { kind: "prop", subject: context.params.door },
         },
       ];
-      // The grip's digits reach their material closure at TAKE. The arm
-        // still follows the actual handle on every observation after it.
-      const clasped: IAutoMovieMotionHumanPosture["joints"] =
-        HumanMountRider.hold(
-          body,
-          side,
-          start,
-          { ...taken, across },
-          1,
-          closed,
-        ).fingers;
       const bare: IAutoMovieMotionHumanPosture["joints"] = {};
       /** Read the body and handle on the action clock, with optional closed digits. */
       const write = (
@@ -468,24 +460,20 @@ export namespace HumanTravelLeaf {
             projection,
           ),
       };
-      HumanPreparedPlayback.attach(plan, body, {
-        mode: "posture",
-        phases: [
-          {
-            from: TAKE,
-            to: seconds,
-            sample: (
-              t,
-              channels,
-              resolution,
-              projection,
-            ): HumanPreparedPlayback.ISample => ({
-              posture: write(t, channels, resolution, projection, clasped),
-            }),
-          },
-        ],
+      // The hand's goal moves with the handle, so the arm is laid as one
+      // course over it (`courseArmGoal`): the planner's reach to the handle
+      // over `TAKE`, then the goal read at every second and fitted with
+      // branch and swivel continuity while the leaf swings. Fitted afresh at
+      // each second, two nearly tied arm solutions let one frame take the
+      // other branch, a flip of the shoulder and forearm in one frame. The
+      // hold checks above read the goal itself.
+      return courseArmGoal({
+        body,
+        plan,
+        side,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+        span: { start: 0, ready: TAKE, relax: seconds, end: seconds },
       });
-      return plan;
     },
   };
 }
