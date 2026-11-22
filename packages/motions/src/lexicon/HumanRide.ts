@@ -5,6 +5,8 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -153,28 +155,27 @@ export namespace HumanRide {
       }
 
       // A foot that hung when the ride began keeps hanging. A foot on a
-      // pedal bears on the turning pedal: the contact model names no moving
-      // part's frame for a plant to be read in, and in the bicycle's frame
-      // the pedal's own turn reads as the foot slipping.
+      // turning pedal (a `pedal` contact) bears on it: the contact model
+      // names no moving part's frame for a plant to be read in, and in the
+      // bicycle's frame the pedal's own turn reads as the foot slipping. A
+      // foot in a stirrup or on a fixed rest stays planted on it.
       const { pedals, placed }: placeRideFeet.ISupports =
         placeRideFeet.supports(context, support);
+      const turning = (side: AutoMovieHumanSide): boolean =>
+        pedals.some(
+          (pedal: (typeof pedals)[number]): boolean =>
+            pedal.side === side &&
+            support.prop.affordances?.find(
+              (item: IAutoMovieAffordance): boolean => item.id === pedal.id,
+            )?.kind === "pedal",
+        );
       const contacts: IAutoMovieMotionHumanContactWindow[] = [...kept.contacts];
       for (const side of ["left", "right"] as const)
         if (
           context.entry.feet[side].planted &&
           (!placeFeet || context.params.feet?.[side] === undefined)
         )
-          contacts.push(
-            bears(
-              `${side}Foot`,
-              pedals.some(
-                (pedal: (typeof pedals)[number]): boolean =>
-                  pedal.side === side,
-              )
-                ? "bear"
-                : "plant",
-            ),
-          );
+          contacts.push(bears(`${side}Foot`, turning(side) ? "bear" : "plant"));
       const post: number = POST * context.body.measure.thigh;
 
       // How far through a stride a second of the ride is, 0 to 1; none outside the strides of a cue track.

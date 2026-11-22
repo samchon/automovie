@@ -247,7 +247,8 @@ export namespace createQuadruped {
         "yoke-hitch-upright--1",
         "yoke-hitch-upright-1",
       ],
-      noddingContacts: ["lead", "hitch"],
+      // The roper's head and horns targets ride the head with the nod; the heel target between the hocks keeps trunk carriage.
+      noddingContacts: ["lead", "hitch", "head", "horns"],
     },
     camel: {
       archetype: "camel",

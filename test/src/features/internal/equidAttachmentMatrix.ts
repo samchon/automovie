@@ -69,6 +69,7 @@ export function equidAttachmentMatrix(
       "leftRein",
       "rightRein",
       "lead",
+      "mane",
     ],
     harness: ["hitch"],
     both: [
@@ -81,8 +82,9 @@ export function equidAttachmentMatrix(
       "rightRein",
       "lead",
       "hitch",
+      "mane",
     ],
-    pack: ["lead", "leftLoad", "rightLoad"],
+    pack: ["lead", "leftLoad", "rightLoad", "tie"],
   };
   for (const tack of ["saddle", "harness", "both", "pack"] as const) {
     try {
