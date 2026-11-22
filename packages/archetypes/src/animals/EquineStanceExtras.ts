@@ -3,13 +3,15 @@ import type { EquineComfortCue } from "./EquineComfortCue";
 import { EquineComfortRows } from "./EquineComfortRows";
 import type { EquineEncounterCue } from "./EquineEncounterCue";
 import { EquineEncounterRows } from "./EquineEncounterRows";
+import type { EquineHobbleCue } from "./EquineHobbleCue";
+import { EquineHobbleRows } from "./EquineHobbleRows";
 import type { EquineLibertyCue } from "./EquineLibertyCue";
 import { EquineLibertyRows } from "./EquineLibertyRows";
 import type { EquineStanceCue } from "./EquineStanceCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 
 /**
- * The stance rows planned outside the stance's own file: the comfort rows, the liberty cue poses and the encounter's strikes and kicks.
+ * The stance rows planned outside the stance's own file: the comfort rows, the liberty cue poses, the encounter's strikes and kicks and the hobbled hops.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the row families and their owners.
  * @evidence contracts/development/design.md#principled-representation A union of the families' rows and one dispatch.
@@ -28,7 +30,8 @@ export namespace EquineStanceExtras {
   export type Row =
     | EquineComfortCue.Row
     | EquineLibertyCue.Row
-    | EquineEncounterCue.Row;
+    | EquineEncounterCue.Row
+    | EquineHobbleCue.Row;
 
   /**
    * Whether a stance cue is planned here.
@@ -38,7 +41,7 @@ export namespace EquineStanceExtras {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result.
    * @evidence contracts/development/implementation.md#principled-implementation Any family's ownership.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three lookups.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Four lookups.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses each family's own test.
@@ -48,7 +51,8 @@ export namespace EquineStanceExtras {
     return (
       EquineComfortRows.owns(cue) ||
       EquineLibertyRows.owns(cue) ||
-      EquineEncounterRows.owns(cue)
+      EquineEncounterRows.owns(cue) ||
+      EquineHobbleRows.owns(cue)
     );
   }
 
@@ -77,6 +81,8 @@ export namespace EquineStanceExtras {
       return EquineComfortRows.plan(body, start, cue);
     if (EquineLibertyRows.owns(cue))
       return EquineLibertyRows.plan(body, start, cue);
+    if (EquineHobbleRows.owns(cue))
+      return EquineHobbleRows.plan(body, start, cue);
     return EquineEncounterRows.plan(body, start, cue);
   }
 }

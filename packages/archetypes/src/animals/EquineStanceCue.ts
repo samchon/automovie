@@ -151,7 +151,7 @@ export namespace EquineStanceCue {
   }
 
   /**
-   * Spin on the haunches: turn about the middle of the hind hooves, every hoof stepping around in turn.
+   * Spin on the haunches or on the centre: turn about the middle of the hind hooves or of all four, every hoof stepping around in turn.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The turn is degrees about up, positive to the horse's left.
    * @evidence contracts/development/design.md#principled-representation Phases and a signed turn.
@@ -164,7 +164,20 @@ export namespace EquineStanceCue {
 
     /** The turn, degrees about up, positive to the left; at most a full turn either way. */
     degrees: number;
+
+    /** What it turns about: the middle of the hind hooves, on the haunches, or the middle of all four, on the centre as a lunged horse turns in to face its handler and out onto the other rein; on the haunches when absent. */
+    about?: EquineStanceCue.Pivot;
   }
+
+  /**
+   * What a spin turns about.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The haunches, the middle of the hind hooves; the centre, the middle of all four.
+   * @evidence contracts/development/design.md#principled-representation Closed literals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the spin row.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type Pivot = "haunches" | "centre";
 
   /**
    * Crow hops: small bucks one after another, the forehand planted and the hindquarters lifted and set down each time.

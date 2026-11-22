@@ -286,13 +286,20 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       );
       const lean: number =
         (course.lean?.(seconds) ?? 0) + EquineFootwork.sit(footwork, seconds);
-      const placement: IAutoMovieTransform = EquinePitch.place(
+      const pitched: IAutoMovieTransform = EquinePitch.place(
         EquinePitch.place(body(state, seconds), 0, lame?.tilt),
         0,
         lean === 0
           ? undefined
           : EquinePitch.about({ y: 0, z: 0 }, (-lean * Math.PI) / 180),
       );
+      // Asked to lean in, the body leans into a bend by the steady-turn balance of its speed and curvature, rolled about its long axis on the floor; the hooves keep their world footprints (a bend anchors them), as a horse on a circle leans by the gravitational and centripetal prediction (Pfau et al. 2012).
+      const inward: number =
+        course.leanIn === true ? ArchetypeCourse.lean(state) : 0;
+      const placement: IAutoMovieTransform =
+        inward === 0
+          ? pitched
+          : ArchetypeCourse.banked({ ...state, placement: pitched }, inward);
       const current: ArchetypeCourse.IState = { ...state, placement };
       const going: number = Math.min(
         1,
@@ -497,6 +504,8 @@ export namespace rideQuadruped {
     lameness?: QuadrupedLameness.ILameness;
     /** An optional trunk pitch about the root at each film second, degrees, positive nose-down, such as a draught horse's forward lean into its load; the planted hooves keep their footprints. */
     lean?: Lean;
+    /** Lean the body into its bends by the steady-turn balance of speed and curvature (`ArchetypeCourse.lean`), rolled about its long axis on the floor with the hooves on their footprints, as a lunged horse does; upright when absent. */
+    leanIn?: true;
     /** The legs in order, at least one. */
     legs: readonly ILeg[];
   }

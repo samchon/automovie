@@ -27,7 +27,7 @@ export namespace EquineStanceMoves {
   export const LOAD: number = 0.35;
 
   /**
-   * A spin on the haunches: the horse turns `degrees` about the middle of its hind hooves in increments of at most `STEP`, each increment stepping the outside fore, the inside fore, the outside hind and the inside hind in turn around the pivot, the trunk turning with them; the exit settles over the new anchors.
+   * A spin on the haunches or on the centre: the horse turns `degrees` about the middle of its hind hooves, or of all four on the centre, in increments of at most `STEP`, each increment stepping the outside fore, the inside fore, the outside hind and the inside hind in turn around the pivot, the trunk turning with them; the exit settles over the new anchors.
    *
    * @param body The prepared solver.
    * @param start The state it starts from.
@@ -51,11 +51,19 @@ export namespace EquineStanceMoves {
       1,
       Math.ceil(Math.abs(cue.degrees) / STEP),
     );
-    const pivot: IAutoMovieVector3 = Vector3.lerp(
+    const hinds: IAutoMovieVector3 = Vector3.lerp(
       start.anchors.leftHind,
       start.anchors.rightHind,
       0.5,
     );
+    const pivot: IAutoMovieVector3 =
+      cue.about === "centre"
+        ? Vector3.lerp(
+            hinds,
+            Vector3.lerp(start.anchors.leftFore, start.anchors.rightFore, 0.5),
+            0.5,
+          )
+        : hinds;
     const turned = (k: number): ArchetypeFrame.IMotion =>
       ArchetypeFrame.turn(
         pivot,

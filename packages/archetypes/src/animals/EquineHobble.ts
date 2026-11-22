@@ -1,0 +1,108 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieModelPart,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { type Archetype, ArchetypeFrame, type ArchetypeRide } from "../core";
+import { QuadrupedBody } from "./QuadrupedBody";
+
+/** The pose's frame: the hobble is posed in world coordinates. */
+const WORLD: IAutoMovieTransform = ArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
+
+/**
+ * A fore hobble (`createHobble`) worn by a moving equid: at each film second each cuff closes round its foreleg's cannon a little above the fetlock, along the cannon's own axis, and the strap is laid between the cuffs' inner sides.
+ *
+ * The cuffs are posed in world coordinates from the equid's sample, so the strap's drawn length is the actual distance the forelegs hold the cuffs apart; read with `Archetype.span("strap")`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States where each cuff is, along which axis, and what the strap measures.
+ * @evidence contracts/development/design.md#principled-representation A ride of the hobble on the equid's clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One function.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The cuffs follow the equid's own posed cannons.
+ */
+export namespace EquineHobble {
+  /** How far above the fetlock a cuff's middle sits, metres: authored, a cuff's width above the joint so it closes round the cannon. */
+  export const ABOVE: number = 0.05;
+
+  /**
+   * The hobble's ride on an equid's ride.
+   *
+   * @param hobble The hobble.
+   * @param ride The equid's ride.
+   * @returns The hobble's ride.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input and output.
+   * @evidence contracts/development/implementation.md#principled-implementation Per sample read each fore cannon's posed frame, put the cuff's middle `ABOVE` metres up the cannon from the fetlock, turned as the cannon is, and re-lay the strap through the hobble's own span owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two cuffs, one re-lay.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One equid sample and one re-lay per sample.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the span owner.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the hobble and the ride.
+   */
+  export function ride<Id extends string, D extends string>(
+    hobble: Archetype<never, never>,
+    ride: ArchetypeRide.IRide<Id, D>,
+  ): ArchetypeRide.IRide<never, never> {
+    const at = (seconds: number): ArchetypeRide.ISample<never, never> => {
+      const horse: ArchetypeRide.ISample<Id, D> = ride.at(seconds);
+      const cuffs: ReadonlyMap<string, IAutoMovieTransform> = new Map([
+        ["leftCuff", cuff(horse, "leftFore")],
+        ["rightCuff", cuff(horse, "rightFore")],
+      ]);
+      const parts: IAutoMovieModelPart[] = hobble.parts.map(
+        (part: IAutoMovieModelPart): IAutoMovieModelPart => {
+          const transform: IAutoMovieTransform | undefined = cuffs.get(part.id);
+          return transform === undefined ? part : { ...part, transform };
+        },
+      );
+      return {
+        archetype: hobble.reposed(parts),
+        placement: ArchetypeFrame.copy(WORLD),
+        course: horse.course,
+      };
+    };
+    return {
+      plan: ride.plan,
+      duration: ride.duration,
+      instants: ride.instants,
+      at,
+      frame: (): IAutoMovieTransform => ArchetypeFrame.copy(WORLD),
+    };
+  }
+
+  /** A cuff's world frame on a fore cannon of a sample. */
+  function cuff<Id extends string, D extends string>(
+    sample: ArchetypeRide.ISample<Id, D>,
+    limb: QuadrupedBody.Limb,
+  ): IAutoMovieTransform {
+    const cannon: IAutoMovieModelPart = sample.archetype.parts.find(
+      (part: IAutoMovieModelPart): boolean =>
+        part.id === QuadrupedBody.BONES[limb][2],
+    )!;
+    const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+      sample.placement,
+      cannon.transform!,
+    );
+    const length: number =
+      cannon.geometry.type === "primitive" &&
+      (cannon.geometry.shape.type === "capsule" ||
+        cannon.geometry.shape.type === "cylinder")
+        ? cannon.geometry.shape.height
+        : NaN;
+    const down: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
+    return {
+      translation: Vector3.addScaled(
+        frame.translation,
+        down,
+        length / 2 - ABOVE,
+      ),
+      rotation: frame.rotation,
+      scale: ArchetypeFrame.copy(WORLD).scale,
+    };
+  }
+}
