@@ -106,12 +106,8 @@ export function prepareKneelFoot(
 }
 
 /**
- * Companion constants and readers of {@link prepareKneelFoot}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the strike share and when a foot strikes early or lifts late.
- * @evidence contracts/development/design.md#principled-representation Shares of a phase's linear time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The shares the foot's course, its plant windows (`kneelContacts`) and its unloaded turn (`kneel`) read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked provisional.
+ * Companion constants and readers of {@link prepareKneelFoot}; the function
+ * carries the evidence for the pair.
  */
 export namespace prepareKneelFoot {
   /** The share of a phase's linear time by which a foot landing heel up has struck its toes, the rest left for the knee to come down over them (provisional). */
@@ -124,14 +120,6 @@ export namespace prepareKneelFoot {
    * @param from The foot's entry key.
    * @param to The foot's exit key.
    * @returns The share.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two cases.
-   * @evidence contracts/development/implementation.md#principled-implementation A foot landing on its toes bears before the knee completes its descent.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One condition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The movement test is `kneelKeys.still`, the one the windows use.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function arrival(from: kneelKeys.IFoot, to: kneelKeys.IFoot): number {
     return !kneelKeys.still(from, to) && to.pitch < 0 ? STRIKE : 1;
@@ -145,14 +133,6 @@ export namespace prepareKneelFoot {
    * @param from The foot's entry key.
    * @param to The foot's exit key.
    * @returns The share.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two cases.
-   * @evidence contracts/development/implementation.md#principled-implementation A foot on its toes bears until the knee has risen off it, the landing's mirror.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One condition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The movement test is `kneelKeys.still`, the one the windows use.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function departure(from: kneelKeys.IFoot, to: kneelKeys.IFoot): number {
     return !kneelKeys.still(from, to) && from.pitch < 0 ? 1 - STRIKE : 0;

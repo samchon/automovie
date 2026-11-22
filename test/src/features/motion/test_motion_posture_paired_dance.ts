@@ -33,7 +33,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios:
  * 1. The lead, its hold and the follow plan.
- * 2. 1.5 s after the lead ends the follower's hips joint lies within
+ * 2. When her follow ends, the follower's hips joint lies within
  *    0.25 m of the place 0.4 m to the leader's right of his hips joint
  *    (provisional band about the hold's distance).
  * 3. Over the second half of the lead the follower's hips travel at least
@@ -111,14 +111,15 @@ export function test_motion_posture_paired_dance(): void {
     seconds: number,
   ): IAutoMovieVector3 => HumanSignature.joint(readers[who], seconds, "hips");
 
-  // 2. At his right once he stands.
-  const settled: number = leading.end + 1.5;
+  // 2. At his right once she has come beside him: when her follow ends,
+  // whatever her pace.
+  const settled: number = performance.segments("b")[0]!.end;
   const his: IAutoMovieVector3 = hips("a", settled);
   const hers: IAutoMovieVector3 = hips("b", settled);
   const beside: number = Math.hypot(hers.x - (his.x - 0.4), hers.z - his.z);
   if (!(beside <= 0.25))
     complaints.push(
-      `1.5 s after the lead ends the follower's hips lie ${mm(beside)} mm from 0.4 m to the leader's right, within 250 mm expected`,
+      `when her follow ends the follower's hips lie ${mm(beside)} mm from 0.4 m to the leader's right, within 250 mm expected`,
     );
   // 3. At his pace.
   const half: number = (leading.start + leading.end) / 2;
