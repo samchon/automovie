@@ -2787,6 +2787,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/IAutoMovieMotionHumanPoleVault.IParams",
       "description": "A vault on the pole the hand holds, out of a run."
     },
+    "vehicleDive": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanVehicleHit.IDive",
+      "description": "A near-miss dive to the side, clear of a moving car's width as it arrives."
+    },
+    "vehicleHit": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanVehicleHit.IParams",
+      "description": "A pedestrian struck by a moving car, thrown along the frontal impact trajectory its front and speed give, landing on the back."
+    },
     "victory": {
       "$ref": "#/components/schemas/OmitIParamskind-o1",
       "description": "A victory raise of the arms."
@@ -24693,6 +24701,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanThrown.IParams",
             "description": "A struck body thrown clear of the floor by a blast or a jerk-back, landing on its back."
           },
+          "vehicleHit": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanVehicleHit.IParams",
+            "description": "A pedestrian struck by a moving car, thrown along the frontal impact trajectory its front and speed give, landing on the back."
+          },
+          "vehicleDive": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanVehicleHit.IDive",
+            "description": "A near-miss dive to the side, clear of a moving car's width as it arrives."
+          },
           "wireFlight": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanWireFlight.IParams",
             "description": "A body flown on wires along an authored path in a flight shape."
@@ -24712,6 +24728,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "slidingTackle",
           "collapse",
           "thrown",
+          "vehicleHit",
+          "vehicleDive",
           "wireFlight",
           "stopDropRoll",
           "wireArrest"
@@ -25110,6 +25128,61 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns refusals."
+      },
+      "IAutoMovieMotionHumanVehicleHit.IParams": {
+        "type": "object",
+        "properties": {
+          "vehicle": {
+            "type": "string",
+            "description": "The car's scene subject id."
+          },
+          "edge": {
+            "type": "string",
+            "description": "The car's affordance at the top of its leading edge, the bonnet's front; read from the car's colliders when absent, as the highest top among those reaching furthest forward (`vehicleFront`)."
+          },
+          "horizon": {
+            "type": "number",
+            "description": "How far past the action's start the car's course is searched for the contact, seconds; 6 when absent."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "How long the body lies after landing, seconds; 1 when absent."
+          }
+        },
+        "required": [
+          "vehicle"
+        ],
+        "additionalProperties": false,
+        "description": "The struck pedestrian's parameters."
+      },
+      "IAutoMovieMotionHumanVehicleHit.IDive": {
+        "type": "object",
+        "properties": {
+          "vehicle": {
+            "type": "string",
+            "description": "The car's scene subject id."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The pedestrian's side the dive goes to; the side nearer the car's path edge when absent."
+          },
+          "horizon": {
+            "type": "number",
+            "description": "How far past the action's start the car's course is searched for its arrival, seconds; 6 when absent."
+          }
+        },
+        "required": [
+          "vehicle"
+        ],
+        "additionalProperties": false,
+        "description": "The near-miss dive's parameters."
       },
       "IAutoMovieMotionHumanWireFlight.IParams": {
         "type": "object",
