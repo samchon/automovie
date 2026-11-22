@@ -21,7 +21,14 @@ import { HumanPisteTarget } from "./HumanPisteTarget";
 import { stageBladeFootwork } from "./stageBladeFootwork";
 
 /**
- * A two-performer bout on a piste or a kendo court: from their opening
+ * A two-performer bout on a piste or a kendo court. The opening distance is
+ * authored by the marks; each advance of the approach covers at most 0.3 m
+ * (`HumanStagePiste.ADVANCE`, about a foot, provisional) in the `duration`
+ * the take gives it, so the approach lasts the advances' count times that.
+ * The epee scores a double touch when the two touches fall within 0.04 s
+ * (`HumanStagePiste.DOUBLE`, FIE). The attack is the weapon's own blade
+ * timing (`IAutoMovieMotionHumanSword`): a lunge's point at 2.6 to 3.2 m/s
+ * for foil and epee, a cut at 6 to 10 m/s for sabre and kendo. From their opening
  * marks both close the distance in advances of the weapon's own footwork,
  * then the first attacks and the screenplay's result decides the exchange. A touch for the first lands its
  * attack; one for the second has the attack parried and the second riposte;
