@@ -119,7 +119,7 @@ export namespace HumanMountRider {
     }
     if (material.reinPalm !== undefined)
       return {
-        ...placeRideReinPalm(material.reinPalm, grip, fingers),
+        ...placeRideReinPalm(material.reinPalm, grip, fingers, material.cross),
         fingers,
         contact: material.reinPalm.point,
       };
