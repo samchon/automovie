@@ -124,7 +124,19 @@ export namespace courseLimbSwivels {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the reader and the knots.
    */
   export function swivels(props: IPrepare): Swivels {
-    const { body, posture: goals, limbs, span }: IPrepare = props;
+    const { body, posture: read, limbs, span }: IPrepare = props;
+    // Each second's goal posture is read once: a knot's fit and the
+    // judgement's two placements all read the same second.
+    const postures: Map<number, IAutoMovieMotionHumanPosture> = new Map();
+    const goals = (seconds: number): IAutoMovieMotionHumanPosture => {
+      let found: IAutoMovieMotionHumanPosture | undefined =
+        postures.get(seconds);
+      if (found === undefined) {
+        found = read(seconds);
+        postures.set(seconds, found);
+      }
+      return found;
+    };
     // A limb's interpolation is judged where its swivel shows: the elbow or
     // knee, the end joint, and a point past it (the hand's middle knuckle,
     // the toes), so a swivel that keeps the end joint on its goal but turns

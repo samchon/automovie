@@ -131,6 +131,28 @@ export function planHumanArmTrajectory(
         fix: "give the action more time",
       });
   }
+  // A laid course that misses a site or a task point at a hold instant
+  // missed it with the limb fit's own search at that instant, against the
+  // same clearance: the optimiser has no configuration there the fit did
+  // not, only a long solve to the same refusal. It is refused at once,
+  // naming what holds the hand off, so an infeasible hold never costs
+  // minutes.
+  const missed: M.IEvaluation["worst"] | undefined =
+    course !== undefined &&
+    warm === undefined &&
+    (course.refused === "site" || course.refused === "limit")
+      ? course.read.evaluation?.worst
+      : undefined;
+  if (missed !== undefined && missed.value > M.TOLERANCE)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: missed.axis,
+      value: missed.value,
+      feasible: null,
+      reason: `no path of the ${problem.arms.map((a: HumanArmTrajectory.IArm): string => a.side).join(" and ")} arm over the action keeps the hand on its site: ${missed.what}`,
+      fix: "put the hand on a site its arm reaches with the body clear",
+    });
+
   // The arms carried by their own interpolant onto knots with the given
   // intervals split; the knots kept keep what the last context built.
   const refine = (x: number[][][], split: readonly number[]): number[][][] => {
@@ -177,6 +199,20 @@ export function planHumanArmTrajectory(
     // the path solved again from itself at the penalty it reached, until
     // the reading admits it or the affected intervals are already frames.
     while (solved.evaluation.worst.value > M.TOLERANCE && context.n < fine.n) {
+      // A hand that misses its site or a task point at a knot itself misses
+      // it with every freedom the path had there: a finer interval adds no
+      // configuration that reaches it, only a larger problem to solve again.
+      // Such a path is refused as it stands, naming what holds the hand off,
+      // instead of being refined down to the frame grid at growing cost.
+      const knotted: ReadonlySet<number> = new Set(knots);
+      if (
+        (solved.evaluation.worst.term === "site" ||
+          solved.evaluation.worst.term === "limit") &&
+        solved.evaluation.failing.some(
+          (failed: boolean, g: number): boolean => failed && knotted.has(g),
+        )
+      )
+        break;
       // A frame depends on its bracket and the adjacent Hermite slopes.
       // Open every such interval for all failed frames in the same pass.
       const affected: Set<number> = new Set();

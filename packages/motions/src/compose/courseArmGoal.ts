@@ -114,9 +114,13 @@ export function courseArmGoal(
       let joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints;
       for (const arm of arms) {
         const limb: courseArmGoal.Limb = `${arm.side}Arm`;
-        delete limbs[limb];
         const span: IAutoMovieMotionHumanArmPlanned.ISpan =
           arm.span ?? props.span;
+        // Before its course the arm is the plan's own: its goal stays, so a
+        // course that starts after the action does takes over from the arm
+        // the plan shows, never from a frozen rest.
+        if (seconds < span.start) continue;
+        delete limbs[limb];
         if (seconds <= span.end) continue;
 
         // After its course the arm keeps the angles the course ended with,
