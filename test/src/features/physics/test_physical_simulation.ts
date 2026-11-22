@@ -226,7 +226,6 @@ function falling(): IAutoMoviePhysicalSimulationInput.IInput {
     impulses: [],
     checkpointEvery: 60,
     yieldEvery: 120,
-    iterations: 8,
     maximumSteps: 240,
     maximumSegments: 4,
   };

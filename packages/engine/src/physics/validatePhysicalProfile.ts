@@ -3,6 +3,7 @@ import type {
   IAutoMoviePhysicalMaterial,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -20,8 +21,8 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * ancestor walks can be quadratic in the declared segment/joint population.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Collect every numeric, reference, mass and tree defect before simulation) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Collect every numeric, reference, mass and tree defect before simulation) directly over its typed inputs (`profile`) as nested iteration of depth 3 (every over [v.x, v.y, v.z]; every over [q.x, q.y, q.z, q.w]; for-of over profile.materials.entries()) plus a sort, delegating to `errors.push`, `Number.isFinite`, `Math.fround`, `Math.abs`, `Math.hypot`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literals 0.000001, 1e-8, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 379 lines and 32 top-level statements that reuses `errors.push`, `Number.isFinite`, `Math.fround`, `Math.abs`, `Math.hypot` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Collect every numeric, reference, mass and tree defect before simulation) directly over its typed inputs (`profile`) as nested iteration of depth 3 (every over [v.x, v.y, v.z]; every over [q.x, q.y, q.z, q.w]; for-of over profile.materials.entries()) plus a sort, delegating to `errors.push`, `Number.isFinite`, `Math.abs`, `Math.hypot`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literals 0.000001, 1e-8, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 379 lines and 32 top-level statements that reuses `errors.push`, `Number.isFinite`, `Math.abs`, `Math.hypot` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 4 non-null assertion(s); these are the remaining shortcuts and are not justified here.
  * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `profile`; the dominant cost is nested iteration of depth 3 (every over [v.x, v.y, v.z]; every over [q.x, q.y, q.z, q.w]; for-of over profile.materials.entries()) plus a sort, performed once per call with 23 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
@@ -42,21 +43,17 @@ export function validatePhysicalProfile(
   const positive: (n: number) => boolean = (n: number): boolean =>
     Number.isFinite(n) &&
     n > 0 &&
-    Number.isFinite(Math.fround(n)) &&
-    Math.fround(n) > 0 &&
-    Number.isFinite(Math.fround(1 / n));
-  const nonnegative: (n: number) => boolean = (n: number): boolean =>
     Number.isFinite(n) &&
-    n >= 0 &&
-    Number.isFinite(Math.fround(n)) &&
-    (n === 0 || Math.fround(n) > 0);
+    n > 0 &&
+    Number.isFinite(1 / n);
+  const nonnegative: (n: number) => boolean = (n: number): boolean =>
+    Number.isFinite(n) && n >= 0 && Number.isFinite(n) && (n === 0 || n > 0);
   const vector: (v: IAutoMovieVector3) => boolean = (
     v: IAutoMovieVector3,
   ): boolean =>
     !!v &&
     [v.x, v.y, v.z].every(
-      (n: number): boolean =>
-        Number.isFinite(n) && Number.isFinite(Math.fround(n)),
+      (n: number): boolean => Number.isFinite(n) && Number.isFinite(n),
     );
   const rotation: (q: IAutoMovieQuaternion) => boolean = (
     q: IAutoMovieQuaternion,
@@ -151,12 +148,29 @@ export function validatePhysicalProfile(
       Array.isArray(segment.shapes) && segment.shapes.length > 0,
       `${path}.shapes`,
     );
+    fail(
+      segment.contactShapes === undefined ||
+        Array.isArray(segment.contactShapes),
+      `${path}.contactShapes`,
+    );
     const shapes: Set<string> = new Set();
-    for (const [j, shape] of (Array.isArray(segment.shapes)
-      ? segment.shapes
-      : []
-    ).entries()) {
-      const location: string = `${path}.shapes[${j}]`;
+    // The simulation-only colliders are admitted as the shapes are, their
+    // ids unique across both lists.
+    const lists: IShapeList[] = [
+      {
+        key: "shapes",
+        shapes: Array.isArray(segment.shapes) ? segment.shapes : [],
+      },
+      {
+        key: "contactShapes",
+        shapes: Array.isArray(segment.contactShapes)
+          ? segment.contactShapes
+          : [],
+      },
+    ];
+    for (const list of lists)
+    for (const [j, shape] of list.shapes.entries()) {
+      const location: string = `${path}.${list.key}[${j}]`;
       if (!shape || typeof shape !== "object") {
         errors.push(location);
         continue;
@@ -426,4 +440,10 @@ export function validatePhysicalProfile(
     fail(current === undefined, `joints: cycle at ${bone}`);
   }
   return errors;
+}
+
+/** One of a segment's collider lists with the key its defects are reported under. */
+interface IShapeList {
+  key: string;
+  shapes: readonly IAutoMoviePhysicalShape[];
 }

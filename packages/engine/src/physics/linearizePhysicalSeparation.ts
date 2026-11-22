@@ -6,24 +6,43 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { physicalShapeContactManifold } from "./physicalShapeContactManifold";
+import { physicalShapeSupport } from "./physicalShapeSupport";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
- * Freeze the current separating normal and bone-local surface witnesses for a
- * Jacobian probe. The derivative is n dot (Jb-Ja), as derived in Drake's
- * CalcDistanceDerivatives (bdcd5ff, distance_constraint_utilities.cc). Native
+ * Freeze the current separating normal and the bone-local witnesses of the
+ * contact patch for a Jacobian probe. Each patch point's separation moves by
+ * n dot (Jb-Ja), as derived in Drake's CalcDistanceDerivatives (bdcd5ff,
+ * distance_constraint_utilities.cc); the row is the least of them, the
+ * separation of the patch point that presses deepest. Two faces touching
+ * along a patch (Ericson, "Real-Time Collision Detection", 2005, sec. 5.5;
+ * Gregorius, "Robust Contact Creation for Physics Simulations", GDC 2015)
+ * deepen at the patch corner a relative turn drives in, which one witness
+ * cannot see; a vertex or crossing-edge contact has one point and keeps its
+ * exact derivative. The patch is `physicalShapeContactManifold`'s, counting
+ * features tied up to the roundoff of the poses: the square root of the
+ * double-precision epsilon times the metre scale of the pair's positions.
+ * Without a patch point, the measured witnesses are the one point. When
+ * pushing the pair apart the other way along the same axis needs the same
+ * depth (two bars crossing at equal centres), the signed distance has a kink
+ * there: the other side is modelled the same way and the row is the greater
+ * of the two, the signed distance's own first-order form, a maximum over
+ * separating directions. The row is piecewise linear in the poses where a
+ * patch has several points or both sides tie; the articulated solver reads
+ * its slope on each side (solvePhysicalTargetForest). Native
  * signed distance remains the nonlinear merit; this model neither moves a
  * body nor reports clearance or an impulse. Inactive pairs have a zero row.
- * A supplied measurement must belong to these exact colliders and poses; null
- * retains the already measured inactive pair without querying it again.
+ * A supplied measurement must belong to these exact colliders and poses;
+ * null retains the already measured inactive pair without querying it again.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Freeze the current separating normal and bone-local surface witnesses for a Jacobian probe) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Freeze the current separating normal and bone-local surface witnesses for a Jacobian probe) directly over its typed inputs (`geometry`, `a`, `b`, `measured`) as a fixed number of statements with no loop or recursion in the body, delegating to `geometry.contact`, `Vector3.subtract`, `Vector3.scale`, `Vector3.add`, `Quaternion.rotateVector`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 34 lines and 8 top-level statements that reuses `geometry.contact`, `Vector3.subtract`, `Vector3.scale`, `Vector3.add`, `Quaternion.rotateVector` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `geometry`, `a`, `b`, `measured`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call. No speedup is claimed and none is measured.
+ * @evidence contracts/development/common.md#meaningful-documentation States the frozen normal, the patch, the least-point row, the tied opposite side, the tie band, the one-point fallback and the inactive row.
+ * @evidence contracts/development/implementation.md#principled-implementation The distance derivative n dot (Jb-Ja) per witness pair (Drake) over the clipped contact patch (Ericson 2005; Gregorius 2015); the least of the patch points' linear separations is the first-order separation of a face patch in every direction, and equals the single witness's where the contact is a point; the signed distance is the greatest separation over directions, so a tied opposite side enters as a maximum.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure, take each tied side's patch, freeze its witnesses in bone frames, return the greatest side's least moved separation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tie band is the poses' roundoff scale, not a tuned tolerance; every patch point is kept.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One measurement, two support queries and at most two patches per linearization; each probe costs one support-point transform per patch point.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure retains only the frozen witnesses and the measurement.
  */
 export function linearizePhysicalSeparation(
   geometry: IAutoMoviePreparePhysicalGeometry.IQueries,
@@ -38,36 +57,145 @@ export function linearizePhysicalSeparation(
     IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
   > = measured === undefined ? geometry.contact(a, b, 0) : measured;
   if (!receipt || receipt.separation >= 0) return (): number => 0;
-  const first: IAutoMovieVector3 = Vector3.subtract(
-    receipt.point,
-    Vector3.scale(receipt.normal, receipt.separation / 2),
+  const scale: number = Math.max(
+    1,
+    Vector3.length(a.pose.position),
+    Vector3.length(b.pose.position),
   );
-  const second: IAutoMovieVector3 = Vector3.add(
-    receipt.point,
-    Vector3.scale(receipt.normal, receipt.separation / 2),
-  );
-  const localA: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(a.pose.rotation),
-    Vector3.subtract(first, a.pose.position),
-  );
-  const localB: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(b.pose.rotation),
-    Vector3.subtract(second, b.pose.position),
-  );
-  const difference: IAutoMovieVector3 = Vector3.subtract(second, first);
+  const band: number = Math.sqrt(Number.EPSILON) * scale;
+  const sides: linearizePhysicalSeparation.ISide[] = [
+    side(a, b, receipt.normal, receipt.separation, band, [
+      {
+        pointA: Vector3.subtract(
+          receipt.point,
+          Vector3.scale(receipt.normal, receipt.separation / 2),
+        ),
+        pointB: Vector3.add(
+          receipt.point,
+          Vector3.scale(receipt.normal, receipt.separation / 2),
+        ),
+      },
+    ]),
+  ];
+  // Pushed out the other way along the same axis, the pair may need the
+  // same depth: the signed distance then has a kink, and both sides model it.
+  const opposite: IAutoMovieVector3 = Vector3.scale(receipt.normal, -1);
+  const gap: number =
+    Vector3.dot(
+      opposite,
+      physicalShapeSupport(b.pose, b.shape, receipt.normal),
+    ) - Vector3.dot(opposite, physicalShapeSupport(a.pose, a.shape, opposite));
+  if (Math.abs(gap - receipt.separation) <= band) {
+    const other: linearizePhysicalSeparation.ISide = side(
+      a,
+      b,
+      opposite,
+      gap,
+      band,
+      [],
+    );
+    if (other.witnesses.length) sides.push(other);
+  }
   return (
     poseA: IAutoMovieRigidTransform,
     poseB: IAutoMovieRigidTransform,
   ): number =>
-    receipt.separation +
-    Vector3.dot(
-      receipt.normal,
-      Vector3.subtract(
-        Vector3.subtract(
-          physicalSupportPoint(poseB, localB),
-          physicalSupportPoint(poseA, localA),
-        ),
-        difference,
+    Math.max(
+      ...sides.map(
+        (entry: linearizePhysicalSeparation.ISide): number =>
+          entry.separation +
+          Math.min(
+            ...entry.witnesses.map(
+              (witness: linearizePhysicalSeparation.IWitness): number =>
+                Vector3.dot(
+                  entry.normal,
+                  Vector3.subtract(
+                    Vector3.subtract(
+                      physicalSupportPoint(poseB, witness.localB),
+                      physicalSupportPoint(poseA, witness.localA),
+                    ),
+                    witness.difference,
+                  ),
+                ),
+            ),
+          ),
       ),
     );
+}
+/**
+ * Companion types of {@link linearizePhysicalSeparation}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what a frozen patch point holds.
+ * @evidence contracts/development/design.md#principled-representation Bone-frame witnesses in metres and their world difference at the linearized pose.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Built and read by the returned model only.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The difference is stored once so each probe subtracts the linearized offset exactly.
+ */
+export namespace linearizePhysicalSeparation {
+  /** One side of the contact: its normal, separation and frozen patch. */
+  export interface ISide {
+    /** Unit world normal from the first collider toward the second. */
+    normal: IAutoMovieVector3;
+
+    /** Separation along the normal at the linearized pose, metres. */
+    separation: number;
+
+    /** The frozen patch points. */
+    witnesses: IWitness[];
+  }
+
+  /** One frozen patch point. */
+  export interface IWitness {
+    /** The first witness in the first bone's frame, metres. */
+    localA: IAutoMovieVector3;
+
+    /** The second witness in the second bone's frame, metres. */
+    localB: IAutoMovieVector3;
+
+    /** The second witness less the first at the linearized pose, world metres. */
+    difference: IAutoMovieVector3;
+  }
+}
+
+/** One side's frozen patch along a normal; the given witnesses when the patch is empty. */
+function side(
+  a: IAutoMoviePreparePhysicalGeometry.ICollider,
+  b: IAutoMoviePreparePhysicalGeometry.ICollider,
+  normal: IAutoMovieVector3,
+  separation: number,
+  band: number,
+  fallback: physicalShapeContactManifold.IPoint[],
+): linearizePhysicalSeparation.ISide {
+  const patch: physicalShapeContactManifold.IPoint[] =
+    physicalShapeContactManifold(
+      a.pose,
+      a.shape,
+      b.pose,
+      b.shape,
+      normal,
+      band,
+    );
+  return {
+    normal,
+    separation,
+    witnesses: (patch.length ? patch : fallback).map(
+      (
+        point: physicalShapeContactManifold.IPoint,
+      ): linearizePhysicalSeparation.IWitness => ({
+        localA: local(a.pose, point.pointA),
+        localB: local(b.pose, point.pointB),
+        difference: Vector3.subtract(point.pointB, point.pointA),
+      }),
+    ),
+  };
+}
+
+/** A world point in a pose's frame. */
+function local(
+  pose: IAutoMovieRigidTransform,
+  point: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  return Quaternion.rotateVector(
+    Quaternion.inverse(pose.rotation),
+    Vector3.subtract(point, pose.position),
+  );
 }

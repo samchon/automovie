@@ -4,6 +4,7 @@ import type {
   IAutoMoviePhysicalSegment,
   IAutoMovieRigidTransform,
   IAutoMovieSolvePhysicalArticulationTargets,
+  IAutoMovieSolvePhysicalTargetStep,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -33,10 +34,10 @@ type IPhysicalTargetForestResult =
  * Coordinates are bounded joint radians. The projected poses keep each pivot.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the admitted forest, residual units, fixed roots and joint coordinates.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the existing bounded target step and projected rotations. It accepts a backtrack only when the measured norm falls and reports attempted updates.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the existing bounded target step and projected rotations with one-sided columns: each coordinate takes its slope on the side the step moves it, re-solving while a coordinate changes side (orthant-wise linearization, Andrew and Gao 2007), so a row that is the least of several linear pieces is modelled exactly to first order. It accepts a backtrack only when the measured norm falls and reports attempted updates.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The same joint loop and row machinery serve a single tree and a forest through their borrowed joints, bones and poses.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Admits finite fixed-size residuals, caps rows and free coordinates, and keeps the best measured candidate when a step stalls.
- * @evidence contracts/development/implementation.md#efficient-algorithms Compiles branches once, probes their moved dependencies and bounds the update and backtracking loops.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Compiles branches once, probes their moved dependencies, probes a coordinate's other side only when the step moves it there, and bounds the side rounds by the coordinate count and the update and backtracking loops.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Candidate construction copies changing subtrees and borrows the other branches from the last accepted pose.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Row, coordinate and iteration caps bound work per call. Candidate scratch is local.
  */
@@ -182,88 +183,128 @@ export function solvePhysicalTargetForest(
     const baseline: number[] = model(targets);
     if (baseline.length !== errors.length || !baseline.every(Number.isFinite))
       throw new Error("Invalid articulated target linearization");
-    const columns: number[][] = coordinates.map(
-      (
-        {
-          joint,
-          axis,
-        }: {
-          joint: IAutoMoviePhysicalJoint;
-          axis: IAutoMoviePhysicalJointAxis;
-        },
-        index: number,
-      ): number[] => {
-        const step: number =
-          values[index]! + 1e-4 <= axis.maximum
-            ? Math.min(1e-4, axis.maximum - values[index]!)
-            : -Math.min(1e-4, values[index]! - axis.minimum);
-        if (step === 0) return errors.map((): number => 0);
-        const probe: number[] = [...values];
-        probe[index] = probe[index]! + step;
-        const residual: number[] = model(
-          build(probe, targets, values),
-          movedByJoint.get(joint),
-        );
-        if (
-          residual.length !== errors.length ||
-          !residual.every(Number.isFinite)
-        )
-          throw new Error("Invalid articulated target linearization");
-        return residual.map(
-          (value: number, row: number): number =>
-            (value - baseline[row]!) / step,
-        );
-      },
+    // One-sided columns: a row that is the least of several linear pieces
+    // (a contact patch) has a different slope each way. The one-sided step
+    // solves with each coordinate's slope on the side it moves to, re-solving
+    // while a coordinate changes side, so its model is exact to first order
+    // in the orthant the step lands in (the orthant-wise linearization of
+    // Andrew and Gao 2007).
+    const probe = (index: number, direction: number): number[] => {
+      const { joint, axis }: (typeof coordinates)[number] = coordinates[index]!;
+      const room: number =
+        direction > 0
+          ? axis.maximum - values[index]!
+          : values[index]! - axis.minimum;
+      const step: number =
+        room >= 1e-4
+          ? direction * Math.min(1e-4, room)
+          : -direction *
+            Math.min(
+              1e-4,
+              direction > 0
+                ? values[index]! - axis.minimum
+                : axis.maximum - values[index]!,
+            );
+      if (step === 0) return errors.map((): number => 0);
+      const shifted: number[] = [...values];
+      shifted[index] = shifted[index]! + step;
+      const residual: number[] = model(
+        build(shifted, targets, values),
+        movedByJoint.get(joint),
+      );
+      if (residual.length !== errors.length || !residual.every(Number.isFinite))
+        throw new Error("Invalid articulated target linearization");
+      return residual.map(
+        (value: number, row: number): number => (value - baseline[row]!) / step,
+      );
+    };
+    const forward: number[][] = coordinates.map(
+      (_: (typeof coordinates)[number], index: number): number[] =>
+        probe(index, 1),
     );
-    const delta: number[] = solvePhysicalTargetStep({
-      columns,
-      errors,
-      coordinates: coordinates.map(
+    const backward: (number[] | undefined)[] = coordinates.map(
+      (): undefined => undefined,
+    );
+    const bounds: IAutoMovieSolvePhysicalTargetStep.IInput["coordinates"] =
+      coordinates.map(
         (
-          {
-            axis,
-          }: {
-            joint: IAutoMoviePhysicalJoint;
-            axis: IAutoMoviePhysicalJointAxis;
-          },
+          { axis }: (typeof coordinates)[number],
           index: number,
-        ): { value: number; minimum: number; maximum: number } => ({
+        ): IAutoMovieSolvePhysicalTargetStep.IInput["coordinates"][number] => ({
           value: values[index]!,
           minimum: axis.minimum,
           maximum: axis.maximum,
         }),
-      ),
-      damping: 0.001,
-    });
-    const scale: number = Math.min(
-      1,
-      0.25 / Math.max(1e-30, Math.hypot(...delta)),
-    );
+      );
+    const solve = (columns: number[][]): number[] =>
+      solvePhysicalTargetStep({
+        columns,
+        errors,
+        coordinates: bounds,
+        damping: 0.001,
+      });
+    // The ordinary step reads every slope forward; when no backtrack of it
+    // lowers the measured residual, the one-sided step is tried.
+    const plain: number[] = solve(forward);
+    const oneSided = (): number[] => {
+      const sides: number[] = coordinates.map((): number => 1);
+      let delta: number[] = plain;
+      for (let round: number = 0; round < coordinates.length; round++) {
+        let changed: boolean = false;
+        for (let index: number = 0; index < coordinates.length; index++) {
+          const side: number = delta[index]! < 0 ? -1 : 1;
+          if (side === sides[index]) continue;
+          sides[index] = side;
+          if (side < 0) backward[index] ??= probe(index, -1);
+          changed = true;
+        }
+        if (!changed) break;
+        delta = solve(
+          coordinates.map(
+            (_: (typeof coordinates)[number], index: number): number[] =>
+              sides[index]! < 0 ? backward[index]! : forward[index]!,
+          ),
+        );
+      }
+      // A coordinate still on the other side than its slope is held, so the
+      // step stays inside the orthant its model describes.
+      return delta.map((value: number, index: number): number =>
+        (value < 0 ? -1 : 1) === sides[index] ? value : 0,
+      );
+    };
     let accepted: boolean = false;
     const before: number = Math.hypot(...errors);
-    for (let backtrack: number = 0; backtrack < 8; backtrack++) {
-      const candidate: number[] = values.map(
-        (value: number, index: number): number =>
-          Math.max(
-            coordinates[index]!.axis.minimum,
-            Math.min(
-              coordinates[index]!.axis.maximum,
-              value + delta[index]! * scale * 2 ** -backtrack,
+    for (const direction of [(): number[] => plain, oneSided]) {
+      const delta: number[] = direction();
+      const scale: number = Math.min(
+        1,
+        0.25 / Math.max(1e-30, Math.hypot(...delta)),
+      );
+      for (let backtrack: number = 0; backtrack < 8; backtrack++) {
+        const candidate: number[] = values.map(
+          (value: number, index: number): number =>
+            Math.max(
+              coordinates[index]!.axis.minimum,
+              Math.min(
+                coordinates[index]!.axis.maximum,
+                value + delta[index]! * scale * 2 ** -backtrack,
+              ),
             ),
-          ),
-      );
-      const poses: Record<string, IAutoMovieRigidTransform> = build(
-        candidate,
-        targets,
-        values,
-      );
-      const residual: number[] = measure(poses);
-      if (Math.hypot(...residual) >= before) continue;
-      values = candidate;
-      targets = poses;
-      errors = residual;
-      accepted = true;
-      break;
+        );
+        const poses: Record<string, IAutoMovieRigidTransform> = build(
+          candidate,
+          targets,
+          values,
+        );
+        const residual: number[] = measure(poses);
+        if (Math.hypot(...residual) >= before) continue;
+        values = candidate;
+        targets = poses;
+        errors = residual;
+        accepted = true;
+        break;
+      }
+      if (accepted) break;
     }
     if (
       !accepted ||

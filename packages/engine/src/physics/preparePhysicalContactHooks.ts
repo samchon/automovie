@@ -1,36 +1,53 @@
 import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
-import RAPIER, { type PhysicsHooks } from "@dimforge/rapier3d-compat";
 
+import type { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { isPhysicalPairExcluded } from "./isPhysicalPairExcluded";
+import type { solveXpbdContacts } from "./solveXpbdContacts";
 
 /** A bound segment owns its provider order and pairs with higher ordinals. */
-interface Segment {
+interface ISegment {
+  /** Scene identity of the body the segment belongs to. */
   body: string;
+
+  /** The segment's index in its profile's admitted segment order. */
   ordinal: number;
+
+  /** Ordinals of later segments of the same body this one never touches. */
   excluded?: Set<number>;
 }
 
 /**
- * Index the admitted run's collider owners and self-exclusions once for both
- * native callbacks. Every collider of a segment shares its record, including
- * compliant counterparts. Native handle numbers are used as given.
+ * Build the world's collider-pair filter for one bound run: two colliders
+ * of the same segment, of a joint's two segments, or of a pair the profile
+ * declares in `collisionExclusions` never touch; colliders of different
+ * scene bodies, and a body's undeclared non-adjacent segments, always may.
+ * The world consults the filter for contact response and for sensor
+ * overlaps alike, so the compliant layer sees the same pairs as the rigid
+ * solve. Every collider of a segment shares its record, including a
+ * compliant surface's rigid core. A collider the binding does not identify
+ * is resolved by `isPhysicalPairExcluded` on the live input, which the
+ * floor and unknown colliders pass.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the admitted input, native handle lookup and both callback consumers.
- * @evidence contracts/development/implementation.md#principled-implementation Builds one unordered edge for each declared or joint-adjacent pair, shared by all shapes of a segment, then maps the existing Rapier handles to their owners; unknown handles use the existing rule.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One predicate serves both the contact and sensor callbacks; their original flags and refusal semantics stay explicit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bounds, collision masks, floating point and native traversal remain unchanged; no special body, sensor, material or shape category has separate policy.
- * @evidence contracts/development/implementation.md#efficient-algorithms Construction is linear in segments, pairs and handles. Pair queries use two lookups and one set membership for admitted body colliders.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One table of admitted immutable data serves all substeps of this bound world. A resumed world rebuilds the table from its own handles.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The callbacks borrow the binding and own one entry per tracked collider and one entry per distinct pair; queries never add entries and these records leave with the run.
+ * @param input The admitted simulation input: profiles, joints and exclusions.
+ * @param bound The world's binding: collider identities by handle.
+ * @returns The filter `AutoMovieXpbdWorld.step` takes; true admits the pair.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the excluded and admitted pairs, the filter's two consumers, the shared segment record and the fallback for unidentified colliders.
+ * @evidence contracts/development/implementation.md#principled-implementation Builds one unordered edge for each joint-adjacent or declared pair, stored under the earlier segment of the profile order and shared by all shapes of a segment, then maps the world's collider handles to their segments; the predicate is symmetric in its arguments because each edge is looked up from the earlier ordinal.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One table, one symmetric predicate for both contact response and sensor overlaps; the profile rule for unidentified handles stays isPhysicalPairExcluded's.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body, sensor, material or shape category has its own policy. The two non-null assertions read segments the admitted profile declares for its joints and exclusions, which admission checks.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Construction is linear in segments, joints, exclusions and colliders. Each query costs two map lookups and one set membership for identified colliders.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One table of admitted immutable data serves every substep of this bound world; a resumed world rebuilds it from its own restored handles.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The filter borrows the input and binding and owns one record per segment and one entry per distinct pair; queries add nothing, and the records leave with the run.
  */
 export function preparePhysicalContactHooks(
   input: IAutoMoviePhysicalSimulationInput.IInput,
   bound: Bound,
-): PhysicsHooks {
-  const bodies: Map<string, Map<string, Segment>> = new Map();
+): solveXpbdContacts.Filter {
+  const bodies: Map<string, Map<string, ISegment>> = new Map();
   for (const { id, profile } of input.bodies) {
-    const segments: Map<string, Segment> = new Map();
+    const segments: Map<string, ISegment> = new Map();
     for (const [ordinal, segment] of profile.segments.entries())
       segments.set(segment.bone, { body: id, ordinal });
 
@@ -40,36 +57,31 @@ export function preparePhysicalContactHooks(
 
     /** Store a pair under the earlier segment in admitted profile order. */
     function add(a: string, b: string): void {
-      const left: Segment = segments.get(a)!;
-      const right: Segment = segments.get(b)!;
+      const left: ISegment = segments.get(a)!;
+      const right: ISegment = segments.get(b)!;
       if (left.ordinal < right.ordinal)
         (left.excluded ??= new Set()).add(right.ordinal);
       else (right.excluded ??= new Set()).add(left.ordinal);
     }
   }
 
-  const owners: Map<number, Segment> = new Map();
+  const owners: Map<number, ISegment> = new Map();
   for (const [handle, identity] of bound.colliders) {
-    const owner: Segment | undefined = bodies
+    const owner: ISegment | undefined = bodies
       .get(identity.body)
       ?.get(identity.bone);
     if (owner !== undefined) owners.set(handle, owner);
   }
 
-  return {
-    filterContactPair: (
-      first: number,
-      second: number,
-    ): RAPIER.SolverFlags | null =>
-      excluded(first, second) ? null : RAPIER.SolverFlags.COMPUTE_IMPULSE,
-    filterIntersectionPair: (first: number, second: number): boolean =>
-      !excluded(first, second),
-  };
+  return (
+    first: AutoMovieXpbdCollider,
+    second: AutoMovieXpbdCollider,
+  ): boolean => !excluded(first.handle, second.handle);
 
-  /** Resolve the same-owner pairs once, keeping the original lookup for unmapped handles. */
+  /** Resolve the same-owner pairs once, keeping the profile lookup for unmapped handles. */
   function excluded(first: number, second: number): boolean {
-    const left: Segment | undefined = owners.get(first);
-    const right: Segment | undefined = owners.get(second);
+    const left: ISegment | undefined = owners.get(first);
+    const right: ISegment | undefined = owners.get(second);
     if (left === undefined || right === undefined)
       return isPhysicalPairExcluded(input, bound, first, second);
     if (left.body !== right.body) return false;

@@ -3,9 +3,11 @@ import {
   DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
+  Quaternion,
   Vector3,
   combinePhysicalMassProperties,
   createPhysicalHullShape,
+  physicalSupportPoint,
   rotationBetween,
   toRigAngle,
 } from "@automovie/engine";
@@ -41,6 +43,14 @@ import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonic
  * joint to its child joint, a distal one ending with its cap on the
  * fingertip, because a curl solves its contact in closed form on capsules
  * and the drawn phalanx is that round.
+ *
+ * Each foot also carries one simulation-only collider (`contactShapes`), a
+ * flat sole box from heel to ball (`soleOf`): the drawn heel and forefoot
+ * hulls each meet the floor at a single vertex, so a foot planted on them
+ * stands on a line and rolls about it. The sole box gives the planted foot
+ * a face, the way game engines give a character's foot a simple contact
+ * body apart from its drawn shape. It carries no mass and only the physical
+ * world reads it, so every motion audit still reads the drawn hulls.
  *
  * Masses are Dempster's shares of body mass as tabulated by Winter
  * (Biomechanics and Motor Control of Human Movement, 4th ed., table 4.1):
@@ -183,6 +193,8 @@ export namespace AutoMovieHumanCanonicalProfile {
       { share: 0.0694, bones: ["head"] },
     ];
     const hands: AutoMovieHumanoidBone[][] = [];
+    const soles: Map<AutoMovieHumanoidBone, IAutoMoviePhysicalShape> =
+      new Map();
     for (const side of ["left", "right"] as const) {
       const b = (name: string): AutoMovieHumanoidBone =>
         `${side}${name}` as AutoMovieHumanoidBone;
@@ -209,6 +221,18 @@ export namespace AutoMovieHumanCanonicalProfile {
       parentOf[b("LowerLeg")] = b("UpperLeg");
       parentOf[b("Foot")] = b("LowerLeg");
       parentOf[b("Toes")] = b("Foot");
+      const flexion: IAutoMoviePhysicalJointAxis | undefined = axesOf(
+        b("Foot"),
+        0,
+      ).find(
+        (axis: IAutoMoviePhysicalJointAxis): boolean =>
+          axis.channel === `${b("Foot")}.flexion`,
+      );
+      const sole: IAutoMoviePhysicalShape | undefined =
+        flexion === undefined
+          ? undefined
+          : soleOf(side, parts.get(b("Foot")) ?? [], flexion.axis);
+      if (sole !== undefined) soles.set(b("Foot"), sole);
       groups.push(
         { share: 0.028, bones: [b("UpperArm")] },
         { share: 0.016, bones: [b("LowerArm")] },
@@ -259,6 +283,7 @@ export namespace AutoMovieHumanCanonicalProfile {
             shapes: members[index]!.map(
               (part: IPart): IAutoMoviePhysicalShape => part.shape,
             ),
+            ...(soles.has(bone) ? { contactShapes: [soles.get(bone)!] } : {}),
           });
         },
       );
@@ -345,6 +370,20 @@ export namespace AutoMovieHumanCanonicalProfile {
           b: "rightUpperLeg",
           reason: "both thigh roots cross the midline between the hip joints",
         },
+        // The thumb's carpometacarpal joint sits on the trapezium at the
+        // wrist, so the metacarpal's base meets the forearm's distal end
+        // across the wrist's flexion, as when a hand opens flat on a bent
+        // wrist.
+        ...(["left", "right"] as const).map(
+          (
+            side: "left" | "right",
+          ): { a: string; b: string; reason: string } => ({
+            a: `${side}LowerArm`,
+            b: `${side}ThumbMetacarpal`,
+            reason:
+              "the thumb's carpometacarpal joint sits at the wrist, so the metacarpal's base meets the forearm's distal end across the wrist's range",
+          }),
+        ),
         ...hands.flatMap((hand: AutoMovieHumanoidBone[]) =>
           hand.flatMap((a: AutoMovieHumanoidBone, i: number) =>
             hand
@@ -394,6 +433,169 @@ interface IPart {
 
   /** Rotation from the principal frame to the segment's frame. */
   inertiaRotation: IAutoMovieQuaternion;
+}
+
+/** One foot hull vertex in the foot's frame, with the region its hull belongs to. */
+interface ISoleVertex {
+  /** The vertex, metres, in the foot's frame. */
+  point: IAutoMovieVector3;
+
+  /** Whether it is the heel hull's; the forefoot hull's otherwise. */
+  heel: boolean;
+}
+
+/** The heel and forefoot vertices a sole's bottom face passes through. */
+interface ISoleTangent {
+  heel: IAutoMovieVector3;
+  fore: IAutoMovieVector3;
+}
+
+/**
+ * A foot's simulation-only sole: a thin box whose bottom face is the plane
+ * along the ankle's flexion axis that touches the heel hull and the forefoot
+ * hull from below, their lower common tangent. It is the plane the standing
+ * handoff turns the foot onto the floor about that axis, so the sole lands
+ * flat. The box spans heel to ball between the two tangent points and the
+ * foot hulls' own medial-lateral extent, and rises to the nearer hull's
+ * centroid, inside the drawn foot. Its bottom gives a planted foot a face on
+ * the floor where the drawn hulls touch only at a vertex each, so it cannot
+ * roll about the line between them.
+ *
+ * @param side The foot's side.
+ * @param parts The foot bone's colliders.
+ * @param axis The ankle's flexion axis letter, in the foot's rest frame.
+ * @returns The sole box, or undefined without both a heel and a forefoot hull.
+ */
+function soleOf(
+  side: "left" | "right",
+  parts: readonly IPart[],
+  axis: "x" | "y" | "z",
+): IAutoMoviePhysicalShape | undefined {
+  const lateral: IAutoMovieVector3 = {
+    x: axis === "x" ? 1 : 0,
+    y: axis === "y" ? 1 : 0,
+    z: axis === "z" ? 1 : 0,
+  };
+  const up: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(
+      { x: 0, y: 1, z: 0 },
+      Vector3.scale(lateral, lateral.y),
+    ),
+  );
+  const forward: IAutoMovieVector3 = Vector3.cross(up, lateral);
+  const vertices: ISoleVertex[] = [];
+  const centroids: IAutoMovieVector3[] = [];
+  for (const part of parts) {
+    const shape: IAutoMoviePhysicalShape = part.shape;
+    const heel: boolean =
+      shape.id === `${side}Subtalar` || shape.id.startsWith(`${side}Subtalar.`);
+    const fore: boolean =
+      shape.id === `${side}Midfoot` || shape.id.startsWith(`${side}Midfoot.`);
+    if (shape.kind !== "hull" || (!heel && !fore)) continue;
+    const points: IAutoMovieVector3[] = shape.points.map(
+      (point: IAutoMovieVector3): IAutoMovieVector3 =>
+        physicalSupportPoint(shape.transform, point),
+    );
+    for (const point of points) vertices.push({ point, heel });
+    centroids.push(
+      Vector3.scale(
+        points.reduce(
+          (sum: IAutoMovieVector3, point: IAutoMovieVector3): IAutoMovieVector3 =>
+            Vector3.add(sum, point),
+          { x: 0, y: 0, z: 0 },
+        ),
+        1 / points.length,
+      ),
+    );
+  }
+  const heels: ISoleVertex[] = vertices.filter((v: ISoleVertex): boolean => v.heel);
+  const fores: ISoleVertex[] = vertices.filter(
+    (v: ISoleVertex): boolean => !v.heel,
+  );
+  if (heels.length === 0 || fores.length === 0) return undefined;
+  // The lower common tangent in the sagittal plane: the heel and forefoot
+  // vertices whose line every vertex lies on or above.
+  const s: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
+    Vector3.dot(p, forward);
+  const h: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
+    Vector3.dot(p, up);
+  let best: ISoleTangent | undefined;
+  let span: number = 0;
+  for (const a of heels)
+    for (const b of fores) {
+      const ds: number = s(b.point) - s(a.point);
+      const dh: number = h(b.point) - h(a.point);
+      const length: number = Math.hypot(ds, dh);
+      if (!(length > span)) continue;
+      // Each vertex's height above the line, times the line's length; a
+      // vertex below it by more than rounding rules the pair out.
+      const below: boolean = vertices.some(
+        (v: ISoleVertex): boolean =>
+          (ds * (h(v.point) - h(a.point)) - dh * (s(v.point) - s(a.point))) *
+            Math.sign(ds) <
+          -64 * Number.EPSILON * length * length,
+      );
+      if (below) continue;
+      best = { heel: a.point, fore: b.point };
+      span = length;
+    }
+  if (best === undefined) return undefined;
+  const along: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.add(
+      Vector3.scale(forward, s(best.fore) - s(best.heel)),
+      Vector3.scale(up, h(best.fore) - h(best.heel)),
+    ),
+  );
+  let normal: IAutoMovieVector3 = Vector3.cross(along, lateral);
+  if (Vector3.dot(normal, up) < 0) normal = Vector3.scale(normal, -1);
+  const widths: number[] = vertices.map((v: ISoleVertex): number =>
+    Vector3.dot(v.point, lateral),
+  );
+  const low: number = Math.min(...widths);
+  const high: number = Math.max(...widths);
+  const thickness: number = Math.min(
+    ...centroids.map((c: IAutoMovieVector3): number =>
+      Vector3.dot(Vector3.subtract(c, best!.heel), normal),
+    ),
+  );
+  if (!(thickness > 0) || !(high > low)) return undefined;
+  const base: IAutoMovieVector3 = Vector3.add(
+    best.heel,
+    Vector3.scale(
+      lateral,
+      (low + high) / 2 - Vector3.dot(best.heel, lateral),
+    ),
+  );
+  const centre: IAutoMovieVector3 = Vector3.add(
+    base,
+    Vector3.add(
+      Vector3.scale(along, span / 2),
+      Vector3.scale(normal, thickness / 2),
+    ),
+  );
+  // The box's local Y is the sole's normal and its local X the flexion axis
+  // (either way along it: the box is symmetric), so the second turn is about
+  // the normal and never a half turn.
+  const tilt: IAutoMovieQuaternion = rotationBetween({ x: 0, y: 1, z: 0 }, normal);
+  const turned: IAutoMovieVector3 = Quaternion.rotateVector(tilt, {
+    x: 1,
+    y: 0,
+    z: 0,
+  });
+  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    rotationBetween(
+      turned,
+      Vector3.scale(lateral, Vector3.dot(turned, lateral) < 0 ? -1 : 1),
+    ),
+    tilt,
+  );
+  return {
+    id: `${side}Sole`,
+    material: "skin",
+    kind: "box",
+    halfExtents: { x: (high - low) / 2, y: thickness / 2, z: span / 2 },
+    transform: { position: centre, rotation },
+  };
 }
 
 /** The four fingers, by rig name. */

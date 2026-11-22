@@ -77,13 +77,22 @@ export function solvePhysicalChainTarget(
       return [joint.id, [...bones]];
     }),
   );
-  seedPhysicalChainTarget({ ...input, targets, rotate });
-  let residual: number = Vector3.length(
-    Vector3.subtract(
-      physicalSupportPoint(targets[endpoint]!, input.localPoint),
-      input.goal,
-    ),
-  );
+  const gap: () => number = (): number =>
+    Vector3.length(
+      Vector3.subtract(
+        physicalSupportPoint(targets[endpoint]!, input.localPoint),
+        input.goal,
+      ),
+    );
+  // A goal already within tolerance is met: the straight-chain seed is not
+  // run for it. Near a straight chain the exact two-bone answer to a gap d
+  // is a bend of sqrt(2 d / length), so seeding a sub-tolerance gap would
+  // turn rounding-sized residuals into a large joint step.
+  let residual: number = gap();
+  if (residual > input.tolerance) {
+    seedPhysicalChainTarget({ ...input, targets, rotate });
+    residual = gap();
+  }
   for (
     let iteration: number = 0;
     iteration < input.iterations && residual > input.tolerance;
@@ -125,12 +134,7 @@ export function solvePhysicalChainTarget(
         );
         rotate(joint, axis, request);
       }
-    residual = Vector3.length(
-      Vector3.subtract(
-        physicalSupportPoint(targets[endpoint]!, input.localPoint),
-        input.goal,
-      ),
-    );
+    residual = gap();
   }
   return { targets, residual };
 

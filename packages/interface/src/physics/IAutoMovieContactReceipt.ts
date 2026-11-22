@@ -50,7 +50,7 @@ export interface IAutoMovieContactReceipt {
     /** Completed fixed-step second. */ seconds: number;
     /** Step duration used to convert impulse to mean force. */ duration: number;
     /** This step's normal impulse, N s. */ impulse: number;
-    /** Normal impulse actually transferred to each canonical side after explicit response gain and native f32 rounding. Omission identifies a direct native manifold measurement; compliant-solver support requires this authority explicitly. */ appliedImpulse?: {
+    /** Normal impulse actually transferred to each canonical side after explicit response gain. Omission identifies a direct solver manifold measurement; compliant-solver support requires this authority explicitly. */ appliedImpulse?: {
       /** Impulse delivered to side a, newton seconds. */
       a: number;
 

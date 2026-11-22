@@ -2,15 +2,14 @@ import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { admitPhysicalSupportPattern } from "./admitPhysicalSupportPattern";
-import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { resolvePhysicalPerformanceMode } from "./resolvePhysicalPerformanceMode";
 
 /**
  * Admit one body's declared controller policy independently of its sampled target population.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Admit one body's declared controller policy independently of its sampled target population) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Admit one body's declared controller policy independently of its sampled target population) directly over its typed inputs (`input`, `body`) as nested iteration of depth 2 (for-of over [ body.selfAvoidance, body.rootT; every over [ input.gravity.x * gravity, ; for-of over body.profile.materials), delegating to `scalar`, `Math.fround`, `isAutoMovieRecord`, `resolvePhysicalPerformanceMode`, `Number.isFinite`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (18 throw sites). Beyond structural 0, 1 and 2 the body uses the literals 256, 64, 40, 128, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 206 lines and 19 top-level statements that reuses `scalar`, `Math.fround`, `isAutoMovieRecord`, `resolvePhysicalPerformanceMode`, `Number.isFinite` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Admit one body's declared controller policy independently of its sampled target population) directly over its typed inputs (`input`, `body`) as nested iteration of depth 2 (for-of over [ body.selfAvoidance, body.rootT; every over [ input.gravity.x * gravity, ; for-of over body.profile.materials), delegating to `Number.isFinite`, `isAutoMovieRecord`, `resolvePhysicalPerformanceMode`, `Number.isFinite`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (18 throw sites). Beyond structural 0, 1 and 2 the body uses the literals 256, 64, 40, 128, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 206 lines and 19 top-level statements that reuses `Number.isFinite`, `isAutoMovieRecord`, `resolvePhysicalPerformanceMode`, `Number.isFinite` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 5 non-null assertion(s); these are the remaining shortcuts and are not justified here.
  * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`, `body`; the dominant cost is nested iteration of depth 2 (for-of over [ body.selfAvoidance, body.rootT; every over [ input.gravity.x * gravity, ; for-of over body.profile.materials), performed once per call with 28 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
@@ -21,13 +20,12 @@ export function admitPhysicalBody(
   body: IAutoMoviePhysicalSimulationInput.IBody,
 ): void {
   const positive: (value: number) => boolean = (value: number): boolean =>
-    scalar(value) && Math.fround(value) > 0;
+    Number.isFinite(value) && value > 0;
   const nonnegative: (value: number) => boolean = (value: number): boolean =>
-    scalar(value) && value >= 0;
+    Number.isFinite(value) && value >= 0;
   for (const policy of [
     body.selfAvoidance,
     body.rootTorque,
-    body.releasedQuality,
     body.supportTracking,
     body.balance,
   ])
@@ -47,14 +45,14 @@ export function admitPhysicalBody(
   const gravity: number =
     body.mode.kind === "exaggerated" ? body.mode.gravity : 1;
   if (
-    !scalar(gravity) ||
+    !Number.isFinite(gravity) ||
     ![
       input.gravity.x * gravity,
       input.gravity.y * gravity,
       input.gravity.z * gravity,
-    ].every(scalar)
+    ].every(Number.isFinite)
   )
-    throw new Error(`${body.id}: native gravity exceeds f32 range`);
+    throw new Error(`${body.id}: gravity is not finite`);
   for (const material of body.profile.materials) {
     const compliance: number =
       material.compliance *
@@ -143,19 +141,7 @@ export function admitPhysicalBody(
       !positive(body.rootTorque.maximumTorque))
   )
     throw new Error(`${body.id}: invalid root torque budget`);
-  if (
-    body.releasedQuality !== undefined &&
-    (!body.releasedQuality ||
-      !Number.isSafeInteger(body.releasedQuality.iterations) ||
-      body.releasedQuality.iterations < 1 ||
-      body.releasedQuality.iterations > 128 ||
-      !Number.isSafeInteger(body.releasedQuality.internalIterations) ||
-      body.releasedQuality.internalIterations < 1 ||
-      body.releasedQuality.internalIterations > 128 ||
-      (body.releasedQuality.duringReflex !== undefined &&
-        typeof body.releasedQuality.duringReflex !== "boolean"))
-  )
-    throw new Error(`${body.id}: invalid released articulation quality budget`);
+
   if (body.supportTracking) {
     const policy: NonNullable<
       IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
@@ -179,7 +165,7 @@ export function admitPhysicalBody(
     > = body.balance;
     admitPhysicalSupportPattern(body.profile, policy.pattern, true);
     if (
-      !(Math.abs(Math.fround(input.gravity.y * gravity)) > 0) ||
+      !(Math.abs(input.gravity.y * gravity) > 0) ||
       ![
         policy.maximumStep,
         policy.duration,
