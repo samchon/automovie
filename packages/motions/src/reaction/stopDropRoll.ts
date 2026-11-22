@@ -1,6 +1,7 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
@@ -13,11 +14,12 @@ import type {
   IAutoMovieMotionHumanFirefight,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { collapse } from "./collapse";
 
 /**
@@ -144,7 +146,45 @@ export namespace stopDropRoll {
       };
     };
 
-    // The hands over the face, carried by the head.
+    // The hands over the face, carried by the head: each arm moves in the
+    // head's frame from where it hung at the entry to the face, so its goal
+    // never mixes two frames.
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([
+        "head",
+        "leftHand",
+        "rightHand",
+        "leftLowerArm",
+        "rightLowerArm",
+      ]),
+    );
+    const head: IAutoMovieResolvedBone = bones.get("head")!;
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      head.worldRotation,
+    );
+    const local: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(bones.get(bone)!.worldPosition, head.worldPosition),
+      );
+    const hung: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>> =
+      {
+        left: {
+          point: local("leftHand"),
+          bend: local("leftLowerArm"),
+          on: "head",
+        },
+        right: {
+          point: local("rightHand"),
+          bend: local("rightLowerArm"),
+          on: "head",
+        },
+      };
     const cover: (
       posture: IAutoMovieMotionHumanPosture,
       weight: number,
@@ -152,11 +192,17 @@ export namespace stopDropRoll {
       posture: IAutoMovieMotionHumanPosture,
       weight: number,
     ): IAutoMovieMotionHumanPosture => {
-      if (weight <= 0) return posture;
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-      for (const side of ["left", "right"] as const)
-        limbs[`${side}Arm`] = face(body, side);
-      return mixHumanPosture(posture, { ...posture, limbs }, weight);
+      const w: number = minimumJerk.share(weight);
+      for (const side of ["left", "right"] as const) {
+        const to: IAutoMovieHumanLimbGoal = face(body, side);
+        limbs[`${side}Arm`] = {
+          point: Vector3.lerp(hung[side].point, to.point, w),
+          bend: Vector3.lerp(hung[side].bend, to.bend, w),
+          on: "head",
+        };
+      }
+      return { ...posture, limbs };
     };
     const events: IAutoMovieMotionEvent[] = [
       { name: "stop", share: 0 },
@@ -167,14 +213,24 @@ export namespace stopDropRoll {
     return {
       duration,
       events,
-      contacts: drop.contacts.map(
+      // The drop's contacts on the drop's clock; a foot still planted when
+      // the body lies down bears on the floor through the rolls, dragged
+      // with the rolling body, rather than staying planted.
+      contacts: drop.contacts.flatMap(
         (
           c: IAutoMovieMotionHumanContactWindow,
-        ): IAutoMovieMotionHumanContactWindow => ({
-          ...c,
-          from: (STOP + c.from * down) / duration,
-          to: c.to >= 1 ? 1 : (STOP + c.to * down) / duration,
-        }),
+        ): IAutoMovieMotionHumanContactWindow[] => {
+          const from: number = (STOP + c.from * down) / duration;
+          const lain: number = (STOP + down) / duration;
+          const foot: boolean = c.part === "leftFoot" || c.part === "rightFoot";
+          if (c.to < 1)
+            return [{ ...c, from, to: (STOP + c.to * down) / duration }];
+          if (!foot || c.kind !== "plant") return [{ ...c, from, to: 1 }];
+          return [
+            { ...c, from, to: lain },
+            { ...c, kind: "bear", from: lain, to: 1 },
+          ];
+        },
       ),
       physicalWindow: null,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -188,7 +244,7 @@ export namespace stopDropRoll {
   }
 }
 
-/** A hand over the face, in the head's frame: the wrist below the cheek and the elbow out, the hand's attitude left to the fit. */
+/** A hand over the face, in the head's frame: the wrist below the cheek and the elbow tucked in front of the chest, below the chin, so a roll onto the side lies on the arm's flank rather than its point; the hand's attitude left to the fit. */
 function face(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
@@ -197,7 +253,7 @@ function face(
   const head: number = body.measure.headRadius;
   return {
     point: { x: out * 0.6 * head, y: -1.1 * head, z: 1.1 * head },
-    bend: { x: out * 2.5 * head, y: -3 * head, z: 0.5 * head },
+    bend: { x: out * 1.2 * head, y: -3 * head, z: 2.5 * head },
     on: "head",
   };
 }
