@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMoviePoseState,
   IAutoMovieSwivelNear,
@@ -17,17 +18,19 @@ import type {
 export namespace HumanSegmentPoseSeeds {
   /**
    * The nearby fit a named fit continues: the seed `near` holds under the
-   * name, refined to its tolerance; none where it holds none, or no seed.
+   * name, refined to its tolerance, or where it names none, its anchor's
+   * (`INear.anchors`), continued and never prescribed; none where it holds
+   * neither, or no seed.
    *
    * @param near The fits of a nearby second, if any.
    * @param name The fit's name.
    * @returns The fit to continue, if any.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines absent and null seeds and the tolerance applied to a present named seed.
-   * @evidence contracts/development/implementation.md#principled-implementation Looks up the exact fit name and copies its swivel seed with the requested tolerance, preserving basin and branch data.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional map lookup followed by an absent check or a shallow seed copy.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No seed of another limb, overlay set or fitting stage substitutes for a missing name.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One map lookup and one bounded seed-record copy when present.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines absent and null seeds, the anchor fallback and the tolerance applied to a present named seed.
+   * @evidence contracts/development/implementation.md#principled-implementation Looks up the exact fit name, then the same name among the anchor's fits, and copies the swivel seed with the requested tolerance, preserving basin and branch data; only a seed of `seeds` takes the prescription.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure At most two map lookups followed by an absent check or a shallow seed copy.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No seed of another limb, overlay set or fitting stage substitutes for a missing name; an anchor's seed is the same fit name's at another second of the same action.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two map lookups and one bounded seed-record copy when present.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No completed numerical work is coordinated; the supplied seed owner decides which fit is equivalent.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing and returns a new seed wrapper with the original seed's borrowed member values.
    */
@@ -36,7 +39,16 @@ export namespace HumanSegmentPoseSeeds {
     name: string,
   ): IAutoMovieSwivelNear | undefined {
     const seed: IAutoMovieSwivelSeed | null | undefined = near?.seeds.get(name);
-    return seed === undefined || seed === null
+    if (seed === undefined) {
+      // A fit the seeds do not name continues its anchor's: refined from the
+      // anchor's seed, never placed at it.
+      const anchor: IAutoMovieSwivelSeed | null | undefined =
+        near?.anchors?.get(name);
+      return anchor === undefined || anchor === null
+        ? undefined
+        : { ...anchor, tolerance: near!.tolerance };
+    }
+    return seed === null
       ? undefined
       : {
           ...seed,
@@ -79,8 +91,8 @@ export namespace HumanSegmentPoseSeeds {
    * The fits of a nearby second an evaluation continues.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its content.
-   * @evidence contracts/development/design.md#principled-representation The seeds by fit name and the one tolerance they are refined to (`IAutoMovieSwivelNear`).
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
+   * @evidence contracts/development/design.md#principled-representation The seeds by fit name, the one tolerance they are refined to (`IAutoMovieSwivelNear`), whether they are prescribed, and the anchor fits continued where they name none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, each read by `nearby` or `continues`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IAutoMovieSwivelSeed`.
    */
   export interface INear {
@@ -92,6 +104,9 @@ export namespace HumanSegmentPoseSeeds {
 
     /** Whether the seeds are prescribed (`IAutoMovieSwivelNear.prescribed`): each limb is placed at its seed's swivel and branch in closed form, as a display reading its plan's swivel course does. */
     prescribed?: boolean;
+
+    /** The fits continued, never prescribed, where `seeds` names none: the arm fits of the nearest anchor second of the action's display (`IAutoMovieMotionHumanSegment.anchors`), each refined from its seed to `tolerance` as a nearby second's fit is. Given only beside a prescribed course, which reads no other second, so a reader keeps its no-near paths (`continues`). */
+    anchors?: IAutoMovieMotionHumanSegment.IAnchorFits;
   }
 
   /**
