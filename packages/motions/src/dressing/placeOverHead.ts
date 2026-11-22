@@ -37,8 +37,8 @@ import { poseBones } from "../posture/poseBones";
 import { HumanWornItem } from "./HumanWornItem";
 import { placeOverHeadPath } from "./placeOverHeadPath";
 
-/** How far ahead of the root the loop is presented for the second hand, metres (provisional: a forearm's reach before the chest). */
-const PRESENT: number = 0.35;
+/** How far the presented loop's nearest edge stands off the chest, metres (provisional: a hand's breadth). */
+const PRESENT: number = 0.1;
 
 /** How far below the shoulders the loop is presented, metres (provisional: at the chest). */
 const BELOW: number = 0.2;
@@ -51,7 +51,8 @@ type Handle = "holdLeft" | "holdRight";
  * `placeOverHeadPath`'s, read on the partner's displayed body at the
  * action's start, so a partner who bows, kneels or sits first is met where
  * they are. The hand that holds the loop at entry first presents it level
- * before the chest (`PRESENT` ahead, `BELOW` the shoulders), turned as it
+ * before the chest (its nearest edge `PRESENT` off the chest, `BELOW` the
+ * shoulders), turned as it
  * will go over the head, and the other hand closes on the loop's other
  * handle there by `ready`, without carrying it. Both hands carry it along
  * the path over the stroke; at `strokeEnd` it is worn on the partner's upper chest (the sternum region's bone) and both grips end,
@@ -154,7 +155,7 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
         });
       // The holding hand first presents the loop level before the chest,
       // turned as it will go over the head, where the other hand takes it:
-      // `PRESENT` ahead of the root, `BELOW` the shoulders.
+      // its nearest edge `PRESENT` off the chest, `BELOW` the shoulders.
       const lead: IAutoMovieMotionHumanPosture = context.entry.posture;
       const presented: IAutoMovieRigidTransform = (() => {
         const rotation: IAutoMovieRigidTransform["rotation"] =
@@ -164,7 +165,8 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
           {
             x: 0,
             y: body.measure.shoulderHeight - BELOW - lead.root.y,
-            z: PRESENT,
+            z:
+              body.measure.chestDepth / 2 + PRESENT + (opening.height ?? 0) / 2,
           },
         );
         return {

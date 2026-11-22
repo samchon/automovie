@@ -25,10 +25,14 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
+/** How far out from the midline the presented hand comes, as a share of the shoulder's half width (provisional: the forearm turned in, the hand before the body's middle, where either of a partner's hands takes it). */
+const INWARD: number = 0.3;
+
 /**
  * Present a hand to a partner (#4015). The palm goes, palm down and fingers
  * forward, to the place the arm reaches with the upper arm hanging and the
- * forearm level ahead: beside the shoulder, the upper arm's length below
+ * forearm level ahead: `INWARD` of the shoulder's half width out from the
+ * midline, the upper arm's length below
  * it, the forearm and half the hand ahead of it, all from the body's own
  * measure; it stays the authored seconds and returns. The arm is laid as
  * one course (`courseArmGoal`). Events: `ready` once presented, `relax` as
@@ -53,12 +57,12 @@ export const presentHand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPr
       const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
       const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
 
-      // Beside the shoulder (`+X` is the performer's left), the upper arm
+      // Toward the midline (`+X` is the performer's left), the upper arm
       // hanging and the forearm level ahead: the palm's place.
       const place: IAutoMovieVector3 = HumanFrame.point(
         { origin: entry.root, yaw: entry.yaw },
         {
-          x: (side === "left" ? 1 : -1) * m.shoulderHalfWidth,
+          x: (side === "left" ? 1 : -1) * INWARD * m.shoulderHalfWidth,
           y: m.shoulderHeight - m.upperArm - entry.root.y,
           z: m.forearm + m.hand / 2,
         },

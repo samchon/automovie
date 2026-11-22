@@ -139,7 +139,7 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
             maximum: BACK,
             unit: "deg",
           },
-          reason: `the upper back stays ${(gap(-BACK) * 1000).toFixed(0)} mm short of the halfway point at a ${BACK} degree lean`,
+          reason: `the upper back stays ${(gap(-BACK) * 1000).toFixed(0)} mm short of the halfway point at a ${BACK} degree lean, the point ${(Vector3.distance(mine, meet) * 1000).toFixed(0)} mm off the upright back`,
           fix: "sit nearer back to back",
         });
       let lo: number = 0;
