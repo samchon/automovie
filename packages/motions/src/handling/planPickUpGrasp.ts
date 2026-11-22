@@ -376,6 +376,7 @@ export function planPickUpGrasp(
     side,
     rest,
     span: { start: 0, ready: reach, relax: end, end },
+    after: "angles",
   });
   if (interception !== undefined) return coursed;
 

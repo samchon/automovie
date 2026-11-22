@@ -120,6 +120,10 @@ export function courseArmGoal(
         // course that starts after the action does takes over from the arm
         // the plan shows, never from a frozen rest.
         if (seconds < span.start) continue;
+        // After its course the arm is the plan's own again, its goal fitted on
+        // the body as it moves on, unless the law asks the arm to keep the
+        // angles its course ended with (`after: "angles"`).
+        if (seconds > span.end && props.after !== "angles") continue;
         delete limbs[limb];
         if (seconds <= span.end) continue;
 
@@ -309,6 +313,14 @@ export namespace courseArmGoal {
      * it, under the reaction delay. `plan` itself when absent.
      */
     base?: IAutoMovieMotionHumanActionPlan;
+
+    /**
+     * What the arm does after its span: the plan's own goal again ("goal",
+     * the default), fitted on the body as it moves on, or the angles its
+     * course ended with ("angles"), carried by the body, for a hand that
+     * holds what it lifted while the body straightens under it.
+     */
+    after?: After;
   }
   /**
    * The last posture of the plan read, and what it was read with.
@@ -368,4 +380,7 @@ export namespace courseArmGoal {
 
   /** A named instant of the plan's clock. */
   export type Instant = Parameters<typeof AutoMovieMotionClock.of>[1][number];
+
+  /** What a coursed arm does after its span (`IProps.after`). */
+  export type After = "goal" | "angles";
 }
