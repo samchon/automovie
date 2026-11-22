@@ -39,7 +39,11 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * independent and need no order. Arms that meet are solved together, the
  * still configuration of both arms (`HumanArmTrajectoryModel`, the two arms'
  * probes kept clear of each other) drawn to the two independent fits, each
- * hand held on its goal, by the trajectory's own optimiser.
+ * hand held on its goal, by the trajectory's own optimiser. Arms both
+ * placed at a prescribed swivel course (a display read of a course or an
+ * anchor whose swivels the coupled solve left) are decoupled: each hand's
+ * goal is the plan's own contact frame at that second and each arm its own
+ * closed-form fit, so the coupled solve runs only where the course is made.
  *
  * The coupled solve is computed on a canonical representative of the pair
  * and its mirror image: of the posture and its mirror, the one whose inputs
@@ -100,7 +104,7 @@ export namespace HumanLimbPair {
    * @returns The pose with both arms fitted, and the seed each arm's own fit was chosen at.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Independent fits where the arms keep clear; a coupled still solve where they meet, on the pair's canonical representative under the mirror.
+   * @evidence contracts/development/implementation.md#principled-implementation Independent fits where the arms keep clear or both are placed at a prescribed course whose swivels the coupled solve left; a coupled still solve where they meet otherwise, on the pair's canonical representative under the mirror.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two fits, one clearance reading per arm, then one coupled solve when they meet.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither arm is fitted against the other's fit; the representative is chosen from the inputs alone.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two directly solved arm fits, followed by the existing coupled optimizer only on actual overlap. Source attachment FK stays lazy, and speedup is unmeasured.
@@ -259,6 +263,22 @@ function solved(
     "right",
     fits.right,
   );
+
+  // Both arms placed at a prescribed course (a display read): the course's
+  // swivels come from coupled solves at its knots and anchors, and each
+  // hand's goal is the plan's own contact frame at this second, so the arms
+  // are decoupled, each its own closed-form fit clear of its obstruction,
+  // and the coupled solve never runs per displayed second.
+  if (
+    assess === undefined &&
+    near.left?.prescribed === true &&
+    near.right?.prescribed === true
+  )
+    return {
+      pose: both,
+      seeds,
+      values: { left: own.left.value, right: own.right.value },
+    };
 
   // Each arm's forearm against the other arm's segments alone.
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
