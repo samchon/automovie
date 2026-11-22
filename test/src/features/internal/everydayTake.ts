@@ -38,6 +38,14 @@ import { assertTakeClean } from "./assertTakeClean";
  */
 export namespace everydayTake {
   /**
+   * A hand's breadth as a share of its length: a 2016 adult hand survey gives
+   * P50 breadths of 86 and 80 mm against lengths of 188 and 177 mm for men and
+   * women (https://pmc.ncbi.nlm.nih.gov/articles/PMC9225906/, read through a
+   * search summary).
+   */
+  export const BREADTH: number = 0.45;
+
+  /**
    * A placed prop, its world frame from a point and a heading or a rotation.
    *
    * @param subject The prop's subject.

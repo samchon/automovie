@@ -35,12 +35,6 @@ const ON: number = 0.03;
 const HOLD: number = 0.005;
 /** A cut point lies on its authored line within this, metres. */
 const LINE: number = 0.005;
-/** How far ahead the umbrella is held before opening, as a share of the arm's reach: the forearm held forward with the elbow bent (provisional). */
-const AHEAD: number = 0.5;
-
-/** Room between two sharers' shoulders for the arm that holds the umbrella, as a share of the holder's reach (provisional). */
-const ROOM: number = 0.5;
-
 /** Degrees of travel read as shut or fully open. */
 const SHUT: number = 0.5;
 
@@ -138,7 +132,6 @@ function umbrella(
     everydayTake.prop("umbrella", model, at),
   ];
   const shoulder: number = body.measure.shoulderHeight;
-  const reach: number = body.measure.upperArm + body.measure.forearm;
   // Held so the grip and the runner's open stop, the free hand's farthest
   // push, sit evenly about the shoulders: the grip half the umbrella's own
   // grip-to-stop length below, the stop half above, for any umbrella and
@@ -149,16 +142,24 @@ function umbrella(
   const stop: number =
     (runner.frame.translation.y + runner.travel! + grip.frame.translation.y) /
     2;
-  // Sharing one umbrella the two walk shoulder to shoulder, with room between
-  // for the arm that holds it: half the holder's reach.
-  const apart: number = 2 * body.measure.shoulderHalfWidth + ROOM * reach;
+  // Sharing one umbrella the two walk side by side, the holder's raised arm
+  // between them: each shoulder's breadth with its arm, and room for the
+  // holder's elbow, which can stand an upper arm out from the shoulder.
+  const apart: number =
+    2 * (body.measure.shoulderHalfWidth + body.measure.upperArmRadius) +
+    body.measure.upperArm;
+  // The shaft stands just before the chest: half its depth, then the breadth
+  // of the hand closed around the shaft.
+  const before: number =
+    body.measure.chestDepth / 2 + everydayTake.BREADTH * body.measure.hand;
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()
     .pickUp({ prop: "umbrella", handle: "grip", hand: "right", lift: 0.05 })
     .registered("workHeld", {
       prop: "umbrella",
-      // Held low before the body, the runner within the free arm.
-      at: { out: 0.05, up: shoulder - stop, forward: AHEAD * reach },
+      // Held on the midline, the grip and the runner's stop as near both
+      // shoulders as the chest allows.
+      at: { out: 0, up: shoulder - stop, forward: before },
       seconds: 0.4,
     })
     .registered("workHeld", {
@@ -170,7 +171,13 @@ function umbrella(
     })
     .registered("workHeld", {
       prop: "umbrella",
-      at: { out: 0.05, up: shoulder + 0.05, forward: 0.25 },
+      // Raised for two: the shaft midway between the sharers' midlines, the
+      // grip at the shoulder's height, just before the chest.
+      at: {
+        out: apart / 2,
+        up: shoulder - grip.frame.translation.y,
+        forward: before,
+      },
       seconds: 0.4,
     })
     .walk({ to: { x: 0, y: 0, z: 2 } }, "share");

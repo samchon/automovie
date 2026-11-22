@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,6 +18,7 @@ import {
   HUMAN_LEXICON,
   HumanChain,
   HumanFirefight,
+  HumanHand,
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
@@ -275,15 +277,24 @@ function hose(
     "backup",
     middle,
   );
-  for (const side of ["left", "right"] as const)
+  // Each hand's grip site lies on the line within the grip's own length.
+  const span: number = model.affordance("backup").length ?? 0;
+  for (const side of ["left", "right"] as const) {
+    const hand: IAutoMovieResolvedBone = take
+      .bones("backup", middle)
+      .get(`${side}Hand`)!;
+    const site: IAutoMovieVector3 = Vector3.add(
+      hand.worldPosition,
+      Quaternion.rotateVector(
+        hand.worldRotation,
+        HumanHand.offset(body, side, "grip").point,
+      ),
+    );
     checks.check(
       `${label}: the backup's ${side} hand stays on the line`,
-      Vector3.distance(
-        take.bones("backup", middle).get(`${side}Hand`)!.worldPosition,
-        grip,
-      ) <=
-        ON + 0.1,
+      Vector3.distance(site, grip) <= span / 2 + ON,
     );
+  }
   for (const who of ["actor", "backup"]) {
     const lean = (t: number): number => {
       const bones = take.bones(who, t);
@@ -334,7 +345,8 @@ function flames(
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .stand()
     .pickUp({ prop: "sack", handle: "hold", hand: "right", lift: 0.05 })
-    .kneel({})
+    // Down on a knee and staying there to beat.
+    .kneel({ rise: false })
     .registered("beatFlames", {
       prop: "sack",
       partner: "victim",
