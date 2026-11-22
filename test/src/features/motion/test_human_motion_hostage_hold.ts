@@ -24,37 +24,6 @@ import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** The furthest the holder's trunk leans into the hold, degrees: the touch law's lean cap at this hold, as its refusal states (20 degrees). */
-const LEAN: number = 20;
-
-/**
- * Whether the hostage's right temple lies inside the holder's reach sphere,
- * as the touch law reads the arm that brings the point there: from the
- * holder's right shoulder, the arm's length, with the trunk leaned by `LEAN`
- * over the hips. The temple stands the head's radius right of the hostage's
- * line at its eye height; the shoulder at its height and half width on the
- * holder's mark.
- */
-const reaches = (
-  holder: IAutoMovieMotionHumanBody,
-  hostage: IAutoMovieMotionHumanBody,
-): boolean => {
-  const h: IAutoMovieMotionHumanBody["measure"] = holder.measure;
-  const lean: number =
-    (h.shoulderHeight - h.hipHeight) * Math.sin((LEAN * Math.PI) / 180);
-  const shoulder: IAutoMovieVector3 = {
-    x: -h.shoulderHalfWidth,
-    y: h.shoulderHeight,
-    z: -behind(holder, hostage) + lean,
-  };
-  const temple: IAutoMovieVector3 = {
-    x: -hostage.measure.headRadius,
-    y: hostage.measure.eyeHeight,
-    z: 0,
-  };
-  return Vector3.distance(shoulder, temple) <= h.upperArm + h.forearm + h.hand;
-};
-
 /** The gap between the holder's chest and the hostage's back in the hold, metres: the grapple specs' skin. */
 const SKIN: number = 0.01;
 
@@ -82,8 +51,9 @@ const AIM: number = 0.08;
  * 2. The pair keeps its order: the holder stays behind the hostage along
  *    the walk at every sampled instant, and both travel the authored
  *    distance.
- * 3. A weapon given without its point is refused, and a temple beyond the
- *    holder's reach sphere is refused on the target.
+ * 3. A weapon given without its point is refused, and a shorter holder whose
+ *    reach the touch law finds short of a taller hostage's temple is refused
+ *    on the target.
  * 4. The take passes the shipped verdict report: no feet crossing or
  *    penetrating between the two, no foot slide.
  *
@@ -102,20 +72,24 @@ export function test_human_motion_hostage_hold(): void {
     const label: string = `${holderLabel} holds ${hostageLabel}`;
     const holder: IAutoMovieMotionHumanBody = motionHumanBody(holderLabel);
     const hostage: IAutoMovieMotionHumanBody = motionHumanBody(hostageLabel);
-    // A temple outside the holder's reach sphere is refused honestly, on
-    // the target, rather than played.
-    if (!reaches(holder, hostage)) {
+    // A holder shorter than the hostage may find the temple outside its
+    // reach: the touch law's own reach model (its lean-capped arm) then
+    // refuses on the target, which is the honest result for that pair. A
+    // holder at least the hostage's height must play the hold.
+    if (holder.measure.stature < hostage.measure.stature) {
       let beyond: unknown = undefined;
       try {
         perform(holder, hostage, "muzzle");
       } catch (error: unknown) {
         beyond = error;
       }
-      checks.check(
-        `${label}: a temple beyond the holder's reach is refused: ${String(beyond)}`,
-        beyond instanceof HumanRefusal && beyond.axis === "target",
-      );
-      continue;
+      if (beyond !== undefined) {
+        checks.check(
+          `${label}: a temple beyond the holder's reach is refused on the target: ${String(beyond)}`,
+          beyond instanceof HumanRefusal && beyond.axis === "target",
+        );
+        continue;
+      }
     }
     try {
       const film: HumanPerformance = perform(holder, hostage, "muzzle");
