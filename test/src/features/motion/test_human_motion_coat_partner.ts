@@ -279,7 +279,9 @@ function stage(
         HumanChain.extend({ coatPartner })
           .subject("a")
           .stand({ seconds: 0.3 })
-          .pickUp({ prop: "jacket", handle: "hold", hand, lift: 0.02 })
+          // The dresser stands behind the partner, so it takes the jacket by
+          // its back collar; the `hold` handle is on the front.
+          .pickUp({ prop: "jacket", handle: "backCollar", hand, lift: 0.02 })
           .coatPartner({ prop: "jacket", partner, hand, hold }),
       ).node,
   });

@@ -14,8 +14,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { wardrobeFoot } from "./wardrobeFoot";
@@ -257,7 +259,10 @@ function thread(
     model,
     wardrobeHands.frame(wear),
   );
-  if (!held && Vector3.distance(mounted.position, collar(context).position) > 0.12)
+  if (
+    !held &&
+    Vector3.distance(mounted.position, collar(context).position) > 0.12
+  )
     throw wardrobeHands.refusal(
       "prop",
       params.prop,
@@ -305,20 +310,31 @@ function thread(
     last,
     wardrobeHands.MISS,
   );
-  return {
-    ...AutoMovieMotionHumanBase.under(context, total),
-    events: [
-      { name: "sleeveReady", share: prepare / total },
-      {
-        name: "sleeveOpening",
-        share: (prepare + across * (reverse ? 1 - passage : passage)) / total,
-      },
-      { name: "sleeveClear", share: finish / total },
-      { name: "relax", share: 1 },
-    ],
-    hands: [side],
-    posture,
-  };
+  // The threading arm is laid as one course over the hand's goal
+  // (`courseArmGoal`): the planner's reach to the sleeve's near end, then
+  // the passage read at every second with branch and swivel continuity, in
+  // place of a fresh fit at each second, where two nearly tied solutions
+  // let one frame turn the hand over. The checks above read the goal.
+  return courseArmGoal({
+    body,
+    side,
+    rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
+    span: { start: 0, ready: prepare, relax: total, end: total },
+    plan: {
+      ...AutoMovieMotionHumanBase.under(context, total),
+      events: [
+        { name: "sleeveReady", share: prepare / total },
+        {
+          name: "sleeveOpening",
+          share: (prepare + across * (reverse ? 1 - passage : passage)) / total,
+        },
+        { name: "sleeveClear", share: finish / total },
+        { name: "relax", share: 1 },
+      ],
+      hands: [side],
+      posture,
+    },
+  });
 }
 
 /** The torso origin set by the wearer's actual left and right shoulders. */
