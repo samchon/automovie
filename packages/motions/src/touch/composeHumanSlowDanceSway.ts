@@ -1,5 +1,6 @@
 import type { IAutoMovieMotionHumanChainCore } from "@automovie/interface";
 
+import { shiftStandingWeight } from "../everyday/shiftStandingWeight";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
@@ -38,7 +39,7 @@ export function composeHumanSlowDanceSway<
   let out: Chain = chain;
   for (let i: number = 0; i < params.count; ++i)
     for (const sign of [1, -1])
-      out = out.act("shiftStandingWeight", {
+      out = out.registered(shiftStandingWeight.name, {
         by: sign * params.by,
         seconds: params.beat / 2,
         returnSeconds: params.beat / 2,
