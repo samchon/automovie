@@ -19,6 +19,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamsdirectionsteps",
       "description": "Fencing footwork, an advance: one step forward, the stance kept."
     },
+    "aidWalk": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanAidWalk",
+      "description": "Walk leaning on a held aid, a cane or a walker (`aidWalk`)."
+    },
     "aim": {
       "$ref": "#/components/schemas/OmitIParamsholdkind",
       "description": "Level a held thing at a target, as a weapon or a torch is aimed: the pointing arm."
@@ -74,6 +78,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "aSkip": {
       "$ref": "#/components/schemas/OmitIParamskind-o4",
       "description": "The A-skip in place: the knees driven up in turn."
+    },
+    "assistedTransferBody": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanAssistedTransfer.IRoleParams",
+      "description": "Move a helped person from one seat to another, a helper's arms bearing them (`assistedTransfer`)."
     },
     "au": {
       "$ref": "#/components/schemas/OmitIParamsto",
@@ -407,6 +415,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamscountholdkindwith",
       "description": "A choke from the front: both palms closed on the neck and held two seconds (provisional). The composition gives the two sides of the neck as `target` and `other`."
     },
+    "chop": {
+      "$ref": "#/components/schemas/OmitIParamsstroke",
+      "description": "Chop or split overhead with an axe onto a block or a log."
+    },
     "clapHands": {
       "$ref": "#/components/schemas/OmitIParamscyclesfacingoffsetphrasesideswingtarget",
       "description": "Clapping: both palms meet ahead of the chest and part, out and in."
@@ -618,6 +630,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "dial": {
       "$ref": "#/components/schemas/OmitIParamsdigitside",
       "description": "Dialling: the right forefinger on each key in turn."
+    },
+    "dig": {
+      "$ref": "#/components/schemas/OmitIParamsstroke",
+      "description": "Dig with a shovel and throw each load aside."
     },
     "dip": {
       "$ref": "#/components/schemas/OmitIParamskind-o13",
@@ -890,6 +906,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "fosburyFlop": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanHighJump.IParams",
       "description": "A Fosbury flop over the bar the composition sets, onto its landing place."
+    },
+    "frailWalk": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanFrailWalk",
+      "description": "A frail older person's walk, graded from the ordinary walk to a shuffle."
     },
     "fret": {
       "$ref": "#/components/schemas/OmitIParamsside",
@@ -1387,6 +1407,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/IAutoMovieMotionHumanSword.IAttack",
       "description": "A knife driven forward, the point first, with the least advance that reaches."
     },
+    "lanceCouch": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanLanceCouch",
+      "description": "Couch a lance from the saddle, lower its point onto a tent peg or a ring at the gallop and carry it off."
+    },
     "lasso": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanLasso",
       "description": "Swing, throw and dally a lariat from the saddle at a moving animal."
@@ -1783,6 +1807,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamsfacingholdmirroroffsetphrasetarget",
       "description": "A raised hand: the open hand visits a place above the shoulder, palm forward, and holds it."
     },
+    "rake": {
+      "$ref": "#/components/schemas/OmitIParamsstroke",
+      "description": "Rake or hoe the ground toward oneself."
+    },
     "ramCharge": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanOperate.IParams",
       "description": "Ram the charge home."
@@ -2107,6 +2135,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/IAutoMovieMotionHumanOperate.IParams",
       "description": "Shut the pan: the frizzen closed."
     },
+    "sideChop": {
+      "$ref": "#/components/schemas/OmitIParamsstroke",
+      "description": "Chop level into a standing trunk."
+    },
     "sideDrumStrike": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanSideDrumStrike",
       "description": "Strike a side drum with a held stick."
@@ -2166,6 +2198,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "slash": {
       "$ref": "#/components/schemas/OmitICutfrom",
       "description": "A horizontal slash from the blade hand's side."
+    },
+    "sledge": {
+      "$ref": "#/components/schemas/OmitIParamsstroke",
+      "description": "Swing a sledgehammer or a pickaxe down at the ground."
     },
     "sledPush": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanPushSled.IParams",
@@ -2346,6 +2382,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "stiffLimp": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanGait.ILimp",
       "description": "A stiff-knee limp: the spared leg also swings straight, barely clearing the floor."
+    },
+    "stilts": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanStiltWalk.IParams",
+      "description": "A walk on stilts."
     },
     "stir": {
       "$ref": "#/components/schemas/OmitIParamstool",
@@ -2651,6 +2691,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamskind-o16",
       "description": "`touch` of kind `tap`."
     },
+    "trampoline": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanTrampoline.IParams",
+      "description": "Bouncing on a trampoline."
+    },
     "traverse": {
       "$ref": "#/components/schemas/OmitIParamsdirectionsteps",
       "description": "Fencing footwork, a traverse: one step to the left off the line."
@@ -2778,6 +2822,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "wallSit": {
       "$ref": "#/components/schemas/OmitIParamskind-o13",
       "description": "A wall sit, the wall not shown."
+    },
+    "wardrobe": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanWardrobe",
+      "description": "Dress oneself with a staged garment: a jacket on, a sleeve, the zip or footwear."
     },
     "warriorOne": {
       "$ref": "#/components/schemas/OmitIParamskind-o13",
@@ -9820,6 +9868,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "raceWalk": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanGait.IParams",
             "description": "A race walk: a walk at a run's pace, one foot always down, the arms pumping."
+          },
+          "frailWalk": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanFrailWalk",
+            "description": "A frail older person's walk, graded from the ordinary walk to a shuffle."
           }
         },
         "required": [
@@ -9856,7 +9908,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "lurch",
           "stalk",
           "crabWalk",
-          "raceWalk"
+          "raceWalk",
+          "frailWalk"
         ],
         "additionalProperties": false,
         "description": "Open parameters of the gait lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
@@ -11811,6 +11864,38 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "Parameters."
+      },
+      "IAutoMovieMotionHumanFrailWalk": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "Where the walk ends, world metres."
+          },
+          "via": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAutoMovieVector3"
+            },
+            "description": "Floor points passed on the way, world metres; none when absent."
+          },
+          "severity": {
+            "type": "number",
+            "description": "How frail the walk is, from 0, the ordinary walk, to 1, a shuffle;\n0.5 when absent.\nUnit: \"1\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "minimum": 0,
+            "maximum": 1,
+            "x-unit": "1"
+          },
+          "manner": {
+            "$ref": "#/components/schemas/IAutoMovieMotionManner",
+            "description": "How it is performed; neutral when absent."
+          }
+        },
+        "required": [
+          "to"
+        ],
+        "additionalProperties": false,
+        "description": "The walk of a frail older person (#4009): slow with short steps on a\nwider base, a long double support, the trunk flexed forward, the arms\nbarely swinging and the feet low over the floor, graded by `severity`\nfrom a healthy older adult's walk to a shuffle."
       },
       "IAutoMovieMotionHumanLexiconPursuitParams": {
         "type": "object",
@@ -18860,6 +18945,26 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "hurl": {
             "$ref": "#/components/schemas/OmitIAutoMovieMotionHumanThrowObjectParamsstyle",
             "description": "Hurl something overarm."
+          },
+          "chop": {
+            "$ref": "#/components/schemas/OmitIParamsstroke",
+            "description": "Chop or split overhead with an axe onto a block or a log."
+          },
+          "sideChop": {
+            "$ref": "#/components/schemas/OmitIParamsstroke",
+            "description": "Chop level into a standing trunk."
+          },
+          "sledge": {
+            "$ref": "#/components/schemas/OmitIParamsstroke",
+            "description": "Swing a sledgehammer or a pickaxe down at the ground."
+          },
+          "dig": {
+            "$ref": "#/components/schemas/OmitIParamsstroke",
+            "description": "Dig with a shovel and throw each load aside."
+          },
+          "rake": {
+            "$ref": "#/components/schemas/OmitIParamsstroke",
+            "description": "Rake or hoe the ground toward oneself."
           }
         },
         "required": [
@@ -18874,7 +18979,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "screw",
           "scrub",
           "toss",
-          "hurl"
+          "hurl",
+          "chop",
+          "sideChop",
+          "sledge",
+          "dig",
+          "rake"
         ],
         "additionalProperties": false,
         "description": "Open parameters of the labour lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
@@ -19227,6 +19337,43 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "additionalProperties": false,
         "description": "An implement held in the throwing hand."
       },
+      "OmitIParamsstroke": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The held long tool's prop subject, in the trailing hand since a pick-up: its `face` is the working point."
+          },
+          "at": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "The work point, world metres: the block's top or the log, the trunk, the ground struck, dug or raked."
+          },
+          "to": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "Where a dug load is thrown, world metres; a metre to the lead hand's side when absent."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The trailing hand, which holds the tool near its end; the hand that holds `prop` when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "How many strokes; 3 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless."
+          }
+        },
+        "required": [
+          "prop",
+          "at"
+        ],
+        "additionalProperties": false
+      },
       "IAutoMovieMotionHumanLexiconRideParams": {
         "type": "object",
         "properties": {
@@ -19301,6 +19448,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "HumanSabre": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanSabre",
             "description": "Carry a cavalry sabre at the slope from the saddle and bring it to the engage at the charge."
+          },
+          "HumanLanceCouch": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanLanceCouch",
+            "description": "Couch a lance from the saddle, lower its point onto a tent peg or a ring at the gallop and carry it off."
           }
         },
         "required": [
@@ -19321,7 +19472,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "HumanTrick",
           "HumanRoman",
           "HumanLasso",
-          "HumanSabre"
+          "HumanSabre",
+          "HumanLanceCouch"
         ],
         "additionalProperties": false,
         "description": "Open parameters of the ride lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
@@ -20225,7 +20377,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "lean": {
             "type": "number",
-            "description": "The trunk's lean out over the side, degrees, more than 0 and at most `IAutoMovieMotionHumanPolo` admits; 30 when absent."
+            "description": "The most the trunk may lean out over the side, degrees, more than 0 and at most 45; the stroke leans as far as brings the right shoulder over the ball's line. 45 when absent."
           },
           "speed": {
             "type": "number",
@@ -20999,6 +21151,143 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "type": "string",
             "description": "The cue track of the horse ride's own gait changes, its instants named as the ride publishes them (`gait:canter-gallop`); required with `cue`, which must fall on the gallop."
           },
+          "target": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "person",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The other subject's id."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region aimed at."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "self",
+                    "description": "Discriminator."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region of the performer's own body."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "prop",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The prop subject's id."
+                  },
+                  "point": {
+                    "type": "string",
+                    "description": "The prop's named point."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "point"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "point",
+                    "description": "Discriminator."
+                  },
+                  "at": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The point: metres in \"world\" and \"performer\", statures of the performer in \"stature\"."
+                  },
+                  "frame": {
+                    "oneOf": [
+                      {
+                        "const": "performer"
+                      },
+                      {
+                        "const": "stature"
+                      },
+                      {
+                        "const": "world"
+                      }
+                    ],
+                    "description": "The frame the point is stated in: the world's, the performer's own in metres, or the performer's own in statures."
+                  },
+                  "normal": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "at",
+                  "frame"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "none",
+                    "description": "Discriminator."
+                  },
+                  "line": {
+                    "oneOf": [
+                      {
+                        "const": "high"
+                      },
+                      {
+                        "const": "low"
+                      },
+                      {
+                        "const": "middle"
+                      }
+                    ],
+                    "description": "The virtual opponent's height line; `middle` when absent."
+                  },
+                  "range": {
+                    "type": "number",
+                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "What the engage points at; straight ahead along the seat's forward when absent."
+          },
           "transition": {
             "type": "number",
             "description": "Seconds the slope takes to reach the engage, more than none and at most a gallop stride."
@@ -21028,6 +21317,63 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           }
         ],
         "description": "A sabre carriage: `slope`, upright against the right shoulder, or `engage`, level forward at the charge."
+      },
+      "IAutoMovieMotionHumanLanceCouch": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "string",
+            "description": "The horse's subject id."
+          },
+          "frame": {
+            "type": "string",
+            "description": "The horse's seat contact the rider sits on; `seat` when absent."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The lance's subject id, already held in the right hand by its grip."
+          },
+          "target": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanLanceCouch.ITarget",
+            "description": "The target the point meets and carries off."
+          },
+          "lower": {
+            "type": "number",
+            "description": "Seconds the point takes to come from the couch onto the target's line before the strike, and back up after it; positive."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "How long the act lasts, seconds."
+          }
+        },
+        "required": [
+          "on",
+          "prop",
+          "target",
+          "lower",
+          "seconds"
+        ],
+        "additionalProperties": false,
+        "description": "A lance couched at the gallop and lowered to a skill-at-arms target (#3956): the right hand holds the lance by its grip under the right arm, level along the travel, and the left holds both reins; before the target the arm lowers the point onto its line, the point meets the target's own position at the strike, and the target rides the lance's point from then on as the lance is brought back up, as a tent peg is lifted and a tilting ring is carried off."
+      },
+      "IAutoMovieMotionHumanLanceCouch.ITarget": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The target's subject id: a tent peg in the ground, a ring hung on a stand."
+          },
+          "point": {
+            "type": "string",
+            "description": "The target's affordance the point meets."
+          }
+        },
+        "required": [
+          "prop",
+          "point"
+        ],
+        "additionalProperties": false,
+        "description": "The target a lance's point takes: a prop and the affordance the point meets."
       },
       "IAutoMovieMotionHumanLexiconCarriedParams": {
         "type": "object",
@@ -24760,11 +25106,21 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "slideOff": {
             "$ref": "#/components/schemas/OmitIParamsstances",
             "description": "Slide off a table's edge: seated upright on it with the hands beside the seat, the feet down to the floor, standing."
+          },
+          "HumanAidWalk": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanAidWalk",
+            "description": "Walk leaning on a held aid, a cane or a walker (`aidWalk`)."
+          },
+          "HumanAssistedTransfer": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanAssistedTransfer.IRoleParams",
+            "description": "Move a helped person from one seat to another, a helper's arms bearing them (`assistedTransfer`)."
           }
         },
         "required": [
           "scramble",
-          "slideOff"
+          "slideOff",
+          "HumanAidWalk",
+          "HumanAssistedTransfer"
         ],
         "additionalProperties": false,
         "description": "Open parameters of the support lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
@@ -24955,6 +25311,204 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           }
         ],
         "description": "The paired support's role in an assisted rise."
+      },
+      "IAutoMovieMotionHumanAidWalk": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanAidWalk.IHeld"
+          },
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanAidWalk.IWalker"
+          }
+        ],
+        "description": "A held prop's support order and a sequence of authored floor stations."
+      },
+      "IAutoMovieMotionHumanAidWalk.IHeld": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The staged prop with its floor track. A cane or crutch declares a grip and a tip.\nA walker declares two grips and a common floor tip."
+          },
+          "stations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAutoMovieMotionHumanAidWalk.IStation"
+            },
+            "description": "Consecutive floor stations of the body, from the held standing pose."
+          },
+          "kind": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanAidWalk.HeldKind",
+            "description": "The single-grip aid."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand that closes on the aid. Defaults to right."
+          }
+        },
+        "required": [
+          "prop",
+          "stations",
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A single-grip aid that swings with the opposite step."
+      },
+      "IAutoMovieMotionHumanAidWalk.IStation": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "World X displacement from the entry station, in metres."
+          },
+          "z": {
+            "type": "number",
+            "description": "World Z displacement from the entry station, in metres."
+          },
+          "turn": {
+            "type": "number",
+            "description": "Heading change relative to the action entry, in degrees. Defaults to zero."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Positive film seconds to advance the aid and both feet once."
+          }
+        },
+        "required": [
+          "x",
+          "z",
+          "seconds"
+        ],
+        "additionalProperties": false,
+        "description": "A floor endpoint and the film time available to reach it."
+      },
+      "IAutoMovieMotionHumanAidWalk.HeldKind": {
+        "oneOf": [
+          {
+            "const": "cane"
+          },
+          {
+            "const": "crutch"
+          }
+        ],
+        "description": "A single-grip aid's kind."
+      },
+      "IAutoMovieMotionHumanAidWalk.IWalker": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The staged prop with its floor track. A cane or crutch declares a grip and a tip.\nA walker declares two grips and a common floor tip."
+          },
+          "stations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAutoMovieMotionHumanAidWalk.IStation"
+            },
+            "description": "Consecutive floor stations of the body, from the held standing pose."
+          },
+          "kind": {
+            "const": "walker",
+            "description": "The two-handed walker."
+          }
+        },
+        "required": [
+          "prop",
+          "stations",
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A walker that advances during both-foot support."
+      },
+      "IAutoMovieMotionHumanAssistedTransfer.IRoleParams": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanAssistedTransfer.ISeatReference",
+            "description": "The staged seat the receiver already sits on."
+          },
+          "to": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanAssistedTransfer.ISeatReference",
+            "description": "The destination seat to bear on before the final release."
+          },
+          "clasp": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "Desired clasp point in world metres. The helper follows the reached palm."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The facing hand of each performer. Defaults to right."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Seconds for each authored contact phase."
+          },
+          "role": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanAssistedTransfer.Role",
+            "description": "Role received from the mutual cast."
+          },
+          "partner": {
+            "type": "string",
+            "description": "Subject of the other actor."
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "clasp",
+          "role",
+          "partner"
+        ],
+        "additionalProperties": false,
+        "description": "One of the two configured bodies in the same transfer."
+      },
+      "IAutoMovieMotionHumanAssistedTransfer.ISeatReference": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "Staged prop identity."
+          },
+          "point": {
+            "type": "string",
+            "description": "Seat affordance id on that prop."
+          },
+          "along": {
+            "type": "number",
+            "description": "Offset along the seat front edge in model metres. Defaults to its middle."
+          }
+        },
+        "required": [
+          "prop",
+          "point"
+        ],
+        "additionalProperties": false,
+        "description": "A bounded seat affordance on an existing prop."
+      },
+      "IAutoMovieMotionHumanAssistedTransfer.Role": {
+        "oneOf": [
+          {
+            "const": "helped"
+          },
+          {
+            "const": "helper"
+          }
+        ],
+        "description": "Which actor contributes the standing support."
       },
       "IAutoMovieMotionHumanLexiconSportSwingParams": {
         "type": "object",
@@ -26601,6 +27155,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "juggling": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanJuggle.IParams",
             "description": "Toss juggling: a cascade or a shower."
+          },
+          "stilts": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanStiltWalk.IParams",
+            "description": "A walk on stilts."
+          },
+          "trampoline": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanTrampoline.IParams",
+            "description": "Bouncing on a trampoline."
           }
         },
         "required": [
@@ -26615,7 +27177,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "hurdleClear",
           "fieldThrow",
           "lineWalk",
-          "juggling"
+          "juggling",
+          "stilts",
+          "trampoline"
         ],
         "additionalProperties": false,
         "description": "Open parameters of the gymnastics lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values."
@@ -26949,6 +27513,93 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           }
         ],
         "description": "The patterns."
+      },
+      "IAutoMovieMotionHumanStiltWalk.IParams": {
+        "type": "object",
+        "properties": {
+          "stilts": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanStiltWalk.IStilts",
+            "description": "The stilts, each standing under its foot as the walk starts."
+          },
+          "to": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "The floor point to stop at, world metres."
+          },
+          "steps": {
+            "type": "integer",
+            "description": "How many steps; the fewest short steps that reach `to` when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "required": [
+          "stilts",
+          "to"
+        ],
+        "additionalProperties": false,
+        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and support refusals."
+      },
+      "IAutoMovieMotionHumanStiltWalk.IStilts": {
+        "type": "object",
+        "properties": {
+          "left": {
+            "type": "string",
+            "description": "The stilt under the left foot."
+          },
+          "right": {
+            "type": "string",
+            "description": "The stilt under the right foot."
+          }
+        },
+        "required": [
+          "left",
+          "right"
+        ],
+        "additionalProperties": false,
+        "description": "The stilts worn."
+      },
+      "IAutoMovieMotionHumanTrampoline.IParams": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "string",
+            "description": "The trampoline's scene id; the jumper stands on its bed as the action starts."
+          },
+          "bounces": {
+            "type": "integer",
+            "description": "How many bounces; 4 when absent.\nNumeric representation: \"uint32\". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "minimum": 1,
+            "x-unit": ""
+          },
+          "apex": {
+            "type": "number",
+            "description": "The apex the bounces build toward, the feet's height above the bed, metres; 1 when absent. Refused beyond what the legs' push can sustain.\nExclusive minimum: 0. Unit: \"m\". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          },
+          "shape": {
+            "oneOf": [
+              {
+                "const": "pike"
+              },
+              {
+                "const": "straddle"
+              },
+              {
+                "const": "straight"
+              },
+              {
+                "const": "tuck"
+              }
+            ],
+            "description": "The shape held at each apex; `straight` when absent."
+          }
+        },
+        "required": [
+          "on"
+        ],
+        "additionalProperties": false,
+        "description": "Parameters.\n\nHumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and support refusals."
       },
       "IAutoMovieMotionHumanLexiconSwordParams": {
         "type": "object",
@@ -32674,6 +33325,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "zip": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanZip",
             "description": "Draw a zipper slider along its track."
+          },
+          "wardrobe": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanWardrobe",
+            "description": "Dress oneself with a staged garment: a jacket on, a sleeve, the zip or footwear."
           }
         },
         "required": [
@@ -32681,7 +33336,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "dressGlasses",
           "tipHat",
           "button",
-          "zip"
+          "zip",
+          "wardrobe"
         ],
         "additionalProperties": false,
         "description": "Open parameters of the upperDress lexicon family, keyed by each runtime export name.\nOmitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.\nHumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values."
@@ -32853,6 +33509,137 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "Open or close a straight closed-end zipper on a supported stationary pouch.\n\nThe pouch binds two opposing tab contacts to one independent slider and\nstationary bracing to its casing. Its lip articulations follow the slider.\nPositive travel opens the pouch. The shift is in metres from the current\ntravel, so the same action can reverse a partially opened zipper."
+      },
+      "IAutoMovieMotionHumanWardrobe": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanWardrobe.IFoot"
+          },
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanWardrobe.IJacket"
+          },
+          {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanWardrobe.ISide"
+          }
+        ],
+        "description": "Dressing oneself with a staged garment (`wardrobe`): carry a held\nopen-front jacket on, thread or clear one sleeve, move its zip, or put\nfootwear on or take it off one raised foot while seated."
+      },
+      "IAutoMovieMotionHumanWardrobe.IFoot": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanWardrobe.Footwear",
+            "description": "The mode."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The wearable prop's scene id."
+          },
+          "side": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The foot."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand that takes the footwear; the other side's when absent."
+          }
+        },
+        "required": [
+          "kind",
+          "prop",
+          "side"
+        ],
+        "additionalProperties": false,
+        "description": "Put footwear on or take it off one raised foot while seated."
+      },
+      "IAutoMovieMotionHumanWardrobe.Footwear": {
+        "oneOf": [
+          {
+            "const": "footwearOff"
+          },
+          {
+            "const": "footwearOn"
+          }
+        ],
+        "description": "The seated modes that put footwear on or take it off one foot."
+      },
+      "IAutoMovieMotionHumanWardrobe.IJacket": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "jacketOn",
+            "description": "The mode."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The wearable prop's scene id."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand that already holds the jacket; the right when absent."
+          }
+        },
+        "required": [
+          "kind",
+          "prop"
+        ],
+        "additionalProperties": false,
+        "description": "Carry a held open-front jacket on, threading the other hand first."
+      },
+      "IAutoMovieMotionHumanWardrobe.ISide": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanWardrobe.Sided",
+            "description": "The mode."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The wearable prop's scene id."
+          },
+          "side": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The arm in the sleeve, or the hand on the slider."
+          }
+        },
+        "required": [
+          "kind",
+          "prop",
+          "side"
+        ],
+        "additionalProperties": false,
+        "description": "Thread or clear one sleeve, or move the zip, on one side."
+      },
+      "IAutoMovieMotionHumanWardrobe.Sided": {
+        "oneOf": [
+          {
+            "const": "closeZip"
+          },
+          {
+            "const": "openZip"
+          },
+          {
+            "const": "sleeveIn"
+          },
+          {
+            "const": "sleeveOut"
+          }
+        ],
+        "description": "The modes that thread or clear one sleeve or move the zip with one hand."
       },
       "IAutoMovieMotionHumanLexiconUpperToolParams": {
         "type": "object",
