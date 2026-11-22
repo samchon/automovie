@@ -149,7 +149,7 @@ export namespace createCannon {
   /**
    * The affordance ids:
    *
-   * - `muzzle`: the muzzle's face, a socket the sponge, the cartridge, the ball and the rammer enter, `+Y` out along the bore; it rides `elevation`.
+   * - `muzzle`: the muzzle's face, a socket the sponge, the cartridge, the ball and the rammer enter, `+Y` out along the bore, its `depth` the bore's length on the field gun; it rides `elevation`.
    * - `vent`: the vent's outer orifice, a socket the priming wire and the primer enter, `+Y` out along the vent; it rides `elevation`.
    * - `primer`: the friction primer's wire eye at its long tube's top, standing in the vent, where the lanyard's hook takes it; it rides `elevation`.
    * - `lanyard`: the lanyard's toggle at its read 12 ft straight back from the primer, a slider the firing hand draws back by the friction wire's read length.

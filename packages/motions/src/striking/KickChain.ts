@@ -1,4 +1,4 @@
-import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -51,6 +51,9 @@ export namespace KickChain {
    * contact tolerance ({@link KickForm.TOLERANCE}).
    */
   const REFITS: number = 8;
+
+  /** How far short of a weightless ankle's dorsiflexion (`ANKLE_DORSIFLEXION.unloaded`) the push foot is asked to stay, degrees: the fitted foot turns a little from the asked one (provisional, as `unloadedFoot`'s margin). */
+  export const DORSAL_MARGIN: number = 3;
 
   /**
    * What a contact solve reads; a prepared fit keeps these values unchanged.
@@ -138,6 +141,48 @@ export namespace KickChain {
    */
   export function sole(line: IAutoMovieVector3): IAutoMovieQuaternion {
     return StrikingBody.foot({ x: 0, y: 1, z: 0 }, Vector3.scale(line, -1));
+  }
+
+  /**
+   * A kicking foot off the floor on its shank: the asked foot as far as an
+   * ankle bearing no weight dorsiflexes, its toes turned forward, away from
+   * the knee, by what the asked foot would pull them past
+   * (`ANKLE_DORSIFLEXION.unloaded` less `DORSAL_MARGIN`). The ankle's
+   * dorsiflexion is how far the toes stand nearer the knee than square to
+   * the shank. A push at a target below the hip points the shank down, and
+   * an upright sole (`sole`) on it, the ankle's give added in the chamber
+   * (`KickThrust.footed`), bent the ankle to its loaded limit while the foot
+   * bore nothing (the cover breach's door kick: 39 degrees from the lift to
+   * the replant).
+   *
+   * @param flat The asked foot's world rotation.
+   * @param knee The knee, world metres.
+   * @param ankle The ankle, world metres.
+   * @returns The foot's world rotation from its rest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the limit, the reading, the turn and the case that showed it.
+   * @evidence contracts/development/implementation.md#principled-implementation Dorsiflexion is the toes' angle from square to the shank; the foot turns about the axis normal to the toes and the shank by the excess only.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the bend, turn by the excess.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limit is the engine's measured one; the margin is named.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call is independent arithmetic.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function unloaded(
+    flat: IAutoMovieQuaternion,
+    knee: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+  ): IAutoMovieQuaternion {
+    const up: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(knee, ankle));
+    const toes: IAutoMovieVector3 = Quaternion.rotateVector(flat, { x: 0, y: 0, z: 1 });
+    const bent: number =
+      90 - Math.acos(Math.min(1, Math.max(-1, Vector3.dot(toes, up)))) / Quaternion.DEG2RAD;
+    const excess: number = bent - (ANKLE_DORSIFLEXION.unloaded - DORSAL_MARGIN);
+    const axis: IAutoMovieVector3 = Vector3.cross(up, toes);
+    if (excess <= 0 || Vector3.length(axis) < 1e-9) return flat;
+    return Quaternion.normalize(
+      Quaternion.multiply(Quaternion.fromAxisAngle(Vector3.normalize(axis), excess), flat),
+    );
   }
 
   /**
@@ -276,7 +321,7 @@ export namespace KickChain {
     ): IAutoMovieQuaternion =>
       round
         ? StrikingBody.foot(Vector3.normalize(Vector3.subtract(ankle, knee)), props.direction)
-        : flat!;
+        : unloaded(flat!, knee, ankle);
     return (
       base: IAutoMovieMotionHumanPosture,
       solved: IAutoMovieMotionHumanStrikingReach.ISolution,

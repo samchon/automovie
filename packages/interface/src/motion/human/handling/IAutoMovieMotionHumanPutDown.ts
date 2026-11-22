@@ -1,3 +1,4 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
@@ -93,6 +94,16 @@ export namespace IAutoMovieMotionHumanPutDown {
 
     /** The prop's heading about +Y at rest, degrees; its current heading when absent. */
     yaw?: number;
+
+    /**
+     * The prop's whole resting attitude at `at`, a world unit quaternion,
+     * instead of its declared rest rotation turned to `yaw`: a card laid face
+     * up after it was dealt face down, or turned into a fan. Read only with
+     * `at`; `yaw` is ignored when it is given. The hand keeps its grip, so an
+     * attitude the wrist cannot reach is refused as any placement beyond the
+     * arm is.
+     */
+    rotation?: IAutoMovieQuaternion;
 
     /** The holding hand; `right` when absent. */
     hand?: AutoMovieHumanSide;

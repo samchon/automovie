@@ -355,7 +355,7 @@ export namespace seatedHeelBounce {
         const angle: number =
           t === duration
             ? 0
-            : amplitude * minimumJerk(1 - Math.abs(2 * phase - 1)).s;
+            : amplitude * minimumJerk.share(1 - Math.abs(2 * phase - 1));
         return at(angle);
       },
     };

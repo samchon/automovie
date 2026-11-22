@@ -26,6 +26,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -78,6 +79,8 @@ export function test_motion_exercise_equestrian(): void {
   const left: ITrial = trial(body, "left");
   const right: ITrial = trial(body, "right");
 
+  assertTakeClean("the left-lead exercise take", left.film);
+  assertTakeClean("the right-lead exercise take", right.film);
   // 1. Compare displayed pelvis up in each saddle frame, starting at a real touchdown.
   const banks: number[] = [];
   for (const run of [left, right]) {

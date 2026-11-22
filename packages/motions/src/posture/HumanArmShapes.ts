@@ -5,7 +5,6 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanColliders,
   IAutoMovieQuaternion,
@@ -176,7 +175,10 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each shape's sphere is `bounded`'s.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function colliders(at: IAutoMovieMotionHumanArmGeometry.IFrame, placed: IAutoMovieMotionHumanArmGeometry.IPlaced): IAutoMovieMotionHumanArmGeometry.IShape[] {
+  export function colliders(
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
+  ): IAutoMovieMotionHumanArmGeometry.IShape[] {
     const out: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
     for (const c of at.colliders) {
       const o: IAutoMovieVector3 =
@@ -220,7 +222,7 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bounded(
-    bone: AutoMovieHumanoidBone,
+    bone: IAutoMovieMotionHumanArmGeometry.Segment,
     part: number,
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
@@ -261,7 +263,10 @@ export namespace HumanArmShapes {
     among?: readonly number[],
   ): number[] {
     const out: number[] = [];
-    const read: (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number) => void = (
+    const read: (
+      shape: IAutoMovieMotionHumanArmGeometry.IShape,
+      i: number,
+    ) => void = (
       shape: IAutoMovieMotionHumanArmGeometry.IShape,
       i: number,
     ): void => {
@@ -343,13 +348,15 @@ export namespace HumanArmShapes {
           at.bounds[owner].radius,
       );
     const out: number[] = [];
-    at.shapes.forEach((shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
-      if (
-        Vector3.distance(shape.centre, placed.shoulder) - shape.radius <
-        far + reach + ROUNDING
-      )
-        out.push(i);
-    });
+    at.shapes.forEach(
+      (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
+        if (
+          Vector3.distance(shape.centre, placed.shoulder) - shape.radius <
+          far + reach + ROUNDING
+        )
+          out.push(i);
+      },
+    );
     return out;
   }
 

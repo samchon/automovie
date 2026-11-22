@@ -2,8 +2,8 @@ import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternio
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieJointPose } from "../../../pose/IAutoMovieJointPose";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
-import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 import type { IAutoMovieSkeletonPoseResolution } from "../../../pose/IAutoMovieSkeletonPoseResolution";
+import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
 import type { AutoMovieMotionHumanChannelClaim } from "../compose/AutoMovieMotionHumanChannelClaim";
@@ -83,7 +83,21 @@ export interface IAutoMovieMotionHumanSegment {
    * answer; absent until a leaf resolve, and released when the person's memos
    * are forgotten.
    */
-  incumbents?: Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>>;
+  incumbents?: Readonly<
+    Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>
+  >;
+
+  /**
+   * The arms' fits of the action's displayed leaf at its anchor seconds,
+   * each read cold once, keyed by the person's overlay count and the anchor
+   * (the plan second over the anchor spacing, rounded), as `<overlays>:<anchor>`.
+   * A displayed second with no fits of its own places its arms at the swivels
+   * interpolated between the anchors around it, so a verdict, a sub-frame
+   * and playback read one closed-form placement instead of sweeping every
+   * swivel. Absent until a read needs one, and
+   * released when anything is placed or the person's memos are forgotten.
+   */
+  anchors?: Map<string, IAutoMovieMotionHumanSegment.IAnchorFits>;
 
   /**
    * The legs' fit of a leaf resolve inside the plan's legs-still window
@@ -101,12 +115,26 @@ export interface IAutoMovieMotionHumanSegment {
     joints: readonly IAutoMovieJointPose[];
 
     /** The legs' seeds the fit chose. */
-    seeds: Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>>;
+    seeds: Readonly<
+      Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>
+    >;
   };
 }
 
 /** Operation-local contracts supporting IAutoMovieMotionHumanSegment. */
 export namespace IAutoMovieMotionHumanSegment {
+  /**
+   * One anchor second's arm fits (`IAutoMovieMotionHumanSegment.anchors`): each
+   * fit's chosen swivel seed by its display fit name (the leaf's, an overlay
+   * leaf's, a carry's or a contact's), null where that fit gave none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the keys, the values and the null entries.
+   * @evidence contracts/development/design.md#principled-representation The display's own fit names and the engine's swivel seed, as a nearby second's fits are kept.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read by the motions display's leaf reader alone.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses IAutoMovieSwivelSeed; a missing name and a null seed stay distinct.
+   */
+  export type IAnchorFits = ReadonlyMap<string, IAutoMovieSwivelSeed | null>;
+
   /**
    * One action placed over a carrier.
    *

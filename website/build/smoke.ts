@@ -28,8 +28,13 @@ import {
 } from "playwright-core";
 
 import { SCENES } from "../src/scenes/SCENES";
+import { SCENE_FPS } from "../src/scenes/SCENE_FPS";
+import { SceneTake } from "../src/scenes/SceneTake";
 import { SceneStatus } from "../src/scenes/package/SceneStatus";
 import type { IScene } from "../src/scenes/structures/IScene";
+import { TakeCompute } from "../src/takes/package/TakeCompute";
+import { archetypeSmokeCases } from "./catalogue/archetypeSmokeCases";
+import "./catalogue/check";
 import { serveExport } from "./serveExport";
 
 /** One page to open and what it must show. */
@@ -91,10 +96,22 @@ const SHOTS: boolean = process.argv.includes("--shots");
 /** The longest a take may take to compute and draw in the headless browser, which poses on the CPU alone, before the case fails. */
 const COMPUTE_LIMIT: number = 180000;
 
-/** The first listed scene whose record marks it refused, whose page must show the packages' refusal. */
+/** A marked scene that still exercises the packages' refusal path. */
 const REFUSED_SCENE: IScene | undefined = SCENES.find(
-  (scene: IScene): boolean =>
-    scene.hidden !== true && SceneStatus.of(scene).kind === "refused",
+  (scene: IScene): boolean => {
+    if (
+      scene.hidden === true ||
+      scene.composition === null ||
+      scene.takes[0] === undefined ||
+      SceneStatus.of(scene).kind !== "refused"
+    )
+      return false;
+    const result: ReturnType<typeof TakeCompute.take> = TakeCompute.take(
+      SceneTake.apply(scene.composition, scene.takes[0]),
+      SCENE_FPS,
+    );
+    return !("track" in result) && result.kind !== "error";
+  },
 );
 
 /** A baked still on a card. */
@@ -248,6 +265,7 @@ const CASES: readonly ICase[] = [
     shows: ['.am-viewport[aria-busy="false"] canvas'],
     lacks: [".am-viewport-error"],
   },
+  ...archetypeSmokeCases,
   {
     name: "the motion catalogue shows its stills and opens a motion's page",
     path: "motions/",

@@ -21,10 +21,11 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
-import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -290,7 +291,7 @@ export namespace handshake {
       clasp, fingers, reference: own.reference, out, home, shapeAt, returnShape,
       amplitude: AMPLITUDE, frequency: FREQUENCY,
     });
-    const plan: IAutoMovieMotionHumanActionPlan = {
+    const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "clasp", share: reach / duration },
@@ -315,8 +316,18 @@ export namespace handshake {
       contact: reach,
       posture: playback.posture,
     };
-    HumanPreparedPlayback.attach(plan, body, { mode: "posture", phases: playback.phases });
-    return plan;
+
+    // The hand's goal moves through the reach, the pump and the return, so
+    // the arm is planned as one admitted course (`courseArmGoal`) instead of
+    // fitted afresh at each second, where two nearly tied arm solutions let
+    // one instant take the other branch.
+    return courseArmGoal({
+      body,
+      plan: goals,
+      side,
+      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+      span: { start: 0, ready: reach, relax: release, end: duration },
+    });
   }
 
   /**

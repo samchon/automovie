@@ -72,12 +72,17 @@ export namespace ballSport {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "ballSport";
 
-  /** Cancel table. */
+  /**
+   * Cancel table. A staged catch may cut in from the stroke, once the ball
+   * has left the hands: a dribbler gathers the rebound, a passer takes the
+   * return.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       ballSport: ["fromRelax", "smooth"],
       walk: ["fromRelax", "smooth"],
+      stageCatch: ["fromStroke", "smooth"],
     });
 
   /** Dribble bounces per second (provisional). */
@@ -203,6 +208,11 @@ export namespace ballSport {
       side: "left" | "right",
     ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
+    // Each arm's group: the clock is the law's own, lengthened by a slower
+    // tempo, so a course too fast for its pace is handed back at once.
+    const stretching: () => IAutoMovieMotionHumanArmPlanned.ITogether =
+      (): IAutoMovieMotionHumanArmPlanned.ITogether =>
+        AutoMovieMotionHumanArm.together(context.handover, true, context.tempo);
     const crouch: (
       depth: number,
       pitch: number,
@@ -239,6 +249,11 @@ export namespace ballSport {
             rest: rest(side),
             weight: into,
             span,
+            together: stretching(),
+            // The dribbling elbow bends forward, as the court releases bend
+            // it (`ballCourt`), so the hand's goal names its bend instead of
+            // searching one at every second the ball's flight is swept.
+            bend: "forward",
             place: (posture: IAutoMovieMotionHumanPosture, s: number) => {
               const u: number = clock.linear("strokeStart", "strokeEnd", s);
               const down: number =
@@ -285,6 +300,7 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
+              together: stretching(),
               place: (
                 posture: IAutoMovieMotionHumanPosture,
                 s: number,
@@ -341,6 +357,7 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
+              together: stretching(),
               place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({
                 point: Vector3.lerp(
                   AutoMovieMotionHumanPlaced.grid(body, posture, side, {
@@ -425,6 +442,7 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
+              together: stretching(),
               place: (_posture: IAutoMovieMotionHumanPosture, s: number) => ({
                 point: Vector3.add(
                   Vector3.lerp(drawn, released, stroke(s)),

@@ -22,6 +22,9 @@ const SWIVEL_STEP: number = hingedArmSwivel.STEP;
 /** Golden-section passes per refinement (`hingedArmSwivel.REFINEMENTS`). */
 const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
 
+/** Bisections of a legality edge on a placed pole's walk (`IProps.placed`): a 3 degree step halved twenty times, a swivel within three millionths of a degree of the edge. */
+const EDGE_BISECTIONS: number = 20;
+
 /**
  * Two-bone arm IK whose mid joint bends only about its own flexion hinge, with
  * the chain root's free swivel spent on the rig's range of motion.
@@ -100,6 +103,13 @@ const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
  * by the initial bracket width underflows, the difference of logarithms keeps
  * the mathematically finite refinement count finite; ordinary ratios retain
  * their original expression.
+ * A placed pole (`IProps.placed`, a place the law's own elbow search chose)
+ * answers at the pole where it is legal. Otherwise a continued fit walks from
+ * its seed toward the pole and stops at the edge of the legal interval the
+ * seed lies in, and a cold fit takes the legal swivel nearest the pole on any
+ * branch, walking out from it both ways; each edge is found by swivel steps
+ * and bisection on the candidate's legality. Only where no swivel is legal
+ * does the sweep decide.
  * With certified global score minima and no second key, the first scored
  * coarse candidate ends a cold search only if its actual two keys equal both
  * minima exactly. No later candidate can be strictly ahead, so the original
@@ -111,7 +121,7 @@ const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
  * `1e-6`, or `R` below `1e-9`, a hinge parallel to the far segment that cannot
  * change the span ({@link armChainFault} reports that rig).
  *
- * @evidence contracts/development/implementation.md#principled-implementation The span is an exact sinusoid in the hinge angle because rotation about hinge leaves the along-hinge segment fixed and turns the rest in a circle. Its two arccos roots give the branches and swivel is a positional null space. Legality keeps exact zero. When the original first coarse candidate's actual legality and deviation equal certified global minima and no second key exists, every later candidate can only tie or lose, so returning it preserves the original winner and seed.
+ * @evidence contracts/development/implementation.md#principled-implementation The span is an exact sinusoid in the hinge angle because rotation about hinge leaves the along-hinge segment fixed and turns the rest in a circle. Its two arccos roots give the branches and swivel is a positional null space. Legality keeps exact zero. When the original first coarse candidate's actual legality and deviation equal certified global minima and no second key exists, every later candidate can only tie or lose, so returning it preserves the original winner and seed. A placed pole takes the feasible swivel nearest the desired one (Tolani, Goswami and Badler 2000, section 3.2.4; the swivel is the chain's one free parameter, section 3.2): the legal set's edge nearest the pole is found by stepping the swivel and bisecting the candidate's legality, each candidate scored as the sweep scores it.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pure chain geometry with the ROM policy injected through `score`, so `reachPose` owns the clinical decomposition and constraints while this function owns the branches and the sweep; the shared `aimRotation` aims the root.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; the degeneracy thresholds are the engine's shared length scale, and a chain that cannot reach legally returns its least overshoot instead of being clamped into range.
  * @evidence contracts/development/common.md#meaningful-documentation States the hinge-only elbow, the span formula and its branches, the out-of-span behavior, the swivel sweep and its ordering, who owns scoring, every `null` case with its threshold, and each input's frame.
@@ -272,13 +282,19 @@ export function hingedArmArticulation(
     const seed: IAutoMovieSwivelSeed | undefined = props.incumbent;
     if (seed !== undefined) {
       const stop: IBranch | undefined = stops.find(
-        (s: IBranch): boolean => s.branch === seed.branch && s.shortfall === shortfall,
+        (s: IBranch): boolean =>
+          s.branch === seed.branch && s.shortfall === shortfall,
       );
       const on: IPass | undefined =
-        stop === undefined ? undefined : branches.find((branch: IPass): boolean => branch.record === record(stop));
+        stop === undefined
+          ? undefined
+          : branches.find(
+              (branch: IPass): boolean => branch.record === record(stop),
+            );
       if (on !== undefined && Number.isFinite(seed.swivel)) {
         const candidate: IScored = on.probe(seed.swivel);
-        if (candidate.overshoot === 0) incumbent = hingedSwivelAhead.exact(candidate);
+        if (candidate.overshoot === 0)
+          incumbent = hingedSwivelAhead.exact(candidate);
       }
     }
     return hingedSwivelBounded.sweep<IScored>({
@@ -317,6 +333,48 @@ export function hingedArmArticulation(
       : { second: hingedSwivelAhead.second(chosen) }),
   });
 
+  // A placed pole (`IProps.placed`) is the answer where it is legal, and
+  // otherwise the legal swivel nearest it: the mid joint keeps as close to
+  // the place the law's own search chose as the ranges and obstructions
+  // allow (Tolani, Goswami and Badler 2000, section 3.2.4), instead of the
+  // sweep's best swivel anywhere, which leaves the place for the far side
+  // and snaps back when the place turns legal again.
+  const legal = (candidate: IScored): boolean =>
+    candidate.overshoot === 0 &&
+    (props.met === undefined || props.met(candidate.upper, candidate.lower));
+  // The legal swivel nearest `to` walking from `from` along the shorter
+  // turn: `to` itself where every step is legal, the legality edge, found by
+  // bisection, where a step is not; null where `from` itself is not legal.
+  const walkToward = (
+    probe: (angle: number) => IScored,
+    from: number,
+    to: number,
+  ): IPlacedEdge | null => {
+    if (!legal(probe(from))) return null;
+    const turn: number = to - from - 360 * Math.round((to - from) / 360);
+    const sign: number = turn < 0 ? -1 : 1;
+    const length: number = Math.abs(turn);
+    let inside: number = 0;
+    for (let d: number = SWIVEL_STEP; inside < length; d += SWIVEL_STEP) {
+      const reach: number = Math.min(d, length);
+      if (legal(probe(from + sign * reach))) {
+        inside = reach;
+        continue;
+      }
+      let outside: number = reach;
+      for (let i: number = 0; i < EDGE_BISECTIONS; ++i) {
+        const mid: number = (inside + outside) / 2;
+        if (legal(probe(from + sign * mid))) inside = mid;
+        else outside = mid;
+      }
+      break;
+    }
+    return {
+      candidate: probe(from + sign * inside),
+      distance: length - inside,
+    };
+  };
+
   // A continued fit refines its seed on the seed's branch alone.
   if (props.near !== undefined) {
     const near: IAutoMovieSwivelNear = props.near;
@@ -324,14 +382,40 @@ export function hingedArmArticulation(
     const stop: IBranch = { ...found[branch]!, branch };
     const posed: ReturnType<typeof hingedArmSwivel.pose> = pose(stop.theta);
 
+    // A continued placed fit answers at its pole where the pole is legal,
+    // and otherwise follows it from the seed within the legal interval the
+    // seed lies in, stopping at that interval's edge: the elbow holds the
+    // edge it reached while the pole crosses a refused arc, rather than
+    // leaving for the far side (Tolani, Goswami and Badler 2000, section
+    // 3.2.4, the feasible swivel nearest the desired one). A seed no longer
+    // legal is refined as any other.
+    if (props.placed === true && props.pole !== undefined) {
+      const target: number | null = props.pole(posed);
+      const probe: (angle: number) => IScored = prober(stop, posed);
+      if (target !== null) {
+        const at: IScored = probe(target);
+        if (legal(at)) return answer(at, at.shortfall);
+      }
+      const followed: IPlacedEdge | null =
+        target === null || !Number.isFinite(near.swivel)
+          ? null
+          : walkToward(probe, near.swivel, target);
+      if (followed !== null)
+        return answer(followed.candidate, followed.candidate.shortfall);
+    }
+
     // The search is centred on the admissible swivel nearest the seed where
     // the caller knows it (`nearest`), taken in the seed's own turn: the
     // seed itself while it stays admissible. A closed-form candidate inside
     // that bracket answers when legal and met (`hingedSwivelNear`); the
     // start is refined otherwise.
-    const toward: number | null = props.nearest === undefined ? null : props.nearest(posed, near.swivel);
-    const turn: number = toward === null ? 0 : toward - near.swivel;
-    const delta: number = Number.isFinite(turn) ? turn - 360 * Math.round(turn / 360) : 0;
+    const nearestSwivel: number | null =
+      props.nearest === undefined ? null : props.nearest(posed, near.swivel);
+    const turn: number =
+      nearestSwivel === null ? 0 : nearestSwivel - near.swivel;
+    const delta: number = Number.isFinite(turn)
+      ? turn - 360 * Math.round(turn / 360)
+      : 0;
     const met: typeof props.met = props.met;
     const seeded: IScored = hingedSwivelNear<IScored>({
       probe: prober(stop, posed),
@@ -421,6 +505,43 @@ export function hingedArmArticulation(
       (props.met === undefined || props.met(poled.upper, poled.lower))
     )
       return answer(poled);
+
+    // A placed pole not legal where it lies is answered at the legal swivel
+    // nearest it on any branch: each branch walked out from its pole both
+    // ways, the nearest edge kept, the better candidate on a tie.
+    if (props.placed === true) {
+      let nearest: IPlacedEdge | null = null;
+      for (const stop of stops) {
+        if (stop.shortfall !== shortfall) continue;
+        const branch: ISweep = record(stop);
+        const target: number | null = props.pole(branch.posed);
+        if (target === null) continue;
+        for (const sign of [1, -1]) {
+          // The walk starts at the far side of the pole and comes back to
+          // it: the first legal step from the far side is the start, and
+          // the edge toward the pole the candidate.
+          for (let d: number = SWIVEL_STEP; d <= 180; d += SWIVEL_STEP) {
+            if (nearest !== null && d - SWIVEL_STEP > nearest.distance) break;
+            const from: number = target + sign * d;
+            const edge: IPlacedEdge | null = walkToward(
+              branch.probe,
+              from,
+              target,
+            );
+            if (edge === null) continue;
+            if (
+              nearest === null ||
+              edge.distance < nearest.distance - 1e-9 ||
+              (Math.abs(edge.distance - nearest.distance) <= 1e-9 &&
+                better(edge.candidate, nearest.candidate))
+            )
+              nearest = edge;
+            break;
+          }
+        }
+      }
+      if (nearest !== null) return answer(nearest.candidate);
+    }
   }
 
   // Pruned, the sweep is the full one whenever it finds a legal candidate;
@@ -435,6 +556,15 @@ export function hingedArmArticulation(
   // `branches` is never empty and the full sweep scores 360 candidates, so
   // `chosen` is assigned by here.
   return answer(chosen!);
+}
+
+/** A legal candidate a placed pole's walk reached and its distance from the pole, degrees (`hingedArmArticulation.IProps.placed`). */
+interface IPlacedEdge {
+  /** The candidate at the pole or at the legality edge nearest it. */
+  candidate: IScored;
+
+  /** Degrees from the pole's swivel, 0 at the pole. */
+  distance: number;
 }
 
 /** One bend branch with its index (`hingedArmCandidate.IBranch`). */
@@ -544,7 +674,10 @@ export namespace hingedArmArticulation {
      * is admissible; null where the analysis does not apply or nothing is
      * admissible. A continued fit centres its search there (`hingedSwivelNear`).
      */
-    nearest?: (posed: ReturnType<typeof hingedArmSwivel.pose>, swivel: number) => number | null;
+    nearest?: (
+      posed: ReturnType<typeof hingedArmSwivel.pose>,
+      swivel: number,
+    ) => number | null;
 
     /** Whether a pole-started result meets every requested term; absent, legality alone decides. */
     met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
@@ -557,6 +690,17 @@ export namespace hingedArmArticulation {
      * refuse, and the sweep decides at once; omitted, nothing is certified.
      */
     unmet?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => boolean;
+
+    /**
+     * Whether `pole` is a place the law's own elbow search chose
+     * (`IAutoMovieFitChainToTargetProps.placed`), authoritative as a hint
+     * is not: a cold fit answers at the pole where it is legal and at the
+     * legal swivel nearest it otherwise, on any branch; a continued fit
+     * walks from its seed toward the pole and answers at the pole or at the
+     * edge of the legal interval the seed lies in. Only where no swivel is
+     * legal does the sweep decide. Read only with `pole`.
+     */
+    placed?: boolean;
 
     /** Whether the score is the start's own term alone, so an unrefused start is the answer. */
     direct?: boolean;

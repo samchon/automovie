@@ -42,21 +42,6 @@ export const SCENES_PLANNED: readonly IScene[] = [
   ),
   planned(
     {
-      id: "cavalry-charge",
-      title: "Cavalry squadron, walk to charge",
-      summary:
-        "A squadron of two ranks advances knee to knee at the walk, trot and canter, and charges with sabres; the line loosens through the gallop.",
-      setting: "troops",
-      needs: [3457, 3458, 3462, 3466, 3491, 3493, 3494],
-    },
-    {
-      cast: "48 riders; horses, sabres",
-      pieces:
-        "a two-rank block on slot paths, a trumpet track, gait changes, the sabre carried over the ride",
-    },
-  ),
-  planned(
-    {
       id: "mob",
       title: "A mob running ragged",
       summary:

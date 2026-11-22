@@ -17,6 +17,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** Fresh water's density, kg/m^3: the engine's default when the water states none. */
+const FRESH: number = 1000;
+
+/** Drag coefficient of a flat plate across the flow (Hoerner, Fluid-Dynamic Drag, 1965). */
+const PLATE: number = 1.17;
+
 /**
  * A body the water carries (#3432): the water's forces on every segment
  * (`resolveHydrodynamicForce`) summed over the posed body, the height at
@@ -85,6 +91,34 @@ export namespace HumanWater {
         volume += v;
       },
     );
+    // A worn fin is a flat plate along each sole: the water drags on it
+    // across its face, 0.5 rho C A |v_n| v_n against the velocity normal to
+    // the blade, while edgewise it adds nothing (Hoerner, Fluid-Dynamic Drag,
+    // a flat plate normal to the flow).
+    const fins: number = water.fins ?? 0;
+    if (fins > 0)
+      for (const side of ["leftFoot", "rightFoot"] as const) {
+        const foot: IAutoMovieResolvedBone | undefined = bones.get(side);
+        if (foot === undefined || foot.worldPosition.y > water.surface)
+          continue;
+        const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+          foot.worldRotation,
+          { x: 0, y: 1, z: 0 },
+        );
+        const across: number = Vector3.dot(velocity, normal);
+        drag = Vector3.add(
+          drag,
+          Vector3.scale(
+            normal,
+            -0.5 *
+              (water.density ?? FRESH) *
+              PLATE *
+              fins *
+              Math.abs(across) *
+              across,
+          ),
+        );
+      }
     return { buoyancy, drag, submerged, volume };
   }
 

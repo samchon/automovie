@@ -1,5 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
@@ -23,12 +24,12 @@ import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import { walkLeg } from "../actions/walkLeg";
 import { walkRoot } from "../actions/walkRoot";
+import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -40,7 +41,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { climbStairsFeet } from "./climbStairsFeet";
 import { climbStairsFlight } from "./climbStairsFlight";
 import { climbStairsPelvis } from "./climbStairsPelvis";
+import { climbStairsPrints } from "./climbStairsPrints";
 import { climbStairsProfile } from "./climbStairsProfile";
+import { climbStairsRail } from "./climbStairsRail";
 import { climbStairsRocker } from "./climbStairsRocker";
 import { climbStairsWeight } from "./climbStairsWeight";
 
@@ -91,8 +94,9 @@ const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
  * ground. The treads repeat the settled stance's flat feet, while the feet
  * leave the floor from where the entry put them.
  *
- * Not yet: handrail use (no `bar` affordance exists, A8), landing turns,
- * ramps and slopes, which belong to the walk on a sloped support.
+ * An optional handrail names the gripping hand and a bar on the fixed
+ * stair prop. The grip bears along that axis, then releases before the
+ * final stance. A following walk can turn on the landing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the flight, the footprints, the swing rule, the timing with sources, the refusals and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record composed of one body row over a step schedule on one clock.
@@ -129,10 +133,12 @@ export namespace climbStairs {
   export const SWING: number = 0.8;
 
   /** The flight's surface height under a point (`climbStairsFlight.surface`). */
-  export const surface: typeof climbStairsFlight.surface = climbStairsFlight.surface;
+  export const surface: typeof climbStairsFlight.surface =
+    climbStairsFlight.surface;
 
   /** The flight a set of parameters describes (`climbStairsFlight.flight`). */
-  export const flight: typeof climbStairsFlight.flight = climbStairsFlight.flight;
+  export const flight: typeof climbStairsFlight.flight =
+    climbStairsFlight.flight;
 
   /**
    * Plan a climb.
@@ -156,115 +162,64 @@ export namespace climbStairs {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const p: IAutoMovieMotionHumanClimbStairs.IParams = context.params;
     const lead: "left" | "right" = p.lead ?? "right";
-    const trail: "left" | "right" = lead === "left" ? "right" : "left";
     // The feet leave the floor from the entry; the treads repeat the
     // settled stance's flat feet (`stand.footprints`).
     const stood: stand.IFootprints = stand.footprints(context);
     const standing: IAutoMovieMotionHumanPosture = stood.standing;
-    const entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = stood.entered;
-    const flats: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = stood.settled;
+    const entered: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = stood.entered;
+    const flats: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = stood.settled;
     const yaw: number = standing.yaw;
-    const stairs: IAutoMovieMotionHumanClimbStairsFlight.IFlight = flight(body, standing, p);
+    const stairs: IAutoMovieMotionHumanClimbStairsFlight.IFlight = flight(
+      body,
+      standing,
+      p,
+    );
     const framed: HumanFrame.IPrepared = HumanFrame.prepare(stairs.frame);
     const sign: number = stairs.direction === "up" ? 1 : -1;
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
 
     // Footprints: the settled flat sole on its tread at the standing lateral place.
-    const goals: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>> = {
-      left: AutoMovieMotionHumanLeg.preparePlacement(body, "left", flats.left.rotation),
-      right: AutoMovieMotionHumanLeg.preparePlacement(body, "right", flats.right.rotation),
-    };
-    // The sole's heel, ball and toe about the ankle of a flat foot, along
-    // the flight and in height.
-    function soleOf(
-      side: "left" | "right",
-    ): IAutoMovieMotionHumanClearance.IPoint[] {
-      return (["heel", "ball", "toe"] as const).map((point: "heel" | "ball" | "toe"): IAutoMovieMotionHumanClearance.IPoint => {
-        const at: IAutoMovieVector3 = HumanFoot.point(
-          body,
-          side,
-          point,
-          flats[side],
-        );
-        return {
-          z:
-            framed.local(at).z -
-            framed.local(flats[side].ankle).z,
-          y: at.y - flats[side].ankle.y,
-        };
-      });
-    }
-    const soles: Record<"left" | "right", IAutoMovieMotionHumanClearance.IPoint[]> = {
-      left: soleOf("left"), right: soleOf("right"),
-    };
-    const printOf: (side: "left" | "right", level: number) => IPrint = (side: "left" | "right", level: number): IPrint => {
-      if (level === 0) return { placement: entered[side], level: 0 };
-      const [heel, , toe]: IAutoMovieMotionHumanClearance.IPoint[] = soles[side];
-      const length: number = toe!.z - heel!.z;
-      const edge: number = stairs.first + (level - 1) * stairs.tread;
-      // The last tread is the landing: it has no far edge to keep from.
-      const heelAt: number =
-        length <= stairs.tread - 2 * EDGE
-          ? edge + (stairs.tread - length) / 2
-          : level === stairs.count
-            ? edge + EDGE
-            : sign > 0
-              ? edge - EDGE
-              : edge + stairs.tread + EDGE - length;
-      const ankle: IAutoMovieVector3 = flats[side].ankle;
-      return {
-        placement: {
-          ankle: framed.point({
-            x: framed.local(ankle).x,
-            y: ankle.y + sign * level * stairs.riser,
-            z: heelAt - heel!.z,
-          }),
-          rotation: flats[side].rotation,
-        },
-        level,
-      };
-    };
-    const footprints: Record<"left" | "right", Map<number, IPrint>> = {
-      left: new Map(), right: new Map(),
-    };
-    const print: (side: "left" | "right", level: number) => IPrint = (side: "left" | "right", level: number): IPrint => {
-      let out: IPrint | undefined = footprints[side].get(level);
-      if (out === undefined) footprints[side].set(level, (out = printOf(side, level)));
-      return out;
-    };
+    const footing: climbStairsPrints.IPrints = climbStairsPrints.prepare(
+      body,
+      entered,
+      flats,
+      stairs,
+      framed,
+      sign,
+      EDGE,
+    );
+    const goals: climbStairsPrints.IPrints["goals"] = footing.goals;
+    const print: climbStairsPrints.IPrints["print"] = footing.print;
 
     // The height asked of a swinging ankle along the flight: every sole
     // point on or above the surface under it, and `CLEARANCE` above an edge
     // it is passing.
-    const profile: (z: number) => number =
-      climbStairsProfile(stairs, EDGE - EDGE_MARGIN, CLEARANCE);
-    const required: (side: "left" | "right") => (z: number) => number =
-      (side: "left" | "right"): ((z: number) => number) => {
-        const points: readonly IAutoMovieMotionHumanClearance.IPoint[] = soles[side];
-        return (z: number): number => {
-          let height: number = -Infinity;
-          for (const point of points)
-            height = Math.max(height, profile(z + point.z) - point.y);
-          return height;
-        };
-      };
+    const profile: (z: number) => number = climbStairsProfile(
+      stairs,
+      EDGE - EDGE_MARGIN,
+      CLEARANCE,
+    );
+    const required: (side: AutoMovieHumanSide) => (z: number) => number = (
+      side: AutoMovieHumanSide,
+    ): ((z: number) => number) => footing.required(side, profile);
 
     // The step schedule: which foot goes to which tread, in order.
-    const steps: { side: "left" | "right"; level: number }[] = [];
-    if ((p.pattern ?? "stepOverStep") === "stepOverStep") {
-      for (let i: number = 1; i <= stairs.count; i++)
-        steps.push({ side: i % 2 === 1 ? lead : trail, level: i });
-      steps.push({
-        side: stairs.count % 2 === 1 ? trail : lead,
-        level: stairs.count,
-      });
-    } else
-      for (let i: number = 1; i <= stairs.count; i++)
-        steps.push({ side: lead, level: i }, { side: trail, level: i });
+    const steps: climbStairsPrints.IStep[] = climbStairsPrints.schedule(
+      p.pattern ?? "stepOverStep",
+      stairs.count,
+      lead,
+    );
 
     // The clock: a step period per swing, the swing at its end, and a settle.
-    const period: number = (60 / CADENCE) * Math.sqrt(m.hipHeight / walkRoot.REFERENCE_HIP);
+    const period: number =
+      (60 / CADENCE) * Math.sqrt(m.hipHeight / walkRoot.REFERENCE_HIP);
     const instants: IAutoMovieMotionClockInstant[] = [];
     steps.forEach((_: unknown, j: number): void => {
       instants.push(
@@ -279,8 +234,10 @@ export namespace climbStairs {
       { holds: [] },
     );
     const duration: number = clock.duration;
-    const rightLoad: (seconds: number) => number =
-      climbStairsWeight(steps.map((step: (typeof steps)[number]): "left" | "right" => step.side), clock);
+    const rightLoad: (seconds: number) => number = climbStairsWeight(
+      steps.map((step: (typeof steps)[number]): "left" | "right" => step.side),
+      clock,
+    );
 
     // Each foot's prints in order, with the step that brings it there.
     const prints: Record<"left" | "right", { print: IPrint; step: number }[]> =
@@ -299,18 +256,24 @@ export namespace climbStairs {
       feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): IAutoMovieVector3 {
-      return resolveHumanPosture.lower(body, {
-        ...posture,
-        limbs: {
-          ...posture.limbs,
-          leftLeg: goals.left(posture, feet.left, true),
-          rightLeg: goals.right(posture, feet.right, true),
+      return resolveHumanPosture.lower(
+        body,
+        {
+          ...posture,
+          limbs: {
+            ...posture.limbs,
+            leftLeg: goals.left(posture, feet.left, true),
+            rightLeg: goals.right(posture, feet.right, true),
+          },
         },
-      }, undefined, resolution).root;
+        undefined,
+        resolution,
+      ).root;
     }
     const stance: IAutoMovieVector3[] = [standing.root];
     {
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
       const now: Record<"left" | "right", IPrint> = {
         left: print("left", 0),
         right: print("right", 0),
@@ -354,13 +317,16 @@ export namespace climbStairs {
       const to: IAutoMovieVector3 = framed.local(b.ankle);
       const across: number = to.x - from.x;
       const forward: number = Math.max(1e-9, to.z - from.z);
-      const path: ReturnType<typeof AutoMovieMotionHumanClearance.path> = AutoMovieMotionHumanClearance.path(
-        { z: from.z, y: a.ankle.y },
-        { z: to.z, y: b.ankle.y },
-        required(side),
-      );
+      const path: ReturnType<typeof AutoMovieMotionHumanClearance.path> =
+        AutoMovieMotionHumanClearance.path(
+          { z: from.z, y: a.ankle.y },
+          { z: to.z, y: b.ankle.y },
+          required(side),
+        );
       return (s: number): IAutoMovieMotionHumanFoot.IPlacement => {
-        const at: IAutoMovieMotionHumanClearance.IPoint = path(minimumJerk.share(Math.min(1, Math.max(0, s))));
+        const at: IAutoMovieMotionHumanClearance.IPoint = path(
+          minimumJerk.share(Math.min(1, Math.max(0, s))),
+        );
         return {
           ankle: framed.point({
             x: from.x + (across * (at.z - from.z)) / forward,
@@ -371,9 +337,15 @@ export namespace climbStairs {
         };
       };
     }
-    const footAt: ReturnType<typeof climbStairsFeet> =
-      climbStairsFeet(prints, clock, swing);
-    const rock: ReturnType<typeof climbStairsRocker> = climbStairsRocker(body, prints);
+    const footAt: ReturnType<typeof climbStairsFeet> = climbStairsFeet(
+      prints,
+      clock,
+      swing,
+    );
+    const rock: ReturnType<typeof climbStairsRocker> = climbStairsRocker(
+      body,
+      prints,
+    );
     const rootAt: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis.of(
       stance,
       clock,
@@ -396,39 +368,62 @@ export namespace climbStairs {
       reads: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number, _before?: IAutoMovieMotionHumanPrimitive.Reader, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieMotionHumanPosture => {
-        const placed: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
-          body,
-          {
-            ...posture,
-            root: rootAt(seconds),
-            yaw,
-            joints: { ...posture.joints, ...inclined.joints },
-          },
-          { pitch: inclined.pitch, roll: 0 },
-        );
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      ): IAutoMovieMotionHumanPosture => {
+        const placed: IAutoMovieMotionHumanPosture =
+          AutoMovieMotionHumanLean.pivot(
+            body,
+            {
+              ...posture,
+              root: rootAt(seconds),
+              yaw,
+              joints: { ...posture.joints, ...inclined.joints },
+            },
+            { pitch: inclined.pitch, roll: 0 },
+          );
         // The root stays where the swinging leg reaches its foot too, so
         // the foot keeps its clearing path.
         const feet: Record<"left" | "right", ReturnType<typeof footAt>> = {
           left: footAt("left", seconds),
           right: footAt("right", seconds),
         };
-        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-        const root: IAutoMovieVector3 = reached(placed, {
-          left: feet.left.placement,
-          right: feet.right.placement,
-        }, read);
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
+        const root: IAutoMovieVector3 = reached(
+          placed,
+          {
+            left: feet.left.placement,
+            right: feet.right.placement,
+          },
+          read,
+        );
         // As the other foot takes the weight, the heel can rise around its
         // fixed forefoot before toe-off. The same rocker follows the swing
         // and settles continuously as the newly landed foot accepts weight.
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...placed.joints };
-        const hips: ReturnType<typeof hipJoints> = hipJoints(body, root,
-          resolveHumanPosture.heading(placed), placed.joints.hips, read());
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...placed.joints,
+        };
+        const hips: ReturnType<typeof hipJoints> = hipJoints(
+          body,
+          root,
+          resolveHumanPosture.heading(placed),
+          placed.joints.hips,
+          read(),
+        );
         const load: number = rightLoad(seconds);
         for (const side of ["left", "right"] as const) {
           const { placement, flexion }: ReturnType<typeof rock> = rock(
-            side, feet[side].placement, hips[side], walkLeg.dorsal(side === "right" ? load : 1 - load),
+            side,
+            feet[side].placement,
+            hips[side],
+            walkLeg.dorsal(side === "right" ? load : 1 - load),
           );
           if (flexion !== 0) joints[`${side}Toes`] = [flexion, 0, 0];
           limbs[`${side}Leg`] = {
@@ -461,28 +456,33 @@ export namespace climbStairs {
             level === 0
               ? { kind: "ground" }
               : p.on === undefined
-                ? { kind: "ground", height: stairs.frame.origin.y + sign * level * stairs.riser }
+                ? {
+                    kind: "ground",
+                    height: stairs.frame.origin.y + sign * level * stairs.riser,
+                  }
                 : { kind: "prop", subject: p.on },
         });
       }
     }
 
-    return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
-      clock,
-      contact: "arrived",
-      primitives: [climb],
-    });
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
+        clock,
+        contact: "arrived",
+        primitives: [climb],
+      });
+    const railed: IAutoMovieMotionHumanActionPlan =
+      p.rail === undefined ? plan : climbStairsRail(context, plan, p.rail);
+
+    // A flight on a moving prop, such as an escalator's inclined steps, is planned where it stood at the start and carried by the prop, as a walk on a moving support is.
+    return p.on !== undefined && context.prop(p.on).prop.motion !== undefined
+      ? HumanSupportCarry.on(context, railed, p.on)
+      : railed;
   }
 
   /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */
-  interface IPrint {
-    /** The ankle and foot rotation, world metres. */
-    placement: IAutoMovieMotionHumanFoot.IPlacement;
-
-    /** The tread, 1 the first; 0 for the floor before the flight. */
-    level: number;
-  }
+  type IPrint = climbStairsPrints.IPrint;
 }
 
 /** The trunk's forward inclination ascending stairs, degrees (provisional: more than a walk's, McFadyen and Winter 1988, J Biomech 21:733). */

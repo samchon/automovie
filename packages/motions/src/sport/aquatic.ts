@@ -7,11 +7,18 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
+import { AquaticDistress } from "./AquaticDistress";
 import { AquaticDive } from "./AquaticDive";
+import { AquaticEdgeExit } from "./AquaticEdgeExit";
+import { AquaticExit } from "./AquaticExit";
+import { AquaticFin } from "./AquaticFin";
+import { AquaticLiftOut } from "./AquaticLiftOut";
 import { AquaticPaddle } from "./AquaticPaddle";
 import { AquaticPolo } from "./AquaticPolo";
 import { AquaticPool } from "./AquaticPool";
+import { AquaticRescue } from "./AquaticRescue";
 import { AquaticSail } from "./AquaticSail";
+import { AquaticScull } from "./AquaticScull";
 import { AquaticTeam } from "./AquaticTeam";
 
 /**
@@ -49,12 +56,33 @@ export namespace aquatic {
       case "artisticSwim":
         return AquaticTeam.artistic(context, water);
       case "doubleScull":
+        return context.params.station === undefined
+          ? AquaticPaddle.plan(context, context.params.kind)
+          : AquaticScull.plan(context, context.params.station);
       case "canoeStroke":
       case "kayakStroke":
         return AquaticPaddle.plan(context, context.params.kind);
       case "sailTack":
       case "sailAbort":
         return AquaticSail.plan(context, context.params.kind === "sailAbort");
+      case "waterExit":
+        return AquaticExit.plan(context, water);
+      case "distress":
+        return AquaticDistress.plan(context, water);
+      case "rescueTow":
+        return AquaticRescue.rescuer(context, water);
+      case "towed":
+        return AquaticRescue.towed(context, water);
+      case "edgeExit":
+        return AquaticEdgeExit.plan(context, water);
+      case "liftOut":
+        return AquaticLiftOut.rescuer(context, water);
+      case "liftedOut":
+        return AquaticLiftOut.lifted(context, water);
+      case "finSwim":
+      case "duckDive":
+      case "snorkel":
+        return AquaticFin.plan(context, water, context.params.kind);
     }
   }
 }

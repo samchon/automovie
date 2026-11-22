@@ -21,6 +21,8 @@ export namespace HumanContactWindow {
     "rightUpperLeg",
     "leftLowerLeg",
     "rightLowerLeg",
+    "head",
+    "chest",
   ] as const satisfies readonly NonNullable<
     IAutoMovieMotionHumanContactWindow["part"]
   >[];
@@ -45,7 +47,7 @@ export namespace HumanContactWindow {
   /**
    * The surface region each part touches with when a window names no
    * `region`: a foot's sole, a hand's palm, the seat bones, the upper back,
-   * the outer face of an arm segment, the front of a thigh and a knee. The
+   * the outer face of an arm segment, the front of a thigh and a knee, the back of the head and the breastbone. The
    * one table the audits read a window's contact point from.
    */
   export const REGIONS: Readonly<
@@ -65,6 +67,8 @@ export namespace HumanContactWindow {
     rightUpperLeg: "thighFrontRight",
     leftLowerLeg: "kneeLeft",
     rightLowerLeg: "kneeRight",
+    head: "headBack",
+    chest: "sternum",
   };
 
   /** The kinds that bear the body's weight when no `load` says otherwise. */

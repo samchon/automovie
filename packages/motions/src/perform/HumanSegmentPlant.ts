@@ -13,6 +13,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { refitHumanPosture } from "../posture/refitHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSegmentPose } from "./HumanSegmentPose";
+import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 
 /**
  * The final planted-limb refit of a displayed pose after its range clamp.
@@ -104,7 +105,7 @@ export namespace HumanSegmentPlant {
     const selected: [string, IAutoMovieHumanLimbGoal][] = Object.entries(limbs).filter(
       ([, goal]: [string, IAutoMovieHumanLimbGoal]): boolean => goal.planted === true,
     );
-    if (selected.length === 0 && near === undefined) return { pose, seeds: {}, values: {} };
+    if (selected.length === 0 && !HumanSegmentPoseSeeds.continues(near)) return { pose, seeds: {}, values: {} };
     const plants: IAutoMovieMotionHumanPosture["limbs"] = Object.fromEntries(selected);
     const ordered: AutoMovieHumanLimb[] = resolveHumanPosture.order(plants);
 

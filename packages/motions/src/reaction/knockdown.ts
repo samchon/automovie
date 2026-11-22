@@ -31,6 +31,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { KnockdownFloor } from "./KnockdownFloor";
+import { ReactionFeet } from "./ReactionFeet";
 import { ReactionSource } from "./ReactionSource";
 
 /**
@@ -233,6 +234,8 @@ export namespace knockdown {
             limbs: {},
           },
           [
+            // The feet stay planted where they stood until the seat lands.
+            ...ReactionFeet.plants(SEATED / duration),
             {
               part: "seat",
               kind: "seat",
@@ -316,8 +319,10 @@ export namespace knockdown {
     // The fold has reached its grounded endpoint at "down"; an authored
     // lying hold extends only the film clock after that event.
     const defaultSource: boolean = context.params.from === undefined;
+    // The fold turns and pitches the body about its root; the feet stay
+    // flat where they stood until the seat lands, so no heel skates.
     const out: IAutoMovieMotionHumanActionPlan = {
-      ...plan,
+      ...ReactionFeet.hold(plan, context.entry, body, SEATED, 0.5 * body.measure.hipHeight),
       ...(defaultSource && duration > DOWN
         ? { still: [DOWN, duration] as const }
         : {}),

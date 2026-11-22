@@ -18,6 +18,7 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPoleVault,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
@@ -72,7 +73,9 @@ import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
  * pole, which a bending pole and a body that rocks back over its hands
  * give a vaulter (the multi-axis case is #3416); the pole's own mass and
  * the body's inertia about its centre are left out of the pendulum; the
- * other hand keeps the jump's arm swing; the released pole is not planned.
+ * other hand keeps the jump's arm swing; the released pole flies from the
+ * velocity of its origin in the swing (`launches`) rather than pivoting on
+ * in the box.
  *
  * Events: `takeoff` (the plant), `release`, `touchdown`, `settled`, `relax`.
  *
@@ -131,7 +134,8 @@ export namespace poleVault {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const p: IAutoMovieMotionHumanPoleVault.IParams = context.params;
-    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(body);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
+      GymnasticsFlight.model(body);
 
     // The pole in the hand that holds it.
     const side: "left" | "right" =
@@ -146,8 +150,12 @@ export namespace poleVault {
       p.end ?? "tip",
     ).point;
     const length: number = Vector3.length(end);
-    const readGrip: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, HumanHand.frameBones(body, side, "grip"));
-    const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readGrip(context.entry.pose);
+    const readGrip: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+      body,
+      HumanHand.frameBones(body, side, "grip"),
+    );
+    const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      readGrip(context.entry.pose);
     const hand0: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
     const socket: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.inverse(hand0.worldRotation),
@@ -181,21 +189,47 @@ export namespace poleVault {
       y: speed * Math.sin(rise),
       z: ahead.z * speed * climbCosine,
     };
-    const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff = GymnasticsTakeoff.of(
-      context,
-      (): IAutoMovieVector3 => ({ ...takeoffVelocity }),
-    );
+    const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff =
+      GymnasticsTakeoff.of(
+        context,
+        (): IAutoMovieVector3 => ({ ...takeoffVelocity }),
+      );
     const off: number = takeoff.seconds;
 
     // The plant: the hand as high as the arm reaches over the shoulder, or
     // as high as lets the pole lean `LEAN` to the floor, ahead of it.
-    const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
-    const { shoulder, root: rootT }: { shoulder: IAutoMovieVector3; root: IAutoMovieVector3 } = ((): { shoulder: IAutoMovieVector3; root: IAutoMovieVector3 } => {
-      const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
-      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-      const raw: IAutoMovieMotionHumanPosture = takeoff.plan.posture(off, undefined, resolution, projection);
-      const shoulder: IAutoMovieVector3 = poseBones(body,
-        resolveHumanPosture.seeded(body, raw, undefined, undefined, resolution, shoulderBones, projection).pose, resolution, shoulderBones,
+    const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
+    const {
+      shoulder,
+      root: rootT,
+    }: { shoulder: IAutoMovieVector3; root: IAutoMovieVector3 } = ((): {
+      shoulder: IAutoMovieVector3;
+      root: IAutoMovieVector3;
+    } => {
+      const resolution: ReturnType<typeof preparePoseResolution> =
+        preparePoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(body);
+      const raw: IAutoMovieMotionHumanPosture = takeoff.plan.posture(
+        off,
+        undefined,
+        resolution,
+        projection,
+      );
+      const shoulder: IAutoMovieVector3 = poseBones(
+        body,
+        resolveHumanPosture.seeded(
+          body,
+          raw,
+          undefined,
+          undefined,
+          resolution,
+          shoulderBones,
+          projection,
+        ).pose,
+        resolution,
+        shoulderBones,
       ).get(`${side}UpperArm`)!.worldPosition;
       return { shoulder, root: raw.root };
     })();
@@ -260,19 +294,32 @@ export namespace poleVault {
     // wrist's path is laid on the root, which runs on under it: from its
     // place off the entry's root to its place off the take-off's.
     const root0: IAutoMovieVector3 = context.entry.posture.root;
-    const handFrom: IAutoMovieVector3 = Vector3.subtract(hand0.worldPosition, root0);
+    const handFrom: IAutoMovieVector3 = Vector3.subtract(
+      hand0.worldPosition,
+      root0,
+    );
     const poleBend: IAutoMovieVector3 = Vector3.scale(outward, 0.5);
-    const handTurn: ReturnType<typeof Quaternion.prepareSlerp> = Quaternion.prepareSlerp(hand0.worldRotation, rotation);
-    const pushing: (t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]) => IAutoMovieMotionHumanPosture = (t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
-      const base: IAutoMovieMotionHumanPosture = takeoff.plan.posture(t, undefined, resolution, projection);
+    const handTurn: ReturnType<typeof Quaternion.prepareSlerp> =
+      Quaternion.prepareSlerp(hand0.worldRotation, rotation);
+    const pushing: (
+      t: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ) => IAutoMovieMotionHumanPosture = (
+      t: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture => {
+      const base: IAutoMovieMotionHumanPosture = takeoff.plan.posture(
+        t,
+        undefined,
+        resolution,
+        projection,
+      );
       const u: number = minimumJerk.share(t / off);
       const point: IAutoMovieVector3 = Vector3.add(
         base.root,
-        Vector3.lerp(
-          handFrom,
-          Vector3.subtract(wrist, rootT),
-          u,
-        ),
+        Vector3.lerp(handFrom, Vector3.subtract(wrist, rootT), u),
       );
       return {
         ...base,
@@ -292,13 +339,23 @@ export namespace poleVault {
     // raised or lowered by that end's height and solved again until the end
     // is on the floor, the hand's turn being nearly the same a few
     // centimetres away.
-    const plantFit: ReturnType<typeof preparePoleVaultPlant> = preparePoleVaultPlant({
-      body, model, side, end, height: wrist.y, passes: PLANT,
-      posture: (height: number, resolution: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
-        wrist = { ...wrist, y: height };
-        return pushing(off, resolution, projection);
-      },
-    });
+    const plantFit: ReturnType<typeof preparePoleVaultPlant> =
+      preparePoleVaultPlant({
+        body,
+        model,
+        side,
+        end,
+        height: wrist.y,
+        passes: PLANT,
+        posture: (
+          height: number,
+          resolution: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+          projection: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+        ): IAutoMovieMotionHumanPosture => {
+          wrist = { ...wrist, y: height };
+          return pushing(off, resolution, projection);
+        },
+      });
     const from: IAutoMovieMotionHumanPosture = plantFit.posture;
     const tipAt: IAutoMovieVector3 = plantFit.tip;
     const gripAt: IAutoMovieVector3 = plantFit.grip;
@@ -319,8 +376,7 @@ export namespace poleVault {
     const gravity: number = (2 * AutoMovieGravity.STANDARD) / r;
     const initialRate2: number = omega0 * omega0;
     const rate2: (alpha: number) => number = (alpha: number): number =>
-      initialRate2 +
-      gravity * (cosine - Math.cos(beta0 + alpha));
+      initialRate2 + gravity * (cosine - Math.cos(beta0 + alpha));
     const rates: number[] = [];
     let needed: number = 0;
     for (let i: number = 0; i <= STEPS; i++) {
@@ -345,14 +401,15 @@ export namespace poleVault {
       });
 
     // The table of seconds by angle, by the trapezoid rule on 1 / ω.
-    const inverse: number[] = rates.map((value: number): number => 1 / Math.sqrt(value));
+    const inverse: number[] = rates.map(
+      (value: number): number => 1 / Math.sqrt(value),
+    );
     const seconds: number[] = [0];
     for (let i: number = 1; i <= STEPS; i++) {
       const a: number = (upright * (i - 1)) / STEPS;
       const b: number = (upright * i) / STEPS;
       seconds.push(
-        seconds[i - 1]! +
-          ((b - a) / 2) * (inverse[i - 1]! + inverse[i]!),
+        seconds[i - 1]! + ((b - a) / 2) * (inverse[i - 1]! + inverse[i]!),
       );
     }
     const swing: number = seconds[STEPS]!;
@@ -361,16 +418,19 @@ export namespace poleVault {
       let high: number = STEPS;
       while (low < high) {
         const middle: number = Math.floor((low + high) / 2);
-        if (seconds[middle]! < t) low = middle + 1; else high = middle;
+        if (seconds[middle]! < t) low = middle + 1;
+        else high = middle;
       }
       const i: number = low;
       const u: number = (t - seconds[i - 1]!) / (seconds[i]! - seconds[i - 1]!);
       return (upright * (i - 1 + Math.min(1, Math.max(0, u)))) / STEPS;
     };
     const degrees: number = 180 / Math.PI;
-    const turnFrom: ReturnType<typeof GymnasticsFlight.prepareTurned> = GymnasticsFlight.prepareTurned(from, tipAt);
-    const swinging: (t: number) => IAutoMovieMotionHumanPosture = (t: number): IAutoMovieMotionHumanPosture =>
-      turnFrom(0, angleAt(t) * degrees);
+    const turnFrom: ReturnType<typeof GymnasticsFlight.prepareTurned> =
+      GymnasticsFlight.prepareTurned(from, tipAt);
+    const swinging: (t: number) => IAutoMovieMotionHumanPosture = (
+      t: number,
+    ): IAutoMovieMotionHumanPosture => turnFrom(0, angleAt(t) * degrees);
 
     // The release: the centre and its velocity from the pendulum.
     const omega: number = Math.sqrt(rate2(upright));
@@ -388,9 +448,15 @@ export namespace poleVault {
     );
     const placeFlight: ReturnType<typeof prepareGymnasticsPlacement> =
       prepareGymnasticsPlacement(body, model, released);
-    const flying: (t: number) => IAutoMovieMotionHumanPosture = (t: number): IAutoMovieMotionHumanPosture =>
+    const flying: (t: number) => IAutoMovieMotionHumanPosture = (
+      t: number,
+    ): IAutoMovieMotionHumanPosture =>
       placeFlight(
-        { yaw: released.yaw, pitch: released.pitch + omega * degrees * t, roll: 0 },
+        {
+          yaw: released.yaw,
+          pitch: released.pitch + omega * degrees * t,
+          roll: 0,
+        },
         GymnasticsFlight.at(cr, velocity, t),
       );
 
@@ -400,9 +466,14 @@ export namespace poleVault {
         ? 0
         : WorkoutSupport.at(context, { prop: p.on, affordance: "surface" }).y;
     const down: number = ((): number => {
-      const [floorResolution, floorProjection]: [ReturnType<typeof preparePoseResolution>, ReturnType<typeof prepareHumanPostureProjection>] = [preparePoseResolution(), prepareHumanPostureProjection(body)];
-      const readLowest: ReturnType<typeof GymnasticsFlight.prepareLowest> = GymnasticsFlight.prepareLowest(body);
-      const lowest: (t: number) => number = (t: number): number => readLowest(flying(t), floorResolution, floorProjection);
+      const [floorResolution, floorProjection]: [
+        ReturnType<typeof preparePoseResolution>,
+        ReturnType<typeof prepareHumanPostureProjection>,
+      ] = [preparePoseResolution(), prepareHumanPostureProjection(body)];
+      const readLowest: ReturnType<typeof GymnasticsFlight.prepareLowest> =
+        GymnasticsFlight.prepareLowest(body);
+      const lowest: (t: number) => number = (t: number): number =>
+        readLowest(flying(t), floorResolution, floorProjection);
       const releaseLowest: number = lowest(0);
       if (!(releaseLowest > surface))
         throw new HumanRefusal({
@@ -431,7 +502,7 @@ export namespace poleVault {
     const settled: number = touchdown + GymnasticsMat.SETTLE;
     const duration: number = settled + GymnasticsMat.HOLD;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      { ...takeoff.plan.contacts[0]!, from: 0, to: off / duration },
+      ...GymnasticsTakeoff.contacts(takeoff, duration),
       {
         part: `${side}Hand`,
         kind: "grip",
@@ -457,13 +528,41 @@ export namespace poleVault {
       { name: "settled", share: settled / duration },
       { name: "relax", share: settled / duration },
     ];
+
+    // The released pole leaves its held frame on the grip with the velocity
+    // the rigid swing about the planted end gives its origin.
+    const releasedGrip: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      readGrip(resolveHumanPosture(body, released));
+    const hand: IAutoMovieResolvedBone = releasedGrip.get(`${side}Hand`)!;
+    const origin: IAutoMovieVector3 = Vector3.add(
+      HumanHand.frame(body, releasedGrip, side, "grip").point,
+      Quaternion.rotateVector(hand.worldRotation, held.frame.position),
+    );
+    const arm: IAutoMovieVector3 = Vector3.subtract(origin, tipAt);
+    const launch: IAutoMovieMotionPropLaunch = {
+      prop: p.pole,
+      seconds: release,
+      point: origin,
+      velocity: Vector3.add(Vector3.scale(ahead, omega * arm.y), {
+        x: 0,
+        y: -omega * Vector3.dot(arm, ahead),
+        z: 0,
+      }),
+      rotation: Quaternion.multiply(hand.worldRotation, held.frame.rotation),
+    };
     return {
       duration,
       events,
       contacts,
+      launches: [launch],
       contact: off,
       base: { kind: "lying" },
-      posture: (t: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+      posture: (
+        t: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const s: number = Math.min(duration, Math.max(0, t));
         if (s <= off) return pushing(s, resolution, projection);
         if (s < release) return swinging(s - off);

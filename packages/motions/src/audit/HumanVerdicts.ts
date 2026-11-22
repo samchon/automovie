@@ -1,17 +1,22 @@
 import { ROM_TOLERANCE } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAudit,
   IAutoMovieMotionHumanAuditContact,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanAuditRange,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanPropOutcome,
   IAutoMovieMotionHumanVerdicts,
+  IAutoMovieMotionHumanWater,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
+import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { AutoMovieMotionHumanAudit } from "./AutoMovieMotionHumanAudit";
 import { AutoMovieMotionHumanAuditContact } from "./AutoMovieMotionHumanAuditContact";
 import { AutoMovieMotionHumanAuditPartner } from "./AutoMovieMotionHumanAuditPartner";
@@ -43,7 +48,11 @@ import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTimi
  * - `tangle`: no part of a body passes more than 10 mm into another part of
  *   it (the skin's give where a hand rests on the body).
  * - `floor`, `slip`, `lift`: nothing sinks under the floor, and a planted
- *   foot neither slides nor leaves it, each within 5 mm.
+ *   foot neither slides nor leaves it, each within 5 mm. The floor is the
+ *   ground the person's bearing contacts declare (a bank, a slope), none
+ *   while a prop or a partner bears them or an action carries them in water
+ *   (its params name the water); a foot planted on a prop or a person is read in
+ *   that support's frame, so a deck, tread or saddle carries it.
  * - `jump`, `reversal`, `speed`: every joint centre travels a continuous
  *   path with no out-and-back spike and no impossible speed.
  * - `balance`: while both feet alone bear the body, its extrapolated centre
@@ -55,7 +64,7 @@ import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTimi
  *   2 % of stature (`AutoMovieMotionHumanAuditStatics`).
  * - `range`: every joint stays within its range of motion, within
  *   `ROM_TOLERANCE` (0.01 degrees).
- * - `unloaded`: a foot no plant on the ground holds dorsiflexes no further
+ * - `unloaded`: a foot no plant holds dorsiflexes no further
  *   than an ankle bearing no weight does (`ANKLE_DORSIFLEXION.unloaded`),
  *   within `ROM_TOLERANCE`.
  * - `turn`: no bone spins more than 5 turns a second between frames.
@@ -110,13 +119,28 @@ export namespace HumanVerdicts {
       from,
       to,
     );
+    // Range and unloaded read the canonical pose; each instant is resolved
+    // once and shared by both, on the same rounded key as the bones.
+    const poses: Map<
+      string,
+      ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]>
+    > = new Map();
     const posed: IAutoMovieMotionHumanAuditRange.IPosed = {
       duration: to - from,
       pose: (
         subject: string,
         seconds: number,
-      ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> =>
-        performance.pose(subject, from + seconds),
+      ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> => {
+        const key: string = instant(subject, from + seconds);
+        let pose:
+          | ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]>
+          | undefined = poses.get(key);
+        if (pose === undefined) {
+          pose = performance.pose(subject, from + seconds);
+          poses.set(key, pose);
+        }
+        return pose;
+      },
     };
     const people: readonly IAutoMovieMotionHumanPerformer[] =
       performance.performers;
@@ -306,6 +330,21 @@ const shifted = (
           seconds: number,
         ): ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =>
           motion.bones(subject, from + seconds),
+        ...(motion.support === undefined
+          ? {}
+          : {
+              support: (
+                support: IAutoMovieMotionHumanContactWindow.Support,
+                seconds: number,
+              ): IAutoMovieRigidTransform =>
+                motion.support!(support, from + seconds),
+            }),
+        ...(motion.water === undefined
+          ? {}
+          : {
+              water: (subject: string, seconds: number): boolean =>
+                motion.water!(subject, from + seconds),
+            }),
         segments: (subject: string): IAutoMovieMotionHumanAuditMotion.ISpan[] =>
           motion.segments(subject).map(
             (
@@ -319,6 +358,44 @@ const shifted = (
           ),
       };
 
+/**
+ * Whether an action carries a person in water at a film second: the action
+ * that has taken the body over names its water in its params, as the
+ * surface's world height (`IAutoMovieMotionHumanAquatic.IParams.water`) or
+ * as the water itself (`IAutoMovieMotionHumanSwimImmersed.IParams.water`),
+ * so the water, not a floor, bears the body.
+ */
+const inWater = (
+  performance: IAutoMovieMotionHumanPerformance,
+  subject: string,
+  seconds: number,
+): boolean => {
+  const active = [...performance.segments(subject)]
+    .reverse()
+    .find((s): boolean => s.entryTime <= seconds + 1e-9);
+  return active !== undefined && surface((active.params as IWatered).water);
+};
+
+/** Whether a params' water names a surface: a height, or a water with one. */
+const surface = (water: IWatered["water"]): boolean =>
+  typeof water === "number" || typeof water?.surface === "number";
+
+/** An action's params as the water reading sees them. */
+interface IWatered {
+  /** The water, by its surface's world height or as the water itself. */
+  water?: WaterParam;
+}
+
+/** The two shipped ways an action names its water. */
+type WaterParam = number | Partial<IAutoMovieMotionHumanWater>;
+/**
+ * The key of one person's instant: the second rounded to a microsecond, so
+ * grids that reach the same instant by different float arithmetic (i / rate
+ * against i * (1 / rate)) share one resolution.
+ */
+const instant = (subject: string, seconds: number): string =>
+  `${subject}@${Math.round(seconds * 1e6)}`;
+
 /** The performance as a motion that resolves each person's instant once, for the span of one report. */
 const remember = (
   performance: IAutoMovieMotionHumanPerformance,
@@ -327,22 +404,48 @@ const remember = (
     string,
     ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>
   > = new Map();
+  const bones = (
+    subject: string,
+    seconds: number,
+  ): ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> => {
+    const key: string = instant(subject, seconds);
+    let found:
+      | ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>
+      | undefined = known.get(key);
+    if (found === undefined) {
+      found = performance.bones(subject, seconds);
+      known.set(key, found);
+    }
+    return found;
+  };
   return {
     duration: performance.duration,
     segments: (subject: string) => performance.segments(subject),
-    bones: (
-      subject: string,
+    support: (
+      support: IAutoMovieMotionHumanContactWindow.Support,
       seconds: number,
-    ): ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> => {
-      const key: string = `${subject}@${seconds}`;
-      let bones:
-        | ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>
-        | undefined = known.get(key);
-      if (bones === undefined) {
-        bones = performance.bones(subject, seconds);
-        known.set(key, bones);
-      }
-      return bones;
+    ): IAutoMovieRigidTransform => {
+      if (support.kind === "ground")
+        return {
+          position: { x: 0, y: support.height ?? 0, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+        };
+      // A contact on a moving part rides the part's frame, not the prop's.
+      if (support.kind === "prop")
+        return support.point !== undefined && performance.site !== undefined
+          ? performance.site(support.subject, support.point, seconds)
+          : performance.prop(support.subject, seconds);
+      const bone: AutoMovieHumanoidBone =
+        "bone" in support
+          ? support.bone
+          : performance.performers.find(
+              (p: IAutoMovieMotionHumanPerformer): boolean =>
+                p.subject === support.subject,
+            )!.body.surfaces.regions[support.region].bone;
+      return HumanPropFrame.bone(bones(support.subject, seconds).get(bone)!);
     },
+    water: (subject: string, seconds: number): boolean =>
+      inWater(performance, subject, seconds),
+    bones,
   };
 };

@@ -26,6 +26,14 @@ type Drawn = Readonly<Partial<Record<createLongGun.Dimension, number>>>;
  */
 export namespace LongGunLock {
   /**
+   * How far ahead of the muzzle a socket bayonet starts its slide onto the
+   * barrel, metres: longer than the provisional 0.10 m socket of
+   * `createStageBayonet`, so the tube clears the muzzle before it moves on.
+   * An authored staging distance, not a measurement.
+   */
+  export const BAYONET_APPROACH: number = 0.12;
+
+  /**
    * The places and angles no source read gives, each an estimate the mechanisms are drawn by:
    *
    * - `rod`: the ramrod's radius, its line below the barrel's, the front pipe's middle behind the muzzle, a pipe's half length and its radius, metres; the Short Land's four pipes are read (Museums Victoria ST 21813), their places and sizes are not (searched: Museums Victoria, the London Museum, Colonial Williamsburg, the 1764 Manual Exercise).
@@ -191,6 +199,19 @@ export namespace LongGunLock {
       id: "bayonet",
       kind: "socket",
       frame: ArchetypeFrame.facing(v(0, 0, length), v(0, 0, 1), v(1, 0, 0)),
+      extent: null,
+    });
+
+    // The bayonet's approach shares the seat's attitude on the bore's line, so
+    // a socket fixed through it slides straight back over the muzzle.
+    builder.affordance({
+      id: "bayonetEntry",
+      kind: "socket",
+      frame: ArchetypeFrame.facing(
+        v(0, 0, length + BAYONET_APPROACH),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
   }

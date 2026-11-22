@@ -12,7 +12,11 @@ import { HumanFrame } from "../posture/HumanFrame";
  * vertical excursion. Yoshida et al. (2022, DOI 10.3389/fspor.2022.941042)
  * observed role-dependent rotation in a closed-hold spin. This figure
  * rotates the dancer through whichever angle the score gives them; the
- * modest excursion of the pelvis is provisional.
+ * modest excursion of the pelvis is provisional. With 	ravel, the pivot
+ * itself progresses along the line of dance on the figure's minimum-jerk
+ * clock, so a pair sharing pivot and travel moves down the floor together
+ * and successive figures with different travels change direction; each foot
+ * reads the pivot at its own footfall, so a planted foot stays put.
  *
  * @param options The pivot and signed turn for this dancer's figure.
  * @param origin The dancer's starting root in world metres.
@@ -47,10 +51,12 @@ export function prepareWaltzBox(
     seconds: number,
   ) => IAutoMovieMotionHumanFoot.IPlacement;
 } {
-  const pivot: IAutoMovieVector3 = options.pivot ?? origin;
+  const start: IAutoMovieVector3 = options.pivot ?? origin;
   const turn: number = options.turn ?? 0;
-  const yaw = (seconds: number): number =>
-    turn * minimumJerk.share(seconds / Math.max(beatPeriod, lastBeat));
+  const travel: IAutoMovieVector3 = options.travel ?? { x: 0, y: 0, z: 0 };
+  const progress = (seconds: number): number =>
+    minimumJerk.share(seconds / Math.max(beatPeriod, lastBeat));
+  const yaw = (seconds: number): number => turn * progress(seconds);
   return {
     yaw,
     depth: (seconds: number): number => {
@@ -66,12 +72,16 @@ export function prepareWaltzBox(
       seconds: number,
     ): IAutoMovieMotionHumanFoot.IPlacement => {
       const angle: number = yaw(seconds);
-      return angle === 0
+      const moved: IAutoMovieVector3 = Vector3.scale(travel, progress(seconds));
+      return angle === 0 && Vector3.length(moved) === 0
         ? placement
         : {
-            ankle: HumanFrame.point(
-              { origin: pivot, yaw: angle },
-              Vector3.subtract(placement.ankle, pivot),
+            ankle: Vector3.add(
+              HumanFrame.point(
+                { origin: start, yaw: angle },
+                Vector3.subtract(placement.ankle, start),
+              ),
+              moved,
             ),
             rotation: Quaternion.multiply(
               Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, angle),

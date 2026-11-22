@@ -12,10 +12,10 @@ import { HumanPrehension } from "./HumanPrehension";
  * Time the loaded placement and the reverse of the empty-hand exit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Both paths share the resting wrist frame and optionally visit an aligned aperture.
- * @evidence contracts/development/implementation.md#principled-implementation Two direct minimum-jerk movements join at zero velocity with a shared attitude. Empty-hand withdrawal reverses the insertion movement.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build an ordinary path or join two movements, reusing the same builder.
+ * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk spans reach rest at the opening and each authored waypoint. Empty-hand withdrawal reverses the same physical corridor.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Build an ordinary path or compose the aperture spans, sharing their geometry between placement and withdrawal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The aperture supplies the direction and distance of insertion.
- * @evidence contracts/development/implementation.md#efficient-algorithms Plans a fixed number of movements and samples only the active one.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The original direct and aperture paths require constant work. A path with waypoints builds one span per pair of frames and samples only the active span.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanPrehension owns movement timing, paths and attitude interpolation.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Samplers retain only fixed movement data.
  */
@@ -26,6 +26,7 @@ export function putDownTravel(
   home: IAutoMovieRigidTransform,
   setback: number,
   mouth?: IAutoMovieVector3,
+  route?: putDownTravel.IRoute,
 ): putDownTravel.ITravel {
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Vector3.length(Vector3.subtract(a, b));
@@ -45,6 +46,61 @@ export function putDownTravel(
     );
   const opening: IAutoMovieRigidTransform =
     mouth === undefined ? rest : { position: mouth, rotation: rest.rotation };
+  if (route !== undefined) {
+    const frame: (offset: IAutoMovieVector3) => IAutoMovieRigidTransform = (
+      offset: IAutoMovieVector3,
+    ): IAutoMovieRigidTransform => ({
+      position: Vector3.add(rest.position, offset),
+      rotation: rest.rotation,
+    });
+    const openings: readonly IAutoMovieRigidTransform[] = [
+      ...route.approach.map(frame),
+      opening,
+      ...route.insertion.map(frame),
+      rest,
+    ];
+    const first: IAutoMovieRigidTransform = openings[0]!;
+    const along: IAutoMovieMotionHumanPrehension.ITransport[] = openings
+      .slice(1)
+      .map(
+        (
+          to: IAutoMovieRigidTransform,
+          index: number,
+        ): IAutoMovieMotionHumanPrehension.ITransport => {
+          const from: IAutoMovieRigidTransform = openings[index]!;
+          return transport(
+            from,
+            to,
+            HumanPrehension.carry(distance(from.position, to.position)),
+            0,
+          );
+        },
+      );
+    const approach: number = HumanPrehension.duration(
+      context.skill,
+      context.random("place"),
+      distance(entry.position, first.position),
+      0,
+    );
+    const withdraw: number = HumanPrehension.nominal(
+      distance(home.position, first.position),
+      0,
+    );
+    return {
+      carry: joinRoute([transport(entry, first, approach, 0), ...along]),
+      retreat: joinRoute([transport(home, first, withdraw, 0), ...along]),
+      aperture: along
+        .slice(0, route.approach.length)
+        .reduce(
+          (
+            time: number,
+            span: IAutoMovieMotionHumanPrehension.ITransport,
+          ): number => time + span.duration,
+          approach,
+        ),
+    };
+  }
+
   const approach: number = HumanPrehension.duration(
     context.skill,
     context.random("place"),
@@ -88,6 +144,47 @@ export function putDownTravel(
   };
 }
 
+/** The route segment active at a path second and the second on its own clock. */
+interface IActiveSpan {
+  /** The active segment. */
+  span: IAutoMovieMotionHumanPrehension.ITransport;
+
+  /** Seconds since that segment began. */
+  local: number;
+}
+
+/** Read the active minimum-jerk span on the local clock of the whole path. */
+function joinRoute(
+  spans: readonly IAutoMovieMotionHumanPrehension.ITransport[],
+): IAutoMovieMotionHumanPrehension.ITransport {
+  const duration: number = spans.reduce(
+    (sum: number, span: IAutoMovieMotionHumanPrehension.ITransport): number =>
+      sum + span.duration,
+    0,
+  );
+  const active = (seconds: number): IActiveSpan => {
+    let local: number = seconds;
+    for (const span of spans) {
+      if (local <= span.duration) return { span, local };
+      local -= span.duration;
+    }
+    const last: IAutoMovieMotionHumanPrehension.ITransport =
+      spans[spans.length - 1]!;
+    return { span: last, local: last.duration };
+  };
+  return {
+    duration,
+    wrist: (seconds: number): IAutoMovieVector3 => {
+      const { span, local }: IActiveSpan = active(seconds);
+      return span.wrist(local);
+    },
+    turn: (seconds: number): IAutoMovieRigidTransform["rotation"] => {
+      const { span, local }: IActiveSpan = active(seconds);
+      return span.turn(local);
+    },
+  };
+}
+
 /**
  * The loaded and unloaded transports and the aperture's clock.
  *
@@ -97,6 +194,14 @@ export function putDownTravel(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinguishes loaded transport from the reverse-sampled return.
  */
 export namespace putDownTravel {
+  /** Seat-relative waypoint offsets in world metres, in travel order. */
+  export interface IRoute {
+    /** Optional stops before the compulsory aperture. */
+    approach: readonly IAutoMovieVector3[];
+    /** Optional stops between the aperture and seat. */
+    insertion: readonly IAutoMovieVector3[];
+  }
+
   /**
    * The two paths and optional aperture crossing.
    *

@@ -1,14 +1,17 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanAquatic,
+  IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanPosture,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
@@ -118,6 +121,24 @@ export namespace AquaticPosture {
       );
   }
 
+  /**
+   * The arm a posture shows from its own joints, without the arm goals it
+   * writes: where a coursed arm (`courseArmGoal`) starts when the law's own
+   * key holds it at the course's start.
+   */
+  export function rest(
+    body: Context["body"],
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanArmAngles.IAngles {
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs.leftArm;
+    delete limbs.rightArm;
+    return AutoMovieMotionHumanArm.angles(
+      resolveHumanPosture(body, { ...posture, limbs }),
+      side,
+    );
+  }
   /** Place the root at a world point and carry any world-space rotation pivot with it. */
   export function translate(
     posture: IAutoMovieMotionHumanPosture,

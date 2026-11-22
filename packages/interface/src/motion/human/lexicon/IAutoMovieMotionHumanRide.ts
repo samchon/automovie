@@ -78,6 +78,13 @@ export namespace IAutoMovieMotionHumanRide {
     feet?: Partial<Record<"left" | "right", string>>;
 
     /**
+     * Acquire each named foot support over the first 0.6 seconds of the ride,
+     * then follow its actual material point. By default the feet keep the
+     * offset they had on the named rests when the ride began.
+     */
+    placeFeet?: boolean;
+
+    /**
      * The support's point the seat stays on, by its id, where the seat
      * itself moves within the support: a saddle on a horse's trunk, which
      * rises and falls with the stride over the course its root follows.
@@ -101,15 +108,8 @@ export namespace IAutoMovieMotionHumanRide {
      * At least one of stride, jump and lookBack must be set.
      */
     equestrian?: {
-      /** Use consecutive touchdowns of the same hoof (or diagonal) as the stride clock. Split the ride at gait or lead changes. */
-      stride?: {
-        /** The track for the same hoof on successive strides. Use a hind-hoof touchdown for walk and one diagonal's touchdown for trot. */
-        cue: string;
-        /** The gait whose rider response is sampled. */
-        gait: "walk" | "trot" | "canter";
-        /** The active canter lead. Defaults to left. */
-        lead?: "left" | "right";
-      };
+      /** One touchdown track, or ordered nonoverlapping tracks that change gait or lead where one track ends and the next begins. */
+      stride?: EquestrianStrides;
 
       /**
        * Follow an authored jumping support from approach through recovery.
@@ -139,4 +139,55 @@ export namespace IAutoMovieMotionHumanRide {
       };
     };
   }
+
+  /**
+   * One saddle-relative response over consecutive real carrier touchdowns.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies actual hoof cue tracks, their film clock, three admitted body responses and canter lead.
+   * @evidence contracts/development/design.md#principled-representation A named cue track and gait select the response. Canter lead controls lateral sign. Runtime planning orders authored windows and verifies coverage.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Track cues keep the existing performance time owner. The rider reads this selected response without owning any animal geometry.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No inferred horse motion, reassigned contact or invented touchdown is supplied by this interface.
+   */
+  export interface IEquestrianStride {
+    /** Performance cue-track id holding consecutive landings, in film seconds, of one hind hoof for walk, one diagonal for trot or the leading fore hoof for canter and gallop. */
+    cue: string;
+
+    /** The carrier's gait over this track. */
+    gait: EquestrianGait;
+
+    /** Canter or gallop lead, which sets the sign of the pelvic roll. Left when absent; not read for walk or trot. */
+    lead?: EquestrianLead;
+  }
+
+  /**
+   * The stride clock of a ride: one touchdown track, or an ordered list whose tracks do not overlap in time.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two accepted forms and the ordering rule.
+   * @evidence contracts/development/design.md#principled-representation A single record keeps the original one-gait form; a list carries gait and lead changes. Overlap is checked when the ride is planned, since it depends on the cue tracks' film seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read only by the ride's equestrian preparation and its generated schema.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The list is not a map keyed by gait, so the same gait can recur after a change.
+   */
+  export type EquestrianStrides =
+    | IEquestrianStride
+    | readonly IEquestrianStride[];
+
+  /**
+   * A mounted gait the rider's saddle response distinguishes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four gaits whose pelvic response the ride models; the gallop, like the canter, rocks once per stride and rolls to its lead, its amplitudes the canter's, provisional.
+   * @evidence contracts/development/design.md#principled-representation A closed literal union; the gaited breeds' clocks have no modeled rider response.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `IEquestrianStride.gait` and the ride's pitch and roll response.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type EquestrianGait = "walk" | "trot" | "canter" | "gallop";
+
+  /**
+   * A canter or gallop lead: the side whose fore hoof lands last and reaches farthest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a lead is.
+   * @evidence contracts/development/design.md#principled-representation A closed literal union of the two sides.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `IEquestrianStride.lead`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type EquestrianLead = "left" | "right";
 }

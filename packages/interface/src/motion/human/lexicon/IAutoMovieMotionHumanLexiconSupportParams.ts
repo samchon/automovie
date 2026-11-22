@@ -1,4 +1,6 @@
 import type { IAutoMovieMotionHumanSupport } from "../actions/IAutoMovieMotionHumanSupport";
+import type { IAutoMovieMotionHumanAidWalk } from "./IAutoMovieMotionHumanAidWalk";
+import type { IAutoMovieMotionHumanAssistedTransfer } from "./IAutoMovieMotionHumanAssistedTransfer";
 
 /**
  * Open parameters of the support lexicon family, keyed by each runtime export name.
@@ -16,4 +18,10 @@ export interface IAutoMovieMotionHumanLexiconSupportParams {
 
   /** Slide off a table's edge: seated upright on it with the hands beside the seat, the feet down to the floor, standing. */
   slideOff: Omit<IAutoMovieMotionHumanSupport.IParams, "stances">;
+
+  /** Walk leaning on a held aid, a cane or a walker (`aidWalk`). */
+  HumanAidWalk: IAutoMovieMotionHumanAidWalk;
+
+  /** Move a helped person from one seat to another, a helper's arms bearing them (`assistedTransfer`). */
+  HumanAssistedTransfer: IAutoMovieMotionHumanAssistedTransfer.IRoleParams;
 }

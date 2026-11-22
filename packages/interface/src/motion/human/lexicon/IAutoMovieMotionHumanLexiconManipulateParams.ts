@@ -1,16 +1,22 @@
 import type { IAutoMovieMotionHumanPour } from "../affordance/IAutoMovieMotionHumanPour";
 import type { IAutoMovieMotionHumanPlayWindInstrument } from "../daily/IAutoMovieMotionHumanPlayWindInstrument";
 import type { IAutoMovieMotionHumanSwipeTouchscreen } from "../everyday/IAutoMovieMotionHumanSwipeTouchscreen";
+import type { IAutoMovieMotionHumanDrawFromCarrier } from "../handling/IAutoMovieMotionHumanDrawFromCarrier";
 import type { IAutoMovieMotionHumanGuitarChord } from "../handling/IAutoMovieMotionHumanGuitarChord";
 import type { IAutoMovieMotionHumanGuitarNote } from "../handling/IAutoMovieMotionHumanGuitarNote";
 import type { IAutoMovieMotionHumanManipulate } from "../handling/IAutoMovieMotionHumanManipulate";
 import type { IAutoMovieMotionHumanPianoPedal } from "../handling/IAutoMovieMotionHumanPianoPedal";
 import type { IAutoMovieMotionHumanPianoPerformance } from "../handling/IAutoMovieMotionHumanPianoPerformance";
 import type { IAutoMovieMotionHumanPianoScore } from "../handling/IAutoMovieMotionHumanPianoScore";
+import type { IAutoMovieMotionHumanPickUp } from "../handling/IAutoMovieMotionHumanPickUp";
 import type { IAutoMovieMotionHumanPickUpMoving } from "../handling/IAutoMovieMotionHumanPickUpMoving";
 import type { IAutoMovieMotionHumanPutDownAperture } from "../handling/IAutoMovieMotionHumanPutDownAperture";
 import type { IAutoMovieMotionHumanWrite } from "../handling/IAutoMovieMotionHumanWrite";
+import type { IAutoMovieMotionHumanHeldWork } from "../handling/IAutoMovieMotionHumanHeldWork";
 import type { IAutoMovieMotionHumanBowViolinParams } from "../music/IAutoMovieMotionHumanBowViolinParams";
+import type { IAutoMovieMotionHumanFirefight } from "../tasks/IAutoMovieMotionHumanFirefight";
+import type { IAutoMovieMotionHumanConduct } from "../music/IAutoMovieMotionHumanConduct";
+import type { IAutoMovieMotionHumanThrowPottery } from "../handling/IAutoMovieMotionHumanThrowPottery";
 import type { IAutoMovieMotionHumanCymbalStrike } from "../tasks/IAutoMovieMotionHumanCymbalStrike";
 import type { IAutoMovieMotionHumanSideDrumStrike } from "../tasks/IAutoMovieMotionHumanSideDrumStrike";
 
@@ -54,6 +60,8 @@ export interface IAutoMovieMotionHumanLexiconManipulateParams {
 
   /** Write on a staged surface with a held tool. */
   write: IAutoMovieMotionHumanWrite;
+  /** Work a held prop: drive its articulations, carry it to a place, take a prop onto it. */
+  workHeld: IAutoMovieMotionHumanHeldWork.IParams;
 
   /** Swipe a finger across a touchscreen. */
   swipeTouchscreen: IAutoMovieMotionHumanSwipeTouchscreen;
@@ -67,8 +75,24 @@ export interface IAutoMovieMotionHumanLexiconManipulateParams {
   /** Place a held prop through an aperture. */
   putDownAperture: IAutoMovieMotionHumanPutDownAperture;
 
+  /** Grip a prop seated in a carrier, keeping the grip through an early stand or a draw. */
+  takeFromCarrier: IAutoMovieMotionHumanPickUp.IParams;
+
+  /** Draw a gripped prop out of its carrier along the carrier's guide. */
+  drawFromCarrier: IAutoMovieMotionHumanDrawFromCarrier;
+
   /** Draw a held violin bow across a string. */
   bowViolin: IAutoMovieMotionHumanBowViolinParams;
+  /** Beat a meter's figure with a held baton on the beat clock. */
+  conduct: IAutoMovieMotionHumanConduct.IParams;
+  /** Draw up a clay wall on a turning wheel with both palms. */
+  throwPottery: IAutoMovieMotionHumanThrowPottery.IParams;
+  /** Aim, squeeze and sweep an extinguisher whose pin is pulled. */
+  extinguish: IAutoMovieMotionHumanFirefight.IExtinguish;
+  /** Work a charged hose line as its nozzle operator or backup. */
+  hoseLine: IAutoMovieMotionHumanFirefight.IHoseLine;
+  /** Beat flames on a lying partner with a held cloth. */
+  beatFlames: IAutoMovieMotionHumanFirefight.IBeatFlames;
 
   /** Raise and play a wind instrument. */
   playWindInstrument: IAutoMovieMotionHumanPlayWindInstrument.IParams;

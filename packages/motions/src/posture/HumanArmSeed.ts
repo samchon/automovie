@@ -32,8 +32,9 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * share of the reach, from the rest arms to the hold's first configuration
  * (`HumanArmConnect`), the return its path from the exit arms to the hold's
  * last, each state valid by the one reading the trajectory refuses by
- * (`HumanArmTrajectoryModel.invalid`) at the waypoint its share reaches, so
- * every state is read where it happens (time-indexed RRT-Connect, EXOTica). A
+ * (`HumanArmTrajectoryModel.invalid`) at the waypoint its share reaches, the
+ * hold's task points only for the hold itself, so every state is read where
+ * it happens (time-indexed RRT-Connect, EXOTica). A
  * reach waypoint is the path's state at the share the carry has made at its
  * second.
  */
@@ -67,7 +68,9 @@ export namespace HumanArmSeed {
     const times: readonly number[] = context.times;
     const holds: number[] = holdWindow(problem, context);
     if (holds.length === 0)
-      throw new Error("An arm seed needs a hold: no waypoint inside the action has a site for every arm");
+      throw new Error(
+        "An arm seed needs a hold: no waypoint inside the action has a site for every arm",
+      );
     const first: number = holds[0]!;
     const last: number = holds[holds.length - 1]!;
     const held: number[][][] = goal(problem, context, first, last, hold);
@@ -77,7 +80,12 @@ export namespace HumanArmSeed {
     // share of the reach (0 at rest, 1 on the hold) as its last coordinate,
     // and is valid where that share puts it, at the waypoint whose share is
     // nearest, so the rest arm is read where it rests and the hold where it
-    // holds (time-indexed RRT-Connect, `HumanArmConnect`).
+    // holds (time-indexed RRT-Connect, `HumanArmConnect`). The hold's task
+    // points bind the hold itself alone, at share 1: an approach read at the
+    // hold's waypoint keeps its contact allowances, as a pick's approach is
+    // allowed its grasp's contact (MoveIt's pick approach), but not the hold's
+    // task points, which would wall the hold off from every edge that leaves
+    // it; read before the hold's waypoint instead, the contact itself would.
     const path = (
       from: number[][],
       to: number[][],
@@ -107,20 +115,38 @@ export namespace HumanArmSeed {
           random(),
         ],
         valid: (q: readonly number[]): boolean =>
-          M.invalid(context, where(q[dims]!), split(q.slice(0, dims))).value <=
-          M.TOLERANCE,
+          M.invalid(
+            context,
+            where(q[dims]!),
+            split(q.slice(0, dims)),
+            false,
+            q[dims]! >= 1,
+          ).value <= M.TOLERANCE,
         extent: space.extent,
         rising: dims,
       });
-      if (found === null)
+      if (found === null) {
+        // Name the end that cannot be joined: an end that is itself invalid
+        // is the cause, not the path between them.
+        const start: { value: number; what: string } = M.invalid(
+          context,
+          passes[0]!,
+          from,
+        );
+        const end: { value: number; what: string } = M.invalid(context, k, to);
+        const worst: { value: number; what: string; at: number } =
+          end.value > start.value
+            ? { ...end, at: times[k]! }
+            : { ...start, at: times[passes[0]!]! };
         throw new HumanRefusal({
           kind: "reach",
           axis: "region",
-          value: M.invalid(context, passes[0]!, from).value,
+          value: worst.value,
           feasible: null,
-          reason: `no clear path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm joins its rest to its hold at ${times[k]!.toFixed(3)} s`,
+          reason: `no clear path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm joins its rest to its hold at ${times[k]!.toFixed(3)} s: ${worst.value > M.TOLERANCE ? `at ${worst.at.toFixed(3)} s ${worst.what}` : "both ends are valid"}`,
           fix: "put the hand on a site its arm reaches with the body clear",
         });
+      }
       return found;
     };
     const span: (a: number, b: number) => number[] = (
@@ -131,7 +157,17 @@ export namespace HumanArmSeed {
         { length: b - a + 1 },
         (_: unknown, i: number): number => a + i,
       );
-    const reach: number[][] = path(context.rest, held[0]!, span(0, first));
+    // A hold from the first instant has no reach: the arm already holds its
+    // site as it enters (its hold was started from that rest), so the rest
+    // and the hold's first configuration are joined directly, never searched
+    // for as a reach that has no time.
+    const reach: number[][] =
+      first === 1 && problem.share(times[1]!) >= 1
+        ? [
+            [...context.rest.flat(), 0],
+            [...held[0]!.flat(), 1],
+          ]
+        : path(context.rest, held[0]!, span(0, first));
 
     // A hold that lasts to the end has no return to join.
     const back: number[][] = context.open
@@ -215,7 +251,14 @@ export namespace HumanArmSeed {
     from: readonly (readonly (readonly number[])[])[],
   ): number[][] | undefined {
     for (const k of holdWindow(problem, context))
-        return instant(problem, context, k, from.map((arm: readonly (readonly number[])[]): number[] => [...arm[k]!]));
+      return instant(
+        problem,
+        context,
+        k,
+        from.map((arm: readonly (readonly number[])[]): number[] => [
+          ...arm[k]!,
+        ]),
+      );
     return undefined;
   }
   /**
@@ -469,10 +512,19 @@ const RESTARTS: number = 8;
 const SEED: number = 2;
 
 /** The waypoints inside the action at which every arm has a site, in order: the hold the seed reaches, read for all arms together as the laid course reads it. */
-function holdWindow(problem: HumanArmSeed.IProblem, context: M.IContext): number[] {
+function holdWindow(
+  problem: HumanArmSeed.IProblem,
+  context: M.IContext,
+): number[] {
   const out: number[] = [];
   for (let k: number = 1; k < context.n; ++k)
-    if (M.inner(context, k) && problem.arms.every((arm: HumanArmSeed.IProblem["arms"][number]): boolean => arm.sites[k] !== undefined))
+    if (
+      M.inner(context, k) &&
+      problem.arms.every(
+        (arm: HumanArmSeed.IProblem["arms"][number]): boolean =>
+          arm.sites[k] !== undefined,
+      )
+    )
       out.push(k);
   return out;
 }

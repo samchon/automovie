@@ -7,6 +7,7 @@ import type {
 
 import type { Archetype } from "../core";
 import type { QuadrupedBody } from "./QuadrupedBody";
+import type { QuadrupedScapula } from "./QuadrupedScapula";
 
 /**
  * Shared actual-rig pose inputs and independently owned results for quadrupeds.
@@ -33,14 +34,14 @@ export namespace QuadrupedPosePlan {
   /**
    * The existing axial bones whose carriage is independent of the solved limbs.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the trunk, hindquarters, neck, head and tail as the permitted carriage-goal keys.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the trunk, hindquarters, neck, head, tail and shoulder blades as the permitted carriage-goal keys.
    * @evidence contracts/development/design.md#principled-representation A closed subset of the existing bone vocabulary excludes limb goals from this map; solved limbs have their own complete point input.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Ride needs the neck's nod and Rest needs the tail's carriage; whole-body placement remains the separate rigid root.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Ride needs the neck's nod and the shoulder blades' turns and Rest needs the tail's carriage; whole-body placement remains the separate rigid root.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No animal kind or humanoid joint determines carriage, and a free-text goal cannot override a solved limb.
    */
   export type Axial = Extract<
     QuadrupedBody.Bone,
-    "trunk" | "hindquarters" | "neck" | "head" | "tail"
+    "trunk" | "hindquarters" | "neck" | "head" | "tail" | QuadrupedScapula.Bone
   >;
 
   /**

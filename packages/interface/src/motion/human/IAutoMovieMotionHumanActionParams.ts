@@ -44,11 +44,14 @@ import type { IAutoMovieMotionHumanBallSport } from "./sport/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanBaseball } from "./sport/IAutoMovieMotionHumanBaseball";
 import type { IAutoMovieMotionHumanGymnastics } from "./sport/IAutoMovieMotionHumanGymnastics";
 import type { IAutoMovieMotionHumanMartialArt } from "./sport/IAutoMovieMotionHumanMartialArt";
+import type { IAutoMovieMotionHumanChiSau } from "./sport/IAutoMovieMotionHumanChiSau";
 import type { IAutoMovieMotionHumanRacket } from "./sport/IAutoMovieMotionHumanRacket";
 import type { IAutoMovieMotionHumanSwim } from "./sport/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanDefend } from "./striking/IAutoMovieMotionHumanDefend";
 import type { IAutoMovieMotionHumanGuard } from "./striking/IAutoMovieMotionHumanGuard";
 import type { IAutoMovieMotionHumanKick } from "./striking/IAutoMovieMotionHumanKick";
+import type { IAutoMovieMotionHumanCloseStrike } from "./striking/IAutoMovieMotionHumanCloseStrike";
+import type { IAutoMovieMotionHumanFootStrike } from "./striking/IAutoMovieMotionHumanFootStrike";
 import type { IAutoMovieMotionHumanKnee } from "./striking/IAutoMovieMotionHumanKnee";
 import type { IAutoMovieMotionHumanPunch } from "./striking/IAutoMovieMotionHumanPunch";
 import type { IAutoMovieMotionHumanStep } from "./striking/IAutoMovieMotionHumanStep";
@@ -133,6 +136,12 @@ export interface IAutoMovieMotionHumanActionParams {
 
   /** A knee strike. */
   knee: IAutoMovieMotionHumanKnee.IParams;
+
+  /** An elbow, a spinning elbow or backfist, or a headbutt. */
+  closeStrike: IAutoMovieMotionHumanCloseStrike.IParams;
+
+  /** A side, back, hook, crescent, axe kick, a stomp or a leg sweep. */
+  footStrike: IAutoMovieMotionHumanFootStrike.IParams;
 
   /** Sitting down. */
   sit: IAutoMovieMotionHumanSit.IParams;
@@ -259,6 +268,9 @@ export interface IAutoMovieMotionHumanActionParams {
 
   /** A martial-art technique. */
   martialArt: IAutoMovieMotionHumanMartialArt.IParams;
+
+  /** Wing chun's rolling chi sau with a partner. */
+  chiSau: IAutoMovieMotionHumanChiSau.IParams;
 
   /** A team ball skill. */
   ballSport: IAutoMovieMotionHumanBallSport.IParams;

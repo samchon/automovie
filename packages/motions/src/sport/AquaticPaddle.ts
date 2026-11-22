@@ -5,14 +5,19 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticCrew } from "./AquaticCrew";
+import { AquaticPaddleCraft } from "./AquaticPaddleCraft";
 import { AquaticPosture } from "./AquaticPosture";
 
 /**
@@ -40,8 +45,19 @@ export namespace AquaticPaddle {
     const scull: boolean = kind === "doubleScull";
     const canoe: boolean = kind === "canoeStroke";
     const staticSide: AquaticCrew.Side = params.side ?? "right";
+    const actual: AquaticPaddleCraft.IStroke | undefined =
+      scull || params.prop === undefined
+        ? undefined
+        : AquaticPaddleCraft.bind(
+            context,
+            hull.id,
+            params.prop,
+            canoe,
+            staticSide,
+          );
     const period: number = scull ? 60 / 26 : 1.24;
-    const duration: number = period * 3;
+    const lead: number = actual?.lead ?? 0;
+    const duration: number = lead + period * 3;
     const offset: number = (params.phase ?? 0) % 1;
     const extraction: number = scull ? 0.44 : 0.49;
     const size: number = body.measure.stature;
@@ -62,46 +78,38 @@ export namespace AquaticPaddle {
       : [AquaticCrew.bear(hull.id, "seat", "seat", 0, 1)];
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...seatsOrKnee,
-      ...(["left", "right"] as const)
-        .filter(
-          (side: AquaticCrew.Side): boolean => !canoe || side !== staticSide,
-        )
-        .map(
-          (side: AquaticCrew.Side): IAutoMovieMotionHumanContactWindow =>
-            AquaticCrew.bear(hull.id, `${side}Foot`, "plant", 0, 1),
-        ),
-      ...AquaticCrew.grips(hull, params),
-      ...(scull || params.prop === undefined
-        ? []
-        : [
-            {
-              part: `${staticSide}Hand` as const,
-              kind: "grip" as const,
-              from: 0,
-              to: 1,
-              support: { kind: "prop" as const, subject: params.prop },
-            },
-          ]),
+      // Both feet bear: the front sole, and behind a kneeling canoeist the
+      // instep of the kneeling leg rests on the floor.
+      ...(["left", "right"] as const).map(
+        (side: AquaticCrew.Side): IAutoMovieMotionHumanContactWindow =>
+          AquaticCrew.bear(hull.id, `${side}Foot`, "plant", 0, 1),
+      ),
+      ...(actual?.hands.map((window) => ({
+        ...window,
+        from: lead / duration,
+      })) ?? AquaticCrew.grips(hull, params)),
     ];
-    const events: IAutoMovieMotionEvent[] = [];
+    const events: IAutoMovieMotionEvent[] =
+      lead > 0 ? [{ name: "paddleReady", share: lead / duration }] : [];
     for (let i: number = 0; i <= 3; i++)
       for (const [name, phase] of [
         ["catch", 0],
         ["extract", extraction],
         ["clear", extraction + 0.11],
       ] as const) {
-        const share: number = (i + phase - offset) / 3;
-        if (share >= 0 && share < 1)
+        const amount: number = i + phase - offset;
+        const share: number = (lead + amount * period) / duration;
+        if (amount >= 0 && share < 1)
           events.push({ name: `${name}${i + 1}`, share });
       }
     events.push({ name: "relax", share: 1 });
-    return {
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.max(0, Math.min(duration, seconds));
-        const total: number = t / period + offset;
+        const total: number = Math.max(0, t - lead) / period + offset;
         const cycle: number = Math.floor(total);
         const u: number = total - cycle;
         const drive: number =
@@ -198,6 +206,7 @@ export namespace AquaticPaddle {
                   next.joints,
                 )(switched),
               };
+        if (actual !== undefined) return actual.posture(shape, t);
         const slide: IAutoMovieVector3 =
           rail === undefined
             ? AquaticCrew.direction(context, hull, {
@@ -222,6 +231,33 @@ export namespace AquaticPaddle {
         );
       },
     };
+    // With a native paddle the hands hold its grips through the strokes:
+    // both arms are laid as one course on the one implement, each hand from
+    // the entered arm to its grip by the paddle-ready instant, held with
+    // branch and swivel continuity
+    // (`courseArmGoal`). The hands on the paddle are its grasp, not a
+    // collision. Hands that hold the paddle from the start (no lead) begin
+    // on their grips.
+    if (actual === undefined) return plan;
+    const start: IAutoMoviePose =
+      lead > 0
+        ? context.entry.pose
+        : resolveHumanPosture(body, plan.posture(0));
+    return courseArmGoal({
+      body,
+      plan,
+      side: "left",
+      rest: AutoMovieMotionHumanArm.angles(start, "left"),
+      grasp: ["hand"],
+      with: [
+        {
+          side: "right",
+          rest: AutoMovieMotionHumanArm.angles(start, "right"),
+          grasp: ["hand"],
+        },
+      ],
+      span: { start: 0, ready: lead, relax: duration, end: duration },
+    });
   }
 
   /** Keep the entered hip height on the rail and bound its rear travel by both braced legs. */

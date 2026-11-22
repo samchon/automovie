@@ -26,6 +26,7 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
 import { StrikingTarget } from "./StrikingTarget";
+import type { strikingStepSupport } from "./strikingStepSupport";
 
 /**
  * Builds a kick's geometry.
@@ -98,7 +99,8 @@ export namespace KickGeometry {
             offset,
           );
     const launched: KickLaunch.IPlanned = launch.launched;
-    const carriage: IAutoMovieMotionHumanKickGeometry.ICarriage = launched.carriage;
+    const carriage: IAutoMovieMotionHumanKickGeometry.ICarriage =
+      launched.carriage;
     const fit: KickChain.IFit = launched.fit;
     const plans: KickPlans.IPlans =
       feint || tracker === undefined
@@ -112,40 +114,66 @@ export namespace KickGeometry {
               previous: KickPlans.IPlan,
               goal: IAutoMovieVector3,
             ): KickLaunch.IPlanned =>
-              launch.contact(goal, carriage.step, previous.carriage.lean, carriage.drive, launch.chamber),
+              launch.contact(
+                goal,
+                carriage.step,
+                previous.carriage.lean,
+                carriage.drive,
+                launch.chamber,
+              ),
             units: tracker.units,
             t0,
           });
-    return compose(body, timing, t0, {
-      line,
-      carriage,
-      base: (
-        seconds: number,
-        shown: IAutoMovieMotionHumanKickGeometry.ICarriage,
-        turning?: number,
-        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-        projection?: ReturnType<typeof prepareHumanPostureProjection>,
-      ): IAutoMovieMotionHumanPosture => KickCarriage.posture(props, shown, seconds, turning, resolution, projection),
-      shown: plans.shown,
-      leg: plans.leg,
-      origin,
-      back: Vector3.add(origin, Vector3.scale(line, carriage.step)),
-      contacts: windows(timing, side, support, carriage.step !== 0),
-      record: {
-        limb: side === "left" ? "leftFoot" : "rightFoot",
-        offset,
-        planned: tracker?.planned ?? { ...launch.planned },
-        reached: fit.reached,
-        status: fit.status,
+    return compose(
+      body,
+      timing,
+      t0,
+      {
+        line,
+        carriage,
+        base: (
+          seconds: number,
+          shown: IAutoMovieMotionHumanKickGeometry.ICarriage,
+          turning?: number,
+          resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+          projection?: ReturnType<typeof prepareHumanPostureProjection>,
+        ): IAutoMovieMotionHumanPosture =>
+          KickCarriage.posture(
+            props,
+            shown,
+            seconds,
+            turning,
+            resolution,
+            projection,
+          ),
+        shown: plans.shown,
+        leg: plans.leg,
+        origin,
+        back: Vector3.add(origin, Vector3.scale(line, carriage.step)),
+        contacts: windows(
+          timing,
+          side,
+          support,
+          carriage.step !== 0,
+          props.recovery,
+        ),
+        record: {
+          limb: side === "left" ? "leftFoot" : "rightFoot",
+          offset,
+          planned: tracker?.planned ?? { ...launch.planned },
+          reached: fit.reached,
+          status: fit.status,
 
-        // The stop is the performance's joint resolution of the leg's
-        // capsules; the kick scans nothing itself.
-        stop: (seconds: number): number | undefined =>
-          fixed !== undefined && fixed !== null && fixed <= seconds
-            ? fixed
-            : undefined,
+          // The stop is the performance's joint resolution of the leg's
+          // capsules; the kick scans nothing itself.
+          stop: (seconds: number): number | undefined =>
+            fixed !== undefined && fixed !== null && fixed <= seconds
+              ? fixed
+              : undefined,
+        },
       },
-    });
+      props.recovery,
+    );
   }
 
   /**
@@ -167,6 +195,7 @@ export namespace KickGeometry {
    * @param timing The kick's timing.
    * @param t0 Film second of the kick's time zero.
    * @param parts The geometry's parts.
+   * @param recovery Any open touchdown inherited from the cut into this kick.
    * @returns The geometry with its posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States canonical body, original local/film clocks and the actual geometry parts combined.
@@ -182,16 +211,37 @@ export namespace KickGeometry {
     timing: IAutoMovieMotionHumanKickGeometry.ITiming,
     t0: number,
     parts: Omit<IAutoMovieMotionHumanKickGeometry, "posture">,
+    recovery?: strikingStepSupport.ISupport,
   ): IAutoMovieMotionHumanKickGeometry {
     const ball: IAutoMovieVector3 = HumanFoot.offset(body, timing.side, "ball");
-    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead: timing.lead });
-    const chain = (t: number, resolution: ReturnType<typeof prepareHumanPoseResolution>, projection?: ReturnType<typeof prepareHumanPostureProjection>): IHeld => {
+    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> =
+      StrikingStance.prepareGuard(body, { lead: timing.lead });
+    const chain = (
+      t: number,
+      resolution: ReturnType<typeof prepareHumanPoseResolution>,
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IHeld => {
       const at: number | undefined = parts.record.stop(t0 + t);
       const s: number | undefined = at === undefined ? undefined : at - t0;
       if (s === undefined || t <= s) {
-        const base: IAutoMovieMotionHumanPosture = parts.base(t, parts.shown(t), undefined, resolution, projection);
-        const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution, projection);
-        return { body: base, leg: parts.leg(t, base, { x: 0, y: 0, z: 0 }, hip) };
+        const base: IAutoMovieMotionHumanPosture = parts.base(
+          t,
+          parts.shown(t),
+          undefined,
+          resolution,
+          projection,
+        );
+        const hip: IAutoMovieVector3 = KickCarriage.hip(
+          body,
+          base,
+          timing.side,
+          resolution,
+          projection,
+        );
+        return {
+          body: base,
+          leg: parts.leg(t, base, { x: 0, y: 0, z: 0 }, hip),
+        };
       }
 
       // The approach clock runs back from the stop to the start over the
@@ -201,13 +251,27 @@ export namespace KickGeometry {
         1e-3,
         timing.duration - s - StrikingStroke.DWELL,
       );
-      const w: number = minimumJerk.share((t - s - StrikingStroke.DWELL) / rest);
+      const w: number = minimumJerk.share(
+        (t - s - StrikingStroke.DWELL) / rest,
+      );
       const back: number = s * (1 - w);
       const stepped: number = minimumJerk.share(
         (s - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
       );
-      const base: IAutoMovieMotionHumanPosture = parts.base(s, parts.shown(back), back, resolution, projection);
-      const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution, projection);
+      const base: IAutoMovieMotionHumanPosture = parts.base(
+        s,
+        parts.shown(back),
+        back,
+        resolution,
+        projection,
+      );
+      const hip: IAutoMovieVector3 = KickCarriage.hip(
+        body,
+        base,
+        timing.side,
+        resolution,
+        projection,
+      );
       return {
         body: base,
         leg: parts.leg(
@@ -223,18 +287,51 @@ export namespace KickGeometry {
     };
     return {
       ...parts,
-      posture: (t: number, channels?: readonly AutoMovieMotionHumanChannel[], source?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMovieMotionHumanPosture => {
-        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+      posture: (
+        t: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+        source?: Parameters<typeof prepareHumanPoseResolution>[0],
+        projection?: ReturnType<typeof prepareHumanPostureProjection>,
+      ): IAutoMovieMotionHumanPosture => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(source);
         const held: IHeld = chain(t, resolution, projection);
-        const arms: boolean = channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand"));
-        const down: boolean = t <= timing.prep || t >= timing.duration - 1e-9;
+        const arms: boolean =
+          channels === undefined ||
+          channels.some(
+            (channel: AutoMovieMotionHumanChannel): boolean =>
+              channel.endsWith("Arm") || channel.endsWith("Hand"),
+          );
+        const down: boolean =
+          (recovery?.landings[timing.side] === undefined && t <= timing.prep) ||
+          t >= timing.duration - 1e-9;
+        const rise: number = recovery?.rise(timing.side, t, timing.prep) ?? 0;
+        const toes: readonly [number, number, number] | undefined =
+          held.leg.toes === undefined
+            ? undefined
+            : (held.body.joints[`${timing.side}Toes`] ?? [0, 0, 0]);
         return {
           ...held.body,
+          ...(toes === undefined
+            ? {}
+            : {
+                joints: {
+                  ...held.body.joints,
+                  [`${timing.side}Toes`]: [
+                    toes[0] + held.leg.toes!,
+                    toes[1],
+                    toes[2],
+                  ],
+                },
+              }),
           limbs: {
             ...held.body.limbs,
             ...(arms ? guardAt(held.body, resolution, projection) : {}),
             [timing.side === "left" ? "leftLeg" : "rightLeg"]: {
-              point: held.leg.ankle,
+              point:
+                rise === 0
+                  ? held.leg.ankle
+                  : { ...held.leg.ankle, y: held.leg.ankle.y + rise },
               bend: held.leg.hint,
               rotation: held.leg.rotation,
               ...(down ? { planted: true, contact: ball } : {}),
@@ -265,9 +362,15 @@ export namespace KickGeometry {
     side: "left" | "right",
     support: "left" | "right",
     stepped: boolean,
+    recovery?: strikingStepSupport.ISupport,
   ): IAutoMovieMotionHumanContactWindow[] {
     const d: number = timing.duration;
-    const pivot = (from: number, to: number): IAutoMovieMotionHumanContactWindow => ({
+    const launch: number = timing.prep / d;
+    const initiallyBearing: boolean = recovery?.landings[support] === undefined;
+    const pivot = (
+      from: number,
+      to: number,
+    ): IAutoMovieMotionHumanContactWindow => ({
       part: `${support}Foot`,
       kind: "pivot",
       from,
@@ -275,13 +378,17 @@ export namespace KickGeometry {
       support: { kind: "ground" },
     });
     return [
-      {
-        part: `${side}Foot`,
-        kind: "plant",
-        from: 0,
-        to: timing.prep / d,
-        support: { kind: "ground" },
-      },
+      ...(recovery?.landings[side] !== undefined
+        ? []
+        : [
+            {
+              part: `${side}Foot`,
+              kind: "plant",
+              from: 0,
+              to: launch,
+              support: { kind: "ground" },
+            } satisfies IAutoMovieMotionHumanContactWindow,
+          ]),
       {
         part: `${side}Foot`,
         kind: "plant",
@@ -290,8 +397,11 @@ export namespace KickGeometry {
         support: { kind: "ground" },
       },
       ...(stepped
-        ? [pivot(0, timing.prep / d), pivot(timing.chamber / d, 1)]
-        : [pivot(0, 1)]),
+        ? [
+            ...(initiallyBearing ? [pivot(0, launch)] : []),
+            pivot(timing.chamber / d, 1),
+          ]
+        : [pivot(initiallyBearing ? 0 : launch, 1)]),
     ];
   }
 }

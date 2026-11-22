@@ -1,6 +1,17 @@
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
+import type { IAutoMovieMotionHumanCrossing } from "./IAutoMovieMotionHumanCrossing";
+import type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
+import type { IAutoMovieMotionHumanFrailWalk } from "./IAutoMovieMotionHumanFrailWalk";
+import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
+import type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
+import type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";
+import type { IAutoMovieMotionHumanTreeClimb } from "./IAutoMovieMotionHumanTreeClimb";
+import type { IAutoMovieMotionHumanSkydive } from "./IAutoMovieMotionHumanSkydive";
+import type { IAutoMovieMotionHumanEdgeRescue } from "./IAutoMovieMotionHumanEdgeRescue";
+import type { IAutoMovieMotionHumanEnvironmentRecovery } from "./IAutoMovieMotionHumanEnvironmentRecovery";
 import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
+import type { IAutoMovieMotionHumanCrabWalk } from "../floor/IAutoMovieMotionHumanCrabWalk";
 import type { IAutoMovieMotionHumanTravelCar } from "./IAutoMovieMotionHumanTravelCar";
 import type { IAutoMovieMotionHumanTravelCarExit } from "./IAutoMovieMotionHumanTravelCarExit";
 import type { IAutoMovieMotionHumanTravelDoor } from "./IAutoMovieMotionHumanTravelDoor";
@@ -71,6 +82,33 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
   /** Walk through a named opening. */
   passThrough: IAutoMovieMotionHumanTravelDoor.IParams;
 
+  /** Cross a real stage obstacle or the gap between fixed surfaces. */
+  crossObstacle: IAutoMovieMotionHumanCrossing.IParams;
+
+  /** Move in cover along a named wall, window or door. */
+  moveInCover: IAutoMovieMotionHumanCover.IParams;
+
+  /** Step on or run up a named wall's face. */
+  wallRun: IAutoMovieMotionHumanWallRun.IParams;
+
+  /** Climb, descend, traverse or swing on a named rope. */
+  rope: IAutoMovieMotionHumanRope.IParams;
+
+  /** Fall down a staircase or from a ledge onto a pad or the ground. */
+  stuntFall: IAutoMovieMotionHumanStuntFall.IParams;
+
+  /** Climb a tree by its branches, sit astride one, or climb down. */
+  climbTree: IAutoMovieMotionHumanTreeClimb.IParams;
+
+  /** Jump from an edge under a parachute and land. */
+  skydive: IAutoMovieMotionHumanSkydive.IParams;
+
+  /** One role of a rescue at a ledge: the catch and haul, or the hang and fall. */
+  edgeRescue: IAutoMovieMotionHumanEdgeRescue.IParams;
+
+  /** Resolve a named walking trip or slip by a recovery or a fall. */
+  environmentalRecovery: IAutoMovieMotionHumanEnvironmentRecovery.IParams;
+
   /** Get into a car seat through its door. */
   getIn: IAutoMovieMotionHumanTravelCar.IParams;
 
@@ -79,4 +117,22 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
 
   /** Swing out of a vehicle seat and stand clear. */
   getOut: IAutoMovieMotionHumanTravelCarExit.IParams;
+
+  /** A shamble: a dragged stiff leg stood on briefly, the trunk leaning and the arms hanging. */
+  shamble: IAutoMovieMotionHumanGait.ILimp;
+
+  /** A lurch: one knee held stiff at a slow cadence, the arms held still. */
+  lurch: IAutoMovieMotionHumanGait.ILimp;
+
+  /** A stalk: a hunched creep on deeply bent knees. */
+  stalk: IAutoMovieMotionHumanGait.IParams;
+
+  /** A crab walk: supine on the hands and the feet, the pelvis lifted, travelling feet or head first in the diagonal sequence. */
+  crabWalk: IAutoMovieMotionHumanCrabWalk.IParams;
+
+  /** A race walk: a walk at a run's pace, one foot always down, the arms pumping. */
+  raceWalk: IAutoMovieMotionHumanGait.IParams;
+
+  /** A frail older person's walk, graded from the ordinary walk to a shuffle. */
+  frailWalk: IAutoMovieMotionHumanFrailWalk;
 }

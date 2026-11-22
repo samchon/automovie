@@ -51,7 +51,14 @@ export namespace QuadrupedEquipment {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the single non-equid contact vocabulary imported by the cohort producer; its lead geometry remains with QuadrupedLead.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown or free-text attachment identities cannot enter the builder through this contract.
    */
-  export type Affordance = "lead" | "leftLoad" | "rightLoad" | "hitch";
+  export type Affordance =
+    | "lead"
+    | "leftLoad"
+    | "rightLoad"
+    | "hitch"
+    | "head"
+    | "horns"
+    | "hind";
 
   /**
    * An open-up U hook made from three real circular bars, all lengths metres.
@@ -259,7 +266,14 @@ export namespace QuadrupedEquipment {
       ...centre,
       z: centre.z + yoke.radius + yoke.hook.opening / 2 + 2 * yoke.hook.radius,
     };
-    plan.rod("yoke-hitch-link", yoke.hook.radius, centre, hook, METAL, yoke.clearance);
+    plan.rod(
+      "yoke-hitch-link",
+      yoke.hook.radius,
+      centre,
+      hook,
+      METAL,
+      yoke.clearance,
+    );
     plan.hook("yoke-hitch", "hitch", hook, yoke.hook, METAL, yoke.clearance);
     QuadrupedEquipmentBearing.yoke(plan, rig, yoke, centre, WOOD);
   }
@@ -294,8 +308,20 @@ export namespace QuadrupedEquipment {
     const rail: number = middle + pack.width / 2 + pack.railRadius;
     const minimum: number = rig.back + pack.railRadius + pack.clearance;
     const bridge: number = Math.max(
-      plan.bridgeHeight(minimum, x, -pack.length / 2, pack.railRadius, pack.clearance),
-      plan.bridgeHeight(minimum, x, pack.length / 2, pack.railRadius, pack.clearance),
+      plan.bridgeHeight(
+        minimum,
+        x,
+        -pack.length / 2,
+        pack.railRadius,
+        pack.clearance,
+      ),
+      plan.bridgeHeight(
+        minimum,
+        x,
+        pack.length / 2,
+        pack.railRadius,
+        pack.clearance,
+      ),
     );
     for (const [side, sign, id] of [
       ["left", 1, "leftLoad"],
@@ -347,7 +373,14 @@ export namespace QuadrupedEquipment {
         METAL,
         pack.clearance,
       );
-      plan.hook(`pack-${side}-hook`, id, hook, pack.hook, METAL, pack.clearance);
+      plan.hook(
+        `pack-${side}-hook`,
+        id,
+        hook,
+        pack.hook,
+        METAL,
+        pack.clearance,
+      );
     }
     for (const end of [-1, 1] as const)
       plan.rod(

@@ -5,12 +5,14 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSeated,
   IAutoMoviePhysicalShape,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanObjectCord } from "./HumanObjectCord";
 
 /**
@@ -264,6 +266,7 @@ export namespace HumanObject {
         Quaternion.rotateVector(world.rotation, found.frame.translation),
       ),
       yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
+      ...tilted(Quaternion.multiply(world.rotation, found.frame.rotation)),
       ...(found.depth === undefined ? {} : { depth: found.depth }),
       ...(found.back === undefined ? {} : { back: found.back }),
       ...(found.workingSeat === undefined
@@ -339,4 +342,28 @@ export namespace HumanObject {
     );
     return { left: placed(ends[0]!), right: placed(ends[1]!) };
   }
+}
+
+/**
+ * A seat's pitch and roll in the world, as a posture's, when the seat is not level.
+ *
+ * @param rotation The seat's world rotation.
+ * @returns The tilt, empty for a level seat.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what is returned.
+ * @evidence contracts/development/implementation.md#principled-implementation The posture angles of the seat's rotation (`resolveHumanPosture.angles`), kept when either exceeds a millionth of a degree.
+ * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One read.
+ * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record.
+ */
+function tilted(
+  rotation: IAutoMovieQuaternion,
+): Pick<IAutoMovieMotionHumanSeated.ISeat, "pitch" | "roll"> {
+  const angles: ReturnType<typeof resolveHumanPosture.angles> =
+    resolveHumanPosture.angles(rotation);
+  return Math.abs(angles.pitch) < 1e-6 && Math.abs(angles.roll) < 1e-6
+    ? {}
+    : { pitch: angles.pitch, roll: angles.roll };
 }

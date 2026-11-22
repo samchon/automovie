@@ -10,6 +10,7 @@ import type {
 import { type Archetype, ArchetypeFrame } from "../core";
 import { ApplyQuadrupedCarrierPose } from "./ApplyQuadrupedCarrierPose";
 import { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /** Local degree rotations without borrowing a humanoid bone slot. */
 type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;
@@ -54,6 +55,7 @@ export namespace QuadrupedSkeleton {
       "neck",
       "head",
       "tail",
+      ...Object.values(QuadrupedScapula.BONES),
       ...QuadrupedBody.LIMBS.flatMap(
         (limb: QuadrupedBody.Limb): QuadrupedBody.Bone[] => [
           ...QuadrupedBody.BONES[limb],
@@ -67,6 +69,8 @@ export namespace QuadrupedSkeleton {
         ["neck", "trunk"],
         ["head", "neck"],
         ["tail", "hindquarters"],
+        ["leftForeScapula", "trunk"],
+        ["rightForeScapula", "trunk"],
       ],
     );
     for (const limb of QuadrupedBody.LIMBS) {
@@ -75,8 +79,8 @@ export namespace QuadrupedSkeleton {
         parents.set(
           chain[index]!,
           index === 0
-            ? limb.endsWith("Fore")
-              ? "trunk"
+            ? limb === "leftFore" || limb === "rightFore"
+              ? QuadrupedScapula.BONES[limb]
               : "hindquarters"
             : chain[index - 1]!,
         );

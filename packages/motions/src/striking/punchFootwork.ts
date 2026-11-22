@@ -15,6 +15,7 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingTwist } from "./StrikingTwist";
 import type { punchGeometry } from "./punchGeometry";
+import { strikingStepSupport } from "./strikingStepSupport";
 
 /**
  * A punch's root, heading and feet: the lead foot steps in by the advance
@@ -119,7 +120,11 @@ export namespace punchFootwork {
      * @param clock The trunk turn's clock; the feet's own when absent.
      * @param resolution Optional exact FK supplier borrowed only during this synchronous base/lowering evaluation.
      */
-    base(seconds: number, clock?: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture;
+    base(
+      seconds: number,
+      clock?: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ): IAutoMovieMotionHumanPosture;
 
     /** The feet's contact windows, as shares of the punch. */
     contacts: IAutoMovieMotionHumanContactWindow[];
@@ -185,13 +190,16 @@ export namespace punchFootwork {
     const body = context.body;
     const t0: number = context.start;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
-    const dragFrom: number = 0.5 * shown;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...entry.joints,
+      ...StrikingStance.joints(entry.joints),
+    };
     const dragTo: number = shown + 0.5 * recoil;
-    const dragged = (t: number): number => drag(timing, t);
 
+    const support: strikingStepSupport.ISupport | undefined =
+      strikingStepSupport(context);
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+      { ...StrikingTarget.feet(context.entry), ...support?.landings };
     const rear: "left" | "right" = StrikingStance.rear({ lead });
     // A step in or, before a target too close, a step back along the line,
     // led by the foot on the side it moves toward.
@@ -200,6 +208,27 @@ export namespace punchFootwork {
     const stepping: boolean = Math.abs(launched) > STEP;
     const backing: boolean = stepping && launched < 0;
     const first: "left" | "right" = backing ? rear : lead;
+    const next: "left" | "right" = first === lead ? rear : lead;
+    // A punch can turn while a foot arrives, but a traveling punch must
+    // finish the inherited transfer before lifting its old bearing shoe.
+    const firstStart: number =
+      stepping && support?.bearing === first ? 0.5 * shown : 0;
+    const dragFrom: number =
+      stepping && support !== undefined ? shown : 0.5 * shown;
+    const dragged = (t: number): number =>
+      support === undefined
+        ? drag(timing, t)
+        : minimumJerk.share((t - dragFrom) / (dragTo - dragFrom));
+    const opens = (t: number): number =>
+      firstStart === 0
+        ? out(t)
+        : minimumJerk.share((t - firstStart) / (shown - firstStart));
+    const landing = (side: "left" | "right"): number =>
+      support?.landings[side] === undefined
+        ? 0
+        : stepping && side === first
+          ? shown
+          : 0.5 * shown;
     const lift: number = 0.015 * body.measure.stature;
     const turnBack = (t: number): number =>
       stepping
@@ -215,7 +244,7 @@ export namespace punchFootwork {
     // travel is arrested from the speed it had ({@link StrikingArrest}),
     // landing at the planned second, and the rear foot drags up to where the
     // lead foot came to rest, so the stance keeps its length.
-    let travel = (t: number): number => (stepping ? advance(t) * out(t) : 0);
+    let travel = (t: number): number => (stepping ? advance(t) * opens(t) : 0);
     let follow = (t: number): number =>
       stepping ? advance(t) * dragged(t) : 0;
     // Only a step in can be arrested by a body it meets; a step back moves
@@ -234,9 +263,11 @@ export namespace punchFootwork {
       const arrest = (): { from: number; speed: number; rest: number } => {
         if (arrested === undefined) {
           const advanced: number = advance(s);
-          const from: number = advanced * out(s);
+          const from: number = advanced * opens(s);
           const speed: number =
-            (advanced * minimumJerk.rate(s / shown)) / shown;
+            (advanced *
+              minimumJerk.rate((s - firstStart) / (shown - firstStart))) /
+            (shown - firstStart);
           arrested = {
             from,
             speed,
@@ -246,7 +277,7 @@ export namespace punchFootwork {
         return arrested;
       };
       travel = (t: number): number => {
-        if (t <= s) return advance(t) * out(t);
+        if (t <= s) return advance(t) * opens(t);
         const { from, speed, rest } = arrest();
         return StrikingArrest.settle(from, speed, rest, shown - s, t - s);
       };
@@ -258,7 +289,8 @@ export namespace punchFootwork {
               const advanced: number = advance(s);
               return StrikingArrest.settle(
                 advanced * dragged(s),
-                (advanced * minimumJerk.rate((s - dragFrom) / (dragTo - dragFrom))) /
+                (advanced *
+                  minimumJerk.rate((s - dragFrom) / (dragTo - dragFrom))) /
                   (dragTo - dragFrom),
                 arrest().rest,
                 dragTo - s,
@@ -266,25 +298,36 @@ export namespace punchFootwork {
               );
             };
     }
-    const base = (t: number, clock: number = t, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture => {
+    const base = (
+      t: number,
+      clock: number = t,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ): IAutoMovieMotionHumanPosture => {
       const turning: number = out(clock) - turnBack(clock);
       const moved: number = travel(t);
       const followed: number = follow(t);
-      const opening: number = stepping ? out(t) : 0;
+      const opening: number = stepping ? opens(t) : 0;
       const dragging: number = stepping ? dragged(t) : 0;
-      const firstLift: number = stepping ? lift * 4 * opening * (1 - opening) : 0;
-      const nextLift: number = stepping ? lift * 4 * dragging * (1 - dragging) : 0;
-      const leadFoot: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.slide(
-        feet[lead],
-        line,
-        backing ? followed : moved,
-        backing ? nextLift : firstLift,
-      );
+      const firstLift: number = stepping
+        ? lift * 4 * opening * (1 - opening)
+        : 0;
+      const nextLift: number = stepping
+        ? lift * 4 * dragging * (1 - dragging)
+        : 0;
+      const leadFoot: IAutoMovieMotionHumanFoot.IPlacement =
+        StrikingTarget.slide(
+          feet[lead],
+          line,
+          backing ? followed : moved,
+          (backing ? nextLift : firstLift) +
+            (support?.rise(lead, t, landing(lead)) ?? 0),
+        );
       const slid: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.slide(
         feet[rear],
         line,
         backing ? moved : followed,
-        backing ? firstLift : nextLift,
+        (backing ? firstLift : nextLift) +
+          (support?.rise(rear, t, landing(rear)) ?? 0),
       );
       const rearFoot: IAutoMovieMotionHumanFoot.IPlacement =
         which === "rear"
@@ -296,12 +339,19 @@ export namespace punchFootwork {
               HEEL_RAISE * turning,
             )
           : slid;
-      const placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
+      const placed: Record<
+        "left" | "right",
+        IAutoMovieMotionHumanFoot.IPlacement
+      > =
         lead === "left"
           ? { left: leadFoot, right: rearFoot }
           : { left: rearFoot, right: leadFoot };
-      const firstDown: boolean = !stepping || t >= shown;
-      const nextDown: boolean = !stepping || t <= dragFrom || t >= dragTo;
+      const firstDown: boolean = stepping
+        ? (firstStart > 0 && t <= firstStart) || t >= shown
+        : t >= landing(first);
+      const nextDown: boolean = stepping
+        ? (t >= landing(next) && t <= dragFrom) || t >= dragTo
+        : t >= landing(next);
       const leadDown: boolean = backing ? nextDown : firstDown;
       const rearDown: boolean = backing ? firstDown : nextDown;
       return resolveHumanPosture.lower(
@@ -317,7 +367,16 @@ export namespace punchFootwork {
           joints: StrikingStance.facing(
             {
               ...joints,
-              ...StrikingTwist.trunk(entry.joints, SPINE_SHARE * turn * turning),
+              ...StrikingTwist.trunk(
+                entry.joints,
+                SPINE_SHARE * turn * turning,
+              ),
+              // The raised heel's toes bend to stay flat on the floor.
+              ...(which === "rear"
+                ? {
+                    [`${rear}Toes`]: [HEEL_RAISE * turning, 0, 0] as const,
+                  }
+                : {}),
             },
             turn * turning,
           ),
@@ -352,14 +411,19 @@ export namespace punchFootwork {
         });
     };
     const rearKind: "plant" | "pivot" = which === "rear" ? "pivot" : "plant";
-    const next: "left" | "right" = first === lead ? rear : lead;
     const kind = (foot: "left" | "right"): "plant" | "pivot" =>
       foot === rear ? rearKind : "plant";
-    window(`${first}Foot`, kind(first), stepping ? shown : 0, duration);
+    window(
+      `${first}Foot`,
+      kind(first),
+      stepping ? shown : landing(first),
+      duration,
+    );
     if (stepping) {
-      window(`${next}Foot`, kind(next), 0, dragFrom);
+      window(`${first}Foot`, kind(first), 0, firstStart);
+      window(`${next}Foot`, kind(next), landing(next), dragFrom);
       window(`${next}Foot`, "plant", dragTo, duration);
-    } else window(`${next}Foot`, kind(next), 0, duration);
+    } else window(`${next}Foot`, kind(next), landing(next), duration);
 
     return { base, contacts };
   }

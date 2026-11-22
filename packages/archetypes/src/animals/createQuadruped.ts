@@ -7,8 +7,10 @@ import { DeerBody } from "./DeerBody";
 import { DeerGait } from "./DeerGait";
 import { DogBody } from "./DogBody";
 import { DogGait } from "./DogGait";
+import { GaitedHorseProfile } from "./GaitedHorseProfile";
 import { HorseGait } from "./HorseGait";
 import { HorseHarness } from "./HorseHarness";
+import { IcelandicHorseProfile } from "./IcelandicHorseProfile";
 import { OxBody } from "./OxBody";
 import { OxGait } from "./OxGait";
 import type { QuadrupedBody } from "./QuadrupedBody";
@@ -58,6 +60,7 @@ export function createQuadruped(
   if (params.kind === "ox") return createOx(params, seed);
   if (params.kind === "camel") return createCamel(params, seed);
   if (params.kind === "deer") return createDeer(params, seed);
+  if (params.kind === "horse") return createHorse(params, seed);
   return createQuadruped.PRODUCERS[params.kind](params, seed);
 }
 
@@ -113,7 +116,8 @@ export namespace createQuadruped {
 
   /** The parameters: the kind, and the kind's own parameters. */
   export type IParams =
-    | ({ kind: "horse" | "pony" | "donkey" | "mule" } & createPony.IParams &
+    | ({ kind: "horse" } & createHorse.IParams)
+    | ({ kind: "pony" | "donkey" | "mule" } & createPony.IParams &
         createMule.IParams)
     | ({ kind: "dog" } & createDog.IParams)
     | ({ kind: "cat" } & createCat.IParams)
@@ -165,12 +169,16 @@ export namespace createQuadruped {
     noddingContacts?: readonly string[];
   }
 
-  /** Equid head-carried vocabulary: neck, head, bridle and optional actual ear plates. */
+  /** Equid head-carried vocabulary: neck, head, bridle, optional actual ear plates, the optional jaw, upper lip and nostrils. */
   export const BRIDLED: readonly string[] = [
     "neck",
     ...HorseHarness.HEAD,
     "leftEar",
     "rightEar",
+    "jaw",
+    "lip",
+    "leftNostril",
+    "rightNostril",
   ];
 
   /** Each kind's species. Every equid stands at the horse's angles (`createHorse.STANCE`; no pony's, donkey's or mule's were found) and rides the horse's measured gaits, `HorseGait.TABLE`, scaled to its height by dynamic similarity, which Bullimore and Burn 2006 (J Exp Biol 209:455, abstract) found to hold across trotting horses of 86 to 714 kg: relative stride length and duty factor at equal Froude number were not related to body mass. For the donkey and the mule the table is provisional: no study gives their duty factors, limb phases or transitions (the searches are in the sources record). */
@@ -239,7 +247,8 @@ export namespace createQuadruped {
         "yoke-hitch-upright--1",
         "yoke-hitch-upright-1",
       ],
-      noddingContacts: ["lead", "hitch"],
+      // The roper's head and horns targets ride the head with the nod; the heel target between the hocks keeps trunk carriage.
+      noddingContacts: ["lead", "hitch", "head", "horns"],
     },
     camel: {
       archetype: "camel",
@@ -298,6 +307,15 @@ export namespace createQuadruped {
       if (cohort === "pet" || cohort === "show" || cohort === "sled")
         return { ...SPECIES.dog, stance: DogBody(cohort).stance };
     }
+    if (kind === "horse" && animal.provenance?.models.breed === "icelandic")
+      return { ...SPECIES.horse, table: IcelandicHorseProfile.TABLE };
+    const gaited: GaitedHorseProfile.Breed | undefined =
+      GaitedHorseProfile.BREEDS.find(
+        (breed: GaitedHorseProfile.Breed): boolean =>
+          breed === animal.provenance?.models.breed,
+      );
+    if (kind === "horse" && gaited !== undefined)
+      return { ...SPECIES.horse, table: GaitedHorseProfile.table(gaited) };
     return SPECIES[kind];
   }
 }

@@ -14,6 +14,7 @@ import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
 import { walkFoot } from "../actions/walkFoot";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { unloadedFoot } from "../carrier/unloadedFoot";
 import { hipJoints } from "../posture/hipJoints";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -52,7 +53,11 @@ export function prepareSitWorkingFeet(
   pitch: number,
   joints: IAutoMovieMotionHumanPosture["joints"],
 ): IWorkingFeet | undefined {
-  const { body, entry, params: { seat } } = context;
+  const {
+    body,
+    entry,
+    params: { seat },
+  } = context;
   if (seat.workingSeat !== true) return undefined;
   const angles = { yaw: seat.yaw, pitch, roll: 0 };
   const hips: Feet = hipJoints(
@@ -60,15 +65,22 @@ export function prepareSitWorkingFeet(
     seated.root(body, goal, angles),
     resolveHumanPosture.heading(angles),
   );
-  const radians: number = seat.yaw * Math.PI / 180;
-  const forward: IAutoMovieVector3 = { x: Math.sin(radians), y: 0, z: Math.cos(radians) };
+  const radians: number = (seat.yaw * Math.PI) / 180;
+  const forward: IAutoMovieVector3 = {
+    x: Math.sin(radians),
+    y: 0,
+    z: Math.cos(radians),
+  };
   const sides: readonly AutoMovieHumanSide[] = ["left", "right"];
   let intervals: AutoMovieFootShift[] = [[-Infinity, Infinity]];
   for (const side of sides) {
     const [shortest, longest] = sitPlace.band(body, side);
     const away: IAutoMovieVector3 = Vector3.subtract(initial[side], hips[side]);
     const ahead: number = Vector3.dot(away, forward);
-    const lateral: IAutoMovieVector3 = Vector3.subtract(away, Vector3.scale(forward, ahead));
+    const lateral: IAutoMovieVector3 = Vector3.subtract(
+      away,
+      Vector3.scale(forward, ahead),
+    );
     const outside: number = Vector3.dot(lateral, lateral);
     const farSquared: number = longest * longest - outside;
     if (farSquared < 0) return undefined;
@@ -78,9 +90,13 @@ export function prepareSitWorkingFeet(
     const far: number = Math.sqrt(farSquared);
     const nearSquared: number = shortest * shortest - outside;
     const near: number = Math.sqrt(Math.max(0, nearSquared));
-    const reachable: readonly AutoMovieFootShift[] = nearSquared > 0
-      ? [[-far - ahead, -near - ahead], [near - ahead, far - ahead]]
-      : [[-far - ahead, far - ahead]];
+    const reachable: readonly AutoMovieFootShift[] =
+      nearSquared > 0
+        ? [
+            [-far - ahead, -near - ahead],
+            [near - ahead, far - ahead],
+          ]
+        : [[-far - ahead, far - ahead]];
     intervals = intervals.flatMap(([lower, upper]) =>
       reachable.flatMap(([start, end]): AutoMovieFootShift[] => {
         const first: number = Math.max(lower, start);
@@ -89,7 +105,8 @@ export function prepareSitWorkingFeet(
       }),
     );
   }
-  if (intervals.some(([lower, upper]) => lower <= 0 && upper >= 0)) return undefined;
+  if (intervals.some(([lower, upper]) => lower <= 0 && upper >= 0))
+    return undefined;
 
   const hipHeight: number = body.measure.hipHeight;
   const stepLimit: number = walk.longestStep() * hipHeight;
@@ -100,10 +117,12 @@ export function prepareSitWorkingFeet(
     // Keep the stance inside the reach band by the standing allowance,
     // reduced only when the interval or step limit leaves less room.
     const room: number = Math.min(stand.DROP, (upper - lower) / 2);
-    const nearest: number = lower > 0
-      ? Math.min(lower + room, stepLimit)
-      : Math.max(upper - room, -stepLimit);
-    if (shift === undefined || Math.abs(nearest) < Math.abs(shift)) shift = nearest;
+    const nearest: number =
+      lower > 0
+        ? Math.min(lower + room, stepLimit)
+        : Math.max(upper - room, -stepLimit);
+    if (shift === undefined || Math.abs(nearest) < Math.abs(shift))
+      shift = nearest;
   }
   if (shift === undefined) return undefined;
   const displacement: IAutoMovieVector3 = Vector3.scale(forward, shift);
@@ -112,30 +131,54 @@ export function prepareSitWorkingFeet(
     right: Vector3.add(initial.right, displacement),
   };
   const yaw: number = entry.posture.yaw;
-  const legs: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
+  const legs: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
+    body,
+    yaw,
+  );
   const fromRoot: IAutoMovieVector3 = stand.root(body, initial, yaw);
   const toRoot: IAutoMovieVector3 = stand.root(body, feet, yaw);
   const next: IAutoMovieMotionHumanPosture = {
-    root: toRoot, yaw, pitch: 0, roll: 0, joints, limbs: legs(toRoot, feet),
+    root: toRoot,
+    yaw,
+    pitch: 0,
+    roll: 0,
+    joints,
+    limbs: legs(toRoot, feet),
   };
   const gait = walk.walking(walk.FROUDE.slow);
-  const speed: number = Math.sqrt(gait.froude * AutoMovieGravity.STANDARD * hipHeight);
-  const step: number = Math.max(Math.abs(shift), gait.step(gait.froude) * hipHeight) / speed;
-  const duration: number = sides.length * step;
-  const earliest: AutoMovieHumanSide = Vector3.dot(Vector3.subtract(initial.right, initial.left), displacement) > 0
-    ? "right" : "left";
-  const order: readonly AutoMovieHumanSide[] = earliest === "left" ? sides : ["right", "left"];
-  const before: IAutoMovieMotionHumanPosture["limbs"] = legs(fromRoot, initial);
-  const swings: ReturnType<typeof walkFoot.prepareSwing>[] = order.map((side: AutoMovieHumanSide) =>
-    walkFoot.prepareSwing(body, side, {
-      from: { ankle: initial[side], rotation: before[`${side}Leg`]!.rotation!, toes: 0 },
-      to: { ankle: feet[side], rotation: next.limbs[`${side}Leg`]!.rotation!, toes: 0 },
-      seconds: step,
-      velocity: { x: 0, y: 0, z: 0 },
-      lift: gait.lift,
-    }),
+  const speed: number = Math.sqrt(
+    gait.froude * AutoMovieGravity.STANDARD * hipHeight,
   );
-  const lower: ReturnType<typeof lowerHumanPosture.prepare> = lowerHumanPosture.prepare(body);
+  const step: number =
+    Math.max(Math.abs(shift), gait.step(gait.froude) * hipHeight) / speed;
+  const duration: number = sides.length * step;
+  const earliest: AutoMovieHumanSide =
+    Vector3.dot(Vector3.subtract(initial.right, initial.left), displacement) > 0
+      ? "right"
+      : "left";
+  const order: readonly AutoMovieHumanSide[] =
+    earliest === "left" ? sides : ["right", "left"];
+  const before: IAutoMovieMotionHumanPosture["limbs"] = legs(fromRoot, initial);
+  const swings: ReturnType<typeof walkFoot.prepareSwing>[] = order.map(
+    (side: AutoMovieHumanSide) =>
+      walkFoot.prepareSwing(body, side, {
+        from: {
+          ankle: initial[side],
+          rotation: before[`${side}Leg`]!.rotation!,
+          toes: 0,
+        },
+        to: {
+          ankle: feet[side],
+          rotation: next.limbs[`${side}Leg`]!.rotation!,
+          toes: 0,
+        },
+        seconds: step,
+        velocity: { x: 0, y: 0, z: 0 },
+        lift: gait.lift,
+      }),
+  );
+  const lower: ReturnType<typeof lowerHumanPosture.prepare> =
+    lowerHumanPosture.prepare(body);
   const contacts: IAutoMovieMotionHumanContactWindow[] = [
     plant(order[1]!, 0, step / duration),
     plant(order[0]!, step / duration, 1),
@@ -161,19 +204,51 @@ export function prepareSitWorkingFeet(
         // must not raise the pelvis above the stance ankle's floor.
         const root: IAutoMovieVector3 = {
           ...stand.root(body, ankles, yaw),
-          y: fromRoot.y + (toRoot.y - fromRoot.y) * time / duration,
+          y: fromRoot.y + ((toRoot.y - fromRoot.y) * time) / duration,
         };
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = legs(root, ankles);
         const leg: IAutoMovieHumanLimbGoal = limbs[`${side}Leg`]!;
-        limbs[`${side}Leg`] = { ...leg, rotation: swing.placement.rotation, planted: false, contact: undefined };
+        // The stepping foot bears nothing: its ankle stays within what a
+        // weightless ankle reaches.
+        const hip: IAutoMovieVector3 = hipJoints(
+          body,
+          root,
+          resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
+          joints.hips,
+        )[side];
+        limbs[`${side}Leg`] = unloadedFoot(
+          body,
+          hip,
+          {
+            ...leg,
+            rotation: swing.placement.rotation,
+            planted: false,
+            contact: undefined,
+          },
+          {
+            x: Math.sin((yaw * Math.PI) / 180),
+            y: 0,
+            z: Math.cos((yaw * Math.PI) / 180),
+          },
+        );
         return lower({ ...next, root, limbs }, resolution);
       },
     },
   };
 
-  function plant(side: AutoMovieHumanSide, from: number, to: number): IAutoMovieMotionHumanContactWindow {
+  function plant(
+    side: AutoMovieHumanSide,
+    from: number,
+    to: number,
+  ): IAutoMovieMotionHumanContactWindow {
     const part: IAutoMovieMotionHumanContactWindow["part"] = `${side}Foot`;
-    return { part, kind: "plant", from, to, support: HumanSupportFrame.contact(context, part) };
+    return {
+      part,
+      kind: "plant",
+      from,
+      to,
+      support: HumanSupportFrame.contact(context, part),
+    };
   }
 }
 
@@ -205,19 +280,35 @@ export namespace prepareSitWorkingFeet {
     lowering: IAutoMovieMotionHumanActionPlan,
   ): IAutoMovieMotionHumanActionPlan {
     const duration: number = prefix.duration + lowering.duration;
-    const share = (at: number): number => (prefix.duration + at * lowering.duration) / duration;
+    const share = (at: number): number =>
+      (prefix.duration + at * lowering.duration) / duration;
     return {
       ...lowering,
       duration,
-      contact: lowering.contact === undefined ? undefined : lowering.contact + prefix.duration,
-      events: lowering.events.map((event) => ({ ...event, share: share(event.share) })),
+      contact:
+        lowering.contact === undefined
+          ? undefined
+          : lowering.contact + prefix.duration,
+      events: lowering.events.map((event) => ({
+        ...event,
+        share: share(event.share),
+      })),
       contacts: [
-        ...prefix.contacts.map((contact) => ({ ...contact, from: contact.from * prefix.duration / duration, to: contact.to * prefix.duration / duration })),
-        ...lowering.contacts.map((contact) => ({ ...contact, from: share(contact.from), to: share(contact.to) })),
+        ...prefix.contacts.map((contact) => ({
+          ...contact,
+          from: (contact.from * prefix.duration) / duration,
+          to: (contact.to * prefix.duration) / duration,
+        })),
+        ...lowering.contacts.map((contact) => ({
+          ...contact,
+          from: share(contact.from),
+          to: share(contact.to),
+        })),
       ],
-      posture: (second, ...loan) => second < prefix.duration
-        ? prefix.posture(second, ...loan)
-        : lowering.posture(second - prefix.duration, ...loan),
+      posture: (second, ...loan) =>
+        second < prefix.duration
+          ? prefix.posture(second, ...loan)
+          : lowering.posture(second - prefix.duration, ...loan),
     };
   }
 }

@@ -18,6 +18,8 @@ export namespace HumanSegmentPoseSeeds {
   /**
    * The nearby fit a named fit continues: the seed `near` holds under the
    * name, refined to its tolerance; none where it holds none, or no seed.
+   * A prescribed near places an arm's fit at its seed; a leg's fit is only
+   * continued from it, since the legs keep their own fits.
    *
    * @param near The fits of a nearby second, if any.
    * @param name The fit's name.
@@ -38,8 +40,75 @@ export namespace HumanSegmentPoseSeeds {
     const seed: IAutoMovieSwivelSeed | null | undefined = near?.seeds.get(name);
     return seed === undefined || seed === null
       ? undefined
-      : { ...seed, tolerance: near!.tolerance };
+      : {
+          ...seed,
+          tolerance: near!.tolerance,
+          ...(near!.prescribed === true && !name.endsWith("Leg")
+            ? { prescribed: true }
+            : {}),
+        };
   }
+
+  /**
+   * Whether an evaluation continues the fits of a nearby second: a near that
+   * is not a prescribed course. A prescribed course (`INear.prescribed`) is
+   * no observation of another second, so a reader keeps its no-near paths
+   * (kept legs, direct assembly, prepared samples) under it.
+   *
+   * @param near The fits given, if any.
+   * @returns Whether they are continued fits.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the distinction and who reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation A course fixes the branch and swivel; it reads no other second.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No fit is changed.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function continues(near: INear | undefined): boolean {
+    return near !== undefined && near.prescribed !== true;
+  }
+
+  /**
+   * The leaf fits a read shows, named for a later stage of the same read
+   * (a stop's `stop:<id>:`, a plant's `planted:`): for each limb, the fit of
+   * the leaf under the most overlays, `leaf:<ordinals>:<limb>`, which is the
+   * leaf the displayed pose is built on, as `<stage><limb>`.
+   *
+   * @param seeds The read's fits.
+   * @param stage The later stage's name prefix.
+   * @returns The leaf seeds under the stage's names.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which leaf is taken per limb and how it is renamed.
+   * @evidence contracts/development/implementation.md#principled-implementation `HumanSegmentOverlay.overlaid` names each leaf fit by the comma-joined ordinals of the overlays written over it; the leaf with the most is the one under every running overlay, whose fit the pose shows.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the fits keeping the deepest leaf per limb, then one renaming pass.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a leaf fit of the same limb in the same read is taken; no other stage's or limb's seed stands in.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the read's fits.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure renaming; nothing is computed to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new map of the borrowed seeds and retains nothing.
+   */
+  export function shown(
+    seeds: ReadonlyMap<string, IAutoMovieSwivelSeed | null>,
+    stage: string,
+  ): IFits {
+    const deepest: Map<string, number> = new Map();
+    const out: IFits = new Map();
+    for (const [name, seed] of seeds) {
+      if (!name.startsWith(LEAF)) continue;
+      const split: number = name.lastIndexOf(":");
+      const tag: string = name.slice(LEAF.length, split);
+      const depth: number = tag === "" ? 0 : tag.split(",").length;
+      const limb: string = name.slice(split + 1);
+      if ((deepest.get(limb) ?? -1) >= depth) continue;
+      deepest.set(limb, depth);
+      out.set(`${stage}${limb}`, seed);
+    }
+    return out;
+  }
+
+  /** The name prefix of a leaf fit, `leaf:<ordinals>:<limb>`. */
+  const LEAF: string = "leaf:";
 
   /**
    * Each named limb fit's chosen seed; null where that fit has none.
@@ -65,6 +134,9 @@ export namespace HumanSegmentPoseSeeds {
 
     /** The swivel tolerance each continued fit is refined to, degrees. */
     tolerance: number;
+
+    /** Whether the seeds are prescribed (`IAutoMovieSwivelNear.prescribed`): each limb is placed at its seed's swivel and branch in closed form, as a display reading its plan's swivel course does. */
+    prescribed?: boolean;
   }
 
   /**
@@ -98,6 +170,4 @@ export namespace HumanSegmentPoseSeeds {
     /** The continued samples at the second and one and two steps toward its side. */
     samples: readonly [IAutoMoviePose, IAutoMoviePose, IAutoMoviePose];
   }
-
 }
-

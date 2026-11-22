@@ -1,16 +1,43 @@
+import type { IAutoMovieMotionHumanGraspUse } from "@automovie/interface";
+
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
 const { act, at, mutual, object, person, scene, seat, to }: typeof SceneBuild =
   SceneBuild;
 
+/** One trooper's horse's place at the head of the squadron, metres. */
+interface ITrooper {
+  /** Lateral place. */
+  x: number;
+
+  /** Depth place, the front rank at 0. */
+  z: number;
+}
+
+/** Two ranks of three files, knee to knee: 1.8 m between files and 4 m between ranks, an authored staging choice. */
+const SQUADRON: readonly ITrooper[] = [0, 1].flatMap(
+  (rank: number): ITrooper[] =>
+    [-1, 0, 1].map(
+      (file: number): ITrooper => ({ x: file * 1.8, z: -rank * 4 }),
+    ),
+);
+
+/** Seconds the troopers take to mount before the squadron moves off. */
+const CHARGE_MOUNT: number = 5;
+
+/** Seconds each trooper rides: the course's walk, trot, canter and gallop. */
+const CHARGE_RIDE: number = 30;
+
+/** The trumpet's charge, a film second inside the gallop leg, when each trooper brings the sabre from the slope to the engage. */
+const CHARGE_CUE: number = 31;
 /**
  * A work point on a bench top, just behind its front edge.
  *
  * @param x Along the bench, metres.
  * @returns The target.
  */
-const work = (x: number): Record<string, unknown> => ({
+const work = (x: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y: SceneBuild.COUNTER_TOP, z: 0.4 },
   frame: "world",
@@ -18,23 +45,23 @@ const work = (x: number): Record<string, unknown> => ({
 
 /**
  * A one-hand tool lying level on the workshop's bench with its working end
- * toward the far side, where a pick-up takes it by its grip: `createTool`
- * stands a tool along +Y from the butt of its handle, so it is turned a
+ * toward the far side, where a pick-up takes it by its grip. Each tool
+ * stands along +Y from the butt of its handle, so it is turned a
  * quarter turn about +X, its butt at the bench top.
  *
  * @param subject The tool's id.
- * @param kind The tool's kind (`createTool`).
+ * @param producer The named tool producer.
  * @param x The butt's floor point, metres.
  * @param z The butt's floor point, metres.
  * @returns The tool.
  */
 const tool = (
   subject: string,
-  kind: string,
+  producer: string,
   x: number,
   z: number,
 ): ReturnType<typeof object> => ({
-  ...object(subject, "createTool", kind, x, z, 0, SceneBuild.COUNTER_TOP),
+  ...object(subject, producer, undefined, x, z, 0, SceneBuild.COUNTER_TOP),
   rotation: { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
 });
 
@@ -46,7 +73,7 @@ const tool = (
  * @param kind The tool's kind.
  * @returns The use.
  */
-const use = (kind: string): Record<string, string> => ({
+const use = (kind: string): IAutoMovieMotionHumanGraspUse.IUse => ({
   tip: "face",
   line: kind === "hammer" ? "square" : "forearm",
 });
@@ -503,6 +530,83 @@ export const SCENES_PARTNER: readonly IScene[] = [
   ),
   scene(
     {
+      id: "cavalry-charge",
+      title: "Cavalry squadron, walk to charge",
+      summary:
+        "A squadron of two ranks advances knee to knee from the walk through the trot and canter to the gallop, each horse taking its gait on the course's marks.",
+      setting: "ride",
+      roles: Object.fromEntries(
+        SQUADRON.map((_: ITrooper, k: number): [string, string] => [
+          `r${k}`,
+          `trooper ${k + 1}`,
+        ]),
+      ),
+      needs: [3913],
+      view: "side",
+    },
+    "ride",
+    SQUADRON.map((trooper: ITrooper, k: number) =>
+      person(
+        `r${k}`,
+        k % 2 === 0 ? "m1" : "f1",
+        // On the near side, the horse's left, where a horse is mounted from.
+        trooper.x + 0.6,
+        trooper.z - 0.2,
+        0,
+        [
+          act("pickUp", { prop: `s${k}`, handle: "grip", hand: "right" }),
+          act("sit", { seat: seat(`h${k}`) }),
+          act("ride", { on: `h${k}`, seconds: 1, hands: { left: "leftRein" } }),
+          // The sabre law carries the seat itself, at the slope until the charge.
+          act("sabre", {
+            on: `h${k}`,
+            prop: `s${k}`,
+            carry: "slope",
+            cue: "charge",
+            gaits: `h${k}:gaits`,
+            transition: 0.4,
+            seconds: CHARGE_RIDE,
+          }),
+        ],
+      ),
+    ),
+    [
+      ...SQUADRON.map((trooper: ITrooper, k: number) =>
+        // Within a clear reach ahead of the standing trooper's right hand.
+        object(
+          `s${k}`,
+          "createSword",
+          "sabre",
+          trooper.x + 0.35,
+          trooper.z + 0.1,
+          0,
+          0.9,
+        ),
+      ),
+      ...SQUADRON.map((trooper: ITrooper, k: number) => ({
+        ...object(`h${k}`, "createHorse", undefined, trooper.x, trooper.z, 0),
+        course: {
+          at: CHARGE_MOUNT,
+          legs: [
+            { kind: "straight" as const, length: 12, gait: "walk" },
+            { kind: "straight" as const, length: 16, gait: "trot" },
+            { kind: "straight" as const, length: 30, gait: "canter" },
+            { kind: "straight" as const, length: 40, gait: "gallop" },
+          ],
+          cruise: 8,
+          speeds: [1.6, 3.4, 5.5, 8],
+          acceleration: 1.2,
+          deceleration: 1.2,
+          startFromStanding: true as const,
+        },
+      })),
+    ],
+    [],
+    [],
+    { charge: [{ name: "charge", seconds: CHARGE_CUE }] },
+  ),
+  scene(
+    {
       id: "into-a-car",
       title: "Into a car",
       summary:
@@ -607,9 +711,9 @@ export const SCENES_PARTNER: readonly IScene[] = [
     ],
     [
       object("bench", "createTable", "counter", -0.5, 0.65, 180),
-      tool("hammerA", "hammer", HAMMER_A.x, HAMMER_A.z),
-      tool("sawA", "saw", SAW_A.x, SAW_A.z),
-      tool("hammerB", "hammer", HAMMER_B.x, HAMMER_B.z),
+      tool("hammerA", "createHammer", HAMMER_A.x, HAMMER_A.z),
+      tool("sawA", "createHandSaw", SAW_A.x, SAW_A.z),
+      tool("hammerB", "createHammer", HAMMER_B.x, HAMMER_B.z),
     ],
   ),
   scene(
@@ -621,18 +725,22 @@ export const SCENES_PARTNER: readonly IScene[] = [
       setting: "work",
       roles: { w5: "carpenter" },
       needs: [],
-      refusedUntil: 3543,
     },
     "driving-a-screw",
     [
       person("w5", "f1", 0, 0, 0, [
         taken("driver", "screwdriver"),
-        act("screw", { prop: "driver", on: work(-0.1) }),
+        act("screw", {
+          prop: "driver",
+          on: { kind: "prop", subject: "bench", point: "top" },
+        }),
       ]),
     ],
     [
-      object("bench", "createTable", "counter", 0, 0.53, 180),
-      tool("driver", "screwdriver", -0.18, 0.3),
+      object("bench", "createTable", "workbench", -0.1, 0.52, 180, 0, {
+        height: 0.9,
+      }),
+      { ...tool("driver", "createScrewdriver", -0.18, 0.4), y: 0.9 },
     ],
   ),
 ];

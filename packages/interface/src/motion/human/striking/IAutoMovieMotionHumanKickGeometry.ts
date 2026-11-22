@@ -245,6 +245,9 @@ export namespace IAutoMovieMotionHumanKickGeometry {
 
     /** The foot's world rotation from its rest. */
     rotation: IAutoMovieQuaternion;
+
+    /** The toes' extension from the foot, degrees, while the foot rocks on its forefoot; none when flat. */
+    toes?: number;
   }
 
   /**

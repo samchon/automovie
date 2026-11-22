@@ -60,11 +60,17 @@ export namespace IAutoMovieMotionHumanArmPlanned {
     /** Whether the group is being solved, so a member asked during the solve is refused instead of solved twice. */
     solving?: boolean;
 
+    /** The refusal the group's solve ended in, kept as the solution is: every later read of a member throws it again, so a problem no trajectory meets is solved once, not again at each read. */
+    refused?: Error;
+
     /** The solutions an earlier plan of this same action reached (`last` of that plan's group), by the arms solved together (`IWarm`'s key): given by whoever plans the action again, each is the first start of the matching solve. Absent, every solve starts from its course. */
     warm?: ReadonlyMap<string, IWarm>;
 
     /** The solutions this plan's optimiser reached, by the arms solved together, written as each is solved: what a replan of the same action hands to its group's `warm`. A problem whose laid course was admitted is not optimised and writes none. */
     last?: Map<string, IWarm>;
+
+    /** The group's place among the groups its action's plan makes, from 0, in the order the law makes them, which a replan of the same law repeats: it keys the group's handover with its arms, so two groups of one action that move the same arms (two strokes) do not read each other's solutions. Absent for a group made outside an action's plan. */
+    ordinal?: number;
 
     /** Whether the group's span is its law's own, which a replan at a slower tempo lengthens (`HumanPerformanceTempo`); unset for a span an end of which another performer or a cue fixes (a meeting). Only such a span is handed back for a longer one before an optimisation (`HumanArmTrajectory.solve`). */
     stretches?: boolean;

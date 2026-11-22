@@ -11,7 +11,7 @@ import type { createHorse } from "./createHorse";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is laid, where the saddle sits and which parts carry mass.
  * @evidence contracts/development/design.md#principled-representation The saddle as a box, the straps as round bars, the contacts as a seat, handles, stirrups and reins.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `lay` and `lead`, with the saddle's read weight and the estimates they read; `createHorse` calls them for `tack` `saddle`, `both` and `pack`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `lay` and `lead`, with the saddle's read weight and the estimates they read; `createHorse` calls them for `tack` `saddle`, `both` and `pack`. `rein` is shared with the side saddle (`HorseSideSaddle`), and `bareback` lays the bridle and back seat of `tack` `bareback`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size no source gives is a named estimate; the saddle's weight is its maker's.
  */
 export namespace HorseSaddle {
@@ -23,6 +23,15 @@ export namespace HorseSaddle {
     rein: 0.2,
     lead: 0.3,
   };
+
+  /** A pillion pad's depth along the back and its thickness, metres: estimates, no source read gives them. */
+  export const PILLION: Readonly<{ depth: number; thick: number }> = {
+    depth: 0.32,
+    thick: 0.03,
+  };
+
+  /** The gap between the cantle and a pillion pad's front, metres: an estimate. */
+  export const SADDLE_GAP: number = 0.02;
 
   /** The saddle's seat width, metres: an estimate, no source read gives it. */
   export const SEAT_WIDTH: number = 0.3;
@@ -54,10 +63,8 @@ export namespace HorseSaddle {
     rig: createHorse.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
-    const h: number = d.withersHeight;
     const barrel: number = rig.barrel;
     const back: number = rig.back;
-    const half: number = rig.trunk / 2;
     // The saddle on the back behind the withers, and what the rider holds and stands in.
     const top: number = back + 0.04;
     const centre: number = rig.hitch.z;
@@ -125,38 +132,253 @@ export namespace HorseSaddle {
         width: d.stirrupWidth,
         length: d.stirrupDrop,
       });
+      rein(builder, d, rig, side);
+    }
+  }
 
-      // A rein from the corner of the mouth back to where the hand holds it, above the withers.
-      const hand: IAutoMovieVector3 = v(sign * 0.08, back + 0.15, half - 0.1);
-      const bit: IAutoMovieVector3 = v(
-        sign * 0.05 * h,
-        rig.mouth.y,
-        rig.mouth.z,
-      );
+  /**
+   * Lay one rein from the corner of the mouth back to where the hand holds it above the withers, with its `leftRein` or `rightRein` contact. Every bridled tack lays the same reins.
+   *
+   * @param builder The equid under construction, its body laid.
+   * @param d The equid's dimensions.
+   * @param rig The equid's rest rig.
+   * @param side The rein's side: `left` on `+X`, `right` on `-X`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it lays, where and which contact it declares.
+   * @evidence contracts/development/implementation.md#principled-implementation A span between the actual head-local bit point and the trunk-carried hand contact, extending behind the hand by half the occupied grip run.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One contact and one span; the riding saddle, the side saddle and the bareback bridle call it so their reins are one.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rein geometry and held-frame direction are recomputed by the shared span owner; neither the hand nor the bit is moved to fit a rigid rod.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One part and one contact.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every bridled tack.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function rein(
+    builder: ArchetypeBuilder<createHorse.Affordance, createHorse.Dimension>,
+    d: Readonly<Record<createHorse.Dimension, number>>,
+    rig: createHorse.IRig,
+    side: "left" | "right",
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const sign: number = side === "left" ? 1 : -1;
+    const hand: IAutoMovieVector3 = v(
+      sign * 0.08,
+      rig.back + 0.15,
+      rig.trunk / 2 - 0.1,
+    );
+    const bit: IAutoMovieVector3 = v(
+      sign * 0.05 * d.withersHeight,
+      rig.mouth.y,
+      rig.mouth.z,
+    );
+    builder.affordance({
+      id: `${side}Rein`,
+      kind: "rein",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        hand,
+        v(0, 1, 0),
+        Vector3.subtract(bit, hand),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: d.reinWidth,
+      length: HELD.rein,
+    });
+
+    // The occupied held run stays on the actual line even as the bit moves.
+    builder.span(
+      `rein-${side}`,
+      { affordance: `${side}Rein`, overhang: HELD.rein / 2 },
+      builder.anchor("head", bit),
+      d.reinWidth / 2,
+      { color: "#4a3324", share: 0 },
+    );
+  }
+
+  /** A bareback seat's depth along the back, metres: an estimate of the stretch behind the withers a rider sits on, no source read gives it. */
+  export const BAREBACK: number = 0.45;
+
+  /**
+   * Lay a bareback bridle: the two reins and a `seat` contact on the horse's own back where a saddle would sit, with no saddle, stirrup or handle. The seat is sat astride and mounted from the near side; its height is the back itself, so the rider sits a saddle's thickness lower than in the riding saddle.
+   *
+   * @param builder The equid under construction, its body laid.
+   * @param d The equid's dimensions.
+   * @param rig The equid's rest rig.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is laid, where the seat sits and what is absent.
+   * @evidence contracts/development/implementation.md#principled-implementation The seat's front edge stands on the back over the rig's hitch, `BAREBACK` ahead of its rear, `SEAT_WIDTH` wide; the reins are `rein`'s.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One contact, then both reins.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No part stands in for the horse's back; the seat's depth is a named estimate.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two parts and three contacts.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `rein`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function bareback(
+    builder: ArchetypeBuilder<createHorse.Affordance, createHorse.Dimension>,
+    d: Readonly<Record<createHorse.Dimension, number>>,
+    rig: createHorse.IRig,
+  ): void {
+    builder.affordance({
+      id: "seat",
+      kind: "seat",
+      frame: ArchetypeFrame.upright(
+        Vector3.create(0, rig.back, rig.hitch.z + BAREBACK / 2),
+      ),
+      extent: null,
+      depth: BAREBACK,
+      width: SEAT_WIDTH,
+      astride: true,
+      mount: "left",
+    });
+    rein(builder, d, rig, "left");
+    rein(builder, d, rig, "right");
+  }
+
+  /**
+   * Lay a pillion pad on the loins behind the riding saddle's cantle, with the passenger's `pillion` seat astride on it, entered from the near side. Lay the saddle first.
+   *
+   * @param builder The equid under construction, its saddle laid.
+   * @param d The equid's dimensions.
+   * @param rig The equid's rest rig.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it adds and where.
+   * @evidence contracts/development/implementation.md#principled-implementation The pad's front edge at the cantle, `SADDLE_GAP` behind it, its top `PILLION.thick` over the back; the seat's front edge at the pad's front.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One pad and one seat.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pad's sizes are named estimates; it carries no mass, none read.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one pad.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function pillion(
+    builder: ArchetypeBuilder<createHorse.Affordance, createHorse.Dimension>,
+    d: Readonly<Record<createHorse.Dimension, number>>,
+    rig: createHorse.IRig,
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const front: number = rig.hitch.z - d.seatSize / 2 - SADDLE_GAP;
+    const top: number = rig.back + PILLION.thick;
+    builder.box(
+      "pillionPad",
+      v(SEAT_WIDTH, PILLION.thick, PILLION.depth),
+      v(0, top - PILLION.thick / 2, front - PILLION.depth / 2),
+      { color: "#5b4030", share: 0 },
+    );
+    builder.affordance({
+      id: "pillion",
+      kind: "seat",
+      frame: ArchetypeFrame.upright(v(0, top, front)),
+      extent: null,
+      depth: PILLION.depth,
+      width: SEAT_WIDTH,
+      astride: true,
+      mount: "left",
+    });
+  }
+
+  /** A trick saddle's fittings, metres: the horn's height over the pommel, a side strap's drop below the seat and the hippodrome strap's height over it; estimates, no source read gives them. */
+  export const TRICK: Readonly<{
+    horn: number;
+    strap: number;
+    hippodrome: number;
+  }> = {
+    horn: 0.12,
+    strap: 0.25,
+    hippodrome: 0.03,
+  };
+
+  /**
+   * Lay a trick rider's fittings on the riding saddle: a tall horn over the pommel, a handhold on each side of it, a foot strap hanging on each side for the drags and a hippodrome strap across the seat that a standing rider's feet go under. Lay the saddle first.
+   *
+   * @param builder The equid under construction, its saddle laid.
+   * @param d The equid's dimensions.
+   * @param rig The equid's rest rig.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it adds and where.
+   * @evidence contracts/development/implementation.md#principled-implementation Each fitting placed from the saddle's own top, pommel and barrel.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One fitting at a time.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The sizes are named estimates; the fittings carry no mass, none read.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A few parts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one set.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function trick(
+    builder: ArchetypeBuilder<createHorse.Affordance, createHorse.Dimension>,
+    d: Readonly<Record<createHorse.Dimension, number>>,
+    rig: createHorse.IRig,
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const top: number = rig.back + 0.04;
+    const pommel: number = rig.hitch.z + d.seatSize / 2;
+    const hornTop: number = top + 0.03 + TRICK.horn;
+    builder.rod(
+      "horn",
+      0.015,
+      v(0, top + 0.03, pommel),
+      v(0, hornTop, pommel),
+      {
+        color: "#4a3324",
+        share: 0,
+      },
+    );
+    builder.affordance({
+      id: "horn",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.upright(v(0, hornTop, pommel)),
+      extent: null,
+      grip: "power",
+      aperture: 0.03,
+      length: 0.08,
+    });
+    for (const [side, sign] of [
+      ["left", 1],
+      ["right", -1],
+    ] as const) {
       builder.affordance({
-        id: `${side}Rein`,
-        kind: "rein",
-        symmetry: "round",
-        frame: ArchetypeFrame.facing(
-          hand,
-          v(0, 1, 0),
-          Vector3.subtract(bit, hand),
-        ),
+        id: `${side}Handhold`,
+        kind: "handle",
+        symmetry: "none",
+        frame: ArchetypeFrame.upright(v(sign * (SEAT_WIDTH / 2), top, pommel)),
         extent: null,
         grip: "power",
-        aperture: d.reinWidth,
-        length: HELD.rein,
+        aperture: 0.03,
+        length: 0.1,
       });
-
-      // The occupied held run stays on the actual line even as the bit moves.
-      builder.span(
-        `rein-${side}`,
-        { affordance: `${side}Rein`, overhang: HELD.rein / 2 },
-        builder.anchor("head", bit),
-        d.reinWidth / 2,
-        { color: "#4a3324", share: 0 },
-      );
+      const x: number = sign * (rig.barrel + 0.03);
+      const strap: IAutoMovieVector3 = v(x, top - TRICK.strap, pommel);
+      builder.rod(`strap-${side}`, 0.008, v(x, top - 0.02, pommel), strap, {
+        color: "#4a3324",
+        share: 0,
+      });
+      builder.affordance({
+        id: `${side}Strap`,
+        kind: "stirrup",
+        frame: ArchetypeFrame.upright(strap),
+        extent: null,
+        width: 0.1,
+        length: TRICK.strap,
+      });
     }
+    const middle: number = rig.hitch.z;
+    const over: number = top + TRICK.hippodrome;
+    builder.rod(
+      "hippodrome",
+      0.008,
+      v(-SEAT_WIDTH / 2, over, middle),
+      v(SEAT_WIDTH / 2, over, middle),
+      {
+        color: "#4a3324",
+        share: 0,
+      },
+    );
+    builder.affordance({
+      id: "hippodrome",
+      kind: "stirrup",
+      frame: ArchetypeFrame.upright(v(0, top, middle)),
+      extent: null,
+      width: SEAT_WIDTH,
+      length: TRICK.hippodrome,
+    });
   }
 
   /**

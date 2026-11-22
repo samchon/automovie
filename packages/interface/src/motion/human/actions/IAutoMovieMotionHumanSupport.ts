@@ -131,6 +131,9 @@ export namespace IAutoMovieMotionHumanSupport {
 
     /** The posture the stance's solve stays nearest, by its whole body's tilt and its joints (degrees); the posture the body enters with when absent. A stance without targets is shaped by it: kneeling, squatting, standing. */
     prefer?: IAutoMovieMotionHumanLieDown.IPose;
+
+    /** The parts the stance lets go free: each lifts off the contact it bore by in the stance before and hangs as the stance's posture carries it, bearing on nothing, instead of holding its last place until another contact of its limb replaces it; none when absent. */
+    free?: readonly IAutoMovieMotionHumanSupport.Part[];
   }
 
   /**

@@ -44,11 +44,14 @@ import { ballSport } from "../sport/ballSport";
 import { baseball } from "../sport/baseball";
 import { gymnastics } from "../sport/gymnastics";
 import { martialArt } from "../sport/martialArt";
+import { chiSau } from "../sport/chiSau";
 import { racket } from "../sport/racket";
 import { swim } from "../sport/swim";
 import { defend } from "../striking/defend";
 import { guard } from "../striking/guard";
 import { kick } from "../striking/kick";
+import { closeStrike } from "../striking/closeStrike";
+import { footStrike } from "../striking/footStrike";
 import { knee } from "../striking/knee";
 import { punch } from "../striking/punch";
 import { step } from "../striking/step";
@@ -97,6 +100,8 @@ export const HUMAN_ACTIONS: Readonly<
   knockdown,
   perturb,
   knee,
+  closeStrike,
+  footStrike,
   sit,
   rise,
   shift,
@@ -139,6 +144,7 @@ export const HUMAN_ACTIONS: Readonly<
   athletics,
   gymnastics,
   martialArt,
+  chiSau,
   ballSport,
   baseball,
   racket,

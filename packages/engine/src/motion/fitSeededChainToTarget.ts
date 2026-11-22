@@ -14,6 +14,7 @@ import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeleto
 import type { IAutoMovieChainContinuationObserver } from "./IAutoMovieChainContinuationObserver";
 import { continueHingedOrientation } from "./continueHingedOrientation";
 import { fitChainBend } from "./fitChainBend";
+import { fitHingedChainAt } from "./fitHingedChainAt";
 import { fitHingedChainBend } from "./fitHingedChainBend";
 import { orientChainEffector } from "./orientChainEffector";
 import { prepareChainFit } from "./prepareChainFit";
@@ -98,6 +99,11 @@ export namespace fitSeededChainToTarget {
      * An optional `near` replaces the source's cold/near mode for this target
      * only: the fit continues that seed (a later contact re-aim pass
      * continuing the previous pass's answer for a target millimetres away).
+     * A prescribed seed (`IAutoMovieSwivelNear.prescribed`) is placed in
+     * closed form where that placement reaches the target within range and
+     * clear of the obstruction, and refined from otherwise; this call's
+     * prescribed `near` wins over the source's, so a re-aim pass keeps the
+     * swivel the pass before it settled on.
      * An optional `incumbent` (ignored with `near`) is a seed the caller holds
      * for this swept fit: it only starts the bounded sweep's stop
      * (`IAutoMovieFitChainToTargetProps.incumbent`), so the answer is the
@@ -262,6 +268,32 @@ function preparedWorkspace(
   });
   return {
       fit: (target: IAutoMovieVector3, near?: IAutoMovieSwivelNear, incumbent?: IAutoMovieSwivelSeed, capture?: orientChainEffector.IReading): IAutoMovieSeededChainFit => {
+        // A prescribed seed, this call's or else the workspace's own, is
+        // placed in closed form at every target (a contact's re-aims
+        // included): the course chose the swivel, so nothing is searched or
+        // refined. This call's wins, so a re-aim pass keeps the swivel the
+        // pass before it settled on, even where that pass had to refine away
+        // from the workspace's.
+        const prescribed: IAutoMovieSwivelNear | undefined =
+          near?.prescribed === true ? near
+            : workspace.props.near?.prescribed === true ? workspace.props.near : undefined;
+        if (prescribed !== undefined) {
+          const placed: ReturnType<typeof fitHingedChainAt> = fitHingedChainAt(
+            { ...workspace.props, target }, prescribed.swivel, prescribed.branch);
+          // The closed form stands only where it reaches the target within the
+          // range of motion and keeps clear of the request's obstruction, the
+          // one probe that confirms the swivel; elsewhere the fit continues
+          // from the course's seed.
+          if (placed !== null && placed.shortfall <= 0 && !placed.clamped && placed.blocked <= 0)
+            return { pose: placed.pose, seed: placed.seed };
+          const continued: IAutoMovieSwivelNear = {
+            swivel: prescribed.swivel,
+            branch: prescribed.branch,
+            tolerance: prescribed.tolerance,
+          };
+          const props: IAutoMovieFitChainToTargetProps = { ...workspace.props, target, near: continued };
+          return finish(props, fitChainBend(props, workspace), capture);
+        }
         const props: IAutoMovieFitChainToTargetProps = near === undefined
           ? { ...workspace.props, target, ...(incumbent === undefined ? {} : { incumbent }) } : { ...workspace.props, target, near };
         return finish(props, fitChainBend(props, workspace), capture);

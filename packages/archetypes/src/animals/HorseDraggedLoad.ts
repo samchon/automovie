@@ -1,0 +1,355 @@
+import {
+  Quaternion,
+  Vector3,
+  integrateMotionTrajectory,
+  minimumJerk,
+} from "@automovie/engine";
+import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieModelPart,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import {
+  type Archetype,
+  ArchetypeFrame,
+  ArchetypeRefusal,
+  type ArchetypeRide,
+} from "../core";
+import type { createDragged } from "../vehicles/createDragged";
+import { HorseHarness } from "./HorseHarness";
+import { QuadrupedFooting } from "./QuadrupedFooting";
+import type { createHorse } from "./createHorse";
+import type { rideQuadruped } from "./rideQuadruped";
+
+/** World up. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** Half the central-difference interval of the pull point's velocity, seconds. */
+const HALF: number = 5e-4;
+
+/**
+ * A load dragged along the ground behind a harnessed horse: a plough cutting its furrow, a harrow, a chained log or a sledge, its heading following the trace line and its coupling kept a trace's length behind the horse's points of draft.
+ *
+ * The pull point is the middle of the collar's two points of draft, carried by the horse's course placement (the stride's bob and nod, millimetres, are left to the laid traces). The load's coupling is held `length` metres behind it in plan, moving only along the line to it, the pursuit curve a load on a fixed trace traces (a tractrix on a turn), integrated once by the engine's trajectory integrator from a start straight behind the horse. The load's heading is that line, so it follows the trace; its body lies on the authored ground plane under its coupling (`QuadrupedFooting`, or level Y=0), lowered by the plough's working `depth` so its share runs that deep in the furrow. Over each headland interval in `lifts` the plough is lifted out, its share raised to `lift` metres above the ground on minimum-jerk transitions of `raise` seconds at each end. The traces are laid from the actual points of draft to the whippletree's two ends on the coupling, as far apart as the points of draft, and `lines` lays the driving lines from the bit rings to the point a walking driver holds them at.
+ *
+ * Draught is declared, not simulated: a plough's draught grows linearly with its depth (Davies, J. Agric. Sci.), and the author states the load's draught and the horse's capacity; a load whose draught exceeds that capacity is refused.
+ *
+ * @param ride The horse's ride.
+ * @param horse The harnessed horse it rides.
+ * @param load A load from `createDragged`.
+ * @param params The trace length, depth, headland lifts, declared draught and capacity, and footing.
+ * @returns The load's ride by film second.
+ * @throws {ArchetypeRefusal} For a horse without the harness's points of draft, nonpositive lengths, a negative depth, a draught over capacity, and a ground plane missing under the load.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the pull point, the pursuit, the heading, the ground and depth, the headland lift, the traces and the declared draught.
+ * @evidence contracts/development/implementation.md#principled-implementation A fixed-length tow without side force on the coupling moves it only along the tow line, whose solution is the pursuit curve; the body is placed rigidly on the plane under the coupling at the scheduled depth.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the inputs, integrate the coupling's path once, then place the load and lay the traces per sample.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No draught is invented: the author declares it and the refusal compares the two declarations.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One integration over cheap course reads; one plane query, one placement and two trace reads per sample.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrated path serves every sample.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the path's knots and the footing for the ride's lifetime.
+ */
+export function HorseDraggedLoad(
+  ride: ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>,
+  horse: Archetype<createHorse.Affordance, createHorse.Dimension>,
+  load: Archetype<createDragged.Affordance, createDragged.Dimension>,
+  params: HorseDraggedLoad.IParams,
+): HorseDraggedLoad.IRide {
+  const refuse = (
+    axis: string,
+    value: unknown,
+    reason: string,
+    maximum: number | null = null,
+  ): never => {
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: load.archetype,
+      axis,
+      value,
+      feasible:
+        maximum === null
+          ? null
+          : { kind: "range", minimum: 0, maximum, unit: "N" },
+      reason,
+      fix: "Declare a draught the horse can pull and a positive trace length.",
+    });
+  };
+  const depth: number = params.depth ?? 0;
+  const lift: number = params.lift ?? 0;
+  const raise: number = params.raise ?? 1;
+  if (!(Number.isFinite(params.length) && params.length > 0))
+    refuse("length", params.length, "the trace must be a positive length");
+  if (!(depth >= 0) || !(lift >= 0) || !(raise > 0))
+    refuse(
+      "depth",
+      depth,
+      "depth and lift must be nonnegative and the raise positive",
+    );
+  if (!(params.draught >= 0 && params.capacity > 0))
+    refuse("draught", params.draught, "draught and capacity must be declared");
+  if (params.draught > params.capacity)
+    refuse(
+      "draught",
+      params.draught,
+      `the load's declared draught exceeds the horse's ${params.capacity} N capacity`,
+      params.capacity,
+    );
+  const ends: IAutoMovieVector3[] = (["left", "right"] as const).map(
+    (side: HorseDraggedLoad.Side): IAutoMovieVector3 => {
+      const part: IAutoMovieModelPart | undefined = horse.parts.find(
+        (candidate: IAutoMovieModelPart): boolean =>
+          candidate.id === HorseHarness.ENDS.draft[side],
+      );
+      return (
+        part?.transform?.translation ??
+        refuse("tack", horse.name, "the horse wears no breast collar")
+      );
+    },
+  );
+  const middle: IAutoMovieVector3 = Vector3.lerp(ends[0]!, ends[1]!, 0.5);
+  const spread: number = ends[0]!.x;
+  const footing: QuadrupedFooting.IPlan | undefined =
+    params.footing === undefined
+      ? undefined
+      : QuadrupedFooting.prepare(load.archetype, params.footing, false);
+  const coupling: IAutoMovieVector3 =
+    load.affordance("coupling").frame.translation;
+
+  // The pull point in plan, from the horse's course placement.
+  const pull = (seconds: number): IAutoMovieVector3 =>
+    ArchetypeFrame.point(ride.plan.at(seconds).placement, middle);
+  const start: IAutoMovieVector3 = pull(0);
+  const ahead: IAutoMovieVector3 = ArchetypeFrame.axis(
+    ride.plan.at(0).placement,
+    "z",
+  );
+  const forward: IAutoMovieVector3 = Vector3.normalize({
+    x: ahead.x,
+    y: 0,
+    z: ahead.z,
+  });
+  const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    integrateMotionTrajectory({
+      f: (
+        t: number,
+        x: readonly number[],
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => {
+        const h: IAutoMovieVector3 = pull(t);
+        const a: IAutoMovieVector3 = pull(t + HALF);
+        const b: IAutoMovieVector3 = pull(t - HALF);
+        const vx: number = (a.x - b.x) / (2 * HALF);
+        const vz: number = (a.z - b.z) / (2 * HALF);
+        const dx: number = h.x - x[0]!;
+        const dz: number = h.z - x[1]!;
+        const span: number = Math.hypot(dx, dz);
+        const along: number = (vx * dx + vz * dz) / span;
+        return { dx: [(along * dx) / span, (along * dz) / span] };
+      },
+      x0: [
+        start.x - forward.x * params.length,
+        start.z - forward.z * params.length,
+      ],
+      t0: 0,
+      t1: Math.max(ride.duration, 1e-3),
+    });
+
+  return { duration: ride.duration, at, lines };
+
+  /** The load, its placement, the traces and the share's depth at a film second. */
+  function at(seconds: number): HorseDraggedLoad.ISample {
+    const t: number = Math.min(Math.max(seconds, 0), ride.duration);
+    const x: readonly number[] = path.at(t).x;
+    const h: IAutoMovieVector3 = pull(t);
+    const heading: number = Math.atan2(h.x - x[0]!, h.z - x[1]!);
+    const plane: QuadrupedFooting.ISurface =
+      footing === undefined
+        ? { point: { x: 0, y: 0, z: 0 }, normal: UP }
+        : footing.landing({ x: x[0]!, y: 0, z: x[1]! }, Quaternion.identity());
+    const ground: number =
+      plane.point.y -
+      (plane.normal.x * (x[0]! - plane.point.x) +
+        plane.normal.z * (x[1]! - plane.point.z)) /
+        plane.normal.y;
+    const sink: number = depth - (depth + lift) * lifted(seconds);
+    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      turn(UP, plane.normal),
+      Quaternion.fromAxisAngle(UP, (heading * 180) / Math.PI),
+    );
+    const target: IAutoMovieVector3 = {
+      x: x[0]!,
+      y: ground + coupling.y - sink,
+      z: x[1]!,
+    };
+    const placement: IAutoMovieTransform = {
+      translation: Vector3.subtract(
+        target,
+        Quaternion.rotateVector(rotation, coupling),
+      ),
+      rotation,
+      scale: { ...ArchetypeFrame.UNIT },
+    };
+    const horseSample: ArchetypeRide.ISample<
+      createHorse.Affordance,
+      createHorse.Dimension
+    > = ride.at(seconds);
+    const traces: ArchetypeRide.ILineState[] = HorseHarness.SIDES.map(
+      ([
+        side,
+        sign,
+      ]: (typeof HorseHarness.SIDES)[number]): ArchetypeRide.ILineState => ({
+        id: `trace-${side}`,
+        radius: HorseHarness.ESTIMATES.strap,
+        points: [
+          ArchetypeFrame.point(
+            horseSample.placement,
+            horseSample.archetype.parts.find(
+              (part: IAutoMovieModelPart): boolean =>
+                part.id === HorseHarness.ENDS.draft[side],
+            )!.transform!.translation,
+          ),
+          ArchetypeFrame.point(placement, {
+            ...coupling,
+            x: coupling.x + sign * spread,
+          }),
+        ],
+      }),
+    );
+    return { archetype: load, placement, traces, depth: sink };
+  }
+
+  /** The driving lines from each bit ring to a world point the driver holds them at, such as a ploughman's shoulder. */
+  function lines(
+    seconds: number,
+    held: IAutoMovieVector3,
+  ): ArchetypeRide.ILineState[] {
+    const sample: ArchetypeRide.ISample<
+      createHorse.Affordance,
+      createHorse.Dimension
+    > = ride.at(seconds);
+    return HorseHarness.SIDES.map(
+      ([
+        side,
+      ]: (typeof HorseHarness.SIDES)[number]): ArchetypeRide.ILineState => ({
+        id: `line-${side}`,
+        radius: HorseHarness.ESTIMATES.strap,
+        points: [
+          ArchetypeFrame.point(
+            sample.placement,
+            sample.archetype.parts.find(
+              (part: IAutoMovieModelPart): boolean =>
+                part.id === HorseHarness.ENDS.bit[side],
+            )!.transform!.translation,
+          ),
+          { ...held },
+        ],
+      }),
+    );
+  }
+
+  /** The share of the lift at a film second: 1 out of the ground, 0 at work. */
+  function lifted(seconds: number): number {
+    let most: number = 0;
+    for (const interval of params.lifts ?? []) {
+      const up: number = minimumJerk((seconds - interval.from) / raise).s;
+      const down: number = minimumJerk((interval.to - seconds) / raise).s;
+      most = Math.max(most, Math.min(up, down));
+    }
+    return most;
+  }
+}
+
+/**
+ * Types of {@link HorseDraggedLoad}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and role.
+ * @evidence contracts/development/design.md#principled-representation Metres, seconds and newtons; lifts as film-second intervals.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What the dragged ride reads and returns.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Draught and capacity are declarations, not computed forces.
+ */
+export namespace HorseDraggedLoad {
+  /** A side of the horse and the load. */
+  export type Side = "left" | "right";
+
+  /** The horse's forward lean into its collar at its full declared capacity, degrees nose-down: an authored estimate, no measured lean having been read. */
+  export const LEAN: number = 8;
+
+  /**
+   * The horse's forward lean under a declared draught, for its course's `lean` (`rideQuadruped.ICourse.lean`): `LEAN` degrees scaled by the share of the horse's declared capacity the load's declared draught takes, held through the take: the horse is under its load from the first second.
+   *
+   * @param draught The load's declared draught, newtons.
+   * @param capacity The horse's declared capacity, newtons, positive.
+   * @returns The lean in degrees, positive nose-down, at each film second.
+   */
+  export function lean(draught: number, capacity: number): rideQuadruped.Lean {
+    const share: number = Math.min(1, Math.max(0, draught / capacity));
+    return (): number => LEAN * share;
+  }
+
+  /** A headland interval the plough is lifted over, film seconds. */
+  export interface ILift {
+    /** When the lift begins. */
+    from: number;
+    /** When the plough is back at work. */
+    to: number;
+  }
+
+  /** The drag. */
+  export interface IParams {
+    /** The trace's length in plan from the points of draft to the coupling, metres. */
+    length: number;
+    /** The share's working depth below the ground, metres; 0 when absent. */
+    depth?: number;
+    /** Headland intervals the plough is lifted over. */
+    lifts?: readonly ILift[];
+    /** The share's height above the ground when lifted, metres; 0 when absent. */
+    lift?: number;
+    /** Seconds each lift and lowering takes; 1 when absent. */
+    raise?: number;
+    /** The load's declared draught, newtons. */
+    draught: number;
+    /** The horse's declared draught capacity, newtons. */
+    capacity: number;
+    /** The authored ground; level Y=0 when absent. */
+    footing?: QuadrupedFooting.IScene;
+  }
+
+  /** One second of the dragged load. */
+  export interface ISample {
+    /** The load. */
+    archetype: Archetype<createDragged.Affordance, createDragged.Dimension>;
+    /** Its world placement. */
+    placement: IAutoMovieTransform;
+    /** The traces, collar to whippletree. */
+    traces: readonly ArchetypeRide.ILineState[];
+    /** How far the load is lowered below lying on the ground, metres: the working depth, negative while lifted. */
+    depth: number;
+  }
+
+  /** The dragged load by film second. */
+  export interface IRide {
+    /** The horse ride's duration. */
+    duration: number;
+    /** The load at a film second, held at the ride's ends outside it. */
+    at: (seconds: number) => ISample;
+    /** The horse's driving lines at a film second, from its bit rings to the world point a walking driver holds them at, such as a ploughman's shoulder they run over. */
+    lines: (
+      seconds: number,
+      held: IAutoMovieVector3,
+    ) => readonly ArchetypeRide.ILineState[];
+  }
+}
+
+/** The rotation taking one unit direction to another. */
+function turn(
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+): IAutoMovieQuaternion {
+  const axis: IAutoMovieVector3 = Vector3.cross(from, to);
+  return Quaternion.fromAxisAngle(
+    axis,
+    (Math.atan2(Vector3.length(axis), Vector3.dot(from, to)) * 180) / Math.PI,
+  );
+}

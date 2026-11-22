@@ -2,8 +2,13 @@ import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
 import type { IAutoMovieMotionHumanGrapple } from "../grappling/IAutoMovieMotionHumanGrapple";
+import type { IAutoMovieMotionHumanDisarm } from "../grappling/IAutoMovieMotionHumanDisarm";
+import type { IAutoMovieMotionHumanHostageHold } from "../grappling/IAutoMovieMotionHumanHostageHold";
+import type { IAutoMovieMotionHumanLungeGrab } from "../grappling/IAutoMovieMotionHumanLungeGrab";
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
+import type { IAutoMovieMotionHumanCloseStrike } from "../striking/IAutoMovieMotionHumanCloseStrike";
+import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHumanPunch";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
 import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanStageProp } from "./IAutoMovieMotionHumanStageProp";
@@ -24,6 +29,33 @@ export interface IAutoMovieMotionHumanLexiconStageFightParams {
 
   /** Perform a role in a staged grappling exchange. */
   grapple: IAutoMovieMotionHumanGrapple.IParams;
+
+  /** A lunge and grab: the leading foot steps long toward the victim and both palms close on its shoulders or a named region; a victim beyond the longest lunge is refused. */
+  lungeGrab: IAutoMovieMotionHumanLungeGrab.IParams;
+
+  /** A staged disarm: both hands close on the armed wrist and forearm (a knife) or the wrist and the slide (a handgun), lever the armed hand, and the hand on the wrist takes the weapon. The armed partner performs `disarmed`. */
+  disarm: IAutoMovieMotionHumanDisarm.IParams;
+
+  /** The armed partner of a disarm: the forearm turns with the lever and the hand opens at the disarm's `taken` instant. */
+  disarmed: IAutoMovieMotionHumanDisarm.IYield;
+
+  /** A hostage hold from behind: the free arm across the chest or throat, a held weapon's point at a region, and the pair walking backward. The hostage performs heldHostage. */
+  hostageHold: IAutoMovieMotionHumanHostageHold.IParams;
+
+  /** The hostage of a hold: carried backward with the holder, stepping the same way. */
+  heldHostage: IAutoMovieMotionHumanHostageHold.IHeld;
+
+  /** A stage palm strike: the rear palm heel driven at the target and stopped short at 0.85 of its delivery (provisional), with no contact declared. */
+  stagePalmStrike: Omit<
+    IAutoMovieMotionHumanPunch.IParams,
+    "technique" | "hand" | "feint"
+  >;
+
+  /** A stage headbutt: the forehead driven at the target and stopped short at 0.85 of its delivery (provisional), the hands on a person's neck, with no contact declared. */
+  stageHeadbutt: Omit<
+    IAutoMovieMotionHumanCloseStrike.IParams,
+    "technique" | "arm" | "feint"
+  >;
 
   /** A forehand slap: one tap of the open palm. The composition gives the cheek as the target. */
   slap: Omit<
@@ -90,6 +122,9 @@ export interface IAutoMovieMotionHumanLexiconStageFightParams {
 
   /** A duck under a threat with no strike to answer: a short partial crouch (0.3 s held, provisional). */
   duck: Omit<IAutoMovieMotionHumanCrouch.IParams, "depth" | "hold">;
+
+  /** Capoeira's esquiva baixa: a full crouch under a kick, held while it passes. */
+  esquiva: Omit<IAutoMovieMotionHumanCrouch.IParams, "depth" | "hold">;
 
   /** A dodge with no strike to answer: one quick step to the right out of a threat's line. */
   dodge: Omit<IAutoMovieMotionHumanStep.IParams, "direction" | "steps">;

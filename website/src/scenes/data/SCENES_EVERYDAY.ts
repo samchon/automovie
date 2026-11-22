@@ -1,18 +1,10 @@
-import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
+import { SceneBuild } from "./SceneBuild";
 import { SceneTakes } from "./SceneTakes";
 
-/** A region of another person, as a motion target. */
-function at(subject: string, region: string): Record<string, unknown> {
-  return { kind: "person", subject, region };
-}
+const { at, to }: typeof SceneBuild = SceneBuild;
 
-/** A floor point, as a destination. */
-function to(x: number, z: number): Record<string, number> {
-  return { x, y: 0, z };
-}
-
-const MEETING: IPlaygroundComposition = {
+const MEETING: SceneBuild.Composition = {
   version: 1,
   seed: "meeting",
   performers: [
@@ -108,7 +100,7 @@ const MEETING: IPlaygroundComposition = {
   mutuals: [],
 };
 
-const FALL: IPlaygroundComposition = {
+const FALL: SceneBuild.Composition = {
   version: 1,
   seed: "fall",
   performers: [
@@ -121,7 +113,8 @@ const FALL: IPlaygroundComposition = {
       proficiency: "trained",
       actions: [
         { name: "walk", params: { to: to(0, 1) } },
-        { name: "stagger", params: { speed: 1.2 } },
+        // The swapped body's recovery limit on this approach is 0.85 m/s.
+        { name: "stagger", params: { speed: 0.8 } },
         { name: "knockdown", params: { seconds: 1 } },
         { name: "getUp", params: {} },
       ],
@@ -142,6 +135,9 @@ const FALL: IPlaygroundComposition = {
           name: "touch",
           params: {
             target: { kind: "self", region: "hipRight" },
+            // A lower aim lets the palm close against the hip on both bodies.
+            site: { up: -0.035 },
+            side: "right",
             kind: "hold",
           },
         },
@@ -163,11 +159,11 @@ const FALL: IPlaygroundComposition = {
 };
 
 /** Every site body standing side by side, for the Human page's lineup. */
-const LINEUP: IPlaygroundComposition = {
+const LINEUP: SceneBuild.Composition = {
   version: 1,
   seed: "lineup",
   performers: ["f1", "f2", "m1", "m2"].map(
-    (body: string, index: number): IPlaygroundComposition.IPerformer => ({
+    (body: string, index: number): SceneBuild.Performer => ({
       subject: body,
       body,
       x: (index - 1.5) * 0.9,
@@ -213,7 +209,6 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     takes: SceneTakes.of(FALL),
     camera: { view: "three-quarter" },
     needs: [],
-    refusedUntil: 3544,
   },
   {
     id: "lineup",
@@ -221,7 +216,7 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     summary: "Every body the site performs with, standing side by side.",
     setting: "everyday",
     cast: LINEUP.performers.map(
-      (performer: IPlaygroundComposition.IPerformer): IScene.ICast => ({
+      (performer: SceneBuild.Performer): IScene.ICast => ({
         subject: performer.subject,
         role: performer.body,
       }),

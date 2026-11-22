@@ -289,6 +289,14 @@ export function test_archetype_animal_head_appendage(): void {
         );
       carriers[id] = "neck";
     }
+    // Every declared contact rides as the producer's nod policy says: listed contacts with the neck, the rest with the trunk.
+    const contacts: Record<string, QuadrupedBody.Bone> = {};
+    for (const contact of animal.affordances)
+      contacts[contact.id] = (
+        createQuadruped.SPECIES[entry.params.kind].noddingContacts ?? []
+      ).includes(contact.id)
+        ? "neck"
+        : "trunk";
     const joints: Map<
       QuadrupedBody.Bone,
       Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">
@@ -297,7 +305,7 @@ export function test_archetype_animal_head_appendage(): void {
       animal,
       joints,
       carriers,
-      {},
+      contacts,
       {
         translation: { x: 2, y: 1, z: -3 },
         rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 0.7),

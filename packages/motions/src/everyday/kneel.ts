@@ -1,6 +1,7 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
@@ -21,7 +22,6 @@ import { stand } from "../actions/stand";
 import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
@@ -31,11 +31,14 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { bendFloorHand } from "./bendFloorHand";
 import { braceOnThigh } from "./braceOnThigh";
 import { kneelContacts } from "./kneelContacts";
 import { kneelKeys } from "./kneelKeys";
 import { prepareKneelBalance } from "./prepareKneelBalance";
 import { prepareKneelClock } from "./prepareKneelClock";
+import { prepareKneelFoot } from "./prepareKneelFoot";
+import { kneelLiftedFoot } from "./kneelLiftedFoot";
 import { prepareKneelPhases } from "./prepareKneelPhases";
 
 /**
@@ -122,6 +125,9 @@ export namespace kneel {
   /** How far of its full length the stepping leg extends to reach its foot behind (provisional). */
   export const REACH: number = 0.98;
 
+  /** Seconds over which a lifted foot's toe-down turn eases in from and out to its plants (provisional, as the medium walk's). */
+  const EASE: number = 0.1;
+
   /** Seconds of each phase for the reference hip height (`walkRoot.REFERENCE_HIP`), scaled to a body by the square root of its own hip height (dynamic similarity); the phases themselves have no located measurement. */
   export const PHASES: Readonly<
     Record<"step" | "lower" | "second" | "sit", number>
@@ -163,12 +169,22 @@ export namespace kneel {
     );
     const standing: IAutoMovieMotionHumanPosture = probe.posture(0);
     const yaw: number = standing.yaw;
-    const solved: kneelKeys.IKeys = kneelKeys.solve(body, standing, kind, k);
+    const solved: kneelKeys.IKeys = kneelKeys.solve(
+      body,
+      standing,
+      kind,
+      k,
+      context.params.at === undefined ? undefined : context.aim(context.params.at, 0).point,
+    );
     const keys: kneelKeys.IKey[] = solved.keys;
     const length: number = m.thigh + m.shank;
     const kneeling: number = Vector3.dot(
       Vector3.subtract(keys[2]!.root, standing.root),
       solved.forward,
+    );
+    const aside: IAutoMovieVector3 = Vector3.subtract(
+      { ...keys[2]!.root, y: standing.root.y },
+      Vector3.add(standing.root, Vector3.scale(solved.forward, kneeling)),
     );
 
     // Phases: down through the keys, a hold, and back up when rising.
@@ -270,6 +286,7 @@ export namespace kneel {
       phases,
     );
 
+
     // A foot between two keys: pivoting on its toes' joint when that stays,
     // swinging on an arc when it moves.
     const geometry: ReturnType<typeof prepareKneelPhases> = prepareKneelPhases(
@@ -339,9 +356,10 @@ export namespace kneel {
             : phase.from === 1
               ? course * (1 - u ** 4)
               : course);
+        // A knee placed aside carries the hips aside as the foot travels.
         const flat: IAutoMovieVector3 = Vector3.add(
-          standing.root,
-          Vector3.scale(solved.forward, s),
+          Vector3.add(standing.root, Vector3.scale(solved.forward, s)),
+          Vector3.scale(aside, minimumJerk.share(step)),
         );
         const reach: number =
           (solved.extension + (REACH - solved.extension) * step) * length;
@@ -399,14 +417,49 @@ export namespace kneel {
         ...posture.joints,
       };
       for (const side of ["left", "right"] as const) {
-        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
+        // A moving foot never bends its ankle past what a weightless ankle
+        // reaches while it bears nothing (`kneelLiftedFoot`): it is turned
+        // toes down about its toe pads, its toes extending. It rolls into
+        // the turn on its toe pads before it lifts off a heel-up stance, and
+        // out of it on them after its toes strike a heel-up landing, as the
+        // knee comes off or down over them. A foot leaving or landing flat
+        // eases its turn in and out over `EASE` at its plants.
+        const leftKey: kneelKeys.IFoot = keys[phase.from]!.feet[side];
+        const nextKey: kneelKeys.IFoot = keys[phase.to]!.feet[side];
+        const lift: number = prepareKneelFoot.departure(leftKey, nextKey);
+        const strike: number = prepareKneelFoot.arrival(leftKey, nextKey);
+        const ease: (span: number) => number = (span: number): number =>
+          Math.max(0, Math.min(1, (span * phase.seconds) / EASE));
+        const weight: number = kneelKeys.still(leftKey, nextKey)
+          ? 0
+          : linear < lift
+            ? minimumJerk.share(linear / lift)
+            : linear > strike
+              ? 1 - minimumJerk.share((linear - strike) / (1 - strike))
+              : Math.min(
+                  lift > 0 ? 1 : ease(linear),
+                  strike < 1 ? 1 : ease(1 - linear),
+                );
+        // A foot rolling on its toe pads bears, but its goal is free to turn
+        // over them; it is held as planted once it rests at its key.
+        const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanLeg.goal(
           body,
           placed,
           side,
           feet[side].placement,
-          feet[side].planted,
+          feet[side].planted && weight === 0,
         );
-        joints[`${side}Toes`] = [feet[side].toes, 0, 0];
+        const turned: kneelLiftedFoot.IFoot = kneelLiftedFoot(
+          body,
+          side,
+          Vector3.add(root, solved.rest[side]),
+          goal,
+          feet[side].toes,
+          weight,
+          Quaternion.rotateVector(resolveHumanPosture.heading(placed), { x: 0, y: 0, z: 1 }),
+        );
+        limbs[`${side}Leg`] = turned.goal;
+        joints[`${side}Toes`] = [turned.toes, 0, 0];
       }
       return resolveHumanPosture.lower(
         body,
@@ -518,7 +571,7 @@ export namespace kneel {
       end: armEnd,
     };
     const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
-      AutoMovieMotionHumanArm.together();
+      AutoMovieMotionHumanArm.together(context.handover, true, context.tempo);
     const hand: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanPrimitive =>
@@ -533,17 +586,14 @@ export namespace kneel {
       );
 
     // The hands open onto the thighs as the palms come to them, as the crouch's
-    // do: a relaxed hand's curled fingers would go into the thigh it lies on.
+    // do: a relaxed hand's curled fingers would go into the thigh it lies on,
+    // and the flat hand's thumb, which projects past the palm, is turned on
+    // its metacarpal until it clears the palm's plane, as a palm laid on the
+    // floor's is (`bendFloorHand`).
     const open: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanPrimitive =>
-      AutoMovieMotionHumanHand.shape({
-        side,
-        shape: "flat",
-        from: 0,
-        to: duration,
-        weight: lowered,
-      });
+      bendFloorHand(body, context.entry.posture, side, duration, lowered);
 
     const contacts: IAutoMovieMotionHumanContactWindow[] = kneelContacts(
       context,

@@ -27,7 +27,7 @@ import { walkLeg } from "./walkLeg";
  * rocker; one whose thigh would trail more than `TRAIL` raises its heel
  * further, by the same rounded rule from `EASE` short of it on; a foot
  * pivots on its toe pad by the turn it is given; and a foot whose leg leans
- * further to its side than `SIDE` rolls onto its edge.
+ * further to its side than `SIDE` rolls onto the border nearer its hip.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the four rules a stance is held by and their bounds.
  * @evidence contracts/development/design.md#principled-representation One stance rule apart from the pelvis's settling, which calls it.
@@ -67,7 +67,7 @@ export namespace walkReachStance {
    * @returns The stance rule evaluated at a hip in world metres: the stance as reached and its contact point in the foot's frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which stance inputs stay fixed, angular units and the varying world-space hip.
-   * @evidence contracts/development/implementation.md#principled-implementation The forefoot rocker begins where the ankle can bend no further and the trailing thigh is held at terminal stance's (Perry and Burnfield), so the ball never slides; past the ankle's side range the foot turns about the border that stays down, so that border never slides. The foot's heading, initial pitch, sole pivot and rigid pivot reader are resolved once.
+   * @evidence contracts/development/implementation.md#principled-implementation The forefoot rocker begins where the ankle can bend no further and the trailing thigh is held at terminal stance's (Perry and Burnfield), so the ball never slides; past the ankle's side range the shank carries the foot about the border nearer the hip, which stays down, so that border never slides. The foot's heading, initial pitch, sole pivot and rigid pivot reader are resolved once.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed stance geometry precedes one hip reader running the rocker, the trail, the pivot, then the edge.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Raising the heel only brings the thigh forward, so the trail's room has no fold to search; no trial hip or fit result is memoized.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per scheduled stance; per hip at most `TOES_DOWN` heel-rocker passes, one rounded rise and one pass over the sole's points. A toe-pad turn lazily prepares its yaw/roll and socket geometry, then computes its toe-angle offset once for both rigid transforms.
@@ -199,9 +199,10 @@ export namespace walkReachStance {
         };
       }
       // The foot rolls onto its edge once the leg's line leans further to the
-      // side of the foot than the ankle inverts or everts: the border on the
-      // side the ankle lies from the hip stays on the floor and the other
-      // rises, as a foot set wide of the body bears on its outer border.
+      // side of the foot than the ankle inverts or everts: the shank carries
+      // the foot past the ankle's range, so the border nearer the hip stays on
+      // the floor and the far one rises, as a foot set wide of the body bears
+      // on its inner border.
       const across: IAutoMovieVector3 = flat(
         Quaternion.rotateVector(placement.rotation, { x: 1, y: 0, z: 0 }),
       );
@@ -214,8 +215,8 @@ export namespace walkReachStance {
         (Math.atan2(Math.abs(aside), down) * 180) / Math.PI - SIDE;
       let bearing: IAutoMovieVector3 = contact;
       if (down > 0 && excess > 0) {
-        // The border it rolls about is the outermost of the sole points that
-        // bear, within the sole's bearing height of its lowest
+        // The border it rolls about is the sole point nearest the hip of those
+        // that bear, within the sole's bearing height of its lowest
         // (`HumanFoot.BEARING`): a heel the rocker has raised is not on the
         // floor, and a roll about it would lift the whole foot.
         const sign: number = Math.sign(aside);
@@ -226,7 +227,7 @@ export namespace walkReachStance {
         for (const q of points) {
           if (q.y > floor + HumanFoot.BEARING) continue;
           const out: number =
-            sign * Vector3.dot(Vector3.subtract(q, placement.ankle), across);
+            -sign * Vector3.dot(Vector3.subtract(q, placement.ankle), across);
           if (out > most) {
             most = out;
             edge = q;
@@ -234,7 +235,7 @@ export namespace walkReachStance {
         }
         const roll: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
           flat(Quaternion.rotateVector(placement.rotation, { x: 0, y: 0, z: 1 })),
-          -sign * excess,
+          sign * excess,
         );
         placement = {
           ankle: Vector3.add(

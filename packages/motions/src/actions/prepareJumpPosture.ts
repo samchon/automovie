@@ -1,6 +1,5 @@
 import { AutoMovieGravity } from "@automovie/engine";
 import type {
-  IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanJumpAirborne,
@@ -15,6 +14,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { jumpAirborne } from "./jumpAirborne";
+import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { prepareJumpFlight } from "./prepareJumpFlight";
 
 /**
@@ -29,13 +29,13 @@ import { prepareJumpFlight } from "./prepareJumpFlight";
  * @param phase The original local phase times, seconds, and ballistic metre coefficients.
  * @param rotation Actual requested turns, delegated unchanged to jumpAirborne.
  * @param ground Original push and landing writers and their native bare-display fit producers.
- * @param admitTouchdown The optional returned-rotation check for a turned landing.
+ * @param touchdownRequirement The optional geometry requirement for a planted rotating jump.
  * @returns The public posture dispatcher, the turning declarations and the event-prepared display source.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines actual owned open-flight phase, original clock/ballistic units, outside-phase callbacks and the known refusal wrapper.
  * @evidence contracts/development/implementation.md#principled-implementation Preserves the original clamp, push/free/absorb dispatch and c0+v*t-g*t^2/2 COM expressions. prepareJumpFlight owns the achieved-goal construction and actual canonical solve; jumpAirborne owns handed-back rigid turning.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Public and native flight read the same ballistic writer. Its start belongs to push and its end belongs to flight. Ground fit transfers survive only where landing turn leaves their inputs unchanged. located owns only the original four-argument refusal wrapper.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No arbitrary callback is registered, sampled or inferred pure. Before/after callbacks remain ordinary. No law-name selection, physical tolerance, pose answer cache, changed callback receiver or scripted turn is introduced.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No arbitrary callback is registered, sampled or inferred pure. Before/after callbacks remain ordinary. Forwards the native touchdown requirement unchanged. No law-name selection, pose answer cache, changed callback receiver or scripted turn is introduced.
  * @evidence contracts/development/implementation.md#efficient-algorithms Native placement prepares the same constant-size flight anchor and touchdown offset those stages need. A ground phase can lend its actual same-sample leg fit, avoiding the duplicate fit after arm clearance.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The copied clock and ballistic coefficients are fixed for the plan. Canonical flight anchors and the touchdown offset are invariant for their native curve and handback. Every read evaluates its own current shape; a ground sample independently proves its fit can be transferred.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its existing flight/turning and before/after writers plus fixed clock/COM data. located retains its original source/location, and no query history, raw result, FK loan or handle is kept. Member facts: IPhase states local normalized-clock conversion; IConstruction retains only the original plan surface.
@@ -47,7 +47,7 @@ export function prepareJumpPosture(
   phase: prepareJumpPosture.IFlight,
   rotation: IAutoMovieMotionHumanJumpAirborne.IRotation | undefined,
   ground: prepareJumpPosture.IGround,
-  admitTouchdown?: (rotation: IAutoMovieHumanPostureRotation) => void,
+  touchdownRequirement?: jumpTouchdownRotation.IRequirement,
 ): prepareJumpPosture.IConstruction {
   const flight: ReturnType<typeof prepareJumpFlight> = prepareJumpFlight(
     body,
@@ -61,7 +61,7 @@ export function prepareJumpPosture(
     phase.to,
     phase.duration,
     phase.settled,
-    admitTouchdown,
+    touchdownRequirement,
   );
   const fixed: prepareJumpPosture.IPhase = {
     from: turning.from,

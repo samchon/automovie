@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -17,6 +18,7 @@ import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanSword } from "./HumanSword";
+import { HumanSwordFollow } from "./HumanSwordFollow";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
 /**
@@ -37,6 +39,9 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No blade kind is named.
  */
 export namespace HumanSwordThrust {
+  /** The chamber's upper arm held out from the trunk, degrees of abduction from hanging, so its girth clears the trunk's (provisional). */
+  export const CHAMBER: number = 25;
+
   /** The least share of the arm's length the hand stands before the shoulder as the point lands for a pose the arm cannot hold to be blamed on the hold (provisional): nearer, the refusal names its cause, a target inside the tool's own length. */
   export const NEAR: number = 0.3;
 
@@ -114,15 +119,20 @@ export namespace HumanSwordThrust {
             });
           }
 
-        // The chamber: the hilt drawn back by the side, the upper arm hanging
-        // and the forearm square to it toward the target, the point already
-        // on the line to the target.
+        // The chamber: the hilt drawn back by the side, the upper arm held
+        // out from the trunk by `CHAMBER` so it never lies inside it, and the
+        // forearm square to it toward the target, the point already on the
+        // line to the target.
         const hilt: IAutoMovieVector3 = Vector3.add(
           s.shoulder,
           s.world(
             {
-              out: 0,
-              up: -context.body.measure.upperArm,
+              out:
+                Math.sin((CHAMBER * Math.PI) / 180) *
+                context.body.measure.upperArm,
+              up:
+                -Math.cos((CHAMBER * Math.PI) / 180) *
+                context.body.measure.upperArm,
               forward: context.body.measure.forearm,
             },
             a.yaw,
@@ -147,7 +157,9 @@ export namespace HumanSwordThrust {
         // displayed shoulder of the advanced body there against the entry's,
         // each read on the whole fitted posture, since the trunk-only read
         // leaves out the fit's own placement of the root.
-        const shoulderOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
+        const shoulderOf = (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieVector3 =>
           poseBones(
             context.body,
             resolveHumanPosture(context.body, posture),
@@ -168,37 +180,60 @@ export namespace HumanSwordThrust {
         // from where the point lands.
         const entered: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
           HumanSword.held(context, s.tool.side);
-        return StrikingBlade.plan(context, {
-          tool: s.tool,
-          clock: HumanSword.timed(
-            context,
-            Vector3.length(
-              Vector3.subtract(a.target, StrikingHeld.point(s.tool, drawn)),
-            ),
-            s.skill(HumanSword.SPEED.thrust),
-            0,
-            carried,
-            HumanSwordTiming.travel(s.tool, entered, drawn),
-            HumanSwordTiming.travel(s.tool, landed, entered),
+        const clock: IAutoMovieMotionClock = HumanSword.timed(
+          context,
+          Vector3.length(
+            Vector3.subtract(a.target, StrikingHeld.point(s.tool, drawn)),
           ),
-          path: (
-            progress: number,
-          ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
-            point: Vector3.lerp(drawn.point, landed.point, progress),
-            rotation: Quaternion.slerp(
-              drawn.rotation,
-              landed.rotation,
-              Math.min(1, progress),
-            ),
-          }),
-          back: 0,
-          support: s.support,
-          advance: a.advance,
-          travel: a.travel,
-          line: a.line,
-          stay: false,
-          stop: HumanSword.stopped(context.params),
-        });
+          s.skill(HumanSword.SPEED.thrust),
+          0,
+          carried,
+          HumanSwordTiming.travel(s.tool, entered, drawn),
+          HumanSwordTiming.travel(s.tool, landed, entered),
+        );
+
+        // The landing follows a target that moves after the start.
+        const follow: HumanSwordFollow.IFollower = HumanSwordFollow(
+          context,
+          a.target,
+          clock.at("stroke"),
+        );
+        const planned: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
+          context,
+          {
+            tool: s.tool,
+            clock,
+            path: (
+              progress: number,
+            ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
+              point: Vector3.lerp(drawn.point, landed.point, progress),
+              rotation: Quaternion.slerp(
+                drawn.rotation,
+                landed.rotation,
+                Math.min(1, progress),
+              ),
+            }),
+            back: 0,
+            follow: follow.at,
+            support: s.support,
+            advance: a.advance,
+            travel: a.travel,
+            line: a.line,
+            stay: false,
+            stop: HumanSword.stopped(context.params),
+          },
+        );
+
+        // Observations read while the schedule was being resolved are
+        // dropped once the performance settles. The plan is extended in
+        // place, so any getter it carries is not read early.
+        const settled: IAutoMovieMotionHumanActionPlan["settle"] =
+          planned.settle;
+        planned.settle = (): void => {
+          follow.settle();
+          settled?.call(planned);
+        };
+        return planned;
       },
     };
 }

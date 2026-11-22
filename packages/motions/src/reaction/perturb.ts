@@ -41,6 +41,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { collapse } from "./collapse";
 import { knockdown } from "./knockdown";
 import { stagger } from "./stagger";
 import { staggerBounds } from "./staggerBounds";
@@ -65,7 +66,9 @@ import { staggerBounds } from "./staggerBounds";
  *   impulse, from the side the impulse comes from (Hof, Gazendam and Sinke
  *   2005; the step's landing from Maki and McIlroy 1997, as `stagger`
  *   cites).
- * - **fall**: `knockdown` from the side the impulse comes from.
+ * - **fall**: the way the impulse pushes in the body's frame: a push from
+ *   behind a forward `collapse`, one from a side a sideways `collapse` away
+ *   from it, and one from ahead the `knockdown`, from the side it comes from.
  *
  * An author's outcome the impulse cannot produce is refused with the
  * impulse range that would produce it, never clamped; with no impulse on
@@ -287,8 +290,25 @@ export namespace perturb {
         });
       return caught!;
     }
-    if (chosen === "fall")
+    // A fall goes the way the push goes in the body's frame: a push from
+    // behind pitches it forward, one from the side topples it to the other
+    // side, and one from ahead knocks it down backward as before.
+    if (chosen === "fall") {
+      const local: IAutoMovieVector3 = HumanFrame.local(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
+        push,
+      );
+      if (local.z >= -Math.abs(local.x) && Math.hypot(local.x, local.z) > 0)
+        return collapse.plan({
+          ...context,
+          params: {
+            direction: local.z >= Math.abs(local.x) ? "forward" : "sideways",
+            side: local.x >= 0 ? "left" : "right",
+            from,
+          },
+        });
       return knockdown.plan({ ...context, params: { from } });
+    }
     return absorb(context, outcome, push);
   }
 

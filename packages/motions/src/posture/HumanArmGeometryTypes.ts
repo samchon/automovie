@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
 } from "@automovie/interface";
@@ -30,5 +31,11 @@ export namespace HumanArmGeometryTypes {
 
     /** The ones among `others` the hand rests on, whose contact with the hand is not a collision; none when absent. */
     rests?: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+
+    /** The performer's own segments the hand rests on, whose contact with the hand is not a collision; none when absent. */
+    restsOwn?: IAutoMovieHumanLimbGoal.OwnRests;
+
+    /** Colliders of subjects that are no human body (a prop, an animal), in world coordinates, kept clear of as `others` are; none when absent. */
+    externals?: readonly IAutoMovieMotionHumanColliders.IExternal[];
   }
 }

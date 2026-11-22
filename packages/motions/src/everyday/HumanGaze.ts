@@ -211,7 +211,7 @@ export namespace HumanGaze {
    * @returns The posture with the trunk, neck, head and eyes set; limb goals unchanged.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States recruitment, the weights' range, the unchanged limb goals and the borrowed workspace's lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation The direction is split by `split`; the trunk's twist is added, the cervical aim is read in the frame the head has at zero angles and split over the neck and head by the engine's range-aware `gazeChainJoints`, and the head and neck blend toward it by their weight (toward zero for eyes-only recruitment). Each eye is then solved against the head it rides and clamped to its range in `DEFAULT_HUMANOID_ROM`.
+   * @evidence contracts/development/implementation.md#principled-implementation The direction is split by `split`; the trunk's twist is added, the cervical aim is read in the frame the head has at zero angles and split over the neck and head by the engine's range-aware `gazeChainJoints`, and the head and neck blend toward it by their weight (toward zero for eyes-only recruitment). Each eye is then solved against the head it rides, a target behind it sought on the side the gaze turns to, and clamped to its range in `DEFAULT_HUMANOID_ROM`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Direction, zeroed-head correction and eye solving run in that order for every mode, sharing one FK workspace and the joint writers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The eye limits are the range table's; a supplied direction must come from the same body, posture and point, and weights in [0, 1] are the caller's premise.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two trunk readings demanding the zeroed head and the head and eyes, plus one for the direction unless the caller supplies it; the cervical split binds the rig's neck and head once per call, two bone searches.
@@ -304,9 +304,15 @@ export namespace HumanGaze {
         ),
       );
       const range: IAutoMovieJointConstraint = DEFAULT_HUMANOID_ROM[eye]!;
+      // A target behind the eye is sought on the side the gaze turns to,
+      // so one crossing straight behind does not swing the eye between its
+      // limits.
+      let toward: number = (Math.atan2(d.x, d.z) * 180) / Math.PI;
+      if (Math.abs(toward) > 90 && toward * facingTarget.yaw < 0)
+        toward -= 360 * Math.sign(toward);
       const yaw: number = Math.max(
         range.twist!.min,
-        Math.min(range.twist!.max, (Math.atan2(d.x, d.z) * 180) / Math.PI),
+        Math.min(range.twist!.max, toward),
       );
       const pitch: number = Math.max(
         range.flexion!.min,

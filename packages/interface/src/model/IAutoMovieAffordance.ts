@@ -9,7 +9,7 @@ import type { IAutoMovieAffordanceCoupling } from "./IAutoMovieAffordanceCouplin
  *
  * Bone attachments couple to a posed skeleton; an affordance instead marks a model-local contact used by prop anchoring and support consumers. propSupportFace transforms a stack-top footprint through the full affordance and staged matrices for placement support. The separate rigid-only affordanceSupportContacts helper currently has no product caller and does not establish a wired toppling pipeline.
  *
- * The optional `grip`, `aperture`, `depth`, `back`, `astride`, `mount`, `length`, `width`, `height`, `radius`, `travel` and `reverse` are the few dimensions and seat flags human action laws read from an environment contact (#3201 A8, the grasping section; #3368); each names the kinds that read it, and the rest ignore it. `direction` states what a held object's working point's `+Y` is, for the grasp that presents the object for its use. `parts` and `rides` declare articulation on the model: which parts and which other affordances move with an articulation's travel (#3365 decision 6); `follows` couples one articulation's travel to another's (#3475). They are flat optional fields of this existing record, the additive form an authored contact can grow without rewriting every affordance; engine admission owns the dimensions' positivity and the references' resolution.
+ * The optional `grip`, `aperture`, `depth`, `back`, `astride`, `mount`, `length`, `width`, `height`, `radius`, `load`, `travel` and `reverse` are the few dimensions and seat flags human action laws read from an environment contact (#3201 A8, the grasping section; #3368); each names the kinds that read it, and the rest ignore it. `direction` states what a held object's working point's `+Y` is, for the grasp that presents the object for its use. `parts` and `rides` declare articulation on the model: which parts and which other affordances move with an articulation's travel (#3365 decision 6); `follows` couples one articulation's travel to another's (#3475). They are flat optional fields of this existing record, the additive form an authored contact can grow without rewriting every affordance; engine admission owns the dimensions' positivity and the references' resolution.
  *
  * @evidence contracts/development/design.md#principled-representation A model-local contact transform and optional convex XZ footprint separate point seating from support geometry; prop anchoring composes the frame with the staged model and propSupportFace uses full affine footprint placement.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Contact identity, kind, frame and extent form one record beside the model's body; bone attachments use their own skeleton-based representation rather than mixing rig references into a model contact.
@@ -43,7 +43,7 @@ export interface IAutoMovieAffordance {
    */
   aperture?: number;
 
-  /** A `seat`'s depth from its front edge back along `-Z`, or a `surface`'s or `pedal`'s extent along `+Z` centred on the frame, metres, positive; other kinds ignore it. */
+  /** A `seat`'s depth from its front edge back along `-Z`, a `surface`'s or `pedal`'s extent along `+Z` centred on the frame, or a `socket`'s depth from its mouth inward against its `+Y` (a bore's length, a scabbard's), metres, positive; other kinds ignore it. */
   depth?: number;
 
   /** A `seat`'s backrest height above the sitting surface, metres, positive; absent for a backless seat. Other kinds ignore it. */
@@ -76,8 +76,11 @@ export interface IAutoMovieAffordance {
   /** An `aperture`'s clear height along `+Y` from the frame, metres, positive; other kinds ignore it. */
   height?: number;
 
-  /** A `crank`'s arm length from the axle to its site along `+X`, or a `wheel`'s rim radius in the frame's XZ plane, metres, positive; other kinds ignore it. */
+  /** A `crank`'s arm length from the axle to its site along `+X`, a `wheel`'s rim radius in the frame's XZ plane, or a `bar`'s cross-section radius about its `+X` axis (absent, a hand-sized bar), metres, positive; other kinds ignore it. */
   radius?: number;
+
+  /** The most weight a `bar`, `ledge`, `seat` or `surface` bears at its frame before it fails, newtons, positive; absent, the contact bears any load. A support law refuses a stance that loads it past this. Other kinds ignore it. */
+  load?: number;
 
   /**
    * The largest movement of an articulated part: a `hinge`'s opening and a `knob`'s turn in degrees, a `wheel`'s turn to either side in degrees, a `crank`'s turn in degrees (absent, it turns without limit), a `slider`'s travel along `+X` and a `button`'s press, a `pedal`'s press and a `trigger`'s pull along `-Y` in metres; positive. Absent on any articulation but a `crank`, the articulation states no travel and stays at rest. Other kinds ignore it.

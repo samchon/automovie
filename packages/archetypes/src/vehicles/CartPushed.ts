@@ -111,6 +111,20 @@ export namespace CartPushed {
       aperture: d.gripDiameter!,
       length: width,
     });
+    for (const [id, sign] of [
+      ["leftHandle", 1],
+      ["rightHandle", -1],
+    ] as const)
+      builder.affordance({
+        id,
+        kind: "bar",
+        symmetry: "round",
+        frame: ArchetypeFrame.upright(v((sign * width) / 4, handleHeight, bar)),
+        extent: null,
+        grip: "power",
+        aperture: d.gripDiameter!,
+        length: width / 2,
+      });
     builder.affordance({
       id: "load",
       kind: "surface",

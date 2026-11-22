@@ -58,8 +58,10 @@ import { walkReachStance } from "./walkReachStance";
  *
  * `swing` then holds a swinging foot inside the leg's reach, the hip's
  * extension, the hip's rotation and the ankle's range under that pelvis, and
- * off the floor. A swing between two grounded stances starts and ends inside
- * all four, so the clamps act only in between.
+ * off the floor. A turning pelvis can leave a stance outside them (a
+ * trailing foot far behind or aside of its hip at toe-off), so a walk passes
+ * the swing's share and the clamps come in over its first `FADE` and go over
+ * its last, the swing leaving and joining its stances where they stand.
  */
 export namespace walkReach {
   /** The share of a swing over which its foot's claim on the pelvis fades out after toe-off and in before heel strike (provisional). */

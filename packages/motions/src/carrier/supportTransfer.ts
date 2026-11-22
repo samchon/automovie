@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -16,6 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -474,7 +475,7 @@ function plant(
 
 /** Progress within an individual swing or load transfer. */
 function progress(share: number, from: number, to: number): number {
-  return minimumJerk((share - from) / (to - from)).s;
+  return AutoMovieMotionInterval.progress(from, to, share);
 }
 
 /** Report the failed boarding premise in the action's existing refusal form. */

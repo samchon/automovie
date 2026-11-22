@@ -160,6 +160,7 @@ export namespace pickUpStance {
       context,
       side,
       place(found),
+      lift,
       lowered,
       found.stance.posture,
     );
@@ -181,6 +182,7 @@ export namespace pickUpStance {
         context,
         side,
         place(whole.found),
+        lift,
         whole.lowered,
         whole.found.stance.posture,
       );

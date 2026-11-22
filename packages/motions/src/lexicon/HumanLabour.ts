@@ -5,6 +5,8 @@ import type {
 
 import { carry } from "../carrying/carry";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { holdInfant } from "../tasks/holdInfant";
+import { longTool } from "../tasks/longTool";
 import { useTool } from "../tasks/useTool";
 import { wipe } from "../tasks/wipe";
 import { throwObject } from "../throwing/throwObject";
@@ -95,4 +97,44 @@ export namespace HumanLabour {
   > = HumanActionRow.of("hurl", throwObject, {
     style: "overarm",
   });
+
+  /** Chop or split overhead with an axe onto a block or a log. */
+  export const chop: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["chop"]
+  > = HumanActionRow.of("chop", longTool, { stroke: "chop" });
+
+  /** Chop level into a standing trunk. */
+  export const sideChop: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["sideChop"]
+  > = HumanActionRow.of("sideChop", longTool, { stroke: "side" });
+
+  /** Swing a sledgehammer or a pickaxe down at the ground. */
+  export const sledge: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["sledge"]
+  > = HumanActionRow.of("sledge", longTool, { stroke: "swing" });
+
+  /** Dig with a shovel and throw each load aside. */
+  export const dig: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["dig"]
+  > = HumanActionRow.of("dig", longTool, { stroke: "dig" });
+
+  /** Rake or hoe the ground toward oneself. */
+  export const rake: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["rake"]
+  > = HumanActionRow.of("rake", longTool, { stroke: "rake" });
+
+  /** Cradle an infant across the front, its head in the holding arm's crook. */
+  export const cradleInfant: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["cradleInfant"]
+  > = HumanActionRow.of("cradleInfant", holdInfant, { hold: "cradle" });
+
+  /** Hold an infant against the shoulder and pat its back. */
+  export const burpInfant: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["burpInfant"]
+  > = HumanActionRow.of("burpInfant", holdInfant, { hold: "shoulder" });
+
+  /** Feed a cradled infant from a bottle in the other hand. */
+  export const feedInfant: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["labour"]["feedInfant"]
+  > = HumanActionRow.of("feedInfant", holdInfant, { hold: "feed" });
 }

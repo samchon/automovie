@@ -172,13 +172,22 @@ export function prepareWalkReachSwing(
     rotation = read.rotation;
     if (share === undefined) return { ankle, rotation, toes: foot.toes };
 
-    // The caller's nonstandard stance endpoints retain the same range fade.
+    // Stances outside the leg's reach are left and joined where they stand:
+    // the reach ranges fade in from the departure and out into the landing.
+    // The ankle's range does not fade: a foot leaving the floor bears nothing
+    // from that instant, and the stance it leaves already holds it inside the
+    // unloaded limit (`walkReachStance`), so a quickly folding knee cannot
+    // carry it past the limit while the reach ranges come in.
     const held: number = Math.min(
       minimumJerk.share(Math.min(1, Math.max(0, share) / bounds.fade)),
       minimumJerk.share(Math.min(1, Math.max(0, 1 - share) / bounds.fade)),
     );
     let joined: IAutoMovieVector3 = Vector3.lerp(foot.placement.ankle, ankle, held);
-    const turned: IAutoMovieQuaternion = Quaternion.slerp(foot.placement.rotation, rotation, held);
+    const turned: IAutoMovieQuaternion = ankleRange(
+      h,
+      joined,
+      Quaternion.slerp(foot.placement.rotation, rotation, held),
+    );
     const low: number = lowest({ ankle: joined, rotation: turned });
     if (low < 0) joined = { ...joined, y: joined.y - low };
     return { ankle: joined, rotation: turned, toes: foot.toes };

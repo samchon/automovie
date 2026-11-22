@@ -1,4 +1,5 @@
 import {
+  hingedArmSwivel,
   inertializePose,
   poseJointCodec,
   samplePoseVelocity,
@@ -22,7 +23,6 @@ import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { humanRig } from "../posture/humanRig";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLayer } from "./HumanSegmentLayer";
@@ -32,6 +32,7 @@ import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 import { HumanSegmentStop } from "./HumanSegmentStop";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 
 /**
  * A person's displayed pose: the layered action, carried holds, overlays,
@@ -97,13 +98,16 @@ export namespace HumanSegmentPose {
     prepared?: prepareHumanSegmentPose.IPrepared,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): IAutoMoviePose {
-    return seeded(person, segment, seconds, undefined, prepared, requested).pose;
+    return seeded(person, segment, seconds, undefined, prepared, requested)
+      .pose;
   }
 
   /**
    * {@link of} with every limb fit's seed. Names distinguish the chain,
    * overlay set and leaf, carry, stop or planted stage (`IFits`); each fit
-   * continues its matching nearby seed, or solves cold when none is held.
+   * continues its matching nearby seed. A read that continues no other
+   * second places its stops and plants at its own shown leaf fit of the
+   * same limb (`HumanSegmentPoseSeeds.shown`), prescribed for an arm.
    *
    * @param person The person.
    * @param segment The action.
@@ -133,13 +137,22 @@ export namespace HumanSegmentPose {
   ): ISeeded {
     const body: IAutoMovieMotionHumanBody = person.performer.body;
     if (prepared.body !== body)
-      throw new Error("A displayed evaluation borrows its own body's rig preparation");
+      throw new Error(
+        "A displayed evaluation borrows its own body's rig preparation",
+      );
     const clamp: (pose: IAutoMoviePose) => IAutoMoviePose = prepared.clamp;
-    const transition: IAutoMovieMotionHumanSegment["transition"] = segment.transition;
+    const transition: IAutoMovieMotionHumanSegment["transition"] =
+      segment.transition;
     const observed: ReadonlySet<AutoMovieHumanoidBone> | undefined =
-      requested !== undefined && near === undefined && person.holds.length === 0 && person.stops.size === 0 &&
-      !(transition !== undefined && transition.kind !== "redirect" &&
-        seconds - transition.cut < transition.blend)
+      requested !== undefined &&
+      near === undefined &&
+      person.holds.length === 0 &&
+      person.stops.size === 0 &&
+      !(
+        transition !== undefined &&
+        transition.kind !== "redirect" &&
+        seconds - transition.cut < transition.blend
+      )
         ? requested
         : undefined;
 
@@ -155,14 +168,32 @@ export namespace HumanSegmentPose {
     // shaped it, and no stop fit or transition offset writes it below.
     let plain: boolean = person.overlays.length === 0 && carried.length === 0;
 
-    // One more fit of the evaluation, continued where `near` holds its name.
-    // The fitted pose is this evaluation's own intermediate, so the fit's
-    // result is used as solved, without the public entry's complete clone.
+    // A read that continues no other second places a later stage's limb
+    // (a stop's, a plant's) at this very read's leaf fit of that limb,
+    // prescribed: the same branch and swivel on the stage's own goal, never
+    // swept or refined afresh, so every reader of the second reads one
+    // placement. The leaf is the one under every running overlay, whose fit
+    // the pose shows (`HumanSegmentOverlay.overlaid` names it by all their
+    // ordinals). A read that continues another second continues `near`.
+    const leafed = (stage: string): HumanSegmentPose.INear | undefined =>
+      HumanSegmentPoseSeeds.continues(near)
+        ? near
+        : {
+            seeds: HumanSegmentPoseSeeds.shown(seeds, stage),
+            tolerance: hingedArmSwivel.RESOLUTION,
+            prescribed: true,
+          };
+
+    // One more fit of the evaluation, continued or placed where `from`
+    // holds its name. The fitted pose is this evaluation's own intermediate,
+    // so the fit's result is used as solved, without the public entry's
+    // complete clone.
     function fit(
       name: string,
       at: IAutoMoviePose,
       limb: AutoMovieHumanLimb,
       goal: IAutoMovieHumanLimbGoal,
+      from: HumanSegmentPose.INear | undefined,
     ): IAutoMoviePose {
       const fitted: IAutoMovieSeededChainFit = HumanLimbFit.fit(
         body,
@@ -171,7 +202,7 @@ export namespace HumanSegmentPose {
         goal,
         ["left", "right"],
         undefined,
-        nearby(near, name),
+        nearby(from, name),
         prepared.resolution,
       );
       seeds.set(name, fitted.seed);
@@ -183,10 +214,8 @@ export namespace HumanSegmentPose {
     // overlay drives is that overlay's, faded in and out by `overlaid`.
     let kept: IAutoMovieMotionHumanSegment.IHeld[] = carried;
     if (carried.length !== 0) {
-      const active: IAutoMovieMotionHumanSegment.IOverlay[] = HumanSegmentOverlay.running(
-        person,
-        seconds,
-      );
+      const active: IAutoMovieMotionHumanSegment.IOverlay[] =
+        HumanSegmentOverlay.running(person, seconds);
       const driven: Partial<Record<"left" | "right", boolean>> = {};
       kept = carried.filter(
         (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
@@ -201,7 +230,14 @@ export namespace HumanSegmentPose {
         ...posture,
         limbs: {
           ...posture.limbs,
-          ...Object.fromEntries(HumanSegmentCarry.carries(person, kept, prepared.resolution, prepared)),
+          ...Object.fromEntries(
+            HumanSegmentCarry.carries(
+              person,
+              kept,
+              prepared.resolution,
+              prepared,
+            ),
+          ),
         },
       };
 
@@ -214,13 +250,16 @@ export namespace HumanSegmentPose {
           HumanSegment.weapon(segment, w.id),
         );
         if (s === undefined || seconds <= s) continue;
-        const goal: IAutoMovieHumanLimbGoal = (stopped ??= HumanSegmentStop.reader(
-          person,
-          segment,
-          prepared,
-        ))(w, s);
+        const goal: IAutoMovieHumanLimbGoal = (stopped ??=
+          HumanSegmentStop.reader(person, segment, prepared))(w, s);
         posture = { ...posture, limbs: { ...posture.limbs, [w.limb]: goal } };
-        pose = fit(`stop:${w.id}:${w.limb}`, pose, w.limb, goal);
+        pose = fit(
+          `stop:${w.id}:${w.limb}`,
+          pose,
+          w.limb,
+          goal,
+          leafed(`stop:${w.id}:`),
+        );
         plain = false;
       }
     if (
@@ -233,7 +272,8 @@ export namespace HumanSegmentPose {
       // the motion rather than differences in fit resolution.
       if (transition.offset === undefined || transition.offset === null) {
         const rig: IAutoMoviePoseRig = humanRig(body);
-        const codec: () => IAutoMoviePoseJointCodec.ICodec = poseJointCodec.prepare(rig);
+        const codec: () => IAutoMoviePoseJointCodec.ICodec =
+          poseJointCodec.prepare(rig);
         transition.offset = inertializePose(
           continued(
             (t: number, near?: INear): ISeeded =>
@@ -280,8 +320,9 @@ export namespace HumanSegmentPose {
     // In the plain case every record of the pose is the range clamp's own
     // at the joints whose clamp gives it back (`IHumanBody.settled`), so
     // those are kept and the rest clamped; otherwise every joint is.
-    const joint: ReturnType<typeof prepareHumanPostureProjection.joints> =
-      plain ? prepareHumanPostureProjection.joints(body, clamp) : undefined;
+    const joint: ReturnType<typeof prepareHumanPostureProjection.joints> = plain
+      ? prepareHumanPostureProjection.joints(body, clamp)
+      : undefined;
     if (joint === undefined) pose = clamp(pose);
     else {
       const settled: ReadonlySet<AutoMovieHumanoidBone> = body.settled;
@@ -289,7 +330,9 @@ export namespace HumanSegmentPose {
         skeleton: pose.skeleton,
         root: pose.root,
         joints: pose.joints.map(
-          (record: IAutoMoviePose["joints"][number]): IAutoMoviePose["joints"][number] =>
+          (
+            record: IAutoMoviePose["joints"][number],
+          ): IAutoMoviePose["joints"][number] =>
             settled.has(record.bone) ? record : joint(record),
         ),
       };
@@ -299,15 +342,23 @@ export namespace HumanSegmentPose {
     // it) the leaf fitted these same goal objects and only the clamp stands
     // between its fits and the plants; a plant the clamp left untouched
     // keeps the leaf's solution (`HumanSegmentPlant.settled`).
-    if (plain && posture.digits === undefined && posture.rotation === undefined &&
-      HumanSegmentPlant.settled(fitted, pose, posture.limbs, seeds)) return { pose, seeds };
-    const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = HumanSegmentPlant.fit(
-      body,
-      pose,
-      posture.limbs,
-      near,
-      prepared.resolution,
-    );
+    if (
+      plain &&
+      posture.digits === undefined &&
+      posture.rotation === undefined &&
+      HumanSegmentPlant.settled(fitted, pose, posture.limbs, seeds)
+    )
+      return { pose, seeds };
+    // Each plant is placed at this very read's leaf fit of the same goal
+    // (`leafed`), displaced only by what came after the leaf.
+    const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+      HumanSegmentPlant.fit(
+        body,
+        pose,
+        posture.limbs,
+        leafed("planted:"),
+        prepared.resolution,
+      );
     for (const [limb, seed] of Object.entries(planted.seeds))
       seeds.set(`planted:${limb}`, seed ?? null);
     return { pose: planted.pose, seeds };
@@ -378,7 +429,8 @@ export namespace HumanSegmentPose {
    * and copied degree tolerance. This alias adds no wrapper, transformed
    * seed, numerical result or retained query state.
    */
-  export const nearby: typeof HumanSegmentPoseSeeds.nearby = HumanSegmentPoseSeeds.nearby;
+  export const nearby: typeof HumanSegmentPoseSeeds.nearby =
+    HumanSegmentPoseSeeds.nearby;
 
   /**
    * The evaluator's named fit seeds, owned by HumanSegmentPoseSeeds.
@@ -420,24 +472,33 @@ export namespace HumanSegmentPose {
    */
   export type IContinued = HumanSegmentPoseSeeds.IContinued;
   /**
-   * A posture with the person's layers added in order.
+   * The posture a following action carries. Native breathing is evaluated
+   * on the film clock when the pose is shown.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States ordered layer application; HumanSegmentLayer owns windows, contexts, ownership and cost details.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates the same person, posture and film seconds to the shared ordered layer owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forwarding call preserves this entry point for displayed poses and entry-state construction.
+   * @evidence contracts/development/common.md#meaningful-documentation Describes the carried posture and the native breath evaluated separately by the displayed-pose path.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the same person, posture and film seconds through the shared layer owner's entry evaluation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forwarding call selects entry evaluation for the layer owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No field, contact goal, random key or returned posture reference is transformed by the wrapper.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant wrapper work plus HumanSegmentLayer.apply's window scan and active layer/mix costs.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Displayed and entry-state evaluations use the same layer implementation while retaining separate input postures.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The wrapper retains nothing and returns the delegated posture reference unchanged.
    */
-  export function layered(
+  export function entryPosture(
     person: IAutoMovieMotionHumanSegment.IPerson,
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
     resolution?: prepareHumanSegmentPose.IPrepared["resolution"],
     projection?: prepareHumanSegmentPose.IPrepared["clamp"],
   ): IAutoMovieMotionHumanPosture {
-    return HumanSegmentLayer.apply(person, posture, seconds, resolution, projection);
+    return HumanSegmentLayer.apply(
+      person,
+      posture,
+      seconds,
+      resolution,
+      projection,
+      undefined,
+      "entry",
+    );
   }
 
   /**
@@ -456,8 +517,14 @@ export namespace HumanSegmentPose {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
-    return resolveHumanPosture.seeded(person.performer.body, person.initial,
-      undefined, undefined, prepared?.resolution, requested, prepared?.clamp).pose;
+    return resolveHumanPosture.seeded(
+      person.performer.body,
+      person.initial,
+      undefined,
+      undefined,
+      prepared?.resolution,
+      requested,
+      prepared?.clamp,
+    ).pose;
   }
 }
-

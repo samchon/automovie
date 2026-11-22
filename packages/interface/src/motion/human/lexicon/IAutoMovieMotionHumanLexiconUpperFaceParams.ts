@@ -41,6 +41,9 @@ export interface IAutoMovieMotionHumanLexiconUpperFaceParams {
   /** `handToFace` doing `wipeMouth`. */
   faceWipeMouth: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
 
+  /** `handToFace` doing `pinchNose`. */
+  facePinchNose: Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">;
+
   /** Cover the face with both hands. */
   coverFace: Pick<
     IAutoMovieMotionHumanHandToFace.IParams,

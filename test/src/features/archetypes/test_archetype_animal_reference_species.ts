@@ -109,6 +109,8 @@ export function test_archetype_animal_reference_species(): void {
     "neck",
     "head",
     "tail",
+    "leftForeScapula",
+    "rightForeScapula",
     "leftForeHumerus",
     "leftForeRadius",
     "leftForeCannon",

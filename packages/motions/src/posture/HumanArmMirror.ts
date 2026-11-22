@@ -48,6 +48,10 @@ export namespace HumanArmMirror {
         ),
       },
       ...mirroredOthers(base),
+      // The own segments the hand rests on, as their mirror images.
+      ...(base.restsOwn === undefined
+        ? {}
+        : { restsOwn: base.restsOwn.map(opposite) }),
     };
   }
 
@@ -55,24 +59,38 @@ export namespace HumanArmMirror {
   function mirroredOthers(
     base: HumanArmGeometry.IBase,
   ): Pick<HumanArmGeometry.IBase, "others" | "rests"> {
-    const images: Map<IAutoMovieMotionHumanColliders.IPlaced, IAutoMovieMotionHumanColliders.IPlaced> = new Map(
+    const images: Map<
+      IAutoMovieMotionHumanColliders.IPlaced,
+      IAutoMovieMotionHumanColliders.IPlaced
+    > = new Map(
       base.others.map(
-        (placed: IAutoMovieMotionHumanColliders.IPlaced): [IAutoMovieMotionHumanColliders.IPlaced, IAutoMovieMotionHumanColliders.IPlaced] =>
-          [placed, reflected(placed)],
+        (
+          placed: IAutoMovieMotionHumanColliders.IPlaced,
+        ): [
+          IAutoMovieMotionHumanColliders.IPlaced,
+          IAutoMovieMotionHumanColliders.IPlaced,
+        ] => [placed, reflected(placed)],
       ),
     );
     return {
       others: base.others.map(
-        (placed: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced => images.get(placed)!,
+        (
+          placed: IAutoMovieMotionHumanColliders.IPlaced,
+        ): IAutoMovieMotionHumanColliders.IPlaced => images.get(placed)!,
       ),
       ...(base.rests === undefined
         ? {}
         : {
             rests: base.rests.map(
-              (placed: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced =>
+              (
+                placed: IAutoMovieMotionHumanColliders.IPlaced,
+              ): IAutoMovieMotionHumanColliders.IPlaced =>
                 images.get(placed) ?? reflected(placed),
             ),
           }),
+      ...(base.externals === undefined
+        ? {}
+        : { externals: base.externals.map(framed) }),
     };
   }
 
@@ -85,16 +103,28 @@ export namespace HumanArmMirror {
   export function reflected(
     placed: IAutoMovieMotionHumanColliders.IPlaced,
   ): IAutoMovieMotionHumanColliders.IPlaced {
+    return { ...framed(placed), bone: opposite(placed.bone) };
+  }
+
+  /**
+   * A collider segment's frame and shapes reflected, whatever carries it (a
+   * prop's or an animal's segment, `IAutoMovieMotionHumanColliders.IExternal`).
+   *
+   * @param placed The segment.
+   * @returns Its mirror image, its other members unchanged.
+   */
+  export function framed<T extends IAutoMovieMotionHumanColliders.IFramed>(
+    placed: T,
+  ): T {
     return {
       ...placed,
-      bone: opposite(placed.bone),
       pose: {
         ...placed.pose,
         position: flip(placed.pose.position),
         rotation: turn(placed.pose.rotation),
       },
       shapes: placed.shapes.map(
-        (shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number]) => ({
+        (shape: IAutoMovieMotionHumanColliders.IFramed["shapes"][number]) => ({
           ...shape,
           transform: {
             ...shape.transform,
@@ -103,7 +133,7 @@ export namespace HumanArmMirror {
           },
           ...(shape.kind === "hull" ? { points: flipped(shape.points) } : {}),
         }),
-      ) as IAutoMovieMotionHumanColliders.IPlaced["shapes"],
+      ) as IAutoMovieMotionHumanColliders.IFramed["shapes"],
     };
   }
 

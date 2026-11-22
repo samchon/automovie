@@ -24,6 +24,7 @@ import type {
 } from "@automovie/interface";
 
 import { operate } from "../affordance/operate";
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
@@ -43,17 +44,16 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
-import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
+import { touchBalance } from "./touchBalance";
 import { touchCrossedSupport } from "./touchCrossedSupport";
 import { touchEffectors } from "./touchEffectors";
-import { touchBalance } from "./touchBalance";
+import { touchFingerStance } from "./touchFingerStance";
 import { touchHold } from "./touchHold";
 import { touchLayouts } from "./touchLayouts";
 import { touchPresented } from "./touchPresented";
 import { touchReach } from "./touchReach";
 import { touchRegion } from "./touchRegion";
 import { touchSide } from "./touchSide";
-import { touchFingerStance } from "./touchFingerStance";
 import { touchStance } from "./touchStance";
 
 /**
@@ -137,7 +137,8 @@ export namespace touch {
   function planned(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
     attempt?: touchCrossedSupport.IAttempt,
-  ): IAutoMovieMotionHumanActionPlan {    const p: IAutoMovieMotionHumanTouch.IParams = context.params;
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanTouch.IParams = context.params;
     // A person naming the performer is the performer's own body, touched as
     // a `self` target is: its regions ride the posture being solved.
     const own = (t: IAutoMovieMotionTarget): IAutoMovieMotionTarget =>
@@ -242,9 +243,12 @@ export namespace touch {
       );
     // The first arm laid on its region at the stroke's start: its wrist is
     // what the stance reaches for, and the whole arm what the lean weighs.
-    const laidOn = (effector: IAutoMovieMotionHumanTouchEffector.IEffector, leading: touchHold.ILaid) => (
-        posture: IAutoMovieMotionHumanPosture,
-      ): IAutoMovieHumanLimbGoal =>
+    const laidOn =
+      (
+        effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+        leading: touchHold.ILaid,
+      ) =>
+      (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal =>
         AutoMovieMotionHumanTouchLaid.rest(
           body,
           posture,
@@ -254,32 +258,51 @@ export namespace touch {
           leading.tangent,
           AutoMovieMotionHumanBend.hang(body, posture, first),
           leading.lay,
-          undefined,
+          leading.axis,
           p.elbow,
         );
-    const fit = (hand: IAutoMovieMotionHumanTouchEffector.IEffector): AutoMovieTouchFit => {
-      const layout: touchHold.Lay = touchLayouts(hands, touchHold.lay(context, bones, hand, placed));
-      const arm: ReturnType<typeof laidOn> = laidOn(hand, layout(first, p.target));
-      return [layout, touchStance(
-        {
-          body,
-          standing: entry,
-          ...(attempt?.assist === true ? { girdles: touchCrossedSupport.girdles(body, first) } : {}),
-          ...(grounded ? { feet: context.entry.feet } : {}),
-          fixed: context.carrier === undefined,
-          side: first,
-          share: REACH,
-          wrist: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
-            arm(posture).point,
-          arm,
-          refuse: (beyond: number, limit: number): string =>
-            `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
-        },
-        grounded && p.target.kind !== "self",
-      )];
+    const fit = (
+      hand: IAutoMovieMotionHumanTouchEffector.IEffector,
+    ): AutoMovieTouchFit => {
+      const layout: touchHold.Lay = touchLayouts(
+        hands,
+        touchHold.lay(context, bones, hand, placed),
+      );
+      const arm: ReturnType<typeof laidOn> = laidOn(
+        hand,
+        layout(first, p.target),
+      );
+      return [
+        layout,
+        touchStance(
+          {
+            body,
+            standing: entry,
+            ...(attempt?.assist === true
+              ? { girdles: touchCrossedSupport.girdles(body, first) }
+              : {}),
+            ...(grounded ? { feet: context.entry.feet } : {}),
+            fixed: context.carrier === undefined,
+            side: first,
+            share: REACH,
+            wrist: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
+              arm(posture).point,
+            arm,
+            refuse: (beyond: number, limit: number): string =>
+              `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
+          },
+          grounded && p.target.kind !== "self",
+        ),
+      ];
     };
-    const [effector, [laid, adjusted]]: ReturnType<typeof touchFingerStance<AutoMovieTouchFit>> = touchFingerStance(
-      body, first, requested, p.with === "fingertips" && p.prop === undefined, fit,
+    const [effector, [laid, adjusted]]: ReturnType<
+      typeof touchFingerStance<AutoMovieTouchFit>
+    > = touchFingerStance(
+      body,
+      first,
+      requested,
+      p.with === "fingertips" && p.prop === undefined,
+      fit,
     );
     const stance: IAutoMovieMotionHumanTouchStance.IStance = adjusted.stance;
     const leaning: boolean = stance.leaning;
@@ -347,16 +370,30 @@ export namespace touch {
     );
 
     const window: HumanPhysics.Window = HumanPhysics.fromClock(
-      p, {}, context.start, clock, context.instant,
+      p,
+      {},
+      context.start,
+      clock,
+      context.instant,
     );
     if (window !== null && !grounded)
       throw new HumanRefusal({
-        kind: "base", axis: "balance", value: window.by, feasible: null,
-        reason: "this touch has no planted foot base for the requested balance shift",
+        kind: "base",
+        axis: "balance",
+        value: window.by,
+        feasible: null,
+        reason:
+          "this touch has no planted foot base for the requested balance shift",
         fix: "give the touch a planted foot base or omit the shift",
       });
     const primitives: IAutoMovieMotionHumanPrimitive[] = stance.primitives(
-      clock, touchBalance(body, window, first, laidOn(effector, laid(first, p.target))),
+      clock,
+      touchBalance(
+        body,
+        window,
+        first,
+        laidOn(effector, laid(first, p.target)),
+      ),
     );
     if (shown !== null)
       primitives.push(
@@ -364,7 +401,11 @@ export namespace touch {
       );
     // Two hands are planned as one trajectory; one hand is a group of one,
     const together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
-      AutoMovieMotionHumanArmPlanned.together(context.handover);
+      AutoMovieMotionHumanArmPlanned.together(
+        context.handover,
+        true,
+        context.tempo,
+      );
     for (const [side, target] of hands) {
       const disc: number | undefined = touchRegion.disc(
         context,
@@ -381,7 +422,7 @@ export namespace touch {
                 region: target.region,
               }
             : undefined;
-      const { lay, tangent } = laid(side, target);
+      const { lay, tangent, axis } = laid(side, target);
       let destination: IAutoMovieMotionHumanTouchSite.IFrame | undefined;
       const arrival: () => IAutoMovieMotionHumanTouchSite.IFrame =
         (): IAutoMovieMotionHumanTouchSite.IFrame =>
@@ -414,7 +455,7 @@ export namespace touch {
           arrival(),
           tangent,
           lay,
-          undefined,
+          axis,
           p.elbow,
         );
       primitives.push(
@@ -445,7 +486,7 @@ export namespace touch {
                   tangent,
                   bend,
                   lay,
-                  undefined,
+                  axis,
                   p.elbow,
                   from,
                 )
@@ -455,13 +496,16 @@ export namespace touch {
                   bend,
                 }),
           lay,
+          ...(axis === undefined ? {} : { facing: axis }),
           ...(own === null ? {} : { held: own.wrist.rotation }),
           ...(from === undefined ? {} : { from }),
           ...(p.elbow === undefined ? {} : { elbow: p.elbow }),
           entry: risen,
           ...(together === undefined ? {} : { together }),
           ...(disc === undefined ? {} : { disc }),
-          ...(attempt === undefined ? {} : { skinDistance: AutoMovieMotionHumanAuditSkin.BUILT }),
+          ...(attempt === undefined
+            ? {}
+            : { skinDistance: AutoMovieMotionHumanAuditSkin.BUILT }),
           ...(target.kind === "self"
             ? { on: body.surfaces.regions[target.region].bone }
             : {}),

@@ -23,13 +23,13 @@ const CHROME: string = "#c9ccd1";
 const v: typeof Vector3.create = Vector3.create;
 
 /**
- * How {@link createSanitary} builds each kind of fixture from its drawn dimensions: the parts and the contacts, one function per kind, and the construction sizes no source gives.
+ * The parts and contacts the named plumbing fixture producers build from their drawn dimensions, with the estimated construction sizes.
  *
  * Every function places its fixture with its back against the wall at the origin's `Z`, centred on `X`, on the floor. Every contact's place and every articulation's range comes from a cited band or is derived from one; the estimates below size only parts no act reads.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds, the frame every construction shares and what the estimates may size.
  * @evidence contracts/development/design.md#principled-representation Code CAD over the builder's primitives from named dimensions, one construction per kind of the producer's closed union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer's four constructions and the estimates they read; kept apart from the producer so each file stays one readable responsibility, and read only by `createSanitary`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Each named plumbing fixture producer reads its own construction and its geometry's estimates.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No construction reads another kind's dimension; the estimates are named here, not hidden in the arithmetic, and none places a contact.
  */
 export namespace SanitaryConstruction {
@@ -234,7 +234,7 @@ export namespace SanitaryConstruction {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built, its orientation and how the well's floor is placed.
    * @evidence contracts/development/implementation.md#principled-implementation A slab and four walls whose inner faces bound the maker's well bottom, so the `bottom` surface is the sheet's basin area; the floor the sheet's water depth under the rim.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Slab, back and apron, two ends, then the two contacts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Slab, back and apron, two ends, then the contacts: the rim, the apron's edge and top a step over clears, the well's floor, the seat and the backrest.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The well's sloped back and rounded corners are not drawn; the overflow's depth stands for the well's, said above.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one fixture.
@@ -279,6 +279,24 @@ export namespace SanitaryConstruction {
       extent: null,
       length,
     });
+
+    // Stepping in over the front wall: its top face and the top's outer
+    // edge, which a step over clears going across (`HumanObstacle`).
+    builder.affordance({
+      id: "edge",
+      kind: "ledge",
+      frame: ArchetypeFrame.facing(v(0, rim, width), v(0, 1, 0), v(1, 0, 0)),
+      extent: null,
+      length,
+    });
+    builder.affordance({
+      id: "top",
+      kind: "surface",
+      frame: ArchetypeFrame.upright(v(0, rim, width - side / 2)),
+      extent: null,
+      width: length,
+      depth: side,
+    });
     builder.affordance({
       id: "bottom",
       kind: "surface",
@@ -286,6 +304,35 @@ export namespace SanitaryConstruction {
       extent: null,
       width: wellX,
       depth: wellZ,
+    });
+
+    // A bather sits on the well's floor with the back to the -X end wall,
+    // facing along the well: the seat's front edge half the well from that
+    // wall, as wide as the well, its back the wall up to the rim.
+    builder.affordance({
+      id: "seat",
+      kind: "seat",
+      frame: ArchetypeFrame.facing(
+        v(0, floor, width / 2),
+        v(1, 0, 0),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      depth: wellX / 2,
+      width: wellZ,
+      back: rim - floor,
+    });
+    builder.affordance({
+      id: "backrest",
+      kind: "surface",
+      frame: ArchetypeFrame.facing(
+        v(-wellX / 2, (rim + floor) / 2, width / 2),
+        v(1, 0, 0),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      width: wellZ,
+      depth: rim - floor,
     });
   }
 

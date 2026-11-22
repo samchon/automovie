@@ -4,6 +4,7 @@ export type { IAutoMovieMotionHumanCue } from "./IAutoMovieMotionHumanCue";
 export type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
 export type { IAutoMovieMotionHumanHitTrack } from "./IAutoMovieMotionHumanHitTrack";
 export type { IAutoMovieMotionHumanImpulse } from "./IAutoMovieMotionHumanImpulse";
+export type { IAutoMovieMotionHumanTether } from "./IAutoMovieMotionHumanTether";
 export type { IAutoMovieMotionHumanLoad } from "./IAutoMovieMotionHumanLoad";
 export type { IAutoMovieMotionHumanObject } from "./IAutoMovieMotionHumanObject";
 export type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";

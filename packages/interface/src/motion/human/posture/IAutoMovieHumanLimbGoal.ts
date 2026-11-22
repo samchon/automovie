@@ -94,6 +94,14 @@ export interface IAutoMovieHumanLimbGoal {
   clear?: readonly IAutoMovieMotionHumanColliders.IPlaced[];
 
   /**
+   * Colliders of subjects that are no human body (a prop, an animal: the
+   * horse a rider's sabre must clear), placed in the world, which the arm
+   * keeps clear of as it does `clear`, each named in a refusal by its
+   * subject and part. Ignored on a leg.
+   */
+  clearExternal?: readonly IAutoMovieMotionHumanColliders.IExternal[];
+
+  /**
    * Another body's colliders, placed in the world, the goal lays the hand
    * on (the partner's segment a palm rests on): the forearm keeps clear of
    * them as of `clear`, except that near the wrist it asks no more room
@@ -101,6 +109,14 @@ export interface IAutoMovieHumanLimbGoal {
    * (`HumanArmClearance`). Ignored on a leg.
    */
   rests?: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+
+  /**
+   * The performer's own segments the hand is laid on (a pocket's thigh, a
+   * holster's hip): on the hold the hand's and its digits' contact with them
+   * is its placement, not a collision; the rest of the arm keeps clear of
+   * them. None when absent.
+   */
+  restsOwn?: IAutoMovieHumanLimbGoal.OwnRests;
 
   /** Collider frames of a rigidly carried partner in this goal's `on` frame. */
   clearanceOn?: IAutoMovieHumanLimbGoal.IClearance;
@@ -111,6 +127,9 @@ export interface IAutoMovieHumanLimbGoal {
  *
  */
 export namespace IAutoMovieHumanLimbGoal {
+  /** The performer's own bones a hand is laid on. */
+  export type OwnRests = readonly AutoMovieHumanoidBone[];
+
   /**
    * Clear and resting segments expressed in the goal's attachment frame.
    *

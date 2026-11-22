@@ -1,5 +1,6 @@
 import type { IAutoMovieMotionHumanDress } from "../dressing/IAutoMovieMotionHumanDress";
 import type { IAutoMovieMotionHumanTipHat } from "../dressing/IAutoMovieMotionHumanTipHat";
+import type { IAutoMovieMotionHumanWardrobe } from "../dressing/IAutoMovieMotionHumanWardrobe";
 import type { IAutoMovieMotionHumanButton } from "../handling/IAutoMovieMotionHumanButton";
 import type { IAutoMovieMotionHumanZip } from "../handling/IAutoMovieMotionHumanZip";
 
@@ -28,4 +29,7 @@ export interface IAutoMovieMotionHumanLexiconUpperDressParams {
 
   /** Draw a zipper slider along its track. */
   zip: IAutoMovieMotionHumanZip;
+
+  /** Dress oneself with a staged garment: a jacket on, a sleeve, the zip or footwear. */
+  wardrobe: IAutoMovieMotionHumanWardrobe;
 }

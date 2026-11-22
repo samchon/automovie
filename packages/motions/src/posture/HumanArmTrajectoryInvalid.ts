@@ -5,6 +5,7 @@ import { HumanArmTrajectoryLimits } from "./HumanArmTrajectoryLimits";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
+import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
 /**
  * Configuration validity for the arm path and its refinement: the forward
@@ -48,6 +49,7 @@ export namespace HumanArmTrajectoryInvalid {
    * @param k The waypoint whose base and allowances it is read against.
    * @param q Each arm's coordinates.
    * @param forwardCertified Whether a conservative interval bound already proves the arm's forward surface probes clear; only that reading is then spared. Reverse corners, crossings and joint ranges are always read at this waypoint.
+   * @param tasks Whether the hold's task points (its site's limits and skin distance) are read: true for the hold itself; false for a path planner's approach state read at the hold's waypoint, which keeps its contact allowances but not the task points that bind only the hold.
    * @returns The largest excess, millimetres or coordinate units, and what it is.
    */
   export function of(
@@ -55,6 +57,7 @@ export namespace HumanArmTrajectoryInvalid {
     k: number,
     q: readonly (readonly number[])[],
     forwardCertified: boolean = false,
+    tasks: boolean = true,
   ): { value: number; what: string } {
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = q.map(
       (
@@ -69,7 +72,11 @@ export namespace HumanArmTrajectoryInvalid {
     };
     q.forEach((v: readonly number[], a: number): void => {
       const site: M.ISite | undefined = c.sites[a]![k];
-      if (site !== undefined && (site.limits !== undefined || site.skinDistance !== undefined)) {
+      if (
+        tasks &&
+        site !== undefined &&
+        (site.limits !== undefined || site.skinDistance !== undefined)
+      ) {
         const at: P.ILocated = P.located(
           c,
           (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
@@ -78,7 +85,12 @@ export namespace HumanArmTrajectoryInvalid {
           k,
           site,
         );
-        for (const limit of HumanArmTrajectoryLimits.of(site, at, placed[a]!, c.frames[a]![k]!))
+        for (const limit of HumanArmTrajectoryLimits.of(
+          site,
+          at,
+          placed[a]!,
+          c.frames[a]![k]!,
+        ))
           note(
             limit.distance - limit.allowance,
             () =>
@@ -90,7 +102,7 @@ export namespace HumanArmTrajectoryInvalid {
           note(
             pair.short - T.SKIN,
             () =>
-              `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside shape ${pair.shape}`,
+              `${nameArmTrajectoryPair(c, a, k, pair.probe, pair.shape)} ${pair.short.toFixed(1)} mm deep`,
           );
       for (const pair of P.embedded(c, a, k, placed[a]!).values())
         note(

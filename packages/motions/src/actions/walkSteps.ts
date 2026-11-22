@@ -1,6 +1,5 @@
 import { wrapDegrees } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   AutoMovieHumanSide,
   IAutoMovieMotionHumanFoot,
@@ -8,13 +7,11 @@ import type {
   IAutoMovieMotionHumanWalkFacing,
   IAutoMovieMotionHumanWalkFoot,
   IAutoMovieMotionHumanWalkSteps,
-  IAutoMovieRandom,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanSkill } from "../skill/HumanSkill";
 import { WalkPace } from "./WalkPace";
 import { WalkPath } from "./WalkPath";
 import { WalkTurn } from "./WalkTurn";
@@ -25,6 +22,7 @@ import { walkHeading } from "./walkHeading";
 import { walkReach } from "./walkReach";
 import { walkRoot } from "./walkRoot";
 import { walkStepFoot } from "./walkStepFoot";
+import { walkStepsTempo } from "./walkStepsTempo";
 
 /**
  * The footstep plan of a walk: footprints, their heel-strike and toe-off
@@ -38,9 +36,8 @@ import { walkStepFoot } from "./walkStepFoot";
  * full stride and closer while the pelvis gathers and sheds its speed, and no
  * landing is further ahead of the pelvis than in full stride. Each is turned
  * to the path's heading averaged over one step so a corner is taken over a
- * step, alternately half a step width to either side (step width 0.1 hip
- * heights, about 9 cm, inside the 7 to 12 cm of normal adult gait, Perry and
- * Burnfield; a run passes its swing share, mid-swing lift and vertical
+ * step, alternately half a step width to either side (the gait's `width`,
+ * else `WIDTH`; a run passes its swing share, mid-swing lift and vertical
  * oscillation), the foot behind stepping first and the last two ending at
  * the body's rest separation, facing `face` when given: the two footfalls
  * before the closing pair turn a third and two thirds of the way, a stepping
@@ -90,35 +87,11 @@ export namespace walkSteps {
     seconds: number;
   }
 
-  /**
-   * The stream a take's tempo is drawn from: one per performer and per
-   * occurrence of the action in their chain, keyed as a walk whatever the
-   * gait is called. A style is the walk with a manner, so a stroll, a sad or
-   * a proud walk and the neutral walk in the same place of the same chain
-   * under one seed draw the same tempo, and differ only by their style.
-   *
-   * @param context The action's skill, subject and occurrence.
-   * @returns The stream.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is drawn, what keys it and why a style shares the walk's draw.
-   * @evidence contracts/development/implementation.md#principled-implementation A draw keyed by stable identities (seed, performer, occurrence), so adding or renaming a style leaves every other take's tempo unchanged.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The occurrence is the action's own ordinal among its name's uses in the chain, so the first stroll pairs with the first walk of a chain written with a walk in its place.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function tempo(
-    context: Pick<IAutoMovieMotionHumanActionContext, "skill" | "subject" | "series">,
-  ): IAutoMovieRandom {
-    return HumanSkill.stream(
-      context.skill,
-      context.subject,
-      "walk",
-      context.series("period").index,
-      "period",
-    );
-  }
+  /** The stream a take's tempo is drawn from (walkStepsTempo). */
+  export const tempo: typeof walkStepsTempo = walkStepsTempo;
+
+  /** The step width of a gait that names none, hip heights: 0.1, about 9 cm, inside the 7 to 12 cm of normal adult gait (Perry and Burnfield). */
+  export const WIDTH: number = 0.1;
 
   /**
    * Plan the footsteps of a walk.
@@ -203,6 +176,19 @@ export namespace walkSteps {
         : (HumanFoot.offset(body, "left", "heel").z +
             HumanFoot.offset(body, "left", "mtp").z) /
           2;
+    // A gait entered moving (a run out of a hurdle clearance) keeps the
+    // pelvis's horizontal speed along the way's opening direction.
+    const ahead: IAutoMovieVector3 = path.at(Math.min(D, WalkPace.FLOOR));
+    const reach: number = Math.hypot(ahead.x - S.x, ahead.z - S.z);
+    const entrySpeed: number =
+      reach > 0
+        ? Math.max(
+            0,
+            (input.entry.velocity.linear.x * (ahead.x - S.x) +
+              input.entry.velocity.linear.z * (ahead.z - S.z)) /
+              reach,
+          )
+        : 0;
     const pace: WalkPace = WalkPace.fit(
       {
         ...input,
@@ -210,6 +196,7 @@ export namespace walkSteps {
         share: input.swing ?? 0.8,
         period: (seconds: number): number => input.period(seconds),
         lead: rolled,
+        entrySpeed,
       },
       input.longest,
     );
@@ -245,16 +232,7 @@ export namespace walkSteps {
     const frame: IAutoMovieMotionHumanFrame = { origin: S, yaw: heading };
     const along: (side: "left" | "right") => number = (side: "left" | "right"): number =>
       HumanFrame.local(frame, start[side].ankle).z;
-    const lead: AutoMovieHumanSide =
-      opening?.lead ??
-      (inPlace
-        ? ending >= yaw0
-          ? "left"
-          : "right"
-        : along("left") < along("right") - 1e-6
-          ? "left"
-          : "right");
-    const half: number = 0.05 * l;
+    const half: number = ((input.gait?.width ?? WIDTH) / 2) * l;
     const restWidth: Record<"left" | "right", number> = {
       left: Math.abs(body.rest.get("leftFoot")!.x), right: Math.abs(body.rest.get("rightFoot")!.x),
     };
@@ -270,10 +248,29 @@ export namespace walkSteps {
       left: HumanFoot.heading(start.left.rotation) - stand.TOE_OUT,
       right: HumanFoot.heading(start.right.rotation) + stand.TOE_OUT,
     };
+    // The foot behind sets off, unless its first footprint would cross the
+    // standing foot (`walkHeading.uncrossed`): then the inside foot steps
+    // first and the walk turns in place before it sets off.
+    const behind: AutoMovieHumanSide =
+      along("left") < along("right") - 1e-6 ? "left" : "right";
+    const lead: AutoMovieHumanSide =
+      opening?.lead ??
+      (inPlace
+        ? ending >= yaw0
+          ? "left"
+          : "right"
+        : walkHeading.uncrossed(
+            behind,
+            { left: start.left.ankle, right: start.right.ankle },
+            facings,
+            path.at(Math.min(D, pace.progress(first + swing + pace.front * T))),
+            heading,
+            half,
+          ));
     const turning: number =
       opening?.turning ??
       (facing === undefined
-        ? walkHeading.opening(heading, lead, facings, yaw0, walkReach.TWIST)
+        ? walkHeading.opening(heading, lead, facings, yaw0, walkReach.TWIST, !inPlace && lead !== behind)
         : 0);
     // In a step turn the turning foot moves first, then the other replaces
     // it at the new heading (Hase and Stein 1999). Adjacent flat footprints
@@ -344,6 +341,7 @@ export namespace walkSteps {
       { seconds: 0, yaw: yaw0 },
     ];
     let faced: number = yaw0;
+    const lastOf: Partial<Record<"left" | "right", walkHeading.ISeparated>> = {};
     for (let j: number = 1; j <= n + 1; j++) {
       const side: "left" | "right" =
         j % 2 === 1 ? lead : lead === "left" ? "right" : "left";
@@ -362,10 +360,16 @@ export namespace walkSteps {
           ? rest(side)
           : half + (rest(side) - half) * aside);
       const toward: number = towardAt(j);
-      const point: IAutoMovieVector3 = HumanFrame.point(
+      // A walk facing off its way closes a foot up rather than cross it; the closing pair already stands apart at the arrival.
+      const laid: IAutoMovieVector3 = HumanFrame.point(
         { origin: path.at(distance), yaw: toward },
         { x: lateral, y: m.ankleHeight, z: 0 },
       );
+      const point: IAutoMovieVector3 =
+        facing === undefined || j >= n
+          ? laid
+          : walkHeading.separated(laid, lastOf[side === "left" ? "right" : "left"], toward, side, lateral);
+      lastOf[side] = { point, lateral };
       // A footprint the pelvis leaves behind leans its leg no further than
       // the ankle holds when the foot lifts, at the toe-off two footfalls on,
       // the hip then being furthest past it and the pelvis facing between

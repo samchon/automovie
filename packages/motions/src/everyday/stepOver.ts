@@ -255,8 +255,8 @@ export namespace stepOver {
         { name: "trailToeOff", share: share(windows[trail][0]) },
         { name: "trailContact", share: share(windows[trail][1]) },
       ],
-      // Each foot plants before its swing and after it, on the floor it
-      // stands on.
+      // Each foot plants before its swing on the floor it stands on, and
+      // after it on that floor or on the named landing surface's prop.
       contacts: [lead, trail].flatMap(
         (side: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
           {
@@ -271,7 +271,10 @@ export namespace stepOver {
             kind: "plant",
             from: share(windows[side][1]),
             to: 1,
-            support: HumanSupportFrame.contact(context, `${side}Foot`),
+            support:
+              context.params.onto === undefined
+                ? HumanSupportFrame.contact(context, `${side}Foot`)
+                : { kind: "prop", subject: context.params.onto.prop },
           },
         ],
       ),

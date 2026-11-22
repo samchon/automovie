@@ -43,6 +43,7 @@ export namespace HumanObstacle {
    *
    * @param context The action's context.
    * @param subject The obstacle's prop subject.
+   * @param from Where the performer stands, world metres; from behind the edge's face the near side is the top's far edge.
    * @returns The near side, the height and the depth.
    * @throws {HumanRefusal} When the prop declares no edge or top, no depth, or a non-positive height or depth.
    *
@@ -57,6 +58,7 @@ export namespace HumanObstacle {
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
+    from?: IAutoMovieVector3,
   ): IObstacle {
     const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
@@ -92,8 +94,30 @@ export namespace HumanObstacle {
       throw refuse(
         `${subject} stands ${height.toFixed(3)} m high and ${depth.toFixed(3)} m deep; an obstacle has a positive height and depth`,
       );
+    // The near side is whichever of the edge and the top's far side, a depth
+    // back across it, faces the performer: stepping out of a tub, the inner
+    // side of its apron.
+    const outward: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.multiply(frame.rotation, edge.frame.rotation),
+      { x: 0, y: 0, z: 1 },
+    );
+    const across: IAutoMovieVector3 = Vector3.normalize({
+      x: outward.x,
+      y: 0,
+      z: outward.z,
+    });
+    const back: IAutoMovieVector3 = Vector3.subtract(
+      near,
+      Vector3.scale(across, depth),
+    );
+    const side: IAutoMovieVector3 =
+      from !== undefined &&
+      Math.abs(Vector3.dot(Vector3.subtract(from, back), across)) <
+        Math.abs(Vector3.dot(Vector3.subtract(from, near), across))
+        ? back
+        : near;
     return {
-      at: { x: near.x, y: frame.position.y, z: near.z },
+      at: { x: side.x, y: frame.position.y, z: side.z },
       height,
       depth,
     };

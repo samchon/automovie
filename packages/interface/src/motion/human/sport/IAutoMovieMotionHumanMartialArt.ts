@@ -24,7 +24,14 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * Karate and tai chi also have separate linked stance phrases. The karate
  * phrase moves between front and back stances with paired chamber and arm
  * placement. The tai chi phrase carries both open hands through gradual
- * forward and backward weight transfers.
+ * forward and backward weight transfers. The taekwondo reset turns a
+ * bladed, upright stance under a low sparring guard, and the Muay Thai reset
+ * keeps a square, lower stance under a high guard. The capoeira ginga steps
+ * one foot back behind the other, low, under a high guard, so alternating
+ * leads trace its triangle; the sumo shiko raises the foot high to the side
+ * and stamps it down into a wide, deep stance; the wing chun stance takes a
+ * short step under the centreline guard, both hands forward on the midline.
+ * All return to the entry and have no partner or contact target.
  *
  * @evidence contracts/development/common.md#meaningful-documentation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
@@ -36,14 +43,14 @@ export namespace IAutoMovieMotionHumanMartialArt {
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The technique, the punch count and the hold.
+   * @evidence contracts/development/design.md#principled-representation The named form, series count and hold with a lead override for stance phrases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
-    /** The technique. */
+    /** The named form or unpartnered screen reset. */
     kind: IAutoMovieMotionHumanMartialArt.Kind;
 
     /** Punches of a choku-zuki series; 4 when absent.
@@ -56,7 +63,7 @@ export namespace IAutoMovieMotionHumanMartialArt {
      */
     seconds?: number;
 
-    /** Leading foot of either linked stance phrase. Left when absent. */
+    /** Leading foot of a linked stance phrase or reset. Left when absent. */
     lead?: "left" | "right";
 
     /** How it is performed. */
@@ -64,17 +71,22 @@ export namespace IAutoMovieMotionHumanMartialArt {
   }
 
   /**
-   * Capture cases of the martial-art techniques (#3252) from quiet standing. The techniques.
+   * Named techniques and linked solo forms from a quiet standing pose.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Capture cases of the martial-art techniques (#3252) from quiet standing. The techniques.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the kinds as named solo movement and reset phrases from standing.
    * @evidence contracts/development/design.md#principled-representation Closed choices distinguish the admitted held techniques and the linked stance phrases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: executable/cases/martialArtCases.ts (martialArtCases).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in martialArtCases.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanChainSport.martialArt accepts this vocabulary through IParams. The martialArt law selects its support phrase.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses explicit stable literals. Runtime admission remains with the generated action schema.
    */
   export type Kind =
     | "horseStance"
     | "chokuZuki"
     | "taiChiPush"
     | "karateStanceTransfer"
-    | "taiChiTransfer";
+    | "taiChiTransfer"
+    | "taekwondoStanceReset"
+    | "muayThaiStanceReset"
+    | "capoeiraGinga"
+    | "sumoShiko"
+    | "wingChunStance";
 }

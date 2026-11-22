@@ -83,7 +83,7 @@ export namespace createMule {
   };
 
   /** The parameters: the sex, the tack, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends createHorse.IParams {
+  export interface IParams extends Omit<createHorse.IParams, "breed"> {
     /** The sex; drawn from the seed when absent. */
     sex?: Sex;
   }

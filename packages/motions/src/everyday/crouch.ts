@@ -511,7 +511,7 @@ export namespace crouch {
       end: duration,
     };
     const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
-      AutoMovieMotionHumanArm.together();
+      AutoMovieMotionHumanArm.together(context.handover, true, context.tempo);
     const rest = (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive =>
       braceOnThigh(
         body,

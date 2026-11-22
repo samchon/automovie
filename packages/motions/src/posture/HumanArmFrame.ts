@@ -92,7 +92,9 @@ export namespace HumanArmFrame {
     // The middle fingertip: the distal phalanx's end, its joint carried by
     // the phalanx's own tip offset (`HumanGrip.chain`), the point the speed
     // bound reads. The distal joint alone stood a phalanx short of it.
-    const distal: IAutoMovieResolvedBone | undefined = resolved.get(`${side}MiddleDistal`);
+    const distal: IAutoMovieResolvedBone | undefined = resolved.get(
+      `${side}MiddleDistal`,
+    );
     const end: IAutoMovieVector3 =
       distal === undefined
         ? hand.worldPosition
@@ -118,15 +120,22 @@ export namespace HumanArmFrame {
     // laid on one partner each read the partner's colliders, equal records
     // that would otherwise be two parts and count each contact twice.
     const others: IAutoMovieMotionHumanColliders.IPlaced[] = [];
-    const parts: Map<IAutoMovieMotionHumanColliders.IPlaced, number> = new Map();
+    const parts: Map<IAutoMovieMotionHumanColliders.IPlaced, number> =
+      new Map();
     const placedKeys: Map<string, number> = new Map();
-    const shapeIds: Map<IAutoMovieMotionHumanColliders.IPlaced["shapes"], number> = new Map();
+    const shapeIds: Map<
+      IAutoMovieMotionHumanColliders.IPlaced["shapes"],
+      number
+    > = new Map();
     for (const segment of base.others) {
       if (parts.has(segment)) continue;
-      const p: IAutoMovieMotionHumanColliders.IPlaced["pose"]["position"] = segment.pose.position;
-      const q: IAutoMovieMotionHumanColliders.IPlaced["pose"]["rotation"] = segment.pose.rotation;
+      const p: IAutoMovieMotionHumanColliders.IPlaced["pose"]["position"] =
+        segment.pose.position;
+      const q: IAutoMovieMotionHumanColliders.IPlaced["pose"]["rotation"] =
+        segment.pose.rotation;
       let shapeId: number | undefined = shapeIds.get(segment.shapes);
-      if (shapeId === undefined) shapeIds.set(segment.shapes, (shapeId = shapeIds.size));
+      if (shapeId === undefined)
+        shapeIds.set(segment.shapes, (shapeId = shapeIds.size));
       const key: string = `${segment.bone}|${shapeId}|${p.x}|${p.y}|${p.z}|${q.x}|${q.y}|${q.z}|${q.w}`;
       let part: number | undefined = placedKeys.get(key);
       if (part === undefined) {
@@ -156,6 +165,22 @@ export namespace HumanArmFrame {
         if (!own.has(part.bone)) own.set(part.bone, i);
       },
     );
+    // The performer's own segments the hand is laid on rest with it too.
+    const restsOwn: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      base.restsOwn ?? [],
+    );
+    const restingAll: ReadonlySet<number> =
+      restsOwn.size === 0
+        ? resting
+        : new Set([
+            ...resting,
+            ...model.parts.flatMap(
+              (
+                part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number],
+                i: number,
+              ): number[] => (restsOwn.has(part.bone) ? [i] : []),
+            ),
+          ]);
     const shapes: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
     const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
       HumanColliders.placed(body, resolved);
@@ -172,6 +197,23 @@ export namespace HumanArmFrame {
       for (const shape of segment.shapes)
         shapes.push(S.bounded(segment.bone, part, segment.pose, shape));
     }
+    // Segments no human body carries (a prop, an animal) follow the other
+    // bodies' parts, each named by its subject and part (`subject:part`).
+    const externals: readonly IAutoMovieMotionHumanColliders.IExternal[] =
+      base.externals ?? [];
+    externals.forEach(
+      (segment: IAutoMovieMotionHumanColliders.IExternal, i: number): void => {
+        for (const shape of segment.shapes)
+          shapes.push(
+            S.bounded(
+              `${segment.subject}:${segment.part}`,
+              model.parts.length + others.length + i,
+              segment.pose,
+              shape,
+            ),
+          );
+      },
+    );
 
     // The arm's own colliders and their probes, the audit's corners, each
     // carried into the frame of the arm's segment it rides on.
@@ -270,6 +312,28 @@ export namespace HumanArmFrame {
         }
       },
     );
+    externals.forEach(
+      (segment: IAutoMovieMotionHumanColliders.IExternal, i: number): void => {
+        let corner: number = 0;
+        for (const shape of segment.shapes)
+          for (const probe of HumanColliderCorners(shape))
+            corners.push({
+              point: Vector3.add(
+                segment.pose.position,
+                Quaternion.rotateVector(
+                  segment.pose.rotation,
+                  Vector3.add(
+                    shape.transform.position,
+                    Quaternion.rotateVector(shape.transform.rotation, probe),
+                  ),
+                ),
+              ),
+              part: model.parts.length + others.length + i,
+              corner: corner++,
+              bone: `${segment.subject}:${segment.part}`,
+            });
+      },
+    );
     for (const segment of others) {
       let corner: number = 0;
       for (const shape of segment.shapes)
@@ -330,7 +394,7 @@ export namespace HumanArmFrame {
       segments,
       corners: indices,
       related: model.related,
-      resting,
+      resting: restingAll,
       bounds,
       colliders,
       shapes,

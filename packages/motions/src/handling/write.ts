@@ -1,12 +1,9 @@
-import {
-  AffordanceArticulation,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanDigit,
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieHumanDigitGoal,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -17,7 +14,9 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanWrite,
+  IAutoMovieMotionPropDrive,
   IAutoMovieMotionPropHold,
+  IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -29,9 +28,12 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { heldDigits } from "./heldDigits";
+import { writeWith } from "./writeWith";
 
 /** A world vertex of the path and its distance along that path from the first vertex, metres. */
 interface IVertex {
@@ -47,7 +49,8 @@ interface IVertex {
  *
  * Register the law and perform `registered("write", params)` after taking
  * the tool in the orientation used to write. The surface belongs to a fixed
- * prop without an articulation reader. The arm approaches and leaves the
+ * rigid prop. A prop that supplies a frame reader declares its rigidity with
+ * `hasArticulations: false`. The arm approaches and leaves the
  * stroke with the entry wrist attitude as its goal. The target gives each
  * edge time proportional to its length and zero speed at each vertex, using
  * Flash and Hogan's planar minimum-jerk law (1985,
@@ -119,9 +122,7 @@ function planWrite(
     p.on === p.tool ||
     tool.prop.fixed === true ||
     tool.prop.motion !== undefined ||
-    support.prop.fixed !== true ||
-    support.prop.motion !== undefined ||
-    support.prop.articulate !== undefined
+    !writeWith.stationary(context, p.on, side)
   )
     throw new HumanRefusal({
       kind: "affordance",
@@ -257,12 +258,28 @@ function planWrite(
     side,
   );
   const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
+  writeWith.reach(
+    context,
+    side,
+    vertices.map((vertex: IVertex): IAutoMovieVector3 => vertex.point),
+    lever,
+  );
+  const steadied: writeWith.ISteadied | undefined =
+    p.steady === undefined
+      ? undefined
+      : writeWith.steady(context, p.steady, side, origin, facing, clock);
   const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried({
     body: context.body,
     side,
     from: 0,
     to: clock.duration,
     span: { start: 0, ready, relax: done, end: clock.duration },
+    // The whole clock is the law's own, lengthened by a slower tempo.
+    together: AutoMovieMotionHumanArm.together(
+      context.handover,
+      true,
+      context.tempo,
+    ),
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
     // A point target leaves the millimetre allowance to the arm solver.
     disc: 0,
@@ -288,6 +305,18 @@ function planWrite(
     context,
     held,
   );
+  const toolDrives: IAutoMovieMotionPropDrive[] = writeWith.drives(
+    context,
+    p.tool,
+    p.drive ?? [],
+    clock.duration,
+    ready,
+    done,
+  );
+  const digits: (
+    seconds: number,
+  ) => Partial<Record<AutoMovieHumanDigit, IAutoMovieHumanDigitGoal>> =
+    heldDigits(context, held, p.drive ?? [], toolDrives);
   const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
     context,
     clock.duration,
@@ -300,18 +329,55 @@ function planWrite(
           const posture: IAutoMovieMotionHumanPosture = base.posture(seconds);
           return {
             ...posture,
-            joints: { ...posture.joints, ...kept.fingers },
+            joints: {
+              ...posture.joints,
+              ...kept.fingers,
+              ...steadied?.hold.fingers,
+            },
+            digits: { ...posture.digits, ...digits(seconds) },
           };
         },
       },
       clock,
-      primitives: [arm],
+      primitives: steadied === undefined ? [arm] : [arm, steadied.primitive],
       contact: "strokeStart",
     });
+  const end: number = done / clock.duration;
   return {
     ...plan,
-    contacts: [...plan.contacts, AutoMovieMotionHumanHeld.grip(held)],
-    holds: [...(plan.holds ?? []), { ...kept, from: 1 }],
+    contacts: [
+      ...plan.contacts,
+      AutoMovieMotionHumanHeld.grip(held),
+      ...(steadied === undefined ? [] : [steadied.contact]),
+    ],
+    holds: [
+      ...(plan.holds ?? []),
+      { ...kept, from: 1 },
+      ...(steadied === undefined ? [] : [{ ...steadied.hold, from: 1 }]),
+    ],
+    drives: toolDrives,
+    launches: (p.release ?? []).map(
+      (subject: string): IAutoMovieMotionPropLaunch => {
+        const frame: IAutoMovieRigidTransform = context
+          .prop(subject)
+          .frame(context.start + done);
+        return {
+          prop: subject,
+          seconds: done,
+          point: frame.position,
+          velocity: { x: 0, y: 0, z: 0 },
+          rotation: frame.rotation,
+        };
+      },
+    ),
+    mounts: [
+      ...(p.take === undefined
+        ? []
+        : [writeWith.mount(context, p.take, p.tool, end)]),
+      ...(p.leave === undefined
+        ? []
+        : [writeWith.mount(context, p.leave, p.on, end)]),
+    ],
   };
 }
 
@@ -334,6 +400,6 @@ function strokePoint(
   return Vector3.lerp(
     a.point,
     b.point,
-    minimumJerk((distance - a.length) / (b.length - a.length)).s,
+    AutoMovieMotionInterval.progress(a.length, b.length, distance),
   );
 }

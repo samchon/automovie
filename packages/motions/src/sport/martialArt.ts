@@ -56,8 +56,10 @@ import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
  *   slow, continuous form of tai chi (Wu and Hitt 2005).
  *
  * The karate and tai chi stance phrases link their own support transfers
- * and arm carriage on a single clock. Forms can combine these phrases with
- * other named techniques.
+ * and arm carriage on a single clock. The taekwondo and Muay Thai solo
+ * resets share that support and recovery clock under their styles' low and
+ * high guards. Their distinct pelvis paths and guard sites are authored
+ * blocking for screen animation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each technique's geometry, timing with its source, provisional values and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record of root, leg and placed-arm rows on one clock.
@@ -109,7 +111,15 @@ export namespace martialArt {
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    if (p.kind === "karateStanceTransfer" || p.kind === "taiChiTransfer")
+    if (
+      p.kind === "karateStanceTransfer" ||
+      p.kind === "taiChiTransfer" ||
+      p.kind === "taekwondoStanceReset" ||
+      p.kind === "muayThaiStanceReset" ||
+      p.kind === "capoeiraGinga" ||
+      p.kind === "sumoShiko" ||
+      p.kind === "wingChunStance"
+    )
       return MartialArtStancePhrase(context, p.kind, hold, modifiers);
 
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -309,6 +319,12 @@ export namespace martialArt {
             rest: rest(side),
             weight: into,
             span,
+            // The clock is the law's own, lengthened by a slower tempo.
+            together: AutoMovieMotionHumanArm.together(
+              context.handover,
+              true,
+              context.tempo,
+            ),
             surface: "fist",
             shape: "fist",
             place: (
@@ -423,6 +439,11 @@ export namespace martialArt {
             rest: rest(side),
             weight: into,
             span,
+            together: AutoMovieMotionHumanArm.together(
+              context.handover,
+              true,
+              context.tempo,
+            ),
             place: (
               posture: IAutoMovieMotionHumanPosture,
               s: number,

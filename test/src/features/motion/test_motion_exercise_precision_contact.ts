@@ -10,19 +10,23 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanStand,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanHeld,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanPrecisionSport,
+  PrecisionStrokeForms,
   stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionGraspedHandle } from "../internal/motionGraspedHandle";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -38,7 +42,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#behavioral-verification Uses each registered action through the public performance constructor and reads displayed prop frames at contact and around flight onset.
  * @evidence contracts/development/testing.md#independent-expectations Derives contact from the model's own affordance frame transformed by the displayed tool, and subtracts the independent ball radius along the authored aim. Checks exact staged frame onset separately from positive outgoing movement.
  * @evidence contracts/development/testing.md#distinguishing-cases A high ball with a long bat checks near-horizontal reach. A low raised ball with the iron checks the separate short stroke and lifted departure.
- * @evidence contracts/development/testing.md#execution-ownership One in-memory ready pose and two performances, each with a single established implement grip. No external host or generated data.
+ * @evidence contracts/development/testing.md#execution-ownership One in-memory ready pose and two performances, each with its implement grasped by its handle and its player at the stroke's address. No external host or generated data.
  */
 export function test_motion_exercise_precision_contact(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -109,10 +113,6 @@ export function test_motion_exercise_precision_contact(): void {
         ? -90 - fixture.down
         : 90 - fixture.down,
     );
-    const implement: IAutoMovieRigidTransform = {
-      position: Vector3.subtract(hand, Quaternion.rotateVector(rotation, grip)),
-      rotation,
-    };
     const working: IAutoMovieVector3 = Quaternion.rotateVector(
       rotation,
       Vector3.subtract(fixture.point.frame.translation, grip),
@@ -128,11 +128,53 @@ export function test_motion_exercise_precision_contact(): void {
       position: Vector3.subtract(centre, gripBall.frame.translation),
       rotation: identity,
     };
+    // The implement is held by its grip as a hand grasps a handle, its
+    // working end out past the index finger (`motionGraspedHandle`), and the
+    // player stands at the stroke's own address for the ball
+    // (`PrecisionStrokeForms.address`), the implement carried there.
+    const inHand: IAutoMovieRigidTransform = motionGraspedHandle(
+      body,
+      "right",
+      fixture.tool.affordance("grip").frame,
+      fixture.point.frame.translation,
+    );
+    const wrist: IAutoMovieResolvedBone = ready
+      .bones("player", 0)
+      .get("rightHand")!;
+    const held: IAutoMovieRigidTransform = {
+      position: Vector3.add(
+        wrist.worldPosition,
+        Quaternion.rotateVector(wrist.worldRotation, inHand.position),
+      ),
+      rotation: Quaternion.multiply(wrist.worldRotation, inHand.rotation),
+    };
+    const toward: IAutoMovieVector3 = { ...centre, z: centre.z + 3 };
+    const stance: IAutoMovieVector3 = PrecisionStrokeForms.address({
+      body,
+      row: fixture.row.name,
+      side: "right",
+      yaw: 0,
+      ball: centre,
+      radius,
+      toward,
+      held: AutoMovieMotionHumanHeld.grasped(
+        body,
+        "right",
+        "implement",
+        held,
+        fixture.tool.affordances ?? [],
+        { point: wrist.worldPosition, rotation: wrist.worldRotation },
+      ),
+    });
+    const implement: IAutoMovieRigidTransform = {
+      position: Vector3.add(held.position, stance),
+      rotation: held.rotation,
+    };
     const impact: number = 0.56;
     const film: HumanPerformance = new HumanPerformance({
       seed: `precision-${fixture.row.name}`,
       laws: [hold, fixture.row],
-      performers,
+      performers: [{ ...performers[0]!, at: stance }],
       props: [
         HumanObject.prop("implement", fixture.tool, implement),
         HumanObject.prop("ball", fixture.ball, ballAt),
@@ -144,11 +186,7 @@ export function test_motion_exercise_precision_contact(): void {
           ball: "ball",
           speed: 6,
           impact,
-          toward: {
-            kind: "point",
-            frame: "world",
-            at: { ...centre, z: centre.z + 3 },
-          },
+          toward: { kind: "point", frame: "world", at: toward },
         }).node,
     });
     const action: IAutoMovieMotionHumanSegment = film.segments("player")[1]!;

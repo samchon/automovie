@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 
@@ -39,9 +40,9 @@ export namespace IAutoMovieMotionHumanKneel {
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its default.
-   * @evidence contracts/development/design.md#principled-representation A closed kind, a side, a hold and whether to rise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five optional members, all read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No place or angle is typed by the author.
+   * @evidence contracts/development/design.md#principled-representation A closed kind, a side, a hold, whether to rise and an optional knee target.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven optional members, all read by `plan`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No angle is typed by the author; a knee place is a motion target the scene resolves.
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
@@ -68,6 +69,16 @@ export namespace IAutoMovieMotionHumanKneel {
 
     /** Whether the body rises again at the end; `true` when absent. */
     rise?: boolean;
+
+    /**
+     * Where the first knee comes down, such as beside a lying person's
+     * chest: its point on the floor, its height ignored. The kneeling leg
+     * steps there, forward, aside or back, the hip coming down over it while
+     * the other foot stays planted, and the kneel is refused when that foot
+     * would be out of the other leg's reach. Absent, the reverse lunge places
+     * the knee about a thigh behind the other foot.
+     */
+    at?: IAutoMovieMotionTarget;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;

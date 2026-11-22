@@ -9,6 +9,7 @@ import type {
 import { getUp } from "../floor/getUp";
 import { lieDown } from "../floor/lieDown";
 import { clinch } from "./clinch";
+import { grappleSumo } from "./grappleSumo";
 
 /**
  * Floor support keys and hand regions for preplanned grappling performances.
@@ -39,6 +40,8 @@ export namespace grappleStances {
     twist: number;
     /** Hip and knee flexion of the entry. */
     depth: number;
+    /** Additional outward arm angle for free hands during the staged pose. */
+    armSpread?: number;
   }
 
   /** Paired preferences and contact family for a staged scene. */
@@ -56,7 +59,9 @@ export namespace grappleStances {
   }
 
   /** Illustrative poses separate moving silhouettes within the same rules family. */
-  const rows: Readonly<Record<IAutoMovieMotionHumanGrapple.Kind, IRow>> = {
+  const rows: Readonly<
+    Record<Exclude<IAutoMovieMotionHumanGrapple.Kind, grappleSumo.Kind>, IRow>
+  > = {
     seoiNage: {
       seconds: 3.5,
       initiator: { turn: 80, pitch: 25, roll: 0, twist: -15, depth: 34 },
@@ -105,7 +110,14 @@ export namespace grappleStances {
     grecoRoman: {
       seconds: 3.8,
       initiator: { turn: 54, pitch: 10, roll: 7, twist: -24, depth: 22 },
-      receiver: { turn: -34, pitch: -12, roll: 10, twist: 16, depth: 19 },
+      receiver: {
+        turn: -34,
+        pitch: -12,
+        roll: 10,
+        twist: 16,
+        depth: 19,
+        armSpread: 28,
+      },
       finish: "back",
       grip: "shoulders",
     },
@@ -172,6 +184,7 @@ export namespace grappleStances {
     share: number,
   ): IAutoMovieMotionHumanLieDown.IPose {
     const depth: number = entry.depth * share;
+    const armSpread: number = 12 + (entry.armSpread ?? 0) * share;
     return {
       pitch: entry.pitch * share,
       roll: direction * entry.roll * share,
@@ -182,8 +195,8 @@ export namespace grappleStances {
         rightUpperLeg: [depth, 7, 0],
         leftLowerLeg: [depth, 0, 0],
         rightLowerLeg: [depth, 0, 0],
-        leftUpperArm: [16 * share, 12, 0],
-        rightUpperArm: [16 * share, 12, 0],
+        leftUpperArm: [16 * share, armSpread, 0],
+        rightUpperArm: [16 * share, armSpread, 0],
         leftLowerArm: [35 * share, 0, 0],
         rightLowerArm: [35 * share, 0, 0],
       },
@@ -202,7 +215,9 @@ export namespace grappleStances {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure numeric lookup.
    */
   export function seconds(kind: IAutoMovieMotionHumanGrapple.Kind): number {
-    return rows[kind].seconds;
+    return grappleSumo.is(kind)
+      ? grappleSumo.seconds(kind)
+      : rows[kind].seconds;
   }
 
   /**
@@ -220,6 +235,7 @@ export namespace grappleStances {
     kind: IAutoMovieMotionHumanGrapple.Kind,
     side: AutoMovieHumanSide,
   ): Readonly<Partial<Record<AutoMovieHumanSide, AutoMovieHumanoidRegion>>> {
+    if (grappleSumo.is(kind)) return grappleSumo.regions(kind);
     const opposite: AutoMovieHumanSide = other(side);
     const grip: IRow["grip"] = rows[kind].grip;
     switch (grip) {
@@ -249,7 +265,7 @@ export namespace grappleStances {
    * Author the support keys over the two actors' shared scene duration.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Returns five ordered stances, with a shared shoulder-exchange clock for the completed shoulder scene and the ordinary floor shares for other scenes.
-   * @evidence contracts/development/implementation.md#principled-implementation The completed shoulder scene keeps the original foot bearings under its small turn and prepares the seat and back roll endpoints. The other entries step and either recover standing or add floor contacts.
+   * @evidence contracts/development/implementation.md#principled-implementation The completed shoulder scene keeps the original foot bearings under its small turn and prepares the seat and back roll endpoints. The other entries step and either recover standing or add floor contacts. The staged shoulder-profile receiver carries free arms outward while the pair separates.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the stance family and creates the common entry, transfer, settle and release keys.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Floor fitting belongs to support. An interrupted scene has no fall or award event.
    * @evidence contracts/development/implementation.md#efficient-algorithms Five keys per role, independent of duration or the number of playback queries.
@@ -259,7 +275,10 @@ export namespace grappleStances {
   export function keys(
     p: IAutoMovieMotionHumanGrapple.IParams,
     duration: number,
+    stature: number,
   ): readonly IAutoMovieMotionHumanSupport.IStance[] {
+    if (grappleSumo.is(p.kind))
+      return grappleSumo.keys({ ...p, kind: p.kind }, duration, stature);
     if (p.kind === "seoiNage" && p.outcome !== "denied")
       return shoulderKeys(p.role, p.side ?? "right", duration);
     const row: IRow = rows[p.kind];

@@ -12,10 +12,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { walkLeg } from "../actions/walkLeg";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickCarriage } from "./KickCarriage";
+import { KickChain } from "./KickChain";
 import type { KickChamber } from "./KickChamber";
 import { KickForm } from "./KickForm";
+import { KickRocker } from "./KickRocker";
 import { KickThrust } from "./KickThrust";
 import { StrikingStroke } from "./StrikingStroke";
 
@@ -61,7 +64,11 @@ import { StrikingStroke } from "./StrikingStroke";
  * world-straight line from the planted ankle to the chambered one carries
  * the foot forward of that arc, through whatever stands in front of the
  * shin: measured on the staged push kick, the foot's capsule met the
- * partner's lead leg at 0.970 s, during the lift.
+ * partner's lead leg at 0.970 s, during the lift. On the floor the plant's foot rocks onto its forefoot as the weight leaves it ({@link KickRocker}), and in from the air to the replant. Off the floor the plant's
+ * foot rides the shank (turned by what turns the planted shank onto the
+ * lifted one) while it blends to the chambered foot, so the ankle keeps the
+ * plant's bend instead of dorsiflexing past what a foot bearing nothing
+ * reaches as the shank swings forward over a foot held flat in the world.
  */
 export namespace KickSwing {
   /** What a kicking leg's path is built from. */
@@ -186,7 +193,12 @@ export namespace KickSwing {
     const thrust: ((share: number) => KickThrust.ILeg) | undefined =
       props.path === "thrust"
         ? KickThrust.thrusting(
-            KickThrust.drawn(reached, lengths, props.flexion.chamber, local({ x: 0, y: 1, z: 0 })),
+            KickThrust.drawn(
+              reached,
+              lengths,
+              props.flexion.chamber,
+              local({ x: 0, y: 1, z: 0 }),
+            ),
             reached,
             lengths,
             props.flexion.least,
@@ -203,6 +215,9 @@ export namespace KickSwing {
       minimumJerk.share(
         (clock - impact - folding) / Math.max(1e-3, recoil - folding),
       );
+    // The plant's foot on the floor rises on its forefoot rocker as the
+    // weight leaves it (`KickRocker`).
+    const rocked: KickRocker.Reader = KickRocker(body, side, plant);
     return (
       clock: number,
       base: IAutoMovieMotionHumanPosture,
@@ -210,7 +225,8 @@ export namespace KickSwing {
       atHip?: IAutoMovieVector3,
     ): IAutoMovieMotionHumanKickGeometry.ILeg => {
       const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(base);
-      const currentHip: IAutoMovieVector3 = atHip ?? KickCarriage.hip(body, base, side);
+      const currentHip: IAutoMovieVector3 =
+        atHip ?? KickCarriage.hip(body, base, side);
       const opened: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         hinge.axis,
         angle(clock),
@@ -251,45 +267,75 @@ export namespace KickSwing {
         clock - impact - folding,
         recoil - folding,
       );
+      const moved: IAutoMovieVector3 | undefined =
+        lowered > 0 ? props.step : lifted < 1 ? shift : undefined;
+      const on: KickRocker.IRocked | undefined =
+        moved === undefined
+          ? undefined
+          : rocked(
+              currentHip,
+              moved,
+              walkLeg.dorsal(
+                lowered > 0
+                  ? 0
+                  : 1 - minimumJerk.share(clock / Math.max(1e-3, prep)),
+              ) - KickChain.DORSAL_MARGIN,
+            );
+      const floor: KickThrust.ILeg | undefined =
+        on === undefined
+          ? undefined
+          : KickThrust.planted(
+              currentHip,
+              on.foot.ankle,
+              Vector3.add(plant.knee, moved!),
+              lengths,
+              forward,
+            );
       const posed: KickThrust.ILeg =
-        lowered > 0
-          ? between(
-              KickThrust.planted(
-                currentHip,
-                Vector3.add(plant.ankle, props.step),
-                Vector3.add(plant.knee, props.step),
-                lengths,
-                forward,
-              ),
-              chambered,
-              1 - lowered,
-            )
-          : lifted < 1
-            ? between(
-                KickThrust.planted(
-                  currentHip,
-                  Vector3.add(plant.ankle, shift),
-                  Vector3.add(plant.knee, shift),
-                  lengths,
-                  forward,
+        floor === undefined
+          ? chambered
+          : between(floor, chambered, lowered > 0 ? 1 - lowered : lifted);
+      // Off the floor the plant's foot rides its shank, so the ankle keeps
+      // the plant's bend instead of dorsiflexing as the shank swings forward
+      // over a foot still flat in the world; it is the plant's own foot again
+      // wherever the leg is the planted one.
+      const riding: IAutoMovieQuaternion =
+        floor === undefined
+          ? plant.rotation
+          : Quaternion.normalize(
+              Quaternion.multiply(
+                rotationBetween(
+                  Vector3.normalize(floor.shank),
+                  Vector3.normalize(posed.shank),
                 ),
-                chambered,
-                lifted,
-              )
-            : chambered;
+                on!.foot.rotation,
+              ),
+            );
       const hint: IAutoMovieVector3 = Vector3.add(currentHip, posed.thigh);
-      return {
-        ankle: Vector3.add(hint, posed.shank),
-        hint,
-        rotation: Quaternion.slerp(
-          Quaternion.slerp(
-            plant.rotation,
-            Quaternion.normalize(Quaternion.multiply(heading, foot)),
-            up,
-          ),
-          plant.rotation,
-          down,
+      const ankle: IAutoMovieVector3 = Vector3.add(hint, posed.shank);
+      const turned: IAutoMovieQuaternion = Quaternion.slerp(
+        Quaternion.slerp(
+          riding,
+          Quaternion.normalize(Quaternion.multiply(heading, foot)),
+          up,
         ),
+        riding,
+        down,
+      );
+      return {
+        ankle,
+        hint,
+        // Off the floor the foot bears nothing: its ankle is kept within a
+        // weightless ankle's dorsiflexion (`KickChain.unloaded`).
+        rotation:
+          clock > prep && clock < duration
+            ? KickChain.unloaded(turned, hint, ankle)
+            : turned,
+        // The rocker's toe extension, eased out as the foot leaves the floor
+        // and in as it comes down to the replant.
+        ...(on === undefined || on.toes === 0
+          ? {}
+          : { toes: on.toes * (lowered > 0 ? down : 1 - up) }),
       };
     };
   }
@@ -311,7 +357,11 @@ export namespace KickSwing {
    * toe was stopped on the partner's lead foot at its launch (measured: the
    * knee 12.8 degrees at the chamber and the foot 147 mm high at impact).
    */
-  function between(from: KickThrust.ILeg, to: KickThrust.ILeg, share: number): KickThrust.ILeg {
+  function between(
+    from: KickThrust.ILeg,
+    to: KickThrust.ILeg,
+    share: number,
+  ): KickThrust.ILeg {
     const hip: number = minimumJerk.share(share);
     const knee: number = minimumJerk.share(
       Math.min(1, share / KickForm.KNEE_LEAD),
@@ -321,9 +371,7 @@ export namespace KickSwing {
     const folded: IAutoMovieVector3 = turned(
       from.shank,
       Quaternion.rotateVector(
-        Quaternion.inverse(
-          rotationBetween(stood, Vector3.normalize(to.thigh)),
-        ),
+        Quaternion.inverse(rotationBetween(stood, Vector3.normalize(to.thigh))),
         to.shank,
       ),
       knee,
@@ -406,9 +454,7 @@ export namespace KickSwing {
     const sine: number = Math.hypot(q.x, q.y, q.z);
     if (sine < 1e-9) return { axis: { x: 1, y: 0, z: 0 }, degrees: 0 };
     return {
-      axis: local(
-        Vector3.scale({ x: q.x, y: q.y, z: q.z }, sign / sine),
-      ),
+      axis: local(Vector3.scale({ x: q.x, y: q.y, z: q.z }, sign / sine)),
       degrees: (2 * Math.atan2(sine, sign * q.w)) / Quaternion.DEG2RAD,
     };
   }

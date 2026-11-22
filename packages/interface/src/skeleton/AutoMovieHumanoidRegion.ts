@@ -51,6 +51,7 @@ export type AutoMovieHumanoidRegion =
   | "ribsLeft"
   | "ribsRight"
   | "upperBack"
+  | "yoke"
   | "lowerBack"
   | "kidneyLeft"
   | "kidneyRight"

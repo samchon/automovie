@@ -110,6 +110,7 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
   if (nearestRotation === undefined) return fitted;
   const toes: number = Math.max(0, HumanFoot.pitch(goal.rotation) - HumanFoot.pitch(nearestRotation));
   if (toes === 0) return fitted;
+
   const bone: AutoMovieHumanoidBone = `${side}Toes`;
   return {
     pose: { ...fitted.pose, joints: fitted.pose.joints.map((joint: IAutoMovieJointPose): IAutoMovieJointPose =>

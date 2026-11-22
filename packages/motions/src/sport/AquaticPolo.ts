@@ -1,7 +1,10 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
@@ -34,7 +37,7 @@ export namespace AquaticPolo {
     water: number,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, params, entry } = context;
-    const side: "left" | "right" = params.side ?? "right";
+    const side: AutoMovieHumanSide = params.side ?? "right";
     const handed: number = side === "left" ? 1 : -1;
     const attack: boolean =
       params.role !== "defend" && params.role !== "keeper";
@@ -61,7 +64,8 @@ export namespace AquaticPolo {
       spread: 27 + 9 * Math.sin(phase),
       turn: 16 + 12 * Math.cos(phase),
       knee: 82 + 21 * Math.sin(phase + 0.8),
-      ankle: 10 + 14 * Math.cos(phase - 0.5),
+      // Kept within the dorsiflexion an unloaded ankle takes (20 degrees).
+      ankle: 6 + 14 * Math.cos(phase - 0.5),
     });
     const tuck: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,
@@ -77,25 +81,18 @@ export namespace AquaticPolo {
           : {},
       ),
     );
-    const attackArm: {
-      shoulder: number;
-      raise: number;
-      elbow: number;
-      wrist: number;
-    } = {
+    const attackArm: IAutoMovieMotionHumanExerciseKey.ILimb = {
       shoulder: 132,
       raise: 24,
       elbow: 17,
       wrist: 17,
     };
-    const blockArm: {
-      shoulder: number;
-      raise: number;
-      elbow: number;
-      wrist: number;
-    } = {
-      shoulder: 152,
-      raise: 22,
+    const blockArm: IAutoMovieMotionHumanExerciseKey.ILimb = {
+      shoulder: 140,
+      // A keeper's two raised arms block overhead: at this flexion a
+      // raise carries each arm across the head into the other, so none is
+      // taken. A defender's arms spread wide.
+      raise: keeper ? 0 : 60,
       elbow: keeper ? 15 : 20,
       wrist: -10,
     };
@@ -183,6 +180,20 @@ export namespace AquaticPolo {
         params.prop,
       );
       const ball: IAutoMovieRigidTransform = ballProp.frame(context.start);
+      // A round grip whose aperture is the ball's diameter, centred on the
+      // model origin, declares the collision sphere the flight owner and the
+      // goal rule read. There the origin is the centre, so the aimed origin
+      // and the sphere's centre take the same path. A ball modelled from
+      // another origin keeps the point flight its aim describes.
+      const socket: IAutoMovieAffordance | undefined =
+        ballProp.prop.affordances?.find(
+          (site: IAutoMovieAffordance): boolean =>
+            site.id === "grip" &&
+            site.kind === "handle" &&
+            site.symmetry === "round" &&
+            (site.aperture ?? 0) > 0 &&
+            Vector3.length(site.frame.translation) === 0,
+        );
       const turn: IAutoMovieQuaternion = Quaternion.multiply(
         last.rotation,
         Quaternion.inverse(first.rotation),
@@ -223,6 +234,14 @@ export namespace AquaticPolo {
           seconds: release,
           point,
           velocity,
+          ...(socket?.aperture === undefined
+            ? {}
+            : {
+                sphere: {
+                  centre: socket.frame.translation,
+                  radius: socket.aperture / 2,
+                },
+              }),
           ...(ballProp.prop.body?.drag === undefined
             ? { aim: { point: target, seconds: flightSeconds } }
             : {}),
@@ -234,6 +253,9 @@ export namespace AquaticPolo {
       : [];
     return {
       duration,
+      ...(!attack
+        ? { yields: ["leftArm", "leftHand", "rightArm", "rightHand"] }
+        : {}),
       events: [
         { name: "support", share: 0 },
         { name: attack ? "draw" : "raise", share: draw / duration },

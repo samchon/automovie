@@ -85,6 +85,11 @@ export namespace AutoMovieHumanoidSurfaceRegions {
       liver: { station: costal, direction: v(-0.8, 0, 0.6) },
       spleen: { station: costal, direction: v(0.8, 0, 0.6) },
       upperBack: { station: chest(0.5), direction: v(0, 0, -1) },
+      // The yoke: the top of the back between the shoulders, behind the
+      // neck's base, where a shoulder-ride's rider sits and a yoke or a
+      // carried pole rests; on the thorax's collider near the neck, facing up
+      // and a little back along the trapezius (provisional).
+      yoke: { station: chest(0.95), direction: v(0, 1, -0.3) },
       abdomen: { station: spine(0.4), direction: v(0, 0, 1) },
       lowerBack: { station: spine(0.4), direction: v(0, 0, -1) },
       groin: {

@@ -21,8 +21,10 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
+import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { GymnasticsWheel } from "./GymnasticsWheel";
+import { GymnasticsWheelPlants } from "./GymnasticsWheelPlants";
 import { cartwheel } from "./cartwheel";
 
 /**
@@ -94,7 +96,9 @@ export namespace roundOff {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from` and `ExerciseKey.stood`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function landed(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function landed(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       {},
@@ -131,8 +135,10 @@ export namespace roundOff {
     const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const ease: (x: number) => number = (x: number): number => minimumJerk.share(x);
-    const wheeled: IAutoMovieMotionHumanExerciseKey.IKey = cartwheel.wheel(body);
+    const ease: (x: number) => number = (x: number): number =>
+      minimumJerk.share(x);
+    const wheeled: IAutoMovieMotionHumanExerciseKey.IKey =
+      cartwheel.wheel(body);
     const entering: ReturnType<typeof ExerciseKey.prepareBlend> =
       ExerciseKey.prepareBlend(ExerciseKey.standing(body), wheeled);
     const closing: ReturnType<typeof ExerciseKey.prepareBlend> =
@@ -146,7 +152,9 @@ export namespace roundOff {
 
     // The shape at an angle: the cartwheel's wheel in the first half, closing
     // to the landing shape past the handstand.
-    const shaped: (angle: number) => IAutoMovieMotionHumanPosture = (angle: number): IAutoMovieMotionHumanPosture => ({
+    const shaped: (angle: number) => IAutoMovieMotionHumanPosture = (
+      angle: number,
+    ): IAutoMovieMotionHumanPosture => ({
       ...ExerciseKey.posed(
         angle <= 180
           ? entering(ease(angle / cartwheel.SHAPE))
@@ -158,13 +166,20 @@ export namespace roundOff {
 
     // The spokes: both feet, each foot, each hand, the leading hand first.
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]));
+      poseBones(
+        body,
+        context.entry.pose,
+        undefined,
+        new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]),
+      );
     const ankle: number =
       (entered.get("leftFoot")!.worldPosition.y +
         entered.get("rightFoot")!.worldPosition.y) /
       2;
     const laid: number = GymnasticsWheel.laid(body);
-    const ground: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };
+    const ground: IAutoMovieMotionHumanContactWindow.Support = {
+      kind: "ground",
+    };
     const lead: "left" | "right" = sign < 0 ? "left" : "right";
     const trail: "left" | "right" = lead === "left" ? "right" : "left";
     const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = [
@@ -174,23 +189,25 @@ export namespace roundOff {
       { bones: [`${lead}Hand`], height: laid, support: ground },
       { bones: [`${trail}Hand`], height: laid, support: ground },
     ];
-    const wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel = GymnasticsWheel.roll({
-      body,
-      shaped,
-      spokes,
-      start: standing.root,
-      until: 360,
-      step: cartwheel.STEP,
-    });
+    const wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel =
+      GymnasticsWheel.roll({
+        body,
+        shaped,
+        spokes,
+        start: standing.root,
+        until: 360,
+        step: cartwheel.STEP,
+      });
 
     // The seconds at which the wheel reaches an angle.
     const when: (angle: number) => number = (angle: number): number =>
       GymnasticsWheel.when(angle, 360, duration);
-    const contacts: IAutoMovieMotionHumanContactWindow[] = GymnasticsWheel.contacts(
-      wheel,
-      spokes,
-      (angle: number): number => when(angle) / duration,
-    );
+    const contacts: IAutoMovieMotionHumanContactWindow[] =
+      GymnasticsWheel.contacts(
+        wheel,
+        spokes,
+        (angle: number): number => when(angle) / duration,
+      );
     const handsDown: number =
       contacts.find((w: IAutoMovieMotionHumanContactWindow): boolean =>
         w.part.endsWith("Hand"),
@@ -207,7 +224,9 @@ export namespace roundOff {
       { name: "relax", share: 1 },
     ];
     /** Read the current wheel angle and straighten the trunk at the exit. */
-    const turning = (seconds: number): IAutoMovieMotionHumanPosture => {
+    const carried: (seconds: number) => IAutoMovieMotionHumanPosture = (
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => {
       const angle: number =
         360 * ease(Math.min(duration, Math.max(0, seconds)) / duration);
       return {
@@ -216,22 +235,41 @@ export namespace roundOff {
         root: wheel.root(angle),
       };
     };
-    const result: IAutoMovieMotionHumanActionPlan = {
+    // The bearing hands and feet laid where they came down, and each arm
+    // coursed over the whole turn with one continuous branch.
+    const lay: ReturnType<typeof GymnasticsWheelPlants.of> =
+      GymnasticsWheelPlants.of(
+        body,
+        contacts,
+        duration,
+        carried,
+        HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: standing.yaw },
+          { x: -sign, y: 0, z: 0 },
+        ),
+      );
+    const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts,
       contact: feetDown * duration,
-      posture: turning,
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+        lay(carried(seconds), Math.min(duration, Math.max(0, seconds))),
     };
+    // The laid hands are goals the displayed arms follow on one coherent
+    // course (the performance's arm course), so the law sets no arm path.
+    const result: IAutoMovieMotionHumanActionPlan = goals;
     HumanPreparedPlayback.attach(result, body, {
       mode: "posture",
-      phases: [{
-        from: 0,
-        to: duration,
-        sample: (seconds: number): IAutoMovieMotionHumanPlayback.ISample => ({
-          posture: turning(seconds),
-        }),
-      }],
+      phases: [
+        {
+          from: 0,
+          to: duration,
+          sample: (seconds: number): IAutoMovieMotionHumanPlayback.ISample => ({
+            posture: result.posture(seconds),
+          }),
+        },
+      ],
     });
     return result;
   }

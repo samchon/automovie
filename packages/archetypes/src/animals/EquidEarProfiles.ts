@@ -113,17 +113,62 @@ export namespace EquidEarProfiles {
     return profile(height, length, width);
   }
 
-  /** Ten-to-one planar proxy and diagonal splay are authored geometry, never ear-tissue measurements or biological pose. */
+  /**
+   * Krebs et al. 2021, Pesquisa Agropecuária Brasileira 56:e02148, Table 1 p4,
+   * https://doi.org/10.1590/S1678-3921.pab2021.v56.e02148: Campolina horses,
+   * 84 males and 131 females, ear length 0.180 and 0.183 m at withers 1.566 and
+   * 1.533 m. The table's "ear width" (0.65 m) is not a pinna breadth, so no
+   * horse pinna breadth is read.
+   */
+  export const HORSE: Readonly<{
+    males: number;
+    females: number;
+    length: readonly [number, number];
+    withers: readonly [number, number];
+  }> = {
+    males: 84,
+    females: 131,
+    length: [0.18, 0.183],
+    withers: [1.566, 1.533],
+  };
+
+  /**
+   * The Campolina ear length over its own withers height, with a transferred breadth.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the pooled source cohort, the transferred breadth and the authored upright carriage.
+   * @evidence contracts/development/implementation.md#principled-implementation Pool both sexes' means by their counts, divide the pooled ear length by the pooled withers height, and give the pinna the Halari donkey reference's breadth-to-length ratio, a provisional cross-species transfer since no horse pinna breadth was read.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weighted means and the shared plate convention.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The breadth is declared transferred, not measured; the upright neutral direction is authored.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the plate convention with the donkey and mule profiles.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh profile and retains nothing.
+   */
+  export function horse(): QuadrupedEars.IProfile {
+    const count: number = HORSE.males + HORSE.females;
+    const height: number =
+      (HORSE.males * HORSE.withers[0] + HORSE.females * HORSE.withers[1]) /
+      count;
+    const length: number =
+      (HORSE.males * HORSE.length[0] + HORSE.females * HORSE.length[1]) / count;
+    return profile(height, length, (length * DONKEY.width) / DONKEY.length, {
+      x: 0.3,
+      y: 1,
+      z: 0.1,
+    });
+  }
+
+  /** Ten-to-one planar proxy and the neutral splay are authored geometry, never ear-tissue measurements or biological pose. */
   function profile(
     height: number,
     length: number,
     width: number,
+    direction: QuadrupedEars.IProfile["direction"] = { x: 1, y: 1, z: 0 },
   ): QuadrupedEars.IProfile {
     return {
       length: length / height,
       width: width / height,
       plateThickness: width / height / 10,
-      direction: { x: 1, y: 1, z: 0 },
+      direction,
     };
   }
 }

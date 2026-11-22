@@ -207,6 +207,12 @@ export namespace walkFoot {
     /** The mid-swing lift, hip heights. */
     lift: number;
 
+    /** The least clearance of the toe and heel at mid-swing, metres; `CLEARANCE` when absent. */
+    clearance?: number;
+
+    /** How far the ankle bows out horizontally at the middle of its travel, world metres, on the lift's raised-cosine profile over the travel's progress: a swing passing a stance foot on a curve keeps its width (`walkSwing`); none when absent. */
+    bow?: IAutoMovieVector3;
+
     /** Whether the leg is kept straight (`STIFF`, `LEVEL`); false when absent. */
     stiff?: boolean;
 
@@ -295,14 +301,15 @@ export namespace walkFoot {
         ? carriedRate(levelSeconds, u * props.seconds)
         : carried;
       const a: IAutoMovieVector3 = props.from.ankle;
+      const bowed: number = Math.sin(Math.PI * s) ** 2;
       const ankle: IAutoMovieVector3 = {
-        x: a.x + delta.x * s + props.velocity.x * carried,
+        x: a.x + delta.x * s + props.velocity.x * carried + (props.bow?.x ?? 0) * bowed,
         y:
           a.y +
           delta.y * level +
           props.velocity.y * rising +
           height * bump,
-        z: a.z + delta.z * s + props.velocity.z * carried,
+        z: a.z + delta.z * s + props.velocity.z * carried + (props.bow?.z ?? 0) * bowed,
       };
       const heading: number = leaving + headingDelta * s;
       const turning: number = carriedRate(
@@ -328,7 +335,7 @@ export namespace walkFoot {
         toe(toes)(placement),
         heel(placement),
       );
-      const clearance: number = CLEARANCE * bump;
+      const clearance: number = (props.clearance ?? CLEARANCE) * bump;
       if (low < clearance) ankle.y += clearance - low;
       if (departure !== undefined && u < settle + settle) {
         const sole: IAutoMovieVector3 = HumanFoot.point(body, side, departure.socket, placement, toes);

@@ -1,492 +1,105 @@
-import { Vector3 } from "@automovie/engine";
-
-import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
-} from "../core";
-import { CARE_ITEM_BANDS } from "./CARE_ITEM_BANDS";
-
-/** Alltub's laminate tubes data sheet. */
-const ALLTUB: string =
-  "Alltub laminate tubes data sheet (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf)";
-/** The readable name of each kind. */
-const NAMES: Readonly<Record<createCareItem.Kind, string>> = {
-  tissue: "tissue",
-  comb: "comb",
-  toothbrush: "toothbrush",
-  tube: "cream tube",
-  razor: "razor",
-  lipstick: "lipstick",
-};
+import { type Archetype, ArchetypeDraw } from "../core";
+import { GroomingPropDraw } from "./GroomingPropDraw";
+import { createComb } from "./createComb";
+import { createLipstick } from "./createLipstick";
+import { createShavingRazor } from "./createShavingRazor";
+import { createSqueezeTube } from "./createSqueezeTube";
+import { createTissue } from "./createTissue";
+import { createToothbrush } from "./createToothbrush";
 
 /**
- * A personal care item: a tissue, a comb, a toothbrush, a cream tube, a razor or a lipstick.
+ * Read a saved grooming prop recipe and call the producer for its kind.
  *
- * Each lies at the origin with its long side along `+Z`, its working end at `+Z`: a comb's teeth point down along its length, a toothbrush's bristles and a razor's blades face up at its far end, a tube's cap is at its far end and a lipstick's bullet points out of its far end. A tissue lies flat.
+ * @param params The saved kind, fixed values, optional identifier and model when applicable.
+ * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
+ * @returns The selected prop in its original frame.
+ * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
- * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
- * @returns The item.
- * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each item lies and where its working end is.
- * @evidence contracts/development/implementation.md#principled-implementation One or two dimensioned primitives per item; each `grip` lies on the axis of the part the hand holds, with that part's thickness as its `aperture`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per kind.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Teeth and bristles are one block each; a tube's cap is a knob without a thread.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two parts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Read a saved grooming prop recipe and call the producer for its kind.
+ * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects the named producer that owns its geometry and contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The wrapper validates the saved kind and hands off the input.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Kind order, seed streams, defaults and parameter admission follow the saved recipe.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A bounded kind check and one lookup precede the selected producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved and named calls use the same producer.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createCareItem(
   params: createCareItem.IParams,
   seed?: number | string,
 ): Archetype<createCareItem.Affordance, createCareItem.Dimension> {
-  const draw: ArchetypeDrawSession<createCareItem.Dimension> =
-    new ArchetypeDrawSession<createCareItem.Dimension>(
-      "careItem",
-      createCareItem.UNITS,
-      seed,
-      params,
-    );
   const kind: createCareItem.Kind = ArchetypeDraw.choice(
     "careItem",
     "kind",
     params.kind,
     createCareItem.KINDS,
   );
-  // A tube is one of Alltub's diameters, its length drawn in that diameter's own range; a razor one of the two razors read, whole.
-  const model: {
-    name: createCareItem.Model | undefined;
-    figures: createCareItem.Figures;
-  } = draw.model<createCareItem.Model>(
-    "model",
-    params.model,
-    createCareItem.MODELS[kind],
-  );
-  // The model's own range bands its length, so the author's length is checked in it.
-  const range: IArchetypeBand | undefined =
-    model.name === undefined
-      ? undefined
-      : createCareItem.TUBE_LENGTHS[model.name];
-  const d: Partial<Record<createCareItem.Dimension, number>> = {
-    ...draw.dimensions(
-      range === undefined
-        ? createCareItem.BANDS[kind]
-        : { ...createCareItem.BANDS[kind], length: range },
-      createCareItem.BANDS,
-    ),
-    ...model.figures,
-  };
-  const builder: ArchetypeBuilder<
-    createCareItem.Affordance,
-    createCareItem.Dimension
-  > = new ArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw,
-  });
-  const length: number = d.length!;
-  const width: number = d.width!;
-  const thick: number = d.thickness ?? width;
 
-  if (kind === "tissue") {
-    builder.box(
-      "sheet",
-      Vector3.create(width, thick, length),
-      Vector3.create(0, thick / 2, 0),
-      { color: "#f6f4f0" },
-    );
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.upright(Vector3.create(0, thick / 2, 0)),
-      extent: null,
-      grip: "precision",
-      aperture: thick,
-    });
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "normal",
-      frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
-      extent: null,
-      width,
-      depth: length,
-    });
-    return builder.build(d.mass!);
-  }
-
-  if (kind === "comb") {
-    // A spine with a block of teeth under it; held sideways anywhere along the spine.
-    builder.box(
-      "spine",
-      Vector3.create(thick, width * 0.4, length),
-      Vector3.create(0, width * 0.8, length / 2),
-      { color: "#3a3a3a" },
-    );
-    builder.box(
-      "teeth",
-      Vector3.create(thick * 0.6, width * 0.6, length),
-      Vector3.create(0, width * 0.3, length / 2),
-      { color: "#4a4a4a" },
-    );
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: "half",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, width * 0.8, length / 2),
-        Vector3.create(1, 0, 0),
-        Vector3.create(0, 0, 1),
-      ),
-      extent: null,
-      grip: "lateral",
-      aperture: thick,
-      length,
-    });
-    builder.affordance({
-      id: "face",
-      kind: "ledge",
-      direction: "normal",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, 0, length / 2),
-        Vector3.create(0, -1, 0),
-        Vector3.create(0, 0, 1),
-      ),
-      extent: null,
-      length,
-    });
-    return builder.build(d.mass!);
-  }
-
-  if (kind === "toothbrush" || kind === "razor") {
-    // A handle with a head at its far end, its working face up: bristles, or a razor's cartridge of blades.
-    const head: number =
-      kind === "razor" ? createCareItem.CARTRIDGE.depth : 0.028;
-    const across: number =
-      kind === "razor" ? createCareItem.CARTRIDGE.width : width;
-    builder.rod(
-      "handle",
-      width / 2,
-      Vector3.create(0, width / 2, 0),
-      Vector3.create(0, width / 2, length - head),
-      { color: kind === "razor" ? "#2c2f33" : "#3f8fc4" },
-    );
-    builder.box(
-      "head",
-      Vector3.create(across, width * 1.6, head),
-      Vector3.create(0, width * 0.8, length - head / 2),
-      { color: kind === "razor" ? "#b9bcc0" : "#eef2f5" },
-    );
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, width / 2, (length - head) / 2),
-        Vector3.create(0, 1, 0),
-        Vector3.create(0, 0, 1),
-      ),
-      extent: null,
-      grip: "power",
-      aperture: width,
-      length: length - head,
-    });
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "normal",
-      frame: ArchetypeFrame.upright(
-        Vector3.create(0, width * 1.6, length - head / 2),
-      ),
-      extent: null,
-      width: across,
-      depth: head,
-    });
-    return builder.build(d.mass!);
-  }
-
-  if (kind === "lipstick") {
-    // A case held in the fingers, its bullet out of its far end.
-    builder.rod(
-      "case",
-      width / 2,
-      Vector3.create(0, width / 2, 0),
-      Vector3.create(0, width / 2, length - createCareItem.BULLET),
-      { color: "#1d1f22" },
-    );
-    builder.rod(
-      "bullet",
-      width * 0.3,
-      Vector3.create(0, width / 2, length - createCareItem.BULLET),
-      Vector3.create(0, width / 2, length),
-      { color: "#b22234" },
-    );
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: "round",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, width / 2, (length - createCareItem.BULLET) / 2),
-        Vector3.create(0, 1, 0),
-        Vector3.create(0, 0, 1),
-      ),
-      extent: null,
-      grip: "precision",
-      aperture: width,
-      length: length - createCareItem.BULLET,
-    });
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "along",
-      frame: ArchetypeFrame.facing(
-        Vector3.create(0, width / 2, length),
-        Vector3.create(0, 0, 1),
-        Vector3.create(1, 0, 0),
-      ),
-      extent: null,
-    });
-    return builder.build(d.mass!);
-  }
-
-  // A tube: a body and a cap at its far end.
-  const cap: number = 0.015;
-  builder.rod(
-    "body",
-    width / 2,
-    Vector3.create(0, width / 2, 0),
-    Vector3.create(0, width / 2, length - cap),
-    { color: "#e9e2d0" },
-  );
-  builder.rod(
-    "cap",
-    width * 0.3,
-    Vector3.create(0, width / 2, length - cap),
-    Vector3.create(0, width / 2, length),
-    { color: "#b9b2a0" },
-  );
-  builder.affordance({
-    id: "grip",
-    kind: "handle",
-    symmetry: "round",
-    frame: ArchetypeFrame.facing(
-      Vector3.create(0, width / 2, (length - cap) / 2),
-      Vector3.create(0, 1, 0),
-      Vector3.create(0, 0, 1),
-    ),
-    extent: null,
-    grip: "power",
-    aperture: width,
-    length: length - cap,
-  });
-  builder.affordance({
-    id: "cap",
-    kind: "knob",
-    frame: ArchetypeFrame.facing(
-      Vector3.create(0, width / 2, length - cap / 2),
-      Vector3.create(0, 0, 1),
-    ),
-    extent: null,
-    grip: "precision",
-    aperture: width * 0.6,
-    travel: 720,
-    parts: ["cap"],
-  });
-  builder.affordance({
-    id: "face",
-    kind: "socket",
-    direction: "along",
-    frame: ArchetypeFrame.facing(
-      Vector3.create(0, width / 2, length),
-      Vector3.create(0, 0, 1),
-    ),
-    extent: null,
-  });
-  return builder.build(d.mass!);
+  // The saved input spans every variant. The selected producer checks its original recipe.
+  const produce: (
+    params: createCareItem.IParams,
+    seed?: number | string,
+  ) => Archetype<createCareItem.Affordance, createCareItem.Dimension> =
+    createCareItem.PRODUCERS[kind] as typeof produce;
+  return produce(params, seed);
 }
 
 /**
- * Companion types and bands of {@link createCareItem}.
+ * Compatibility tables and types for saved grooming prop recipes.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sizes a hold reads (#3369) and the one working face each item brings to the body.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts `grip` and `face` name the same role on every kind.
+ * @evidence contracts/development/common.md#meaningful-documentation Compatibility tables and types for saved grooming prop recipes.
+ * @evidence contracts/development/design.md#principled-representation The kind union retains the saved spelling and order. Each kind selects the named producer with the same geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the existing recipe tables and names for authored and saved callers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The named producers draw the actual sizes and model figures from the saved bands.
  */
 export namespace createCareItem {
-  /** The kinds. */
-  export type Kind =
-    | "tissue"
-    | "comb"
-    | "toothbrush"
-    | "tube"
-    | "razor"
-    | "lipstick";
+  /** The original kind for the saved grooming prop recipe. */
+  export type Kind = GroomingPropDraw.Kind;
 
-  /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = [
-    "tissue",
-    "comb",
-    "toothbrush",
-    "tube",
-    "razor",
-    "lipstick",
-  ];
+  /** The original kinds for the saved grooming prop recipe. */
+  export const KINDS: typeof GroomingPropDraw.KINDS = GroomingPropDraw.KINDS;
 
-  /** A razor's cartridge across and from front to back, metres: an estimate; the razors' pages read do not give it. */
-  export const CARTRIDGE: Readonly<{ width: number; depth: number }> = {
-    width: 0.04,
-    depth: 0.015,
-  };
+  /** The original cartridge for the saved grooming prop recipe. */
+  export const CARTRIDGE: typeof GroomingPropDraw.CARTRIDGE =
+    GroomingPropDraw.CARTRIDGE;
 
-  /** A lipstick's bullet out of its case, metres: an estimate; the cases read give its 12.1 mm across but not how far it stands out. */
-  export const BULLET: number = 0.015;
+  /** The original bullet for the saved grooming prop recipe. */
+  export const BULLET: typeof GroomingPropDraw.BULLET = GroomingPropDraw.BULLET;
 
-  /**
-   * The affordance ids:
-   *
-   * - `grip`: the hold: a tissue pinched at its middle, a comb's spine held sideways, a toothbrush's or a razor's handle, a tube's body, a lipstick's case.
-   * - `face`: the working end: a tissue's upper side, the line of a comb's teeth facing down, a toothbrush's bristles and a razor's blades facing up, a tube's mouth facing along it, a lipstick's bullet's tip.
-   * - `cap`: a tube's cap, a knob turned two turns to open (the turn is an estimate).
-   */
-  export type Affordance = "grip" | "face" | "cap";
+  /** The original affordance for the saved grooming prop recipe. */
+  export type Affordance = GroomingPropDraw.Affordance;
 
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `length`: along `+Z`.
-   * - `width`: a tissue's or a comb's width, a toothbrush's or a razor's handle's, a tube's or a lipstick's diameter.
-   * - `thickness`: a tissue's or a comb's thickness.
-   * - `mass`: kilograms.
-   */
-  export type Dimension = "length" | "width" | "thickness" | "mass";
+  /** The original dimension for the saved grooming prop recipe. */
+  export type Dimension = GroomingPropDraw.Dimension;
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
-    length: "m",
-    width: "m",
-    thickness: "m",
-    mass: "kg",
-  };
+  /** The original units for the saved grooming prop recipe. */
+  export const UNITS: typeof GroomingPropDraw.UNITS = GroomingPropDraw.UNITS;
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which item. */
-    kind: Kind;
+  /** The original iparams for the saved grooming prop recipe. */
+  export type IParams = GroomingPropDraw.IParams;
 
-    /** A tube's diameter or a razor's model; drawn from the seed when absent. */
-    model?: Model;
+  /** The original figures for the saved grooming prop recipe. */
+  export type Figures = GroomingPropDraw.Figures;
 
-    /** The model's id, unique in a scene; `careItem` when absent. */
-    id?: string;
-  }
+  /** The original model for the saved grooming prop recipe. */
+  export type Model = GroomingPropDraw.Model;
 
-  /** A model's read figures, by dimension. */
-  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+  /** The original models for the saved grooming prop recipe. */
+  export const MODELS: typeof GroomingPropDraw.MODELS = GroomingPropDraw.MODELS;
 
-  /** The models read: Alltub's ten laminate tube diameters, and Edwin Jagger's and Gillette's Mach3 razors. */
-  export type Model =
-    | "alltub13_5"
-    | "alltub19"
-    | "alltub22"
-    | "alltub25"
-    | "alltub28"
-    | "alltub30"
-    | "alltub35"
-    | "alltub38"
-    | "alltub40"
-    | "alltub50"
-    | "edwinJagger"
-    | "gilletteMach3";
+  /** The original tube length ranges for the saved grooming prop recipe. */
+  export const TUBE_LENGTHS: typeof GroomingPropDraw.TUBE_LENGTHS =
+    GroomingPropDraw.TUBE_LENGTHS;
 
-  /** Each kind's models whole, the default first. A tube's diameter (`width`) is one of Alltub's ten (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf), its length drawn in that diameter's own range (`TUBE_LENGTHS`). A razor's length and mass: Edwin Jagger's Mach3, 129 mm and 87 g (https://www.edwinjagger.co.uk/edwin-jagger-grey-chrome-mach-3-razor.html), and Gillette's Mach3, 5.4 in and 35 g (https://www.toolsofmen.com/?p=46812). */
-  export const MODELS: Readonly<
-    Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
-  > = {
-    tube: {
-      alltub13_5: { width: 0.0135 },
-      alltub19: { width: 0.019 },
-      alltub22: { width: 0.022 },
-      alltub25: { width: 0.025 },
-      alltub28: { width: 0.028 },
-      alltub30: { width: 0.03 },
-      alltub35: { width: 0.035 },
-      alltub38: { width: 0.038 },
-      alltub40: { width: 0.04 },
-      alltub50: { width: 0.05 },
-    },
-    razor: {
-      edwinJagger: { length: 0.129, mass: 0.087 },
-      gilletteMach3: { length: 5.4 * ArchetypeUnits.INCH, mass: 0.035 },
-    },
-  };
+  /** The original bands for the saved grooming prop recipe. */
+  export const BANDS: typeof GroomingPropDraw.BANDS = GroomingPropDraw.BANDS;
 
-  /** Each Alltub tube diameter's own range of lengths, metres, from the data sheet. */
-  export const TUBE_LENGTHS: Readonly<Partial<Record<Model, IArchetypeBand>>> =
-    {
-      alltub13_5: ArchetypeBand.metres(
-        0.045,
-        0.16,
-        `${ALLTUB}: the 13.5 mm tube's lengths`,
-      ),
-      alltub19: ArchetypeBand.metres(
-        0.045,
-        0.16,
-        `${ALLTUB}: the 19 mm tube's lengths`,
-      ),
-      alltub22: ArchetypeBand.metres(
-        0.075,
-        0.125,
-        `${ALLTUB}: the 22 mm tube's lengths`,
-      ),
-      alltub25: ArchetypeBand.metres(
-        0.075,
-        0.16,
-        `${ALLTUB}: the 25 mm tube's lengths`,
-      ),
-      alltub28: ArchetypeBand.metres(
-        0.075,
-        0.19,
-        `${ALLTUB}: the 28 mm tube's lengths`,
-      ),
-      alltub30: ArchetypeBand.metres(
-        0.075,
-        0.19,
-        `${ALLTUB}: the 30 mm tube's lengths`,
-      ),
-      alltub35: ArchetypeBand.metres(
-        0.075,
-        0.181,
-        `${ALLTUB}: the 35 mm tube's lengths`,
-      ),
-      alltub38: ArchetypeBand.metres(
-        0.075,
-        0.205,
-        `${ALLTUB}: the 38 mm tube's lengths`,
-      ),
-      alltub40: ArchetypeBand.metres(
-        0.06,
-        0.2,
-        `${ALLTUB}: the 40 mm tube's lengths`,
-      ),
-      alltub50: ArchetypeBand.metres(
-        0.06,
-        0.2,
-        `${ALLTUB}: the 50 mm tube's lengths`,
-      ),
-    };
-
-  /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = CARE_ITEM_BANDS;
+  /** The named producer selected by each saved kind. */
+  export const PRODUCERS = {
+    tissue: createTissue,
+    comb: createComb,
+    toothbrush: createToothbrush,
+    tube: createSqueezeTube,
+    razor: createShavingRazor,
+    lipstick: createLipstick,
+  } as const satisfies Readonly<Record<Kind, unknown>>;
 }

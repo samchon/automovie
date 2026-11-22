@@ -16,9 +16,11 @@ import { HumanGunDrill } from "./HumanGunDrill";
  * rows (`HumanGunDrill`) in its own chain, every duty synced to the end of
  * the one before it in the drill's order (#3340), so the crew interlocks as
  * the drill says: the vent covered before the sponge goes in, the charge
- * passed, placed and rammed, the vent pricked, the gun laid, the primer
+ * passed (No. 5 handing it over as No. 2 receives it), placed and rammed, the vent pricked, the gun laid, the primer
  * hooked, the crew clear of the wheels and the muzzle, and the lanyard
- * pulled on the gunner's command, a cue track instant and no motion.
+ * pulled on the gunner's command, a cue track instant and no motion. The
+ * charge and the primer are set on the gun's own sockets (`muzzle`, `vent`),
+ * so they ride the tube as the gun is laid.
  *
  * Roles are performers with their own bodies and seeds; nothing here is
  * written for a body. Each duty's duration is its law's, provisional, so the
@@ -138,13 +140,21 @@ export namespace HumanGunCrew {
           "passCharge",
         )
         .sync({ of: "spongeBore", event: "end" }).node,
+      // No. 2 takes the charge No. 5 holds out (the handover's receiving
+      // half, `HumanMutual.handOver`), then places it once the receiving
+      // grip has settled, after the giver's hand has let go.
       HumanChain.subject(roles.n2)
         .registered(
-          HumanGunDrill.loadCharge.name,
-          { prop: scene.charge, at: muzzle },
-          "loadCharge",
+          "receive",
+          { prop: scene.charge, from: roles.n5, handle: "body" },
+          "receiveCharge",
         )
-        .sync({ of: "passCharge", event: "end" }).node,
+        .sync({ of: "passCharge", event: "start" })
+        .registered(
+          HumanGunDrill.loadCharge.name,
+          { prop: scene.charge, onto: { prop: scene.gun, point: "muzzle" } },
+          "loadCharge",
+        ).node,
       HumanChain.subject(roles.n1)
         .registered(
           HumanGunDrill.ramCharge.name,
@@ -192,7 +202,7 @@ export namespace HumanGunCrew {
       HumanChain.subject(roles.n4)
         .registered(
           HumanGunDrill.hookPrimer.name,
-          { prop: scene.primer, at: vent },
+          { prop: scene.primer, onto: { prop: scene.gun, point: "vent" } },
           "hookPrimer",
         )
         .sync({ of: "layGun", event: "end" }).node,

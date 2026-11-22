@@ -32,15 +32,43 @@ export namespace IAutoMovieMotionHumanColliders {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkLegBinding.ts (walkLegBinding.prepareRelative, a); actions/walkLegBinding.ts (walkLegBinding.prepareRelative, b); actions/walkLegBinding.ts (walkLegBinding.prepareInside, shape); actions/walkLegClearance.ts (walkLegClearance.excess.segments).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieRigidTransform, IAutoMoviePhysicalShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
-  export interface IPlaced {
+  export interface IPlaced extends IFramed {
     /** The resolved rig bone carrying this segment. */
     bone: AutoMovieHumanoidBone;
+  }
 
+  /**
+   * A collider segment's world frame and its shapes, whatever carries it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and ownership.
+   * @evidence contracts/development/design.md#principled-representation A placed frame and its borrowed shapes, the part every obstacle reading needs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Extended by the body's placed segments (`IPlaced`) and by another subject's (`IExternal`).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieRigidTransform and IAutoMoviePhysicalShape identities.
+   */
+  export interface IFramed {
     /** Current world segment frame, including its neutral offset and turn. */
     pose: IAutoMovieRigidTransform;
 
     /** Existing neutral shape definitions, borrowed without mutation. */
     shapes: readonly IAutoMoviePhysicalShape[];
+  }
+
+  /**
+   * A collider segment of another subject than a human body, a prop or an
+   * animal (a horse's neck, a table's top), placed in the world: an obstacle
+   * a limb keeps clear of, named by its subject and part in a refusal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the segment is and how it is named.
+   * @evidence contracts/development/design.md#principled-representation The frame and shapes of any obstacle, with the scene subject and its own part name in place of a rig bone.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by a limb goal's external clearance (`IAutoMovieHumanLimbGoal.clearExternal`).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A prop is never named as a rig bone.
+   */
+  export interface IExternal extends IFramed {
+    /** The scene subject the segment belongs to. */
+    subject: string;
+
+    /** The segment's own part name within its subject. */
+    part: string;
   }
 
   /**

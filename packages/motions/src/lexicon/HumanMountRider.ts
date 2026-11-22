@@ -19,7 +19,6 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanGrip } from "../handling/HumanGrip";
-import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -27,6 +26,7 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountReach } from "./HumanMountReach";
 import type { HumanRideHands } from "./HumanRideHands";
+import { ankleRidePedalFoot } from "./ankleRidePedalFoot";
 import { placeRideReinPalm } from "./placeRideReinPalm";
 
 /**
@@ -77,7 +77,7 @@ export namespace HumanMountRider {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what turns, about what, how far and when nothing changes.
    * @evidence contracts/development/implementation.md#principled-implementation The ball stays where the goal puts it and the ankle moves on its circle about the ball's lateral axis; the least turn that reaches is found by bisection, the distance being monotonic in the turn up to `ANKLING`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The ball, the turn as a function of an angle, the distance, the search.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rider's bounds handed to the search, which nkleRidePedalFoot owns so this file stays within its size.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pedal beyond even `ANKLING` leaves the foot short of it, which the contact audit reports; a refusal with the saddle height that fits is owed.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four distance trials (none, the two signs and `ANKLING`) and twenty-four bisections, which narrow the `ANKLING` span to about two millionths of a degree; each trial is one rotation about the ball's prepared axis.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The ball, the axis and the contact are read once per call and shared by every trial; the returned goal is placed by the same function the trials measure.
@@ -90,59 +90,7 @@ export namespace HumanMountRider {
     hip: IAutoMovieVector3,
     level: IAutoMovieQuaternion,
   ): IAutoMovieHumanLimbGoal {
-    const reach: number =
-      (body.measure.thigh + body.measure.shank) *
-      Math.cos((KNEE * Math.PI) / 360);
-    const rotation: IAutoMovieQuaternion = goal.rotation ?? level;
-
-    // A foot on a pedal bears on its ball, whether or not its goal says what it turns about.
-    const contact: IAutoMovieVector3 =
-      goal.contact ?? HumanFoot.offset(body, side, "ball");
-    const ball: IAutoMovieVector3 = Vector3.add(
-      goal.point,
-      Quaternion.rotateVector(rotation, contact),
-    );
-    const across: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 1,
-      y: 0,
-      z: 0,
-    });
-    const turn: ReturnType<typeof Quaternion.prepareAxisAngle> =
-      Quaternion.prepareAxisAngle(across);
-    const placement: (degrees: number) => {
-      point: IAutoMovieVector3;
-      rotation: IAutoMovieQuaternion;
-    } = (
-      degrees: number,
-    ): { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
-      const pitched: IAutoMovieQuaternion = Quaternion.multiply(
-        turn(degrees),
-        rotation,
-      );
-      return {
-        rotation: pitched,
-        point: Vector3.subtract(
-          ball,
-          Quaternion.rotateVector(pitched, contact),
-        ),
-      };
-    };
-    const turnedBy: (degrees: number) => IAutoMovieHumanLimbGoal = (
-      degrees: number,
-    ): IAutoMovieHumanLimbGoal => ({ ...goal, contact, ...placement(degrees) });
-    const far: (degrees: number) => number = (degrees: number): number =>
-      Vector3.length(Vector3.subtract(placement(degrees).point, hip));
-    if (far(0) <= reach) return goal;
-    const sign: number = far(1) < far(-1) ? 1 : -1;
-    if (far(sign * ANKLING) > reach) return turnedBy(sign * ANKLING);
-    let low: number = 0;
-    let high: number = ANKLING;
-    for (let i: number = 0; i < 24; ++i) {
-      const middle: number = (low + high) / 2;
-      if (far(sign * middle) > reach) low = middle;
-      else high = middle;
-    }
-    return turnedBy(sign * high);
+    return ankleRidePedalFoot(body, side, goal, hip, level, KNEE, ANKLING);
   }
 
   /** How far the wrist's centre lies off the palm's skin, hand lengths: half the hand's thickness (provisional, about 14 mm of a 190 mm hand). The wrist stays this plus the grip's own radius off a held point along its outward normal, so the palm's skin lies on the grip and the fingers wrap it. */
@@ -170,7 +118,11 @@ export namespace HumanMountRider {
       fingers = Vector3.scale(Vector3.normalize(across), side);
     }
     if (material.reinPalm !== undefined)
-      return { ...placeRideReinPalm(material.reinPalm, grip, fingers), fingers, contact: material.reinPalm.point };
+      return {
+        ...placeRideReinPalm(material.reinPalm, grip, fingers),
+        fingers,
+        contact: material.reinPalm.point,
+      };
     return {
       point: Vector3.add(
         grip.point,
@@ -190,7 +142,8 @@ export namespace HumanMountRider {
   /**
    * A hand holding a grip, a rein or a rim: where its wrist goes, how the
    * hand turns and how its fingers close, a share of the way from where
-   * the posture's own joints hold the hand.
+   * the posture shows the hand: its joints, or the arm goal it already
+   * gives, so a hand taken from rest leaves the place it rested.
    *
    * An articulated round handle uses the measured depth of the gripping palm.
    * On other supports the wrist stays `PALM` of the hand's length plus the grip's radius
@@ -213,7 +166,7 @@ export namespace HumanMountRider {
    * @returns The arm's goal and the hand's finger joints.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States where the wrist goes, how the hand turns, how the fingers close and what the first pass leaves out.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture's joints give.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture shows, so the hand leaves the place it held.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The target, the turn, the blend from the joints' hand, the fingers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports. The closure is the caller's, curled on the real colliders.
    * @evidence contracts/development/implementation.md#efficient-algorithms Holding fully needs no resolution; a partial hold observes the free wrist and its ancestors. A native read omits unrelated simple leg fits through the canonical goal selector; an incoming custom reader keeps the full fit. The fingers blend linearly over the closed joints given.
@@ -248,7 +201,7 @@ export namespace HumanMountRider {
    * Start both acquiring hands from the same unoccupied posture for one query.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the shared pre-grip pose and the query lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Both approaching hands use the seated FK with neither arm already guided by a grip.
+   * @evidence contracts/development/implementation.md#principled-implementation Both approaching hands start from the seated posture as shown, before either arm is guided by a grip.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read both origins together at first demand and use the ordinary grip interpolator for each hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The current seat, legs and other direct channels still enter forward resolution. Each actual grip supplies its own current position and turn.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most one seated fit for both approaching wrists, and none after acquisition.
@@ -288,11 +241,18 @@ export namespace HumanMountRider {
     free: () => IAutoMovieResolvedBone,
   ): IAutoMovieMotionHumanMountRider.IHoldResult {
     const s: number = Math.min(1, Math.max(0, share));
-    const { point: target, fingers, contact, rotation: rein }: IWrist = wrist(body, posture, grip);
-    const turned: IAutoMovieQuaternion = rein ?? HumanHand.rotation(side, {
+    const {
+      point: target,
       fingers,
-      palm: Vector3.scale(grip.normal, -1),
-    });
+      contact,
+      rotation: rein,
+    }: IWrist = wrist(body, posture, grip);
+    const turned: IAutoMovieQuaternion =
+      rein ??
+      HumanHand.rotation(side, {
+        fingers,
+        palm: Vector3.scale(grip.normal, -1),
+      });
     let point: IAutoMovieVector3 = target;
     let rotation: IAutoMovieQuaternion = turned;
     if (s < 1) {
@@ -306,9 +266,10 @@ export namespace HumanMountRider {
     );
     const closing: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of Object.keys(closed) as AutoMovieHumanoidBone[]) {
-      const from: readonly [number, number, number] = relaxed[bone] ?? [
-        0, 0, 0,
-      ];
+      // The fingers start as the posture shows them, so a hold that begins
+      // mid-motion does not snap the hand to its relaxed shape.
+      const from: readonly [number, number, number] = posture.joints[bone] ??
+        relaxed[bone] ?? [0, 0, 0];
       const to: readonly [number, number, number] = closed[bone]!;
       closing[bone] = [
         from[0] + (to[0] - from[0]) * s,
@@ -328,7 +289,7 @@ export namespace HumanMountRider {
     };
   }
 
-  /** Resolve the unoccupied wrists from a single seated trunk, before either grip is assigned. */
+  /** Resolve the wrists as the posture shows them, before either grip is assigned: an arm the posture already places, such as a hand resting on a thigh, starts from there. */
   function freeHands(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -336,15 +297,12 @@ export namespace HumanMountRider {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    delete limbs.leftArm;
-    delete limbs.rightArm;
     const read = prepareHumanPoseResolution(resolution);
     return poseBones(
       body,
       resolveHumanPosture.seeded(
         body,
-        { ...posture, limbs },
+        posture,
         undefined,
         undefined,
         read,

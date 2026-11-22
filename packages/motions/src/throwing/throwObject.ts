@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -10,6 +11,7 @@ import type {
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanInterruptRow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanThrowObject,
@@ -37,11 +39,13 @@ import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 import { precisionThrow } from "./precisionThrow";
 import { throwObjectAim } from "./throwObjectAim";
+import { throwObjectBalance } from "./throwObjectBalance";
 import { throwObjectCurve } from "./throwObjectCurve";
 import { throwObjectForm } from "./throwObjectForm";
 import { throwObjectLaunch } from "./throwObjectLaunch";
 import { throwObjectLever } from "./throwObjectLever";
 import { throwObjectRelease } from "./throwObjectRelease";
+import { throwObjectSwing } from "./throwObjectSwing";
 
 /**
  * Throwing a held object to a target: overarm, underarm, or a gentle toss.
@@ -79,8 +83,8 @@ import { throwObjectRelease } from "./throwObjectRelease";
  * A thrown `prop` rides the hand by a grip window to the release and is
  * launched there (`IHumanActionPlan.launches`), so it flies the same path;
  * `angle` replaces the style's release angle for a row with its own. An
- * `implement` held in the hand lengthens the lever the launch leaves from,
- * and a `turns` attitude spins the prop at the lever's rate rounded to whole
+ * `implement` held in the hand lengthens the lever the launch leaves from
+ * and stays held after it (`holds`), only the prop flying; a `turns` attitude spins the prop at the lever's rate rounded to whole
  * half turns to the target (`throwObjectLever`). Not yet: the stride, the
  * two-hand chest pass and overhead throws, the thrown prop riding the
  * implement before the release (it leaves from the implement's point, set on
@@ -99,25 +103,24 @@ export namespace throwObject {
   /** The launch is the throw's physical outcome. Prop flight starts at its own release. */
   export const physical: boolean = true;
 
-  /** Cancel table: the thrower stands or walks once the follow-through ends. */
+  /** Cancel table: the thrower stands or walks once the follow-through ends, and may catch what it threw from the release on. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [
-      {
-        window: ["followThrough", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
-      },
+    catchObject: [
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.1 },
     ],
-    walk: [
-      {
-        window: ["followThrough", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
-      },
-    ],
+    stand: [after()],
+    walk: [after()],
   };
+
+  /** The cut once the follow-through ends. */
+  function after(): IAutoMovieMotionHumanInterruptRow {
+    return {
+      window: ["followThrough", 1],
+      kind: "inertialize",
+      entry: 0,
+      blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+    };
+  }
 
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
@@ -269,6 +272,11 @@ export namespace throwObject {
         origin.rotation,
       ),
     });
+    const swing: throwObjectSwing.ISwing = throwObjectSwing.of(
+      body,
+      side,
+      style,
+    );
     const grip: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -283,7 +291,7 @@ export namespace throwObject {
           point:
             style === "windmill"
               ? precisionThrow.windmill(frame, arm, chamber, rest.point, u)
-              : Vector3.lerp(rest.point, chamber, u),
+              : swing.windup(posture, rest.point, chamber, u),
           rotation: Quaternion.slerp(rest.rotation, cocking, u),
         };
       }
@@ -331,19 +339,16 @@ export namespace throwObject {
     };
     const prop: string | undefined = context.params.prop;
     let gripOffset: IAutoMovieVector3 | undefined;
-    const wristAt: (
+    function wristAt(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ) => IAutoMovieMotionHumanHand.IWrist = (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ): IAutoMovieMotionHumanHand.IWrist => {
+    ): IAutoMovieMotionHumanHand.IWrist {
       const g: GripFrame = grip(posture, seconds);
       gripOffset ??= {
         ...HumanHand.offset(body, side, "grip", "relaxed").point,
       };
       return placeHumanHandSurface(gripOffset, g.point, g.rotation);
-    };
+    }
     const elbow: AutoMovieMotionHumanBendTrack.ITrack =
       AutoMovieMotionHumanBendTrack.of({
         body,
@@ -377,21 +382,14 @@ export namespace throwObject {
           posture,
           seconds,
         );
-        const bend: IAutoMovieVector3 = elbow.elbow(posture, seconds, wrist);
-        gripOffset ??= {
-          ...HumanHand.offset(body, side, "grip", "relaxed").point,
-        };
-        return {
-          ...posture,
-          limbs: {
-            ...posture.limbs,
-            [`${side}Arm`]: AutoMovieMotionHumanArmTarget.fromWrist(
-              wrist,
-              bend,
-              { ...gripOffset },
-            ),
-          },
-        };
+        const goal: IAutoMovieHumanLimbGoal =
+          AutoMovieMotionHumanArmTarget.fromWrist(
+            wrist,
+            elbow.elbow(posture, seconds, wrist),
+            { ...gripOffset! },
+          );
+        const arm: IAutoMovieHumanLimbGoal = swing.elbow(posture, goal);
+        return { ...posture, limbs: { ...posture.limbs, [`${side}Arm`]: arm } };
       },
     };
 
@@ -456,7 +454,7 @@ export namespace throwObject {
         base,
         clock,
         contact: "release",
-        primitives: [trunk, throwing],
+        primitives: [trunk, throwing, ...throwObjectBalance.of(context, clock)],
       });
     return {
       ...composed,
@@ -468,6 +466,9 @@ export namespace throwObject {
             ].sort((a, b): number => a.share - b.share),
           }
         : {}),
+      ...(implement === undefined
+        ? {}
+        : { holds: [{ side, prop: implement.prop, from: 1 }] }),
       physicalWindow: {
         from: cockedAt,
         to: releasedAt + throwObjectForm.CARRY,

@@ -726,13 +726,16 @@ export function fitHingedChainCandidate(
       // A bend that is the place a completed elbow search chose
       // (`IAutoMovieFitChainToTargetProps.placed`) starts the local search at
       // its pole and is answered there when legal, whether or not the
-      // rotation is met: the place was searched once, by that search.
+      // rotation is met: the place was searched once, by that search. Where
+      // it is not legal, the legal swivel nearest it answers, and a continued
+      // fit follows it from its seed (`hingedArmArticulation.IProps.placed`).
       ...(strain !== undefined
         ? {}
         : props.placed === true && side !== null
           ? {
               pole: (posed: ReturnType<typeof hingedArmSwivel.pose>): number | null =>
                 hingedChainSide.peak(offsetOf((swivel: number): IAutoMovieQuaternion => posed(swivel).upper), side),
+              placed: true,
             }
         : turn === null
           ? side === null

@@ -11,6 +11,7 @@ import {
   HumanVerdicts,
 } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
@@ -21,7 +22,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * - During a tuck the feet stay planted, the head passes below the hips, and
  *   the turning body stays near the ground as it travels in the chosen direction.
  * - A side dive clears both feet while preserving the chest axis. A slide
- *   travels forward. Both finish with low hips and declared seat support.
+ *   travels forward. Both finish with low hips and declared seat support,
+ *   and each take passes the shipped verdicts (the feet leave the floor
+ *   plantarflexed within an unloaded ankle's range).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Samples displayed world joints, chest rotation and the actual ground contact through the public floor laws.
  * @evidence contracts/development/testing.md#independent-expectations Uses the original geometric campaign bounds of 5 mm plant slip, 50 mm foot clearance, 20 degrees chest rotation, 150 mm lowest joint and 400 mm hip height. Directed travel is at least 400 mm rolling or 600 mm falling.
@@ -144,6 +147,9 @@ export function test_motion_posture_floor_support_entry(): void {
         );
       }
       findings.check(label + " lands low", hips.y <= 0.4 && low(end) <= 0.15);
+      // The take passes the verdicts: among them, a foot that leaves the
+      // floor at take-off is plantarflexed within an unloaded ankle's range.
+      assertTakeClean(label, p);
       findings.check(
         label + " declares seat support at landing",
         segment.plan.contacts.some(

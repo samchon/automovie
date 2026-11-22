@@ -15,6 +15,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { collectTakeClean } from "../internal/collectTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
 import { nclose } from "../internal/nclose";
@@ -40,10 +41,35 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @evidence contracts/development/testing.md#behavioral-verification Resolves public performance bones and reads both foot rotations, ankle positions and the skate sole sockets. Detects glides that pin, sidestep, fail to descend or miss the stop and projections that ignore sideways travel.
  * @evidence contracts/development/testing.md#independent-expectations Positive tangent travel, the stated grade, motion near rest and the introduced 50 and 20 mm offsets follow the authored course and elementary plane geometry. The socket tolerance is the existing displayed support check. The inclined case measures ankle-plane covariance and leaves actual ski edge clearance to a staged equipment fixture.
  * @evidence contracts/development/testing.md#distinguishing-cases A turn on level ice and a straight descent require different displacement components, and braking is compared against an earlier interval. A positive across value distinguishes a side drift from forward travel.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable in-memory regression over publicly registered motion, FK and contact measurement with two polygon bodies.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable in-memory regression over publicly registered motion, FK and contact measurement, each glide on both canonical bodies with the shipped take verdicts.
  */
 export function test_motion_exercise_surface_glide(): void {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const failures: string[] = [];
+  for (const key of BODIES)
+    try {
+      take(key, failures);
+    } catch (error) {
+      failures.push(
+        `${key}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  TestValidator.equals("surface glide", failures, []);
+}
+
+/** The two canonical bodies. */
+const BODIES: readonly BodyKey[] = ["m-average", "f-small"];
+
+/** A canonical body's key. */
+type BodyKey = "m-average" | "f-small";
+
+/**
+ * The take on one body, its verdicts recorded.
+ *
+ * @param key The body.
+ * @param failures Where a verdict fault is recorded.
+ */
+function take(key: BodyKey, failures: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
   const ice: motionHumanLaw.IFilm = motionHumanLaw.film(
     new HumanPerformance({
       seed: "exercise-ice",
@@ -65,6 +91,7 @@ export function test_motion_exercise_surface_glide(): void {
       } satisfies IAutoMovieMotionHumanSurface.ISkateParams).node,
     }),
   );
+  collectTakeClean(`${key} ice glide`, ice.performance, failures);
   const segment: IAutoMovieMotionHumanSegment =
     ice.performance.segments("a")[0]!;
   TestValidator.predicate(
@@ -136,7 +163,7 @@ export function test_motion_exercise_surface_glide(): void {
       performers: [
         {
           subject: "a",
-          body: motionHumanBody("f-small"),
+          body,
           at: { x: 0, y: 1, z: 0 },
           yaw: 0,
           proficiency: { level: "trained" },
@@ -153,6 +180,7 @@ export function test_motion_exercise_surface_glide(): void {
       ).node,
     }),
   );
+  collectTakeClean(`${key} snow glide`, snow.performance, failures);
   for (const foot of ["leftFoot", "rightFoot"] as const) {
     const before: IAutoMovieVector3 = snow
       .bones("a", snow.duration * 0.4)

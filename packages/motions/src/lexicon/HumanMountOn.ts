@@ -1,6 +1,5 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -13,21 +12,21 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
+import { HumanMountOnFrame } from "./HumanMountOnFrame";
+import { HumanMountPlace } from "./HumanMountPlace";
+import { HumanMountPush } from "./HumanMountPush";
 
-/** Where the pelvis is at an instant of getting on: the root, the heading, the pelvis pitch and the set joints. */
-type Frame = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "joints">;
+/** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
+type Frame = HumanMountOnFrame.Frame;
 
 /**
  * Getting onto a high seat, or a seat sat astride, from standing beside or
@@ -47,9 +46,11 @@ type Frame = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "join
  * astride from 30 to 80 %, after the far leg has left the floor. The
  * leading foot goes to its place from 10 to 45 %: the left one, or astride
  * the one on the side the performer stands. The other foot pushes off the
- * floor for as long as its leg reaches it, at the latest at the contact, or
- * astride at 35 %, then follows over 30 % of the climb; astride its ankle
- * passes above and behind the seat (`HumanMount.OVER`). A foot bears on its
+ * floor, its heel rolling up over the ball, until the extended leg's toes
+ * leave, at the latest at the contact, or astride at 35 %, then follows over
+ * 30 % of the climb; astride it crosses as the pelvis crosses, arriving at
+ * the contact, its ankle passing above and behind the seat
+ * (`HumanMount.OVER`). A foot bears on its
  * rest once the seat has taken the body and the foot has arrived: a leg
  * cannot hold a fixed rest under a pelvis that still travels. So between
  * the push-off and the contact the body is off the floor, as in a hop onto
@@ -99,12 +100,8 @@ export namespace HumanMountOn {
       manner?: IAutoMovieMotionManner;
     }>,
     seat: IAutoMovieMotionHumanSeated.ISeat,
-    final: {
-      pitch: number;
-      joints: Partial<
-        Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-      >;
-    },
+    final: HumanMountOnFrame.IFinal,
+
     turn: number,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
@@ -151,67 +148,27 @@ export namespace HumanMountOn {
     );
     const contact: number = 0.8 * climb;
     const hop: number = settled ? 0 : HumanMount.HOP * m.thigh;
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
-      ...stand.relaxed(body),
-      ...standUpright.of(body).joints,
-    };
-    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
-      Object.entries(final.joints) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][];
-
-    // The pelvis crosses to a saddle late, after the far leg has left the floor; it backs onto a stool from the start.
-    const crossing: readonly [number, number] = astride
-      ? [0.3 * climb, contact]
-      : [0, 0.7 * climb];
-    const frameAt = (t: number): Frame => {
-      const across: number = minimumJerk.share(
-        (t - crossing[0]) / (crossing[1] - crossing[0]),
-      );
-      const socket: IAutoMovieVector3 = {
-        x: start.x + (goal.x - start.x) * across,
-        y:
-          start.y +
-          (goal.y + hop - start.y) *
-            minimumJerk.share((t - 0.1 * climb) / (0.45 * climb)) -
-          hop * minimumJerk.share((t - 0.55 * climb) / (0.25 * climb)),
-        z: start.z + (goal.z - start.z) * across,
-      };
-      const settle: number = minimumJerk.share(
-        (t - 0.6 * climb) / (0.4 * climb),
-      );
-      const lean: number =
-        t < 0.6 * climb
-          ? HumanMount.LEAN * minimumJerk.share(t / (0.4 * climb))
-          : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
-      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
-      for (const [bone, a] of finish) {
-        const was: readonly [number, number, number] = joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [
-          was[0] + a[0] * settle,
-          was[1] + a[1] * settle,
-          was[2] + a[2] * settle,
-        ];
-      }
-      const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"]; } =
-        HumanTrunk.incline(joints, lean);
-      const yaw: number = yaw0 + turn * across;
-      return {
-        root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
-        yaw,
-        pitch: tilt.pitch,
-        joints: tilt.joints,
-      };
-    };
+    const crossing: readonly [number, number] = HumanMountOnFrame.crossing(
+      climb,
+      astride,
+    );
+    const frameAt: (t: number) => Frame = HumanMountOnFrame.of({
+      body,
+      seat,
+      start,
+      goal,
+      climb,
+      hop,
+      yaw: yaw0,
+      turn,
+      final,
+    });
     const hipsAt = (t: number): Record<"left" | "right", IAutoMovieVector3> => {
       const frame: Frame = frameAt(t);
       return hipJoints(
         body,
         frame.root,
-        resolveHumanPosture.heading({ ...frame, roll: 0 }),
+        resolveHumanPosture.heading(frame),
         frame.joints.hips,
       );
     };
@@ -222,68 +179,22 @@ export namespace HumanMountOn {
       context.entry,
       yaw0,
     );
-    const span: readonly [number, number] = HumanMount.span(body);
-    const within = (
-      hip: IAutoMovieVector3,
-      ankle: IAutoMovieVector3,
-    ): boolean => {
-      const d: number = Vector3.length(Vector3.subtract(ankle, hip));
-      return d >= span[0] && d <= span[1];
-    };
     const seatedHips: Record<"left" | "right", IAutoMovieVector3> =
       hipsAt(climb);
-    const place = (
-      side: "left" | "right",
-    ): { foot: HumanMount.IFoot; rests: boolean } => {
-      const sign: number = side === "left" ? 1 : -1;
-      const hip: IAutoMovieVector3 = seatedHips[side];
-      const heading: number = yaw1 + sign * stand.TOE_OUT;
-      const tread: IAutoMovieVector3 | undefined = seat.footrests?.[side];
-      if (tread !== undefined) {
-        const ankle: IAutoMovieVector3 = Vector3.subtract(
-          tread,
-          Quaternion.rotateVector(
-            HumanFrame.turn(heading),
-            HumanFoot.offset(body, side, "ball"),
-          ),
-        );
-        if (within(hip, ankle))
-          return {
-            foot: {
-              ankle,
-              bend: HumanFrame.point(
-                { origin: hip, yaw: yaw1 },
-                { x: sign * (astride ? 0.5 : 0.05), y: 0, z: 1 },
-              ),
-              yaw: heading,
-            },
-            rests: true,
-          };
-      }
-      const thigh: readonly [number, number, number] =
-        HumanMount.HANG[astride ? "astride" : "ahead"];
-      const knee: IAutoMovieVector3 = HumanFrame.point(
-        { origin: hip, yaw: yaw1 },
-        {
-          x: sign * thigh[0] * m.thigh,
-          y: thigh[1] * m.thigh,
-          z: thigh[2] * m.thigh,
-        },
+    const place = (side: "left" | "right"): HumanMountPlace.IPlace =>
+      HumanMountPlace.of(
+        body,
+        side,
+        seatedHips[side],
+        yaw1,
+        astride,
+        seat.footrests?.[side],
+        under,
       );
-      const grounded: boolean = knee.y - m.shank <= m.ankleHeight;
-      return {
-        foot: {
-          ankle: { ...knee, y: Math.max(m.ankleHeight, knee.y - m.shank) },
-          bend: knee,
-          yaw: heading,
-        },
-        rests: grounded,
-      };
+    const places: Record<"left" | "right", HumanMountPlace.IPlace> = {
+      left: place("left"),
+      right: place("right"),
     };
-    const places: Record<
-      "left" | "right",
-      { foot: HumanMount.IFoot; rests: boolean }
-    > = { left: place("left"), right: place("right") };
 
     // The leading foot, and when each foot leaves the floor and arrives.
     const lead: "left" | "right" =
@@ -338,23 +249,43 @@ export namespace HumanMountOn {
       right: stay("right"),
     };
 
-    // The pushing foot leaves when its leg must be longer than it is: a leg pushing off straightens fully, past the band a resting foot is placed in, which a quiet stance already stands beyond.
-    const stretch = (t: number): number =>
-      Vector3.length(Vector3.subtract(floor[push], hipsAt(t)[push]));
+    // The pushing leg extends as it pushes: as the pelvis rises its knee
+    // straightens and its heel rolls up over the ball, by as much as the
+    // shank, in the knee's own plane, would bend the flat foot's ankle past
+    // what an unloaded ankle holds. The foot leaves when the extended leg's
+    // toes leave: when even the rolled foot's ankle is past the leg's reach,
+    // or the toes are extended as far as they go.
     const longest: number = m.thigh + m.shank;
+    const rolledAt = (t: number): HumanMountPush.IRoll =>
+      HumanMountPush.roll(
+        body,
+        push,
+        legged(frameAt(t).root, floor)[`${push}Leg`]!,
+        hipsAt(t)[push],
+        yaw0 + (push === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
+      );
     const off: number = onFloor[push]
-      ? first(
-          0,
-          astride ? 0.35 * climb : contact,
-          (t: number): boolean => stretch(t) > longest,
-        )
+      ? first(0, astride ? 0.35 * climb : contact, (t: number): boolean => {
+          const rolled: HumanMountPush.IRoll = rolledAt(t);
+          return rolled.reach > longest || rolled.roll > HumanMount.TOE_ROLL;
+        })
       : 0;
+    // As the foot leaves the floor, read once.
+    let leaving: HumanMountPush.IRoll | undefined;
+    const left = (): HumanMountPush.IRoll => (leaving ??= rolledAt(off));
+    // Each swinging ankle's distance from its hip as it leaves, read once.
+    const departed: Partial<Record<"left" | "right", number>> = {};
     const flight: Record<"left" | "right", readonly [number, number]> = {
       left: [0, 0],
       right: [0, 0],
     };
     flight[lead] = [onFloor[lead] ? 0.1 * climb : 0, 0.45 * climb];
-    flight[push] = [off, Math.min(climb, off + 0.3 * climb)];
+    // The far leg crosses a saddle's croup as the pelvis crosses onto it: a
+    // foot that crossed ahead of the pelvis would have to rise above its hip.
+    flight[push] = [
+      off,
+      astride ? crossing[1] : Math.min(climb, off + 0.3 * climb),
+    ];
 
     // A foot bears on its rest once the seat has taken the body and the foot has arrived: before that the pelvis is still on its way, and a leg cannot hold a fixed rest under a pelvis that travels.
     const bears = (side: "left" | "right"): number =>
@@ -395,7 +326,7 @@ export namespace HumanMountOn {
           kind: "plant",
           from: 0,
           to: flight[side][0] / duration,
-          support: { kind: "ground" },
+          support: { kind: "ground", height: under },
         });
       if (places[side].rests)
         contacts.push({
@@ -403,10 +334,11 @@ export namespace HumanMountOn {
           kind: "plant",
           from: bearing[side] / duration,
           to: 1,
-          support: { kind: "ground" },
+          // A foot rest bears at its own height, a stirrup's above the floor.
+          support: { kind: "ground", height: places[side].height },
         });
     }
-    return {
+    const mounted: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "commit", share: commit / duration },
@@ -424,8 +356,12 @@ export namespace HumanMountOn {
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const frame: Frame = frameAt(t);
-        const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(frame.root, floor);
+        const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(
+          frame.root,
+          floor,
+        );
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
+        const toes: IAutoMovieMotionHumanPosture["joints"] = {};
         for (const side of ["left", "right"] as const) {
           const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
           if (stays[side]) {
@@ -435,40 +371,118 @@ export namespace HumanMountOn {
           const planted: IAutoMovieHumanLimbGoal = standing[limb]!;
           const [leaves, arrives]: readonly [number, number] = flight[side];
           if (onFloor[side] && t <= leaves) {
-            limbs[limb] = planted;
+            if (side === push) {
+              const rolled: HumanMountPush.IRoll = rolledAt(t);
+              limbs[limb] = rolled.goal;
+              toes[`${side}Toes`] = [rolled.roll, 0, 0];
+            } else limbs[limb] = planted;
             continue;
           }
           const share: number = minimumJerk.share(
             (t - leaves) / (arrives - leaves),
           );
-          limbs[limb] = HumanMount.leg(
+          const bearsNow: boolean = places[side].rests && t >= bearing[side];
+          const facing: IAutoMovieVector3 = Quaternion.rotateVector(
+            HumanFrame.turn(frame.yaw),
+            { x: 0, y: 0, z: 1 },
+          );
+          const hip: IAutoMovieVector3 = hipsAt(t)[side];
+          const from: HumanMount.IFoot = onFloor[side]
+            ? {
+                ankle: side === push ? left().goal.point : floor[side],
+                bend: planted.bend,
+                yaw: yaw0 + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
+              }
+            : starts[side];
+          const course: HumanMount.IFoot = HumanMount.between(
+            from,
+            places[side].foot,
+            share,
+            walk.LIFT * m.hipHeight,
+            astride && side === push ? over : undefined,
+          );
+          // The swinging ankle keeps within the leg's reach of its hip, a
+          // little short of straight: a course past it leaves the limb fit
+          // to snap between the poses on its reach. A leg that left the
+          // floor straighter than that, as an extended push leaves it, bends
+          // to it over the swing rather than at once.
+          const fromHip: IAutoMovieVector3 = Vector3.subtract(
+            course.ankle,
+            hip,
+          );
+          const span: number = Vector3.length(fromHip);
+          const short: number = HumanMount.SWING_REACH * (m.thigh + m.shank);
+          const away: number = (departed[side] ??= Vector3.length(
+            Vector3.subtract(from.ankle, hipsAt(leaves)[side]),
+          ));
+          const reach: number = short + Math.max(0, away - short) * (1 - share);
+          const foot: HumanMount.IFoot =
+            span <= reach
+              ? course
+              : {
+                  ...course,
+                  ankle: Vector3.add(hip, Vector3.scale(fromHip, reach / span)),
+                };
+          // The knee bends toward its pole, turning from where an unturned hip
+          // points it to the rest's own pole as the foot swings.
+          const leg: IAutoMovieHumanLimbGoal = HumanMount.leg(
             body,
             side,
-            HumanMount.between(
-              onFloor[side]
-                ? {
-                    ankle: floor[side],
-                    bend: planted.bend,
-                    yaw:
-                      yaw0 + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
-                  }
-                : starts[side],
-              places[side].foot,
-              share,
-              walk.LIFT * m.hipHeight,
-              astride && side === push ? over : undefined,
-            ),
-            places[side].rests && t >= bearing[side],
+            {
+              ...foot,
+              bend: HumanMountPush.pole(
+                body,
+                hip,
+                foot.ankle,
+                facing,
+                Vector3.subtract(places[side].foot.bend, hipsAt(arrives)[side]),
+                share,
+              ),
+            },
+            bearsNow,
+          );
+          // The pushing foot leaves as it was rolled and turns back to its
+          // rest's own turn over the swing, its toes straightening.
+          const pushed: IAutoMovieHumanLimbGoal =
+            side === push && onFloor[side] && leg.rotation !== undefined
+              ? {
+                  ...leg,
+                  rotation: Quaternion.slerp(
+                    left().goal.rotation ?? leg.rotation,
+                    leg.rotation,
+                    share,
+                  ),
+                }
+              : leg;
+          if (side === push && onFloor[side])
+            toes[`${side}Toes`] = [left().roll * (1 - share), 0, 0];
+          // A foot that bears nothing turns its toes down about its ball, so
+          // the ball, not the ankle, comes onto the rest; once on it the heel
+          // lowers about that ball as the seat takes the body, from the
+          // contact to seated.
+          limbs[limb] = HumanMountPush.tip(
+            body,
+            side,
+            hip,
+            pushed,
+            bearsNow
+              ? 1 -
+                  minimumJerk.share(
+                    (t - bearing[side]) / Math.max(1e-6, climb - bearing[side]),
+                  )
+              : 1,
           );
         }
         return seated.arms(
           body,
-          { ...frame, roll: 0, limbs },
+          { ...frame, joints: { ...frame.joints, ...toes }, limbs },
           minimumJerk.share((t - 0.5 * climb) / (0.5 * climb)),
           resolution,
           projection,
         );
       },
     };
+
+    return mounted;
   }
 }

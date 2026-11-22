@@ -1,10 +1,12 @@
-import { physicalShapeBounds } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -16,20 +18,29 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * How a displayed body meets the floor: whether any collider sinks below it,
  * and whether a foot declared planted stays where it stands and on the floor.
  *
- * The floor is the world plane `y = 0`. A planted foot rolls through the
+ * The floor is the floor under the person (`AutoMovieMotionHumanAuditMotion.floors`):
+ * the ground their bearing contacts declare, none while a prop, a person or
+ * the water bears them. A planted foot rolls through the
  * rockers of stance (Perry and Burnfield, Gait Analysis, 2nd ed.): on its
  * heel, flat, then on its ball and its toe pad, so its contact at an instant
  * is its lowest sole socket, the heel winning a tie within a micrometre and
  * then the ball, which keeps a flat foot from flickering between sockets. A
- * socket that is not the lowest is lifted and free to travel. A plant window
+ * socket that is not the lowest is lifted and free to travel. A window that
+ * declares the point its law holds (`IAutoMovieMotionHumanContactWindow.socket`:
+ * the ball a heel rises about, or the leg goal's own contact) is read at that
+ * point throughout instead, so the toe tip rolling under a held ball is not
+ * a slip, and a held ball that slides is. A plant window
  * is read at its two ends and at the motion's own grid instants between
  * them, the poses the other checks read as well. Slip is the
  * contact's horizontal distance from where that socket first was the contact
- * in the same plant window; lift is the contact's distance from its declared
+ * in the same plant window, that place held in the frame of the window's
+ * support (`IAutoMovieMotionHumanAuditMotion.support`), so a foot planted on a
+ * moving deck or tread is carried with it and only its travel on the support
+ * counts; lift is the contact's distance from its declared
  * stationary surface, such as the world floor or a stair tread.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the floor, the contact rule with its source and what each reading measures.
- * @evidence contracts/development/implementation.md#principled-implementation Exact collider bounds from the engine's shape owner, and the sole sockets from `HumanFoot.sockets`, the one place that puts them on displayed bones.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact collider bounds from the engine's shape owner, and the sole sockets from `HumanFoot.sockets`, the one place that puts them on displayed bones; a declared rest-frame contact is placed by the displayed foot bone's own frame.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Three readings over one grid, the two foot readings sharing one window walk.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones, never a law's goals; no foot or window is exempt.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames times shapes; a plant window adds at most its two ends to the poses of the motion's grid.
@@ -57,16 +68,23 @@ export namespace AutoMovieMotionHumanAuditGround {
       seconds: 0,
       where: "none",
     };
-    for (const t of HumanAuditMotion.grid(0, motion.duration, rate))
+    const under: (seconds: number) => number | null = HumanAuditMotion.floors(
+      motion,
+      subject,
+    );
+    for (const t of HumanAuditMotion.grid(0, motion.duration, rate)) {
+      const floor: number | null = under(t);
+      if (floor === null) continue;
       for (const { bone, pose, shapes } of HumanColliders.placed(
         body,
         motion.bones(subject, t),
       ))
         for (const shape of shapes) {
-          const depth: number = -physicalShapeBounds(pose, shape).min.y;
+          const depth: number = floor - physicalShapeBounds(pose, shape).min.y;
           if (depth > worst.value)
             worst = { value: depth, seconds: t, where: bone };
         }
+    }
     return worst;
   }
 
@@ -106,6 +124,68 @@ export namespace AutoMovieMotionHumanAuditGround {
   ): IAutoMovieMotionHumanAuditMeasure {
     return plants(motion, subject, body, rate, true);
   }
+
+  /**
+   * A planted foot's contact at an instant: the point its window declares
+   * held (`IAutoMovieMotionHumanContactWindow.socket`), a named sole socket
+   * or a rest-frame point placed by the displayed foot bone, else its lowest
+   * sole socket, the heel winning a tie within a micrometre and then the
+   * ball.
+   *
+   * @param body The body.
+   * @param bones The displayed bones at the instant.
+   * @param side The foot.
+   * @param declared The window's held point; none when absent.
+   * @returns The contact, keyed by which point it is.
+   */
+  export function held(
+    body: IAutoMovieMotionHumanBody,
+    bones: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>,
+    side: "left" | "right",
+    declared: IAutoMovieMotionHumanContactWindow.Socket | undefined,
+  ): IHeld {
+    if (declared !== undefined && typeof declared !== "string") {
+      const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
+      return {
+        key: "contact",
+        point: Vector3.add(
+          foot.worldPosition,
+          Quaternion.rotateVector(foot.worldRotation, declared),
+        ),
+      };
+    }
+    const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+      body,
+      bones,
+      side,
+    );
+    let contact: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
+    if (declared !== undefined)
+      contact = sole.find(
+        (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+          socket.socket === declared,
+      )!;
+    else
+      for (const socket of sole)
+        if (socket.point.y < contact.point.y - 1e-6) contact = socket;
+    return { key: contact.socket, point: contact.point };
+  }
+
+  /**
+   * A planted foot's contact point at an instant, keyed by which point it is.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation A key naming the point and its world place.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the slip, lift, loose and afloat readings.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's vector.
+   */
+  export interface IHeld {
+    /** The socket's name, or `contact` for a declared rest-frame point. */
+    key: string;
+
+    /** Where it is, world metres. */
+    point: IAutoMovieVector3;
+  }
 }
 
 /** The worst slip, or the worst height off the floor, over every foot plant window. */
@@ -129,11 +209,22 @@ const plants = (
       (part !== "leftFoot" && part !== "rightFoot")
     )
       continue;
-    const surface: IAutoMovieMotionHumanContactWindow.Support = window.contact.support;
+    const surface: IAutoMovieMotionHumanContactWindow.Support =
+      window.contact.support;
     if (height && surface.kind !== "ground") continue;
-    const elevation: number = surface.kind === "ground" ? (surface.height ?? 0) : 0;
-    const anchors: Map<IAutoMovieMotionHumanFoot.Socket, IAutoMovieVector3> | undefined =
-      height ? undefined : new Map();
+    const elevation: number =
+      surface.kind === "ground" ? (surface.height ?? 0) : 0;
+    // Slip is read in the support's frame: each anchor is kept in it.
+    const anchors: Map<string, IAutoMovieVector3> | undefined = height
+      ? undefined
+      : new Map();
+    const declared: IAutoMovieMotionHumanContactWindow.Socket | undefined =
+      window.contact.socket;
+    const side: "left" | "right" = part === "leftFoot" ? "left" : "right";
+    const frame = (seconds: number): IAutoMovieRigidTransform | null =>
+      surface.kind === "ground" || motion.support === undefined
+        ? null
+        : motion.support(surface, seconds);
     for (const t of [
       window.from,
       ...frames.filter(
@@ -141,19 +232,30 @@ const plants = (
       ),
       ...(window.to > window.from ? [window.to] : []),
     ]) {
-      const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
-        body,
-        motion.bones(subject, t),
-        part === "leftFoot" ? "left" : "right",
-      );
-      let contact: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
-      for (const socket of sole)
-        if (socket.point.y < contact.point.y - 1e-6) contact = socket;
+      const bones: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =
+        motion.bones(subject, t);
+      const contact: AutoMovieMotionHumanAuditGround.IHeld =
+        AutoMovieMotionHumanAuditGround.held(body, bones, side, declared);
       let value: number = Math.abs(contact.point.y - elevation);
       if (anchors !== undefined) {
-        const anchor: IAutoMovieVector3 = anchors.get(contact.socket) ?? contact.point;
-        anchors.set(contact.socket, anchor);
-        value = Math.hypot(contact.point.x - anchor.x, contact.point.z - anchor.z);
+        const carrier: IAutoMovieRigidTransform | null = frame(t);
+        const local: IAutoMovieVector3 =
+          carrier === null
+            ? contact.point
+            : Quaternion.rotateVector(
+                Quaternion.inverse(carrier.rotation),
+                Vector3.subtract(contact.point, carrier.position),
+              );
+        const anchor: IAutoMovieVector3 = anchors.get(contact.key) ?? local;
+        anchors.set(contact.key, anchor);
+        const held: IAutoMovieVector3 =
+          carrier === null
+            ? anchor
+            : Vector3.add(
+                carrier.position,
+                Quaternion.rotateVector(carrier.rotation, anchor),
+              );
+        value = Math.hypot(contact.point.x - held.x, contact.point.z - held.z);
       }
       if (value > worst.value)
         worst = { value, seconds: t, where: `${window.action} ${part}` };

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanContactWindow,
@@ -147,18 +147,51 @@ export namespace AutoMovieMotionHumanLegPhrase {
   }
 
   /**
-   * A placement raised until no point of its sole lies under the floor its
-   * stance stands on: a foot that pitches while it is still low would
-   * otherwise carry its toes or its heel through the floor on the way to and
-   * from a chamber.
+   * The lowest sole point's least height over the floor in mid-swing,
+   * metres: the minimum toe clearance of normal gait, 12.9 mm (Winter 1992,
+   * Can J Sport Sci 17(1):1-6).
+   */
+  const TOE_CLEARANCE: number = 0.0129;
+
+  /**
+   * The share of the stance blend, by the clock's minimum-jerk envelope,
+   * under which a foot moves only vertically: the last third of its transit,
+   * terminal swing in Perry and Burnfield's phases (Gait Analysis, 2nd ed.),
+   * in which the foot is already over its landing place and comes down onto
+   * it. On leaving, the same third lifts it before it travels.
+   */
+  const TERMINAL: number = minimumJerk.share(1 / 3);
+
+  /**
+   * A foot in transit between its stance and a moving placement at a share
+   * of the stance blend: it lifts off before it travels and is over its
+   * landing place before it sets down (`TERMINAL`), its sole clears the floor
+   * its stance stands on by the minimum toe clearance in between, and no
+   * point of its sole ever lies under that floor. At share 0 it stands on its
+   * stance; at share 1 it is the moving placement itself, so a target on the
+   * floor or on a ball is reached exactly.
    */
   const cleared = (
     props: Pick<
       IAutoMovieMotionHumanLegPhrase.IPhrase,
       "body" | "side" | "stance"
     >,
-    placement: IAutoMovieMotionHumanFoot.IPlacement,
+    moving: IAutoMovieMotionHumanFoot.IPlacement,
+    share: number,
   ): IAutoMovieMotionHumanFoot.IPlacement => {
+    const stance: IAutoMovieMotionHumanFoot.IPlacement = props.stance;
+    const lifted: number = Math.min(1, Math.max(0, share));
+    const across: number = minimumJerk.share(
+      Math.min(1, Math.max(0, (lifted - TERMINAL) / (1 - TERMINAL))),
+    );
+    const placement: IAutoMovieMotionHumanFoot.IPlacement = {
+      ankle: {
+        x: stance.ankle.x + (moving.ankle.x - stance.ankle.x) * across,
+        y: stance.ankle.y + (moving.ankle.y - stance.ankle.y) * share,
+        z: stance.ankle.z + (moving.ankle.z - stance.ankle.z) * across,
+      },
+      rotation: Quaternion.slerp(stance.rotation, moving.rotation, lifted),
+    };
     const lowest = (foot: IAutoMovieMotionHumanFoot.IPlacement): number =>
       Math.min(
         ...(["heel", "ball", "toe"] as const).map(
@@ -166,7 +199,9 @@ export namespace AutoMovieMotionHumanLegPhrase {
             HumanFoot.point(props.body, props.side, point, foot).y,
         ),
       );
-    const under: number = lowest(props.stance) - lowest(placement);
+    const clearance: number =
+      TOE_CLEARANCE * Math.min(1, lifted / TERMINAL, (1 - lifted) / TERMINAL);
+    const under: number = lowest(stance) + clearance - lowest(placement);
     return under <= 0
       ? placement
       : {
@@ -174,7 +209,6 @@ export namespace AutoMovieMotionHumanLegPhrase {
           rotation: placement.rotation,
         };
   };
-
   /** Whether a phrase's foot stands on its stance: only at the clock's two ends. */
   const grounded =
     (clock: IAutoMovieMotionClock) =>
@@ -205,19 +239,18 @@ export namespace AutoMovieMotionHumanLegPhrase {
       side: props.side,
       from: 0,
       to: props.clock.duration,
-      placement: (posture: IAutoMovieMotionHumanPosture, seconds: number) =>
-        cleared(
+      placement: (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
+        const weight: number = props.clock.envelope(
+          ["start", "stroke"],
+          ["relax", "end"],
+          seconds,
+        );
+        return cleared(
           props,
-          between(
-            props.stance,
-            extended(props, props.stance, props.raised(posture, seconds)),
-            props.clock.envelope(
-              ["start", "stroke"],
-              ["relax", "end"],
-              seconds,
-            ),
-          ),
-        ),
+          extended(props, props.stance, props.raised(posture, seconds)),
+          weight,
+        );
+      },
       planted: grounded(props.clock),
     });
   }
@@ -316,19 +349,21 @@ export namespace AutoMovieMotionHumanLegPhrase {
             ["strokeStart", "stroke", "strokeEnd"],
             seconds,
           );
+          const weight: number = clock.envelope(
+            ["start", "ready"],
+            ["relax", "end"],
+            seconds,
+          );
           return cleared(
             props,
-            between(
-              props.stance,
-              p <= 0
-                ? chamber
-                : between(
-                    chamber,
-                    extended(props, chamber, props.target(posture, seconds)),
-                    p,
-                  ),
-              clock.envelope(["start", "ready"], ["relax", "end"], seconds),
-            ),
+            p <= 0
+              ? chamber
+              : between(
+                  chamber,
+                  extended(props, chamber, props.target(posture, seconds)),
+                  p,
+                ),
+            weight,
           );
         },
         planted: grounded(clock),

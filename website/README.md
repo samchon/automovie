@@ -62,6 +62,8 @@ pnpm --filter @automovie/website run posters            # the baked stills on on
 
 `shots` takes `--width`, `--height`, `--dark`, `--reduced`, `--full` and `--scroll`, which scrolls a page to its end first so what it reveals on scrolling is drawn.
 
+`pnpm --filter @automovie/website scenes` needs no browser and no build. It plays every take of the everyday, work and passenger scenes in Node the way the take worker does, then checks their displayed contacts, props and refusals (`build/scenes.ts`). CI runs it after the smoke test.
+
 ## Where things are
 
 | Path | Holds |

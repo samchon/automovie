@@ -43,7 +43,7 @@ export namespace operateInsert {
   /**
    * How far the working point is in at a progress of the stroke.
    *
-   * @param mechanism The insertion.
+   * @param mechanism The insertion, its depth resolved (`operateInsertRoute`).
    * @param progress 0 at the stroke's start, 1 at its end.
    * @returns Metres along the axis from the mouth.
    *
@@ -57,15 +57,15 @@ export namespace operateInsert {
    */
   export function depth(mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism, progress: number): number {
     return mechanism.withdraw === true
-      ? (mechanism.depth * (1 - Math.cos(2 * Math.PI * progress))) / 2
-      : mechanism.depth * progress;
+      ? (mechanism.depth! * (1 - Math.cos(2 * Math.PI * progress))) / 2
+      : mechanism.depth! * progress;
   }
 
   /**
    * The distance the working point travels in the stroke, metres: in, and
    * out again when withdrawn.
    *
-   * @param mechanism The insertion.
+   * @param mechanism The insertion, its depth resolved (`operateInsertRoute`).
    * @returns Metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines total metre travel as one depth or two when withdrawn, consumed by the original stroke timing.
@@ -77,7 +77,7 @@ export namespace operateInsert {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function travel(mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism): number {
-    return mechanism.depth * (mechanism.withdraw === true ? 2 : 1);
+    return mechanism.depth! * (mechanism.withdraw === true ? 2 : 1);
   }
 
   /**

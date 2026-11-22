@@ -8,7 +8,7 @@ import { convexHull2D } from "../math/convexHull2D";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 import { validateTransformScalars } from "./validateTransformScalars";
 
-/** The optional dimensions of an affordance, each a positive length in metres or angle in degrees when present. */
+/** The optional dimensions of an affordance, each a positive length in metres, angle in degrees or load in newtons when present. */
 const DIMENSIONS: readonly (
   | "aperture"
   | "depth"
@@ -17,6 +17,7 @@ const DIMENSIONS: readonly (
   | "width"
   | "height"
   | "radius"
+  | "load"
   | "travel"
   | "reverse"
 )[] = [
@@ -27,6 +28,7 @@ const DIMENSIONS: readonly (
   "width",
   "height",
   "radius",
+  "load",
   "travel",
   "reverse",
 ];

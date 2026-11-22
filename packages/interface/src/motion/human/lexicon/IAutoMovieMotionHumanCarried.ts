@@ -54,7 +54,7 @@ export namespace IAutoMovieMotionHumanCarried {
    * A named way one person carries another.
    *
    * @evidence contracts/development/common.md#meaningful-documentation A named way one person carries another.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "piggyback", "cradle", "overShoulder", "supported", "supportedLeft", "waistLift", "overheadLift" distinguish the admitted cases.
+   * @evidence contracts/development/design.md#principled-representation Closed choices "piggyback", "cradle", "overShoulder", "supported", "supportedLeft", "waistLift", "overheadLift", "shoulders" distinguish the admitted cases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedBearing.ts (HumanCarriedBearing.plan.first, c); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.kind, carry); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.kind, rows); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.couple, carry); lexicon/HumanCarriedLean.ts (HumanCarriedLean.layer, carry); lexicon/HumanCarried.ts (HumanCarried.CARRIES).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanCarriedDrag.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
@@ -66,6 +66,7 @@ export namespace IAutoMovieMotionHumanCarried {
     | "supportedLeft"
     | "waistLift"
     | "overheadLift"
+    | "shoulders"
     | IAutoMovieMotionHumanCarriedDrag.Name;
 
   /**

@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanBallPlay,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceAim,
@@ -13,6 +14,7 @@ import type {
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanPropFracture,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTether,
   IAutoMovieMotionTarget,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
@@ -21,13 +23,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBallPlay } from "../sport/HumanBallPlay";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceSite } from "./HumanPerformanceSite";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropFracture } from "./HumanPropFracture";
 import { HumanSegment } from "./HumanSegment";
@@ -115,7 +120,10 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns The posture.
    */
-  public posture(subject: string, seconds: number): IAutoMovieMotionHumanPosture {
+  public posture(
+    subject: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture {
     return HumanPerformanceRead.posture(this.resolved, subject, seconds);
   }
 
@@ -158,6 +166,48 @@ export class HumanPerformance {
   }
 
   /**
+   * A prop's named point as a world frame at a film second (`HumanPerformanceSite`).
+   *
+   * @param subject The prop.
+   * @param point The point's name.
+   * @param seconds Film seconds.
+   * @returns The point's world frame, metres.
+   * @throws {HumanRefusal} When the prop or its point is unknown.
+   */
+  public site(
+    subject: string,
+    point: string,
+    seconds: number,
+  ): IAutoMovieRigidTransform {
+    return HumanPerformanceSite(this.resolved, subject, point, seconds);
+  }
+
+  /**
+   * A line between props at a film second (`IAutoMovieMotionHumanTether`):
+   * its ends, its line out, whether it runs taut, and the points it is
+   * drawn through, straight when taut and a catenary when slack.
+   *
+   * @param subject The prop the line runs from.
+   * @param id The line's id on that prop.
+   * @param seconds Film seconds.
+   * @returns The line as it lies.
+   */
+  public tether(
+    subject: string,
+    id: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanTether.ISpan {
+    return HumanPerformanceTether.span(
+      this.resolved,
+      subject,
+      id,
+      seconds,
+      (prop: string, at: number): IAutoMovieRigidTransform =>
+        HumanPerformanceRead.prop(this.resolved, prop, at),
+    );
+  }
+
+  /**
    * One input per coupled degree of freedom a prop's acts or tracks have
    * moved by a film second (`HumanPerformanceObject.state`), in the latest
    * begun writer's coordinate. A later writer of another coordinate of the
@@ -169,7 +219,8 @@ export class HumanPerformance {
    * @returns Travel by articulation id, in each articulation's own unit.
    */
   public state(subject: string, seconds: number): Record<string, number> {
-    const prop: IAutoMovieMotionHumanProp | undefined = this.resolved.props.get(subject);
+    const prop: IAutoMovieMotionHumanProp | undefined =
+      this.resolved.props.get(subject);
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [
         ...this.resolved.props.keys(),
@@ -185,8 +236,21 @@ export class HumanPerformance {
    * @param subject The prop.
    * @returns The flights; none for a prop never launched.
    */
-  public flights(subject: string): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
+  public flights(
+    subject: string,
+  ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
     return HumanPropFlight.flights(this.resolved, subject);
+  }
+
+  /**
+   * One ball's play (`HumanBallPlay.read`): its hand holds, launches and
+   * flight contacts in film order, for a sport to credit its result.
+   *
+   * @param subject The ball.
+   * @returns The play; no events for a ball never held or launched.
+   */
+  public play(subject: string): IAutoMovieMotionHumanBallPlay {
+    return HumanBallPlay.read(this.resolved, subject);
   }
 
   /**
@@ -305,7 +369,9 @@ export class HumanPerformance {
    * @param subject The person.
    * @returns The overlays.
    */
-  public overlays(subject: string): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
+  public overlays(
+    subject: string,
+  ): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
     return HumanPerformanceRead.overlays(this.resolved, subject);
   }
 

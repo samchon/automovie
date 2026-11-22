@@ -9,6 +9,10 @@ import {
 import { QuadrupedAttachments } from "./QuadrupedAttachments";
 import type { QuadrupedEars } from "./QuadrupedEars";
 import { QuadrupedHead } from "./QuadrupedHead";
+import type { QuadrupedJaw } from "./QuadrupedJaw";
+import type { QuadrupedLip } from "./QuadrupedLip";
+import type { QuadrupedNostrils } from "./QuadrupedNostrils";
+import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /**
  * A four-legged animal's body as one bar per bone, built from its species' proportions: the bone vocabulary every quadruped shares, the joints at rest, and the bars laid on a model under construction.
@@ -40,7 +44,7 @@ export namespace QuadrupedBody {
   ];
 
   /**
-   * The bones, each also the id of the part that draws it: the trunk (with the shoulder blades and the pelvis's front), the hindquarters (the pelvis behind the hip joints and the buttock's muscles, out to the point of buttock), the neck, the head and the tail; down a fore limb the humerus, the radius, the cannon and the pastern (with the hoof or the paw); down a hind limb the femur, the tibia, the cannon and the pastern. The cannon is the metacarpus or metatarsus and the pastern the digit, under the names a horse's carry. Every limb bone hangs from the one above it and the uppermost from the trunk.
+   * The bones, each also the id of the part that draws it: the trunk (with the shoulder blades and the pelvis's front), the hindquarters (the pelvis behind the hip joints and the buttock's muscles, out to the point of buttock), the neck, the head and the tail; down a fore limb the humerus, the radius, the cannon and the pastern (with the hoof or the paw); down a hind limb the femur, the tibia, the cannon and the pastern. The cannon is the metacarpus or metatarsus and the pastern the digit, under the names a horse's carry. Every limb bone hangs from the one above it; a fore limb's uppermost hangs from its shoulder blade, which hangs from the trunk, and a hind limb's from the hindquarters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each bone and what it includes.
    * @evidence contracts/development/design.md#principled-representation A closed union of the trunk, the head and tail and four bones a limb, as template literals over the limbs.
@@ -53,6 +57,7 @@ export namespace QuadrupedBody {
     | "neck"
     | "head"
     | "tail"
+    | QuadrupedScapula.Bone
     | `${"leftFore" | "rightFore"}${"Humerus" | "Radius" | "Cannon" | "Pastern"}`
     | `${"leftHind" | "rightHind"}${"Femur" | "Tibia" | "Cannon" | "Pastern"}`;
 
@@ -154,6 +159,14 @@ export namespace QuadrupedBody {
       mouth: number;
       /** Optional explicit reference pinnae and authored coarse plate construction. */
       ears?: QuadrupedEars.IProfile;
+      /** Optional authored coarse jaw inside the head capsule (`QuadrupedJaw`). */
+      jaw?: QuadrupedJaw.IProfile;
+
+      /** Optional authored coarse upper lip inside the head capsule (`QuadrupedLip`). */
+      lip?: QuadrupedLip.IProfile;
+
+      /** Optional authored coarse nostrils inside the head capsule (`QuadrupedNostrils`). */
+      nostrils?: QuadrupedNostrils.IProfile;
     }>;
 
     /** The tail: its bar's radius and its tip below and behind its root, fractions of the height at the withers, and its root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius. */
@@ -361,8 +374,8 @@ export namespace QuadrupedBody {
    * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
    * @evidence contracts/development/implementation.md#principled-implementation Each bar joins the rig's endpoints. Known mass shares are normalized by their printed sum (Kubo's horse sums to 100.4); the torso's share is divided by drawn capsule volumes. With no segment study the shares remain absent and the existing builder uses solid volume under the authored total mass.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk and hindquarters, withers, neck, shared head/pinna assembly, tail and limbs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula and pelvis remain in the source torso allocation. Optional explicitly sourced pinnae divide the unchanged whole-head share with the actual head capsule by solid volume; no biological ear density or mass fraction is invented. Mane and detailed hooves remain unmodelled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bone bars, the withers and at most two prepared ear plates take constant construction work.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula's and pelvis's mass remain in the source torso allocation; each shoulder blade's bar is massless. Optional explicitly sourced pinnae divide the unchanged whole-head share with the actual head capsule by solid volume; no biological ear density or mass fraction is invented. Mane and detailed hooves remain unmodelled.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-three bone bars, the withers and at most two prepared ear plates take constant construction work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared torso definition serves conformation/layout and QuadrupedHead owns the complete capsule/pinna geometry and source-budget allocation without duplicate ear planning.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -464,6 +477,14 @@ export namespace QuadrupedBody {
       const shares: readonly number[] | undefined = limb.endsWith("Fore")
         ? share?.fore
         : share?.hind;
+      if (limb === "leftFore" || limb === "rightFore")
+        builder.rod(
+          QuadrupedScapula.BONES[limb],
+          body.bones[0]! * h,
+          QuadrupedScapula.bar(joints[0]!, h).from,
+          QuadrupedScapula.bar(joints[0]!, h).to,
+          { color: coat, round: false, share: 0 },
+        );
       BONES[limb].forEach((bone: Bone, k: number): void => {
         builder.rod(bone, body.bones[k]! * h, joints[k]!, joints[k + 1]!, {
           color: coat,

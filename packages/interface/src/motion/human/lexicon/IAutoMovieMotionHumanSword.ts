@@ -27,9 +27,14 @@ import type { IAutoMovieMotionHumanStrikingHeld } from "../striking/IAutoMovieMo
  * short of its target at its decisive instant, where the parry's blade meets
  * it. The outcome is the author's, never the geometry's.
  *
- * First pass: the target is read once, at the start; a body does not stop
- * the blade; binds, winds and redirection are not planned; every pose
- * constant is provisional, from the treatises' figures.
+ * The attack is planned on the target as it stands at the start, and its
+ * landing then follows a target that moves, as a punch's does: each film
+ * frame's change of the target's predicted place at contact is superposed
+ * on the landing one correction latency later (`HumanSwordFollow`).
+ *
+ * First pass: a body does not stop the blade; binds, winds and redirection
+ * are not planned; every pose constant is provisional, from the treatises'
+ * figures.
  *
  * @evidence contracts/development/common.md#meaningful-documentation blade: The held blade's prop subject id; the bare hand when absent. hand: The hand that holds it; `right` when absent. tip: The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent.
  * @evidence contracts/development/design.md#principled-representation blade: The held blade's prop subject id; the bare hand when absent. hand: The hand that holds it; `right` when absent. tip: The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent.

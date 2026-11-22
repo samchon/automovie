@@ -69,7 +69,8 @@ export namespace walkHeading {
    * @param start Each foot's facing before the walk, degrees.
    * @param yaw The heading the walk starts from, degrees.
    * @param twist How far the pelvis turns from a foot it stands on, degrees (`walkReach.TWIST`).
-   * @returns The count; 0 when the first swing of each foot faces the way.
+   * @param stepped Whether the walk opens with a step turn (`uncrossed`), whose stance foot stands behind the way's start: its feet turn in place before it sets off however far a swing could turn them, so the pelvis never sets off from a foot behind it.
+   * @returns The count; 0 when the first swing of each foot faces the way and the walk is no step turn.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is counted, the bounds and each input.
    * @evidence contracts/development/implementation.md#principled-implementation A standing turn before gait: the feet alternate, each turning the cited yaw per swing toward the way, until both face it within the pelvis's twist; a half turn takes four footfalls and a quarter two, against 3.25 and 1.95 steps measured (Khobkhun et al. 2022).
@@ -85,6 +86,7 @@ export namespace walkHeading {
     start: Record<"left" | "right", number>,
     yaw: number,
     twist: number,
+    stepped: boolean = false,
   ): number {
     const limit: number = step(heading - yaw);
     const last: Record<"left" | "right", number> = {
@@ -95,6 +97,7 @@ export namespace walkHeading {
     const far: (s: "left" | "right") => boolean = (s: "left" | "right"): boolean =>
       Math.abs(heading - last[s]) > twist;
     if (
+      !stepped &&
       Math.abs(heading - last.left) <= limit &&
       Math.abs(heading - last.right) <= limit
     )
@@ -155,6 +158,132 @@ export namespace walkHeading {
       last[side] = turned;
       return turned;
     });
+  }
+
+  /**
+   * The foot that sets off, so its first footprint never lands across the
+   * foot it leaves standing: the foot further behind leads, unless its
+   * footprint would land past the other foot's line, which on a sharp turn
+   * toward the standing foot's side is a crossover through the stance leg;
+   * then the other foot leads, the step turn a turn is taken with, the
+   * turning foot moving first (Hase and Stein 1999).
+   *
+   * @param behind The foot further behind along the way, the lead a straight walk takes.
+   * @param ankles Each foot's ankle before the walk, world metres.
+   * @param facings Each foot's facing before the walk, degrees.
+   * @param way The way's point under the first footprint, world metres.
+   * @param heading The first footprint's facing, degrees.
+   * @param lateral How far either side of the way a first footprint lies, metres.
+   * @returns The lead.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the crossing test and the source.
+   * @evidence contracts/development/implementation.md#principled-implementation A footprint crosses when it lies on the other side of the standing foot's line, along that foot's own sideways axis, from where the swing foot starts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test of the default lead, then the swap.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lead whose footprint stays on its own side is kept, so a straight or gently turning walk is unchanged.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function uncrossed(
+    behind: "left" | "right",
+    ankles: Record<"left" | "right", IAutoMovieVector3>,
+    facings: Record<"left" | "right", number>,
+    way: IAutoMovieVector3,
+    heading: number,
+    lateral: number,
+  ): "left" | "right" {
+    // A footprint lies `lateral` to its side of the way, along the heading's `+X`.
+    const turn: number = (heading * Math.PI) / 180;
+    const landing: (side: "left" | "right") => IAutoMovieVector3 = (
+      side: "left" | "right",
+    ): IAutoMovieVector3 => {
+      const x: number = (side === "left" ? 1 : -1) * lateral;
+      return {
+        x: way.x + x * Math.cos(turn),
+        y: 0,
+        z: way.z - x * Math.sin(turn),
+      };
+    };
+    const crosses: (side: "left" | "right") => boolean = (
+      side: "left" | "right",
+    ): boolean => {
+      const stance: "left" | "right" = side === "left" ? "right" : "left";
+      const yaw: number = (facings[stance] * Math.PI) / 180;
+      // The standing foot's right, `+X` turned by its facing's yaw.
+      const right: IAutoMovieVector3 = {
+        x: -Math.cos(yaw),
+        y: 0,
+        z: Math.sin(yaw),
+      };
+      const across: (point: IAutoMovieVector3) => number = (
+        point: IAutoMovieVector3,
+      ): number =>
+        (point.x - ankles[stance].x) * right.x +
+        (point.z - ankles[stance].z) * right.z;
+      return across(ankles[side]) * across(landing(side)) < 0;
+    };
+    const other: "left" | "right" = behind === "left" ? "right" : "left";
+    return crosses(behind) && !crosses(other) ? other : behind;
+  }
+
+  /**
+   * A footprint kept on its own side of the other foot's last footprint: a
+   * walk that faces away from its way (aside, a sidestep) places each foot
+   * its rest separation to its side of the way, and a step longer than the
+   * two separations would land the trailing foot past the leading one, a
+   * crossover through the stance leg. The footprint then closes up to the
+   * other foot instead, the step-close of a sidestep.
+   *
+   * @param point The footprint's ankle, world metres.
+   * @param other The other foot's last footprint and its own offset across the facing, or undefined before it has one.
+   * @param toward The footprint's facing, degrees.
+   * @param side The footprint's foot.
+   * @param lateral The footprint's own offset across the facing, metres.
+   * @returns The footprint, moved across the facing only as far as keeps the two feet their offsets apart.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the crossing, the rule and each input.
+   * @evidence contracts/development/implementation.md#principled-implementation The separation across the facing is read along the facing's own +X, and a shortfall from the two feet's own offsets is made up by moving this footprint toward its side.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One projection and one shift.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A footprint already its offsets apart is returned as it is, so a walk facing its way is unchanged.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function separated(
+    point: IAutoMovieVector3,
+    other: ISeparated | undefined,
+    toward: number,
+    side: "left" | "right",
+    lateral: number,
+  ): IAutoMovieVector3 {
+    if (other === undefined) return point;
+    const a: number = (toward * Math.PI) / 180;
+    // The facing's +X, the body's left.
+    const lx: number = Math.cos(a);
+    const lz: number = -Math.sin(a);
+    const sign: number = side === "left" ? 1 : -1;
+    const gap: number = Math.abs(lateral) + Math.abs(other.lateral);
+    const apart: number =
+      sign * ((point.x - other.point.x) * lx + (point.z - other.point.z) * lz);
+    if (apart >= gap) return point;
+    const shift: number = sign * (gap - apart);
+    return { x: point.x + shift * lx, y: point.y, z: point.z + shift * lz };
+  }
+
+  /**
+   * A foot's last footprint for `separated`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member.
+   * @evidence contracts/development/design.md#principled-representation The ankle and its offset across its facing.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What `separated` reads of the other foot.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Written by the footstep planner as it places each footprint.
+   */
+  export interface ISeparated {
+    /** The ankle, world metres. */
+    point: IAutoMovieVector3;
+
+    /** Its offset across its facing, metres. */
+    lateral: number;
   }
 
   /**
