@@ -345,7 +345,7 @@ export function trackPhysicalWorld(
       goals: endpointGoals,
       segments: bound.segments.get(body.id)!,
       dt,
-      recoveryBone: recovery[body.id]?.swing?.bone,
+      recoveryBone: lifted(recovery[body.id]),
       actuation,
       constrained: new Set(
         endpointSupports.map(
@@ -413,7 +413,7 @@ export function trackPhysicalWorld(
       actuation,
       supports,
       dynamics,
-      recoveryBone: recovery[body.id]?.swing?.bone,
+      recoveryBone: lifted(recovery[body.id]),
       step,
       seconds,
       dt,
@@ -664,3 +664,15 @@ function plantedPoses(
 
 /** No balance posture is excluded when that controller is inactive. */
 const NO_POSTURE: ReadonlySet<string> = new Set();
+
+/**
+ * The limb a recovery swing has lifted: none while it still gives up its
+ * share of the stance (`advancePhysicalBalance`), which the stance and
+ * support tracking then still carry.
+ */
+function lifted(
+  state: IAutoMoviePhysicalRecoveryState | undefined,
+): string | undefined {
+  const bone: string | undefined = state?.swing?.bone;
+  return bone !== undefined && !state?.seating?.[bone] ? bone : undefined;
+}

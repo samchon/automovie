@@ -531,15 +531,35 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
           stiffness: 10,
           damping: 2 * Math.sqrt(10),
           task: { force: stance.force, moment: stance.torque, origin },
+          // The torso's demand is kept within the moment the support can
+          // give it, M_max / I, so the orientation task never asks the
+          // stance for more than its centre of pressure's room.
           orientation: {
-            acceleration: orient(
-              base.rotation(),
-              rootIntent.pose.rotation,
-              Vector3.subtract(
-                physicalNativeVector(base.angvel()),
-                rootIntent.angularVelocity,
+            acceleration: physicalStanceBalance.steady(
+              physicalStanceBalance.orient(
+                base.rotation(),
+                rootIntent.pose.rotation,
+                Vector3.subtract(
+                  physicalNativeVector(base.angvel()),
+                  rootIntent.angularVelocity,
+                ),
+                physicalStanceBalance.TORSO,
               ),
+              stance.authority,
+              { x: tree.base.inertia[0]!, z: tree.base.inertia[8]! },
             ),
+            weight: 1,
+          },
+          // The body's height, critically damped toward its goal at the
+          // torso's frequency (Khadiv et al. 2017, Table I).
+          height: {
+            acceleration:
+              physicalStanceBalance.TORSO *
+                physicalStanceBalance.TORSO *
+                (rootGoal.y - base.translation().y) -
+              2 *
+                physicalStanceBalance.TORSO *
+                (base.linvel().y - rootIntent.velocity.y),
             weight: 1,
           },
           ...(frame?.solution
@@ -1026,43 +1046,3 @@ interface IStanceFrame {
 
 /** The joint solves of the frames in progress, by binding and body. */
 const frames: WeakMap<Bound, Map<string, IStanceFrame>> = new WeakMap();
-
-/**
- * The torso's desired world angular acceleration, critically damped toward
- * its intended orientation: -omega_n^2 e - 2 omega_n (w - w_ref), with e the
- * rotation from the intended orientation to the actual one as an axis times
- * its angle (Feng et al. 2013, Section III-B).
- */
-function orient(
-  actual: IAutoMovieQuaternion,
-  intended: IAutoMovieQuaternion,
-  spin: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  const q: IAutoMovieQuaternion = Quaternion.multiply(
-    actual,
-    Quaternion.inverse(intended),
-  );
-  const sign: number = q.w < 0 ? -1 : 1;
-  const sine: number = Math.hypot(q.x, q.y, q.z);
-  const angle: number = 2 * Math.atan2(sine, Math.abs(q.w));
-  const scale: number = sine > 1e-12 ? (sign * angle) / sine : 2 * sign;
-  const error: IAutoMovieVector3 = {
-    x: q.x * scale,
-    y: q.y * scale,
-    z: q.z * scale,
-  };
-  return Vector3.add(
-    Vector3.scale(error, -TORSO_FREQUENCY * TORSO_FREQUENCY),
-    Vector3.scale(spin, -2 * TORSO_FREQUENCY),
-  );
-}
-
-/**
- * The torso orientation task's natural frequency, radians per second. The
- * push lands at the whole-body centre of mass, below the trunk's, so the
- * trunk takes an angular impulse J dh and peaks at omega_0 / (e omega_n):
- * holding the four-support fixture's in-place-bound push (J 11.4 N s, dh
- * 0.28 m, I 0.13 kg m^2) to 5 degrees asks about 50, within the omega_n T
- * <= 0.5 that a task row solved at 120 Hz allows (derived).
- */
-const TORSO_FREQUENCY: number = 50;

@@ -383,6 +383,8 @@ export namespace physicalStanceDynamics {
     branches?: IBranches;
     /** The torso orientation task: the base's desired world angular acceleration, radians per second squared, and its soft rows' weight. */
     orientation?: { acceleration: IAutoMovieVector3; weight: number };
+    /** The height task: the base's desired vertical acceleration, metres per second squared, and its soft row's weight. */
+    height?: { acceleration: number; weight: number };
     /** The previous solve's point forces, by leg and point, which the change penalty holds the new ones near. */
     previous?: readonly (readonly IAutoMovieVector3[])[];
   }
@@ -872,6 +874,19 @@ export namespace physicalStanceDynamics {
         upper: target,
       });
     });
+    // The height task on the base's vertical acceleration, soft through its
+    // own slack, ranked with the contacts above the swing (Khadiv et al.
+    // 2017, Table I): a swing's reaction does not lift the body.
+    const slackHeight: number = slackOrientation + orientation.length;
+    const height: number[] = input.height ? [input.height.acceleration] : [];
+    height.forEach((target: number): void => {
+      rows.push({
+        indices: [1, slackHeight],
+        weights: [1, -1],
+        lower: target,
+        upper: target,
+      });
+    });
     const result = solveAutoMovieQuadraticProgram({
       diagonal: [
         ...new Array<number>(6).fill(1e-6),
@@ -881,12 +896,13 @@ export namespace physicalStanceDynamics {
         ...[1, 1, 1, 1, 1, 1].map((): number => 1e2 / (weight * weight)),
         ...posture.map((): number => input.branches!.weight),
         ...orientation.map((): number => input.orientation!.weight),
+        ...height.map((): number => input.height!.weight),
       ],
       linear: [
         ...new Array<number>(size).fill(0),
         ...forceLinear,
         ...new Array<number>(
-          6 * held + 6 + posture.length + orientation.length,
+          6 * held + 6 + posture.length + orientation.length + height.length,
         ).fill(0),
       ],
       rows,

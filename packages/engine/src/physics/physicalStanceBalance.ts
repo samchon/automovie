@@ -1,5 +1,6 @@
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
@@ -197,6 +198,8 @@ export namespace physicalStanceBalance {
     pressure: IAutoMovieVector3;
     /** Each bearing foot's vertical-moment bound about its bearing centroid, |M_y| <= limit F_y. */
     yaw: { bone: string; center: IAutoMovieVector3; limit: number }[];
+    /** The torso's moment bounds about x and z, N m: the normal force times the centre of pressure's room to the polygon's edge each way. */
+    authority: { x: [number, number]; z: [number, number] };
     /** Whether the command was clamped onto the bearing polygon. */
     clamped: boolean;
     /** The actual centre of mass and its velocity, world metres and metres per second. */
@@ -236,36 +239,25 @@ export namespace physicalStanceBalance {
         .filter((entry) => entry.outline.length > 0);
     if (outlines.length === 0) return undefined;
     // The reference lies on the planted polygon; the command on what can bear
-    // now: each bearing foot's shrunken outline drawn toward its ankle point
-    // by its flatness (Pratt et al., M2V2, footnote 2).
+    // now (`support`).
     const planted: IAutoMovieVector3[] = shrink(
       convexHull2D(outlines.flatMap((entry) => entry.outline)),
       MARGIN,
     );
-    const bearing: { limb: Limb; points: IAutoMovieVector3[] }[] = outlines
-      .filter(({ limb }) => (input.feet[limb.bone]?.bearing ?? 0) > 0)
-      .map(({ limb, outline }) => {
-        const foot = input.feet[limb.bone]!;
-        const ankle: IAutoMovieVector3 = { ...foot.ankle, y: floor };
-        return {
+    const bearable = support(
+      outlines
+        .filter(({ limb }) => (input.feet[limb.bone]?.bearing ?? 0) > 0)
+        .map(({ limb, outline }) => ({
           limb,
-          points:
-            foot.flat > 0
-              ? shrink(outline, MARGIN).map(
-                  (vertex: IAutoMovieVector3): IAutoMovieVector3 =>
-                    Vector3.add(
-                      ankle,
-                      Vector3.scale(Vector3.subtract(vertex, ankle), foot.flat),
-                    ),
-                )
-              : [ankle],
-        };
-      });
-    if (bearing.length === 0) return undefined;
-    const polygon: IAutoMovieVector3[] = convexHull2D(
-      bearing.flatMap((entry) => entry.points),
+          outline,
+          flat: input.feet[limb.bone]!.flat,
+          ankle: { ...input.feet[limb.bone]!.ankle, y: floor },
+        })),
     );
-
+    const bearing: { limb: Limb; points: IAutoMovieVector3[] }[] =
+      bearable.feet;
+    if (bearing.length === 0) return undefined;
+    const polygon: IAutoMovieVector3[] = bearable.polygon;
     let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const segment of body.profile.segments) {
@@ -300,18 +292,11 @@ export namespace physicalStanceBalance {
           y: floor,
           z: input.center.z + input.velocity.z / omega,
         });
-    // A slow integral of the centre-of-pressure error trims the command before
-    // it is kept on the polygon (Stephens 2011, Eq. 5.31; `integrate`).
-    const command: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(
-        capture,
-        Vector3.scale(Vector3.subtract(capture, reference), GAIN),
-      ),
-      { x: input.bias?.x ?? 0, y: 0, z: input.bias?.z ?? 0 },
-    );
-    const pressure: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+    const { pressure, clamped }: ReturnType<typeof law> = law(
+      capture,
+      reference,
       polygon,
-      command,
+      input.bias,
     );
     const weight: number = mass * gravity;
     const lift: number = Math.max(
@@ -378,8 +363,11 @@ export namespace physicalStanceBalance {
       capture,
       reference,
       pressure,
-      clamped:
-        Math.hypot(pressure.x - command.x, pressure.z - command.z) > 1e-9,
+      clamped,
+      authority: {
+        x: [-authority(0, 1), authority(0, -1)],
+        z: [-authority(-1, 0), authority(1, 0)],
+      },
       yaw: bearing.map(({ limb, points: rows }) => {
         const center: IAutoMovieVector3 = Vector3.scale(
           rows.reduce(
@@ -650,6 +638,213 @@ export namespace physicalStanceBalance {
       ) < 1e-9;
     return inside && Number.isFinite(best) ? best : 0;
   }
+
+  /**
+   * The centre-of-pressure budget a swing may spend, metres: the shift of
+   * the centre of pressure the stance accepts to keep the trunk still while
+   * the swinging leg accelerates (stated; the review's figure for the
+   * four-support fixture).
+   */
+  export const BUDGET: number = 0.05;
+
+  /**
+   * The share of the weight a swing's clearance may ask of the stance at its
+   * peak (stated).
+   */
+  export const LIFT_SHARE: number = 0.2;
+
+  /**
+   * The swing's peak acceleration the stance can react, m/s^2: holding the
+   * trunk still while a leg of mass m_s accelerates at a needs a ground
+   * moment m_s a z0, which moves the centre of pressure by m_s a z0 / (m g),
+   * so a <= BUDGET m g / (m_s z0) (derived).
+   */
+  export function swing(
+    mass: number,
+    leg: number,
+    height: number,
+    gravity: number,
+  ): number {
+    return (BUDGET * mass * gravity) / (leg * height);
+  }
+
+  /**
+   * A recovery swing's clearance, metres: the policy's, lowered so its peak
+   * vertical force m_s 24 h / T^2 stays within `LIFT_SHARE` of the weight.
+   */
+  export function clearance(
+    duration: number,
+    mass: number,
+    leg: number,
+    gravity: number,
+    height: number,
+  ): number {
+    return Math.min(
+      height,
+      (LIFT_SHARE * mass * gravity * duration * duration) /
+        (AutoMoviePhysicalBalance.CLEARANCE * leg),
+    );
+  }
+
+  /**
+   * The torso's demanded angular acceleration kept within what the support
+   * can give it: each horizontal axis's within its moment bounds (the
+   * centre of pressure's room times the normal force, `IResult.authority`)
+   * over the base's inertia about that axis; the heading is left as asked.
+   */
+  export function steady(
+    acceleration: IAutoMovieVector3,
+    authority: IResult["authority"],
+    inertia: { x: number; z: number },
+  ): IAutoMovieVector3 {
+    const within = (
+      value: number,
+      [lower, upper]: [number, number],
+      i: number,
+    ) => (i > 0 ? Math.max(lower / i, Math.min(upper / i, value)) : value);
+    return {
+      x: within(acceleration.x, authority.x, inertia.x),
+      y: acceleration.y,
+      z: within(acceleration.z, authority.z, inertia.z),
+    };
+  }
+
+  /**
+   * The support polygon the stance holds its centre of pressure within: the
+   * limbs' bearing faces (`physicalSupportFootprint`) joined and shrunk by
+   * `MARGIN`. The controller and the push bounds read the same one.
+   */
+  export function polygon(
+    profile: IAutoMoviePhysicalProfile,
+    poses: Parameters<typeof physicalSupportFootprint>[1],
+    limbs: readonly Limb[],
+    floor: number,
+  ): IAutoMovieVector3[] {
+    return shrink(
+      convexHull2D(
+        limbs.flatMap((limb: Limb) =>
+          physicalSupportFootprint(profile, poses, limb, floor),
+        ),
+      ),
+      MARGIN,
+    );
+  }
+
+  /**
+   * What the bearing feet can carry: each foot's outline drawn toward its
+   * ankle point by its flatness, its own vertices the contact points the
+   * stance solve may load, and the command's polygon, the union of them
+   * shrunk by `MARGIN` (Pratt et al., M2V2, footnote 2). The margin is kept
+   * on the whole support, not on each foot, so a narrow foot (a heel point
+   * and a forefoot edge) keeps its own vertices instead of collapsing to one
+   * point that bears no moment.
+   */
+  export function support<T>(
+    feet: readonly {
+      limb: T;
+      outline: readonly IAutoMovieVector3[];
+      flat: number;
+      ankle: IAutoMovieVector3;
+    }[],
+  ): {
+    feet: { limb: T; points: IAutoMovieVector3[] }[];
+    polygon: IAutoMovieVector3[];
+  } {
+    const drawn = feet.map(({ limb, outline, flat, ankle }) => ({
+      limb,
+      points:
+        flat > 0
+          ? outline.map(
+              (vertex: IAutoMovieVector3): IAutoMovieVector3 =>
+                Vector3.add(
+                  ankle,
+                  Vector3.scale(Vector3.subtract(vertex, ankle), flat),
+                ),
+            )
+          : [{ ...ankle }],
+    }));
+    return {
+      feet: drawn,
+      polygon: shrink(
+        convexHull2D(drawn.flatMap((entry) => entry.points)),
+        MARGIN,
+      ),
+    };
+  }
+  /**
+   * The centre-of-pressure law: the command u = xi + k (xi - xi_ref), trimmed
+   * by the integral's bias, kept on the polygon that can bear it (Hof et al.
+   * 2005; Pratt et al., M2V2; Stephens 2011, Eq. 5.31 for the bias). Whether
+   * the polygon clamped it is returned with it.
+   */
+  export function law(
+    capture: IAutoMovieVector3,
+    reference: IAutoMovieVector3,
+    polygon: readonly IAutoMovieVector3[],
+    bias?: { x: number; z: number },
+  ): {
+    command: IAutoMovieVector3;
+    pressure: IAutoMovieVector3;
+    clamped: boolean;
+  } {
+    const command: IAutoMovieVector3 = Vector3.add(
+      Vector3.add(
+        capture,
+        Vector3.scale(Vector3.subtract(capture, reference), GAIN),
+      ),
+      { x: bias?.x ?? 0, y: 0, z: bias?.z ?? 0 },
+    );
+    const pressure: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+      polygon,
+      command,
+    );
+    return {
+      command,
+      pressure,
+      clamped:
+        Math.hypot(pressure.x - command.x, pressure.z - command.z) > 1e-9,
+    };
+  }
+
+  /**
+   * The torso's desired world angular acceleration, critically damped toward
+   * its intended orientation: -omega_n^2 e - 2 omega_n (w - w_ref), with e the
+   * rotation from the intended orientation to the actual one as an axis
+   * times its angle, taken the short way (Feng et al. 2013, Section III-B).
+   */
+  export function orient(
+    actual: IAutoMovieQuaternion,
+    intended: IAutoMovieQuaternion,
+    spin: IAutoMovieVector3,
+    frequency: number,
+  ): IAutoMovieVector3 {
+    const q: IAutoMovieQuaternion = Quaternion.multiply(
+      actual,
+      Quaternion.inverse(intended),
+    );
+    const sign: number = q.w < 0 ? -1 : 1;
+    const sine: number = Math.hypot(q.x, q.y, q.z);
+    const angle: number = 2 * Math.atan2(sine, Math.abs(q.w));
+    const scale: number = sine > 1e-12 ? (sign * angle) / sine : 2 * sign;
+    return Vector3.add(
+      Vector3.scale(
+        { x: q.x * scale, y: q.y * scale, z: q.z * scale },
+        -frequency * frequency,
+      ),
+      Vector3.scale(spin, -2 * frequency),
+    );
+  }
+
+  /**
+   * The torso orientation task's natural frequency, radians per second. The
+   * push lands at the whole-body centre of mass, below the trunk's, so the
+   * trunk takes an angular impulse J dh and peaks at omega_0 / (e omega_n):
+   * holding the four-support fixture's in-place-bound push (J 11.4 N s, dh
+   * 0.28 m, I 0.13 kg m^2) to 5 degrees asks about 50, within the omega_n T
+   * <= 0.5 that a task row solved at 120 Hz allows (derived).
+   */
+  export const TORSO: number = 50;
+
   /**
    * A convex polygon shrunk by a margin: each edge moved inward and the
    * neighbours intersected; a polygon narrower than twice the margin
