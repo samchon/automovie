@@ -1,8 +1,8 @@
 import type { IScenarioSelection } from "./IScenarioSelection";
-import { parseScenarioShard } from "./parseScenarioShard";
+import type { IScenarioShard } from "./IScenarioShard";
 
 /**
- * Admit argv before discovery: space-separated groups need at least one term per occurrence, equals forms contain one term and repeated groups accumulate in order. Unknown options, positional tokens and blank or option-like terms retain their existing refusal messages.
+ * Admit argv before discovery: space-separated groups need at least one term per occurrence, equals forms contain one term and repeated groups accumulate in order. One `--shard=<index>/<count>` selects a slice: decimal integers, `count` at least 1 and `index` in [0, count). Unknown options, positional tokens, blank or option-like terms and malformed or repeated shards are refused. The file imports only types, so the esbuild runner can load it directly under Node's TypeScript stripping.
  *
  * @evidence contracts/development/testing.md#behavioral-verification The existing workspace selection entry asserts exact parsed lists and that invalid argv never reaches discovery, catching silent widening to the default full suite.
  * @evidence contracts/development/testing.md#independent-expectations Literal include/exclude lists and the supported option grammar provide expected requests; no filesystem names or parser output manufacture those expectations.
@@ -29,6 +29,24 @@ export function parseScenarioSelection(
         `--${key} requires a nonblank term, not ${JSON.stringify(value)}.`,
       );
     selection[key].push(value);
+  }
+
+  /** Admit one `--shard=<index>/<count>`; refuse any other spelling, so a mistyped shard never widens or empties the run. */
+  function parseScenarioShard(argument: string): IScenarioShard {
+    const match: RegExpExecArray | null = /^--shard=(\d+)\/(\d+)$/u.exec(
+      argument,
+    );
+    if (match === null)
+      throw new Error(
+        `--shard requires <index>/<count>, not ${JSON.stringify(argument)}.`,
+      );
+    const index: number = Number(match[1]);
+    const shards: number = Number(match[2]);
+    if (shards < 1 || index >= shards)
+      throw new Error(
+        `--shard index must lie in [0, count) with count at least 1, not ${index}/${shards}.`,
+      );
+    return { index, count: shards };
   }
 
   for (const argument of argv) {
