@@ -35,6 +35,7 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
+import { lieTogetherCurl } from "./lieTogetherCurl";
 
 /** How far off the partner's skin the resting region lies, metres (provisional: a skin contact). */
 const REST: number = 0.005;
@@ -82,7 +83,9 @@ interface INeck {
  * the arm on the side it lies on folds up before the face (`FOLD`), or, spooning, under its own head (`PILLOW`). Spooning, the performer lies on the same
  * side as the partner, heading within `ALIGNED`, and slides across the
  * support until its chest's sternum region lies `REST` off the partner's
- * upper back. With the head on the chest, it lies on its side facing the
+ * upper back; where its hips meet the partner's first, the lumbar spine
+ * curls the chest the rest of the way (`lieTogetherCurl`), each midline
+ * keeping the height its own lying width gives it. With the head on the chest, it lies on its side facing the
  * partner on the back; it slides across the support until its lower cheek
  * is over the partner's nearer chest region, then the neck's side bend and
  * flexion lift the cheek onto it, on a coarse grid refined by degrees, a
@@ -263,8 +266,26 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
           fix: "lie down nearer the partner",
         });
 
+      // Spooning, the trunk curls onto the partner's back where the slide
+      // stops short of it at the hips (`lieTogetherCurl`).
+      const bent: lieTogetherCurl.ICurl =
+        p.way === "spoon"
+          ? lieTogetherCurl.solve(
+              body,
+              shifted(entry, slide),
+              Vector3.add(
+                region("upperBack").point,
+                Vector3.scale(region("upperBack").normal, REST),
+              ),
+              region("upperBack").normal,
+              partner.body,
+              bones,
+            )
+          : lieTogetherCurl.NONE;
+      const travel: IAutoMovieVector3 = Vector3.add(slide, bent.shift);
+
       const settle: number = AutoMovieMotionHumanTiming.transport(
-        Vector3.length(slide),
+        Vector3.length(travel),
       );
       const duration: number = settle + p.seconds;
       // The arm on the side the body lies on folds up before the face.
@@ -308,7 +329,11 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
         };
       };
       const settled: IAutoMovieMotionHumanPosture = folded(
-        necked(shifted(entry, slide), neck, 1),
+        necked(
+          lieTogetherCurl.apply(shifted(entry, travel), bent, 1),
+          neck,
+          1,
+        ),
         1,
       );
       const origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame = frame(
@@ -341,7 +366,15 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
             k >= 1
               ? settled
               : folded(
-                  necked(shifted(entry, Vector3.scale(slide, k)), neck, k),
+                  necked(
+                    lieTogetherCurl.apply(
+                      shifted(entry, Vector3.scale(travel, k)),
+                      bent,
+                      k,
+                    ),
+                    neck,
+                    k,
+                  ),
                   k,
                 );
           return carryHumanPosture(

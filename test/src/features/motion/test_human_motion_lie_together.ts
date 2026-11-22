@@ -58,7 +58,8 @@ interface IWay {
  * Scenarios, the average man with the small woman for each way, each take
  * clean:
  * 1. Through the hold, the performer's chest lies on the partner's back
- *    (spooning) or its lower cheek on the partner's chest, as the partner
+ *    (spooning, at the height the performer's own lying width gives its
+ *    midline) or its lower cheek on the partner's chest, as the partner
  *    breathes.
  * 2. Both bodies stay on the floor: no bone under it.
  * 3. The resting region bears on the partner in a window.
@@ -104,12 +105,21 @@ export function test_human_motion_lie_together(): void {
         act.plan.events.find(
           (e: IAutoMovieMotionEvent): boolean => e.name === "settled",
         )!.share;
+    // Spooning, both bodies lie on the same side on one floor, so each
+    // midline stands at its own lying height: the resting point is the
+    // partner's region raised by the two bodies' difference in that height,
+    // read from each lying alone.
+    const raised: number =
+      w.way === "spoon"
+        ? lain(a, w.own, w.mine).point.y - lain(b, w.partner, w.theirs).point.y
+        : 0;
     const misses: readonly number[] = [0, 0.5, 1].map((k: number): number => {
       const t: number = from + k * (act.end - from);
-      return Vector3.distance(
-        region(film, "a", a, w.mine, t),
-        region(film, "b", b, w.theirs, t),
-      );
+      const theirs: IAutoMovieVector3 = region(film, "b", b, w.theirs, t);
+      return Vector3.distance(region(film, "a", a, w.mine, t), {
+        ...theirs,
+        y: theirs.y + raised,
+      });
     });
     TestValidator.predicate(
       `${label}: the ${w.mine} stays on the partner's ${w.theirs} (${misses.map((m: number): string => (m * 1000).toFixed(1)).join(", ")} mm)`,
