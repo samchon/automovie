@@ -294,6 +294,17 @@ export function operateLongInsert(
     open = w.from + w.plan.duration;
   }
   standing(open, duration);
+  // The fingers the hands hold the staff with as they entered: a step's walk
+  // shapes its hands relaxed, and the hands keep their grips through it.
+  const gripping: IAutoMovieMotionHumanPosture["joints"] = {};
+  for (const hand of HumanHand.SIDES)
+    for (const bone of Object.keys(
+      HumanHand.shape(hand, "relaxed"),
+    ) as AutoMovieHumanoidBone[]) {
+      const held: readonly [number, number, number] | undefined =
+        context.entry.posture.joints[bone];
+      if (held !== undefined) gripping[bone] = held;
+    }
   const base: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [],
@@ -305,13 +316,15 @@ export function operateLongInsert(
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
     ): IAutoMovieMotionHumanPosture => {
       for (const w of windows)
-        if (seconds >= w.from && seconds < w.from + w.plan.duration)
-          return w.plan.posture(
+        if (seconds >= w.from && seconds < w.from + w.plan.duration) {
+          const walked: IAutoMovieMotionHumanPosture = w.plan.posture(
             seconds - w.from,
             channels,
             resolution,
             projection,
           );
+          return { ...walked, joints: { ...walked.joints, ...gripping } };
+        }
       return HumanSupportCarry.posture(
         operateLongInsertStep.stance(toward, settled(seconds)),
         context.entry.posture,
