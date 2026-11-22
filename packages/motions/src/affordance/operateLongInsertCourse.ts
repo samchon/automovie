@@ -10,6 +10,24 @@ const MOST: number = 64;
 const EPSILON: number = 1e-4;
 
 /**
+ * A place moved from where it is toward a goal, as far as a range allows,
+ * never back past where it started.
+ *
+ * @param from Where it is.
+ * @param goal Where it goes.
+ * @param range The places it may take.
+ * @returns The place it reaches.
+ */
+function clampToward(
+  from: number,
+  goal: number,
+  range: operateLongInsertCourse.IRange,
+): number {
+  const reach: number = Math.min(range.hi, Math.max(range.lo, goal));
+  return goal >= from ? Math.max(from, reach) : Math.min(from, reach);
+}
+
+/**
  * The course of a long insertion (`operateLongInsert`): a staff driven down
  * a bore farther than one grip reaches, hand over hand, with steps where the
  * stance runs out, then drawn out the same way when asked. Every place is
@@ -273,45 +291,44 @@ export function operateLongInsertCourse(
       );
   }
 
-  // Home: A back to the place it entered with, B clear behind it.
+  // Home: A back to the place it entered with, B clear behind it. Each hand
+  // slides where it stands as far toward its place as its reach allows (the
+  // chord at the stance), B first so A never passes it; only when a place
+  // lies beyond reach does the body step, toward the stances that reach the
+  // places, as far as keeps the hands where they hold.
   if (props.withdraw && Math.abs(state.slide) > EPSILON) {
     const home: number = l - depth(state);
-    const uB: number = Math.max(state.uB, home + props.gap);
-    // A stance from which the hands reach both where they hold now, as they
-    // step there still holding, and where they go; failing one, B moves
-    // back first where it stands, then the body steps.
-    const meet: (
-      a: operateLongInsertCourse.IRange,
-      b: operateLongInsertCourse.IRange,
-    ) => number | undefined = (
-      a: operateLongInsertCourse.IRange,
-      b: operateLongInsertCourse.IRange,
-    ): number | undefined => {
-      const lo: number = Math.max(a.lo, b.lo);
-      const hi: number = Math.min(a.hi, b.hi);
-      return lo > hi ? undefined : Math.min(hi, Math.max(lo, state.x));
-    };
-    const target: operateLongInsertCourse.IRange = both(home, uB);
-    let x: number | undefined = meet(both(state.uA, state.uB), target);
-    if (x === undefined && uB > state.uB + EPSILON) {
+    const goalB: number = Math.max(state.uB, home + props.gap);
+    for (let k: number = 0; Math.abs(state.uA - home) > EPSILON; ++k) {
+      if (k >= MOST)
+        refuse(
+          `the carrying hand makes no headway back to the place it took the staff by after ${MOST} slides and steps`,
+          "stand nearer the bore's line",
+        );
+      const a: operateLongInsertCourse.IRange = chord("A", state.x);
       const b: operateLongInsertCourse.IRange = chord("B", state.x);
-      if (uB <= b.hi) {
-        push("slideB", { ...state, uB });
-        x = meet(both(state.uA, state.uB), target);
-      }
-    }
-    if (x === undefined)
-      refuse(
-        "no stance lets the carrying hand return to the place it took the staff by",
-        "stand nearer the bore's line",
+      const uB: number = clampToward(state.uB, goalB, b);
+      if (Math.abs(uB - state.uB) > EPSILON) push("slideB", { ...state, uB });
+      const uA: number = clampToward(state.uA, home, {
+        lo: Math.max(a.lo, props.clear),
+        hi: Math.min(a.hi, state.uB - props.gap),
+      });
+      if (Math.abs(uA - state.uA) > EPSILON)
+        push("slideA", { ...state, uA, slide: state.slide + (uA - state.uA) });
+      if (Math.abs(state.uA - home) <= EPSILON) break;
+      const reached: operateLongInsertCourse.IRange = both(home, goalB);
+      const held: operateLongInsertCourse.IRange = both(state.uA, state.uB);
+      const x: number = Math.min(
+        held.hi,
+        Math.max(held.lo, Math.min(reached.hi, Math.max(reached.lo, state.x))),
       );
-    if (Math.abs(x! - state.x) > EPSILON) push("step", { ...state, x: x! });
-    if (uB > state.uB + EPSILON) push("slideB", { ...state, uB });
-    push("slideA", {
-      ...state,
-      uA: home,
-      slide: state.slide + (home - state.uA),
-    });
+      if (held.lo > held.hi || Math.abs(x - state.x) <= EPSILON)
+        refuse(
+          "no stance lets the carrying hand return to the place it took the staff by",
+          "stand nearer the bore's line",
+        );
+      push("step", { ...state, x });
+    }
   }
   return { presented, segments };
 }

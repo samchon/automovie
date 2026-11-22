@@ -25,6 +25,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunkLean } from "../handling/HumanTrunkLean";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { rotationBetween } from "./rotationBetween";
 
 /** Strokes when none are asked. */
 const COUNT: number = 4;
@@ -44,8 +45,9 @@ const CLEAR: number = 0.02;
  * smothering it. Register as `beatFlames`.
  *
  * The cloth rides the hand that holds it, so its working `face` lies at a
- * fixed lever from the wrist; the wrist keeps the cloth's entry attitude
- * and brings the face down to `CLEAR` above the region's surface along its
+ * fixed lever from the wrist; the wrist holds the attitude that lays the
+ * face flat on the region, its normal turned the least way from where the
+ * hand held it against the region's, and brings the face down to `CLEAR` above the region's surface along its
  * outward normal, then raises it `RAISE` above and back down, `count`
  * times on a `BEAT` each, reaching the first in the transport movement
  * time. The region is read where the partner lies at the start. Events:
@@ -100,21 +102,34 @@ function plan(
   const frame: IAutoMovieRigidTransform = context
     .prop(p.prop)
     .frame(context.entry.seconds);
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+  const region: ReturnType<typeof context.aim> = context.aim(
+    { kind: "person", subject: p.partner, region: p.region },
+    context.start,
+  );
+  // The hand's attitude that lays the cloth's face flat on the region: the
+  // face's outward normal turned, the least way, against the region's.
+  const entry: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(
       frame.rotation,
       Quaternion.inverse(held.frame.rotation),
     ),
   );
+  const working: IAutoMovieMotionHumanHeld.IPointResult =
+    AutoMovieMotionHumanHeld.point(held, "face");
+  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(
+      rotationBetween(
+        Quaternion.rotateVector(entry, working.direction),
+        Vector3.scale(region.normal, -1),
+      ),
+      entry,
+    ),
+  );
   const contact: IAutoMovieVector3 = Vector3.add(
     HumanHand.offset(context.body, side, "grip").point,
-    AutoMovieMotionHumanHeld.point(held, "face").point,
+    working.point,
   );
   const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
-  const region: ReturnType<typeof context.aim> = context.aim(
-    { kind: "person", subject: p.partner, region: p.region },
-    context.start,
-  );
   const down: IAutoMovieVector3 = Vector3.add(
     region.point,
     Vector3.scale(region.normal, CLEAR),

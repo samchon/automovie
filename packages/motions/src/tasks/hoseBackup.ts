@@ -23,6 +23,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanGrasp } from "../handling/HumanGrasp";
+import { HumanGraspRoll } from "../handling/HumanGraspRoll";
 import { heldDigits } from "../handling/heldDigits";
 import { writeWith } from "../handling/writeWith";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -37,8 +38,9 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /**
  * The backup member of a hose team (`hoseLine`'s `backup` role): both hands
- * on the line's grip without carrying it, each a power grip from above
- * sharing the grip's length, the hand reaching across the body ahead,
+ * on the line's grip without carrying it, each a power grip rolled about
+ * the line toward its shoulder (`HumanGraspRoll`), sharing the grip's
+ * length, the hand reaching across the body ahead,
  * following the grip where the operator's hold puts the line.
  *
  * @param context The action's context.
@@ -134,8 +136,8 @@ export function hoseBackup(
     const k: number = Math.floor(s);
     return Vector3.lerp(frameAt(k).position, frameAt(k + 1).position, s - k);
   };
-  // The grip as the stream opens: each hand takes it from above (its `-Y`),
-  // wrapping the line (its `+X`), as a power grip takes any handle.
+  // The grip as the stream opens: each hand wraps the line (its `+X`) as a
+  // power grip takes any handle, from the grip's `-Y` and then rolled.
   const set: IAutoMovieRigidTransform = {
     position: at(ready),
     rotation: frameAt(Math.round(ready * FRAME)).rotation,
@@ -166,15 +168,17 @@ export function hoseBackup(
         line,
         ((side === far ? 1 : -1) * (grip.length ?? 0)) / 4,
       );
-      const wrist: IAutoMovieMotionHumanHand.IWrist = HumanGrasp.hand(
-        context.body,
-        side,
-        {
+      // Rolled about the line until the wrist lies nearest its shoulder.
+      const wrist: IAutoMovieMotionHumanHand.IWrist = HumanGraspRoll(
+        HumanGrasp.hand(context.body, side, {
           point: Vector3.add(set.position, along),
           approach,
           axis: line,
           width: grip.aperture ?? 0,
-        },
+        }),
+        Vector3.add(set.position, along),
+        line,
+        bones.get(`${side}UpperArm`)!.worldPosition,
       );
       const socket: IAutoMovieVector3 = HumanHand.offset(
         context.body,
