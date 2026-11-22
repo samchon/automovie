@@ -3,6 +3,7 @@ import {
   ArchetypeRefusal,
   type EquineBank,
   QuadrupedBody,
+  QuadrupedJoints,
   createHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -28,6 +29,9 @@ const FACE: equineBankStage.IFace = { grade: -0.6, run: 4 };
 const FRICTION: number = 0.5;
 
 /** A sole on its surface: the hoof bar's lowest surface within this of the plane, metres. */
+
+/** A sole standing on its surface, not lifting: within this of the plane, metres, under a swing's first rise. */
+const PLANTED: number = 0.001;
 
 /** The least turn of a hoof bar over a read interval that marks it rolling over its toe rather than sliding, radians: authored, one degree. */
 const ROLL: number = Math.PI / 180;
@@ -61,11 +65,11 @@ const slide = (friction: number): EquineBank.ISlide => ({
  * A horse slides down a steep bank sat on its haunches, its hinds sliding on the face and its fores stepping, carrying its rider.
  *
  * Scenarios:
- * 1. Through the sat interval each hind sole stays on the face (its lowest surface within 5 mm of the plane) and moves down it, while a fore sole on its surface through a 0.1 s interval (at each of its fifths) moves no more than 5 mm without turning by a degree (a hoof rolling over its toe turns): the slide is on the hinds only. Before the slide no hind sole on its surface through such an interval moves.
+ * 1. Through the sat interval each hind sole stays on the face (its lowest surface within 5 mm of the plane) and moves down it, while a fore sole standing on its surface (within 1 mm) through a 0.1 s interval (at each of its fifths) moves no more than 5 mm without turning by a degree (a hoof rolling over its toe turns): the slide is on the hinds only. Before the slide no hind sole on its surface through such an interval moves.
  * 2. Sat, each hind limb flexes at least 5 degrees more at the stifle and at the hock than when standing at the start, and the trunk pitches at least 10 degrees nose-up against the face, read from the emitted bars.
  * 3. The ride's placement stays continuous onto the level foot, with no jump between reads 20 ms apart across the slide's end.
  * 4. A face steeper than the technique's bound, a face its friction holds, a slide without a run-out at its foot and one without authored footing are refused on the leg's `equineFootwork`.
- * 6. No hoof standing on its surface lands within its pastern's length of the face's concave foot, where the face meets the level ground below: the pastern bar's lower end stays that far from the edge, less the 10 mm contact tolerance by which the sole lies inside the bar's end.
+ * 6. No hoof standing on its surface lands within its pastern's length of the face's concave foot, where the face meets the level ground below: the hoof's terminal endpoint, its rig pastern along the bar from the fetlock, stays that far from the edge.
  * 5. A mounted rider in the descent seat keeps the seat socket within 10 mm of the saddle and the trunk within 10 degrees of upright in space through the slide, and the take passes the shipped take verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
@@ -97,7 +101,7 @@ export function test_archetype_equine_bank_slide(): void {
     if (
       ![0, 0.25, 0.5, 0.75, 1].every(
         (share: number): boolean =>
-          Math.abs(read.sole(at + share * step, limb)) <= SURFACE,
+          Math.abs(read.sole(at + share * step, limb)) <= PLANTED,
       )
     )
       return false;
@@ -137,15 +141,32 @@ export function test_archetype_equine_bank_slide(): void {
 
   // 6. No standing hoof within its pastern's length of the face's concave foot.
   const foot: number = equineBankStage.APPROACH + FACE.run;
+  const rig: ReturnType<typeof QuadrupedJoints.read> = QuadrupedJoints.read(
+    horse.parts,
+  );
+  const pasterns: Readonly<Record<QuadrupedBody.Limb, number>> = {
+    leftFore: Vector3.distance(rig.limbs.leftFore[3]!, rig.limbs.leftFore[4]!),
+    rightFore: Vector3.distance(rig.limbs.rightFore[3]!, rig.limbs.rightFore[4]!),
+    leftHind: Vector3.distance(rig.limbs.leftHind[3]!, rig.limbs.leftHind[4]!),
+    rightHind: Vector3.distance(rig.limbs.rightHind[3]!, rig.limbs.rightHind[4]!),
+  };
   for (let at: number = 0.5; at <= ride.duration; at += step)
     for (const limb of QuadrupedBody.LIMBS) {
       if (!(Math.abs(read.sole(at, limb)) <= SURFACE)) continue;
+      // The hoof's terminal endpoint lies its rig pastern along the bar from the fetlock.
       const [top, bottom] = equineFordScene.ends(
         read.part(at, QuadrupedBody.BONES[limb][3]),
       );
-      const reach: number = Vector3.distance(top, bottom);
-      const z: number = ArchetypeFrame.point(ride.at(at).placement, bottom).z;
-      if (Math.abs(z - foot) < reach - TOLERANCE)
+      const reach: number = pasterns[limb];
+      const z: number = ArchetypeFrame.point(
+        ride.at(at).placement,
+        Vector3.addScaled(
+          top,
+          Vector3.normalize(Vector3.subtract(bottom, top)),
+          reach,
+        ),
+      ).z;
+      if (Math.abs(z - foot) < reach - SURFACE)
         issues.push(
           `${limb} ${at.toFixed(2)}: stands ${Math.abs(z - foot)} m from the concave foot, within its ${reach} m pastern`,
         );
