@@ -17,6 +17,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * occupied target square without its capture is refused before anything
  * moves, as FIDE's laws forbid it (article 3.1).
  *
+ * Duration: each prop takes a pick up and a put down, so a reach-to-grasp time per transport (about 0.5 s for a 0.4 m reach, `IAutoMovieMotionHumanPickUp`), a 0.15 s load, a 0.2 s release and the return; the moves add no timing of their own (provisional: no study of tabletop speeds). A chess move is one pick and one place, a deal one pair per seat.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Names each composition, the identity rule and the refusals.
  * @evidence contracts/development/design.md#principled-representation Compositions over the shipped pickup and placement laws; the composer owns only the board-state refusals.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The tabletop scenes the issue names: cards, chips, dice, notes and chess.

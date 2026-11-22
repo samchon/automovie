@@ -112,6 +112,8 @@ export namespace HumanSocial {
    * performs `fistBump` with its glass as the prop. `glasses` names each
    * role's held glass; without it the toast is mimed and the fists meet.
    * `window`, film seconds, holds the clink over it as `bump`'s does.
+ *
+   * Each glass reaches the shared point in the reach-to-grasp time of its travel, about 0.5 s for 0.4 m (`IAutoMovieMotionHumanPickUp`), and the glasses stay together 0.1 s (`highFive.REBOUND`, provisional); a celebration, a dinner.
    */
   export const toast: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanSocial.IToast,
@@ -142,7 +144,7 @@ export namespace HumanSocial {
     kind: "fist",
   });
 
-  /** Rock, paper, scissors: both players pump a fist three times on one start (first pass: each performs `shakeFist` three times; the shared count is the common start, and the throw's hand shape is not set). */
+  /** Rock, paper, scissors: both players pump a fist three times on one start (first pass: each performs `shakeFist` three times; the shared count is the common start, and the throw's hand shape is not set). Three fist pumps on one start; the pump's period is the `shakeFist` law's (provisional, missing a source); settling a choice between two people. */
   export const rockPaperScissors: IAutoMovieMotionHumanMutual<
     object,
     "one" | "other"
@@ -173,7 +175,7 @@ export namespace HumanSocial {
     manner: AutoMovieMotionManner.PRESETS.flick,
   });
 
-  /** Arm wrestling across a table: both perform `armWrestle` on one point of the table's top, `table` in world metres, and `winner` pins the other after `seconds` of struggle (3 when absent), the forearms ending `pin` degrees from upright (the law's own when absent; an angle past either arm's range is refused with the angle it holds). Register the `armWrestle` law with it. */
+  /** Arm wrestling across a table: both perform `armWrestle` on one point of the table's top, `table` in world metres, and `winner` pins the other after `seconds` of struggle (3 when absent), the forearms ending `pin` degrees from upright (the law's own when absent; an angle past either arm's range is refused with the angle it holds). Register the `armWrestle` law with it. The pin lands 3 s after the go when `seconds` is absent, the forearms ending 70 degrees from upright (`armWrestle.PIN`, provisional: no timing or angle study); a friendly contest, a show of strength. */
   export const armWrestle: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanSocial.IArmWrestle,
     "one" | "other"
@@ -200,7 +202,7 @@ export namespace HumanSocial {
     },
   };
 
-  /** Thumb wrestling, first pass: the clasp of a handshake held through five small pumps (the thumbs' own play is not staged yet). */
+  /** Thumb wrestling, first pass: the clasp of a handshake held through five small pumps (the thumbs' own play is not staged yet). Five pumps at the handshake's 2.43 Hz, about 2.1 s (Tagne et al. 2016; `handshake`), after the clasp; a playful contest between friends or siblings. */
   export const thumbWrestle: IAutoMovieMotionHumanMutual<
     object,
     "one" | "other"
@@ -217,7 +219,7 @@ export namespace HumanSocial {
     }),
   };
 
-  /** A toast of four: two pairs clink at once, host with guest and third with fourth, each as `toast` does. With `at`, a world point in metres, all four bring their glasses to that one point (first pass: the four rims are asked to the same point, so they overlap there; each pair keeps its own instants). `glasses` names each role's held glass; mimed with fists without it. */
+  /** A toast of four: two pairs clink at once, host with guest and third with fourth, each as `toast` does. With `at`, a world point in metres, all four bring their glasses to that one point (first pass: the four rims are asked to the same point, so they overlap there; each pair keeps its own instants). `glasses` names each role's held glass; mimed with fists without it. Timing as `toast`; all four glasses meet at once. */
   export const toastOfFour: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanSocial.IToastOfFour,
     "host" | "guest" | "third" | "fourth"

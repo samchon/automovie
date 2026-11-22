@@ -23,14 +23,14 @@ import { touch } from "../touch/touch";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the law.
  */
 export namespace HumanPartner {
-  /** The incoming runner of a relay pass, performed over its run: the baton worn in the hand pushed into the outgoing hand at the stated `at`. The composition gives the partner, `at` and the baton. */
+  /** The incoming runner of a relay pass, performed over its run: the baton worn in the hand pushed into the outgoing hand at the stated `at`. The composition gives the partner, `at` and the baton. It has no timing of its own: the pass happens at `at` over the runner's run (a jog, run or sprint of `IAutoMovieMotionHumanRun`, 2.3 to 6.8 m/s at the reference hip); a relay race. */
   export const relayIncoming: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["relayIncoming"]
   > = HumanActionRow.of("relayIncoming", relayPass, {
     role: "incoming",
   });
 
-  /** The outgoing runner of a relay pass, performed over its run: the hand back and open at the stated `at`, the baton worn on it from then. The composition gives the partner, `at` and the baton. */
+  /** The outgoing runner of a relay pass, performed over its run: the hand back and open at the stated `at`, the baton worn on it from then. The composition gives the partner, `at` and the baton. It has no timing of its own: the hand is back and open at `at` over the runner's run (`IAutoMovieMotionHumanRun`); a relay race. */
   export const relayOutgoing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["relayOutgoing"]
   > = HumanActionRow.of("relayOutgoing", relayPass, {
@@ -85,6 +85,8 @@ export namespace HumanPartner {
    * kinematics goes: the thrower's turning entry, the body carried over the
    * hip and its fall are set by the forces of the throw, the force-determined
    * follow-up's (#3439). Register `judoGrip` and `judoBroken` with it.
+ *
+   * The grip is held 2 s and the receiver held off balance 1 s (`judoGrip`, `judoBroken`, provisional); the throw's own timing is the force input's (#3439); a judo match or a demonstration.
    */
   export const judoThrow: IAutoMovieMotionHumanMutual<object, "tori" | "uke"> =
     {

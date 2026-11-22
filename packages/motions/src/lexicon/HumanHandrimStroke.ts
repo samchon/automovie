@@ -150,6 +150,8 @@ const refuseRim = (
  * @evidence contracts/development/design.md#principled-representation The plan composes the ride's support path with a phase-clocked arm target and grip window for each hand. One-sided rim angles are measured in the chair frame so approach and recovery preserve the material tangent without querying a point outside its window.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One registered action over the reusable HumanRide base and HumanMountRider hand fit.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The prop reader owns the handrim material trajectory. The law computes stage poses and leaves wheel dynamics to the authored course.
+ *
+ * The three phases last the author's `approach`, `push` and `recovery` seconds; no natural value is defined (provisional: no wheelchair-propulsion timing study was read); pushing a manual wheelchair.
  */
 export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandrimStroke> =
   {
