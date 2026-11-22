@@ -155,9 +155,10 @@ export function heldDigits(
  */
 export namespace heldDigits {
   /**
-   * Where a contact riding a hinge or a slider lies at a travel, in its
-   * prop's frame: turned about the hinge's `+Y` through its pivot by the
-   * travel in degrees, or slid along the slider's `+X` by it in metres.
+   * Where a contact riding an articulation lies at a travel, in its prop's
+   * frame: turned about a turning joint's `+Y` through its pivot by the
+   * travel in degrees (a hinge, a wheel, a knob, a crank), or slid along a
+   * slider's `+X` by it in metres.
    *
    * @param joint The articulation the contact rides.
    * @param site The contact.
@@ -171,7 +172,7 @@ export namespace heldDigits {
   ): IAutoMovieVector3 {
     const rest: IAutoMovieVector3 = site.frame.translation;
     const pivot: IAutoMovieVector3 = joint.frame.translation;
-    return joint.kind === "hinge"
+    return TURNING.has(joint.kind)
       ? Vector3.add(
           pivot,
           Quaternion.rotateVector(
@@ -195,6 +196,14 @@ export namespace heldDigits {
         );
   }
 }
+
+/** The articulation kinds whose travel is a turn about the frame's `+Y`, degrees; every other moves along `+X`. */
+const TURNING: ReadonlySet<string> = new Set([
+  "hinge",
+  "wheel",
+  "knob",
+  "crank",
+]);
 
 /** Each hand's digits by name. */
 const DIGITS: Readonly<

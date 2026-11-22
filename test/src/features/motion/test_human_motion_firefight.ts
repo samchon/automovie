@@ -351,7 +351,11 @@ function flames(
       {
         subject: "victim",
         body,
-        at: { x: 0.1, y: 0, z: body.measure.upperArm + body.measure.forearm },
+        at: {
+          x: 0.1,
+          y: 0,
+          z: 0.9 * (body.measure.upperArm + body.measure.forearm),
+        },
         yaw: 90,
         chain: HumanChain.subject("victim").lieDown({}),
       },
