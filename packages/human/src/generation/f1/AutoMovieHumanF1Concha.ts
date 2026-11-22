@@ -22,12 +22,25 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * the lobe. Its back (+v) extreme widens from that section's 8.66 mm to 11.5 and 13.5 mm toward the mouth, so the back wall slopes back
  * toward the antihelix's crest (x 0 to 6 at 88 to 91 mm out, `FamilyConicEar.ts --map`) instead of standing square to the face. Its lower
  * (-u) extreme reads -6 mm across in place of the fit's -10.6; the model holds a guide within 0.92 of its neighbours' box either way. Its
- * front (-v) extreme reaches 8.5 mm forward at the mouth and 7 mm at the floor's level (x 25 to 23.5) in place of the fit's 4.9: the leaf's
+ * front (-v) extreme reaches 8.5 mm forward at the mouth and 7.33 mm at the floor's level (x 25 to 23.83) in place of the fit's 4.9: the leaf's
  * hull spans the concha's mouth in front, 79 to 80 mm out at x 20 to 25 where the reference's tragus and cheek stand 72 to 74 mm out
  * (`FamilyConicEar.ts --map`), and the narrow cutter left that span as a flat wall seen from the front. Its floor (-u extreme) rises
  * toward the mouth, 7.13 mm under the course at the floor's knot, 5.5 at the middle and 3.5 at the mouth (y 1,556 to 1,559.5), so the
  * bowl's lower wall slopes up to the antitragus (79 to 84 mm out at y 1,556 to 1,560 on the reference's map) instead of standing level
  * the bowl's whole depth as a lit ledge.
+ *
+ * The floor meets the front wall in one conic arc, from the floor's lowest point (the -u extreme) to the front's farthest point (the -v
+ * extreme). The front extreme's height stood at -8.73 mm, under the floor at every knot, so the section's guide box held it at 0.92 of the
+ * floor's depth (`AutoMovieHumanConicSection.resolve`) and left the arc a triangle 0.28 to 0.57 mm on its upright leg: a corner of 0.05,
+ * 0.17 and 0.43 mm radius at knots 3, 9 and 15, which the cut's quarter-millimetre blend could not round (its rail ran backward there on
+ * allsite95). On the reference's outer skin at the floor's level (z 69, `FamilyConicEar.ts --map`, 2 mm by 3 mm cells) the floor's lowest
+ * point stands at x 20, y 1,556 and the front wall reaches farthest forward at x 21.3, y 1,559: 1.33 mm in front of the floor and 3 mm
+ * above it, a wall turning over millimetres with no corner the map resolves; above 74 mm the bowl opens through the intertragic notch onto
+ * the cheek, so the shallower knots close an invented corner. So the front extreme now stands 2 mm above the floor's lowest point at every
+ * knot (within the map's 3 mm cells of its reading of 3; at 3 the floor's knot's arc falls to 0.84 mm), and at the floor's knot it
+ * stands the reference's 1.33 mm in front of the floor (7.33 mm forward in place of 7). The arc's least radius, from its conic (shoulder
+ * 0.4705), is 1.67, 1.46 and 1.07 mm at knots 3, 9 and 15, at least four times the cut's 0.25 mm blend, the rounding the armpit cutters'
+ * invented corners take (`FamilyConicBody.ts`, `CONSTRUCT_CORNER_MM`).
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs
  * through `centres` with a turn of half length `halves` at each joint; stations are arclength from the first centre and each
@@ -65,10 +78,10 @@ export const AutoMovieHumanF1Concha: IAutoMovieHumanConicLoft.IFamily = {
     [-3.5, -5.5, -7.13],
     // back (-u) extreme: v, mm
     [-6, -6, -6],
-    // side (-v) extreme: u, mm
-    [-8.73, -8.73, -8.73],
+    // side (-v) extreme: u, mm: the floor's lowest point (back (-u) extreme: u) plus 2 mm
+    [-1.5, -3.5, -5.13],
     // side (-v) extreme: v, mm
-    [-8.5, -7.75, -7],
+    [-8.5, -7.75, -7.33],
     // shoulder rho of the arc after anchor 0, share
     [0.4816, 0.4816, 0.4816],
     // shoulder rho of the arc after anchor 1, share

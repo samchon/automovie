@@ -1,5 +1,6 @@
 import type {
   IAutoMovieContactReceipt,
+  IAutoMovieDeliveryContentAudit,
   IAutoMovieMark,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalOwnershipEvent,
@@ -7,6 +8,13 @@ import type {
   IAutoMoviePhysicalSupportWrench,
   IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
+import type {
+  IAutoMovieDrawScene,
+  IObserveAutoMoviePlacedScene,
+  ISelectAutoMoviePlacedChecks,
+  observeAutoMoviePlacedCamera,
+  observeAutoMovieSceneCollision,
+} from "@automovie/render";
 import type * as THREE from "three";
 
 /**
@@ -37,6 +45,65 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the film and the draw scene own their lifetimes.
    */
   softPropsAt?: (seconds: number) => readonly IAutoMovieRenderSoftPropFrame[];
+
+  /** Additional authored diagnostics for the settled film, read before inspection masks or review cameras. */
+  inspectPlaced?: IAutoMovieDrawScene["inspectPlaced"];
+
+  /**
+   * Optional source-owned shot layers, exemptions and motion cells for the settled collision scene.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that the film supplies them for the settled sample and what they scope.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the layer producer; this signature has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The film owns the layer producer; this signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature returns producer-owned layers without providing a fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The film owns any reuse of its shot layers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the film and the inspection own their lifetimes.
+   */
+  inspectionLayers?: (
+    sample: IAutoMovieDrawScene.IPlacedSample,
+  ) => Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"];
+
+  /**
+   * Independent support, grip, custody and continuity expectations for the settled film.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which expectations the film supplies and for which sample.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the expectation producer; this signature has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The film owns the expectation producer; this signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature returns producer-owned checks without providing a fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The film owns any reuse of its expectations.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the film and the inspection own their lifetimes.
+   */
+  inspectionChecks?: (
+    sample: IAutoMovieDrawScene.IPlacedSample,
+  ) => readonly IObserveAutoMoviePlacedScene.ICheck[];
+
+  /**
+   * Subjects the current source shot requires the delivery camera to show at the placed second.
+   *
+   * Return only the requirements active at `sample.time`: leaving a subject out before its intended entry, or while the shot means it to be hidden, is how a shot allows off-screen or obscured action. Each returned subject is checked against the delivery projection, crop and aspect for leaving the frame, lying wholly before the near or past the far plane and being cut by the near plane, with an actor framed by its current pose. `maxOcclusionRatio` adds a pixel-occlusion limit that only the delivery render measures.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which subjects to return at the placed second, how omission allows off-screen action, and what each returned subject is checked against.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the requirement producer; this signature has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The film owns the requirement producer; this signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature returns producer-owned requirements without providing a fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The film owns any reuse of its requirements.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the film and the inspection own their lifetimes.
+   */
+  inspectionCamera?: (
+    sample: IAutoMovieDrawScene.IPlacedSample,
+  ) => Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"];
+
+  /** Optional source intent for the delivered media, including any soundtrack. */
+  delivery?: IAutoMovieDeliveryContentAudit.IIntent;
+
+  /** The film's cut, layout and declared breaks, so motion is never examined across a cut or break. Absent treats the whole film as one continuous shot. */
+  playback?: Pick<
+    ISelectAutoMoviePlacedChecks.IContinuity,
+    "sequence" | "timeline" | "discontinuities"
+  >;
 
   /** Inspection mark kinds that may first appear after second zero; `marks` still supplies their actual geometry at the drawn second. */
   markKinds?: readonly string[];

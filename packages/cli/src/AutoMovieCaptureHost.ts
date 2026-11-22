@@ -13,11 +13,9 @@ import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
 import type { IAutoMovieChromium } from "./IAutoMovieChromium";
 import { launchAutoMovieChromium } from "./launchAutoMovieChromium";
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
+import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { serveAutoMovieDrawPage } from "./serveAutoMovieDrawPage";
-
-/** Milliseconds one page call may take before its cell fails: two minutes, room for SwiftShader to draw a large raster of a heavy scene. */
-const TIMEOUT: number = 120_000;
 
 /**
  * The Node host that draws a production's subjects in headless Chromium: one built draw page, one browser, and any number of sessions, captures and renders through them.
@@ -48,6 +46,9 @@ export class AutoMovieCaptureHost {
   /** The production's root folder. */
   private readonly root: string;
 
+  /** Per-call milliseconds for draw-function readiness, subject description/creation and drawing, not a total build or render deadline. */
+  private readonly timeout: number;
+
   /** The launched browser. */
   private readonly browser: IAutoMovieChromium.IBrowser;
 
@@ -59,12 +60,14 @@ export class AutoMovieCaptureHost {
     render: typeof Render;
     backend: string;
     root: string;
+    timeout: number;
     browser: IAutoMovieChromium.IBrowser;
     page: { url: string; close: () => Promise<void> };
   }) {
     this.render = props.render;
     this.backend = props.backend;
     this.root = props.root;
+    this.timeout = props.timeout;
     this.browser = props.browser;
     this.page = props.page;
   }
@@ -72,7 +75,7 @@ export class AutoMovieCaptureHost {
   /**
    * Load the production's packages, build and serve the draw page for the subject module, and launch Chromium.
    *
-   * It rejects naming a package the production lacks, a missing module, a failed build, and a missing Chromium with the command that installs it; whatever was started before the failure is stopped.
+   * It validates the optional draw-session budget before acquiring resources. It rejects naming a package the production lacks, a missing module, a failed build, and a missing Chromium with the command that installs it; whatever was started before the failure is stopped.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the three steps, the refusals and the cleanup.
    * @evidence contracts/development/implementation.md#principled-implementation Every package comes from the production, so the page draws with the renderer the production installed, and the browser is Playwright's pinned build with the stated backend.
@@ -94,7 +97,12 @@ export class AutoMovieCaptureHost {
 
     /** The environment, read for `CHROME_PATH`. */
     env: Readonly<Record<string, string | undefined>>;
+
+    /** Per-call milliseconds for draw-function readiness, subject description/creation and drawing; absent, 120000. This is not a total build or render deadline. Invalid timer delays fail before resources are acquired. */
+    timeout?: number;
   }): Promise<AutoMovieCaptureHost> {
+    const timeout: number = readAutoMoviePageTimeout(props.timeout);
+
     const render: typeof Render = loadAutoMovieProductionModule(
       props.root,
       "@automovie/render",
@@ -124,6 +132,7 @@ export class AutoMovieCaptureHost {
         render,
         backend: launched.backend,
         root: props.root,
+        timeout,
         browser: launched.browser,
         page,
       });
@@ -183,7 +192,7 @@ export class AutoMovieCaptureHost {
           url: this.page.url,
           props: { subject: props.subject, props: props.props },
           backend: this.backend,
-          timeout: TIMEOUT,
+          timeout: this.timeout,
         }),
         failed,
       ]);

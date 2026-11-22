@@ -1,8 +1,7 @@
-import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
 /**
  * f1's finger.ring tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -22,13 +21,8 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  */
 export const AutoMovieHumanF1FingerRing: IAutoMovieHumanConicLoft.IFamily = {
   name: "finger.ring",
-  centres: [
-    AutoMovieHumanF1Joints.ring1,
-    AutoMovieHumanF1Joints.ring2,
-    AutoMovieHumanF1Joints.ring3,
-    AutoMovieHumanF1Joints.ringEnd,
-  ],
-  halves: [5, 5],
+  centres: [AutoMovieHumanF1Joints.ring1, AutoMovieHumanF1Joints.ring2, AutoMovieHumanF1Joints.ring3, AutoMovieHumanF1Joints.ringEnd],
+  halves: [5,5],
   up: AutoMovieHumanF1Placement.direction("finger.ring.up"),
   layout: AutoMovieHumanConicSection.limb(1),
   knots: [24, 38, 44, 53.5, 64, 74, 83],
@@ -76,5 +70,8 @@ export const AutoMovieHumanF1FingerRing: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, { from: 83, tip: 86.13 }],
+  // Each extreme closes on its own outline's taper and bend (`own`, lofting.md: a closing law meets the wall's slope and bend where the two
+  // meet): with one taper for the whole section the cap left the wall on the +v side 0.12 mm a millimetre toward the tip against the
+  // wall's 0.17 (secants over the last span), and underneath 0.15 against 0.12.
+  tips: [null, {from: 83, tip: 86.13, own: true}],
 };

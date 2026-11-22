@@ -1,3 +1,5 @@
+import { AutoMovieHumanConicRecentre } from "./AutoMovieHumanConicRecentre";
+import { AutoMovieHumanConicSection } from "./AutoMovieHumanConicSection";
 import {
   AutoMovieLoftChain,
   AutoMovieNaturalSpline,
@@ -10,6 +12,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicRecentre,
   IAutoMovieHumanConicSection,
   IAutoMovieLoftRelief,
   IAutoMovieLoftSectionFrame,
@@ -19,8 +22,6 @@ import type {
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
 } from "@automovie/interface";
-
-import { AutoMovieHumanConicSection } from "./AutoMovieHumanConicSection";
 
 /**
  * A conic family as it is authored, and its generation through the engine's
@@ -32,6 +33,47 @@ import { AutoMovieHumanConicSection } from "./AutoMovieHumanConicSection";
  * that wall. Nothing else defines the part's surface.
  */
 export namespace AutoMovieHumanConicLoft {
+
+  /**
+   * The eased roll's angle and its first two derivatives along the station (`IRoll.eases`).
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation On a stretch the slope is `m S(x / a)` over the first ease, `m` between, `m S((L - x) / b)` over the last, `S` the quintic smoothstep whose integral over its window is half the window, so the angle is the closed-form integral and reaches the second value exactly with `m = d / (L - (a + b) / 2)`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One stretch search and one polynomial per read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Eases longer than their stretch, negative eases and mismatched counts are refused; a stretch of equal values returns that value with no arithmetic on it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the knot count per read; no solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The admission runs once at creation and the closure serves every read.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure borrows the roll's three arrays.
+   * @evidence contracts/development/common.md#meaningful-documentation States the law, its units and each refusal.
+   */
+  export function eased(roll: IAutoMovieHumanConicLoft.IRoll): (station: number) => [number, number, number] {
+    const { knots, values }: IAutoMovieHumanConicLoft.IRoll = roll;
+    const eases: number[] | undefined = roll.eases;
+    if (eases === undefined || eases.length !== knots.length || values.length !== knots.length || knots.length < 2) throw new Error("roll: an eased roll needs one value and one ease per knot, at least two knots");
+    for (let i: number = 0; i + 1 < knots.length; ++i) {
+      if (!(knots[i + 1]! > knots[i]!)) throw new Error("roll: the knots must increase");
+      if (!(eases[i]! >= 0 && eases[i + 1]! >= 0 && eases[i]! + eases[i + 1]! <= knots[i + 1]! - knots[i]!)) throw new Error("roll: the eases of the stretch from " + knots[i] + " to " + knots[i + 1] + " mm are negative or longer than it");
+    }
+    // The quintic smoothstep, its integral from 0 and its derivative, at a share of its window.
+    const step = (t: number): number => t * t * t * (10 + t * (-15 + 6 * t));
+    const lift = (t: number): number => t * t * t * t * (2.5 + t * (-3 + t));
+    const rate = (t: number): number => 30 * t * t * (1 - t) * (1 - t);
+    return (station: number): [number, number, number] => {
+      if (station <= knots[0]!) return [values[0]!, 0, 0];
+      if (station >= knots.at(-1)!) return [values.at(-1)!, 0, 0];
+      let i: number = 0;
+      while (station > knots[i + 1]!) ++i;
+      const [from, to]: [number, number] = [values[i]!, values[i + 1]!];
+      if (from === to) return [from, 0, 0];
+      const [L, a, b]: [number, number, number] = [knots[i + 1]! - knots[i]!, eases[i]!, eases[i + 1]!];
+      const m: number = (to - from) / (L - (a + b) / 2);
+      const x: number = station - knots[i]!;
+      if (x < a) return [from + m * a * lift(x / a), m * step(x / a), (m * rate(x / a)) / a];
+      if (x <= L - b) return [from + m * (x - a / 2), m, 0];
+      const t: number = (L - x) / b;
+      return [to - m * b * lift(t), m * step(t), (-m * rate(t)) / b];
+    };
+  }
+
   /** Share of a cap's first section's size under which a coordinate keeps the shared factor (`ITip.own`). */
   const OWN_LEAST: number = 0.05;
 
@@ -67,12 +109,33 @@ export namespace AutoMovieHumanConicLoft {
    */
   const PHASE_MM: number = 4;
 
-  /** The part's course as the engine reads it, its chart turned by the part's roll. */
+  /**
+   * The part's course as the engine reads it, its chart turned by the part's roll and its origin on the part's origin line.
+   *
+   * The origin line is applied last, in the rolled chart the section values are written in. Absent, or with every shift zero, the result
+   * is the course's own axis object, so a family without a line reads exactly as before the line existed.
+   */
   export function axis(
-    family: Pick<
-      IAutoMovieHumanConicLoft.IFamily,
-      "centres" | "halves" | "up" | "roll"
-    >,
+    family: Pick<IAutoMovieHumanConicLoft.IFamily, "centres" | "halves" | "up" | "roll" | "native"> &
+      Partial<Pick<IAutoMovieHumanConicLoft.IFamily, "origin" | "knots">>,
+  ): IAutoMovieViewAxis.IAxis {
+    if (family.native !== undefined) return family.native.axis;
+    const base: IAutoMovieViewAxis.IAxis = carried(family);
+    const line: IAutoMovieHumanConicRecentre.ILine | undefined = family.origin;
+    if (
+      line === undefined ||
+      (line.u.every((x: number): boolean => x === 0) &&
+        line.v.every((x: number): boolean => x === 0))
+    )
+      return base;
+    if (family.knots === undefined)
+      throw new Error("course: an origin line needs the family's knots");
+    return AutoMovieHumanConicRecentre.axis(base, family.knots, line);
+  }
+
+  /** The course through the centres with its chart turned by the roll: the line the origin line is measured from. */
+  function carried(
+    family: Pick<IAutoMovieHumanConicLoft.IFamily, "centres" | "halves" | "up" | "roll">,
   ): IAutoMovieViewAxis.IAxis {
     const made: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
       family.centres,
@@ -82,10 +145,14 @@ export namespace AutoMovieHumanConicLoft {
     if (typeof made === "string") throw new Error("course: " + made);
     if (family.roll === undefined) return made;
     const base: IAutoMovieViewAxis.IAxis = made;
-    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
-      family.roll.knots,
-      family.roll.values,
-    );
+    const read: (station: number) => [number, number, number] =
+      family.roll.eases !== undefined
+        ? eased(family.roll)
+        : ((spline: IAutoMovieNaturalCubicSpline) =>
+            (station: number): [number, number, number] =>
+              AutoMovieNaturalSpline.read(spline, station))(
+            AutoMovieNaturalSpline.create(family.roll.knots, family.roll.values),
+          );
     // With c = cos(a) and s = sin(a): u' = c u + s v and v' = c v - s u, so with the angle's derivatives a' and a'' along the station,
     // u'_1 = c u_1 + s v_1 + a' v', v'_1 = c v_1 - s u_1 - a' u', and
     // u'_2 = c u_2 + s v_2 + 2 a' (c v_1 - s u_1) + a'' v' - a'^2 u', v'_2 = c v_2 - s u_2 - 2 a' (c u_1 + s v_1) - a'' u' - a'^2 v'.
@@ -95,17 +162,13 @@ export namespace AutoMovieHumanConicLoft {
       c: number,
       s: number,
     ): [AutoMovieVector3Tuple, AutoMovieVector3Tuple] => [
-      [0, 1, 2].map(
-        (k: number): number => c * u[k]! + s * v[k]!,
-      ) as AutoMovieVector3Tuple,
-      [0, 1, 2].map(
-        (k: number): number => c * v[k]! - s * u[k]!,
-      ) as AutoMovieVector3Tuple,
+      [0, 1, 2].map((k: number): number => c * u[k]! + s * v[k]!) as AutoMovieVector3Tuple,
+      [0, 1, 2].map((k: number): number => c * v[k]! - s * u[k]!) as AutoMovieVector3Tuple,
     ];
     return {
       at: (station: number): IAutoMovieLoftSectionFrame => {
         const frame: IAutoMovieLoftSectionFrame = base.at(station);
-        const angle: number = AutoMovieNaturalSpline.evaluate(spline, station);
+        const angle: number = read(station)[0];
         const [u, v]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(
           frame.u,
           frame.v,
@@ -123,15 +186,11 @@ export namespace AutoMovieHumanConicLoft {
             ): IAutoMovieViewAxisJet.IJet | null => {
               const jet: IAutoMovieViewAxisJet.IJet | null = base.jet!(station);
               if (jet === null) return null;
-              const [a, a1, a2]: [number, number, number] =
-                AutoMovieNaturalSpline.read(spline, station);
+              const [a, a1, a2]: [number, number, number] = read(station);
               const [c, s]: [number, number] = [Math.cos(a), Math.sin(a)];
-              const [u, v]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] =
-                turn(jet.value.u, jet.value.v, c, s);
-              const [u1, v1]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] =
-                turn(jet.first.u, jet.first.v, c, s);
-              const [u2, v2]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] =
-                turn(jet.second.u, jet.second.v, c, s);
+              const [u, v]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(jet.value.u, jet.value.v, c, s);
+              const [u1, v1]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(jet.first.u, jet.first.v, c, s);
+              const [u2, v2]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(jet.second.u, jet.second.v, c, s);
               const rolled: IAutoMovieViewAxisJet.IJet = {
                 value: { origin: jet.value.origin, u, v },
                 first: {
@@ -164,7 +223,7 @@ export namespace AutoMovieHumanConicLoft {
   /** The family's field vector at one station. */
   export function reader(
     family: Pick<IAutoMovieHumanConicLoft.IFamily, "knots" | "values">,
-  ): IAutoMovieHumanConicLoft.ReaderResult {
+  ): (s: number) => number[] {
     const splines: IAutoMovieNaturalCubicSpline[] = family.values.map(
       (field: number[]): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(family.knots, field),
@@ -175,6 +234,20 @@ export namespace AutoMovieHumanConicLoft {
       );
   }
 
+  /**
+   * Read complete controls in the caller's actual cap/relief scope before lofting.
+   * Native requests share the canonical source owner. Ordinary requests use the
+   * existing source producer with turn-density sampling absent; scalar functions
+   * retain the caller's explicit station grid and actual caps.
+   */
+  export function source(
+    family: IAutoMovieHumanConicLoft.IFamily,
+    requested: number[] = family.knots,
+  ): IAutoMovieViewPart {
+    return family.native === undefined
+      ? part({ ...family, turn: undefined }, requested)
+      : family.native.source(family);
+  }
   /**
    * The engine's view part of a family.
    *
@@ -192,11 +265,13 @@ export namespace AutoMovieHumanConicLoft {
     family: IAutoMovieHumanConicLoft.IFamily,
     requested: number[],
   ): IAutoMovieViewPart {
+    if (family.native !== undefined)
+      return family.native.part(family, requested);
     const read: (s: number) => number[] = reader(family);
-    const [bottom, top]: [
-      IAutoMovieHumanConicLoft.ITip | null,
-      IAutoMovieHumanConicLoft.ITip | null,
-    ] = family.tips ?? [null, null];
+    const [bottom, top]: [IAutoMovieHumanConicLoft.ITip | null, IAutoMovieHumanConicLoft.ITip | null] = family.tips ?? [
+      null,
+      null,
+    ];
 
     // The fields own the stations between the caps; each cap starts on a station of its own.
     const owned: number[] = [
@@ -482,13 +557,6 @@ export namespace AutoMovieHumanConicLoft {
     );
 
     // And no farther apart than the finest relief net's columns, as the layers are cut to its rows: a net shows only what the rings sample.
-    const finest: number = Math.min(
-      family.phase ?? Infinity,
-      ...(family.reliefs ?? []).map(
-        (relief: IAutoMovieLoftRelief): number =>
-          (relief.phases[1] - relief.phases[0]) / (relief.columns - 3),
-      ),
-    );
     const made: IAutoMovieViewPart = {
       name: family.name,
       axis: axis(family),
@@ -525,20 +593,65 @@ export namespace AutoMovieHumanConicLoft {
         pieces: quarters(pieces),
       },
       order: 32,
-      samples: Math.max(
-        48,
-        8 *
-          Math.ceil(
-            Math.max(
-              girth / (family.pitch ?? PHASE_MM),
-              (2 * Math.PI) / finest,
-            ) / 8,
-          ),
-      ),
+      samples: phaseCount(family, girth),
       ...(family.reliefs === undefined || family.reliefs.length === 0
         ? {}
         : { reliefs: family.reliefs }),
     };
+    return sampled(family, made, stations);
+  }
+
+  /**
+   * Existing phase-density count, independent of scalar-source construction.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps the original minimum48 and multiple8 rule from actual girth, pitch, phase and the finest relief columns.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Ordinary and invocation-owned sources call one phase-count formula.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sampling inputs change only sampling, never scalar controls or source domains.
+   * @evidence contracts/development/common.md#meaningful-documentation Girth/pitch use physical mm and phase windows use radians.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One linear relief-window pass, with no family or loft reconstruction.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure count has no work across calls to coordinate.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function phaseCount(
+    family: Pick<IAutoMovieHumanConicLoft.IFamily, "pitch" | "phase" | "reliefs">,
+    girth: number,
+  ): number {
+    const finest: number = Math.min(
+      family.phase ?? Infinity,
+      ...(family.reliefs ?? []).map(
+        (relief: IAutoMovieLoftRelief): number =>
+          (relief.phases[1] - relief.phases[0]) / (relief.columns - 3),
+      ),
+    );
+    return Math.max(
+      48,
+      8 *
+        Math.ceil(
+          Math.max(girth / (family.pitch ?? PHASE_MM), (2 * Math.PI) / finest) /
+            8,
+        ),
+    );
+  }
+
+  /**
+   * Apply the existing phase-turn density rule to the actual original part.
+   * The supplied stations are regular wall rings, including cap starts and
+   * excluding collapsed poles/cap interiors. All emitted cap layers remain
+   * in the supplied part's own stations.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Reuses the existing native loft/spacing owner on the supplied source, with the caller's pitch/phase/turn and real relief windows; scalar source generation is separate from mesh density.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The ordinary and invocation-owned part factories call this one existing sampling rule.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A sampling request never replaces the source's scalar controls; a failed spacing loft retains the original part as the existing rule does, leaving actual admission to its consumer.
+   * @evidence contracts/development/common.md#meaningful-documentation Names scalar-source separation and the actual caller sampling inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains spaced's station-by-phase cost only when turn spacing is requested; the ordinary path returns immediately.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both original and native-generated sources share the same phase-density implementation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary raw chain belongs to this synchronous sampling call and only its bounded phase list survives with the part.
+   */
+  export function sampled(
+    family: Pick<IAutoMovieHumanConicLoft.IFamily, "turn" | "pitch" | "phase" | "reliefs">,
+    made: IAutoMovieViewPart,
+    stations: readonly number[],
+  ): IAutoMovieViewPart {
     if (family.turn === undefined) return made;
 
     // Phases spaced by turn: read on the part's own lofted chain, whose phase is its sections' B-spline parameter, not their conics' polar
@@ -546,6 +659,13 @@ export namespace AutoMovieHumanConicLoft {
     // 0.46 rad between two of them, against 0.1 asked.
     const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(made);
     if (loft.chain === null) return made;
+    const finest: number = Math.min(
+      family.phase ?? Infinity,
+      ...(family.reliefs ?? []).map(
+        (relief: IAutoMovieLoftRelief): number =>
+          (relief.phases[1] - relief.phases[0]) / (relief.columns - 3),
+      ),
+    );
     const phases: number[] = spaced(
       loft.chain,
       stations,
@@ -654,12 +774,9 @@ export namespace AutoMovieHumanConicLoft {
    * @param family A family whose layout is not itself a mirror layout.
    * @param name The twin's chain name.
    */
-  export function mirror(
-    family: IAutoMovieHumanConicLoft.IFamily,
-    name: string,
-  ): IAutoMovieHumanConicLoft.IFamily {
-    const anchors: IAutoMovieHumanConicSection.IAnchor[] =
-      family.layout.anchors;
+  export function mirror(family: IAutoMovieHumanConicLoft.IFamily, name: string): IAutoMovieHumanConicLoft.IFamily {
+    if (family.native !== undefined) return family.native.mirror(family, name);
+    const anchors: IAutoMovieHumanConicSection.IAnchor[] = family.layout.anchors;
     const K: number = anchors.length;
     if (family.layout.mirror)
       throw new Error(
@@ -765,11 +882,7 @@ export namespace AutoMovieHumanConicLoft {
           values[twinAt[j]! + 2]![m] = read.values[2];
         }
       });
-    const flip = (v: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
-      v[0],
-      v[1],
-      -v[2],
-    ];
+    const flip = (v: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [v[0], v[1], -v[2]];
     return {
       name,
       centres: family.centres.map(flip),
@@ -782,6 +895,18 @@ export namespace AutoMovieHumanConicLoft {
             roll: {
               knots: [...family.roll.knots],
               values: family.roll.values.map((angle: number): number => -angle),
+              ...(family.roll.eases === undefined ? {} : { eases: [...family.roll.eases] }),
+            },
+          }),
+      // The reflected chart keeps `u` and negates `v`, so the twin's origin line is the original's with its `v` shifts negated.
+      ...(family.origin === undefined
+        ? {}
+        : {
+            origin: {
+              u: [...family.origin.u],
+              v: family.origin.v.map((x: number): number =>
+                x === 0 ? 0 : -x,
+              ),
             },
           }),
       // The twin's anchor `j` is the original's `(K - j) % K`, so its arc `j`, from anchor `j` to `j + 1`, is the original's arc `K - 1 - j`
@@ -819,17 +944,11 @@ export namespace AutoMovieHumanConicLoft {
       ...(family.tips === undefined
         ? {}
         : {
-            tips: family.tips.map(
-              (
-                tip: IAutoMovieHumanConicLoft.ITip | null,
-              ): IAutoMovieHumanConicLoft.ITip | null =>
-                tip === null || tip.centre === undefined
-                  ? tip
-                  : { ...tip, centre: [tip.centre[0], -tip.centre[1]] },
-            ) as [
-              IAutoMovieHumanConicLoft.ITip | null,
-              IAutoMovieHumanConicLoft.ITip | null,
-            ],
+            tips: family.tips.map((tip: IAutoMovieHumanConicLoft.ITip | null): IAutoMovieHumanConicLoft.ITip | null =>
+              tip === null || tip.centre === undefined
+                ? tip
+                : { ...tip, centre: [tip.centre[0], -tip.centre[1]] },
+            ) as [IAutoMovieHumanConicLoft.ITip | null, IAutoMovieHumanConicLoft.ITip | null],
           }),
       ...(family.pitch === undefined ? {} : { pitch: family.pitch }),
       ...(family.turn === undefined ? {} : { turn: family.turn }),

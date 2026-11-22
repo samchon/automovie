@@ -43,6 +43,23 @@ export namespace IAutoMovieSolidCycle {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cycle holds the builder's function for its own lifetime; copies share it and retain nothing else.
      */
     along?: (v: number) => number;
+
+    /**
+     * The exact boundary this cycle samples, when one generating owner supplies it to both faces (a port's curve on the host and the
+     * band's start edge, the band's end edge and the part's rail): the face's kept side of that curve, and the neighbour's chart point
+     * for a point past it, both read on the curve between the stored vertices as well as at them. It describes the cycle as it was
+     * built; once a clip has edited the cycle, `segments` says which segments still lie on it. No tolerance and no fallback face is
+     * added by it.
+     */
+    exact?: IExact;
+
+    /**
+     * Per segment of a cycle a clip has edited (`divide`, and the clip's rebuilt cycles): the exact boundary the segment still lies
+     * on, or null for a chord. A segment between two consecutive vertices of an owner's boundary keeps that owner's readers; a segment
+     * a clip made, by placing a crossing into a segment or by laying its own run, is the chord between its vertices. Absent, the
+     * cycle is as built and `exact` covers every segment.
+     */
+    segments?: (IExactSegment | null)[];
   }
 
   /**
@@ -84,5 +101,65 @@ export namespace IAutoMovieSolidCycle {
 
     /** The chart distance to it, the point's phase moved by whole periods to the segment's. */
     distance: number;
+  }
+
+  /**
+   * The exact boundary one segment of an edited cycle lies on (`ICycle.segments`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the readers' owner and what the sense orients.
+   * @evidence contracts/development/design.md#principled-representation An edited cycle is a chain of pieces of its owners' curves and of clips' chords, so exactness is a property of a segment: a cut that crosses a seam at one column leaves every other column on the owner's curve, and a cycle joined from two trims has two owners.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The owner's shared readers and one sign; the segment's ends are the cycle's own chart points.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores no copy of the curve, no vertex-count proxy and no tolerance; the sign is fixed by the cycle the owner built and reversed only with the segment's direction.
+   */
+  export interface IExactSegment {
+    /** The owner's readers, shared with every other segment of that boundary. */
+    exact: IExact;
+
+    /**
+     * Which side of the directed chord the owner's boundary removes: a chart point `p` beside the segment from `a` to `b` lies on the
+     * removed side of the chord when `sense * cross(b - a, p - a)` is positive.
+     */
+    sense: number;
+  }
+
+  /**
+   * One shared boundary's exact readers on a face's chart (`ICycle.exact`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the count's role, the kept reading and the correspondence.
+   * @evidence contracts/development/design.md#principled-representation The atlas's kept test and crossing map read the generating owner's curve directly, so the two faces of one seam own complementary sides of one curve and map a point across it to the same physical point.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A count, an optional kept reader for a boundary whose chords are not already exact, and the crossing map.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The readers are the owner's; nothing is fitted or clamped here.
+   */
+  export interface IExact {
+    /** The vertex count the cycle was built with: the readers cover a cycle of that count with no `segments`, every segment of it. */
+    count: number;
+
+    /**
+     * Whether a chart point lies on the face's kept side of the curve, or on it; absent where the cycle's own chart is already the
+     * exact curve (a band's station line).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the reading and the absent case.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the owner's curve is the implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the owner's.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
+     */
+    kept?: (u: number, v: number) => boolean;
+
+    /**
+     * The neighbour's chart point corresponding to a chart point past the curve: the point's foot on the curve by the owner's
+     * correspondence, read in the neighbour's chart.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the foot and the chart it returns.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the owner's correspondence is the implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the owner's.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
+     */
+    across: (u: number, v: number) => [number, number];
   }
 }

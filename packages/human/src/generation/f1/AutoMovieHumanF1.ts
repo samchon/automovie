@@ -1,5 +1,45 @@
+import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
+import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import { AutoMovieHumanChainTopology } from "../frame/AutoMovieHumanChainTopology";
+import {
+  AutoMovieHumanHipSupportPlacement,
+} from "../frame/AutoMovieHumanHipSupportPlacement";
+import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
+import { AutoMovieHumanF1Antihelix } from "./AutoMovieHumanF1Antihelix";
+import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
+import { AutoMovieHumanF1ArmEnd } from "./AutoMovieHumanF1ArmEnd";
+import { AutoMovieHumanF1Axilla } from "./AutoMovieHumanF1Axilla";
+import { AutoMovieHumanF1Breast } from "./AutoMovieHumanF1Breast";
+import { AutoMovieHumanF1Centres } from "./AutoMovieHumanF1Centres";
+import { AutoMovieHumanF1Concha } from "./AutoMovieHumanF1Concha";
+import { AutoMovieHumanF1FingerIndex } from "./AutoMovieHumanF1FingerIndex";
+import { AutoMovieHumanF1FingerMiddle } from "./AutoMovieHumanF1FingerMiddle";
+import { AutoMovieHumanF1FingerPinky } from "./AutoMovieHumanF1FingerPinky";
+import { AutoMovieHumanF1FingerRing } from "./AutoMovieHumanF1FingerRing";
+import { AutoMovieHumanF1FingerThumb } from "./AutoMovieHumanF1FingerThumb";
+import { AutoMovieHumanF1Hand } from "./AutoMovieHumanF1Hand";
+import { AutoMovieHumanF1Helix } from "./AutoMovieHumanF1Helix";
+import { AutoMovieHumanF1Leg } from "./AutoMovieHumanF1Leg";
+import { AutoMovieHumanF1NativeFanControls } from "./AutoMovieHumanF1NativeFanControls";
+import { AutoMovieHumanF1NativeLaw } from "./AutoMovieHumanF1NativeLaw";
+import { AutoMovieHumanF1Nose } from "./AutoMovieHumanF1Nose";
+import { AutoMovieHumanF1Nostril } from "./AutoMovieHumanF1Nostril";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import { AutoMovieHumanF1Placing } from "./AutoMovieHumanF1Placing";
+import { AutoMovieHumanF1Plate } from "./AutoMovieHumanF1Plate";
+import { AutoMovieHumanF1RootControls } from "./AutoMovieHumanF1RootControls";
+import { AutoMovieHumanF1RootRails } from "./AutoMovieHumanF1RootRails";
+import { AutoMovieHumanF1SegmentLengths } from "./AutoMovieHumanF1SegmentLengths";
+import { AutoMovieHumanF1SourceScope } from "./AutoMovieHumanF1SourceScope";
+import { AutoMovieHumanF1ToeBig } from "./AutoMovieHumanF1ToeBig";
+import { AutoMovieHumanF1ToeIndex } from "./AutoMovieHumanF1ToeIndex";
+import { AutoMovieHumanF1ToeLittle } from "./AutoMovieHumanF1ToeLittle";
+import { AutoMovieHumanF1ToeMiddle } from "./AutoMovieHumanF1ToeMiddle";
+import { AutoMovieHumanF1ToeRing } from "./AutoMovieHumanF1ToeRing";
+import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
 import {
   AutoMovieLoftChain,
+  AutoMovieLoftViewFullSource,
   AutoMovieNaturalSpline,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
@@ -11,43 +51,21 @@ import type {
   IAutoMovieConstructionPortLoop,
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionSplit,
+  IAutoMovieHumanBodyIdentity,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,
   IAutoMovieHumanF1,
+  IAutoMovieHumanF1NativeLaw,
+  IAutoMovieHumanF1NativeRoot,
   IAutoMovieHumanF1Placement,
   IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
   IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftViewFullSource,
   IAutoMovieViewAxis,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
 } from "@automovie/interface";
-
-import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
-import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
-import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
-import { AutoMovieHumanF1Antihelix } from "./AutoMovieHumanF1Antihelix";
-import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
-import { AutoMovieHumanF1Axilla } from "./AutoMovieHumanF1Axilla";
-import { AutoMovieHumanF1Breast } from "./AutoMovieHumanF1Breast";
-import { AutoMovieHumanF1Concha } from "./AutoMovieHumanF1Concha";
-import { AutoMovieHumanF1FingerIndex } from "./AutoMovieHumanF1FingerIndex";
-import { AutoMovieHumanF1FingerMiddle } from "./AutoMovieHumanF1FingerMiddle";
-import { AutoMovieHumanF1FingerPinky } from "./AutoMovieHumanF1FingerPinky";
-import { AutoMovieHumanF1FingerRing } from "./AutoMovieHumanF1FingerRing";
-import { AutoMovieHumanF1FingerThumb } from "./AutoMovieHumanF1FingerThumb";
-import { AutoMovieHumanF1Hand } from "./AutoMovieHumanF1Hand";
-import { AutoMovieHumanF1Helix } from "./AutoMovieHumanF1Helix";
-import { AutoMovieHumanF1Leg } from "./AutoMovieHumanF1Leg";
-import { AutoMovieHumanF1Nose } from "./AutoMovieHumanF1Nose";
-import { AutoMovieHumanF1Nostril } from "./AutoMovieHumanF1Nostril";
-import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
-import { AutoMovieHumanF1Plate } from "./AutoMovieHumanF1Plate";
-import { AutoMovieHumanF1ToeBig } from "./AutoMovieHumanF1ToeBig";
-import { AutoMovieHumanF1ToeIndex } from "./AutoMovieHumanF1ToeIndex";
-import { AutoMovieHumanF1ToeLittle } from "./AutoMovieHumanF1ToeLittle";
-import { AutoMovieHumanF1ToeMiddle } from "./AutoMovieHumanF1ToeMiddle";
-import { AutoMovieHumanF1ToeRing } from "./AutoMovieHumanF1ToeRing";
-import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
 
 /**
  * The f1 figure in its reference pose, generated from its authored conic
@@ -79,6 +97,7 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  * unless another is given. Whatever reads the figure's frame here (the port loops, the fan seams, the fills) reads it through those frames.
  */
 export namespace AutoMovieHumanF1 {
+
   /** The families the sewn body is built from. */
   export const BODY: IAutoMovieHumanF1.IBody = {
     trunk: AutoMovieHumanF1Trunk,
@@ -216,10 +235,7 @@ export namespace AutoMovieHumanF1 {
     { family: BODY.nose, mirrored: false },
     { family: BODY.breast, mirrored: true },
     ...DIGITS.map(
-      (digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanF1.IMember => ({
-        family: digit.family,
-        mirrored: true,
-      }),
+      (digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanF1.IMember => ({ family: digit.family, mirrored: true }),
     ),
     ...LOOSE,
   ];
@@ -263,24 +279,67 @@ export namespace AutoMovieHumanF1 {
    * Place every family of the figure at a pose: each family's course, `up` and relief directions are read from the re-based table through
    * the chain of segment frames (`AutoMovieHumanF1Placement.place`), and its section table is carried untouched. Where the pose changes
    * a course's joint angles its turns keep their set-backs, its stations are mapped and its chart takes its joints' twist
-   * (`AutoMovieHumanConicPose`). Absent, the pose is the reference pose, at which every family is its stored module number for number. A twin is not placed: it is the reflection of its placed
+   * (`AutoMovieHumanConicPose`). With neither pose nor chain supplied, every family is its stored module number for number. A twin is not placed: it is the reflection of its placed
    * side in the median plane, as before.
    *
+   * Custom inputs preserve the fixed bilateral figure plane z=0 through the
+   * central pelvis/thorax/head frames, their courses/datums and the pose. The
+   * existing world reflection, fan and fill definitions do not support an
+   * arbitrary global rigid transform. This is a producer premise, not a claim
+   * established by checking only the root or the logical topology.
+   *
    * @param pose One rotation per joint by segment name; a joint it leaves undefined keeps its reference rotation.
+   * @param chain Complete, unique stored name/parent topology with changed offsets/reference rotations under the fixed-figure-frame premise; absent, the stored chain.
+   * @evidence contracts/development/implementation.md#principled-implementation Composes one invocation chain and poses each stored source family through those same frames, retaining its original family and actual station map for every downstream consumer.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One place closure records original and resolved identities together; constructionFrom consumes the returned complete assembly without another placement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Topology admission refuses missing, additional, duplicate or reparented joints before frame composition. It does not certify the fixed bilateral frame. Missing original identities and station maps are refused; anatomical tables and priors remain f1-specific.
+   * @evidence contracts/development/common.md#meaningful-documentation States logical-chain premises, reference default, actual transport and the original versus resolved family distinction.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One frame composition and one placement per family retain the existing costs; two invocation maps have one entry per original family.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every root, descendant datum and source consumer shares the same prepared frames and station maps; the unposed stored chain reuses its exact reference frames.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned closures retain the invocation's bounded family maps and frames, released with the assembly and its readers; original source records are borrowed immutably.
    */
   export function assemble(
     pose?: IAutoMovieHumanF1Placement.IPose,
+    chain?: readonly IAutoMovieHumanSegmentJoint[],
   ): IAutoMovieHumanF1.IAssembly {
+    return resolve(pose, chain, true);
+  }
+
+  /**
+   * Same frame/source composer; legacy compatibility and native prior stages resolve roots separately.
+   *
+   * `locals` gives a person's coordinates of the stored datums in their segments' frames (`AutoMovieHumanF1Centres.local`): with it
+   * every course centre and datum is read at the person, and each family keeps its stations as the reference's material coordinate
+   * (`AutoMovieHumanConicPose.repose`, `"material"`). A posed person is refused: the pose map and the material map are not composed yet.
+   */
+  function resolve(
+    pose: IAutoMovieHumanF1Placement.IPose | undefined,
+    chain: readonly IAutoMovieHumanSegmentJoint[] | undefined,
+    legacy: boolean,
+    locals?: IAutoMovieHumanF1Placement.ILocals,
+  ): IAutoMovieHumanF1.IAssembly {
+    if (pose !== undefined && locals !== undefined)
+      throw new Error(
+        "assemble: a person's segment lengths are not carried through a pose yet",
+      );
     const frames: IAutoMovieHumanF1Placement.IFrames =
-      AutoMovieHumanF1Placement.frames(pose);
+      AutoMovieHumanF1Placement.frames(
+        pose,
+        AutoMovieHumanChainTopology(
+          AutoMovieHumanF1Placing.CHAIN,
+          chain ?? AutoMovieHumanF1Placing.CHAIN,
+        ),
+      );
     const maps: Map<string, ((station: number) => number) | null> = new Map();
+    const references: Map<string, IAutoMovieHumanConicLoft.IFamily> = new Map();
     const place = (
       family: IAutoMovieHumanConicLoft.IFamily,
     ): IAutoMovieHumanConicLoft.IFamily => {
       const posed: {
         family: IAutoMovieHumanConicLoft.IFamily;
         station: ((station: number) => number) | null;
-      } = AutoMovieHumanF1Placement.repose(family, frames);
+      } = AutoMovieHumanF1Placement.repose(family, frames, locals);
+      references.set(family.name, family);
       maps.set(family.name, posed.station);
       return posed.family;
     };
@@ -294,10 +353,7 @@ export namespace AutoMovieHumanF1 {
       breast: place(BODY.breast),
     };
     const digits: IAutoMovieHumanF1.IDigit[] = DIGITS.map(
-      (digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanF1.IDigit => ({
-        ...digit,
-        family: place(digit.family),
-      }),
+      (digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanF1.IDigit => ({ ...digit, family: place(digit.family) }),
     );
     const [
       helix,
@@ -312,8 +368,10 @@ export namespace AutoMovieHumanF1 {
       AutoMovieHumanF1Concha,
       AutoMovieHumanF1Nostril,
     ].map(place);
-    return {
+    const assembled: IAutoMovieHumanF1.IAssembly = {
+      crotchProfile: CROTCH,
       frames,
+      roots: AutoMovieHumanF1RootControls,
       body,
       digits,
       helix: helix!,
@@ -326,13 +384,19 @@ export namespace AutoMovieHumanF1 {
         helix!,
         antihelix!,
         ...digits.map(
-          (digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanConicLoft.IFamily =>
-            digit.family,
+          (digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanConicLoft.IFamily => digit.family,
         ),
         axilla!,
         concha!,
         nostril!,
       ],
+      reference: (name: string): IAutoMovieHumanConicLoft.IFamily => {
+        const family: IAutoMovieHumanConicLoft.IFamily | undefined =
+          references.get(name);
+        if (family === undefined)
+          throw new Error("assemble: no reference family " + name);
+        return family;
+      },
       station: (family: string, from: number, length?: number): number => {
         const map: ((station: number) => number) | null | undefined =
           maps.get(family);
@@ -346,53 +410,131 @@ export namespace AutoMovieHumanF1 {
             : map(from + length) - map(from);
       },
       point: (name: string): [number, number, number] =>
-        AutoMovieHumanF1Placement.point(name, frames),
+        AutoMovieHumanF1Placement.point(name, frames, locals),
       direction: (name: string): [number, number, number] =>
         AutoMovieHumanF1Placement.direction(name, frames),
     };
-  }
+    if (legacy && (pose !== undefined || chain !== undefined)) {
+      let roots: IAutoMovieHumanF1.IAssembly["roots"] | undefined;
 
-  /** A point in the trunk's chart: its station along the trunk's course from the course's foot, mm, and its coordinates across it, mm. */
-  interface IChart {
-    station: number;
-    u: number;
-    v: number;
+      // Frame-only assembly consumers do not request or build root geometry.
+      Object.defineProperty(assembled, "roots", {
+        enumerable: true,
+        configurable: true,
+        get: (): IAutoMovieHumanF1.IAssembly["roots"] => {
+          roots ??= {
+            arm: [legacyArmscye(1, assembled), legacyArmscye(-1, assembled)],
+            breast: [legacyMammary(1, assembled), legacyMammary(-1, assembled)],
+            nose: legacyNostril(assembled),
+          };
+          return roots;
+        },
+        set: (value: IAutoMovieHumanF1.IAssembly["roots"]): void => {
+          roots = value;
+        },
+      });
+    }
+    return assembled;
   }
 
   /**
-   * The trunk's chart of a point of the figure's frame at a pose: its station along the trunk's course and its coordinates across it, `u`
-   * along the chart's `up` and `v = u x t` as the engine charts a course, whose angle `atan2(v, u)` is the chart's phase. The point is
-   * mapped into the pelvis's frame, the trunk's own, and read there about the trunk's course, so a port loop read through it follows a
-   * posed child and does not change when the whole figure moves. The trunk's course is straight and its chart has no roll.
+   * Assemble the supplied body support field through its one source chain.
+   * The only accepted body field is explicit hipJointCentreBreadth; no missing
+   * clinical observation is filled from the accepted synthetic F1 calibration.
+   * The supplied breadth sets only the stored femur's pelvis-local half-span;
+   * AP/height, all reference rotations and other offsets stay independent.
+   * Descendants follow that chain without a separate external ankle stance.
+   * Central frames/datums and pose retain the fixed bilateral z=0 premise.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The support owner consumes the existing body field and changes its declared femur half-span, then the same assemble path places every family, datum and rail once from that complete chain.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A narrow body-field entry delegates to the reusable support law and existing assembly; constructionFrom consumes the returned assembly without source replacement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unobserved clinical input is filled from F1's rig support calibration, no public body fields are silently consumed as a full identity, and no trunk/limb skin, margin, net or distal stance is compensated.
+   * @evidence contracts/development/common.md#meaningful-documentation States the supplied-only field, synthetic F1 qualification, independent preserved inputs, descendant movement and fixed-frame premise.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One support-chain pass precedes the existing once-per-family assembly; unchanged F1 half-span reuses the stored chain and reference frames.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The entire returned assembly shares the same resolved chain, station maps and datum frames, including every root and descendant.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The assembly borrows its source records and one bounded chain/frame result for reader lifetime; no global cache or background work is created.
    */
-  function trunkChart(
-    placed: IAutoMovieHumanF1.IAssembly,
-  ): (p: readonly number[]) => IChart {
-    const pelvis: IAutoMovieHumanSegmentFrame = AutoMovieHumanF1Placement.frame(
-      "pelvis",
-      placed.frames,
+  export function assembleBody(
+    inputs: Required<
+      Pick<IAutoMovieHumanBodyIdentity, "hipJointCentreBreadth">
+    >,
+  ): IAutoMovieHumanF1.IAssembly {
+    const original: IAutoMovieHumanF1.IAssembly = assemble();
+    const originals: ReadonlyMap<string, IAutoMovieViewPart> =
+      constructionFrom(original).sources;
+    const prepared = AutoMovieHumanF1NativeLaw.prepare(original, originals);
+    return nativeFrom(
+      {
+        ...prepared.fields,
+        hipJointCentreBreadth: inputs.hipJointCentreBreadth,
+      },
+      prepared,
     );
-    const floor: AutoMovieVector3Tuple = F.toLocal(
-      pelvis,
-      placed.body.trunk.centres[0]!,
-    );
-    const t: AutoMovieVector3Tuple = F.unit(
-      F.sub(F.toLocal(pelvis, placed.body.trunk.centres[1]!), floor),
-    );
-    const u: AutoMovieVector3Tuple = F.perpendicular(
-      F.toLocalDirection(pelvis, placed.body.trunk.up),
-      t,
-    );
-    const v: AutoMovieVector3Tuple = F.cross(u, t);
-    return (p: readonly number[]): IChart => {
-      const q: AutoMovieVector3Tuple = F.sub(
-        F.toLocal(pelvis, [p[0]!, p[1]!, p[2]!]),
-        floor,
-      );
-      return { station: F.dot(q, t), u: F.dot(q, u), v: F.dot(q, v) };
-    };
   }
 
+  /**
+   * Resolve independent directional tissue fields and the supplied support through the real native figure path.
+   * Fixed accepted lengths/rotations and qualified material proxies retain their stated scope; this is not a complete clinical identity inverse.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The existing support law and frame composer resolve the skeleton, while NativeLaw generates every source/control/root from those fields and one original-control bank before construction consumes it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A distinct supplied-field entry returns the same IAssembly consumed by constructionFrom; no ignored pose or late source replacement is accepted.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No missing observation or regression covariate is filled. The original bank is generated from authored F1 source controls, not a person's mesh or reference file.
+   * @evidence contracts/development/common.md#meaningful-documentation Names input qualifications, independent tissue/support and the fixed-length provisional scope.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One baseline source-bank generation precedes field calibration; every native field invocation uses the same builder and reuses that bank.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original calibration/control bank is shared by every affected family, reflected source and connection in this invocation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned assembly owns its bounded source readers and borrows the original immutable controls for reader lifetime; no global source cache or process is introduced.
+   */
+  export function assembleNative(
+    fields: IAutoMovieHumanF1NativeLaw.IFields,
+  ): IAutoMovieHumanF1.IAssembly {
+    const original: IAutoMovieHumanF1.IAssembly = assemble();
+    return nativeFrom(
+      fields,
+      AutoMovieHumanF1NativeLaw.prepare(
+        original,
+        constructionFrom(original).sources,
+      ),
+    );
+  }
+
+  /**
+   * A person's complete native assembly from one prepared original bank: the one owner that turns fields into a
+   * skeleton and then into sources. Every native entry and every round tool goes through it, so no caller composes
+   * a chain of its own and silently drops a field the owner reads (a tool that placed only the hip support built
+   * every length case as f1).
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Skeleton first: segment lengths move the joint centres, the hip support sets the femur's half-span on that chain, every stored datum is read at the person, and the prepared native law generates the sources on those frames.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chain composition, one frame resolution and one application of the prepared law.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No field is defaulted from f1: the fields are complete by type, and a trunk length or a breast projection the law cannot generate is refused by the builder.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the chain and one placement per family before the builder's own work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's prepared bank and calibration serve every person; f1's own lengths return the stored chain and its reference frames.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned assembly borrows the prepared bank for its readers' lifetime; nothing global is retained.
+   * @evidence contracts/development/common.md#meaningful-documentation States the order of skeleton, datums and sources, and why callers must not compose their own chain.
+   */
+  export function nativeFrom(
+    fields: IAutoMovieHumanF1NativeLaw.IFields,
+    prepared: IAutoMovieHumanF1NativeLaw.IPrepared,
+  ): IAutoMovieHumanF1.IAssembly {
+    // The skeleton first: each segment length moves the joint centre at its far end (`AutoMovieHumanF1SegmentLengths.chain`), then the
+    // hip support sets the femur's half-span on that chain. f1's own lengths return the stored chain itself.
+    const chain: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanHipSupportPlacement(
+      fields,
+      AutoMovieHumanF1SegmentLengths.chain(fields.lengths),
+      "femur",
+    );
+
+    // Every stored datum at the person: spread with its hand or foot, scaled with its digit's last bone, moved with its anchoring joint.
+    return prepared.apply(
+      fields,
+      resolve(
+        undefined,
+        chain,
+        false,
+        (name: string): AutoMovieVector3Tuple =>
+          AutoMovieHumanF1Centres.local(name, fields.lengths, chain),
+      ),
+    );
+  }
   /**
    * The crotch's seam: the curve both legs' bands start from, under the perineum from the front fork to the back one, in place of the
    * straight chord across the trunk's end. On the chord the two bands met at each fork in a corner, and their triangles folded through
@@ -404,11 +546,7 @@ export namespace AutoMovieHumanF1 {
    * forward to 10 mm back. The midline rises above the ring toward the front fork (809.4 mm at 40 mm forward), where the seam must leave
    * the fork down along the trunk, so the knot at 40 mm holds the ring's level. The bands turn round each fork over 0.6 rad of their clock.
    */
-  const CROTCH: {
-    knots: [number, number][];
-    corner: number;
-    fair: [number, number];
-  } = {
+  const CROTCH: IAutoMovieHumanF1.ICrotchProfile = {
     knots: [
       [0.0131, 0],
       [0.0231, 0.0011],
@@ -482,6 +620,18 @@ export namespace AutoMovieHumanF1 {
    * and a bump at the little finger's; at 0.7 everywhere the fill under the plantar forks bulged below the sole; at 0.8 on the back the toes
    * read as webbed far up.
    */
+  /**
+   * Complete original host-end web chords, mm, from the independent accepted
+   * before.payload original split definitions. These are F1 normalization
+   * coefficients, not measured clinical dimensions or new web-depth rules.
+   */
+  const FAN_ORIGINAL_CHORDS_MM: Record<"arm" | "leg", readonly number[]> = {
+    arm: [18.327643019514735, 21.79749807647126, 23.47327039299173],
+    leg: [
+      19.66090552417294, 23.426390030687152, 26.491448765623844,
+      28.780755309631232,
+    ],
+  };
   const FANS: { arm: IFan; leg: IFan } = {
     arm: {
       digits: ["finger.pinky", "finger.ring", "finger.middle", "finger.index"],
@@ -647,7 +797,7 @@ export namespace AutoMovieHumanF1 {
    * (half 22) is fitted from 448, past the forearm's last level that a single section turn still follows, and the arm stops 3 mm before it
    * so that the band starts on the arm's own surface, not on a ring the hand's fit also claims.
    */
-  const ARM_TO_MM: number = 445;
+  export const ARM_TO_MM: number = AutoMovieHumanF1ArmEnd.TO_MM;
 
   /**
    * The band joining the arm's end to the hand (`IAutoMovieConstructionContinuation.band`): its rail into the hand, mm, its columns and its
@@ -707,24 +857,6 @@ export namespace AutoMovieHumanF1 {
   const LAYER_MM: number = 4;
 
   /**
-   * How far outside the arm's ring the port loop stands on the trunk's own skin, mm. With the rail 10 mm in, at 6 mm every column of the band
-   * leaves the trunk toward the ring and reaches it along the arm's own direction (`FamilyConicArmscye.ts`), 6 to 19 mm long. At 3 mm with
-   * the rail 3 mm in the same held, but a band 4 mm long turned from the trunk's skin to the arm's so sharply that it showed as a line round
-   * the shoulder.
-   */
-  const ARMSCYE_MARGIN_MM: number = 6;
-
-  /**
-   * How far below the armpit's crease the arm's ring is still followed by the loop, mm. The ring 10 mm into the arm dips 25 mm below the
-   * crease, since the arm hangs down from it; a loop that follows it there cuts away the trunk's side up to the crease, and the band is a
-   * web across the hollow.
-   */
-  const ARMPIT_DROP_MM: number = -6;
-
-  /** Width of the smooth maximum by which the loop meets that floor, mm: the loop rounds onto the floor over about this much height. */
-  const ARMPIT_ROUND_MM: number = 12;
-
-  /**
    * Where the arm's band lands on it, mm from its first station, at the +Z arm's phases `2 pi j / 24`, joined by the periodic cubic. Behind
    * the armpit's crease the trunk's side and the arm's inner side meet in a slit, its top at 1,272 to 1,274 mm 25 to 35 mm behind the
    * crease's datum, and the arm's side falls 2 to 4 mm for each millimetre outward from it (`vault`, a scratch survey of the skin in planes
@@ -734,27 +866,11 @@ export namespace AutoMovieHumanF1 {
    * 1,263 mm, and the loop follows the ring under the slit (`ARMPIT_SINK_MM`): the band crosses the slit near its foot and the slit above
    * it is closed. Read by `FamilyConicArmscye.ts --table`, 3 columns point back, at -0.17 at worst, where the dip meets the front fold.
    */
-  const ARM_RAILS_MM: number[] = [
-    10, 10, 10, 10, 8, 3, 1.5, 1.5, 1.5, 3, 8, 10, 10, 10, 10, 10, 10, 10, 10,
-    10, 10, 10, 10, 10,
-  ];
-
-  /**
-   * How far the loop's floor sinks where the arm's rail is shortest, mm, by the rail's share of its dip elsewhere. At 23 mm the floor is
-   * 4 mm under the ring there, so the smooth maximum and the margin leave the loop 1 to 2 mm under the ring, across the slit from it: sunk
-   * 18 mm the loop stood level with the ring and 16 columns left the trunk against it; sunk 28 or 40 mm it stood 3 to 6 mm under the ring
-   * and up to 17 columns reached the arm against the arm's own direction, which falls 2 mm a millimetre there.
-   */
-  const ARMPIT_SINK_MM: number = 23;
+  const ARM_RAILS_MM: number[] = AutoMovieHumanF1RootRails.arm;
 
   /** `ARM_RAILS_MM` for one side: the twin's chart runs the other way round, so its phase `psi` is the +Z arm's `-psi`. */
   export function armRails(side: 1 | -1): number[] {
-    return side > 0
-      ? ARM_RAILS_MM
-      : ARM_RAILS_MM.map(
-          (_: number, j: number): number =>
-            ARM_RAILS_MM[(ARM_RAILS_MM.length - j) % ARM_RAILS_MM.length]!,
-        );
+    return AutoMovieHumanF1RootRails.forArm(side);
   }
 
   /**
@@ -766,21 +882,6 @@ export namespace AutoMovieHumanF1 {
     leg: 6,
     breast: 1,
   };
-
-  /**
-   * How far from the breast's course the trunk's own skin starts round the port, mm, at the clocks `2 pi j / 8` about the course: 0 up, a
-   * quarter turn to the side, a half turn down, three quarters toward the median line. The port's loop stands there. Under the breast it is
-   * the fold's lower edge, where the chest begins (`FamilyConicBody.ts BREAST_CHEST_MM`, read off the skin's profile in half-planes about
-   * the course: straight down the chest stands level 24 to 26 mm behind the top from 52 mm out), so the band spans the fold and the fold is
-   * its short side; elsewhere the skin runs on from the breast with no crease, and the loop stands 5 to 6 mm outside the ring: 2 to 3.5 mm
-   * out, the band joined the breast's flank to the trunk's in a visible line on `fold.left`. Over the upper flank, a quarter and an eighth
-   * of a turn from the top, the loop stands 4 mm farther out (58 and 52 mm were read off the profile): there the band, 5 to 6 mm long, turned
-   * from the trunk's side to the breast's within it and drew a ragged dark line along the breast's outer edge on `shoulder.high-oblique`
-   * (px 600..700 x 540..610), its facets 1.9 mm columns by 0.55 mm rows; at 9 to 10 mm the turn is softer. Carried on 2 mm at three
-   * eighths of a turn (47 to 49 mm), the fan of the band's columns at [99, 1246, 111] darkened (`fold.left`). The trunk's sections leave out the breast's
-   * underside to 1.5 mm inside this curve, and elsewhere the skin to 1 mm inside the ring (`FamilyConicBody.ts BREAST_CLIP_MM`).
-   */
-  const BREAST_CHEST_MM: number[] = [62, 62, 56, 47, 52, 50, 54, 60];
 
   /**
    * Where the nose's band lands on it, mm from its first station, at its phases `2 pi j / 32` (0 up, a quarter turn toward -Z, a half turn
@@ -803,28 +904,11 @@ export namespace AutoMovieHumanF1 {
    * face keeps the sidewalls (`FamilyConicBody.ts noseCut`), and the band lands 5 to 8 mm in, the farther the higher, so its loop, 2.5 mm
    * outside this curve, stays on the face's own skin.
    */
-  export const NOSE_RAILS_MM: readonly number[] = [
-    10, 9.5, 8, 7, 6, 5, 3.5, 2.5, 2, 2, 1.5, 1.5, 3, 5.5, 8, 8.5, 9, 8.5, 8,
-    5.5, 3, 1.5, 1.5, 2, 2, 2.5, 3.5, 5, 6, 7, 8, 9.5,
-  ];
+  export const NOSE_RAILS_MM: readonly number[] =
+    AutoMovieHumanF1RootRails.nose;
 
   /**
-   * How far outside the nose's rail curve its port loop stands on the face, mm: the rail lies 2 mm in front of the alar groove on the wing's
-   * face (`FamilyConicBody.ts nose`), so 2.5 mm puts the loop in the groove and outside the box the face leaves to the nose.
-   */
-  const NOSE_MARGIN_MM: number = 2.5;
-
-  /**
-   * How much farther out the nose's loop stands under the columella, mm, at the loop's lowest clock, falling off as `(-cos c)^6` (half of
-   * it about 10 mm to either side of the median line, nothing at the wings). The reference's lip turns forward into the subnasale over 6 mm of
-   * height (its front at 120.6, 121.1, 122.2 and 124 mm forward at 1,538, 1,540, 1,542 and 1,544 mm, `FamilyConicScan.ts alar`); a loop 2.5 mm
-   * below the floor stood on the face's own skin just under the nose's cut, which its net leaves fair and 1 mm hollow there, and the
-   * profile showed a notch under the band (mouth.left px 580..598 x 235..265). Landed 5 mm below, the band spans the whole turn.
-   */
-  const NOSE_SUBNASAL_MM: number = 2.5;
-
-  /**
-   * The nose's band's cross profiles (`IAutoMovieConstructionBandProfile`), depths in metres along its inward normal, on its loop clock
+   * The nose's band's cross profiles (`IAutoMovieConstructionPort.IProfile`), depths in metres along its inward normal, on its loop clock
    * (0 at the dorsum, a quarter turn at the +Z wing, a half turn under the columella). Read by `FamilyConicScan.ts band band.nose 64`: the
    * reference skin's depth below the plain band along its normal at shares 0.1 to 0.9 of its span, with the sidewall's net
    * (`AutoMovieHumanF1Nose`, `nose.side`) on, averaged over each window's columns and over the two sides (`+Z` and its mirror clock):
@@ -1011,6 +1095,17 @@ export namespace AutoMovieHumanF1 {
   const NOSTRIL_RIM_MM: number = 1.5;
 
   /**
+   * Columns round a nostril's blend and rows across it. An edge with a roll is resolved only when every sampling across it is at most
+   * a quarter of the roll (lofting.md, Fitting and verification), 0.375 mm of the rim's 1.5. On 48 columns, equal steps of the cutter's
+   * phase, the traced curve, 25.5 mm long, had its columns 0.28 to 0.98 mm apart, and 4 rows spanned the 2.21 mm from rail to rail 0.55 mm
+   * apart (`FamilyConicScan.ts strips cut.nostril`): the stepped collar round each nostril, saw-toothed along its outer edge
+   * (`nose.front`, `nose.low-oblique`). The counts stay: on 128 columns, 0.10 to 0.37 mm apart, with 4 rows or 8, the nose's face was
+   * refused by the triangulation ("face has coincident distinct source authorities") and both cutters stood out of the nose uncut, so
+   * the rule is not yet met here.
+   */
+  const NOSTRIL_BLEND: { count: number; rows: number } = { count: 48, rows: 4 };
+
+  /**
    * Spacing of a nostril cutter's layers over its whole length, mm. The cutter's wall turns from its flared mouth into the canal within
    * about 2.5 mm of station above the cut (its station line at 0.4 rad round turns 72 degrees between 10.4 and 13 mm along its course,
    * where its knots at 9 and 11 mm change its section by 7 mm), and on layers 1.6 mm apart there the mesh folded 64 to 72 degrees along
@@ -1061,23 +1156,92 @@ export namespace AutoMovieHumanF1 {
    */
   const BREAST_FAN_FILL_MM: number = 4;
 
+  /** Native anatomy fields have a distinct fixed-reference entry. These original producers preserve the existing non-native posed constructor. */
+  /** A point in the trunk's chart: its station along the trunk's course from the course's foot, mm, and its coordinates across it, mm. */
+  interface IChart {
+    station: number;
+    u: number;
+    v: number;
+  }
+
   /**
-   * The armscye's port on the trunk's chart.
-   *
-   * The armscye is the armpit's sagittal plane: the trunk owns the skin medial of it and the arm the skin lateral of it, the shoulder's cap
-   * included. The arm's course leaves the trunk square to that plane, so the ring the band lands on lies beside the plane. The port is that
-   * ring's own outline as the trunk's chart sees it, each point's height above the axis's foot and its phase about the axis, pushed out from
-   * the outline's centre by the margin so the loop stands on the trunk's own skin round the ring. The loop is written as the ellipse on the
-   * outline's half extents with a share per column. An ellipse alone stood up to 29 mm from the ring under the armpit, where the ring's
-   * lower edge runs aslant, and the band there reached the arm against the arm's own direction.
-   *
-   * The ring, the armpit's crease and the axis's foot are read in the trunk's chart at the pose (`trunkChart`), heights as stations along
-   * the trunk's course, so the loop follows a posed arm.
-   *
-   * @param side +1 for the +Z side, -1 for its twin.
-   * @param placed The figure's families at a pose; absent, the reference pose.
+   * The trunk's chart of a point of the figure's frame at a pose: its station along the trunk's course and its coordinates across it, `u`
+   * along the chart's `up` and `v = u x t` as the engine charts a course, whose angle `atan2(v, u)` is the chart's phase. The point is
+   * mapped into the pelvis's frame, the trunk's own, and read there about the trunk's course, so a port loop read through it follows a
+   * posed child and does not change when the whole figure moves. The trunk's course is straight and its chart has no roll.
    */
-  export function armscye(
+  function trunkChart(placed: IAutoMovieHumanF1.IAssembly): (p: readonly number[]) => IChart {
+    const pelvis: IAutoMovieHumanSegmentFrame = AutoMovieHumanF1Placement.frame(
+      "pelvis",
+      placed.frames,
+    );
+    const floor: AutoMovieVector3Tuple = F.toLocal(pelvis, placed.body.trunk.centres[0]!);
+    const t: AutoMovieVector3Tuple = F.unit(
+      F.sub(F.toLocal(pelvis, placed.body.trunk.centres[1]!), floor),
+    );
+    const u: AutoMovieVector3Tuple = F.perpendicular(
+      F.toLocalDirection(pelvis, placed.body.trunk.up),
+      t,
+    );
+    const v: AutoMovieVector3Tuple = F.cross(u, t);
+    return (p: readonly number[]): IChart => {
+      const q: AutoMovieVector3Tuple = F.sub(F.toLocal(pelvis, [p[0]!, p[1]!, p[2]!]), floor);
+      return { station: F.dot(q, t), u: F.dot(q, u), v: F.dot(q, v) };
+    };
+  }
+
+  /**
+   * How far outside the arm's ring the port loop stands on the trunk's own skin, mm. With the rail 10 mm in, at 6 mm every column of the band
+   * leaves the trunk toward the ring and reaches it along the arm's own direction (`FamilyConicArmscye.ts`), 6 to 19 mm long. At 3 mm with
+   * the rail 3 mm in the same held, but a band 4 mm long turned from the trunk's skin to the arm's so sharply that it showed as a line round
+   * the shoulder.
+   */
+  const ARMSCYE_MARGIN_MM: number = 6;
+  /**
+   * How far below the armpit's crease the arm's ring is still followed by the loop, mm. The ring 10 mm into the arm dips 25 mm below the
+   * crease, since the arm hangs down from it; a loop that follows it there cuts away the trunk's side up to the crease, and the band is a
+   * web across the hollow.
+   */
+  const ARMPIT_DROP_MM: number = -6;
+  /** Width of the smooth maximum by which the loop meets that floor, mm: the loop rounds onto the floor over about this much height. */
+  const ARMPIT_ROUND_MM: number = 12;
+  /**
+   * How far the loop's floor sinks where the arm's rail is shortest, mm, by the rail's share of its dip elsewhere. At 23 mm the floor is
+   * 4 mm under the ring there, so the smooth maximum and the margin leave the loop 1 to 2 mm under the ring, across the slit from it: sunk
+   * 18 mm the loop stood level with the ring and 16 columns left the trunk against it; sunk 28 or 40 mm it stood 3 to 6 mm under the ring
+   * and up to 17 columns reached the arm against the arm's own direction, which falls 2 mm a millimetre there.
+   */
+  const ARMPIT_SINK_MM: number = 23;
+  /**
+   * How far from the breast's course the trunk's own skin starts round the port, mm, at the clocks `2 pi j / 8` about the course: 0 up, a
+   * quarter turn to the side, a half turn down, three quarters toward the median line. The port's loop stands there. Under the breast it is
+   * the fold's lower edge, where the chest begins (`FamilyConicBody.ts BREAST_CHEST_MM`, read off the skin's profile in half-planes about
+   * the course: straight down the chest stands level 24 to 26 mm behind the top from 52 mm out), so the band spans the fold and the fold is
+   * its short side; elsewhere the skin runs on from the breast with no crease, and the loop stands 5 to 6 mm outside the ring: 2 to 3.5 mm
+   * out, the band joined the breast's flank to the trunk's in a visible line on `fold.left`. Over the upper flank, a quarter and an eighth
+   * of a turn from the top, the loop stands 4 mm farther out (58 and 52 mm were read off the profile): there the band, 5 to 6 mm long, turned
+   * from the trunk's side to the breast's within it and drew a ragged dark line along the breast's outer edge on `shoulder.high-oblique`
+   * (px 600..700 x 540..610), its facets 1.9 mm columns by 0.55 mm rows; at 9 to 10 mm the turn is softer. Carried on 2 mm at three
+   * eighths of a turn (47 to 49 mm), the fan of the band's columns at [99, 1246, 111] darkened (`fold.left`). The trunk's sections leave out the breast's
+   * underside to 1.5 mm inside this curve, and elsewhere the skin to 1 mm inside the ring (`FamilyConicBody.ts BREAST_CLIP_MM`).
+   */
+  const BREAST_CHEST_MM: number[] = [62, 62, 56, 47, 52, 50, 54, 60];
+  /**
+   * How far outside the nose's rail curve its port loop stands on the face, mm: the rail lies 2 mm in front of the alar groove on the wing's
+   * face (`FamilyConicBody.ts nose`), so 2.5 mm puts the loop in the groove and outside the box the face leaves to the nose.
+   */
+  const NOSE_MARGIN_MM: number = 2.5;
+  /**
+   * How much farther out the nose's loop stands under the columella, mm, at the loop's lowest clock, falling off as `(-cos c)^6` (half of
+   * it about 10 mm to either side of the median line, nothing at the wings). The reference's lip turns forward into the subnasale over 6 mm of
+   * height (its front at 120.6, 121.1, 122.2 and 124 mm forward at 1,538, 1,540, 1,542 and 1,544 mm, `FamilyConicScan.ts alar`); a loop 2.5 mm
+   * below the floor stood on the face's own skin just under the nose's cut, which its net leaves fair and 1 mm hollow there, and the
+   * profile showed a notch under the band (mouth.left px 580..598 x 235..265). Landed 5 mm below, the band spans the whole turn.
+   */
+  const NOSE_SUBNASAL_MM: number = 2.5;
+
+  /** Original non-native pose producer; no supplied native field falls back through this path. */
+  function legacyArmscye(
     side: 1 | -1,
     placed: IAutoMovieHumanF1.IAssembly = assemble(),
   ): IAutoMovieConstructionPortLoop {
@@ -1142,16 +1306,130 @@ export namespace AutoMovieHumanF1 {
     return around(outline, SHOULDER_COLUMNS, ARMSCYE_MARGIN_MM, armpit.v, side);
   }
 
-  /**
-   * A port loop round a part's ring as the trunk's chart sees it: the ellipse on the outline's half extents about their middle, with each
-   * column's distance from the centre a share of the ellipse's, pushed out from the centre by the margin.
-   *
-   * @param outline The ring's points in the trunk's chart, `[station, phase]`, mm and radians, densely round it.
-   * @param columns The band's columns.
-   * @param margin How far outside the ring the loop stands, mm, or that distance at each clock round the ellipse.
-   * @param radius The distance from the trunk's axis at which a phase is read as millimetres, mm.
-   * @param sense The phase's sense of increasing clock.
-   */
+  /** Original non-native pose producer; no supplied native field falls back through this path. */
+  function legacyMammary(
+    side: 1 | -1,
+    placed: IAutoMovieHumanF1.IAssembly = assemble(),
+  ): IAutoMovieConstructionPortLoop {
+    const family: IAutoMovieHumanConicLoft.IFamily = placed.body.breast;
+    const first: number = family.knots[0]!;
+    const rail: number = first + RAIL_MM.breast;
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
+      { ...family, tips: undefined, reliefs: undefined },
+      [first, rail, first + 2 * LAYER_MM, first + 4 * LAYER_MM],
+    );
+    if (loft.chain === null)
+      throw new Error("the breast's first stations do not loft");
+    const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
+
+    // The course's point and directions at the rail: along it, up squared to it, and to +Z square to both.
+    const frame: IAutoMovieLoftSectionFrame =
+      AutoMovieHumanConicLoft.axis(family).at(rail);
+    const w: number[] = [0, 1, 2].map(
+      (k: number): number => family.centres[1]![k]! - family.centres[0]![k]!,
+    );
+    const length: number = Math.hypot(w[0]!, w[1]!, w[2]!);
+    const t: number[] = w.map((x: number): number => x / length);
+    const y: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.frame("thorax", placed.frames)
+      .axes[1];
+    const rise: number = t[0]! * y[0] + t[1]! * y[1] + t[2]! * y[2];
+    const up: number[] = [
+      y[0] - rise * t[0]!,
+      y[1] - rise * t[1]!,
+      y[2] - rise * t[2]!,
+    ];
+    const lateral: number[] = [
+      t[1]! * up[2]! - t[2]! * up[1]!,
+      t[2]! * up[0]! - t[0]! * up[2]!,
+      t[0]! * up[1]! - t[1]! * up[0]!,
+    ];
+    const chest: (clock: number) => number =
+      AutoMovieNaturalSpline.periodic(BREAST_CHEST_MM);
+    const ring: number[][] = Array.from(
+      { length: 4 * SHOULDER_COLUMNS },
+      (_: unknown, j: number): number[] => {
+        const p: number[] = AutoMovieLoftChain.point(
+          chain,
+          rail,
+          (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS),
+        );
+        const off: number[] = [0, 1, 2].map(
+          (k: number): number => p[k]! - frame.origin[k]!,
+        );
+        const r: number = Math.hypot(off[0]!, off[1]!, off[2]!);
+        const clock: number = Math.atan2(
+          off[0]! * lateral[0]! + off[1]! * lateral[1]! + off[2]! * lateral[2]!,
+          off[0]! * up[0]! + off[1]! * up[1]! + off[2]! * up[2]!,
+        );
+        const out: number = chest(clock < 0 ? clock + 2 * Math.PI : clock) / r;
+        return [0, 1, 2].map(
+          (k: number): number => frame.origin[k]! + off[k]! * out,
+        );
+      },
+    );
+    const chart: (p: readonly number[]) => IChart = trunkChart(placed);
+    const seen: IChart[] = ring.map(chart);
+    const radius: number =
+      seen.reduce(
+        (sum: number, p: IChart): number => sum + Math.hypot(p.u, p.v),
+        0,
+      ) / seen.length;
+    return around(
+      seen.map((p: IChart): [number, number] => [
+        p.station,
+        side * Math.atan2(p.v, p.u),
+      ]),
+      SHOULDER_COLUMNS,
+      0,
+      radius,
+      side,
+    );
+  }
+
+  /** Original non-native pose producer; no supplied native field falls back through this path. */
+  function legacyNostril(
+    placed: IAutoMovieHumanF1.IAssembly = assemble(),
+  ): IAutoMovieConstructionPortLoop {
+    const family: IAutoMovieHumanConicLoft.IFamily = placed.body.nose;
+    const first: number = family.knots[0]!;
+    const along: (psi: number) => number = AutoMovieNaturalSpline.periodic(
+      NOSE_RAILS_MM.map((rail: number): number => first + rail),
+    );
+    const far: number = first + Math.max(...NOSE_RAILS_MM);
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
+      { ...family, tips: undefined, reliefs: undefined },
+      [first, (first + far) / 2, far, far + LAYER_MM],
+    );
+    if (loft.chain === null)
+      throw new Error("the nose's first stations do not loft");
+    const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const chart: (p: readonly number[]) => IChart = trunkChart(placed);
+    const ring: IChart[] = Array.from(
+      { length: 4 * NOSE_COLUMNS },
+      (_: unknown, j: number): IChart => {
+        const psi: number = (2 * Math.PI * j) / (4 * NOSE_COLUMNS);
+        return chart(AutoMovieLoftChain.point(chain, along(psi), psi));
+      },
+    );
+    const radius: number =
+      ring.reduce(
+        (sum: number, p: IChart): number => sum + Math.hypot(p.u, p.v),
+        0,
+      ) / ring.length;
+    return around(
+      ring.map((p: IChart): [number, number] => [
+        p.station,
+        Math.atan2(p.v, p.u),
+      ]),
+      NOSE_COLUMNS,
+      (clock: number): number =>
+        NOSE_MARGIN_MM + NOSE_SUBNASAL_MM * Math.max(0, -Math.cos(clock)) ** 6,
+      radius,
+      1,
+    );
+  }
+
+  /** Original non-native pose producer; no supplied native field falls back through this path. */
   function around(
     outline: [number, number][],
     columns: number,
@@ -1223,11 +1501,46 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
-   * A family with every section drawn in by a distance: at each knot each extreme moves that far toward the middle of the section's
-   * extremes, and the shoulders and the medians, shares of their arcs, stay. A cutter whose cut is blended is drawn in by the blend's
-   * width, which moves the opening's edge out again by about as much.
+   * The armscye's port on the trunk's chart.
    *
-   * @param family The family, whose layout's extremes come in (u, v) pairs.
+   * The armscye is the armpit's sagittal plane: the trunk owns the skin medial of it and the arm the skin lateral of it, the shoulder's cap
+   * included. The arm's course leaves the trunk square to that plane, so the ring the band lands on lies beside the plane. The port is that
+   * ring's own outline as the trunk's chart sees it, each point's height above the axis's foot and its phase about the axis, pushed out from
+   * the outline's centre by the margin so the loop stands on the trunk's own skin round the ring. The loop is written as the ellipse on the
+   * outline's half extents with a share per column. An ellipse alone stood up to 29 mm from the ring under the armpit, where the ring's
+   * lower edge runs aslant, and the band there reached the arm against the arm's own direction.
+   *
+   * The ring, the armpit's crease and the axis's foot are read in the trunk's chart at the pose (`trunkChart`), heights as stations along
+   * the trunk's course, so the loop follows a posed arm.
+   *
+   * @param side +1 for the +Z side, -1 for its twin.
+   * @param placed The figure's families at a pose; absent, the reference pose.
+   */
+  export function armscye(
+    side: 1 | -1,
+    placed: IAutoMovieHumanF1.IAssembly = assemble(),
+  ): IAutoMovieConstructionPortLoop {
+    return side > 0 ? placed.roots.arm[0] : placed.roots.arm[1];
+  }
+
+  /**
+   * The share of its lead an extreme may be drawn in by (`drawnIn`): at half, the extreme keeps as much of its lead over its nearer
+   * neighbour as it gives up, the same margin from the stored section as from the section whose quarter has closed.
+   */
+  const DRAWN_SHARE: number = 0.5;
+
+  /**
+   * A family with every section drawn in by a distance: at each knot each of the four extremes moves inward along its own normal, the
+   * front and back ones along `u` and the side ones along `v`, and the shoulders, shares of their arcs, stay. A curve's parallel at a
+   * distance has its extremes on the normals through the curve's extremes, so the drawn-in extreme keeps its other coordinate. A cutter
+   * whose cut is blended is drawn in by the blend's width, which moves the opening's edge out again by about as much.
+   *
+   * An extreme stays the extreme only while it leads both its neighbours along its own axis, so it moves by the distance or by
+   * `DRAWN_SHARE` of its lead over the nearer of them, the smaller. Drawn toward the mean of the extremes by 1.5 mm, the nostril's front
+   * extreme, which leads its lateral neighbour by 1.05 mm, kept 0.63 mm of that lead while both moved in both coordinates, and the four
+   * extremes left their normals by 0.42 to 1.02 mm; a made section leading by 0.2 mm fell 0.25 mm behind (`test_human_f1_nostril_rim`).
+   *
+   * @param family The family, whose layout's four extremes come in (u, v) pairs: front (+u), side (+v), back (-u), side (-v).
    * @param mm The distance, mm.
    */
   function drawnIn(
@@ -1241,40 +1554,41 @@ export namespace AutoMovieHumanF1 {
           ? [f]
           : [],
     );
+    if (pairs.length !== 4)
+      throw new Error(
+        "drawnIn: " +
+          family.name +
+          " has " +
+          pairs.length +
+          " extremes, not the four of a limb layout without medians",
+      );
     const values: number[][] = family.values.map((row: number[]): number[] => [
       ...row,
     ]);
-    for (let k: number = 0; k < family.knots.length; ++k) {
-      const centre: [number, number] = [
-        pairs.reduce(
-          (s: number, f: number): number => s + family.values[f]![k]!,
-          0,
-        ) / pairs.length,
-        pairs.reduce(
-          (s: number, f: number): number => s + family.values[f + 1]![k]!,
-          0,
-        ) / pairs.length,
-      ];
-      for (const f of pairs) {
-        const [u, v]: [number, number] = [
-          family.values[f]![k]!,
-          family.values[f + 1]![k]!,
-        ];
-        const far: number = Math.hypot(u - centre[0], v - centre[1]);
-        if (far <= mm)
+    for (let k: number = 0; k < family.knots.length; ++k)
+      for (let q: number = 0; q < 4; ++q) {
+        // The first two extremes are maxima of their coordinate, `u` then `v`; the last two are minima of them.
+        const field = (extreme: number): number => pairs[extreme]! + (q % 2);
+        const sign: number = q < 2 ? 1 : -1;
+        const own: number = family.values[field(q)]![k]!;
+        const lead: number = Math.min(
+          ...[1, 3].map(
+            (step: number): number =>
+              sign * (own - family.values[field((q + step) % 4)]![k]!),
+          ),
+        );
+        if (lead <= 0)
           throw new Error(
             "drawnIn: " +
               family.name +
-              "'s section at knot " +
+              "'s extreme " +
+              q +
+              " at knot " +
               k +
-              " is narrower than " +
-              mm +
-              " mm",
+              " does not lead its neighbours",
           );
-        values[f]![k] = u - (mm * (u - centre[0])) / far;
-        values[f + 1]![k] = v - (mm * (v - centre[1])) / far;
+        values[field(q)]![k] = own - sign * Math.min(mm, DRAWN_SHARE * lead);
       }
-    }
     return { ...family, values };
   }
 
@@ -1325,43 +1639,7 @@ export namespace AutoMovieHumanF1 {
   export function nostril(
     placed: IAutoMovieHumanF1.IAssembly = assemble(),
   ): IAutoMovieConstructionPortLoop {
-    const family: IAutoMovieHumanConicLoft.IFamily = placed.body.nose;
-    const first: number = family.knots[0]!;
-    const along: (psi: number) => number = AutoMovieNaturalSpline.periodic(
-      NOSE_RAILS_MM.map((rail: number): number => first + rail),
-    );
-    const far: number = first + Math.max(...NOSE_RAILS_MM);
-    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
-      { ...family, tips: undefined, reliefs: undefined },
-      [first, (first + far) / 2, far, far + LAYER_MM],
-    );
-    if (loft.chain === null)
-      throw new Error("the nose's first stations do not loft");
-    const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
-    const chart: (p: readonly number[]) => IChart = trunkChart(placed);
-    const ring: IChart[] = Array.from(
-      { length: 4 * NOSE_COLUMNS },
-      (_: unknown, j: number): IChart => {
-        const psi: number = (2 * Math.PI * j) / (4 * NOSE_COLUMNS);
-        return chart(AutoMovieLoftChain.point(chain, along(psi), psi));
-      },
-    );
-    const radius: number =
-      ring.reduce(
-        (sum: number, p: IChart): number => sum + Math.hypot(p.u, p.v),
-        0,
-      ) / ring.length;
-    return around(
-      ring.map((p: IChart): [number, number] => [
-        p.station,
-        Math.atan2(p.v, p.u),
-      ]),
-      NOSE_COLUMNS,
-      (clock: number): number =>
-        NOSE_MARGIN_MM + NOSE_SUBNASAL_MM * Math.max(0, -Math.cos(clock)) ** 6,
-      radius,
-      1,
-    );
+    return placed.roots.nose;
   }
 
   /**
@@ -1379,81 +1657,7 @@ export namespace AutoMovieHumanF1 {
     side: 1 | -1,
     placed: IAutoMovieHumanF1.IAssembly = assemble(),
   ): IAutoMovieConstructionPortLoop {
-    const family: IAutoMovieHumanConicLoft.IFamily = placed.body.breast;
-    const first: number = family.knots[0]!;
-    const rail: number = first + RAIL_MM.breast;
-    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
-      { ...family, tips: undefined, reliefs: undefined },
-      [first, rail, first + 2 * LAYER_MM, first + 4 * LAYER_MM],
-    );
-    if (loft.chain === null)
-      throw new Error("the breast's first stations do not loft");
-    const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
-
-    // The course's point and directions at the rail: along it, up squared to it, and to +Z square to both.
-    const frame: IAutoMovieLoftSectionFrame =
-      AutoMovieHumanConicLoft.axis(family).at(rail);
-    const w: number[] = [0, 1, 2].map(
-      (k: number): number => family.centres[1]![k]! - family.centres[0]![k]!,
-    );
-    const length: number = Math.hypot(w[0]!, w[1]!, w[2]!);
-    const t: number[] = w.map((x: number): number => x / length);
-    const y: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.frame(
-      "thorax",
-      placed.frames,
-    ).axes[1];
-    const rise: number = t[0]! * y[0] + t[1]! * y[1] + t[2]! * y[2];
-    const up: number[] = [
-      y[0] - rise * t[0]!,
-      y[1] - rise * t[1]!,
-      y[2] - rise * t[2]!,
-    ];
-    const lateral: number[] = [
-      t[1]! * up[2]! - t[2]! * up[1]!,
-      t[2]! * up[0]! - t[0]! * up[2]!,
-      t[0]! * up[1]! - t[1]! * up[0]!,
-    ];
-    const chest: (clock: number) => number =
-      AutoMovieNaturalSpline.periodic(BREAST_CHEST_MM);
-    const ring: number[][] = Array.from(
-      { length: 4 * SHOULDER_COLUMNS },
-      (_: unknown, j: number): number[] => {
-        const p: number[] = AutoMovieLoftChain.point(
-          chain,
-          rail,
-          (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS),
-        );
-        const off: number[] = [0, 1, 2].map(
-          (k: number): number => p[k]! - frame.origin[k]!,
-        );
-        const r: number = Math.hypot(off[0]!, off[1]!, off[2]!);
-        const clock: number = Math.atan2(
-          off[0]! * lateral[0]! + off[1]! * lateral[1]! + off[2]! * lateral[2]!,
-          off[0]! * up[0]! + off[1]! * up[1]! + off[2]! * up[2]!,
-        );
-        const out: number = chest(clock < 0 ? clock + 2 * Math.PI : clock) / r;
-        return [0, 1, 2].map(
-          (k: number): number => frame.origin[k]! + off[k]! * out,
-        );
-      },
-    );
-    const chart: (p: readonly number[]) => IChart = trunkChart(placed);
-    const seen: IChart[] = ring.map(chart);
-    const radius: number =
-      seen.reduce(
-        (sum: number, p: IChart): number => sum + Math.hypot(p.u, p.v),
-        0,
-      ) / seen.length;
-    return around(
-      seen.map((p: IChart): [number, number] => [
-        p.station,
-        side * Math.atan2(p.v, p.u),
-      ]),
-      SHOULDER_COLUMNS,
-      0,
-      radius,
-      side,
-    );
+    return side > 0 ? placed.roots.breast[0] : placed.roots.breast[1];
   }
 
   /**
@@ -1468,9 +1672,9 @@ export namespace AutoMovieHumanF1 {
   export function valley(
     family: IAutoMovieHumanConicLoft.IFamily,
     station: number,
-    joints: IAutoMovieHumanF1.ValleyJoints,
+    joints: [[number[], number[]], [number[], number[]]],
     up: number[],
-  ): IAutoMovieHumanF1.ValleyResult {
+  ): [number, number] {
     const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
       family,
       family.knots,
@@ -1523,6 +1727,160 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
+   * A child's root section: its own family's skin, carried back along its fields' end tangents where the plane lies before its first
+   * knot, cut by the plane its parent declares for its end, the parent's course frame at its last knot. A branch node's parent end is
+   * the composition of its children's root sections in one declared plane, each published through the frame map from the child's own
+   * frame to the parent's (`packages/human/docs/techniques/joint-logic.md`, Metacarpophalangeal row and finger webs, steps 1 and 2), so
+   * the section is a function of the two families' courses and fields and follows a pose that moves either. Nothing reads a mesh.
+   *
+   * Each point is the root of the child's station line at one phase against the plane, bracketed about the station where the child's
+   * course pierces it. A child whose course does not pierce the plane within its own length either side of its first centre, or runs
+   * along it, publishes none.
+   *
+   * @param parent The parent family, ending open at its last knot.
+   * @param child The child family, whose course leaves the parent's end.
+   * @param phases Points round the loop.
+   */
+  export function rootSection(
+    parent: IAutoMovieHumanConicLoft.IFamily,
+    child: IAutoMovieHumanConicLoft.IFamily,
+    phases: number = 64,
+  ): IAutoMovieHumanF1.IRootSection {
+    const end = AutoMovieHumanConicLoft.axis(parent).at(parent.knots.at(-1)!);
+    const origin: [number, number, number] = [
+      end.origin[0],
+      end.origin[1],
+      end.origin[2],
+    ];
+    const u: [number, number, number] = [end.u[0], end.u[1], end.u[2]];
+    const v: [number, number, number] = [end.v[0], end.v[1], end.v[2]];
+    // The course's direction: `u` and `v` chart the plane square to it, counter-clockwise seen against it.
+    const normal: [number, number, number] = [
+      v[1] * u[2] - v[2] * u[1],
+      v[2] * u[0] - v[0] * u[2],
+      v[0] * u[1] - v[1] * u[0],
+    ];
+    const off = (p: readonly number[]): number =>
+      (p[0]! - origin[0]) * normal[0] +
+      (p[1]! - origin[1]) * normal[1] +
+      (p[2]! - origin[2]) * normal[2];
+    const charted = (p: readonly number[]): [number, number] => [
+      (p[0]! - origin[0]) * u[0] +
+        (p[1]! - origin[1]) * u[1] +
+        (p[2]! - origin[2]) * u[2],
+      (p[0]! - origin[0]) * v[0] +
+        (p[1]! - origin[1]) * v[1] +
+        (p[2]! - origin[2]) * v[2],
+    ];
+    // The root of a function that changes sign once over a bracket, by bisection to a micrometre of station.
+    const root = (f: (s: number) => number, low: number, high: number): number => {
+      let [a, b]: [number, number] = [low, high];
+      const rising: boolean = f(a) < 0;
+      for (let k: number = 0; k < 60 && b - a > 1e-6; ++k) {
+        const m: number = (a + b) / 2;
+        if (f(m) < 0 === rising) a = m;
+        else b = m;
+      }
+      return (a + b) / 2;
+    };
+
+    const course: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(child);
+    const first: number = child.knots[0]!;
+    const last: number = child.knots.at(-1)!;
+    const back: number = -last;
+    if (off(course.at(back).origin) * off(course.at(last).origin) >= 0)
+      throw new Error(
+        "rootSection: the course of " +
+          child.name +
+          " does not pierce the end plane of " +
+          parent.name,
+      );
+    const pierced: number = root(
+      (s: number): number => off(course.at(s).origin),
+      back,
+      last,
+    );
+    // The section's farthest reach at its first knot bounds how far along the station a station line can meet an oblique plane.
+    const read: (s: number) => number[] = AutoMovieHumanConicLoft.reader(child);
+    const reach: number = Math.max(
+      ...AutoMovieHumanConicSection.resolve(
+        read(first),
+        child.layout,
+      ).input.points.map((p: readonly number[]): number =>
+        Math.hypot(p[0]!, p[1]!),
+      ),
+    );
+    const [from, to]: [number, number] = [pierced - 2 * reach, pierced + 2 * reach];
+    const stations: number[] = [
+      ...new Set([
+        ...Array.from(
+          { length: 17 },
+          (_: unknown, i: number): number => from + ((to - from) * i) / 16,
+        ),
+        ...child.knots.filter((s: number): boolean => s > to),
+      ]),
+    ].sort((a: number, b: number): number => a - b);
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
+      { ...child, tips: undefined, reliefs: undefined },
+      stations,
+    );
+    if (loft.chain === null)
+      throw new Error("rootSection: " + child.name + " does not loft at its root");
+    const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const loop: [number, number][] = Array.from(
+      { length: phases },
+      (_: unknown, k: number): [number, number] => {
+        const phase: number = (2 * Math.PI * k) / phases;
+        const line = (s: number): number =>
+          off(AutoMovieLoftChain.point(chain, s, phase));
+        if (line(from) * line(to) >= 0)
+          throw new Error(
+            "rootSection: the station line of " +
+              child.name +
+              " at phase " +
+              phase.toFixed(3) +
+              " does not cross the end plane of " +
+              parent.name,
+          );
+        return charted(
+          AutoMovieLoftChain.point(chain, root(line, from, to), phase),
+        );
+      },
+    );
+    return {
+      plane: { origin, u, v, normal },
+      centre: charted(course.at(pierced).origin),
+      loop,
+    };
+  }
+
+  /**
+   * The root sections of a fanned limb's knuckled digits in the plane of the limb's end, in the seams' order (`FANS`): what each child
+   * of the end's split publishes for a composed end and for an oblique child rail, once the kernel offers them.
+   *
+   * @param which The limb.
+   * @param placed The figure's families at a pose; absent, the reference pose.
+   */
+  export function fanRoots(
+    which: "arm" | "leg",
+    placed: IAutoMovieHumanF1.IAssembly = assemble(),
+  ): { name: string; root: IAutoMovieHumanF1.IRootSection }[] {
+    const parent: IAutoMovieHumanConicLoft.IFamily =
+      which === "arm" ? placed.body.hand : placed.body.leg;
+    return FANS[which].digits.map(
+      (name: string): { name: string; root: IAutoMovieHumanF1.IRootSection } => ({
+        name,
+        root: rootSection(
+          parent,
+          placed.digits.find((d: IAutoMovieHumanF1.IDigit): boolean => d.family.name === name)!
+            .family,
+          64,
+        ),
+      }),
+    );
+  }
+
+  /**
    * The seams a limb's open end is split along between its knuckled digits (`IAutoMovieConstructionSplit.outer`), from the little
    * finger's or the little toe's valley inward, each a pair of host phases on the end's ring enclosing the one before; each seam's heading,
    * toward the middle of the gap between the two digits' facing skins (`IAutoMovieConstructionSplit.IProfile.heading`); and the end's station, outward normal and palm or
@@ -1537,7 +1895,13 @@ export namespace AutoMovieHumanF1 {
   export function fanSeams(
     which: "arm" | "leg",
     placed: IAutoMovieHumanF1.IAssembly = assemble(),
-  ): IAutoMovieHumanF1.IFanSeamsResult {
+  ): {
+    station: number;
+    seams: [number, number][];
+    headings: [number, number, number][];
+    normal: number[];
+    up: number[];
+  } {
     const at: (name: string) => number[] = placed.point;
     const family: IAutoMovieHumanConicLoft.IFamily = {
       ...(which === "arm" ? placed.body.hand : placed.body.leg),
@@ -1631,8 +1995,7 @@ export namespace AutoMovieHumanF1 {
       );
       if (loft.chain === null)
         throw new Error("fanSeams: " + name + " does not loft");
-      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> =
-        loft.chain;
+      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
       return Array.from({ length: 256 }, (_: unknown, k: number): number[] =>
         AutoMovieLoftChain.point(
           chain,
@@ -1681,13 +2044,82 @@ export namespace AutoMovieHumanF1 {
    *
    * @param layer Station spacing of each family's layers and derived outlines, mm.
    * @param pose The pose the families are placed at (`assemble`); absent, the reference pose.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolves the requested pose once and delegates all coupled consumers to constructionFrom with that assembly.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Retains the existing public layer/pose call shape as one delegation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A supplied pose is always passed to assemble; resolved input has its own entry point rather than an ignored-pose combination.
+   * @evidence contracts/development/common.md#meaningful-documentation States physical layer spacing and pose default.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds constant delegation to assemble and constructionFrom's documented work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One assembly serves the complete tree and returned source map.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned records borrow that assembly's immutable source inputs for reader lifetime; the wrapper retains no additional cache or handle.
    */
   export function construction(
     layer: number = LAYER_MM,
     pose?: IAutoMovieHumanF1Placement.IPose,
   ): IAutoMovieHumanF1.IConstruction {
-    const placed: IAutoMovieHumanF1.IAssembly = assemble(pose);
+    return constructionFrom(assemble(pose), layer);
+  }
+
+  /** Exact production family cap/clock scope and kept wall interval, before lofting. */
+  export function sourceScope(
+    placed: IAutoMovieHumanF1.IAssembly,
+    name: keyof IAutoMovieHumanF1.IAssembly["body"],
+  ): AutoMovieHumanF1SourceScope.IResult {
+    const family: IAutoMovieHumanConicLoft.IFamily = placed.body[name];
+    if (name === "arm")
+      return AutoMovieHumanF1SourceScope.resolve(family, {
+        kind: "arm",
+        until: placed.station(family.name, ARM_TO_MM),
+        ...(PHASE_TURN.arm === undefined ? {} : { turn: PHASE_TURN.arm }),
+      });
+    if (name === "hand" || name === "leg")
+      return AutoMovieHumanF1SourceScope.resolve(family, {
+        kind: name,
+        ...(PHASE_TURN[name === "hand" ? "arm" : "leg"] === undefined
+          ? {}
+          : { turn: PHASE_TURN[name === "hand" ? "arm" : "leg"] }),
+      });
+    if (name === "trunk" || name === "nose")
+      return AutoMovieHumanF1SourceScope.resolve(family, {
+        kind: name,
+        phase: name === "trunk" ? TRUNK_PHASE : NOSE_PHASE,
+      });
+    return AutoMovieHumanF1SourceScope.resolve(family, { kind: name });
+  }
+  /**
+   * Declare the sewn body from one already resolved assembly in figure-world mm.
+   * Every source, host loop, child rail, descendant datum and station window reads
+   * that invocation. No pose argument can be silently ignored or applied twice.
+   * Existing bare-root loft helpers and anatomical priors remain unchanged;
+   * this ownership prerequisite does not establish a new anatomical boundary law.
+   * The supplied central pelvis/thorax/head frames, courses/datums and pose
+   * preserve the fixed bilateral figure plane z=0 consumed by twins, fans and
+   * fills. This function does not validate arbitrary supplied frame callbacks,
+   * and a valid logical topology alone does not establish that premise.
+   *
+   * @param placed Complete immutable generating inputs, already placed exactly once.
+   * @param layer Physical sampling resolution in mm.
+   * @evidence contracts/development/implementation.md#principled-implementation All construction consumers borrow the same resolved families, reference-station lookup, station transport, frames and datums; the existing operators and root helpers own their geometry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The old public constructor resolves one assembly and delegates here; this distinct entry point accepts no pose or replacement source map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No template tree is paired with later replacement leaves, no ambient deformation is applied, and no unavailable derivative is filled. Existing loft-derived bare root loops remain a separate boundary-law limitation.
+   * @evidence contracts/development/common.md#meaningful-documentation States figure-world mm, resolved-input lifetime, once-only placement, bare-root scope and lack of anatomical acceptance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains the existing per-family refinement, root-loop sampling and tree construction costs; the reference and station lookups add constant map work at each existing consumer.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each source leaf is built once from its invocation's family and shared by the returned source map; all roots use the same assembly instead of another default assembly.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned tree and source map own their generated records and borrow the assembly's transitive immutable inputs for reader lifetime; no module cache or background process is added.
+   */
+  export function constructionFrom(
+    placed: IAutoMovieHumanF1.IAssembly,
+    layer: number = LAYER_MM,
+  ): IAutoMovieHumanF1.IConstruction {
     const sources: Map<string, IAutoMovieViewPart> = new Map();
+    const faceLayers: [number, number, number] = [
+      placed.station(placed.body.trunk.name, TRUNK_FACE_LAYERS[0]),
+      placed.station(placed.body.trunk.name, TRUNK_FACE_LAYERS[1]),
+      placed.station(
+        placed.body.trunk.name,
+        TRUNK_FACE_LAYERS[0],
+        TRUNK_FACE_LAYERS[2],
+      ),
+    ];
     const leaf = (
       family: IAutoMovieHumanConicLoft.IFamily,
       fine: number = -Infinity,
@@ -1714,10 +2146,10 @@ export namespace AutoMovieHumanF1 {
           const step: number = Math.min(
             pitch,
             before < fine ? close : pitch,
-            ...(family.name === BODY.trunk.name &&
-            s > TRUNK_FACE_LAYERS[0] &&
-            before < TRUNK_FACE_LAYERS[1]
-              ? [TRUNK_FACE_LAYERS[2]]
+            ...(family.name === placed.body.trunk.name &&
+            s > faceLayers[0] &&
+            before < faceLayers[1]
+              ? [faceLayers[2]]
               : []),
             ...(family.reliefs ?? [])
               .filter(
@@ -1767,8 +2199,7 @@ export namespace AutoMovieHumanF1 {
         stations,
       );
       if (loft.chain === null) return stations;
-      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> =
-        loft.chain;
+      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
       const moved = (s: number, t: number): number =>
         Math.max(
           ...Array.from(
@@ -1818,8 +2249,7 @@ export namespace AutoMovieHumanF1 {
         stations,
       );
       if (loft.chain === null) return stations;
-      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> =
-        loft.chain;
+      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
       const course: IAutoMovieViewAxis.IAxis =
         AutoMovieHumanConicLoft.axis(family);
       const reach = (s: number, t: number): number => {
@@ -1878,8 +2308,7 @@ export namespace AutoMovieHumanF1 {
         stations,
       );
       if (loft.chain === null) return stations;
-      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> =
-        loft.chain;
+      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
       const ring = (s: number): number[][] =>
         Array.from({ length: FOLD.phases }, (_: unknown, j: number): number[] =>
           AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / FOLD.phases),
@@ -1920,7 +2349,10 @@ export namespace AutoMovieHumanF1 {
       // Over a crease's window, where the skin turns along the station faster than `FOLD.turn` between an interval's halves.
       const windows: [number, number][] = FOLD.creases
         .filter((crease): boolean => crease.family === family.name)
-        .map((crease): [number, number] => crease.stations);
+        .map((crease): [number, number] => [
+          placed.station(family.name, crease.stations[0]),
+          placed.station(family.name, crease.stations[1]),
+        ]);
       if (windows.length === 0) return cut;
       const fine = (s: number): number[][] =>
         Array.from({ length: FOLD.fine }, (_: unknown, j: number): number[] =>
@@ -1988,10 +2420,12 @@ export namespace AutoMovieHumanF1 {
       AutoMovieHumanConicLoft.mirror(family, family.name + ".mirror");
     // A digit as stored, whose stations the constants below are given in; `placed.station` carries each to the pose.
     const stored = (name: string): IAutoMovieHumanConicLoft.IFamily =>
-      DIGITS.find(
-        (d: IAutoMovieHumanF1.IDigit): boolean => d.family.name === name,
-      )!.family;
-    const trunk: string = BODY.trunk.name;
+      placed.reference(name);
+    const trunk: string = placed.body.trunk.name;
+    const reach = (
+      family: IAutoMovieHumanConicLoft.IFamily,
+      mm: number,
+    ): number => placed.station(family.name, stored(family.name).knots[0]!, mm);
 
     // A limb with its digits: each digit is merged onto the limb's cap before the limb is attached to the trunk, so the engine traces where a
     // capsule comes out against the limb alone. Merged after the whole body was sewn, every digit was traced against all of it.
@@ -2002,24 +2436,24 @@ export namespace AutoMovieHumanF1 {
       // The limb's end stays open and is split into its knuckled digits (`FANS`); the thumb is merged onto the hand's side first, as a
       // capsule closed `ROOT_MM` behind its first joint, inside the hand.
       const fanned: IFan = FANS[which];
-      const own: IAutoMovieHumanConicLoft.IFamily =
-        which === "arm" ? placed.body.hand : placed.body.leg;
-      const leaned: IAutoMovieHumanConicLoft.IFamily = {
-        ...own,
-        tips: [which === "arm" ? null : own.tips![0], null],
-        ...(PHASE_TURN[which] === undefined ? {} : { turn: PHASE_TURN[which] }),
-      };
+      const leaned: IAutoMovieHumanConicLoft.IFamily = sourceScope(
+        placed,
+        which === "arm" ? "hand" : "leg",
+      ).family;
       const family: IAutoMovieHumanConicLoft.IFamily =
         side > 0 ? leaned : twin(leaned);
       let node: IAutoMovieConstructionNode = leaf(family);
       for (const digit of placed.digits.filter(
-        (d: IAutoMovieHumanF1.IDigit): boolean =>
-          d.limb === which && !d.knuckle,
+        (d: IAutoMovieHumanF1.IDigit): boolean => d.limb === which && !d.knuckle,
       )) {
         const capsule: IAutoMovieHumanConicLoft.IFamily = {
           ...digit.family,
           tips: [
-            { from: digit.family.knots[0]!, tip: -ROOT_MM, covered: true },
+            {
+              from: digit.family.knots[0]!,
+              tip: placed.station(digit.family.name, -ROOT_MM),
+              covered: true,
+            },
             digit.family.tips?.[1] ?? null,
           ],
           ...(which === "arm" ? { turn: FINGER_TURN } : {}),
@@ -2064,23 +2498,32 @@ export namespace AutoMovieHumanF1 {
       // in the plane that holds the two digits' mean direction. The twin's phases run the other way, so a seam `[a, b]` is `[-b, -a]` there,
       // read from its other fork: its knots run back along the chord, and its heading is reflected.
       const fan = fanSeams(which, placed);
-      const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
-        leaned,
-        leaned.knots,
-      );
-      if (loft.chain === null)
-        throw new Error("the " + which + " does not loft");
-      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> =
-        loft.chain;
+      // The chord belongs to the actual full native host, including palm/sole reliefs.
+      // Primary is declared before its twin; both use the original primary seam clocks.
+      // Reuse that exact leaf source rather than rebuilding on a different grid.
+      const endPart: IAutoMovieViewPart | undefined = sources.get(leaned.name);
+      if (endPart === undefined)
+        throw new Error(
+          "the primary full fan host source was not declared before its seam",
+        );
+      const endSource: IAutoMovieLoftViewFullSource.IReader =
+        AutoMovieLoftViewFullSource.create(endPart);
       const seam = (j: number): IAutoMovieConstructionSplit.ISeam => {
         const [a, b]: [number, number] = fan.seams[j]!;
-        const knots: [number, number][] = fanned.webs[j]!;
         const [pa, pb]: number[][] = [
-          AutoMovieLoftChain.point(chain, fan.station, a),
-          AutoMovieLoftChain.point(chain, fan.station, b),
+          endSource.point(fan.station, a),
+          endSource.point(fan.station, b),
         ];
         const chord: number =
           Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;
+        const knots: [number, number][] =
+          leaned.native === undefined
+            ? fanned.webs[j]!
+            : AutoMovieHumanF1NativeFanControls.profile(
+                fanned.webs[j]!,
+                FAN_ORIGINAL_CHORDS_MM[which][j]! / 1000,
+                chord,
+              );
         const h: [number, number, number] = fan.headings[j]!;
         const tuned: Pick<
           IAutoMovieConstructionSplit.IProfile,
@@ -2169,11 +2612,11 @@ export namespace AutoMovieHumanF1 {
 
       // The arm ends open before the wrist (`ARM_TO_MM`) and the hand, a family of its own on a wider knuckle turn, continues it across a
       // band (`WRIST`), since the two families' sections need not share one ring.
-      const arm: IAutoMovieHumanConicLoft.IFamily = {
-        ...placed.body.arm,
-        tips: [placed.body.arm.tips![0], null],
-        ...(PHASE_TURN.arm === undefined ? {} : { turn: PHASE_TURN.arm }),
-      };
+      const armScope: AutoMovieHumanF1SourceScope.IResult = sourceScope(
+        placed,
+        "arm",
+      );
+      const arm: IAutoMovieHumanConicLoft.IFamily = armScope.family;
       const armFamily: IAutoMovieHumanConicLoft.IFamily =
         side > 0 ? arm : twin(arm);
       return {
@@ -2185,7 +2628,7 @@ export namespace AutoMovieHumanF1 {
             -Infinity,
             WEB_LAYER_MM,
             layer,
-            placed.station(BODY.arm.name, ARM_TO_MM),
+            armScope.wallDomain[1],
           ),
           hostFace: armFamily.name,
           hostEnd: "top",
@@ -2193,9 +2636,7 @@ export namespace AutoMovieHumanF1 {
           partFace: family.name,
           partEnd: "bottom",
           band: {
-            rail:
-              placed.station(BODY.hand.name, BODY.hand.knots[0]!, WRIST.rail) /
-              1000,
+            rail: reach(placed.body.hand, WRIST.rail) / 1000,
             count: WRIST.count,
             rows: WRIST.rows,
             correspondence: "length",
@@ -2214,17 +2655,17 @@ export namespace AutoMovieHumanF1 {
       type: "split",
       name: "crotch",
       host: leaf(
-        { ...placed.body.trunk, phase: TRUNK_PHASE },
+        sourceScope(placed, "trunk").family,
         -Infinity,
         WEB_LAYER_MM,
         layer,
         Infinity,
-        CROWN_MM,
+        placed.station(trunk, CROWN_MM),
       ),
       hostFace: trunk,
       hostEnd: "bottom",
       seam: [0, Math.PI],
-      profile: CROTCH,
+      profile: placed.crotchProfile,
       count: THIGH_COLUMNS,
       rows: BAND.rows,
       children: [
@@ -2233,18 +2674,14 @@ export namespace AutoMovieHumanF1 {
           part: legs[0]!.node,
           partFace: legs[0]!.face,
           partEnd: "bottom",
-          rail:
-            placed.station(BODY.leg.name, BODY.leg.knots[0]!, RAIL_MM.leg) /
-            1000,
+          rail: reach(placed.body.leg, RAIL_MM.leg) / 1000,
         },
         {
           band: "band." + legs[1]!.face,
           part: legs[1]!.node,
           partFace: legs[1]!.face,
           partEnd: "bottom",
-          rail:
-            placed.station(BODY.leg.name, BODY.leg.knots[0]!, RAIL_MM.leg) /
-            1000,
+          rail: reach(placed.body.leg, RAIL_MM.leg) / 1000,
         },
       ],
     };
@@ -2252,6 +2689,9 @@ export namespace AutoMovieHumanF1 {
       const arm: { node: IAutoMovieConstructionNode; face: string } = limb(
         "arm",
         side,
+      );
+      const armPort: IAutoMovieHumanF1NativeRoot.IRootSpec | undefined = placed.nativePorts?.get(
+        arm.face,
       );
       root = {
         type: "port",
@@ -2264,15 +2704,15 @@ export namespace AutoMovieHumanF1 {
         partFace: arm.face,
         partEnd: "bottom",
         rail:
-          placed.station(
-            BODY.arm.name,
-            BODY.arm.knots[0]!,
-            Math.min(...ARM_RAILS_MM),
-          ) / 1000,
-        rails: armRails(side).map(
-          (mm: number): number =>
-            placed.station(BODY.arm.name, BODY.arm.knots[0]!, mm) / 1000,
-        ),
+          armPort === undefined
+            ? reach(placed.body.arm, Math.min(...ARM_RAILS_MM)) / 1000
+            : Math.min(...armPort.railDistances) / 1000,
+        rails:
+          armPort === undefined
+            ? armRails(side).map(
+                (mm: number): number => reach(placed.body.arm, mm) / 1000,
+              )
+            : armPort.railDistances.map((mm: number): number => mm / 1000),
         ribbons: "column",
         count: SHOULDER_COLUMNS,
         rows: ARMSCYE_ROWS,
@@ -2292,7 +2732,11 @@ export namespace AutoMovieHumanF1 {
         name: "cut." + axilla.name,
         host: root,
         part: leaf(axilla, Infinity, AXILLA_LAYER_MM),
-        seed: {
+        seed: placed.nativeSeed?.(axilla, {
+          phase: side > 0 ? AXILLA_SEED.phase : 2 * Math.PI - AXILLA_SEED.phase,
+          from: AXILLA_SEED.from,
+          to: AXILLA_SEED.to,
+        }, "band." + arm.face) ?? {
           type: "search",
           partFace: axilla.name,
           hostFace: "band." + arm.face,
@@ -2301,8 +2745,15 @@ export namespace AutoMovieHumanF1 {
           to: AXILLA_SEED.to,
         },
         parameter: { type: "arc" },
-        partWidth: { type: "chord", value: 0.00025 },
-        hostWidth: { type: "chord", value: 0.00025 },
+
+        // A quarter-millimetre chord, held under half the radius of the tighter turn the rail meets
+        // (`IAutoMovieConstructionCurvatureWidth`), as the concha's. The arm's band crosses this cutter's closed end at station 83.95,
+        // 2.05 mm before its pole at 86, where every radius of its section shrinks with the cap: the contact there turned 24.7 degrees
+        // in 0.047 mm (radius 0.11 mm), 7.6 a millimetre toward the part's rail, so the rail 0.25 mm away moved at 1 - 7.6 * 0.25 =
+        // -0.9 of the contact's speed, backward, and the blend's normal reversed (t 5.0396, share 1, +Z side). Half the radius there
+        // is 0.066 mm.
+        partWidth: { type: "curvature", share: 0.5, cap: 0.00025, end: null },
+        hostWidth: { type: "curvature", share: 0.5, cap: 0.00025, end: null },
         continuity: "G2",
         count: 192,
         rows: 4,
@@ -2399,8 +2850,12 @@ export namespace AutoMovieHumanF1 {
           to: 0.9,
         },
         parameter: { type: "arc" },
-        partWidth: { type: "chord", value: 0.00025 },
-        hostWidth: { type: "chord", value: 0.00025 },
+
+        // A quarter-millimetre chord, held under half the radius of the tighter turn the rail meets (`IAutoMovieConstructionCurvatureWidth`),
+        // so each rail moves along the curve at least half as fast as the curve. At a constant 0.25 mm, allsite95's cut met a 0.21 mm turn of its
+        // curve toward the cutter's rail at the cutter's floor-front corner (t 1.11) and the rail ran backward there, a folded blend.
+        partWidth: { type: "curvature", share: 0.5, cap: 0.00025, end: null },
+        hostWidth: { type: "curvature", share: 0.5, cap: 0.00025, end: null },
         continuity: "G2",
         count: 192,
         rows: 4,
@@ -2414,6 +2869,9 @@ export namespace AutoMovieHumanF1 {
         side > 0
           ? { ...placed.body.breast, pitch: BREAST_PITCH_MM }
           : twin({ ...placed.body.breast, pitch: BREAST_PITCH_MM });
+      const breastPort: IAutoMovieHumanF1NativeRoot.IRootSpec | undefined = placed.nativePorts?.get(
+        breast.name,
+      );
       root = {
         type: "port",
         name: "mammary." + breast.name,
@@ -2424,23 +2882,37 @@ export namespace AutoMovieHumanF1 {
         part: leaf(breast, Infinity, BREAST_LAYER_MM),
         partFace: breast.name,
         partEnd: "bottom",
-        rail: RAIL_MM.breast / 1000,
+        rail:
+          breastPort === undefined
+            ? reach(placed.body.breast, RAIL_MM.breast) / 1000
+            : breastPort.railDistances[0]! / 1000,
         count: SHOULDER_COLUMNS,
         rows: BAND.rows,
       };
     }
+    const nosePort: IAutoMovieHumanF1NativeRoot.IRootSpec | undefined = placed.nativePorts?.get(
+      placed.body.nose.name,
+    );
     root = {
       type: "port",
-      name: "nostril." + BODY.nose.name,
+      name: "nostril." + placed.body.nose.name,
       host: root,
       hostFace: trunk,
       loop: nostril(placed),
-      band: "band." + BODY.nose.name,
-      part: leaf({ ...placed.body.nose, phase: NOSE_PHASE }),
-      partFace: BODY.nose.name,
+      band: "band." + placed.body.nose.name,
+      part: leaf(sourceScope(placed, "nose").family),
+      partFace: placed.body.nose.name,
       partEnd: "bottom",
-      rail: Math.min(...NOSE_RAILS_MM) / 1000,
-      rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000),
+      rail:
+        nosePort === undefined
+          ? reach(placed.body.nose, Math.min(...NOSE_RAILS_MM)) / 1000
+          : Math.min(...nosePort.railDistances) / 1000,
+      rails:
+        nosePort === undefined
+          ? NOSE_RAILS_MM.map(
+              (rail: number): number => reach(placed.body.nose, rail) / 1000,
+            )
+          : nosePort.railDistances.map((mm: number): number => mm / 1000),
       correspondence: "length",
       profiles: NOSE_PROFILES,
       count: NOSE_COLUMNS,
@@ -2452,8 +2924,12 @@ export namespace AutoMovieHumanF1 {
     for (const side of [1, -1] as const) {
       const drawn: IAutoMovieHumanConicLoft.IFamily = spreadOut(
         drawnIn(placed.nostril, NOSTRIL_RIM_MM),
-        NOSTRIL_MOUTH_MM,
-        NOSTRIL_SPREAD_MM,
+        placed.station(placed.nostril.name, NOSTRIL_MOUTH_MM),
+        placed.station(
+          placed.nostril.name,
+          NOSTRIL_MOUTH_MM,
+          NOSTRIL_SPREAD_MM,
+        ),
       );
       const hollow: IAutoMovieHumanConicLoft.IFamily =
         side > 0 ? drawn : twin(drawn);
@@ -2463,10 +2939,12 @@ export namespace AutoMovieHumanF1 {
         name: "cut." + hollow.name,
         host: root,
         part: leaf(hollow, Infinity, NOSTRIL_LAYER_MM),
-        seed: {
+        seed: placed.nativeSeed?.(hollow, {
+          phase: 0, from: 0, to: 0.9,
+        }, placed.body.nose.name) ?? {
           type: "search",
           partFace: hollow.name,
-          hostFace: BODY.nose.name,
+          hostFace: placed.body.nose.name,
           phase: 0,
           from: 0,
           to: 0.9,
@@ -2475,8 +2953,8 @@ export namespace AutoMovieHumanF1 {
         partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 },
         hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 },
         continuity: "G2",
-        count: 48,
-        rows: 4,
+        count: NOSTRIL_BLEND.count,
+        rows: NOSTRIL_BLEND.rows,
         tolerance: 1e-12,
         grazing: 0.05,
       };
@@ -2550,8 +3028,7 @@ export namespace AutoMovieHumanF1 {
         });
         continue;
       }
-      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> =
-        loft.chain;
+      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
 
       // Past the last knot the loft's own cap layers follow, and the pole closes them by a fan.
       const layers: number[] = [

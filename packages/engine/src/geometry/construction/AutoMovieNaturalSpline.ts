@@ -1,5 +1,7 @@
 import type { IAutoMovieNaturalCubicSpline } from "@automovie/interface";
 
+import { AutoMoviePeriodicCubic } from "./AutoMoviePeriodicCubic";
+
 /**
  * Natural cubic spline through knots: the C2 curve of least bending that
  * passes through every knot, with zero curvature at both ends.
@@ -225,35 +227,15 @@ export namespace AutoMovieNaturalSpline {
    * @param values The values at the `m >= 3` phases.
    * @returns The spline as a function of phase, radians, any real.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Solves the periodic cubic's cyclic curvature equations, the natural spline's with the cycle closed, and reads each span by the same polynomial as `evaluate`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed sweep count and one span reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the same cyclic equations, 64 Jacobi sweeps and literal span reader to their shared periodic owner; the extracted arithmetic and phase reduction remain unchanged.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The existing function signature returns only the value capability of one preparation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contraction bound fixes the sweep count; nothing is clamped and fewer than three values are the caller's premise.
    * @evidence contracts/development/common.md#meaningful-documentation States the equations, the solver's bound, the premise and the reading.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(64 m) to prepare and constant time a reading.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The curvatures are solved once and shared by every reading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared owner solves curvatures once for every reading; this value-only wrapper performs no optional range conversion.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader retains the values and m curvatures only.
    */
   export function periodic(values: readonly number[]): (psi: number) => number {
-    const m: number = values.length;
-    const h: number = (2 * Math.PI) / m;
-    const y = (j: number): number => values[((j % m) + m) % m]!;
-    const right: number[] = values.map(
-      (_: number, j: number): number =>
-        (6 * (y(j + 1) - 2 * y(j) + y(j - 1))) / (h * h),
-    );
-    let M: number[] = new Array<number>(m).fill(0);
-    for (let sweep: number = 0; sweep < 64; ++sweep)
-      M = M.map(
-        (_: number, j: number): number =>
-          (right[j]! - M[(j - 1 + m) % m]! - M[(j + 1) % m]!) / 4,
-      );
-    return (psi: number): number => {
-      const x: number = ((psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-      const j: number = Math.min(m - 1, Math.floor(x / h));
-      const t: number = x - j * h;
-      const [a, b]: [number, number] = [M[j]!, M[(j + 1) % m]!];
-      const slope: number = (y(j + 1) - y(j)) / h - (h * (2 * a + b)) / 6;
-      return y(j) + t * (slope + t * (a / 2 + (t * (b - a)) / (6 * h)));
-    };
+    return AutoMoviePeriodicCubic.create(values).at;
   }
 }

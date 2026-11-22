@@ -6,6 +6,7 @@ export type { IAutoMovieAssertProductionVideoProfileProps } from "./IAutoMovieAs
 export type { IAutoMovieAuditEncodedPresentationExpected } from "./IAutoMovieAuditEncodedPresentationExpected";
 export type { IAutoMovieDecodedFrame } from "./IAutoMovieDecodedFrame";
 export type { IAutoMovieDecodedFrameAudit } from "./IAutoMovieDecodedFrameAudit";
+export type { IAutoMovieDeliveryContentAudit } from "./IAutoMovieDeliveryContentAudit";
 export type { IAutoMoviePlanVideoEncodingProps } from "./IAutoMoviePlanVideoEncodingProps";
 export type { IAutoMoviePlanVideoEncodingResult } from "./IAutoMoviePlanVideoEncodingResult";
 export type { IAutoMovieProductionOpusDescriptionProps } from "./IAutoMovieProductionOpusDescriptionProps";

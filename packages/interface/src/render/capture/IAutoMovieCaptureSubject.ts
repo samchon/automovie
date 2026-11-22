@@ -1,3 +1,4 @@
+import type { IAutoMovieDeliveryContentAudit } from "../delivery/IAutoMovieDeliveryContentAudit.js";
 import type { IAutoMovieInspectionDrawable } from "../inspection/IAutoMovieInspectionDrawable.js";
 import type { IAutoMovieCaptureInstant } from "./IAutoMovieCaptureInstant.js";
 
@@ -36,6 +37,9 @@ export interface IAutoMovieCaptureSubject {
    * Height in pixels of every still drawn of the subject.
    */
   height: number;
+
+  /** Authored soundtrack and content obligations for the delivery host, when declared. */
+  delivery?: IAutoMovieDeliveryContentAudit.IIntent;
 
   /**
    * Names a named view may take: the subject's own views and the named viewpoints the host fits, such as `front`. `film` and a camera by coordinates need no name.

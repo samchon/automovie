@@ -4,6 +4,7 @@ import type {
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
+  IAutoMovieConstructionSharedLoop,
   IAutoMovieConstructionSource,
   IAutoMovieConstructionState,
   IAutoMovieConstructionTrim,
@@ -29,6 +30,7 @@ import { AutoMovieConstructionPortRealize } from "./AutoMovieConstructionPortRea
 import { AutoMovieConstructionProfileRealize } from "./AutoMovieConstructionProfileRealize";
 import { AutoMovieConstructionProfileSkin } from "./AutoMovieConstructionProfileSkin";
 import { AutoMovieConstructionSeeds } from "./AutoMovieConstructionSeeds";
+import { AutoMovieConstructionSharedLoop } from "./AutoMovieConstructionSharedLoop";
 import { AutoMovieConstructionSkin } from "./AutoMovieConstructionSkin";
 import { AutoMovieConstructionSplitRealize } from "./AutoMovieConstructionSplitRealize";
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
@@ -238,6 +240,14 @@ export function realizeAutoMovieConstruction(
       AutoMovieSolidBody.atlas(body, partIndex);
     const face: number = index.indexOf(hostIndex);
     const tolerance: number = node.tolerance * S;
+    // A mixed join declares its contact as a loop both surfaces share, so nothing is seeded or traced (`AutoMovieConstructionSharedLoop`).
+    let input: IAutoMovieSolidBody.IMerge["join"];
+    if (node.loop !== undefined) {
+      const prepared: IAutoMovieConstructionSharedLoop.IPrepared | IAutoMovieConstructionSharedLoop.IRefusal =
+        AutoMovieConstructionSharedLoop.create(node, partSurface, atlas, face);
+      if (!("join" in prepared)) return fail(prepared.contract, prepared.detail);
+      input = prepared.join;
+    } else {
     const layers: number[] = state.chains
       .get(node.seed.partFace)!
       .layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
@@ -287,20 +297,14 @@ export function realizeAutoMovieConstruction(
         traced,
       );
     if (typeof width === "string") return fail("width", width);
+    input = { seed, parameter, count: node.count, tolerance, grazing: node.grazing, width, ...(traced === null ? {} : { curve: traced.curve }) };
+    }
     if (node.kind === "diff") body.faces[partIndex]!.inverted = true;
     const merged: IAutoMovieSolidBody.IMerged = AutoMovieSolidBody.merge(body, {
       name: node.name,
       kind: node.kind,
       part: partIndex,
-      join: {
-        seed,
-        parameter,
-        count: node.count,
-        tolerance,
-        grazing: node.grazing,
-        width,
-        ...(traced === null ? {} : { curve: traced.curve }),
-      },
+      join: input,
       count: node.count,
       rows: node.rows,
     });

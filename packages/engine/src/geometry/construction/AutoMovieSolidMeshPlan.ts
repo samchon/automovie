@@ -11,6 +11,7 @@ import { insertAutoMovieSolidMeshPoints } from "./insertAutoMovieSolidMeshPoints
 import { legalizeAutoMovieSolidMesh } from "./legalizeAutoMovieSolidMesh";
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 import { probeAutoMovieSolidMesh } from "./probeAutoMovieSolidMesh";
+import { regionAutoMovieSolidMesh } from "./regionAutoMovieSolidMesh";
 import { triangulateAutoMovieSolidBoundary } from "./triangulateAutoMovieSolidBoundary";
 import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChartTriangle";
 
@@ -34,6 +35,12 @@ interface Component {
  * until the plan is the constrained Delaunay triangulation in the caller's
  * uniform metric (`legalizeAutoMovieSolidMesh`), so a dense rail keeps no
  * triangle of its own consecutive vertices.
+ * The finished triangles are read against the residual membership once per
+ * constraint-bounded region (`regionAutoMovieSolidMesh`): each triangle with a
+ * represented strict centroid is sampled and must be kept, and an exactly
+ * positive triangle too thin for one, which an exact insertion split of
+ * ulp-collinear grid points makes, takes its region's reading. A region with
+ * no sampled triangle is a named failure.
  * Each bridge is the shortest visible one in the caller's uniform metric,
  * the legalization's own, so it joins its components where they stand
  * closest (matching phase across a periodic band); original endpoint IDs and
@@ -47,7 +54,7 @@ interface Component {
  * local-image search is not a complete solver for arbitrary spiral regions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the shortest-image search limit, kept-component failure, positive chart order and absence of surface construction.
- * @evidence contracts/development/design.md#principled-representation Represents A finite visibility triangulation of an indexed native-chart partition: companion namespace of 3 members (`ITriangle`, `IPlan`, `triangulate`); units and frames named in its text: world, radian. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#principled-representation Represents A finite visibility triangulation of an indexed native-chart partition: companion namespace of 3 members (`IAutoMovieSolidMeshPlan.ITriangle`, `IPlan`, `triangulate`); units and frames named in its text: world, radian. It has no optional member, so no absent-value state combines with another.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidMeshPlan` in packages/engine/src/geometry/construction/AutoMovieSolidMeshPlan.ts; its surface is the 3 members listed and the text shows 11 other files naming it, mostly packages/engine (6), test (5), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
@@ -65,11 +72,11 @@ export namespace AutoMovieSolidMeshPlan {
    * @param local A quadrilateral's own first fundamental form from its vertex IDs and chart points, `[shear, scale]`, which legalization reads in place of `scale` (`legalizeAutoMovieSolidMesh`); absent, the free diagonals are legalized in `scale` too.
    * @returns Positive native-chart index triples with split-source provenance, or a named construction failure.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Subdivides shared constraints, uses explicit left probes and winding to identify hole/periodic boundary components, joins them visibly and validates the indexed ears against the residual source partition.
+   * @evidence contracts/development/implementation.md#principled-implementation Subdivides shared constraints, uses explicit left probes and winding to identify hole/periodic boundary components, joins them visibly, validates the indexed ears against the residual source partition and reads the finished triangles' membership per constraint-bounded region, as Shewchuk's Triangle spreads a region's attribute across non-segment edges, so an exact sliver needs no representable interior sample of its own.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The union result is atomic: failed coverage publishes no partial triangle population.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tests all represented vertices and existing segment images for each diagonal; kept nonzero-winding or nontriangular components are refused rather than silently dropped. Membership must remain unchanged during the synchronous call.
    * @evidence contracts/development/common.md#meaningful-documentation Names original-ID ownership, residual membership, periodic search scope and atomic failure.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each of H joins can scan W squared boundary-occurrence pairs with O(V+S+H) visibility work; ear removal is cubic, M interior insertions cost O(M(T+M)) and legalization at most V(V-1)/2 constant-cost flips. Splitting, bounded witness probes and Q times caller predicate cost are additional. Component count decreases after each bridge.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each of H joins can scan W squared boundary-occurrence pairs with O(V+S+H) visibility work; ear removal is cubic, M interior insertions cost O(M(T+M)) and legalization at most V(V-1)/2 constant-cost flips. Splitting, bounded witness probes, one O(T) region labelling and Q times caller predicate cost are additional. Component count decreases after each bridge.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Ranks each join's candidate pairs once by metric length and stops at the first visible one; original indexed positions serve incidence, visibility and ear reading.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns new triangles and the owned split records/source-index histories, including total provenance length P; input maps/segments and membership reader remain borrowed for this call and are never stored globally.
    */
@@ -191,19 +198,29 @@ export namespace AutoMovieSolidMeshPlan {
         local,
       );
     if (typeof legal === "string") return legal;
-    for (const triangle of legal) {
-      const points: Readonly<AutoMovieVector2Tuple>[] = triangle.vertices.map(
-        (id: number, index: number): Readonly<AutoMovieVector2Tuple> => [
-          vertices.get(id)![0],
-          vertices.get(id)![1] + triangle.lifts[index]! * (period ?? 0),
-        ],
-      );
-      const probe: Readonly<AutoMovieVector2Tuple> | string = centroid(points);
-      if (typeof probe === "string")
-        return `inserted grid triangle: ${probe}; original vertices ${triangle.vertices.join("/")}; cover ${JSON.stringify(points)}`;
+
+    // Membership is read once per constraint-bounded region (regionAutoMovieSolidMesh): every triangle with a represented strict centroid
+    // is sampled and must be kept, and a triangle too thin for one, which an exact split may make, takes its region's sampled reading.
+    const regions: number[] = regionAutoMovieSolidMesh(legal, split);
+    const covers: Readonly<AutoMovieVector2Tuple>[][] = legal.map((triangle: IAutoMovieSolidMeshPlan.ITriangle): Readonly<AutoMovieVector2Tuple>[] =>
+      triangle.vertices.map((id: number, k: number): Readonly<AutoMovieVector2Tuple> => [
+        vertices.get(id)![0],
+        vertices.get(id)![1] + triangle.lifts[k]! * (period ?? 0),
+      ]),
+    );
+    const sampled: Set<number> = new Set();
+    for (let index: number = 0; index < legal.length; index++) {
+      const probe: Readonly<AutoMovieVector2Tuple> | string = centroid(covers[index]!);
+      if (typeof probe === "string") continue;
       if (!keeps(probe[0], probe[1]))
-        return `inserted triangle left the kept source partition; triangle ${JSON.stringify({ vertices: triangle.vertices, lifts: triangle.lifts, cover: points, probe })}`;
+        return `inserted triangle left the kept source partition; triangle ${JSON.stringify({ vertices: legal[index]!.vertices, lifts: legal[index]!.lifts, cover: covers[index], probe })}`;
+      sampled.add(regions[index]!);
     }
+    const unread: number = regions.findIndex(
+      (region: number): boolean => !sampled.has(region),
+    );
+    if (unread >= 0)
+      return `inserted grid triangle: visibility triangle has no represented strict centroid, nor any triangle of its constraint-bounded region; original vertices ${legal[unread]!.vertices.join("/")}; cover ${JSON.stringify(covers[unread])}`;
     return { triangles: legal, constraints: split };
   }
 }

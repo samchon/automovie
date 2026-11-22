@@ -22,7 +22,7 @@ Check a motion hint's [control channels](../motion/control-channels.md), a [dire
 
 ### Measurement and comparison
 
-Use the README's capture commands to compare source and delivered frames across every scene and join. Label sheets in elapsed film time. Map generated takes by their request intervals, trims and conform. Inspect [consecutive output frames](../visual-debugging/capture.md#times) when the event falls between samples.
+Read the production diagnostics the README describes in every inspection round and render, and repair their findings with the round's other findings. The cut stays a candidate while the render blocks publication. Use the README's capture commands to compare source and delivered frames across every scene and join. Label sheets in elapsed film time. Map generated takes by their request intervals, trims and conform. Inspect [consecutive output frames](../visual-debugging/capture.md#times) when the event falls between samples.
 
 Follow participants, props and contacts through the edit under [motion judgment](../motion/judgment.md). For a pace finding, time the interval from cue to outcome in the staging and the delivered cut. For skilled practice, compare it with the observed exchange. Account for holds, cuts and replays.
 

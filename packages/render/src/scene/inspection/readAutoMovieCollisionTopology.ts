@@ -1,0 +1,280 @@
+import type { IAutoMovieSubjectBox } from "@automovie/interface";
+import * as THREE from "three";
+
+import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
+
+/** Topology facts per geometry, recomputed when its buffers change. */
+const TOPOLOGY: WeakMap<
+  THREE.BufferGeometry,
+  { key: string; topology: readAutoMovieCollisionTopology.ITopology | null }
+> = new WeakMap();
+
+/**
+ * Read the drawn triangle list of a resident geometry once per buffer version.
+ *
+ * @param geometry The drawn geometry.
+ * @returns Its drawn triangles, rest bounds and closure, or null when the buffers or draw range cannot be read.
+ * @evidence contracts/development/common.md#meaningful-documentation States the cache key, the draw range rule and the null outcome.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads indices inside the draw range, rejects out-of-range indices and judges closure by directed-edge balance.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader owns triangle extraction, bounds and closure for every collision source.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cut or misaligned draw range, normalized or non-three-component positions certify nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the drawn indices once per buffer version.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Cached per geometry by position, index and draw-range versions.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak map releases the record with its geometry.
+ */
+export function readAutoMovieCollisionTopology(
+  geometry: THREE.BufferGeometry,
+): readAutoMovieCollisionTopology.ITopology | null {
+  const positions:
+    | THREE.BufferAttribute
+    | THREE.InterleavedBufferAttribute
+    | undefined = geometry.getAttribute("position");
+  const index: THREE.BufferAttribute | null = geometry.getIndex();
+  const key: string = JSON.stringify([
+    positions instanceof THREE.BufferAttribute ? positions.version : -1,
+    index?.version ?? -1,
+    geometry.drawRange.start,
+    geometry.drawRange.count,
+  ]);
+  const cached:
+    | { key: string; topology: readAutoMovieCollisionTopology.ITopology | null }
+    | undefined = TOPOLOGY.get(geometry);
+  if (cached?.key === key) return cached.topology;
+  const topology: readAutoMovieCollisionTopology.ITopology | null =
+    positions === undefined ? null : extract(positions, index, geometry);
+  TOPOLOGY.set(geometry, { key, topology });
+  return topology;
+}
+
+/**
+ * Drawn triangles, bounds, closure, lazy posing and world boxes shared by every collision source.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names each topology field's space and states what the lazy posing, world box and finiteness helpers return.
+ * @evidence contracts/development/design.md#principled-representation ITopology holds rest positions, drawn triangle indices, rest bounds and closure.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the collision sources and their lazy surfaces only.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Closure is derived from the drawn triangles, never from a constructor, and a non-finite placement yields no world box.
+ */
+export namespace readAutoMovieCollisionTopology {
+  /**
+   * The drawn triangle list of one geometry in its own space.
+   */
+  export interface ITopology {
+    /** Rest positions of the geometry. */
+    readonly positions:
+      | THREE.BufferAttribute
+      | THREE.InterleavedBufferAttribute;
+
+    /** Drawn triangle vertex indices in the geometry's own index space. */
+    readonly triangles: Uint32Array;
+
+    /** Rest bounds of the drawn vertices. */
+    readonly bounds: THREE.Box3;
+
+    /** Every drawn edge, merged by rest position, is traversed equally in both directions. */
+    readonly closed: boolean;
+  }
+
+  /**
+   * Pose a surface once, on first use, within the shared vertex allowance.
+   *
+   * @param budget Posed vertices the frame may still spend; charged on first read.
+   * @param topology The drawn triangles to pose.
+   * @param pose World position of one rest vertex.
+   * @param error Pose error of each position in world metres.
+   * @param labels Owner label of each vertex, such as its dominant skin joint.
+   * @returns A memoized reader of the posed surface.
+   */
+  export function lazySurface(
+    budget: { posedVertices: number },
+    topology: ITopology,
+    pose: (vertex: number, target: THREE.Vector3) => THREE.Vector3,
+    error: number = 0,
+    labels?: (vertex: number) => string | undefined,
+  ): collectAutoMovieCollisionParts.IPartSurface["read"] {
+    let result:
+      | collectAutoMovieCollisionParts.ISurface
+      | null
+      | "budget"
+      | undefined;
+    return (): collectAutoMovieCollisionParts.ISurface | null | "budget" => {
+      if (result !== undefined) return result;
+      const count: number = topology.positions.count;
+      if (count > budget.posedVertices) return (result = "budget");
+      budget.posedVertices -= count;
+      result = poseSurface(topology, pose, error, labels);
+      return result;
+    };
+  }
+
+  /**
+   * Enclose an affinely placed local box by its eight transformed corners.
+   *
+   * @param local A box in the matrix's source space.
+   * @param matrix The placement.
+   * @returns The world box, or null when the placement or result is not finite.
+   */
+  export function worldBox(
+    local: THREE.Box3,
+    matrix: THREE.Matrix4,
+  ): IAutoMovieSubjectBox | null {
+    if (!matrix.elements.every(Number.isFinite)) return null;
+    const box: THREE.Box3 = local.clone().applyMatrix4(matrix);
+    return finite(box.min) && finite(box.max)
+      ? {
+          min: { x: box.min.x, y: box.min.y, z: box.min.z },
+          max: { x: box.max.x, y: box.max.y, z: box.max.z },
+        }
+      : null;
+  }
+
+  /**
+   * All three coordinates are finite in double and single precision.
+   *
+   * @param point A world or local point.
+   * @returns Whether the GPU can represent it.
+   */
+  export function finite(point: THREE.Vector3): boolean {
+    return (
+      Number.isFinite(point.x) &&
+      Number.isFinite(point.y) &&
+      Number.isFinite(point.z) &&
+      Number.isFinite(Math.fround(point.x)) &&
+      Number.isFinite(Math.fround(point.y)) &&
+      Number.isFinite(Math.fround(point.z))
+    );
+  }
+}
+
+/** Read the drawn triangles of a resident geometry inside its draw range. */
+function extract(
+  positions: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+  index: THREE.BufferAttribute | null,
+  geometry: THREE.BufferGeometry,
+): readAutoMovieCollisionTopology.ITopology | null {
+  if (positions.itemSize !== 3 || positions.normalized || positions.count <= 0)
+    return null;
+  const total: number = index?.count ?? positions.count;
+  const start: number = Math.max(0, geometry.drawRange.start);
+  const end: number = Math.min(total, start + geometry.drawRange.count);
+  if (!(end > start) || (end - start) % 3 !== 0 || start % 3 !== 0) return null;
+  const triangles: Uint32Array = new Uint32Array(end - start);
+  for (let i: number = start; i < end; ++i)
+    triangles[i - start] = index?.getX(i) ?? i;
+  const bounds: THREE.Box3 = new THREE.Box3();
+  const point: THREE.Vector3 = new THREE.Vector3();
+  for (const vertex of triangles) {
+    if (vertex >= positions.count) return null;
+    bounds.expandByPoint(point.fromBufferAttribute(positions, vertex));
+  }
+  if (
+    !readAutoMovieCollisionTopology.finite(bounds.min) ||
+    !readAutoMovieCollisionTopology.finite(bounds.max)
+  )
+    return null;
+  return {
+    positions,
+    triangles,
+    bounds,
+    closed: isClosed(positions, triangles, bounds),
+  };
+}
+
+/**
+ * Merge vertices by rest position and require every nondegenerate edge to be
+ * traversed equally often in both directions, as by one or more closed shells.
+ * Seam duplicates generated by trigonometry differ by rounding only, so
+ * positions merge on a grid far below the surface's size.
+ */
+function isClosed(
+  positions: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+  triangles: Uint32Array,
+  bounds: THREE.Box3,
+): boolean {
+  const size: THREE.Vector3 = bounds.getSize(new THREE.Vector3());
+  const cell: number = Math.max(size.x, size.y, size.z, 2 ** -20) * 2 ** -20;
+  const ids: Map<string, number> = new Map();
+  const merged: number[] = [];
+  for (const vertex of triangles) {
+    const key: string = `${Math.round(positions.getX(vertex) / cell)},${Math.round(positions.getY(vertex) / cell)},${Math.round(positions.getZ(vertex) / cell)}`;
+    let id: number | undefined = ids.get(key);
+    if (id === undefined) ids.set(key, (id = ids.size));
+    merged.push(id);
+  }
+  // Each consistently wound closed shell traverses every edge once in each
+  // direction, so a union of shells, even shells sharing edges, balances.
+  const edges: Map<string, number> = new Map();
+  let faces: number = 0;
+  for (let i: number = 0; i < merged.length; i += 3) {
+    const a: number = merged[i]!;
+    const b: number = merged[i + 1]!;
+    const c: number = merged[i + 2]!;
+    if (a === b || b === c || a === c) continue;
+    ++faces;
+    for (const [p, q] of [
+      [a, b],
+      [b, c],
+      [c, a],
+    ] as const) {
+      const key: string = p < q ? `${p},${q}` : `${q},${p}`;
+      edges.set(key, (edges.get(key) ?? 0) + (p < q ? 1 : -1));
+    }
+  }
+  if (faces < 4) return false;
+  for (const balance of edges.values()) if (balance !== 0) return false;
+  return true;
+}
+
+/** Pose every vertex, keep nondegenerate drawn triangles and their vertices. */
+function poseSurface(
+  topology: readAutoMovieCollisionTopology.ITopology,
+  pose: (vertex: number, target: THREE.Vector3) => THREE.Vector3,
+  error: number,
+  labels: ((vertex: number) => string | undefined) | undefined,
+): collectAutoMovieCollisionParts.ISurface | null {
+  const values: THREE.Vector3[] = Array.from(
+    { length: topology.positions.count },
+    (_: unknown, i: number): THREE.Vector3 => pose(i, new THREE.Vector3()),
+  );
+  let scale: number = 1;
+  for (const p of values)
+    scale = Math.max(scale, Math.abs(p.x), Math.abs(p.y), Math.abs(p.z));
+  const slack: number = error + 32 * 2 ** -23 * scale;
+  const triangles: number[] = [];
+  const drawn: Set<number> = new Set();
+  const ab: THREE.Vector3 = new THREE.Vector3();
+  const ac: THREE.Vector3 = new THREE.Vector3();
+  const cross: THREE.Vector3 = new THREE.Vector3();
+  for (let i: number = 0; i < topology.triangles.length; i += 3) {
+    const a: number = topology.triangles[i]!;
+    const b: number = topology.triangles[i + 1]!;
+    const c: number = topology.triangles[i + 2]!;
+    if (
+      !readAutoMovieCollisionTopology.finite(values[a]!) ||
+      !readAutoMovieCollisionTopology.finite(values[b]!) ||
+      !readAutoMovieCollisionTopology.finite(values[c]!)
+    )
+      return null;
+    ab.subVectors(values[b]!, values[a]!);
+    ac.subVectors(values[c]!, values[a]!);
+    if (
+      cross.crossVectors(ab, ac).length() <=
+      2 * slack * (ab.length() + ac.length() + 2 * slack)
+    )
+      continue;
+    triangles.push(a, b, c);
+    drawn.add(a);
+    drawn.add(b);
+    drawn.add(c);
+  }
+  const bounds: THREE.Box3 = new THREE.Box3();
+  for (const vertex of drawn) bounds.expandByPoint(values[vertex]!);
+  return {
+    values,
+    triangles: Uint32Array.from(triangles),
+    drawn: Uint32Array.from(drawn),
+    error: slack,
+    closed: topology.closed,
+    bounds,
+    ...(labels === undefined ? {} : { label: labels }),
+  };
+}

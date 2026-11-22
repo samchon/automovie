@@ -1,4 +1,6 @@
+import { preparePhysicalGeometry } from "@automovie/engine";
 import type {
+  IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
   IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
@@ -13,6 +15,7 @@ import type { IFilm } from "./IFilm";
 import type { IFilmProduction } from "./IFilmProduction";
 import { clampProductionSeconds } from "./clampProductionSeconds";
 import { films } from "./composition/films";
+import { inspectFilmProduction } from "./inspectFilmProduction";
 import { markFilmProduction } from "./markFilmProduction";
 
 /**
@@ -37,6 +40,9 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
         name,
         {
           create: async (): Promise<IAutoMovieDrawScene> => {
+            const geometry: Awaited<
+              ReturnType<typeof preparePhysicalGeometry>
+            > = await preparePhysicalGeometry();
             const production: IFilmProduction = await film.create();
             const subject: IAutoMovieDrawScene = {
               scene: production.scene,
@@ -44,6 +50,9 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
               durationSeconds: film.durationSeconds,
               fps: film.fps,
               width: film.width ?? 1280,
+              ...(production.delivery === undefined
+                ? {}
+                : { delivery: production.delivery }),
               height: film.height ?? 720,
               markKinds: [
                 ...(production.markKinds ?? []),
@@ -60,9 +69,23 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
               ...(production.views === undefined
                 ? {}
                 : { views: production.views }),
+              inspectPlaced: (
+                sample: IAutoMovieDrawScene.IPlacedSample,
+              ): IAutoMovieInspectionDiagnostics =>
+                inspectFilmProduction({
+                  name,
+                  production,
+                  geometry,
+                  fps: film.fps,
+                  sample,
+                }),
               marks: (seconds: number): IAutoMovieMark[] =>
                 markFilmProduction(production, seconds),
               seek: async (seconds: number): Promise<void> =>
+                production.seek(
+                  clampProductionSeconds(seconds, film.durationSeconds),
+                ),
+              place: (seconds: number): void =>
                 production.seek(
                   clampProductionSeconds(seconds, film.durationSeconds),
                 ),

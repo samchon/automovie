@@ -18,8 +18,9 @@ export interface IAutoMovieConstructionPortLoop {
 
   /**
    * The curve's distance from the centre at each of the band's column clocks `2 pi k / count`, as a share of the ellipse's there: the port
-   * curve's point at that clock is `centre + shape[k] (semi[0] cos c, sense semi[1] sin c)`. Absent, the ellipse itself. It lets the port
-   * curve follow the outline of the part's own ring where that is not an ellipse. The shares do not guarantee equal column lengths.
+   * curve's point is `centre + r(c) (semi[0] cos c, sense semi[1] sin c)`. The periodic cubic through the shares gives `r(c)` between
+   * columns, so the host trim and the band read the same C2 curve. Absent, `r(c) = 1` and the loop is the ellipse. The authored shares
+   * can follow a nonelliptic outline. Realization checks the resulting correspondence and strip.
    */
   shape?: number[];
 }

@@ -1,3 +1,6 @@
+import type { IAutoMovieHumanConicRecentre } from "./IAutoMovieHumanConicRecentre";
+import type { IAutoMovieViewAxis } from "../../../construction/IAutoMovieViewAxis";
+import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { IAutoMovieLoftRelief } from "../../../construction/IAutoMovieLoftRelief";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanConicSection } from "./IAutoMovieHumanConicSection";
@@ -20,6 +23,9 @@ export namespace IAutoMovieHumanConicLoft {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts `roll`: The chart's roll about the course; absent, none. `reliefs`: Reliefs composed onto the wall; absent means none. `tips`: Where the part closes in a point, toward its first knot and toward its last; null leaves that end an open section. `pitch`: Largest distance between two neighbouring phases at the part's widest section, mm; absent, `PHASE_MM`. `phase`: Largest step between neighbouring phases, radians, beside the finest relief net's columns: the mesh's density round the part held apart from its nets'. `turn`: Largest turn of a ring's tangent between two neighbouring phases, radians; absent, the phases are uniform.
    */
   export interface IFamily {
+    /** Native source authority for this generation, or the authored wall when absent. */
+    native?: INative;
+
     /** Chain name. */
     name: string;
 
@@ -39,6 +45,15 @@ export namespace IAutoMovieHumanConicLoft {
      * jumps to the next.
      */
     roll?: IRoll;
+
+    /**
+     * The line the sections are centred on, as its shift from the course at each knot in the section chart (the rolled chart, where the
+     * family rolls); absent, the course itself. The course through `centres` is the line the frames and the poses are carried on; the
+     * sections' own centres stand off it wherever the flesh is not centred on that line (the Human skill's Centres Before Curves, step 2),
+     * and `values` are written about this origin line, on the course's own section planes
+     * (`AutoMovieHumanConicRecentre.axis`). A line whose every shift is zero is the course itself.
+     */
+    origin?: IAutoMovieHumanConicRecentre.ILine;
 
     /** The anchors every section is read through. */
     layout: IAutoMovieHumanConicSection.ILayout;
@@ -80,13 +95,22 @@ export namespace IAutoMovieHumanConicLoft {
 
   /**
    * A roll of a part's chart about its course: at each station the chart carried by the course is turned by the angle, from `u` toward
-   * `v`, a natural cubic through its values at its own knots (straight past the first and the last), so the frames stay C2.
+   * `v`, so the frames stay C2.
    *
+   * Without `eases` the angle is a natural cubic through its values at its own knots (straight past the first and the last): a shape
+   * drawn through authored knots, such as a sheet that curls along its course. One cubic through all its knots is not zero between
+   * knots of zero, so it is no law for a twist that belongs to one stretch.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation A roll of a part's chart about its course: at each station the chart carried by the course is turned by the angle, from `u` toward `v`, a natural cubic through its values at its own knots (straight past the first and the last), so the frames stay C2.
-   * @evidence contracts/development/design.md#principled-representation `knots`: Stations of the angle's knots, mm, increasing; at least two. `values`: The angle at each knot, radians.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanConicPose.twist. Also types AutoMovieHumanConicPose.twisted.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `knots`, `values`; callers supply the complete record.
+   * With `eases` the angle is local: between two neighbouring knots it goes from the first value to the second along a line whose
+   * slope rises from nothing over the first knot's ease and falls to nothing over the second's, each by the quintic smoothstep, and it
+   * holds the first value before the first knot and the last past the last. With a stretch `L` long, eases `a` and `b` and a difference
+   * `d`, the slope between the eases is `d / (L - (a + b) / 2)`. The angle's first and second derivatives vanish at every knot, so two
+   * knots of one value hold it exactly and a twist never reaches a stretch that has none (`AutoMovieHumanConicPose.twist`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States station and angle units, local ease behavior and the fallback natural cubic.
+   * @evidence contracts/development/design.md#principled-representation Read each angle at its millimetre knot. Optional millimetre eases bound the support between neighbouring knots, with numeric admission in AutoMovieHumanConicLoft.eased.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanConicPose.twist emits the local roll and AutoMovieHumanConicLoft evaluates both supported laws.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared eases distinguish two laws on a shared knot and value representation. Both produce one angle at every station.
    */
   export interface IRoll {
     /** Stations of the angle's knots, mm, increasing; at least two. */
@@ -94,6 +118,12 @@ export namespace IAutoMovieHumanConicLoft {
 
     /** The angle at each knot, radians. */
     values: number[];
+
+    /**
+     * The length over which the angle's slope rises or falls beside each knot, mm, one per knot, not negative; on each stretch the two
+     * eases together are no longer than the stretch. Present, the angle is the local eased law; absent, the natural cubic.
+     */
+    eases?: number[];
   }
 
   /**
@@ -165,4 +195,53 @@ export namespace IAutoMovieHumanConicLoft {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanConicLoft input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
    */
   export type ReaderResult = (s: number) => number[];
+
+  /**
+   * Source and reflection functions for a native family generated in one invocation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Source and reflection functions for a native family generated in one invocation.
+   * @evidence contracts/development/design.md#principled-representation The axis and section stations use physical millimetres. Each reader returns the same view-part shape under its declared scope.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanConicLoft delegates source and sampling to these functions, owned by the native family builder.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reflected family's producer retains its source clock and derivative scope.
+   */
+  export interface INative {
+    /** Actual complete section-plane source in figure-world mm. */
+    axis: IAutoMovieViewAxis.IAxis;
+    /**
+     * Canonical full source in caller cap/relief scope, without loft or turn sampling.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Accepts the logical family whose cap and relief scope to read.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanNativeFamily owns the numerical method and admission.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for source. The producer owns its decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanNativeFamily owns the evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanNativeFamily owns reuse of the source preparation.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanNativeFamily owns borrowed-data lifetime.
+     */
+    source: (family: IFamily) => IAutoMovieViewPart;
+    /**
+     * Original source producer, including every scalar, cap and actual requested relief scope.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Accepts the family and explicit material stations in millimetres.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanNativeFamily owns the numerical method and admission.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for part. The producer owns its decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanNativeFamily owns the evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanNativeFamily owns reuse of the source preparation.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanNativeFamily owns borrowed-data lifetime.
+     */
+    part: (family: IFamily, stations: number[]) => IAutoMovieViewPart;
+    /**
+     * The same original law in the reflected chart, retaining its source clock and all native derivatives.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Accepts the source family and reflected logical name.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanNativeFamily owns the numerical method and admission.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for mirror. The producer owns its decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanNativeFamily owns the evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanNativeFamily owns reuse of the source preparation.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanNativeFamily owns borrowed-data lifetime.
+     */
+    mirror: (family: IFamily, name: string) => IFamily;
+  }
 }
