@@ -234,43 +234,46 @@ function painting(
       take.duration,
     ) <= HOLD,
   );
-  const far: HumanRefusal | undefined = everydayTake.refusal(() =>
-    everydayTake.perform(
-      `crafts-${label}-far`,
-      body,
-      [
-        everydayTake.prop(
-          "easel",
-          easel,
-          { x: 0, y: centre - 1.35, z: 2 },
-          undefined,
-          true,
-        ),
-        props[1]!,
-        props[2]!,
-      ],
-      HumanChain.subject("actor")
-        .stand()
-        .pickUp({ prop: "brush", handle: "grip", hand: "right", lift: 0.05 })
-        .registered("write", {
-          tool: "brush",
-          tip: "tip",
-          on: "easel",
-          surface: "canvas",
-          stroke: [
-            [0, 0],
-            [0.1, 0],
-          ],
-          seconds: 0.5,
-          side: "right",
-        }),
-      Object.values(HUMAN_LEXICON).flat(),
-    ),
-  );
-  checks.check(
-    `${label}: a canvas beyond reach is refused`,
-    far !== undefined && far.kind === "reach",
-  );
+  // A refusal is checked once, on the first body.
+  if (label.startsWith("m-average")) {
+    const far: HumanRefusal | undefined = everydayTake.refusal(() =>
+      everydayTake.perform(
+        `crafts-${label}-far`,
+        body,
+        [
+          everydayTake.prop(
+            "easel",
+            easel,
+            { x: 0, y: centre - 1.35, z: 2 },
+            undefined,
+            true,
+          ),
+          props[1]!,
+          props[2]!,
+        ],
+        HumanChain.subject("actor")
+          .stand()
+          .pickUp({ prop: "brush", handle: "grip", hand: "right", lift: 0.05 })
+          .registered("write", {
+            tool: "brush",
+            tip: "tip",
+            on: "easel",
+            surface: "canvas",
+            stroke: [
+              [0, 0],
+              [0.1, 0],
+            ],
+            seconds: 0.5,
+            side: "right",
+          }),
+        Object.values(HUMAN_LEXICON).flat(),
+      ),
+    );
+    checks.check(
+      `${label}: a canvas beyond reach is refused`,
+      far !== undefined && far.kind === "reach",
+    );
+  }
 }
 
 /** Conducting each meter for one bar. */

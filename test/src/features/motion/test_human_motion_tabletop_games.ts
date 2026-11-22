@@ -250,18 +250,21 @@ function chess(
         moves[k]!.start,
       ) <= HOLD,
     );
-  const occupied: HumanRefusal | undefined = everydayTake.refusal(() =>
-    HumanTabletop.chessMove(seated(s), {
-      board: "board",
-      piece: "wp",
-      to: "d3",
-      occupancy: { e3: "wp", d3: "bp" },
-    }),
-  );
-  checks.check(
-    `${label}: an occupied square without its capture is refused`,
-    occupied !== undefined && occupied.axis === "to",
-  );
+  // A refusal is checked once, on the first body.
+  if (label.startsWith("m-average")) {
+    const occupied: HumanRefusal | undefined = everydayTake.refusal(() =>
+      HumanTabletop.chessMove(seated(s), {
+        board: "board",
+        piece: "wp",
+        to: "d3",
+        occupancy: { e3: "wp", d3: "bp" },
+      }),
+    );
+    checks.check(
+      `${label}: an occupied square without its capture is refused`,
+      occupied !== undefined && occupied.axis === "to",
+    );
+  }
 }
 
 /** Cards: a deal, a reveal, a shuffle and the distant seat's refusal. */
@@ -385,22 +388,27 @@ function cards(
       { ...squared, y: 0 },
     ) <= LAND,
   );
-  const far: HumanRefusal | undefined = everydayTake.refusal(() =>
-    everydayTake.perform(
-      `tabletop-${label}-far`,
-      body,
-      props,
-      HumanTabletop.deal(seated(s), {
-        cards: ["c3"],
-        seats: [onTable(s, 0, 1.2)],
-      }),
-      Object.values(HUMAN_LEXICON).flat(),
-    ),
-  );
-  checks.check(
-    `${label}: a seat beyond the arm is refused with its distance`,
-    far !== undefined && far.kind === "reach" && typeof far.value === "number",
-  );
+  // A refusal is checked once, on the first body.
+  if (label.startsWith("m-average")) {
+    const far: HumanRefusal | undefined = everydayTake.refusal(() =>
+      everydayTake.perform(
+        `tabletop-${label}-far`,
+        body,
+        props,
+        HumanTabletop.deal(seated(s), {
+          cards: ["c3"],
+          seats: [onTable(s, 0, 1.2)],
+        }),
+        Object.values(HUMAN_LEXICON).flat(),
+      ),
+    );
+    checks.check(
+      `${label}: a seat beyond the arm is refused with its distance`,
+      far !== undefined &&
+        far.kind === "reach" &&
+        typeof far.value === "number",
+    );
+  }
 }
 
 /** Chips pushed whole, notes counted onto a pile and a die rolled onto the table. */

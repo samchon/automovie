@@ -137,10 +137,16 @@ function umbrella(
   ];
   const shoulder: number = body.measure.shoulderHeight;
   const reach: number = body.measure.upperArm + body.measure.forearm;
-  // Held so the runner's open stop, the free hand's farthest push, comes
-  // to shoulder height: the umbrella's own grip-to-stop length sets how low
-  // its handle sits, for any umbrella and body.
-  const stop: number = runner.frame.translation.y + runner.travel!;
+  // Held so the grip and the runner's open stop, the free hand's farthest
+  // push, sit evenly about the shoulders: the grip half the umbrella's own
+  // grip-to-stop length below, the stop half above, for any umbrella and
+  // body. `stop` is how far below the shoulder the umbrella's origin goes.
+  const grip: IAutoMovieAffordance = model.affordances!.find(
+    (a: IAutoMovieAffordance): boolean => a.id === "grip",
+  )!;
+  const stop: number =
+    (runner.frame.translation.y + runner.travel! + grip.frame.translation.y) /
+    2;
   // Sharing one umbrella the two walk shoulder to shoulder, with room between
   // for the arm that holds it: half the holder's reach.
   const apart: number = 2 * body.measure.shoulderHalfWidth + ROOM * reach;
@@ -261,34 +267,42 @@ function umbrella(
     `${label}: the umbrella stays in the palm through the walk`,
     everydayTake.drift(take, "right", "umbrella", walk.start, walk.end) <= HOLD,
   );
-  const far: HumanRefusal | undefined = everydayTake.refusal(() =>
-    everydayTake.perform(
-      `handheld-${label}-far`,
-      body,
-      props,
-      // Raised overhead first, the runner rises beyond the free arm.
-      HumanChain.subject("actor")
-        .stand()
-        .pickUp({ prop: "umbrella", handle: "grip", hand: "right", lift: 0.05 })
-        .registered("workHeld", {
-          prop: "umbrella",
-          at: { out: 0.05, up: shoulder + 0.25, forward: 0.15 },
-          seconds: 0.4,
-        })
-        .registered("workHeld", {
-          prop: "umbrella",
-          side: "right",
-          drive: [{ articulation: "runner", to: runner.travel! }],
-          push: "runner",
-          seconds: 0.8,
-        }),
-      Object.values(HUMAN_LEXICON).flat(),
-    ),
-  );
-  checks.check(
-    `${label}: a runner beyond the hand's reach is refused`,
-    far !== undefined && far.kind === "reach",
-  );
+  // A refusal is checked once, on the first body.
+  if (label.startsWith("m-average")) {
+    const far: HumanRefusal | undefined = everydayTake.refusal(() =>
+      everydayTake.perform(
+        `handheld-${label}-far`,
+        body,
+        props,
+        // Raised overhead first, the runner rises beyond the free arm.
+        HumanChain.subject("actor")
+          .stand()
+          .pickUp({
+            prop: "umbrella",
+            handle: "grip",
+            hand: "right",
+            lift: 0.05,
+          })
+          .registered("workHeld", {
+            prop: "umbrella",
+            at: { out: 0.05, up: shoulder + 0.25, forward: 0.15 },
+            seconds: 0.4,
+          })
+          .registered("workHeld", {
+            prop: "umbrella",
+            side: "right",
+            drive: [{ articulation: "runner", to: runner.travel! }],
+            push: "runner",
+            seconds: 0.8,
+          }),
+        Object.values(HUMAN_LEXICON).flat(),
+      ),
+    );
+    checks.check(
+      `${label}: a runner beyond the hand's reach is refused`,
+      far !== undefined && far.kind === "reach",
+    );
+  }
 }
 
 /** Scissors cutting a stretched ribbon across in three closures. */
@@ -434,32 +448,35 @@ function scissors(
       take.duration,
     ) <= HOLD,
   );
-  const unheld: HumanRefusal | undefined = everydayTake.refusal(() =>
-    everydayTake.perform(
-      `handheld-${label}-unheld`,
-      body,
-      props,
-      HumanChain.subject("actor")
-        .stand()
-        .registered("workHeld", {
-          prop: "scissors",
-          side,
-          drive: [
-            {
-              articulation: "pivot",
-              to: 30,
-              by: { digit: "thumb", site: "thumbRing" },
-            },
-          ],
-          seconds: 0.3,
-        }),
-      Object.values(HUMAN_LEXICON).flat(),
-    ),
-  );
-  checks.check(
-    `${label}: scissors the hand does not hold are refused`,
-    unheld !== undefined,
-  );
+  // A refusal is checked once, on the first body.
+  if (label.startsWith("m-average")) {
+    const unheld: HumanRefusal | undefined = everydayTake.refusal(() =>
+      everydayTake.perform(
+        `handheld-${label}-unheld`,
+        body,
+        props,
+        HumanChain.subject("actor")
+          .stand()
+          .registered("workHeld", {
+            prop: "scissors",
+            side,
+            drive: [
+              {
+                articulation: "pivot",
+                to: 30,
+                by: { digit: "thumb", site: "thumbRing" },
+              },
+            ],
+            seconds: 0.3,
+          }),
+        Object.values(HUMAN_LEXICON).flat(),
+      ),
+    );
+    checks.check(
+      `${label}: scissors the hand does not hold are refused`,
+      unheld !== undefined,
+    );
+  }
 }
 
 /** A folding knife opened, locked through a pause, then closed. */

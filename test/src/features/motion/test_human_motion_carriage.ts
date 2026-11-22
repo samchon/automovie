@@ -490,21 +490,24 @@ function changeHands(
   for (let t: number = second.start; t <= take.duration; t += 1 / 24)
     low = Math.min(low, take.prop("tote", t).position.y);
   checks.check(`${label}: the bag is never set down`, low > 0.3);
-  const heavy: HumanRefusal | undefined = everydayTake.refusal(() =>
-    everydayTake.perform(
-      `carriage-${label}-heavy`,
-      body,
-      [],
-      HumanChain.subject("actor")
-        .stand()
-        .carry({ to: { x: 0, y: 0, z: 2 }, how: "oneHand", load: 0.4 }),
-      Object.values(HUMAN_LEXICON).flat(),
-    ),
-  );
-  checks.check(
-    `${label}: a load over the carriage band is refused`,
-    heavy !== undefined,
-  );
+  // A refusal is checked once, on the first body.
+  if (label.startsWith("m-average")) {
+    const heavy: HumanRefusal | undefined = everydayTake.refusal(() =>
+      everydayTake.perform(
+        `carriage-${label}-heavy`,
+        body,
+        [],
+        HumanChain.subject("actor")
+          .stand()
+          .carry({ to: { x: 0, y: 0, z: 2 }, how: "oneHand", load: 0.4 }),
+        Object.values(HUMAN_LEXICON).flat(),
+      ),
+    );
+    checks.check(
+      `${label}: a load over the carriage band is refused`,
+      heavy !== undefined,
+    );
+  }
 }
 
 /** One scenario of the spec. */

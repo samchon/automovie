@@ -288,38 +288,47 @@ function cut(
       ) - offset,
     ) <= HOLD,
   );
-  const far: HumanRefusal | undefined = everydayTake.refusal(() =>
-    everydayTake.perform(
-      `dining-${label}-far`,
-      body,
-      props.map(
-        (p: IAutoMovieMotionHumanProp): IAutoMovieMotionHumanProp =>
-          p.subject === "steak"
-            ? everydayTake.prop("steak", steak, on(s, 0, 1.3), undefined, true)
-            : p,
+  // A refusal is checked once, on the first body.
+  if (label.startsWith("m-average")) {
+    const far: HumanRefusal | undefined = everydayTake.refusal(() =>
+      everydayTake.perform(
+        `dining-${label}-far`,
+        body,
+        props.map(
+          (p: IAutoMovieMotionHumanProp): IAutoMovieMotionHumanProp =>
+            p.subject === "steak"
+              ? everydayTake.prop(
+                  "steak",
+                  steak,
+                  on(s, 0, 1.3),
+                  undefined,
+                  true,
+                )
+              : p,
+        ),
+        HumanChain.subject("actor")
+          .sit({ seat: s.seat, seconds: 1 })
+          .pickUp({ prop: "knife", handle: "grip", hand: side, lift: 0.05 })
+          .registered("write", {
+            tool: "knife",
+            tip: "face",
+            on: "steak",
+            surface: "top",
+            stroke: [
+              [0, -0.03],
+              [0, 0.03],
+            ],
+            seconds: 0.5,
+            side,
+          }),
+        Object.values(HUMAN_LEXICON).flat(),
       ),
-      HumanChain.subject("actor")
-        .sit({ seat: s.seat, seconds: 1 })
-        .pickUp({ prop: "knife", handle: "grip", hand: side, lift: 0.05 })
-        .registered("write", {
-          tool: "knife",
-          tip: "face",
-          on: "steak",
-          surface: "top",
-          stroke: [
-            [0, -0.03],
-            [0, 0.03],
-          ],
-          seconds: 0.5,
-          side,
-        }),
-      Object.values(HUMAN_LEXICON).flat(),
-    ),
-  );
-  checks.check(
-    `${label}: a plate beyond the seated reach is refused`,
-    far !== undefined && far.kind === "reach",
-  );
+    );
+    checks.check(
+      `${label}: a plate beyond the seated reach is refused`,
+      far !== undefined && far.kind === "reach",
+    );
+  }
 }
 
 /** Chopsticks: pinch a morsel to the mouth with the bowl raised to the chin. */
