@@ -240,11 +240,11 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
         const project: ReturnType<typeof prepareHumanPostureProjection> =
           projection ?? prepareHumanPostureProjection(body);
         let index: number = 0;
-        let u: number = progress[0]!(seconds);
+        let u: number = progress[0]!.progress(seconds);
         for (let i: number = 1; i < progress.length; ++i)
-          if (progress[i]!(seconds) > 0) {
+          if (progress[i]!.progress(seconds) > 0) {
             index = i;
-            u = progress[i]!(seconds);
+            u = progress[i]!.progress(seconds);
           }
         const a: IKey = keys[index]!;
         const b: IKey = keys[index + 1]!;

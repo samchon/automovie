@@ -114,7 +114,7 @@ export const turnOver: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTurnO
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): IAutoMovieMotionHumanPosture => {
-      const u: number = progress(seconds);
+      const u: number = progress.progress(seconds);
       const turn: number = from.turn + (target - from.turn) * u;
       const step: number = (turn - from.turn) / (target - from.turn) * quarters;
       const quarter: number = Math.min(quarters - 1, Math.floor(step));

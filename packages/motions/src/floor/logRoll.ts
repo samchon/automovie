@@ -124,7 +124,7 @@ export const logRoll: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLogRol
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): IAutoMovieMotionHumanPosture => {
-      const u: number = progress(seconds);
+      const u: number = progress.progress(seconds);
       const turn: number = from.turn + (target - from.turn) * u;
       const posture: IAutoMovieMotionHumanPosture = {
         ...lyingTurn.tilt({ yaw: from.yaw, turn }),
