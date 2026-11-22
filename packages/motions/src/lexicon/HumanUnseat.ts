@@ -356,8 +356,6 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           planted: t >= touch,
         },
       };
-      // The hand opens flat as it reaches for the floor, so no digit curls under the palm.
-      reached.joints = { ...reached.joints, ...HumanHand.shape(side, "flat") };
       return reached;
     },
   };
