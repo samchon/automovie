@@ -17,50 +17,50 @@ import { touch } from "../touch/touch";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own or restates a value of the law.
  */
 export namespace HumanTouchRows {
-  /** `touch` of kind `tap`. */
+  /** `touch` of kind `tap`: 3 taps of 0.3 s, then 0.4 s on the place, in all 1.3 s after the reach; a light attention-getting touch on a shoulder or an arm ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
   export const touchTap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchTap"]
   > = HumanActionRow.of("touchTap", touch, { kind: "tap" });
 
-  /** `touch` of kind `pat`. */
+  /** `touch` of kind `pat`: 3 pats of 0.4 s, then 0.4 s, 1.6 s after the reach; comfort, praise, a friendly pat ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
   export const touchPat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchPat"]
   > = HumanActionRow.of("touchPat", touch, { kind: "pat" });
 
-  /** `touch` of kind `stroke`. */
+  /** `touch` of kind `stroke`: one stroke at a 5 cm/s peak (the pleasant-touch rate, Loken et al. 2009), about 5 s for a 0.2 m hand, then 0.4 s; a caress, soothing ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
   export const touchStroke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchStroke"]
   > = HumanActionRow.of("touchStroke", touch, {
     kind: "stroke",
   });
 
-  /** `touch` of kind `rub`. */
+  /** `touch` of kind `rub`: 3 rubs of 0.5 s, then 0.4 s, 1.9 s after the reach; warming, soothing, rubbing a shoulder or a back ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
   export const touchRub: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchRub"]
   > = HumanActionRow.of("touchRub", touch, { kind: "rub" });
 
-  /** `touch` of kind `press`. */
+  /** `touch` of kind `press`: one press of 0.4 s, then held 1.2 s, 1.6 s after the reach; a firm touch, pushing a button on a person, steadying ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
   export const touchPress: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchPress"]
   > = HumanActionRow.of("touchPress", touch, {
     kind: "press",
   });
 
-  /** `touch` of kind `squeeze`. */
+  /** `touch` of kind `squeeze`: one squeeze of 0.4 s with the fingers curled 20 degrees, held 1.2 s, 1.6 s after the reach; reassurance, a grip on an arm or a hand ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
   export const touchSqueeze: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchSqueeze"]
   > = HumanActionRow.of("touchSqueeze", touch, {
     kind: "squeeze",
   });
 
-  /** `touch` of kind `hold`. */
+  /** `touch` of kind `hold`: one placement of 0.4 s, then held 1.2 s, 1.6 s after the reach; a hand laid on a shoulder or an arm ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
   export const touchHold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchHold"]
   > = HumanActionRow.of("touchHold", touch, {
     kind: "hold",
   });
 
-  /** `touch` of kind `scratch`. */
+  /** `touch` of kind `scratch`: 3 scratches of 0.2 s with curled fingers, then 0.4 s, 1.0 s after the reach; an itch, scratching the head or an arm ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override; provisional except the stroke). */
   export const touchScratch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchScratch"]
   > = HumanActionRow.of("touchScratch", touch, {

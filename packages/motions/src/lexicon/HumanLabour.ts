@@ -21,33 +21,33 @@ import { throwObject } from "../throwing/throwObject";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
  */
 export namespace HumanLabour {
-  /** Carry a box in both hands. */
+  /** Carry a box in both hands, at the normal walk's speed (about 1.5 m/s, {@link IAutoMovieMotionHumanWalkParams.pace}) with a load of 0.1 of the body mass when `load` is absent; moving boxes, shopping. */
   export const carryBox: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["carryBox"]
   > = HumanActionRow.of("carryBox", carry, {
     how: "twoHands",
   });
 
-  /** Carry a bag or a case in one hand. */
+  /** Carry a bag or a case in one hand, at the normal walk's speed (about 1.5 m/s, {@link IAutoMovieMotionHumanWalkParams.pace}) with a load of 0.1 of the body mass when `load` is absent; commuting, travelling. */
   export const carryBag: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["carryBag"]
   > = HumanActionRow.of("carryBag", carry, {
     how: "oneHand",
   });
 
-  /** Carry a load on the hip, as a basket or a child is carried. */
+  /** Carry a load on the hip, as a basket or a child is carried, at the normal walk's speed (about 1.5 m/s, {@link IAutoMovieMotionHumanWalkParams.pace}) with a load of 0.1 of the body mass when `load` is absent. */
   export const carryOnHip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["carryOnHip"]
   > = HumanActionRow.of("carryOnHip", carry, {
     how: "hip",
   });
 
-  /** Push a cart, a pram or a trolley ahead. */
+  /** Push a cart, a pram or a trolley ahead, at the normal walk's speed (about 1.5 m/s, {@link IAutoMovieMotionHumanWalkParams.pace}); shopping, a stroll with a pram. */
   export const pushCart: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["pushCart"]
   > = HumanActionRow.of("pushCart", carry, { how: "push" });
 
-  /** Haul a heavy load slowly in both hands (the load is a quarter of the body's mass, the most a carry accepts). */
+  /** Haul a heavy load slowly in both hands: the slow walk (about 1.05 m/s, {@link IAutoMovieMotionHumanWalkParams.pace}) with a load of 0.25 of the body mass, the most a carry accepts; labour, strain. */
   export const haul: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["haul"]
   > = HumanActionRow.of("haul", carry, {
@@ -56,7 +56,7 @@ export namespace HumanLabour {
     load: 0.25,
   });
 
-  /** Drive nails: a hammer swung four times. */
+  /** Drive nails: a hammer swung four times at 2 Hz, 2 s ({@link useTool.PERIODS}); building, repair. */
   export const hammer: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["hammer"]
   > = HumanActionRow.of("hammer", useTool, {
@@ -64,7 +64,7 @@ export namespace HumanLabour {
     cycles: 4,
   });
 
-  /** Saw through a board. */
+  /** Saw through a board: 4 push-pull cycles of 0.5 s, 2 s, when `cycles` is absent ({@link useTool.PERIODS}). */
   export const saw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["saw"]
   > = HumanActionRow.of("saw", useTool, { tool: "saw" });
@@ -74,7 +74,7 @@ export namespace HumanLabour {
     IAutoMovieMotionHumanLexiconParams["labour"]["stir"]
   > = HumanActionRow.of("stir", useTool, { tool: "stir" });
 
-  /** Drive a screw. */
+  /** Drive a screw: 4 turns of 0.7 s, 2.8 s, when `cycles` is absent ({@link useTool.PERIODS}). */
   export const screw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["screw"]
   > = HumanActionRow.of("screw", useTool, {

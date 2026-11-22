@@ -37,14 +37,14 @@ export namespace HumanPartner {
     role: "outgoing",
   });
 
-  /** The leader of a walking partner dance: a slow walk the follower keeps pace with. The composition gives where to. */
+  /** The leader of a walking partner dance: the slow walk, about 1.05 m/s at the reference hip ({@link IAutoMovieMotionHumanWalkParams.pace}), the follower keeps pace with; a waltz-like promenade, a stately procession. The composition gives where to. */
   export const danceLead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceLead"]
   > = HumanActionRow.of("danceLead", walk, {
     pace: "slow",
   });
 
-  /** The follower of a walking partner dance: at the leader's right, 0.4 m off (provisional, a promenade's side-by-side hold), walking at the leader's speed by the speed-matching law of a follower (`approach`'s `track: "pace"`). The composition gives the leader as the target. */
+  /** The follower of a walking partner dance: at the leader's right, 0.4 m off (provisional, a promenade's side-by-side hold), walking at the leader's speed (the slow walk, {@link IAutoMovieMotionHumanWalkParams.pace}) by the speed-matching law of a follower (`approach`'s `track: "pace"`). The composition gives the leader as the target. */
   export const danceFollow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceFollow"]
   > = HumanActionRow.of("danceFollow", approach, {
@@ -54,7 +54,7 @@ export namespace HumanPartner {
     track: "pace",
   });
 
-  /** The follower's hold of a walking partner dance once both stand: her left palm laid on the leader and held. The composition gives the leader's region (his near shoulder at her left in a promenade). A hold kept while walking is coupled travel (#3341), not staged here: a speed-matching follower lags while the leader walks. */
+  /** The follower's hold of a walking partner dance once both stand: her left palm laid on the leader and held 1.5 s. The composition gives the leader's region (his near shoulder at her left in a promenade). A hold kept while walking is coupled travel (#3341), not staged here: a speed-matching follower lags while the leader walks. */
   export const danceHold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceHold"]
   > = HumanActionRow.of("danceHold", touch, {

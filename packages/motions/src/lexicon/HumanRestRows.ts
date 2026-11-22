@@ -17,7 +17,7 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own or restates a value of the law.
  */
 export namespace HumanRestRows {
-  /** `rest` with both hands at `side`. */
+  /** `rest` with both hands at `side`: the arms hang; a neutral wait, listening; held 2 s after the hands arrive when `seconds` is absent ({@link IAutoMovieMotionHumanRest.IParams}). */
   export const restSide: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restSide"]
   > = HumanActionRow.of("restSide", rest, {
@@ -25,7 +25,7 @@ export namespace HumanRestRows {
     right: "side",
   });
 
-  /** `rest` with both hands at `pocket`. */
+  /** `rest` with both hands at `pocket`: the hands in the front pockets; idling, casual waiting; held 2 s after the hands arrive when `seconds` is absent ({@link IAutoMovieMotionHumanRest.IParams}). */
   export const restPocket: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restPocket"]
   > = HumanActionRow.of("restPocket", rest, {
@@ -33,7 +33,7 @@ export namespace HumanRestRows {
     right: "pocket",
   });
 
-  /** `rest` with both hands at `hip`. */
+  /** `rest` with both hands at `hip`: the hands on the hips, elbows out; impatience, confidence, surveying; held 2 s after the hands arrive when `seconds` is absent ({@link IAutoMovieMotionHumanRest.IParams}). */
   export const restHip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restHip"]
   > = HumanActionRow.of("restHip", rest, {
@@ -41,7 +41,7 @@ export namespace HumanRestRows {
     right: "hip",
   });
 
-  /** `rest` with both hands at `crossed`. */
+  /** `rest` with both hands at `crossed`: the arms crossed over the chest; waiting, distance, defensiveness; held 2 s after the hands arrive when `seconds` is absent ({@link IAutoMovieMotionHumanRest.IParams}). */
   export const restCrossed: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restCrossed"]
   > = HumanActionRow.of("restCrossed", rest, {
@@ -49,7 +49,7 @@ export namespace HumanRestRows {
     right: "crossed",
   });
 
-  /** `rest` with both hands at `claspedFront`. */
+  /** `rest` with both hands at `claspedFront`: the hands clasped in front; formal waiting, humility; held 2 s after the hands arrive when `seconds` is absent ({@link IAutoMovieMotionHumanRest.IParams}). */
   export const restClaspedFront: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restClaspedFront"]
   > = HumanActionRow.of("restClaspedFront", rest, {
@@ -57,7 +57,7 @@ export namespace HumanRestRows {
     right: "claspedFront",
   });
 
-  /** `rest` with both hands at `claspedBehind`. */
+  /** `rest` with both hands at `claspedBehind`: the hands clasped behind the back; strolling, at ease, inspecting; held 2 s after the hands arrive when `seconds` is absent ({@link IAutoMovieMotionHumanRest.IParams}). */
   export const restClaspedBehind: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restClaspedBehind"]
   > = HumanActionRow.of("restClaspedBehind", rest, {
@@ -65,7 +65,7 @@ export namespace HumanRestRows {
     right: "claspedBehind",
   });
 
-  /** `rest` with both hands at `behindHead`. */
+  /** `rest` with both hands at `behindHead`: the hands behind the head; relaxing, stretching; held 2 s after the hands arrive when `seconds` is absent ({@link IAutoMovieMotionHumanRest.IParams}). */
   export const restBehindHead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restBehindHead"]
   > = HumanActionRow.of("restBehindHead", rest, {
@@ -73,7 +73,7 @@ export namespace HumanRestRows {
     right: "behindHead",
   });
 
-  /** `rest` with both hands at `chinRest`. */
+  /** `rest` with both hands at `chinRest`: the chin on a fist; thinking, boredom; held 2 s after the hands arrive when `seconds` is absent ({@link IAutoMovieMotionHumanRest.IParams}). */
   export const restChinRest: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restChinRest"]
   > = HumanActionRow.of("restChinRest", rest, {
@@ -81,7 +81,7 @@ export namespace HumanRestRows {
     right: "chinRest",
   });
 
-  /** `rest` with both hands at `elbowSupport`. */
+  /** `rest` with both hands at `elbowSupport`: one elbow supported by the other hand; considering, listening; held 2 s after the hands arrive when `seconds` is absent ({@link IAutoMovieMotionHumanRest.IParams}). */
   export const restElbowSupport: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restElbowSupport"]
   > = HumanActionRow.of("restElbowSupport", rest, {
