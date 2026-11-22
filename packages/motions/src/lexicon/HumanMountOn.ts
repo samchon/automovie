@@ -1,5 +1,6 @@
 import { Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -24,6 +25,8 @@ import { HumanMountFlight } from "./HumanMountFlight";
 import { HumanMountOnFrame } from "./HumanMountOnFrame";
 import { HumanMountPlace } from "./HumanMountPlace";
 import { HumanMountPush } from "./HumanMountPush";
+import { HumanMountTrack } from "./HumanMountTrack";
+import { HumanSwungLeg } from "./HumanSwungLeg";
 
 /** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
 type Frame = HumanMountOnFrame.Frame;
@@ -38,7 +41,9 @@ type Frame = HumanMountOnFrame.Frame;
  * rest the seated leg cannot reach, hangs under a thigh in the direction
  * `HumanMount.HANG` gives, or stands on the floor where that would pass it.
  * The root follows from the socket and the trunk's pitch, and the legs and
- * the hands are solved by inverse kinematics.
+ * the hands are solved by inverse kinematics; a swinging leg is keyed in
+ * joint space where its course leaves the leg's range (`HumanSwungLeg`), so
+ * a course over a saddle past the hip's range never flips its knee.
  *
  * The socket travels up from 10 % of the climb, passes `HumanMount.HOP`
  * above the seat and sets down on it at 80 %, the `seatContact`. It crosses
@@ -423,14 +428,19 @@ export namespace HumanMountOn {
             body,
             side,
             hip,
-            t < lands
-              ? HumanMountPush.squared(
-                  body,
-                  hip,
-                  goal,
-                  ends[0] + wrapDegrees(ends[1] - ends[0]) * eased,
-                )
-              : goal,
+            // The knee's plane is turned to hold the foot (`HumanMountTrack`).
+            HumanMountTrack(
+              body,
+              hip,
+              t < lands
+                ? HumanMountPush.squared(
+                    body,
+                    hip,
+                    goal,
+                    ends[0] + wrapDegrees(ends[1] - ends[0]) * eased,
+                  )
+                : goal,
+            ),
             places[side].rests && t >= bearing[side]
               ? 1 -
                   minimumJerk.share(
@@ -449,6 +459,20 @@ export namespace HumanMountOn {
       },
     };
 
-    return mounted;
+    // A swinging leg is keyed in joint space where its world course leaves
+    // the leg's range (`HumanSwungLeg`): a course over a saddle asks the
+    // ankle past what the hip reaches, and a fit pinned there flips its knee.
+    return HumanSwungLeg.plan(
+      body,
+      mounted,
+      (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null => {
+        if (stays[side]) return null;
+        const [leaves, arrives]: readonly [number, number] = flight[side];
+        const lands: number = places[side].rests
+          ? Math.min(arrives, bearing[side])
+          : arrives;
+        return lands > leaves ? [leaves, lands] : null;
+      },
+    );
   }
 }
