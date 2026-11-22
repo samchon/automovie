@@ -73,6 +73,7 @@ export * from "./compose/AutoMovieMotionHumanVariationForm";
 export * from "./compose/AutoMovieMotionHumanVariationPlace";
 export * from "./compose/AutoMovieMotionManner";
 export * from "./compose/AutoMovieMotionHumanHeld";
+export * from "./compose/fitClearArmPose";
 export * from "./compose/AutoMovieMotionMeeting";
 export * from "./compose/composeAutoMovieMotionHumanAction";
 export * from "./body/IHumanBody";
