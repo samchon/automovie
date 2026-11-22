@@ -68,8 +68,8 @@ interface ICourse {
  * 1. A sedan at 8 m/s, braking hard once its middle has passed where the
  *    pedestrian stood, wraps a body whose centre of mass stands above the
  *    top of its front onto its bonnet, and projects one below it (Ravani et
- *    al.'s rule): a wrapped body's hips lie within the car's length behind
- *    its front and within its width, above
+ *    al.'s rule): a wrapped body's hips lie over the car, no further ahead
+ *    of its front than the thigh's radius and within its width, above
  *    that top, at the separation; the body ends lying on the road ahead.
  * 2. A box-fronted truck taller than the hips projects the body forward;
  *    it ends lying ahead of where it stood.
@@ -236,7 +236,7 @@ export function test_human_motion_vehicle_hit(): void {
         const carAt: IAutoMovieVector3 = placed(coming)(off).at;
         all.check(
           `${fit} rides over the car's footprint at the separation (${(ride.z - carAt.z).toFixed(3)} m along, ${ride.x.toFixed(3)} m across, ${ride.y.toFixed(3)} m up)`,
-          ride.z - carAt.z <= foremost &&
+          ride.z - carAt.z <= foremost + body.measure.thighRadius &&
             ride.z - carAt.z >= foremost - length &&
             Math.abs(ride.x - carAt.x) <= width / 2 &&
             ride.y >= top,

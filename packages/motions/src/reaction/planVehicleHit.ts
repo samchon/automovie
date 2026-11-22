@@ -167,6 +167,21 @@ export function planVehicleHit(
   });
   const stoodOffset: IAutoMovieVector3 = stuntFallPose.offset(body, bare(joints));
 
+  // How far a shape turned so lies below its hips.
+  const lowAt: (
+    turn: IAutoMovieQuaternion,
+    shape: IAutoMovieMotionHumanPosture["joints"],
+    offset: IAutoMovieVector3,
+  ) => number = (
+    turn: IAutoMovieQuaternion,
+    shape: IAutoMovieMotionHumanPosture["joints"],
+    offset: IAutoMovieVector3,
+  ): number =>
+    stuntFallPose.lowest(body, {
+      ...bare(shape),
+      rotation: createHumanPostureRotation(offset, turn),
+    }) - offset.y;
+
   // The wrap: a quarter turn about the leading edge, at the body's near side
   // a leg's half depth above the bonnet so the body comes to lie on it.
   const wraps: boolean = trajectory !== "forwardProjection";
@@ -180,6 +195,36 @@ export function planVehicleHit(
       Math.max(speed, vehicleFront.STEP)
     : 0;
   const local: IAutoMovieQuaternion = Quaternion.inverse(struck.rotation);
+  // Where the full turn alone would leave the hips in the car's frame, and
+  // where they lie on the bonnet: over the leading edge, the turned body's
+  // lowest point on the bonnet's top.
+  const quarter: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 1, y: 0, z: 0 },
+    -90,
+  );
+  const turned: IAutoMovieVector3 = Vector3.add(
+    pivot,
+    Quaternion.rotateVector(quarter, Vector3.subtract(at, pivot)),
+  );
+  const settle: IAutoMovieVector3 = wraps
+    ? Vector3.subtract(
+        {
+          x: at.x,
+          y:
+            front.top -
+            lowAt(
+              Quaternion.multiply(
+                struck.rotation,
+                Quaternion.multiply(quarter, Quaternion.multiply(local, q0)),
+              ),
+              joints,
+              stoodOffset,
+            ),
+          z: front.front,
+        },
+        turned,
+      )
+    : { x: 0, y: 0, z: 0 };
   const wrapped: (film: number) => IAutoMovieMotionHumanPosture = (
     film: number,
   ): IAutoMovieMotionHumanPosture => {
@@ -193,11 +238,16 @@ export function planVehicleHit(
       { x: 1, y: 0, z: 0 },
       -theta,
     );
+    // The body slides back over the edge as it turns, so the hips come to
+    // rest over the leading edge with the body's underside on the bonnet.
     const hips: IAutoMovieVector3 = vehicleFront.world(
       frame,
       Vector3.add(
-        pivot,
-        Quaternion.rotateVector(turn, Vector3.subtract(at, pivot)),
+        Vector3.add(
+          pivot,
+          Quaternion.rotateVector(turn, Vector3.subtract(at, pivot)),
+        ),
+        Vector3.scale(settle, theta / 90),
       ),
     );
     return shaped(
@@ -253,19 +303,6 @@ export function planVehicleHit(
   const hipsS: IAutoMovieVector3 = Vector3.add(launched.root, stoodOffset);
   const qS: IAutoMovieQuaternion = launched.rotation!.turn;
   const carS: IAutoMovieVector3 = vehicleFront.velocity(reader, separate);
-  const lowAt: (
-    turn: IAutoMovieQuaternion,
-    shape: IAutoMovieMotionHumanPosture["joints"],
-    offset: IAutoMovieVector3,
-  ) => number = (
-    turn: IAutoMovieQuaternion,
-    shape: IAutoMovieMotionHumanPosture["joints"],
-    offset: IAutoMovieVector3,
-  ): number =>
-    stuntFallPose.lowest(body, {
-      ...bare(shape),
-      rotation: createHumanPostureRotation(offset, turn),
-    }) - offset.y;
   const vS: IAutoMovieVector3 =
     trajectory === "wrap"
       ? carS
