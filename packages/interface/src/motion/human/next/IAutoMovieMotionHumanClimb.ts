@@ -1,8 +1,10 @@
 import type { IAutoMovieMotionHumanClimbLadder } from "../climbing/IAutoMovieMotionHumanClimbLadder";
 import type { IAutoMovieMotionHumanClimbStairs } from "../terrain/IAutoMovieMotionHumanClimbStairs";
+import type { IAutoMovieMotionHumanRope } from "../lexicon/IAutoMovieMotionHumanRope";
+import type { IAutoMovieMotionHumanTreeClimb } from "../lexicon/IAutoMovieMotionHumanTreeClimb";
 
 /**
- * Mechanism: Climbing with the support law: the ladder and the stairs.
+ * Mechanism: climbing with the support law: the ladder, the stairs, the rope and the tree. One limb at a time takes the body's weight; a beat is 0.8 s on a ladder and 0.6 s on a rope or tree (provisional).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
  * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
@@ -44,6 +46,40 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanClimb.climbStairs is provided by the chain that implements IAutoMovieMotionHumanClimb.
    */
   climbStairs(params: IAutoMovieMotionHumanClimb.IClimbStairs, anchor?: string): Chain;
+
+  /**
+   * Climb, descend, traverse or swing on a rope.
+   *
+   * @param params The action's parameters.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanClimb.rope: Climb, descend, traverse or swing on a rope.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanClimb.rope is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanClimb.rope is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanClimb.rope is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanClimb.rope is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanClimb.rope is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanClimb.rope is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   */
+  rope(params: IAutoMovieMotionHumanClimb.IRope, anchor?: string): Chain;
+
+  /**
+   * Climb a tree, sit in it or descend.
+   *
+   * @param params The action's parameters.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanClimb.treeClimb: Climb a tree, sit in it or descend.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanClimb.treeClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanClimb.treeClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanClimb.treeClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanClimb.treeClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanClimb.treeClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanClimb.treeClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
+   */
+  treeClimb(params: IAutoMovieMotionHumanClimb.ITreeClimb, anchor?: string): Chain;
 }
 
 /**
@@ -63,4 +99,18 @@ export namespace IAutoMovieMotionHumanClimb {
    * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `climbStairs`: the existing type of its law.
    */
   export type IClimbStairs = IAutoMovieMotionHumanClimbStairs.IParams;
+
+  /**
+   * The parameters of `rope`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `rope`: the existing type of its law.
+   */
+  export type IRope = IAutoMovieMotionHumanRope.IParams;
+
+  /**
+   * The parameters of `treeClimb`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the parameter type of `treeClimb`: the existing type of its law.
+   */
+  export type ITreeClimb = IAutoMovieMotionHumanTreeClimb.IParams;
 }
