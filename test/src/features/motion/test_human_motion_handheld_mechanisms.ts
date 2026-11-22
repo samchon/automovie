@@ -239,6 +239,8 @@ function umbrella(
   const walk: IAutoMovieMotionHumanSegment = named(take, "walk")[0]!;
   const radius: number = createUmbrella.MODELS.classic.canopy! / 2;
   let covered: boolean = true;
+  let lowest: number = Infinity;
+  let widest: number = 0;
   for (let i: number = 0; i <= 12; ++i) {
     const t: number = walk.start + ((walk.end - walk.start) * i) / 12;
     const frame: IAutoMovieRigidTransform = take.prop("umbrella", t);
@@ -254,13 +256,15 @@ function umbrella(
       const head: IAutoMovieVector3 = take
         .bones(who, t)
         .get("head")!.worldPosition;
-      covered &&=
-        top.y > head.y + 0.15 &&
-        Vector3.distance({ ...top, y: 0 }, { ...head, y: 0 }) < radius;
+      const over: number = top.y - head.y;
+      const off: number = Vector3.distance({ ...top, y: 0 }, { ...head, y: 0 });
+      lowest = Math.min(lowest, over);
+      widest = Math.max(widest, off);
+      covered &&= over > 0.15 && off < radius;
     }
   }
   checks.check(
-    `${label}: the canopy stays above both heads on the walk`,
+    `${label}: the canopy stays above both heads on the walk (lowest ${lowest.toFixed(2)} m over a head, widest ${widest.toFixed(2)} m off its axis)`,
     covered,
   );
   checks.check(

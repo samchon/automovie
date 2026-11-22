@@ -246,17 +246,33 @@ function pottery(
     { side: "left", face: "inside" },
   ];
   const from: number = pull.start + ((pull.end - pull.start) * 3) / 24;
+  // A wall face where the rise puts it, read in closed form: the face rides
+  // the wheel's `raise` slider, straight up its axis.
+  const face: (id: IPalm["face"], t: number) => IAutoMovieVector3 = (
+    id: IPalm["face"],
+    t: number,
+  ): IAutoMovieVector3 => {
+    const site: IAutoMovieAffordance = wheel.affordance(id);
+    const frame: IAutoMovieRigidTransform = take.prop("wheel", t);
+    return Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(
+        frame.rotation,
+        Vector3.add(site.frame.translation, {
+          x: 0,
+          y: take.state("wheel", t)["raise"] ?? 0,
+          z: 0,
+        }),
+      ),
+    );
+  };
   const gap: (palm: IPalm, t: number) => number = (
     palm: IPalm,
     t: number,
   ): number =>
     Vector3.distance(
       take.bones("actor", t).get(`${palm.side}Hand`)!.worldPosition,
-      Vector3.add(everydayTake.point(take, wheel, "wheel", palm.face, t), {
-        x: 0,
-        y: take.state("wheel", t)["raise"] ?? 0,
-        z: 0,
-      }),
+      face(palm.face, t),
     );
   let touch: number = 0;
   for (let i: number = 3; i <= 21; ++i) {
