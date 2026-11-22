@@ -121,10 +121,10 @@ new HumanPerformance({
   composition,
   layers: {
     a: [
-      HumanBreath.layer(), // the whole film
+      AutoMovieMotionHumanExpression.breath(), // the whole film
       { layer: HumanGaze.layer([...]), from: 2, to: { of: "dialogue", event: "lineEnd" } },
       // Built from the window's seconds: she sighs when his wave ends.
-      { from: { of: "bye", event: "end" }, layer: (w) => HumanAffect.layer([{ kind: "sigh", at: w.from }]) },
+      { from: { of: "bye", event: "end" }, layer: (w) => AutoMovieMotionHumanExpression.affect({ displays: [{ kind: "sigh", at: w.from }] }) },
     ],
   },
 });
@@ -172,7 +172,7 @@ A registered name never replaces a vocabulary name, and registering changes no o
 
 ## Lexicon
 
-Named rows over the shipped actions, ready to register. Each family reads one or more namespaces, `HUMAN_LEXICON` lists every family's rows as data, and `HUMAN_LEXICON_SCHEMAS` gives each row's parameters as a JSON schema. A row leaves open only what the scene decides: a target, a partner, a destination.
+Named rows over the shipped actions, ready to register. Each family reads one or more namespaces, `HUMAN_LEXICON` lists every family's rows as data. A row leaves open only what the scene decides: a target, a partner, a destination.
 
 | Family | Namespaces |
 | --- | --- |
@@ -262,7 +262,7 @@ const lean = HumanSignature.trunk(reader, 1.5) - HumanSignature.trunk(reader, 0)
 | `HumanVerdicts`, `HumanSignature` | The physical bounds of a performance, and the kinematic readings a unit test asserts. |
 | `createHumanBody` | Derives a person's body from a canonical skeleton and contact profile. |
 | `HUMAN_ACTIONS` | The table of action laws by name. |
-| `HUMAN_LEXICON`, `HUMAN_LEXICON_SCHEMAS` | The lexicon's rows by family, and each row's parameters as a JSON schema. |
+| `HUMAN_LEXICON` | The lexicon's rows by family. |
 | `HUMAN_GRAMMAR` | The composition grammar as data: the axes an action is decided on and the operators that join actions. |
 | `HUMANOID_GAITS`, `HUMANOID_PROFILE` | The humanoid gait tables for the engine's gait motion. |
 
