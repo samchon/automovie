@@ -20,7 +20,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * The windup carries the hand from where it held the prop to the chamber.
  * A straight line between them may pass through the trunk (a rod held
  * across the body drawn back over the throwing shoulder), so when the line
- * comes nearer the chest than its half breadth and `CLEAR`, the hand is
+ * comes nearer the chest than its half breadth and the forearm's and hand's
+ * own thickness (twice the forearm's radius), the hand is
  * carried on a quadratic curve through the point that clearance away from
  * the chest, on the side the line passes.
  *
@@ -34,13 +35,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the windup's detour and when it applies, and the bowl's placed elbow.
  * @evidence contracts/development/design.md#principled-representation A curve through a clearance point; the goal's placed elbow with the swing plane's olecranon as its pole.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The clearance, the swing's two writers and their maker.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The swing's two writers and their maker.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The chest and its breadth are the body's own; the pole follows the arm and the heading.
  */
 export namespace throwObjectSwing {
-  /** The hand's clearance from the chest's surface on the windup, metres (provisional: a hand's thickness). */
-  export const CLEAR: number = 0.08;
-
   /** The swing's writers. */
   export interface ISwing {
     /**
@@ -93,7 +91,10 @@ export namespace throwObjectSwing {
     side: AutoMovieHumanSide,
     style: IAutoMovieMotionHumanThrowObjectForm.Style,
   ): ISwing {
-    const radius: number = body.measure.chestBreadth / 2 + CLEAR;
+    // The hand passes clear of the chest by the forearm's radius and the
+    // hand's half thickness, the wrist's own radius standing for it.
+    const radius: number =
+      body.measure.chestBreadth / 2 + 2 * body.measure.forearmRadius;
     return {
       windup: (
         posture: IAutoMovieMotionHumanPosture,
