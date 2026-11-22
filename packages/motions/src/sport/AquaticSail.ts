@@ -171,7 +171,12 @@ export namespace AquaticSail {
     const rocker = (
       window: IAutoMovieMotionHumanContactWindow,
     ): IAutoMovieMotionHumanContactWindow[] => {
-      const roll: number = EASE / duration;
+      // A short plant (an aborted step's) rolls over at most a third of it
+      // at each end, so its flat bearing keeps a third.
+      const roll: number = Math.min(
+        EASE / duration,
+        (window.to - window.from) / 3,
+      );
       const from: number = window.from > 0 ? window.from + roll : window.from;
       const to: number = window.to < 1 ? window.to - roll : window.to;
       return [
@@ -185,7 +190,18 @@ export namespace AquaticSail {
       ];
     };
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      ...(deck ? plants.flatMap(rocker) : plants),
+      // A deck foot bears on its held ball (`socket`), which the slip and
+      // lift audits read, while its heel rises about it.
+      ...(deck
+        ? plants.flatMap(rocker).map(
+            (
+              window: IAutoMovieMotionHumanContactWindow,
+            ): IAutoMovieMotionHumanContactWindow => ({
+              ...window,
+              socket: "ball",
+            }),
+          )
+        : plants),
       // A hand takes its handle control at the helm-in instant, after it
       // has reached there from the entered pose; placed grips hold from entry.
       ...AquaticCrew.grips(hull, params).map(

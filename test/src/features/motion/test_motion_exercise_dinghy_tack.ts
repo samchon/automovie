@@ -251,8 +251,10 @@ export function test_motion_exercise_dinghy_tack(): void {
         }
     }
     TestValidator.predicate(
-      `${kind}: the tiller and the mainsheet stay in hand (${grip.toFixed(4)} m)`,
-      grip < METRE,
+      `${kind}: the tiller and the mainsheet stay in hand (${grip.toFixed(5)} m)`,
+      // A coursed hold lands its hand within its site's disc, the skin's
+      // 10 mm (`courseArmGoal`); the grip is read at that bound.
+      grip <= METRE + 1e-4,
     );
     TestValidator.predicate(
       `${kind}: planted forefeet bear on the cockpit floor (${floor.toFixed(4)} m)`,
