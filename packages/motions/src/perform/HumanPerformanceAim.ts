@@ -40,6 +40,7 @@ export namespace HumanPerformanceAim {
    * @param target The target.
    * @param seconds Film seconds.
    * @param frame The aiming person's own frame, for `point` targets in the performer frame and `none`, their own body and bones, for `self`, and their subject, for a `person` that names them (read as `self`).
+   * @param meetings The instant each partner of the aiming action's own parallel group is read no later than, the action's own start, recorded when it was placed, so the aim reads the same pose whenever it is asked.
    * @returns The aim.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States world-point/normal output, film seconds, own-body frame use and the person's existing reaction-time offset; target failures remain with their original branch owners.
@@ -55,6 +56,7 @@ export namespace HumanPerformanceAim {
     target: IAutoMovieMotionTarget,
     seconds: number,
     frame: IAutoMovieMotionHumanPerformanceAim.IFrame,
+    meetings?: ReadonlyMap<string, number>,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     switch (target.kind) {
       case "person": {
@@ -68,13 +70,15 @@ export namespace HumanPerformanceAim {
           );
         // A person whose place at the perceived second is not decided yet is
         // refused, as every other reader of a performer refuses it, never
-        // read in the pose they entered with: their root is read through the
-        // same availability refusal (`HumanPerformanceRead.root`).
-        HumanPerformanceRead.root(
+        // read in the pose they entered with; one of the aiming performer's
+        // own parallel group is read no later than the aiming action's start
+        // (`HumanPerformanceRead.when`).
+        const perceived: number = HumanPerformanceRead.when(
           self,
           target.subject,
           seconds - HumanPerception.REACTION,
           "target.subject",
+          meetings?.get(target.subject),
         );
         const other: IAutoMovieMotionHumanSegment.IPerson =
           HumanPerformanceRead.person(self, target.subject);
@@ -104,7 +108,7 @@ export namespace HumanPerformanceAim {
           HumanPerformanceRead.bones(
             self,
             target.subject,
-            seconds - HumanPerception.REACTION,
+            perceived,
             new Set([region.bone]),
           ).get(region.bone)!,
         );

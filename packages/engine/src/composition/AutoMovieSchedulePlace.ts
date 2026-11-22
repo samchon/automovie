@@ -53,6 +53,9 @@ export namespace AutoMovieSchedulePlace {
       start,
       entries: walk.entries,
       ...(walk.demand === undefined ? {} : { demand: walk.demand }),
+      ...(walk.horizon === undefined ? {} : { horizon: walk.horizon }),
+      ...(walk.meeting === undefined ? {} : { meeting: walk.meeting }),
+      ...(walk.demandAnchor === undefined ? {} : { demandAnchor: walk.demandAnchor }),
     };
     const timing: IAutoMovieIntentTiming = walk.laws.timing(intent, context);
     const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> =
@@ -178,6 +181,14 @@ export namespace AutoMovieSchedulePlace {
           value: node.index,
         },
       );
+    // An anchor a waiting part of an open group holds is placed first
+    // (`IAutoMovieScheduleContext.demandAnchor`), as a law's read of it is.
+    if (
+      node.event === undefined &&
+      !walk.anchors.has(node.anchor) &&
+      walk.demandAnchor !== undefined
+    )
+      walk.demandAnchor(node.anchor);
     const anchor: number | undefined =
       node.event === undefined
         ? walk.anchors.get(node.anchor)

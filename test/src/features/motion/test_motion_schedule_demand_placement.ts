@@ -14,8 +14,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * A strike that reads a partner whose chain is composed after the striker's
- * places that chain first, and two strikes that read each other are refused
- * as a cycle.
+ * places that chain first, and two parts that read each other are reported
+ * as a cycle by the resolver.
  *
  * Scenarios:
  * 1. The average man jabs at a partner's chin; the partner's guard is
@@ -62,9 +62,8 @@ export function test_motion_schedule_demand_placement(): void {
         { at: { kind: "person", subject: "b", region: "chin" } },
         "strike",
       )
-      .with(
-        HumanChain.subject("b").guard({ seconds: 2, style: "kickboxing" }),
-      ).node,
+      .with(HumanChain.subject("b").guard({ seconds: 2, style: "kickboxing" }))
+      .node,
   });
   const strike: IAutoMovieScheduleEntry | undefined =
     ordered.schedule.entries.find(

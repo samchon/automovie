@@ -146,6 +146,15 @@ export class HumanPerformanceState {
   /** The resolver's demand placement while an action is timed (`IAutoMovieMotionHumanPerformanceState.demand`). */
   public demand: IAutoMovieScheduleContext["demand"] = undefined;
 
+  /** The start up to which a subject holds their last placed pose while an action is timed (`IAutoMovieMotionHumanPerformanceState.horizon`). */
+  public horizon: IAutoMovieScheduleContext["horizon"] = undefined;
+
+  /** The start of a parallel group a read subject shares with the action timed (`IAutoMovieMotionHumanPerformanceState.meeting`). */
+  public meeting: IAutoMovieScheduleContext["meeting"] = undefined;
+
+  /** The placement of an anchor's waiting part while an action is timed (`IAutoMovieMotionHumanPerformanceState.demandAnchor`). */
+  public demandAnchor: IAutoMovieScheduleContext["demandAnchor"] = undefined;
+
   /** How many actions and overlays have been placed so far: two instants with the same count have the same placed state. */
   public placements: number = 0;
 

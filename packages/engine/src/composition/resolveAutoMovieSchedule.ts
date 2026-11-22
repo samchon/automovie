@@ -52,20 +52,74 @@ export function resolveAutoMovieSchedule(
   laws: IAutoMovieScheduleLaws,
 ): IAutoMovieSchedule {
   const walk: IAutoMovieScheduleWalk.IWalk = AutoMovieScheduleWalk.create(laws);
-  // A parallel group's parts are placed in declaration order, except that a
-  // law reading a subject whose actions a later part of an open group holds
-  // places that part first (`IAutoMovieScheduleContext.demand`): a
-  // topological order over the reads, so a production need not declare the
-  // read subject's chain before the reader's. A part already being placed
-  // when a demand asks for it is a cycle of reads.
+  // A parallel group's parts are placed in declaration order. A law reading
+  // a subject another part of its own group holds reads them as placed at
+  // the group's start (`IAutoMovieScheduleContext.meeting`); a law reading a
+  // subject whose actions a waiting part of another group holds places that
+  // part first (`IAutoMovieScheduleContext.demand`): a topological order over
+  // the reads, so a production need not declare the read subject's chain
+  // before the reader's. A part already being placed when a demand asks for
+  // it is a cycle of reads.
   const waiting: IAutoMovieSchedulePart[] = [];
+  // The parts being placed, outermost first.
+  const placing: IAutoMovieSchedulePart[] = [];
   let demanding: number = 0;
   const placePart = (part: IAutoMovieSchedulePart): number => {
     part.status = "placing";
-    part.end = place(part.node, part.start);
+    placing.push(part);
+    try {
+      part.end = place(part.node, part.start);
+    } finally {
+      placing.pop();
+    }
     part.status = "placed";
     waiting.splice(waiting.indexOf(part), 1);
     return part.end;
+  };
+  // Within one parallel group each actor reads the other as placed at the
+  // group's start, for both roles alike: the innermost part being placed
+  // whose group has another part holding the subject names that start.
+  walk.meeting = (subject: string): number | undefined => {
+    for (let i: number = placing.length - 1; i >= 0; --i) {
+      const reader: IAutoMovieSchedulePart = placing[i]!;
+      if (
+        reader.siblings.some(
+          (part: IAutoMovieSchedulePart): boolean =>
+            part !== reader && part.subjects.has(subject),
+        )
+      )
+        return reader.start;
+    }
+    return undefined;
+  };
+  // Up to the start of the part that holds a subject's next actions, the
+  // subject holds the pose its placed actions end on; a part being placed
+  // answers where no waiting one holds the subject (a cycle's partner).
+  walk.horizon = (subject: string): number | undefined =>
+    (
+      waiting.find(
+        (part: IAutoMovieSchedulePart): boolean =>
+          part.status === "pending" && part.subjects.has(subject),
+      ) ??
+      waiting.find(
+        (part: IAutoMovieSchedulePart): boolean =>
+          part.status === "placing" && part.subjects.has(subject),
+      )
+    )?.start;
+  // An anchor's own action is placed before the action that reads it.
+  walk.demandAnchor = (anchor: string): IAutoMovieScheduleContext.Demand => {
+    const next: IAutoMovieSchedulePart | undefined = waiting.find(
+      (part: IAutoMovieSchedulePart): boolean =>
+        part.status === "pending" && part.anchors.has(anchor),
+    );
+    if (next === undefined) return "none";
+    ++demanding;
+    try {
+      placePart(next);
+    } finally {
+      --demanding;
+    }
+    return "placed";
   };
   walk.demand = (subject: string): IAutoMovieScheduleContext.Demand => {
     const next: IAutoMovieSchedulePart | undefined = waiting.find(
@@ -122,19 +176,20 @@ export function resolveAutoMovieSchedule(
       );
     }
     if (node.kind === "parallel") {
-      const group: IAutoMovieSchedulePart[] = node.parts.map(
-        (part: IAutoMovieComposition): IAutoMovieSchedulePart => {
-          const record: IAutoMovieSchedulePart = {
-            node: part,
-            start,
-            end: start,
-            status: "pending",
-            subjects: subjects(part),
-          };
-          waiting.push(record);
-          return record;
-        },
-      );
+      const group: IAutoMovieSchedulePart[] = [];
+      for (const part of node.parts) {
+        const record: IAutoMovieSchedulePart = {
+          node: part,
+          start,
+          end: start,
+          status: "pending",
+          subjects: subjects(part),
+          anchors: anchors(part),
+          siblings: group,
+        };
+        group.push(record);
+        waiting.push(record);
+      }
       return group.reduce(
         (end: number, part: IAutoMovieSchedulePart): number =>
           Math.max(end, part.status === "placed" ? part.end : placePart(part)),
@@ -181,6 +236,12 @@ interface IAutoMovieSchedulePart {
 
   /** The subjects of its intents. */
   subjects: ReadonlySet<string>;
+
+  /** The anchors its intents declare. */
+  anchors: ReadonlySet<string>;
+
+  /** Every part of its group, itself included. */
+  siblings: readonly IAutoMovieSchedulePart[];
 }
 
 /** A parallel part's placing state. */
@@ -192,6 +253,19 @@ function subjects(node: IAutoMovieComposition): Set<string> {
   const visit = (n: IAutoMovieComposition): void => {
     if (n.kind === "intent") out.add(n.intent.subject);
     else if (n.kind === "at") visit(n.part);
+    else n.parts.forEach(visit);
+  };
+  visit(node);
+  return out;
+}
+
+/** The anchors a composition's intents declare. */
+function anchors(node: IAutoMovieComposition): Set<string> {
+  const out: Set<string> = new Set();
+  const visit = (n: IAutoMovieComposition): void => {
+    if (n.kind === "intent") {
+      if (n.intent.anchor !== undefined) out.add(n.intent.anchor);
+    } else if (n.kind === "at") visit(n.part);
     else n.parts.forEach(visit);
   };
   visit(node);

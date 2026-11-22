@@ -32,7 +32,7 @@ import { HumanSwungLeg } from "./HumanSwungLeg";
  * @returns The plan with its swung legs and its hands' courses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two courses, why each is laid and the hands' landing region.
- * @evidence contracts/development/implementation.md#principled-implementation Joint-space keys where a world course leaves the leg's range; one planned course of both arms (TrajOpt, through `courseArmGoal`) on the thigh goals, clear of the turning trunk.
+ * @evidence contracts/development/implementation.md#principled-implementation Joint-space keys where a world course leaves the leg's range; one planned course per arm (TrajOpt, through `courseArmGoal`), the two laid beside each other on the shared base, on the thigh goals, clear of the turning trunk.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The legs' keys, then the arms' course over them.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The landing disc is a quarter thigh either side of the thigh's mid station; the span is the climb's.
  * @evidence contracts/development/implementation.md#efficient-algorithms One swung-leg wrap and one arm course per plan.
@@ -55,6 +55,10 @@ export function HumanMountOnCourses(
     end: duration,
   };
   const disc: number = 0.25 * body.measure.thigh;
+  // Each hand comes to its own thigh on its own side of the trunk, so the
+  // two arms are laid beside each other on the shared base, one arm's
+  // problem each, rather than as one problem of both arms
+  // (`IAutoMovieMotionHumanArmCarry.beside`), several times the work.
   return courseArmGoal({
     body,
     plan: swung,
@@ -62,6 +66,7 @@ export function HumanMountOnCourses(
     rest: AutoMovieMotionHumanArm.angles(props.pose, "left"),
     span,
     disc,
+    beside: AutoMovieMotionHumanArm.together(),
     with: [
       {
         side: "right",

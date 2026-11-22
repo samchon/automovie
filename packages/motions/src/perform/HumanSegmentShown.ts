@@ -101,18 +101,22 @@ export namespace HumanSegmentShown {
     }
     const active: IAutoMovieMotionHumanSegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
+    // A segment chosen through the entry allowance is shown from its entry,
+    // where its transition and its holds apply, never raw a hair before it.
+    const at: number =
+      active === undefined ? seconds : Math.max(seconds, active.entryTime);
     const pose: IAutoMoviePose =
       active === undefined
         ? HumanSegmentPose.initial(person, demand, prepared)
         : active.incumbents === undefined
-          ? HumanSegmentPose.of(person, active, seconds, prepared, demand)
+          ? HumanSegmentPose.of(person, active, at, prepared, demand)
           : // The action's last leaf seeds start every swept fit of this
             // evaluation (leaf, carry, stop and plant fits) from a held seed
             // (`HumanLimbIncumbent`), which cannot change their answers.
             HumanLimbIncumbent.within(
               { body: person.performer.body, seeds: active.incumbents },
               (): IAutoMoviePose =>
-                HumanSegmentPose.of(person, active, seconds, prepared, demand),
+                HumanSegmentPose.of(person, active, at, prepared, demand),
             );
     if (demand !== undefined) return { pose };
     const kept: HumanSegment.IShown = { pose };

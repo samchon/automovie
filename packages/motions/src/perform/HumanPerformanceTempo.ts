@@ -18,12 +18,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * trajectories", J Dyn Syst Meas Control 106:102), so where the slower
  * action leaves its path as it was, one replan meets the bound. A plan
  * stops at the first arm group that refuses, so a replan that meets one
- * group's need may reveal another's, which is stepped to in turn. Where the
- * slower base the action is written on moves a path, the same group is
- * replanned again only while the factor it needs falls by more than its
- * roundoff, and the action is refused with the whole time it needs once it
- * does not, so the replans end after a number bounded by each group's first
- * factor. The slower time reaches the plan
+ * group's need may reveal another's, which is stepped to once in turn.
+ * Where the slower base the action is written on moves a path once (its
+ * held spans keep their seconds while its moving spans slow), the same
+ * group names the rest of its need on that replan; a group still refusing
+ * after `REPLANS` replans has the action refused with the whole time it
+ * needs, never an iteration toward the bound. The slower time reaches the plan
  * through the action's time scale (`IHumanActionContext.tempo`), which the
  * manner owner applies to every span physics does not fix
  * (`AutoMovieMotionManner.of`).
@@ -35,14 +35,14 @@ export namespace HumanPerformanceTempo {
    * @param law The action's law.
    * @param context The action's context; its time scale is raised while the action is replanned.
    * @returns The plan.
-   * @throws {HumanRefusal} Whatever the law refuses with on any other ground, and a `duration` refusal whose value is the whole time the action needs over the time it was first planned at, when the same refusing group (or the same refusal outside any group) needs no less after a replan than before it.
+   * @throws {HumanRefusal} Whatever the law refuses with on any other ground, and a `duration` refusal whose value is the whole time the action needs over the time it was first planned at, when the same refusing group (or the same refusal outside any group) still refuses after its `REPLANS` replans.
    */
   export function plan<P>(
     law: Pick<IAutoMovieMotionHumanActionLaw<P>, "plan"> & HumanPhysics.ILaw,
     context: IAutoMovieMotionHumanActionContext<P>,
   ): IAutoMovieMotionHumanActionPlan {
-    // The factor each refusing source last named: an arm group of the plan
-    // by its handover key, any other refusal under no key.
+    // How many replans each refusing source has had: an arm group of the
+    // plan by its handover key, any other refusal under no key.
     const needed: Map<string | undefined, number> = new Map();
     const first: number = context.tempo ?? 1;
     for (;;) {
@@ -65,18 +65,19 @@ export namespace HumanPerformanceTempo {
         if (factor === undefined) throw error;
         const tempo: number = context.tempo ?? 1;
 
+        // Time scaling is exact on a path that stays (Hollerbach 1984): the
+        // factor a source names is the replan it needs. Where the base the
+        // arms are written on moves with the action's time (a body lowering
+        // under hands laid on its thighs) while its held spans keep their
+        // seconds, the slower base moves the path once, and the source names
+        // the rest of its need on that replan; past `REPLANS` the action is
+        // refused with the time it needs, never iterated toward the bound.
         // The plan stops at the first group that refuses, so a replan that
-        // meets that group's need can reveal another group's: that is a new
-        // need, stepped to like the first. Only the same source naming a
-        // factor that no longer falls by more than the roundoff of the ratio
-        // it is read as is no progress, so the replans stop: each source's
-        // factor shrinks by at least that share on every replan it refuses,
-        // so at most ln(f0) / -ln(1 - ROUNDOFF) of them run per source from
-        // its first factor f0, and a plan has finitely many sources.
+        // meets that group's need can reveal another group's, stepped to in
+        // turn.
         const source: string | undefined =
           refusal.error === error ? refusal.group : undefined;
-        const before: number | undefined = needed.get(source);
-        if (before !== undefined && !(factor < before * (1 - ROUNDOFF))) {
+        if ((needed.get(source) ?? 0) >= REPLANS) {
           // The time the action needs over the time it was first planned
           // at: what the author is told to give it.
           const total: number = (tempo / first) * factor;
@@ -85,11 +86,11 @@ export namespace HumanPerformanceTempo {
             axis: "duration",
             value: total,
             feasible: null,
-            reason: `the action needs at least ${total.toFixed(3)} times its time for its hands to move within the speed bound, and replanning it slower does not bring that need down: replanned at ${(tempo / first).toFixed(3)} times its time, it still needs ${factor.toFixed(3)} times that`,
+            reason: `the action needs at least ${total.toFixed(3)} times its time for its hands to move within the speed bound: replanned at ${(tempo / first).toFixed(3)} times its time, it still needs ${factor.toFixed(3)} times that`,
             fix: "give the action more time",
           });
         }
-        needed.set(source, factor);
+        needed.set(source, (needed.get(source) ?? 0) + 1);
         context.tempo = tempo * factor;
       }
     }
@@ -122,8 +123,8 @@ export namespace HumanPerformanceTempo {
 }
 
 /**
- * The relative roundoff of a factor read as the quotient of two spans:
- * each span carries half an ulp, and the quotient one more, so three
- * machine epsilons bound it with one to spare.
+ * The replans one refusing source may have: the time-scaling step, and the
+ * one step a base whose moving spans slow while its held spans keep their
+ * seconds needs after it.
  */
-const ROUNDOFF: number = 4 * Number.EPSILON;
+const REPLANS: number = 2;

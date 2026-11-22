@@ -72,6 +72,7 @@ export namespace HumanPerformanceRead {
    *
    * @param subject The person.
    * @param seconds Film seconds.
+   * @param met The person's meeting instant the reading action recorded when it was placed, if they share a parallel group.
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Reads the active raw posture or initial fallback, optionally demanding channels. Supplying an axis applies the context performer's original unresolved-future refusal first; a lazy axis formats its parameter name only if that refusal occurs.
@@ -88,10 +89,12 @@ export namespace HumanPerformanceRead {
     seconds: number,
     channels?: readonly AutoMovieMotionHumanChannel[],
     axis?: string | (() => string),
+    met?: number,
   ): IAutoMovieMotionHumanPosture {
-    const person: IAutoMovieMotionHumanSegment.IPerson = axis === undefined
-      ? HumanPerformanceRead.person(self, subject) : available(self, subject, seconds, axis);
-    return readPlacedHumanPosture(person, seconds, channels);
+    if (axis === undefined)
+      return readPlacedHumanPosture(HumanPerformanceRead.person(self, subject), seconds, channels);
+    const read: IAvailable = available(self, subject, seconds, axis, met);
+    return readPlacedHumanPosture(read.person, read.seconds, channels);
   }
 
   /**
@@ -99,6 +102,8 @@ export namespace HumanPerformanceRead {
    *
    * @param subject The person.
    * @param seconds Film seconds.
+   * @param axis For a law's read of another performer, the refusal's axis: the read is cleared, and a person not placed yet placed first, as a root or posture read is.
+   * @param met The person's meeting instant the reading action recorded when it was placed, if they share a parallel group.
    * @returns Resolved bones by rig bone.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States person and film second; an optional requested set returns only those world bones, with the ordinary full map when absent.
@@ -114,8 +119,16 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    axis?: string | (() => string),
+    met?: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return placedBones(HumanPerformanceRead.person(self, subject), seconds, requested);
+    if (axis === undefined)
+      return placedBones(HumanPerformanceRead.person(self, subject), seconds, requested);
+    // A law's read of another performer is cleared as a root or posture read
+    // is (`available`), so a person not placed yet is never read standing at
+    // their first pose.
+    const read: IAvailable = available(self, subject, seconds, axis, met);
+    return placedBones(read.person, read.seconds, requested);
   }
 
   /**
@@ -326,7 +339,9 @@ export namespace HumanPerformanceRead {
    * person's last placed action. A second beyond it is refused when the
    * composition still holds actions of theirs to place, because the answer
    * would change once they are placed; with none left, the person stays
-   * where the last action put them.
+   * where the last action put them. A partner of the reading action's own
+   * parallel group is read no later than the instant (`met`) the action
+   * recorded when it was placed, its own start.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States film-second root/yaw reading, unresolved-future refusal and held terminal posture. The axis may be a fixed parameter name or an error-only lazy formatter, used synchronously only for that refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Checks the same placed endpoint and remaining-intent count before reading the selected raw posture's root and heading.
@@ -341,22 +356,71 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
     axis: string | (() => string),
+    met?: number,
   ): IAutoMovieMotionHumanActionContext.IRoot {
-    const person: IAutoMovieMotionHumanSegment.IPerson = available(self, subject, seconds, axis);
-    const posture: IAutoMovieMotionHumanPosture = readPlacedHumanPosture(person, seconds, ["root"]);
+    const read: IAvailable = available(self, subject, seconds, axis, met);
+    const posture: IAutoMovieMotionHumanPosture = readPlacedHumanPosture(read.person, read.seconds, ["root"]);
     return { position: posture.root, yaw: posture.yaw };
+  }
+
+  /**
+   * The film second a law reads another performer at: the asked one, or,
+   * for a performer of the reader's own parallel group while an action is
+   * timed, no later than the reading action's own start; refused where the
+   * performer is not known there.
+   *
+   * @param subject The performer read.
+   * @param seconds Film seconds.
+   * @param axis The refusal's axis, or a reader of it.
+   * @param met The performer's meeting instant the reader recorded when it was placed, if it shares a parallel group with them.
+   * @returns The second to read the performer at.
+   * @throws {HumanRefusal} When where the performer is at that second is not known yet.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both seconds it returns and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The same clearance a root, posture or bones read takes (`available`), so a reader of several of them reads one instant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to `available`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A performer not known at the second is refused, never read at their first pose.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The clearance's own scans.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function when(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    seconds: number,
+    axis: string | (() => string),
+    met?: number,
+  ): number {
+    return available(self, subject, seconds, axis, met).seconds;
   }
 
   /** Apply the original unresolved-future refusal without evaluating a raw posture. */
   function available(self: IAutoMovieMotionHumanPerformanceState, subject: string, seconds: number,
-    axis: string | (() => string)): IAutoMovieMotionHumanSegment.IPerson {
+    axis: string | (() => string), met?: number): IAvailable {
     const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
-    // A person a later part of an open group holds is placed first.
-    placeDemandedHumanPerformer(self, person, subject, seconds, axis);
+    // A partner of the reader's own group is read no later than the reader's
+    // own start (`met`, recorded when the reader was placed); a person a
+    // waiting part holds is placed first where the read needs it, holding
+    // their placed pose up to that part's start, or, as a partner whose part
+    // is itself being placed, their last placed pose
+    // (`placeDemandedHumanPerformer`).
+    const at: number = met === undefined ? seconds : Math.min(seconds, met);
+    const held: boolean = placeDemandedHumanPerformer(
+      self,
+      person,
+      subject,
+      at,
+      axis,
+      met !== undefined,
+    );
     const last: IAutoMovieMotionHumanSegment | undefined = person.segments.at(-1);
     const left: number =
       (self.intended.get(subject)?.length ?? 0) - person.segments.length;
-    if (self.resolving && left > 0 && seconds > (last?.end ?? 0) + 1e-9)
+    const known: number = Math.max(
+      last?.end ?? 0,
+      self.horizon?.(subject) ?? -Infinity,
+    );
+    if (!held && self.resolving && left > 0 && at > known + 1e-9)
       throw new HumanRefusal({
         kind: "participant",
         axis: typeof axis === "function" ? axis() : axis,
@@ -374,7 +438,16 @@ export namespace HumanPerformanceRead {
         }, and ${left} more of theirs come later in the composition`,
         fix: `compose ${subject}'s actions before this one: put their chain first in the parallel group, or join both chains with a mutual action`,
       });
-    return person;
+    return { person, seconds: at };
+  }
+
+  /** A person cleared for a read, and the film second to read them at. */
+  interface IAvailable {
+    /** The person. */
+    person: IAutoMovieMotionHumanSegment.IPerson;
+
+    /** The second the person is read at: the asked one, or the reader's own start for a partner of its group. */
+    seconds: number;
   }
 
   /**

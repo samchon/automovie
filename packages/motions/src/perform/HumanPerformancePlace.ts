@@ -232,6 +232,16 @@ export namespace HumanPerformancePlace {
     let performers:
       | Map<string, IAutoMovieMotionHumanPerformerReader>
       | undefined;
+    // Each partner of this action's own parallel group
+    // (`IAutoMovieScheduleContext.meeting`) is read no later than this
+    // action's start, recorded as the action is placed, so a plan that reads
+    // the partner lazily afterwards reads the same pose the action was timed
+    // against: a partner who acted first inside the group is read as placed
+    // there, one who starts together with it at their last placed pose.
+    const meetings: Map<string, number> = new Map();
+    for (const other of self.people.keys())
+      if (other !== intent.subject && self.meeting?.(other) !== undefined)
+        meetings.set(other, start);
     // The arm solutions this action's plans hand each other in this
     // performance: an alignment trial's, its placement's and a tempo
     // replan's read what the plan before them wrote, under one map.
@@ -306,6 +316,7 @@ export namespace HumanPerformancePlace {
             ownBones,
             intent.subject,
           ),
+          meetings,
         ),
       forces: (
         from: number,
@@ -377,9 +388,22 @@ export namespace HumanPerformancePlace {
           ): ReturnType<typeof poseBones> =>
             subject === intent.subject
               ? ownBones(requested)
-              : HumanPerformanceRead.bones(self, subject, seconds, requested),
+              : HumanPerformanceRead.bones(
+                  self,
+                  subject,
+                  seconds,
+                  requested,
+                  axis,
+                  meetings.get(subject),
+                ),
           root: (seconds: number): IAutoMovieMotionHumanActionContext.IRoot =>
-            HumanPerformanceRead.root(self, subject, seconds, axis),
+            HumanPerformanceRead.root(
+              self,
+              subject,
+              seconds,
+              axis,
+              meetings.get(subject),
+            ),
           posture: (seconds: number): IAutoMovieMotionHumanPosture =>
             HumanPerformanceRead.posture(
               self,
@@ -387,6 +411,7 @@ export namespace HumanPerformancePlace {
               seconds,
               undefined,
               axis,
+              meetings.get(subject),
             ),
         };
         (performers ??= new Map()).set(subject, reader);
@@ -451,23 +476,10 @@ export namespace HumanPerformancePlace {
       ),
       action: (anchor: string): IAutoMovieMotionHumanPlacedAction => {
         // An anchored action a later part of an open group holds is placed
-        // first, through the resolver's demand on its performer
-        // (`IAutoMovieScheduleContext.demand`), as a read of a person is.
+        // first (`IAutoMovieScheduleContext.demandAnchor`), as a read of a
+        // person is.
         let placed = self.anchors.get(anchor);
-        let owner: string | undefined;
-        if (placed === undefined && self.demand !== undefined)
-          for (const subject of self.intended.keys())
-            if (
-              self.intended
-                .get(subject)!
-                .some((i: IAutoMovieIntent): boolean => i.anchor === anchor)
-            )
-              owner = subject;
-        while (
-          placed === undefined &&
-          owner !== undefined &&
-          self.demand?.(owner) === "placed"
-        )
+        if (placed === undefined && self.demandAnchor?.(anchor) === "placed")
           placed = self.anchors.get(anchor);
         if (placed === undefined)
           throw new HumanRefusal({

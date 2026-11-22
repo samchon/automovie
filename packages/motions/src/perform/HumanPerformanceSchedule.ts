@@ -69,7 +69,16 @@ export namespace HumanPerformanceSchedule {
           // the previous timing's demand comes back after a nested one.
           const outer: IAutoMovieMotionHumanPerformanceState["demand"] =
             self.demand;
+          const outerHorizon: IAutoMovieMotionHumanPerformanceState["horizon"] =
+            self.horizon;
+          const outerAnchored: IAutoMovieMotionHumanPerformanceState["demandAnchor"] =
+            self.demandAnchor;
+          const outerMeeting: IAutoMovieMotionHumanPerformanceState["meeting"] =
+            self.meeting;
           self.demand = context.demand;
+          self.horizon = context.horizon;
+          self.demandAnchor = context.demandAnchor;
+          self.meeting = context.meeting;
           try {
             return HumanPerformancePlace.place(
               self,
@@ -82,6 +91,9 @@ export namespace HumanPerformanceSchedule {
             throw error instanceof HumanRefusal ? error.locate(where) : error;
           } finally {
             self.demand = outer;
+            self.horizon = outerHorizon;
+            self.demandAnchor = outerAnchored;
+            self.meeting = outerMeeting;
           }
         },
         until: (

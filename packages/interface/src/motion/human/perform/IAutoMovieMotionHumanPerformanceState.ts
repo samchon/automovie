@@ -115,6 +115,15 @@ export interface IAutoMovieMotionHumanPerformanceState {
   /** While an action is timed, the resolver's placement of a subject's waiting parallel part (`IAutoMovieScheduleContext.demand`), so a read of a person not placed yet places them first; absent outside a timing. */
   demand: IAutoMovieScheduleContext["demand"];
 
+  /** While an action is timed, the start up to which a subject holds their last placed pose (`IAutoMovieScheduleContext.horizon`); absent outside a timing. */
+  horizon: IAutoMovieScheduleContext["horizon"];
+
+  /** While an action is timed, the start of a parallel group a read subject shares with it (`IAutoMovieScheduleContext.meeting`); absent outside a timing. */
+  meeting: IAutoMovieScheduleContext["meeting"];
+
+  /** While an action is timed, the placement of the waiting part that holds an anchor (`IAutoMovieScheduleContext.demandAnchor`); absent outside a timing. */
+  demandAnchor: IAutoMovieScheduleContext["demandAnchor"];
+
   /** The performance's resolved flight policy (`IAutoMovieMotionHumanPerformance.IInput.flight`), captured once for this input. */
   readonly flight: NonNullable<
     IAutoMovieMotionHumanPerformance.IInput["flight"]
