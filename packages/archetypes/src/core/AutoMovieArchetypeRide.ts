@@ -276,15 +276,15 @@ export namespace AutoMovieArchetypeRide {
    * @param leader The leader's ride.
    * @param hitch The leader's contact the trailer is hitched to.
    * @param trailer The trailer at rest.
-   * @param coupling The actual source contact held on the hitch; legacy inputs require it ahead along +Z, while declared single-axle support can tow a rear contact in reverse.
-   * @param options support is producer-read actual axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional actual drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies actual inter-model spans. ground, with single-axle support, seats the wheels on the authored plane under the axle instead of the leader's course datum.
+   * @param coupling The source contact held on the hitch; legacy inputs require it ahead along +Z, while declared single-axle support can tow a rear contact in reverse.
+   * @param options support is producer-read axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies inter-model spans. ground, with single-axle support, seats the wheels on the authored plane under the axle instead of the leader's course datum.
    * @returns The trailer's ride.
    * @throws {AutoMovieArchetypeRefusal} For inconsistent support/options, an unreachable or unsupported hitch height, an invalid support/articulation, a coupling that does not close, a nonpositive projected reach, missing contacts/line ends or front steering beyond its declared lock.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is held, the trailer model, the integration, determinism and what is published.
-   * @evidence contracts/development/implementation.md#principled-implementation Planar no-side-slip heading uses the actual height-dependent horizontal lever projection from ArchetypeTowing. The existing millisecond central difference and shared RK4 trajectory remain; a front pivot's velocity includes both heading and projected-length derivatives. Exact axle/pole pitch closes the actual coupling while keeping declared wheel supports at the common course-ground datum.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one declared geometry owner, integrate the existing planar headings, then sample its supported placement and source joint travels before emitting actual inter-model lines.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unknown support is inferred, chassis height correction or stretched shaft hides mismatch. Actual coupling closure is checked at scale-dependent binary64 error. This planar model does not solve terrain profiles, suspension, wheel loads or tyre slip.
+   * @evidence contracts/development/implementation.md#principled-implementation Planar no-side-slip heading uses the height-dependent horizontal lever projection from ArchetypeTowing. The existing millisecond central difference and shared RK4 trajectory remain; a front pivot's velocity includes both heading and projected-length derivatives. Exact axle/pole pitch closes the coupling while keeping declared wheel supports at the common course-ground datum.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one declared geometry owner, integrate the existing planar headings, then sample its supported placement and source joint travels before emitting inter-model lines.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unknown support is inferred, chassis height correction or stretched shaft hides mismatch. Coupling closure is checked at scale-dependent binary64 error. This planar model does not solve terrain profiles, suspension, wheel loads or tyre slip.
    * @evidence contracts/development/implementation.md#efficient-algorithms The existing four RK4 evaluations per default step use a fixed number of leader/course reads and closed geometry operations; sampling reads the prepared trajectory and source articulations once, without another solver loop.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrated heading serves every sample.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride holds the leader, the trailer and the heading's knots for as long as its caller keeps it.
@@ -398,7 +398,7 @@ export namespace AutoMovieArchetypeRide {
           fix: "give the line its two ends at least",
         });
 
-    /** The span owner resolves the actual posed endpoint before world placement. */
+    /** The span owner resolves the posed endpoint before world placement. */
     const world = (
       model: Readonly<{
         archetype: string;

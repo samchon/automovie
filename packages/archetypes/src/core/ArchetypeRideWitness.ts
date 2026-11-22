@@ -5,7 +5,7 @@ import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
  * Internal native ride authentication and one same-time geometry handoff.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the native producer identity and private exact-input geometry handoff.
- * @evidence contracts/development/design.md#principled-representation An actual registered ride guards its original observation descriptors. A local witness pairs exact scalar inputs with private geometry from the same producer.
+ * @evidence contracts/development/design.md#principled-representation A registered ride guards its original observation descriptors. A local witness pairs exact scalar inputs with private geometry from the same producer.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Only the native quadruped producer and tow consumer use this module.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The weak registry contains only reader provenance. Geometry can live only in a current operation witness.
  */
@@ -14,7 +14,7 @@ export namespace ArchetypeRideWitness {
    * Read fresh current output using an owning operation's exact geometry witness.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Identifies the seconds input, owning witness and original typed ride output.
-   * @evidence contracts/development/design.md#principled-representation The reader binds an actual native producer and keeps its affordance and dimension types.
+   * @evidence contracts/development/design.md#principled-representation The reader binds a native producer and keeps its affordance and dimension types.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Only the private tow consumer can obtain this reader from the live native binding.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The same solver admission and fresh public output still apply.
    */
@@ -29,7 +29,7 @@ export namespace ArchetypeRideWitness {
     readonly original: () => boolean;
   }
 
-  /** The actual const-data method of a registered object. Accessors are not sampled. */
+  /** The const-data method of a registered object. Accessors are not sampled. */
   function own(object: object, key: string): unknown {
     return Object.getOwnPropertyDescriptor(object, key)?.value;
   }
@@ -48,7 +48,7 @@ export namespace ArchetypeRideWitness {
   }
 
   /**
-   * Recognize a writer created by the actual quadruped producer.
+   * Recognize a writer created by the quadruped producer.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes the bounded writer identity.
    * @evidence contracts/development/implementation.md#principled-implementation The private writer is registered before the core constructs its ride.
@@ -72,10 +72,10 @@ export namespace ArchetypeRideWitness {
   }
 
   /**
-   * Bind the actual core-constructed ride to its original native writer and plan.
+   * Bind the core-constructed ride to its original native writer and plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the writer and plan identity needed for binding.
-   * @evidence contracts/development/implementation.md#principled-implementation The core binds only its actual output, after matching the producer's plan and prespecified method identities.
+   * @evidence contracts/development/implementation.md#principled-implementation The core binds only its output, after matching the producer's plan and prespecified method identities.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate the private authorization, then record one current check for the native reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An intercepted constructor cannot substitute a plan or method for the authorized native input.
    * @evidence contracts/development/implementation.md#efficient-algorithms One constant-time lookup and insertion.
@@ -173,13 +173,13 @@ export namespace ArchetypeRideWitness {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No public model, time series, authored reader result, guessed period or unproved frame is kept.
    */
   export class Witness {
-    /** The current one-use geometry, following its actual successful admission. */
+    /** The current one-use geometry, following its successful admission. */
     #entry?: IGeometry;
 
     /** Whether this pose serves only a synchronous differential hitch demand. */
     public readonly ode: boolean;
 
-    /** Create one operation witness with its actual caller's demand. */
+    /** Create one operation witness with its caller's demand. */
     public constructor(ode: boolean = false) {
       this.ode = ode;
     }

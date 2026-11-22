@@ -43,7 +43,7 @@ import { reposeArchetype } from "./reposeArchetype";
  * @template Physical Mass properties or null for a visual-only model.
  * @evidence contracts/development/common.md#meaningful-documentation States that the instance is a model, which members serialise, each accessor's purpose, the units and the model's axes.
  * @evidence contracts/development/design.md#principled-representation A model plus read-only derived views of it; the state that distinguishes an articulated copy lives in private fields, so the serialised model stays the single truth of what is drawn and what is touched.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Contacts, sites, articulation, mass properties and colliders serve the prop axis (#3358); convexCells additionally preserves actual wall correspondence in placed assemblies. Type parameters carry the producer's closed contact ids.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Contacts, sites, articulation, mass properties and colliders serve the prop axis (#3358); convexCells additionally preserves wall correspondence in placed assemblies. Type parameters carry the producer's closed contact ids.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No registry and no string-keyed parameter: an archetype is made only by its typed producer, and an unknown id is a refusal, never undefined.
  */
 export class AutoMovieArchetype<
@@ -61,7 +61,7 @@ export class AutoMovieArchetype<
   /** Always generated: the geometry is fully described by `parts`. */
   public readonly origin: "generated" = "generated" as const;
 
-  /** The actual primitive or convex-cell parts at the current articulation state. */
+  /** The primitive or convex-cell parts at the current articulation state. */
   public readonly parts: IAutoMovieModelPart[];
 
   /** Always null: an archetype is a rigid or articulated object, never a humanoid rig. */
@@ -134,7 +134,7 @@ export class AutoMovieArchetype<
     return this.#rest.properties;
   }
 
-  /** Producer-owned actual convex wall cells, shared with placed assemblies. */
+  /** Producer-owned convex wall cells, shared with placed assemblies. */
   public get convexCells(): AutoMovieArchetypeConvexCell.Table {
     return this.#rest.cells ?? new Map();
   }
@@ -442,7 +442,7 @@ export class AutoMovieArchetype<
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A visual model returns an empty list. The physical branch calls the shared shape owner once.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The render mesh of a visual-only model cannot admit a collider.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts plus declared cell corners; computed on request because most archetypes are never grasped.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual cells reuse their generating boundary. Collider outputs are independent; callers needing repeated contact queries can retain that result.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Cells reuse their generating boundary. Collider outputs are independent; callers needing repeated contact queries can retain that result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   public shapes(): IAutoMoviePhysicalShape[] {

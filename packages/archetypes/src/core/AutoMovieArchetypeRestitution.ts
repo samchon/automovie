@@ -10,7 +10,7 @@ import type { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
  * the former builder-wide coefficient of 0.2.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the measured normal speed ratio, material pair, specimen, impact speed and transfer limits; missing rows remain explicit.
- * @evidence contracts/development/design.md#principled-representation A measurement retains its dimensionless range, metres-per-second impact speed, actual counterface and primary citation, separating measured evidence from a model's eventual scalar contact declaration.
+ * @evidence contracts/development/design.md#principled-representation A measurement retains its dimensionless range, metres-per-second impact speed, counterface and primary citation, separating measured evidence from a model's eventual scalar contact declaration.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Physical-reference queries read these published records without assigning a scalar to a body; callers distinguish a measured range and its conditions from an absent measurement.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No numerical default, material substitution or inferred cloth, rubber or animal coefficient is represented; a self-impact specimen row does not certify an arbitrary object collision.
  */

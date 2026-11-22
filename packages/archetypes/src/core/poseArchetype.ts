@@ -3,7 +3,7 @@ import { AutoMovieArchetypeArticulation } from "./AutoMovieArchetypeArticulation
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
 import type { IAutoMovieArchetypeProps } from "./IAutoMovieArchetypeProps";
 
-/** The constructor's actual rest geometry, contacts and flexible-line declarations. */
+/** The constructor's rest geometry, contacts and flexible-line declarations. */
 type Props = Pick<
   IAutoMovieArchetypeProps<string, string>,
   "archetype" | "parts" | "affordances" | "spans"
@@ -17,7 +17,7 @@ const SPAN: typeof AutoMovieArchetypeSpan.pose = AutoMovieArchetypeSpan.pose;
 /**
  * Resolve one archetype's articulations, flexible geometry and held contact axes.
  *
- * @param props Actual rest geometry and its original contact/span declarations.
+ * @param props Rest geometry and its original contact/span declarations.
  * @param travels Requested absolute travels, with the producer's units.
  * @returns Current parts/contact frames and the articulation owner's travels.
  * @throws {AutoMovieArchetypeRefusal} Through the articulation/span owners for unsupported requests or invalid physical line constraints.
@@ -50,7 +50,7 @@ export function poseArchetype(
   return { ...posed, parts: spans.parts, affordances: spans.affordances };
 }
 
-/** Observe actual method identities while preserving lookup and argument order. */
+/** Observe method identities while preserving lookup and argument order. */
 function observed(
   props: Props,
   travels: ReadonlyMap<string, number>,

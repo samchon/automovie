@@ -118,7 +118,7 @@ export namespace AutoMovieArchetypeTrack {
    * @evidence contracts/development/implementation.md#principled-implementation Gauss's iteration, quadratically convergent, stopped at agreement or the existing 64-round bound. Ordinary normal inputs retain their order. A subnormal input pair is lifted by the common exact power2^52 when that cannot overflow, so every mean remains normal before final rescaling; a mixed pair too large for that lift already reaches two normal values after its first iteration. Overflowing means or subnormal/overflowing products use equivalent bounded mean and square-root factorizations.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid inputs refuse without a clamp or guessed mean; exact homogeneous scaling prevents a subnormal quantization cycle and factorization changes only exceptional numeric evaluation, not the iteration.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most the existing 64 constant-work rounds; actual swing amplitudes converge within a handful.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most the existing 64 constant-work rounds; swing amplitudes converge within a handful.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */

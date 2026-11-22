@@ -13,7 +13,7 @@ import { resolveArchetypeSpanParts } from "./resolveArchetypeSpanParts";
 /**
  * A taut line between two frames of a model that move apart: a bowstring from a limb tip to the nock, a sling's cord from the hand to the pouch, a trace from a collar to a cart.
  *
- * A span is a round part, a cylinder of its radius, attached to two part-local points or affordance origins. An explicit held overhang extends the line beyond an affordance and keeps that grip's line axis on the actual span. After every pose its ends and held frames are resolved together. Mass counts at rest only, as `AutoMovieArchetype.body` documents. A stated rest length reports slack when the drawn length is shorter; it does not simulate a hanging cord.
+ * A span is a round part, a cylinder of its radius, attached to two part-local points or affordance origins. An explicit held overhang extends the line beyond an affordance and keeps that grip's line axis on the span. After every pose its ends and held frames are resolved together. Mass counts at rest only, as `AutoMovieArchetype.body` documents. A stated rest length reports slack when the drawn length is shorter; it does not simulate a hanging cord.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a span is, what its ends may be, when it is laid, how its mass counts and what slack means.
  * @evidence contracts/development/design.md#principled-representation A line segment between two attachment points, each a part-local point or an affordance's origin, drawn as a cylinder of fixed radius whose length and orientation follow its ends.
@@ -107,13 +107,13 @@ export namespace AutoMovieArchetypeSpan {
   /**
    * Span geometry and held contact frames resolved from the same pose.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two actual model lists updated together without changing contact origins or identities.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two model lists updated together without changing contact origins or identities.
    * @evidence contracts/development/design.md#principled-representation One result keeps drawn spans and their held-frame axes consistent with the same endpoint calculation.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The Archetype constructor consumes both lists; geometry-only callers retain lay's existing surface.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No replacement contact vocabulary, hidden anchor or fitted frame is introduced.
    */
   export interface IPose {
-    /** Posed parts with each declared line rebuilt at its actual endpoints. */
+    /** Posed parts with each declared line rebuilt at its endpoints. */
     parts: IAutoMovieModelPart[];
     /** Original contact semantics with explicitly held axes aligned to the line. */
     affordances: IAutoMovieAffordance[];
@@ -293,7 +293,7 @@ export namespace AutoMovieArchetypeSpan {
    * @throws {AutoMovieArchetypeRefusal} As `locate` does, or when a span's ends meet, which leaves no line to draw.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is replaced and each refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared dependency resolver places each actual cylinder between its current anchors. A span attached to another span reads its predecessor's current frame in topological order; cycles refuse.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared dependency resolver places each cylinder between its current anchors. A span attached to another span reads its predecessor's current frame in topological order; cycles refuse.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One state and one part per span.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coincident ends are refused rather than drawn as a part of no length, which the model validator refuses.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in spans times parts.
@@ -315,9 +315,9 @@ export namespace AutoMovieArchetypeSpan {
    *
    * @param archetype The identity used in actionable refusals.
    * @param spans Declared lines with part-local or affordance anchors.
-   * @param parts Current actual parts before the lines are rebuilt.
+   * @param parts Current parts before the lines are rebuilt.
    * @param affordances Current contact frames, with held origins already placed.
-   * @returns Actual line parts and matching grip frames without mutating inputs.
+   * @returns Line parts and matching grip frames without mutating inputs.
    * @throws {AutoMovieArchetypeRefusal} For invalid geometry, missing anchors or incompatible line directions sharing one grip.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States same-pose line/grip ownership, preserved held origins, explicit overhang semantics and conflict refusal.

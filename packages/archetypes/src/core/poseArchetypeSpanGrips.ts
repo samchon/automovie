@@ -13,14 +13,14 @@ import type { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
  *
  * @param archetype Producer identity used by a physical refusal.
  * @param spans Declared current spans, with overhang marking their held ends.
- * @param states The corresponding already computed actual endpoints.
+ * @param states The corresponding already computed endpoints.
  * @param affordances Current independent contact records before line alignment.
  * @returns Changed held frames and unchanged other contacts, without input mutation.
  * @throws {AutoMovieArchetypeRefusal} For incompatible shared axes, non-rigid held frames or a rein whose complete held run does not fit its physical line.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States fixed origins, explicit held-end ownership, unoriented +X tangent, full rein-run coverage and each refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The actual segment defines its unit tangent. Choose the tangent sign nearest the current grip +X and apply the shortest rigid rotation, preserving an orthogonal outward normal. A rein's half-length must fit on both sides of its unchanged hand origin.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Index actual contacts, admit compatible segment tangents and occupied held runs, then independently replace only the explicitly held frames.
+ * @evidence contracts/development/implementation.md#principled-implementation The segment defines its unit tangent. Choose the tangent sign nearest the current grip +X and apply the shortest rigid rotation, preserving an orthogonal outward normal. A rein's half-length must fit on both sides of its unchanged hand origin.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Index contacts, admit compatible segment tangents and occupied held runs, then independently replace only the explicitly held frames.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No hand anchor moves, no contact-only rope substitutes for geometry and no last-writer rule hides incompatible simultaneous lines. Positional slack is only coordinate-scaled binary64 arithmetic error.
  * @evidence contracts/development/implementation.md#efficient-algorithms O(A+S) maps and visits follow the already completed endpoint calculations for A contacts and S spans; no state is recalculated or cached.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses exactly the span states emitted by the geometry owner and the existing shortest-rotation operation; unchanged contacts and no-held-span lists are reused.

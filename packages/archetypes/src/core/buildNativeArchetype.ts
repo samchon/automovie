@@ -5,7 +5,7 @@ import { AutoMovieArchetype } from "./AutoMovieArchetype";
  * Build an archetype from the builder's own rest arrays.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the builder's owned inputs, native normalization and original model output.
- * @evidence contracts/development/implementation.md#principled-implementation The actual constructor and native array owners establish provenance for its original output array, after normal physical admission.
+ * @evidence contracts/development/implementation.md#principled-implementation The constructor and native array owners establish provenance for its original output array, after normal physical admission.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Original construction with one optional identity association.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No arbitrary structural model receives a producer capability and nothing bypasses the original constructor.
  * @evidence contracts/development/implementation.md#efficient-algorithms One constant-size identity record beyond the original normalization.

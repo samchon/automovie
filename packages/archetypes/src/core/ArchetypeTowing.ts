@@ -14,21 +14,21 @@ import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
  * Declared wheel support and exact vertical coupling geometry for planar towing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes axle-body pitch, level four-wheel support with an optional real drawbar hinge, and unsupported legacy height changes.
- * @evidence contracts/development/design.md#principled-representation Actual model-space wheel/pivot points and an existing articulation id describe mechanical freedoms; no vehicle kind or guessed part name enters the law.
+ * @evidence contracts/development/design.md#principled-representation Model-space wheel/pivot points and an existing articulation id describe mechanical freedoms; no vehicle kind or guessed part name enters the law.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Producer readers supply Support, and AutoMovieArchetypeRide.towed consumes the prepared projected reach and rigid placement.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No contact tolerance, vehicle-specific height offset, synthetic suspension or invented shaft flexibility replaces declared geometry.
  */
 export namespace ArchetypeTowing {
   /**
-   * Actual front steering pivot and its declared yaw articulation.
+   * Front steering pivot and its declared yaw articulation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The pivot is a model-space metre point and turn names the source's actual steering articulation.
-   * @evidence contracts/development/design.md#principled-representation An existing source point/id pair describes one steerable front axle; the reader admits actual support geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation The pivot is a model-space metre point and turn names the source's steering articulation.
+   * @evidence contracts/development/design.md#principled-representation An existing source point/id pair describes one steerable front axle; the reader admits support geometry.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by producer support descriptors and the existing front option.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No independently adjustable wheelbase or steering angle duplicates the actual model.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No independently adjustable wheelbase or steering angle duplicates the model.
    */
   export interface IFront<Id extends string> {
-    /** Actual model-space front axle centre/pivot, metres. */
+    /** Model-space front axle centre/pivot, metres. */
     pivot: IAutoMovieVector3;
     /** Source steering articulation. */
     turn: Id;
@@ -37,9 +37,9 @@ export namespace ArchetypeTowing {
   /**
    * Producer-declared support: a freely pitching single axle or grounded front/rear axles.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Axle points are actual neutral wheel centres in metres; their Y is their floor clearance. A four-wheeler may name a real drawbar pitch articulation, otherwise coupling height is fixed.
-   * @evidence contracts/development/design.md#principled-representation A closed union separates whole-body axle pitch from a level two-axle chassis; optional pitch is an actual articulation, not permission to deform a rigid pole.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface createCart.towing/createCannon.towing read this from their actual source models for the generic towing owner.
+   * @evidence contracts/development/common.md#meaningful-documentation Axle points are neutral wheel centres in metres; their Y is their floor clearance. A four-wheeler may name a real drawbar pitch articulation, otherwise coupling height is fixed.
+   * @evidence contracts/development/design.md#principled-representation A closed union separates whole-body axle pitch from a level two-axle chassis; optional pitch is an articulation, not permission to deform a rigid pole.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface createCart.towing/createCannon.towing read this from their source models for the generic towing owner.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No kind tag, numerical correction knob, mutable registry or unmeasured mechanical angle limit is added.
    */
   export type Support<Id extends string> =
@@ -79,13 +79,13 @@ export namespace ArchetypeTowing {
   /**
    * Prepared geometric operations read by the existing planar heading integrator.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Exposes actual front steering, rear/front separation, height-dependent projected reach and a supported rigid pose with real articulation travels.
+   * @evidence contracts/development/common.md#meaningful-documentation Exposes front steering, rear/front separation, height-dependent projected reach and a supported rigid pose with real articulation travels.
    * @evidence contracts/development/design.md#principled-representation Both integration and sample placement consume one admitted geometry snapshot and the same height equation.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Only the existing towing integrator/emitter uses this prepared record.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No stored sampled pose, independent reach estimate or hidden body lift supplies a coupling.
    */
   export interface IPrepared<Id extends string> {
-    /** Actual front steering, or null for one planar link. */
+    /** Front steering, or null for one planar link. */
     front: IFront<Id> | null;
     /** Rear-to-front longitudinal separation, metres; zero for one link. */
     body: number;
@@ -93,7 +93,7 @@ export namespace ArchetypeTowing {
      * Horizontal reach and model-X pitch at a world hitch/ground height.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Inputs are world metre heights and output reach is positive metres with pitch in radians.
-     * @evidence contracts/development/implementation.md#principled-implementation Keep the actual axle/pivot height and rigid link length, solve its vertical component, and take the positive horizontal projection; a level rigid support refuses a different height.
+     * @evidence contracts/development/implementation.md#principled-implementation Keep the axle/pivot height and rigid link length, solve its vertical component, and take the positive horizontal projection; a level rigid support refuses a different height.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One finite height admission and closed-form circle projection.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No whole-body translation, distance clamp or geometric reach outside the declared circle is accepted.
      * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar/trigonometric work without a new integration loop.
@@ -102,7 +102,7 @@ export namespace ArchetypeTowing {
      */
     height: (hitch: number, ground: number) => { reach: number; pitch: number };
     /**
-     * The ground datum under the axle for a hitch and a heading: the course datum without declared terrain, else the height that puts the actual wheel on the authored plane under the axle.
+     * The ground datum under the axle for a hitch and a heading: the course datum without declared terrain, else the height that puts the wheel on the authored plane under the axle.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Inputs are the world hitch point, the planar heading in radians and the course datum in metres; the output is the world datum `height` and `pose` read, metres.
      * @evidence contracts/development/implementation.md#principled-implementation On a plane of upward normal n the wheel's centre stands r/n_y above the plane under it; the axle lies `reach` behind the hitch along the heading, so the lever circle and the plane's line along the heading intersect in one quadratic, solved in closed form and re-solved while the plane under the solved axle changes.
@@ -114,11 +114,11 @@ export namespace ArchetypeTowing {
      */
     ground: (hitch: IAutoMovieVector3, theta: number, datum: number) => number;
     /**
-     * Place the supported vehicle and return actual front/drawbar travels.
+     * Place the supported vehicle and return front/drawbar travels.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Hitch is a world point, ground a world Y datum, theta/phi are planar link headings in radians, and output is a rigid model placement plus source articulation degrees.
-     * @evidence contracts/development/implementation.md#principled-implementation Put the actual axle/front pivot at its ground clearance behind the hitch, then rotate about that actual point; a four-wheel body stays level while its declared pole hinge changes pitch.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve shared height, construct yaw/pitch, anchor the actual support point and return independent travel/frame records.
+     * @evidence contracts/development/implementation.md#principled-implementation Put the axle/front pivot at its ground clearance behind the hitch, then rotate about that point; a four-wheel body stays level while its declared pole hinge changes pitch.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve shared height, construct yaw/pitch, anchor the support point and return independent travel/frame records.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never scale a wheel, stretch a pole, alter its contact or translate a chassis to hide a height mismatch.
      * @evidence contracts/development/implementation.md#efficient-algorithms Constant quaternion/vector work.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the admitted support and height operation with integration.
@@ -148,7 +148,7 @@ export namespace ArchetypeTowing {
     axle?: IAutoMovieVector3;
     /** Explicit front steering pivot and articulation. */
     front?: IFront<Id>;
-    /** Producer-read actual support. */
+    /** Producer-read support. */
     support?: Support<Id>;
     /** Authored ground under a single axle; the course datum when absent. */
     ground?: Ground;
@@ -157,18 +157,18 @@ export namespace ArchetypeTowing {
   /**
    * Admit one producer-declared towing geometry without inferring a vehicle kind.
    *
-   * @param trailer Actual neutral source, with its own coupling/articulation frames.
+   * @param trailer Neutral source, with its own coupling/articulation frames.
    * @param coupling Source coupling contact id.
-   * @param options Existing explicit axle/front data plus optional actual support, and optional authored ground under a single axle.
+   * @param options Existing explicit axle/front data plus optional support, and optional authored ground under a single axle.
    * @returns Shared height/projection/placement operations for this source.
    * @throws {AutoMovieArchetypeRefusal} For contradictory geometry, invalid points/axes, unsupported heights or an unreachable vertical hitch.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States actual support ownership, legacy level-only admission, duplicate-option contradictions, pitch freedoms and strict positive projected reach.
-   * @evidence contracts/development/implementation.md#principled-implementation A rigid lever around an actual grounded axle/pivot satisfies h=qY*cos(pitch)-qZ*sin(pitch); its horizontal projection is sqrt(length²-h²). Both existing heading integration and pose emission share that lever, while fixed supports refuse unsupported height.
+   * @evidence contracts/development/common.md#meaningful-documentation States support ownership, legacy level-only admission, duplicate-option contradictions, pitch freedoms and strict positive projected reach.
+   * @evidence contracts/development/implementation.md#principled-implementation A rigid lever around a grounded axle/pivot satisfies h=qY*cos(pitch)-qZ*sin(pitch); its horizontal projection is sqrt(length²-h²). Both existing heading integration and pose emission share that lever, while fixed supports refuse unsupported height.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit options/source pivot data, prepare one lever, then expose its closed height solution and rigid placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No kind/part-name heuristic, 4 cm compensation, global epsilon, replacement of source methods or extra physics loop changes the model.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(A) source contact reads during preparation and constant work per geometry query; the caller keeps its existing single heading trajectory.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual source coordinates are snapshotted once and one height law determines both projected heading reach and exact support placement.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Source coordinates are snapshotted once and one height law determines both projected heading reach and exact support placement.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only fixed scalar geometry and source articulation ids; returned frames/travels are independent and no model buffers, handles or sampled cache survive.
    */
   export function prepare<Id extends string, D extends string>(
@@ -377,7 +377,7 @@ export namespace ArchetypeTowing {
         Math.atan2(qy, qz) - Math.atan2(vertical, forward * reach);
       return { reach, pitch: Math.atan2(Math.sin(angle), Math.cos(angle)) };
     }
-    /** The datum that seats the actual wheel on the authored plane under the solved axle. */
+    /** The datum that seats the wheel on the authored plane under the solved axle. */
     function ground(
       hitch: IAutoMovieVector3,
       theta: number,
@@ -538,7 +538,7 @@ export namespace ArchetypeTowing {
   /**
    * Refuse a front axle whose required steering exceeds its lock.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the actual front axle articulation and the completed planar heading trajectory in radians.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the front axle articulation and the completed planar heading trajectory in radians.
    * @evidence contracts/development/implementation.md#principled-implementation Measure the maximum absolute link-heading difference across the existing knots against the articulation's own degree limit.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Apply one knot scan for a steerable axle and a single original refusal when it exceeds the lock.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No different sampling time, steering clamp or substitute articulation limit.

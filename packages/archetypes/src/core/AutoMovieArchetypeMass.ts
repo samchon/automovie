@@ -11,14 +11,14 @@ import { ArchetypeMassRecord } from "./ArchetypeMassRecord";
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 
 /**
- * The mass properties of actual primitive or convex-cell parts under one total mass.
+ * The mass properties of primitive or convex-cell parts under one total mass.
  *
  * Each part is a uniform solid whose share of the total mass is its volume times a relative density, 1 unless the producer states another, so a hollow or light part can weigh less than its outline suggests; a producer whose segment masses are measured states each part's share instead. A producer states the total mass from its cited band; the distribution follows from the geometry, which is what lets a test compare the result with a published balance point or moment of inertia instead of reading a copied number back.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the density rule, who supplies the total mass and why the distribution is computed.
  * @evidence contracts/development/design.md#principled-representation Rigid-body mass properties in SI units in the model's axes: a centre in metres and the six distinct components of the symmetric inertia tensor about it in kg m squared.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The archetypes own it because `IAutoMovieBody` carries a mass and a centre but no inertia; acts that swing or carry a thing read the tensor (#3202 decision 6).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No per-archetype mass constant or bounding proxy: primitive closed forms and explicitly declared actual cell hulls supply the composite's local solids.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No per-archetype mass constant or bounding proxy: primitive closed forms and explicitly declared cell hulls supply the composite's local solids.
  */
 export namespace AutoMovieArchetypeMass {
   /**
@@ -75,12 +75,12 @@ export namespace AutoMovieArchetypeMass {
    * @param mass The finite positive total mass, kilograms.
    * @param density Finite positive relative densities by part id; 1 for a part not listed.
    * @param shares Finite nonnegative weights replacing volume times density; when used, every part should be listed. At least one solid must have positive weight.
-   * @param cells Explicit actual convex cells by part id; omitted for primitive-only inputs. Each record must identify its visible geometry.
+   * @param cells Explicit convex cells by part id; omitted for primitive-only inputs. Each record must identify its visible geometry.
    * @returns The centre of mass and the inertia about it.
    * @throws {Error} For invalid mass, density, share or dimensions, no positive solid weight, or unrepresentable local/derived mass properties.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units, the default density and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation ArchetypeMassLocal shares primitive closed forms or prepared actual-cell volume, centroid, principal moments and principal-to-part rotation. Cell principal axes compose with the part's rigid rotation; primitives keep their existing operation order. Weights normalize before reduction; coordinate-scaled means avoid overflowing mass products, and direct transverse parallel-axis terms avoid squared-distance subtraction. Exceptional allocated masses remain factored with geometric terms until the final contribution rounds. Unit rotations and scale remain the builder's premise.
+   * @evidence contracts/development/implementation.md#principled-implementation ArchetypeMassLocal shares primitive closed forms or prepared cell volume, centroid, principal moments and principal-to-part rotation. Cell principal axes compose with the part's rigid rotation; primitives keep their existing operation order. Weights normalize before reduction; coordinate-scaled means avoid overflowing mass products, and direct transverse parallel-axis terms avoid squared-distance subtraction. Exceptional allocated masses remain factored with geometric terms until the final contribution rounds. Unit rotations and scale remain the builder's premise.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the masses and centre, one for the tensor.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid or unrepresentable numeric data are refused rather than capped or replaced. Relative weights, primitive local properties and final tensor must be representable; an implicit positive volume-density product refuses zero or inexact subnormal representation before normalization, while exact subnormal weights and explicit authored zero shares remain supported; no density or mass is invented. Overlapping solids still count twice; producers keep overlaps to joints.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the number of parts.
@@ -188,14 +188,14 @@ export namespace AutoMovieArchetypeMass {
    * @param mass The total mass, kilograms.
    * @param density Relative densities by part id; 1 for a part not listed.
    * @param shares Finite nonnegative weights replacing volume times density, as `of` takes them.
-   * @param cells Explicit actual convex cells bound to their visible parts, as of takes them.
+   * @param cells Explicit convex cells bound to their visible parts, as of takes them.
    * @returns Each part's mass by id, kilograms; a part without solid volume weighs nothing, including an inventory with no solids.
    * @throws {Error} For invalid mass/weights/dimensions, solids with no positive weight or unrepresentable local properties.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the zero.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses of's same primitive/actual-cell local and weight owners. An inventory with no supported solids has only zero part masses; of still refuses constructing a positive-mass body without solids. Otherwise weights normalize by their maximum, and allocation retains the existing exact exceptional quotient fallback for unrepresentable intermediate products.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses of's same primitive/cell local and weight owners. An inventory with no supported solids has only zero part masses; of still refuses constructing a positive-mass body without solids. Otherwise weights normalize by their maximum, and allocation retains the existing exact exceptional quotient fallback for unrepresentable intermediate products.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the weights, one for the masses.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid total mass is refused even for a no-solid inventory. Solid-bearing inputs still refuse invalid density/share and all-zero solid weights; implicit volume-density products also require normal or exact positive subnormal local representation, preserving exact MIN_VALUE products and explicitly authored zero shares; only the geometry's actual absence of solid support yields zero part masses, never a failed-normalization fallback.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid total mass is refused even for a no-solid inventory. Solid-bearing inputs still refuse invalid density/share and all-zero solid weights; implicit volume-density products also require normal or exact positive subnormal local representation, preserving exact MIN_VALUE products and explicitly authored zero shares; only the geometry's absence of solid support yields zero part masses, never a failed-normalization fallback.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of`'s volume rule.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -431,7 +431,7 @@ export namespace AutoMovieArchetypeMass {
   }
 }
 
-/** The shared local owner supplies primitive or actual-cell principal data. */
+/** The shared local owner supplies primitive or cell principal data. */
 type ILocal = NonNullable<ReturnType<typeof ArchetypeMassLocal>>;
 
 /** A part as a solid in the model: its weight share, centre, axes and central inertia per unit mass. */

@@ -218,7 +218,7 @@ export namespace AutoMovieArchetypeArticulation {
      * Model-space motion taking the supplied rest contact to its posed frame.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The input belongs to this rest graph; the result carries it through its own absolute travel and its carriers.
-     * @evidence contracts/development/implementation.md#principled-implementation Compose its own motion under the actual rides chain, including the level-pedal rule.
+     * @evidence contracts/development/implementation.md#principled-implementation Compose its own motion under the rides chain, including the level-pedal rule.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure The projection exposes the same total motion used to move rigid parts in a complete pose.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the already-admitted travel for each articulation in the chain.
      * @evidence contracts/development/implementation.md#efficient-algorithms Visits each required carrier once per projection.

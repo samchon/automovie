@@ -13,7 +13,7 @@ import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import type { AutoMovieArchetypeFriction } from "./AutoMovieArchetypeFriction";
 
 /**
- * One builder's actual parts and the shared material/mass records they use.
+ * One builder's parts and the shared material/mass records they use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States builder ownership and the handover at build, with each record's purpose.
  * @evidence contracts/development/design.md#principled-representation Geometry, optical material, relative mass and declared surface remain separate records over the same unique part ids. Explicit convex-cell records bind to the exact mesh geometry they generated.
@@ -23,7 +23,7 @@ import type { AutoMovieArchetypeFriction } from "./AutoMovieArchetypeFriction";
 export class ArchetypeBuilderParts {
   /** The existing default optical swatch, shared by the public builder alias. */
   public static readonly NEUTRAL: string = "#9a9a9a";
-  /** Actual local parts, handed to the built archetype. */
+  /** Local parts, handed to the built archetype. */
   public readonly parts: IAutoMovieModelPart[] = [];
   /** One optical material per normalized colour. */
   public readonly materials: Map<string, IAutoMovieMaterial> = new Map();
@@ -36,7 +36,7 @@ export class ArchetypeBuilderParts {
     string,
     AutoMovieArchetypeFriction.Material
   > = {};
-  /** Explicit actual convex cells; primitive parts need no extra record. */
+  /** Explicit convex cells; primitive parts need no extra record. */
   public readonly cells: Map<string, AutoMovieArchetypeConvexCell.ICell> =
     new Map();
 
@@ -46,13 +46,13 @@ export class ArchetypeBuilderParts {
   /**
    * Record a primitive, admitted convex cell or visual mesh and its material.
    * @param id Unique part id.
-   * @param geometry Actual local geometry; no bounding representation is substituted.
+   * @param geometry Local geometry; no bounding representation is substituted.
    * @param at Local origin in model metres.
    * @param rotation Unit local-to-model quaternion, or identity when absent.
    * @param options Optical colour and opacity, relative density/weight and physical surface.
    * @throws {Error} For a repeated part id.
    * @evidence contracts/development/common.md#meaningful-documentation Defines geometry ownership, rigid placement and optional appearance/mass inputs.
-   * @evidence contracts/development/implementation.md#principled-implementation Preserves the builder's existing exact colour normalization, unit scale and explicit density/share/surface semantics for both primitive and actual convex parts.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the builder's existing exact colour normalization, unit scale and explicit density/share/surface semantics for both primitive and convex parts.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Refuse duplicate id, share its colour material, record optional physical data, then append the placed part.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never renames ids, adds a proxy solid or derives a physical material from colour.
    * @evidence contracts/development/implementation.md#efficient-algorithms Duplicate-id scan is linear in the existing P parts; the remaining work is constant and geometry is retained without cloning.

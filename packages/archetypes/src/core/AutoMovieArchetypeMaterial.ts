@@ -27,7 +27,7 @@ export namespace AutoMovieArchetypeMaterial {
    * A body's physical contact material or an explicitly mixed construction.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names material families independently of rendering colours; composite records a construction without one uniform physical material.
-   * @evidence contracts/development/design.md#principled-representation Closed literals cover the physical materials current archetype producers actually use. They constrain names, while composition details and measured contact availability remain runtime and documentation concerns.
+   * @evidence contracts/development/design.md#principled-representation Closed literals cover the physical materials current archetype producers use. They constrain names, while composition details and measured contact availability remain runtime and documentation concerns.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Producers explicitly author the physical reference material their coarse body represents; that label is independent of a measured contact coefficient. Part surfaces retain the existing measured friction vocabulary.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown contact behaviour is not encoded as a fictitious material coefficient, and composite does not stand in for a guessed restitution.
    */

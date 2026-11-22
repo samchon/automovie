@@ -44,7 +44,7 @@ export interface IAutoMovieArchetypeProps<
   /** The parts at rest, with unit scale. */
   parts: IAutoMovieModelPart[];
 
-  /** Explicit actual convex wall cells by part id; absent for legacy primitive-only records. Cell points remain local and follow each part's current rigid transform. */
+  /** Explicit convex wall cells by part id; absent for legacy primitive-only records. Cell points remain local and follow each part's current rigid transform. */
   cells?: AutoMovieArchetypeConvexCell.Table;
 
   /** The affordances at rest, each id one of `Id`. */

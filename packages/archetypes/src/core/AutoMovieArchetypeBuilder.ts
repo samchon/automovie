@@ -24,9 +24,9 @@ import { archetypeSpanAnchor } from "./archetypeSpanAnchor";
 import { buildNativeArchetype } from "./buildNativeArchetype";
 
 /**
- * What every producer assembles an archetype with: dimensioned primitives, actual convex cells or visual meshes, the affordances an act reads, and the total mass.
+ * What every producer assembles an archetype with: dimensioned primitives, convex cells or visual meshes, the affordances an act reads, and the total mass.
  *
- * A producer states named dimensions and formulas: a box by its size and centre, a rod by its radius and ends, a ball by its radius and centre, or an actual convex wall by its generating corners. Hollow forms assemble separate wall cells so rendering, mass and collision preserve their empty space. The repository keeps every model as coarse as identification allows. Parts carry unit scale, flat colours and no texture.
+ * A producer states named dimensions and formulas: a box by its size and centre, a rod by its radius and ends, a ball by its radius and centre, or a convex wall by its generating corners. Hollow forms assemble separate wall cells so rendering, mass and collision preserve their empty space. The repository keeps every model as coarse as identification allows. Parts carry unit scale, flat colours and no texture.
  *
  * `build` computes the centre of mass and inertia from the parts under the stated total mass ({@link AutoMovieArchetypeMass}) and returns the {@link AutoMovieArchetype}.
  *
@@ -34,15 +34,15 @@ import { buildNativeArchetype } from "./buildNativeArchetype";
  * @template Dimension The archetype's free dimensions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a producer writes with it, the coarseness rule it serves and what `build` derives.
- * @evidence contracts/development/design.md#principled-representation Code CAD over named dimensions and formula-defined primitives or actual convex cells. One recorded cell supplies visible and physical boundaries; producer-authored corner formulas own the wall profile.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Existing primitive, span, contact and build calls remain unchanged. Armour uses convex to express actual hollow walls that filled primitives cannot represent; recording/material ownership is shared with existing parts.
+ * @evidence contracts/development/design.md#principled-representation Code CAD over named dimensions and formula-defined primitives or convex cells. One recorded cell supplies visible and physical boundaries; producer-authored corner formulas own the wall profile.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Existing primitive, span, contact and build calls remain unchanged. Armour uses convex to express hollow walls that filled primitives cannot represent; recording/material ownership is shared with existing parts.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No call knows a kind of object; a repeated part id is a producer's defect and throws at once.
  */
 export class AutoMovieArchetypeBuilder<
   Id extends string,
   Dimension extends string,
 > {
-  /** Actual parts and their common material/mass/cell ownership. */
+  /** Parts and their common material/mass/cell ownership. */
   readonly #inventory: ArchetypeBuilderParts;
 
   /** The affordances so far, at rest. */
@@ -168,15 +168,15 @@ export class AutoMovieArchetypeBuilder<
   }
 
   /**
-   * Add one actual convex wall cell, sharing its visible and physical boundary.
+   * Add one convex wall cell, sharing its visible and physical boundary.
    * @param id Unique part id.
    * @param points Cell-local finite corners in metres, or an immutable admitted cell prepared by AutoMovieArchetypeConvexCell.of for repeated rigid instances.
    * @param at Local origin in model metres; zero when absent.
    * @param options Existing colour, rigid rotation, mass weight and surface options.
    * @returns This builder.
    * @throws {Error} For a repeated id or inadmissible convex cell.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the copied local point set, rigid placement and actual-cell premise.
-   * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeConvexCell derives the visible polyhedron, hull collider and local integrated mass from one explicit actual convex volume. An already admitted immutable cell can be reused for exactly rigid-equivalent instances, with each part's own transform. Hollow forms use separate wall cells.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the copied local point set, rigid placement and cell premise.
+   * @evidence contracts/development/implementation.md#principled-implementation AutoMovieArchetypeConvexCell derives the visible polyhedron, hull collider and local integrated mass from one explicit convex volume. An already admitted immutable cell can be reused for exactly rigid-equivalent instances, with each part's own transform. Hollow forms use separate wall cells.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Use a prepared cell or derive it from copied corners, record its exact mesh through the common part owner, then retain its physical correspondence by id.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No whole-shell hull or hidden solid fills a cavity, and no arbitrary mesh is guessed convex.
    * @evidence contracts/development/implementation.md#efficient-algorithms Raw corners require one small V-corner hull preparation. A prepared cell reuses all geometry and integration in constant time; every added part still scans P existing ids. Both build reductions reuse the prepared mass record.
@@ -232,7 +232,7 @@ export class AutoMovieArchetypeBuilder<
    * @throws {AutoMovieArchetypeRefusal} When an end names a part or affordance not yet recorded, or the two ends meet at rest.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's unit, what an end may name and when, and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation Shared span state resolves both rest anchors and any held extension before recording the actual cylinder, so rest mass uses its full drawn length. The archetype resolves the same declaration after each pose.
+   * @evidence contracts/development/implementation.md#principled-implementation Shared span state resolves both rest anchors and any held extension before recording the cylinder, so rest mass uses its full drawn length. The archetype resolves the same declaration after each pose.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Locate, record the rod, record the span.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An end must already exist, so the rest line is the one every pose lays; coincident ends are refused.
    * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts and affordances so far, tens at most.
@@ -272,12 +272,12 @@ export class AutoMovieArchetypeBuilder<
   /**
    * Bind a construction point to a real part already laid by this builder.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Converts model metres to the actual named carrier's local span coordinates.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegate actual rigid-frame inversion to the shared span-anchor owner.
+   * @evidence contracts/development/common.md#meaningful-documentation Converts model metres to the named carrier's local span coordinates.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegate rigid-frame inversion to the shared span-anchor owner.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call, without recording an extra part or contact.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reconstructed carrier frame or hidden world anchor is substituted.
    * @evidence contracts/development/implementation.md#efficient-algorithms The owner performs one O(P) part lookup and constant rigid arithmetic.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the actual already-built frame and the common anchor conversion.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the already-built frame and the common anchor conversion.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new local endpoint without retaining a query or external handle.
    */
   public anchor(
@@ -396,7 +396,7 @@ export class AutoMovieArchetypeBuilder<
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Material and contact admission precede one construction from the builder's recorded geometry and mass properties.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing material is refused. Unmeasured restitution and undeclared resting friction remain absent; neither becomes zero or a universal coefficient. The mass remains the producer's cited value rather than a guessed density-derived total.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `AutoMovieArchetypeMass.of`.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Aggregate and per-part mass reductions share admitted actual-cell integration records and the same local-solid/weight owners; geometry and material records pass directly to the built archetype.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Aggregate and per-part mass reductions share admitted cell integration records and the same local-solid/weight owners; geometry and material records pass directly to the built archetype.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public build(
@@ -467,7 +467,7 @@ export class AutoMovieArchetypeBuilder<
     });
   }
 
-  /** Record one primitive through the shared actual-part/material owner. */
+  /** Record one primitive through the shared part/material owner. */
   #add(
     id: string,
     shape: IAutoMoviePrimitiveShape,
