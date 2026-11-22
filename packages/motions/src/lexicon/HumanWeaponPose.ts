@@ -31,6 +31,9 @@ import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
+/** The most passes a held frame is stepped back along the line to bring the wrist within the arm's length; each re-chooses the frame's roll (provisional). */
+const PASSES: number = 3;
+
 /**
  * The pose a presentation strokes to (`HumanWeaponPresent.present`) and
  * the posture it is judged on: the stance no grip changes (the entry, a
@@ -286,26 +289,32 @@ export namespace HumanWeaponPose {
             // arm's length ends first: the wrist rides the rigid frame along
             // the line, so the step back that brings it to the length is the
             // root of `|w + k u - c|^2 = r^2` nearest none.
-            const first: IAutoMovieMotionHumanStrikingHeld.IHandFrame = held(
-              (s.long ? 0.3 : 0.7) * s.arm,
-            );
-            const v: IAutoMovieVector3 = Vector3.subtract(
-              HumanHand.place(
-                context.body,
-                s.tool.side,
-                "grip",
-                first.point,
-                first.rotation,
-                "relaxed",
-              ).point,
-              shoulder,
-            );
-            const excess: number = Vector3.dot(v, v) - goal * goal;
-            if (excess <= 0) return first;
-            const along: number = Vector3.dot(v, sight);
-            const room: number = along * along - excess;
-            if (room < 0) return first;
-            return held((s.long ? 0.3 : 0.7) * s.arm - along + Math.sqrt(room));
+            // Laying the frame again re-chooses its roll about the line, which
+            // moves the wrist a little, so the step is taken again until the
+            // wrist is within the length (a few passes at most).
+            let out: number = (s.long ? 0.3 : 0.7) * s.arm;
+            let laid: IAutoMovieMotionHumanStrikingHeld.IHandFrame = held(out);
+            for (let pass: number = 0; pass < PASSES; ++pass) {
+              const v: IAutoMovieVector3 = Vector3.subtract(
+                HumanHand.place(
+                  context.body,
+                  s.tool.side,
+                  "grip",
+                  laid.point,
+                  laid.rotation,
+                  "relaxed",
+                ).point,
+                shoulder,
+              );
+              const excess: number = Vector3.dot(v, v) - goal * goal;
+              if (excess <= 0) return laid;
+              const along: number = Vector3.dot(v, sight);
+              const room: number = along * along - excess;
+              if (room < 0) return laid;
+              out += Math.sqrt(room) - along;
+              laid = held(out);
+            }
+            return laid;
           }
 
           // An extended arm (a bow's) keeps only that resolution short of
