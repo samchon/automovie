@@ -15,17 +15,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGetDressed,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  presentHand,
-  slipRing,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The rigid custody bound: a worn ring's drift on its bone, metres. */
 const RIGID: number = 0.001;
@@ -79,7 +78,7 @@ interface ICase {
  * @evidence contracts/development/testing.md#distinguishing-cases Two body pairs with mirrored hands, and the refusal; the arm course's reach refusals are its own specification's.
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain.
  */
-export function test_human_motion_slip_ring(): void {
+export function test_motion_get_dressed_slip_ring(): void {
   const cases: readonly ICase[] = [
     { dresser: "m-average", partner: "f-small", side: "right", hand: "left" },
     { dresser: "f-small", partner: "m-average", side: "left", hand: "right" },
@@ -177,7 +176,10 @@ function exchange(
   const out: number = c.side === "right" ? -1 : 1;
   return new HumanPerformance({
     seed: "slip-ring",
-    laws: [slipRing, presentHand],
+    laws: [
+      AutoMovieMotionHumanGetDressed.slipRing,
+      AutoMovieMotionHumanGetDressed.presentHand,
+    ],
     performers: [
       {
         subject: "a",
@@ -203,11 +205,14 @@ function exchange(
     ],
     // The partner presents first, so the dresser reads where the hand is.
     composition: HumanChain.subject("b")
-      .registered(presentHand.name, { side: c.hand, seconds: 8 })
+      .registered(AutoMovieMotionHumanGetDressed.presentHand.name, {
+        side: c.hand,
+        hold: 8,
+      })
       .with(
         HumanChain.subject("a")
           .pickUp({ prop: "ring", handle: "hold", hand: c.side, lift: 0.05 })
-          .registered(slipRing.name, {
+          .registered(AutoMovieMotionHumanGetDressed.slipRing.name, {
             prop: "ring",
             partner,
             hand: c.hand,

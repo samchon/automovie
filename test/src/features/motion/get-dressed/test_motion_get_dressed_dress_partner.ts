@@ -13,17 +13,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGetDressed,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  dressPartner,
-  presentHand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The rigid custody bound: a worn item's drift on its bone, metres. */
 const RIGID: number = 0.001;
@@ -72,7 +71,7 @@ const SKIN: number = 0.01;
  * @evidence contracts/development/testing.md#distinguishing-cases Two items on two regions, both body pairs, the refusal; reach is the arm phrase's own specification.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory two-performer performance through the public chain.
  */
-export function test_human_motion_dress_partner(): void {
+export function test_motion_get_dressed_dress_partner(): void {
   const cases: readonly ICase[] = [
     { kind: "hat", region: "crown", kneels: true },
     { kind: "watch", region: "wristLeft", kneels: false },
@@ -164,8 +163,10 @@ function stage(
   // (the stand is cut there, its own length only an upper bound), then
   // takes the item.
   const Chain: IAutoMovieMotionHumanChain.IExtension<{
-    dressPartner: typeof dressPartner;
-  }> = HumanChain.extend({ dressPartner });
+    dressPartner: typeof AutoMovieMotionHumanGetDressed.dressPartner;
+  }> = HumanChain.extend({
+    dressPartner: AutoMovieMotionHumanGetDressed.dressPartner,
+  });
   const dresser: ReturnType<typeof Chain.subject> = Chain.subject("a")
     .stand({ hold: 2 * RECEIVE })
     .until({ of: RECEIVING, event: item.kneels ? "settled" : "ready" })
@@ -187,7 +188,10 @@ function stage(
       );
   return new HumanPerformance({
     seed: "dress-partner",
-    laws: [dressPartner, presentHand],
+    laws: [
+      AutoMovieMotionHumanGetDressed.dressPartner,
+      AutoMovieMotionHumanGetDressed.presentHand,
+    ],
     performers: [
       {
         subject: "a",
@@ -232,7 +236,7 @@ function stage(
         // beyond an arm; the partner holds it out, forearm level.
         HumanChain.subject("b")
           .registered(
-            presentHand.name,
+            AutoMovieMotionHumanGetDressed.presentHand.name,
             { side: "left", hold: RECEIVE },
             RECEIVING,
           )

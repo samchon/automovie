@@ -17,19 +17,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanDress,
+  AutoMovieMotionHumanGetDressed,
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  coatPartner,
-  AutoMovieMotionHumanDress,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { wardrobeFilm } from "../internal/wardrobeFilm";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { wardrobeFilm } from "../../internal/wardrobeFilm";
 
 /** The rigid custody bound: a worn item's drift on its bone, metres. */
 const RIGID: number = 0.001;
@@ -71,7 +71,7 @@ type JacketModel = AutoMovieArchetype<
  * @evidence contracts/development/testing.md#distinguishing-cases Two body pairs, both holding hands, two refusals.
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain.
  */
-export function test_human_motion_coat_partner(): void {
+export function test_motion_get_dressed_coat_partner(): void {
   for (const [dresser, dressed] of [
     ["m-average", "f-small"],
     ["f-small", "m-average"],
@@ -232,7 +232,10 @@ function stage(
   const sign: number = hand === "left" ? 1 : -1;
   return new HumanPerformance({
     seed: "coat-partner",
-    laws: [coatPartner, AutoMovieMotionHumanDress.wardrobe],
+    laws: [
+      AutoMovieMotionHumanGetDressed.coatPartner,
+      AutoMovieMotionHumanDress.wardrobe,
+    ],
     performers: [
       {
         subject: "a",
@@ -276,7 +279,9 @@ function stage(
       .stand({ hold: 2 })
       .walk({ to: { x: 0.3, y: 0, z: 0.8 }, face: 60 })
       .with(
-        HumanChain.extend({ coatPartner })
+        HumanChain.extend({
+          coatPartner: AutoMovieMotionHumanGetDressed.coatPartner,
+        })
           .subject("a")
           .stand({ hold: 0.3 })
           // The dresser stands behind the partner, so it takes the jacket by
