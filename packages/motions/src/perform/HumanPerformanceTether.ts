@@ -193,13 +193,36 @@ function out(
   return Math.max(0, metres);
 }
 
-/** A driven line's articulation travel at a second, in its own unit. */
+/** A driven line's articulation travel at a second, in its own unit: zero, without reading the prop's state, until an action's drive or the prop's own track has begun moving it. */
 function paid(
   self: IAutoMovieMotionHumanPerformanceState,
   length: IAutoMovieMotionHumanTether.IDriven,
   seconds: number,
 ): number {
-  return HumanPerformanceObject.state(self, prop(self, length.articulation.prop), seconds)[length.articulation.point] ?? 0;
+  const owner: IAutoMovieMotionHumanProp = prop(self, length.articulation.prop);
+  if (!begun(self, owner, length.articulation.point, seconds)) return 0;
+  return HumanPerformanceObject.state(self, owner, seconds)[length.articulation.point] ?? 0;
+}
+
+/** Whether a drive or a track on a prop's articulation starts by a second. */
+function begun(
+  self: IAutoMovieMotionHumanPerformanceState,
+  owner: IAutoMovieMotionHumanProp,
+  articulation: string,
+  seconds: number,
+): boolean {
+  if ((owner.tracks ?? []).some((track: IAutoMovieMotionHumanProp.ITrack): boolean => track.articulation === articulation))
+    return true;
+  for (const person of self.people.values())
+    for (const segment of [...person.segments, ...person.overlays])
+      for (const drive of segment.plan.drives ?? [])
+        if (
+          drive.prop === owner.subject &&
+          drive.articulation === articulation &&
+          segment.start + drive.from * segment.plan.duration <= seconds
+        )
+          return true;
+  return false;
 }
 
 /** A prop's named point in the world. */

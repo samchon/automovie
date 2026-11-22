@@ -17,24 +17,24 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** The rigid custody bound: a worn item's drift on its bone, metres. */
 const RIGID: number = 0.001;
 
-/** How near the medal's worn face lies to the breastbone, metres: the contact bound. */
+/** How near the medal's worn face lies to the chest, metres: the contact bound. */
 const SEAT: number = 0.01;
 
 /** A medal model. */
 type Medal = Archetype<createMedal.Affordance, createMedal.Dimension>;
 
 /**
- * A medal ceremony (#4015): the presenter hangs a ribbon medal on a
- * partner who bows to receive it.
+ * A medal ceremony (#4015): the presenter pins a medal on the left of a
+ * standing partner's chest.
  *
  * Scenarios, the average man decorating the small woman and the reverse,
  * each take clean:
- * 1. The medal's worn face lies on the partner's breastbone once worn.
+ * 1. The medal's worn face lies on the partner's left chest once worn.
  * 2. It rides the partner's chest through the rest of the take as the
- *    partner straightens and turns.
+ *    partner turns away.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the scene, the cases and the bounds.
- * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed medal's worn face against the partner's displayed breastbone and chest; a medal off the chest or sliding on it fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed medal's worn face against the partner's displayed left chest and chest bone; a medal off the chest or sliding on it fails.
  * @evidence contracts/development/testing.md#independent-expectations The contact bound and the rigid custody bound of the dressing specifications.
  * @evidence contracts/development/testing.md#distinguishing-cases Both body pairs.
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain.
@@ -55,11 +55,11 @@ export function test_human_motion_medal_ceremony(): void {
     const worn: number = mark(dress, "stroke");
     const face: IAutoMovieVector3 = point(film.prop("medal", worn + 0.01), medal);
     const region: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-      b.surfaces.regions.sternum,
-      film.bones("b", worn + 0.01).get(b.surfaces.regions.sternum.bone)!,
+      b.surfaces.regions.chestLeft,
+      film.bones("b", worn + 0.01).get(b.surfaces.regions.chestLeft.bone)!,
     ).point;
     TestValidator.predicate(
-      `${label}: the medal's face lies on the breastbone (${(Vector3.distance(face, region) * 1000).toFixed(0)} mm)`,
+      `${label}: the medal's face lies on the chest (${(Vector3.distance(face, region) * 1000).toFixed(0)} mm)`,
       Vector3.distance(face, region) <= SEAT,
     );
     const first: IAutoMovieVector3 = local(film, worn + 0.01);
@@ -73,7 +73,7 @@ export function test_human_motion_medal_ceremony(): void {
   }
 }
 
-/** `a` faces `b`, picks up the medal and hangs it on `b`'s breastbone while `b` bows, then `b` straightens and turns. */
+/** `a` faces `b`, picks up the medal and pins it on `b`'s left chest, then `b` turns away. */
 function ceremony(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody, medal: Medal): HumanPerformance {
   return new HumanPerformance({
     seed: "medal-ceremony",
@@ -88,16 +88,15 @@ function ceremony(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody, me
         rotation: { x: 0, y: 0, z: 0, w: 1 },
       }),
     ],
-    // The receiver is placed first, so the presenter reads where they bow.
+    // The receiver is placed first, so the presenter reads where they stand.
     composition: HumanChain.subject("b")
-      .gesture({ kind: "bow" })
-      .stand({ seconds: 3 })
+      .stand({ seconds: 4 })
       .walk({ to: { x: 0, y: 0, z: 0.6 }, face: 120 })
       .with(
         HumanChain.extend({ dressPartner })
           .subject("a")
           .pickUp({ prop: "medal", handle: "hold", hand: "right", lift: 0.05 })
-          .dressPartner({ prop: "medal", partner: "b", region: "sternum", point: "wear" }),
+          .dressPartner({ prop: "medal", partner: "b", region: "chestLeft", point: "wear" }),
       ).node,
   });
 }

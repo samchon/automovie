@@ -167,10 +167,13 @@ function stage(
     ],
     // The partner is placed first, so the dresser reads where the partner is.
     composition: (item.kneels
-      ? HumanChain.subject("b").act("kneel", {
+      ? // The partner kneels where they stand, the right knee coming down
+        // under the right hip, not stepping back out of the dresser's reach.
+        HumanChain.subject("b").act("kneel", {
           kind: "both",
           hold: 4,
           rise: true,
+          at: { kind: "point", frame: "world", at: { x: -b.rest.get("rightFoot")!.x, y: 0, z: 0.55 } },
         })
       : HumanChain.subject("b")
           .stand({ seconds: 4 })

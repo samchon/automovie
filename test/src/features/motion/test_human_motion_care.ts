@@ -270,10 +270,16 @@ function stage(
       },
       patient({ x: 0, y: 0, z: 0 }),
     ],
-    composition: care(
-      HumanChain.subject("a").stand({ seconds: alone.duration }),
-      { kind: "point", frame: "world", at: knee },
-    ).with(HumanChain.subject("b").act("lieDown", {})).node,
+    // The patient is placed first, so the carer reads where the patient lies.
+    composition: HumanChain.subject("b")
+      .act("lieDown", {})
+      .with(
+        care(HumanChain.subject("a").stand({ seconds: alone.duration }), {
+          kind: "point",
+          frame: "world",
+          at: knee,
+        }),
+      ).node,
   });
 }
 

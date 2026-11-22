@@ -22,7 +22,6 @@ import { stand } from "../actions/stand";
 import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
@@ -32,6 +31,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { bendFloorHand } from "./bendFloorHand";
 import { braceOnThigh } from "./braceOnThigh";
 import { kneelContacts } from "./kneelContacts";
 import { kneelKeys } from "./kneelKeys";
@@ -585,17 +585,14 @@ export namespace kneel {
       );
 
     // The hands open onto the thighs as the palms come to them, as the crouch's
-    // do: a relaxed hand's curled fingers would go into the thigh it lies on.
+    // do: a relaxed hand's curled fingers would go into the thigh it lies on,
+    // and the flat hand's thumb, which projects past the palm, is turned on
+    // its metacarpal until it clears the palm's plane, as a palm laid on the
+    // floor's is (`bendFloorHand`).
     const open: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanPrimitive =>
-      AutoMovieMotionHumanHand.shape({
-        side,
-        shape: "flat",
-        from: 0,
-        to: duration,
-        weight: lowered,
-      });
+      bendFloorHand(body, context.entry.posture, side, duration, lowered);
 
     const contacts: IAutoMovieMotionHumanContactWindow[] = kneelContacts(
       context,

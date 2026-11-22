@@ -88,6 +88,9 @@ interface IKey {
   /** The tilt and the joints. */
   pose: IAutoMovieMotionHumanLieDown.IPose;
 
+  /** The heading the tilt is written under, degrees. */
+  yaw: number;
+
   /** The hips joint's world point. */
   hips: IAutoMovieVector3;
 
@@ -181,25 +184,28 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
       const perched: ISeatedKey = seatedKey(body, seatedHips.y, 0);
       const seated: IKey = {
         pose: rise ? perched.pose : { pitch: entry.pitch, roll: entry.roll, joints: entry.joints },
+        yaw: rise ? yaw : entry.yaw,
         hips: seatedHips,
         lying: false,
         event: "seated",
       };
       const lateral: IKey = {
         pose: { ...lieDownPoses.POSES[side === "left" ? "lateralLeft" : "lateralRight"], pitch: -2, roll },
+        yaw,
         hips: lyingHips,
         lying: true,
         event: "lateral",
       };
       const supine: IKey = {
         pose: { ...lieDownPoses.POSES.supine, pitch: -90, roll },
+        yaw,
         hips: lyingHips,
         lying: true,
         event: "supine",
       };
       const position: IAutoMovieMotionHumanLieOnSurface.Position = p.position ?? "supine";
       const lyingEntry: IKey = rise
-        ? { pose: { pitch: entry.pitch, roll: entry.roll, joints: entry.joints }, hips: entryHips, lying: true, event: position }
+        ? { pose: { pitch: entry.pitch, roll: entry.roll, joints: entry.joints }, yaw: entry.yaw, hips: entryHips, lying: true, event: position }
         : seated;
       const keys: readonly IKey[] = rise
         ? position === "supine"
@@ -233,11 +239,16 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
       const posed: (index: number, u: number) => IAutoMovieMotionHumanPosture = (index: number, u: number): IAutoMovieMotionHumanPosture => {
         const a: IKey = keys[index]!;
         const b: IKey = keys[index + 1]!;
+        // The whole body turns on the shortest rotation between the keys' own tilts, whatever chart each was written in.
         return {
           root: { x: 0, y: 0, z: 0 },
-          yaw,
-          pitch: a.pose.pitch + (b.pose.pitch - a.pose.pitch) * u,
-          roll: a.pose.roll + (b.pose.roll - a.pose.roll) * u,
+          ...resolveHumanPosture.angles(
+            Quaternion.slerp(
+              resolveHumanPosture.heading({ yaw: a.yaw, pitch: a.pose.pitch, roll: a.pose.roll }),
+              resolveHumanPosture.heading({ yaw: b.yaw, pitch: b.pose.pitch, roll: b.pose.roll }),
+              u,
+            ),
+          ),
           joints: blends[index]!(u),
           limbs: {},
         };

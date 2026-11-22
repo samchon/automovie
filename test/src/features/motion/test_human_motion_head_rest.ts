@@ -26,9 +26,15 @@ const NEAR: number = 0.01;
 /** How long the head rests, seconds. */
 const REST: number = 3;
 
-/** How far apart two people sit side by side touching, metres between their hips: each one's hip joint half width and thigh radius, the seated hips' half breadth. */
+/** How much deeper the resting one sits on the bench, metres (provisional: sitting back, the temple comes over the partner's shoulder rather than ahead of it). */
+const DEEPER: number = 0.08;
+
+/** The gap left between the two on the bench, metres (provisional: the resting one sits a little apart, so the side lean carries the head over onto the shoulder). */
+const GAP: number = 0.15;
+
+/** How far apart the two sit, metres between their hips: each one's hip joint half width and thigh radius, the seated hips' half breadth, and the gap. */
 function apart(a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody): number {
-  return a.measure.hipHalfWidth + a.measure.thighRadius + b.measure.hipHalfWidth + b.measure.thighRadius;
+  return a.measure.hipHalfWidth + a.measure.thighRadius + b.measure.hipHalfWidth + b.measure.thighRadius + GAP;
 }
 
 /** One bench pair: who rests on whom. */
@@ -135,8 +141,8 @@ function bench(
   b: IAutoMovieMotionHumanBody,
 ): HumanPerformance {
   const height: number = Math.min(seated.popliteal(a), seated.popliteal(b));
-  const seat: (x: number, body: IAutoMovieMotionHumanBody) => IAutoMovieMotionHumanSeated.ISeat = (x: number, body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanSeated.ISeat => ({
-    at: { x, y: height, z: body.rest.get("leftFoot")!.z - 0.1 },
+  const seat: (x: number, body: IAutoMovieMotionHumanBody, back: number) => IAutoMovieMotionHumanSeated.ISeat = (x: number, body: IAutoMovieMotionHumanBody, back: number): IAutoMovieMotionHumanSeated.ISeat => ({
+    at: { x, y: height, z: body.rest.get("leftFoot")!.z - 0.1 - back },
     yaw: 0,
     depth: 0.45,
   });
@@ -144,15 +150,15 @@ function bench(
     seed: "head-rest",
     laws: [headRest],
     performers: [
-      { subject: "a", body: a, at: { x: -apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+      { subject: "a", body: a, at: { x: -apart(a, b) / 2, y: 0, z: -DEEPER }, yaw: 0, proficiency: { level: "trained" } },
       { subject: "b", body: b, at: { x: apart(a, b) / 2, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
     ],
     // The partner is placed first, so the resting head reads where the partner sits.
     composition: HumanChain.subject("b")
-      .sit({ seat: seat(apart(a, b) / 2, b), seconds: REST + 4 })
+      .sit({ seat: seat(apart(a, b) / 2, b, 0), seconds: REST + 4 })
       .with(
         HumanChain.subject("a")
-          .sit({ seat: seat(-apart(a, b) / 2, a), seconds: 1.5 })
+          .sit({ seat: seat(-apart(a, b) / 2, a, DEEPER), seconds: 1.5 })
           .registered(headRest.name, { partner: "b", region: "shoulderRight", seconds: REST }),
       ).node,
   });

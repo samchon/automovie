@@ -28,6 +28,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** The tool contract's working contact bound, metres. */
 const CONTACT: number = 0.01;
 
+/** A toolbox lid's height the hammer lies on, metres (provisional: a common hand toolbox about 0.35 to 0.45 m tall). */
+const TOOLBOX: number = 0.4;
+
 /** How far ahead of the kneeling knee the nail lies, metres (provisional: within the kneeling arm's reach). */
 const KNEEL_WORK: number = 0.35;
 
@@ -108,8 +111,10 @@ export function test_human_motion_tool_bases(): void {
     const floor: HumanPerformance = stage(
       body,
       [
+        // The hammer lies on a toolbox's lid beside the knee, within the
+        // upright kneeling arm: a pick up from a kneel does not bend down.
         HumanObject.prop("hammer", hammer, {
-          at: { x: knee.x - HAMMER, y: 0, z: knee.z + HAMMER },
+          at: { x: knee.x - HAMMER, y: TOOLBOX, z: knee.z + HAMMER },
           yaw: 0,
         }),
       ],
