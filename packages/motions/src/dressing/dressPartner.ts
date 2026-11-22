@@ -1,5 +1,7 @@
+import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -7,12 +9,14 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanDressPartner,
   IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionPropHold,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { armPhrase } from "../everyday/armPhrase";
+import { HumanTrunkLean } from "../handling/HumanTrunkLean";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /** How far up a region's normal must point for the item to be set down onto it from above: within 45 degrees of up. */
@@ -26,7 +30,11 @@ const UP: number = Math.SQRT1_2;
  * on the item, so custody passes
  * from the hand to the partner's body without a gap or an overlap. The
  * partner's region is read where it is at the phrase's start, so a partner
- * who presents a hand, bows or kneels first is met where they stand.
+ * who presents a hand, bows or kneels first is met where they stand. A
+ * region beyond the standing arm, such as a kneeling partner's crown, is
+ * reached by the least hinge at the hips that brings the wrist within the
+ * arm (`HumanTrunkLean`), so the dresser keeps its standoff; no hinge within
+ * the hip's range is refused as a reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the carry, the custody change and when the target is read.
  * @evidence contracts/development/design.md#principled-representation A law over the shipped arm phrase with the wear record that names the partner as the wearer.
@@ -55,7 +63,10 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
       );
       // Whether the partner's region faces up, read where the partner is at the start.
       const upward: boolean =
-        context.aim({ kind: "person", subject: params.partner, region: params.region }, context.start).normal.y > UP;
+        context.aim(
+          { kind: "person", subject: params.partner, region: params.region },
+          context.start,
+        ).normal.y > UP;
       const phrase: IAutoMovieMotionHumanActionPlan = armPhrase.plan({
         ...context,
         params: {
@@ -80,13 +91,74 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
       // The phrase writes the hand's goal at each second; the arm is laid as
       // one course on it (`courseArmGoal`), so no instant's fit takes another
       // branch. The partner's region is read where it stands at the start.
-      const at: (name: string, otherwise: number) => number = (name: string, otherwise: number): number =>
+      const at: (name: string, otherwise: number) => number = (
+        name: string,
+        otherwise: number,
+      ): number =>
         (phrase.events.find(
           (event: IAutoMovieMotionEvent): boolean => event.name === name,
         )?.share ?? otherwise / phrase.duration) * phrase.duration;
+      // A region beyond the standing arm, a kneeling partner's crown, is
+      // reached by hinging at the hips rather than stepping in, so the
+      // dresser keeps the standoff that clears the partner's body: the least
+      // hinge that brings the wrist the phrase asks at its stroke within the
+      // arm (`HumanTrunkLean`), eased in over the reach and out over the
+      // return on the minimum-jerk profile. A region the standing arm
+      // already reaches asks no hinge.
+      const stroke: number = at("stroke", phrase.duration);
+      const asked: IAutoMovieHumanLimbGoal | undefined =
+        phrase.posture(stroke).limbs[`${side}Arm`];
+      const forward: number =
+        asked === undefined || asked.on !== undefined
+          ? 0
+          : HumanTrunkLean.least(context, [
+              {
+                side,
+                point: asked.point,
+                rotation: asked.rotation ?? Quaternion.identity(),
+              },
+            ]);
+      const ready: number = at("ready", 0);
+      const relax: number = at("relax", phrase.duration);
+      const hinge: (seconds: number) => number = (seconds: number): number =>
+        forward *
+        (seconds <= relax
+          ? minimumJerk.share(
+              ready > 0 ? Math.min(1, Math.max(0, seconds / ready)) : 1,
+            )
+          : 1 -
+            minimumJerk.share(
+              Math.min(
+                1,
+                Math.max(0, (seconds - relax) / (phrase.duration - relax)),
+              ),
+            ));
+      const leaned: IAutoMovieMotionHumanActionPlan =
+        forward > 0
+          ? {
+              ...HumanTrunkLean.moving(phrase, forward),
+              posture: (
+                seconds: number,
+                channels?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[1],
+                resolution?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[2],
+                projection?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[3],
+              ): IAutoMovieMotionHumanPosture =>
+                HumanTrunkLean.lean(
+                  context.body,
+                  phrase.posture(seconds, channels, resolution, projection),
+                  hinge(seconds),
+                ),
+            }
+          : phrase;
       const plan: IAutoMovieMotionHumanActionPlan = courseArmGoal({
         body: context.body,
-        plan: phrase,
+        plan: leaned,
         side,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span: {
@@ -104,7 +176,8 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
         // The item is worn from the stroke, not left held: the visit's
         // closing hold would take it back into the hand at the phrase's end.
         holds: (plan.holds ?? []).filter(
-          (hold: IAutoMovieMotionPropHold): boolean => hold.prop !== params.prop,
+          (hold: IAutoMovieMotionPropHold): boolean =>
+            hold.prop !== params.prop,
         ),
         contacts: plan.contacts.map(
           (
