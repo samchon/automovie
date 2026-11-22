@@ -145,8 +145,9 @@ export namespace jump {
     ],
   };
 
-  /** The arms and hands a layup, a jump throw, a spike or a block takes while the jump carries the body; the jump's own momentum swing shows only where no overlay claims them. */
+  /** The trunk, arms and hands a layup, a jump throw, a spike or a block takes while the jump carries the body by its root and legs; the jump's own trunk and momentum swing show only where no overlay claims them. */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = [
+    "trunk",
     "leftArm",
     "leftHand",
     "rightArm",
