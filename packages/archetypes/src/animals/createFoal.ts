@@ -3,6 +3,7 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeRefusal,
 } from "../core";
+import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { HORSE_BANDS } from "./HORSE_BANDS";
 import { createHorse } from "./createHorse";
 
@@ -48,7 +49,10 @@ interface IEnds {
 export function createFoal(
   params: createFoal.IParams = {},
   seed?: number | string,
-): AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension> {
+): AutoMovieArchetype<
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
+> {
   const age: number = params.age ?? 0;
   if (!(Number.isFinite(age) && age >= 0 && age <= createFoal.WEANING))
     throw new AutoMovieArchetypeRefusal({
@@ -68,15 +72,15 @@ export function createFoal(
   const mature: number = params.mature ?? createFoal.MATURE;
   const growth: createFoal.IGrowth = createFoal.growth(age);
   const withers: number = mature * growth.withers;
-  const draw: AutoMovieArchetypeDrawSession<createHorse.Dimension> =
-    new AutoMovieArchetypeDrawSession<createHorse.Dimension>(
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeEquine.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeEquine.Dimension>(
       createHorse.PROFILE.archetype,
-      createHorse.UNITS,
+      AutoMovieArchetypeEquine.UNITS,
       seed,
       {},
     );
   draw.derive("withersHeight", withers);
-  return createHorse.equid(
+  return AutoMovieArchetypeEquine.equid(
     createFoal.profile(withers, growth),
     { tack: params.tack ?? "bare", id: params.id },
     draw,
@@ -112,7 +116,7 @@ export namespace createFoal {
     mature?: number;
 
     /** What the foal wears; `bare` when absent. */
-    tack?: createHorse.Tack;
+    tack?: AutoMovieArchetypeEquine.Tack;
 
     /** The model's id. */
     id?: string;
@@ -158,7 +162,7 @@ export namespace createFoal {
   export function profile(
     withers: number,
     growth: IGrowth,
-  ): createHorse.IProfile {
+  ): AutoMovieArchetypeEquine.IProfile {
     const distal: number = growth.distal / growth.withers;
     const scale = (
       bones: readonly [number, number, number, number],

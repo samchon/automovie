@@ -6,6 +6,7 @@ import {
 import { AutoMovieArchetypeCamelBody } from "./AutoMovieArchetypeCamelBody";
 import { AutoMovieArchetypeDeerBody } from "./AutoMovieArchetypeDeerBody";
 import { AutoMovieArchetypeDogBody } from "./AutoMovieArchetypeDogBody";
+import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import { AutoMovieArchetypeEquineGaitedProfile } from "./AutoMovieArchetypeEquineGaitedProfile";
 import { AutoMovieArchetypeOxBody } from "./AutoMovieArchetypeOxBody";
@@ -112,11 +113,11 @@ export namespace createQuadruped {
 
   /** The affordance ids of every kind: each kind's own, as its producer lists them. */
   export type Affordance =
-    | createHorse.Affordance
+    | AutoMovieArchetypeEquine.Affordance
     | createCohortQuadruped.Affordance;
 
   /** The free dimensions of every kind: each kind's own, as its producer lists them. */
-  export type Dimension = createHorse.Dimension;
+  export type Dimension = AutoMovieArchetypeEquine.Dimension;
 
   /** The parameters: the kind, and the kind's own parameters. */
   export type IParams =

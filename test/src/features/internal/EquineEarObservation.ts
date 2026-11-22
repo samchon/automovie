@@ -1,7 +1,7 @@
 import {
+  type AutoMovieArchetypeEquine,
   type AutoMovieArchetypeQuadrupedGait,
   type AutoMovieArchetypeRide,
-  type createHorse,
   createQuadruped,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -51,7 +51,7 @@ export namespace EquineEarObservation {
   export function observe(
     model: Model,
     row: ICase,
-    tack: createHorse.Tack,
+    tack: AutoMovieArchetypeEquine.Tack,
     label: string,
     findings: string[],
   ): void {

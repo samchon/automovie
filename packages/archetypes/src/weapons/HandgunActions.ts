@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
-import { FlintLock } from "./FlintLock";
+import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import type { createHandgun } from "./createHandgun";
 
 /** A handgun under construction. */
@@ -21,7 +21,7 @@ type Drawn = Readonly<Partial<Record<createHandgun.Dimension, number>>>;
 /**
  * The revolver's and the flintlock pistol's bodies and mechanisms, the handgun standing as `createHandgun` stands it: on the base of its grip at the origin, its muzzle toward `+Z` and its backstrap at `z = 0`, its lock or loading gate on the right, `-X`.
  *
- * A revolver's `hammer` is cocked back on its pivot at the frame's rear, and its `cylinder` turns one chamber per full cock by following the hammer (`follows`); the `gate` swings out on the right to load, and each chamber is a socket on the cylinder's rear face that rides the cylinder. A flintlock pistol is a stock and a barrel with the musket's lock (`FlintLock.lay`). Every place no source gives is a named estimate in `ESTIMATES`; the searches are recorded in the sources record (records-firearms-revolver.md, records-firearms-flintlock.md).
+ * A revolver's `hammer` is cocked back on its pivot at the frame's rear, and its `cylinder` turns one chamber per full cock by following the hammer (`follows`); the `gate` swings out on the right to load, and each chamber is a socket on the cylinder's rear face that rides the cylinder. A flintlock pistol is a stock and a barrel with the musket's lock (`AutoMovieArchetypeFirearm.layFlintlock`). Every place no source gives is a named estimate in `ESTIMATES`; the searches are recorded in the sources record (records-firearms-revolver.md, records-firearms-flintlock.md).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each handgun stands, what each mechanism does and where the unread places are.
  * @evidence contracts/development/design.md#principled-representation The parts a hand works and the articulations that move them, the cylinder's turn coupled to the hammer's by a ratio.
@@ -291,7 +291,7 @@ export namespace HandgunActions {
       color: "#2c2f33",
     });
     trigger(builder, d, bore - e.bore);
-    FlintLock.lay(builder, v(0, bore, breech), {
+    AutoMovieArchetypeFirearm.layFlintlock(builder, v(0, bore, breech), {
       cock: "cock",
       spur: "spur",
       frizzen: "frizzen",

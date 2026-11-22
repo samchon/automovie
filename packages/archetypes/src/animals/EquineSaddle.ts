@@ -6,12 +6,12 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
-import type { createHorse } from "./createHorse";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 
 /**
  * An equid's riding tack, laid on its body: a riding saddle with its seat, pommel and cantle, two stirrups on their leathers, two reins from the mouth back to the hands, and the lead rope beside the head. It is kept apart from `createHorse` so each file stays within its size.
  *
- * The saddle sits on the back where the rig's `hitch` is, `createHorse.SADDLE` behind the shoulder joints, and its read weight is added on top of the equid's drawn mass; every other part is massless, no maker's weight having been read for it.
+ * The saddle sits on the back where the rig's `hitch` is, `AutoMovieArchetypeEquine.SADDLE` behind the shoulder joints, and its read weight is added on top of the equid's drawn mass; every other part is massless, no maker's weight having been read for it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is laid, where the saddle sits and which parts carry mass.
  * @evidence contracts/development/design.md#principled-representation The saddle as a box, the straps as round bars, the contacts as a seat, handles, stirrups and reins.
@@ -40,7 +40,7 @@ export namespace EquineSaddle {
   /** The saddle's seat width, metres: an estimate, no source read gives it. */
   export const SEAT_WIDTH: number = 0.3;
 
-  /** The riding saddle's mass, kilograms: the Wintec 500 All Purpose's "Approximate weight: 5.4 kg/11.9 lb", stirrup straps and girth not included, at its maker's page (https://wintec-saddles.com.au/products/wintec-500-all-purpose), the saddle whose seat sizes `createHorse.SEATS` reads. It is added on top of the equid's drawn mass, its share that weight as a percent of the equid's. The stirrups, the leathers, the reins and the lead rope are massless, a share of 0: no maker's weight was read for them (searched: Weaver's lead ropes, retailer shipping weights only, 1.0 to 1.3 lb, secondary). */
+  /** The riding saddle's mass, kilograms: the Wintec 500 All Purpose's "Approximate weight: 5.4 kg/11.9 lb", stirrup straps and girth not included, at its maker's page (https://wintec-saddles.com.au/products/wintec-500-all-purpose), the saddle whose seat sizes `AutoMovieArchetypeEquine.SEATS` reads. It is added on top of the equid's drawn mass, its share that weight as a percent of the equid's. The stirrups, the leathers, the reins and the lead rope are massless, a share of 0: no maker's weight was read for them (searched: Weaver's lead ropes, retailer shipping weights only, 1.0 to 1.3 lb, secondary). */
   export const WEIGHT: number = 5.4;
 
   /** A lead rope's diameter, metres: 5/8 in, a Weaver Leather cotton lead seen only in retailer listings. */
@@ -63,11 +63,11 @@ export namespace EquineSaddle {
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<createHorse.Dimension, number>>,
-    rig: createHorse.IRig,
+    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const barrel: number = rig.barrel;
@@ -163,11 +163,11 @@ export namespace EquineSaddle {
    */
   export function rein(
     builder: AutoMovieArchetypeBuilder<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<createHorse.Dimension, number>>,
-    rig: createHorse.IRig,
+    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    rig: AutoMovieArchetypeEquine.IRig,
     side: "left" | "right",
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -227,11 +227,11 @@ export namespace EquineSaddle {
    */
   export function bareback(
     builder: AutoMovieArchetypeBuilder<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<createHorse.Dimension, number>>,
-    rig: createHorse.IRig,
+    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     builder.affordance({
       id: "seat",
@@ -266,11 +266,11 @@ export namespace EquineSaddle {
    */
   export function pillion(
     builder: AutoMovieArchetypeBuilder<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<createHorse.Dimension, number>>,
-    rig: createHorse.IRig,
+    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const front: number = rig.hitch.z - d.seatSize / 2 - SADDLE_GAP;
@@ -321,11 +321,11 @@ export namespace EquineSaddle {
    */
   export function trick(
     builder: AutoMovieArchetypeBuilder<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<createHorse.Dimension, number>>,
-    rig: createHorse.IRig,
+    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const top: number = rig.back + 0.04;
@@ -421,8 +421,8 @@ export namespace EquineSaddle {
    */
   export function lead(
     builder: AutoMovieArchetypeBuilder<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
     nose: IAutoMovieVector3,
     h: number,

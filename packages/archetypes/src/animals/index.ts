@@ -75,3 +75,4 @@ export * from "./rideHorse";
 export * from "./rideQuadruped";
 export * from "./AutoMovieArchetypeEquineComfort";
 export * from "./AutoMovieArchetypeEquineComfortCue";
+export * from "./AutoMovieArchetypeEquine";

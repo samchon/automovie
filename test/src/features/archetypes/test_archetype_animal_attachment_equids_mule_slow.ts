@@ -1,4 +1,7 @@
-import { type createHorse, createMule } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetypeEquine,
+  createMule,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { equidAttachmentMatrix } from "../internal/equidAttachmentMatrix";
@@ -29,7 +32,7 @@ import { equidAttachmentMatrix } from "../internal/equidAttachmentMatrix";
 export function test_archetype_animal_attachment_equids_mule_slow(): void {
   const findings: string[] = [];
   equidAttachmentMatrix(
-    (tack: createHorse.Tack): ReturnType<typeof createMule> =>
+    (tack: AutoMovieArchetypeEquine.Tack): ReturnType<typeof createMule> =>
       createMule({ sex: "female", tack, tempo: 0, stirrupDrop: 0.575 }, 43),
     "mule/female/seed43",
     ["walk", "trot"],

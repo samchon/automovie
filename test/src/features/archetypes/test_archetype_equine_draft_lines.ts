@@ -1,5 +1,6 @@
 import {
   type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRide,
   createCart,
@@ -40,14 +41,14 @@ interface IHolder {
  */
 export function test_archetype_equine_draft_lines(): void {
   const horse: AutoMovieArchetype<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 3);
   const cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension> =
     createCart({ kind: "cart", withersHeight: 1.6 }, 3);
   const leader: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = rideHorse(horse, {
     start: { x: 0, z: 0, heading: 0 },
     legs: [
@@ -91,8 +92,8 @@ export function test_archetype_equine_draft_lines(): void {
   const issues: string[] = [];
   for (const seconds of [0.5, 2.3, 4.1, 6.7]) {
     const horseSample: AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     > = leader.at(seconds);
     const ball = (id: string): IAutoMovieVector3 =>
       AutoMovieArchetypeFrame.compose(

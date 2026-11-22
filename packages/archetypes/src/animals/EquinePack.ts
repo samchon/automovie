@@ -8,13 +8,13 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { EquineHarness } from "./EquineHarness";
-import type { createHorse } from "./createHorse";
 
 /**
  * An equid's pack saddle, laid on its body: the Phillips cargo pack saddle of FM 25-7 (War Department, Pack Transportation, 1944; https://ciehub.info/ref/FM/25-7_1944.pdf), its pads over the back, a cinch round the barrel, a breast collar, a croup piece and a breeching, with a load against each side.
  *
- * The saddle is sized for the equid it is laid on: the manual's cargo saddle fits its pack mule, 14 3/4 to 15 1/2 hands, so an equid of another height takes its pads scaled by its height over that mule's, and its weight by the cube of that ratio, the isometric similarity the equids' mass law rests on (`createHorse.mass`); a mule of the manual's middle height carries the read saddle. The pads drape over the barrel from the spine, centred where a riding saddle sits (`createHorse.SADDLE`, an estimate the manual's placement, 2 or 3 inches behind the shoulder blade, cannot replace, since the body has no shoulder blade). The breast collar bears just above the point of shoulder (par. 13d), the breeching's body piece an inch behind the buttocks (par. 13c(1)), and the croup piece ends over the croup a hand's breadth above the tail's root (par. 13c(1)), the packer's hand being ANSUR II's (`BANDS`).
+ * The saddle is sized for the equid it is laid on: the manual's cargo saddle fits its pack mule, 14 3/4 to 15 1/2 hands, so an equid of another height takes its pads scaled by its height over that mule's, and its weight by the cube of that ratio, the isometric similarity the equids' mass law rests on (`AutoMovieArchetypeEquine.mass`); a mule of the manual's middle height carries the read saddle. The pads drape over the barrel from the spine, centred where a riding saddle sits (`AutoMovieArchetypeEquine.SADDLE`, an estimate the manual's placement, 2 or 3 inches behind the shoulder blade, cannot replace, since the body has no shoulder blade). The breast collar bears just above the point of shoulder (par. 13d), the breeching's body piece an inch behind the buttocks (par. 13c(1)), and the croup piece ends over the croup a hand's breadth above the tail's root (par. 13c(1)), the packer's hand being ANSUR II's (`BANDS`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is laid, where each part lies, how it is sized and the source of each place.
  * @evidence contracts/development/design.md#principled-representation The pads as straight segments round the barrel, the straps as round bars, the loads as surfaces on the pads' sides.
@@ -46,7 +46,7 @@ export namespace EquinePack {
 
   /** The band of the pack's drawn dimension: `croupClearance`, the croup piece's end above the tail's root, one hand's breadth (FM 25-7 par. 13c(1)), over ANSUR II's women's and men's mean hand breadths across the second to fifth metacarpals, 78.2 and 88.3 mm, as the human figure states them (`IAutoMovieHumanArmIdentity.handBreadth`). */
   export const BANDS: Readonly<
-    Partial<Record<createHorse.Free, IAutoMovieArchetypeBand>>
+    Partial<Record<AutoMovieArchetypeEquine.Free, IAutoMovieArchetypeBand>>
   > = {
     croupClearance: AutoMovieArchetypeBand.metres(
       0.0782,
@@ -98,11 +98,11 @@ export namespace EquinePack {
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<createHorse.Dimension, number>>,
-    rig: createHorse.IRig,
+    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const r: number = EquineHarness.ESTIMATES.strap;
@@ -112,7 +112,7 @@ export namespace EquinePack {
     const straps: [string, IAutoMovieVector3, IAutoMovieVector3][] = [];
     const barrel: number = rig.barrel;
     const axis: number = rig.back - barrel;
-    // The pads' middle where a riding saddle's would be: the rig's hitch, `createHorse.SADDLE` behind the shoulder joints, an estimate.
+    // The pads' middle where a riding saddle's would be: the rig's hitch, `AutoMovieArchetypeEquine.SADDLE` behind the shoulder joints, an estimate.
     const centre: number = rig.hitch.z;
     const outer: number = barrel + PAD / 2;
     // The pads' arc from the spine down each side: half their width over the barrel's surface, never past its underside.

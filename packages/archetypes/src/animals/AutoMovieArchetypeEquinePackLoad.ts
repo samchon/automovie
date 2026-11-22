@@ -11,7 +11,7 @@ import {
   AutoMovieArchetypeRefusal,
   type AutoMovieArchetypeRide,
 } from "../core";
-import type { createHorse } from "./createHorse";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 
 /**
  * Two side loads hung on a pack saddle's load contacts: a box against each side, its inner face on the pad's outer face at the contact frame, carried with the trunk wherever the pack horse's ride takes it.
@@ -32,7 +32,10 @@ import type { createHorse } from "./createHorse";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the two box models.
  */
 export function AutoMovieArchetypeEquinePackLoad(
-  horse: AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension>,
+  horse: AutoMovieArchetype<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  >,
   load: AutoMovieArchetypeEquinePackLoad.ILoad,
 ): AutoMovieArchetypeEquinePackLoad.IPrepared {
   const refuse = (axis: string, value: unknown, reason: string): never => {
@@ -60,8 +63,8 @@ export function AutoMovieArchetypeEquinePackLoad(
     models,
     at: (
       sample: AutoMovieArchetypeRide.ISample<
-        createHorse.Affordance,
-        createHorse.Dimension
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
       >,
     ): Record<AutoMovieArchetypeEquinePackLoad.Side, IAutoMovieTransform> => ({
       leftLoad: AutoMovieArchetypeFrame.compose(
@@ -155,8 +158,8 @@ export namespace AutoMovieArchetypeEquinePackLoad {
     /** Each side's world placement at a pack horse ride's sample. */
     at: (
       sample: AutoMovieArchetypeRide.ISample<
-        createHorse.Affordance,
-        createHorse.Dimension
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
       >,
     ) => Record<Side, IAutoMovieTransform>;
   }

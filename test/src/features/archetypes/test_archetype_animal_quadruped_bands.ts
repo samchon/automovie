@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeRefusal,
   createHorse,
   createQuadruped,
@@ -104,7 +105,7 @@ export function test_archetype_animal_quadruped_bands(): void {
       .sort((a: string, b: string): number => a.localeCompare(b))
       .join(",");
   for (const kind of createQuadruped.EQUIDS)
-    for (const tack of createHorse.TACKS) {
+    for (const tack of AutoMovieArchetypeEquine.TACKS) {
       const made: string = contacts(
         createQuadruped({ kind, tack }, 3).affordances,
       );

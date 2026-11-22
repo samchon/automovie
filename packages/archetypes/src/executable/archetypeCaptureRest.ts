@@ -3,6 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieArchetypeEquine } from "../animals/AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedRest } from "../animals/AutoMovieArchetypeQuadrupedRest";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "../animals/AutoMovieArchetypeQuadrupedRestPlan";
@@ -71,7 +72,7 @@ export function archetypeCaptureRest(): Readonly<
   > = AutoMovieArchetypeQuadrupedRest(dog, params);
   const horse: ReturnType<typeof createHorse> = createHorse({
     tack: "saddle",
-    withersHeight: createHorse.JENSEN.withers,
+    withersHeight: AutoMovieArchetypeEquine.JENSEN.withers,
     stirrupDrop: createHorse.BANDS.stirrupDrop.minimum,
     tempo: 0,
   });
@@ -80,8 +81,8 @@ export function archetypeCaptureRest(): Readonly<
   const carriers: ReturnType<typeof QuadrupedCarriage.of> =
     QuadrupedCarriage.of(horse, createQuadruped.species(horse));
   const horseClip: AutoMovieArchetypeQuadrupedRestPlan.IClip<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = AutoMovieArchetypeQuadrupedRest(horse, {
     ...params,
     ...carriers,

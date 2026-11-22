@@ -13,11 +13,11 @@ import {
   AutoMovieArchetypeRide,
 } from "../core";
 import { createCart } from "../vehicles/createCart";
+import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeEquineTeamPlan } from "./AutoMovieArchetypeEquineTeamPlan";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineHarness } from "./EquineHarness";
 import { EquineTeamCourse } from "./EquineTeamCourse";
-import { createHorse } from "./createHorse";
 import { createQuadruped } from "./createQuadruped";
 import { rideHorse } from "./rideHorse";
 
@@ -49,8 +49,8 @@ const SAG_POINTS: number = 9;
  */
 export function AutoMovieArchetypeEquineTeam(
   horses: readonly AutoMovieArchetype<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >[],
   vehicle: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
   params: AutoMovieArchetypeEquineTeamPlan.IParams,
@@ -94,11 +94,14 @@ export function AutoMovieArchetypeEquineTeam(
       horses.length,
       `a ${params.hitch} needs ${layout.length} horses`,
     );
-  const rigs: createHorse.IRig[] = horses.map(
+  const rigs: AutoMovieArchetypeEquine.IRig[] = horses.map(
     (
-      horse: AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension>,
+      horse: AutoMovieArchetype<
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
+      >,
       k: number,
-    ): createHorse.IRig => {
+    ): AutoMovieArchetypeEquine.IRig => {
       if (
         !horse.affordances.some(
           (a: IAutoMovieAffordance): boolean => a.id === "hitch",
@@ -109,11 +112,11 @@ export function AutoMovieArchetypeEquineTeam(
           horse.name,
           "the horse wears no driving harness",
         );
-      return createHorse.rig(horse.dimensions);
+      return AutoMovieArchetypeEquine.rig(horse.dimensions);
     },
   );
   const widest: number = Math.max(
-    ...rigs.map((rig: createHorse.IRig): number => 2 * rig.barrel),
+    ...rigs.map((rig: AutoMovieArchetypeEquine.IRig): number => 2 * rig.barrel),
   );
   if (!(params.spacing > widest))
     refuse(
@@ -123,7 +126,10 @@ export function AutoMovieArchetypeEquineTeam(
       widest,
     );
   const longest: number = Math.max(
-    ...rigs.map((rig: createHorse.IRig): number => rig.nose.z - rig.buttock.z),
+    ...rigs.map(
+      (rig: AutoMovieArchetypeEquine.IRig): number =>
+        rig.nose.z - rig.buttock.z,
+    ),
   );
   if (
     layout.some(
@@ -169,15 +175,18 @@ export function AutoMovieArchetypeEquineTeam(
   turns(placed);
 
   const rides: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >[] = horses.map(
     (
-      horse: AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension>,
+      horse: AutoMovieArchetype<
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
+      >,
       k: number,
     ): AutoMovieArchetypeRide.IRide<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     > => rideHorse(horse, EquineTeamCourse(params, placed[k]!), params.gait),
   );
   const head: AutoMovieArchetypeRide.IRide<"hitch", never> =
@@ -244,17 +253,17 @@ export function AutoMovieArchetypeEquineTeam(
     const stage: AutoMovieArchetypeEquineTeamPlan.Stage =
       seconds >= brake ? "brake" : "pull";
     const samples: AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >[] = rides.map(
       (
         ride: AutoMovieArchetypeRide.IRide<
-          createHorse.Affordance,
-          createHorse.Dimension
+          AutoMovieArchetypeEquine.Affordance,
+          AutoMovieArchetypeEquine.Dimension
         >,
       ): AutoMovieArchetypeRide.ISample<
-        createHorse.Affordance,
-        createHorse.Dimension
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
       > => ride.at(seconds),
     );
     const carried: AutoMovieArchetypeRide.ISample<
@@ -267,8 +276,8 @@ export function AutoMovieArchetypeEquineTeam(
     placed.forEach(
       (place: AutoMovieArchetypeEquineTeamPlan.IPlace, k: number): void => {
         const sample: AutoMovieArchetypeRide.ISample<
-          createHorse.Affordance,
-          createHorse.Dimension
+          AutoMovieArchetypeEquine.Affordance,
+          AutoMovieArchetypeEquine.Dimension
         > = samples[k]!;
         const spread: number = rigs[k]!.draft.x;
         for (const [side, sign] of EquineHarness.SIDES) {
@@ -413,8 +422,8 @@ export function AutoMovieArchetypeEquineTeam(
 /** A posed part's world origin. */
 function part(
   sample: AutoMovieArchetypeRide.ISample<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >,
   id: string,
 ): IAutoMovieVector3 {

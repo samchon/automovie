@@ -1,11 +1,11 @@
 import type { AutoMovieArchetypeBuilder } from "../core";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { EquineHarness } from "./EquineHarness";
 import { EquineMane } from "./EquineMane";
 import { EquinePack } from "./EquinePack";
 import { EquineSaddle } from "./EquineSaddle";
 import { EquineSideSaddle } from "./EquineSideSaddle";
 import { EquineSurcingle } from "./EquineSurcingle";
-import type { createHorse } from "./createHorse";
 
 /**
  * Lay an equid's tack on its laid body and give the tack's own read mass, which the equid producer adds on top of the equid's drawn mass.
@@ -27,13 +27,13 @@ import type { createHorse } from "./createHorse";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function EquineTack(
-  tack: createHorse.Tack,
+  tack: AutoMovieArchetypeEquine.Tack,
   builder: AutoMovieArchetypeBuilder<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >,
-  d: Readonly<Record<createHorse.Dimension, number>>,
-  rig: createHorse.IRig,
+  d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+  rig: AutoMovieArchetypeEquine.IRig,
 ): number {
   const h: number = d.withersHeight;
   if (

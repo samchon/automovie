@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquineComfort,
   type AutoMovieArchetypeEquineComfortCue,
   AutoMovieArchetypeRefusal,
@@ -13,21 +14,19 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { equineExpressionObservation as Look } from "../internal/equineExpressionObservation";
-
 /** The horse producer's model. */
 type Horse = ReturnType<typeof createHorse>;
 
 /** A horse ride. */
 type Ride = AutoMovieArchetypeRide.IRide<
-  createHorse.Affordance,
-  createHorse.Dimension
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /** A sample of a horse ride. */
 type Sample = AutoMovieArchetypeRide.ISample<
-  createHorse.Affordance,
-  createHorse.Dimension
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /** A named instant of a ride. */

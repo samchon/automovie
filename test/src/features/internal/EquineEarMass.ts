@@ -1,6 +1,7 @@
 import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeQuadrupedHead,
   createHorse,
   type createQuadruped,
@@ -76,7 +77,7 @@ export namespace EquineEarMass {
 
   /** Existing fracture output exposes actual positive plate masses and the preserved head total. */
   export function fragments(findings: string[]): void {
-    const rig: createHorse.IRig = createHorse.rig({
+    const rig: AutoMovieArchetypeEquine.IRig = AutoMovieArchetypeEquine.rig({
       withersHeight: 1.6,
       girth: (1.6 * 2.04) / 1.72,
       mass: 400,

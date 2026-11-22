@@ -5,8 +5,8 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { EquineSaddle } from "./EquineSaddle";
-import type { createHorse } from "./createHorse";
 
 /**
  * An equid's side saddle, laid on its body: a flat seat, the fixed head (the upper pommel) the right leg goes round, the leaping head (the lower pommel) curved over the left thigh, one stirrup on the near side and the two reins. The Side Saddle Association's introduction gives the arrangement: "your right leg goes around the top one, and then hangs down", the left leg lies under "the second or lower pommel – the leaping head", the "left foot will be in a stirrup", and the rider sits "absolutely straight and square" (https://sidesaddleassociation.co.uk/introsidesaddle.asp). Both legs are on the near side, `+X`, so the tack is asymmetric by construction.
@@ -51,11 +51,11 @@ export namespace EquineSideSaddle {
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<createHorse.Dimension, number>>,
-    rig: createHorse.IRig,
+    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const top: number = rig.back + 0.04;

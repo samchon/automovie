@@ -5,7 +5,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { FlintLock } from "./FlintLock";
+import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import type { createLongGun } from "./createLongGun";
 
 /** A long gun under construction. */
@@ -132,7 +132,7 @@ export namespace LongGunLock {
   }
 
   /**
-   * A flintlock musket's lock, ramrod and contacts: the lock at the breech (`FlintLock.lay`: the `pan`, the `frizzen` and the `cock`); the `ramrod` under the barrel, its head at the muzzle, drawn forward out of its pipes until its tail leaves the front `pipe`; the `muzzle` as a socket for the cartridge and the rod, and the `bayonet`'s socket over the muzzle.
+   * A flintlock musket's lock, ramrod and contacts: the lock at the breech (`AutoMovieArchetypeFirearm.layFlintlock`: the `pan`, the `frizzen` and the `cock`); the `ramrod` under the barrel, its head at the muzzle, drawn forward out of its pipes until its tail leaves the front `pipe`; the `muzzle` as a socket for the cartridge and the rod, and the `bayonet`'s socket over the muzzle.
    *
    * @param builder The gun under construction, its stock and barrel laid.
    * @param d The gun's dimensions.
@@ -151,7 +151,7 @@ export namespace LongGunLock {
     const steel: { color: string } = { color: "#2c2f33" };
     const length: number = d.length!;
     const breech: number = length - d.barrel!;
-    FlintLock.lay(builder, v(0, 0, breech), {
+    AutoMovieArchetypeFirearm.layFlintlock(builder, v(0, 0, breech), {
       cock: "cock",
       spur: "spur",
       frizzen: "frizzen",

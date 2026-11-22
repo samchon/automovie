@@ -19,9 +19,9 @@ import {
   type AutoMovieArchetypeRide,
 } from "../core";
 import type { createDragged } from "../vehicles/createDragged";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { EquineHarness } from "./EquineHarness";
-import type { createHorse } from "./createHorse";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /** World up. */
@@ -54,10 +54,13 @@ const HALF: number = 5e-4;
  */
 export function AutoMovieArchetypeEquineDraggedLoad(
   ride: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >,
-  horse: AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension>,
+  horse: AutoMovieArchetype<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  >,
   load: AutoMovieArchetype<createDragged.Affordance, createDragged.Dimension>,
   params: AutoMovieArchetypeEquineDraggedLoad.IParams,
 ): AutoMovieArchetypeEquineDraggedLoad.IRide {
@@ -199,8 +202,8 @@ export function AutoMovieArchetypeEquineDraggedLoad(
       scale: { ...AutoMovieArchetypeFrame.UNIT },
     };
     const horseSample: AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     > = ride.at(seconds);
     const traces: AutoMovieArchetypeRide.ILineState[] = EquineHarness.SIDES.map(
       ([
@@ -233,8 +236,8 @@ export function AutoMovieArchetypeEquineDraggedLoad(
     held: IAutoMovieVector3,
   ): AutoMovieArchetypeRide.ILineState[] {
     const sample: AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     > = ride.at(seconds);
     return EquineHarness.SIDES.map(
       ([

@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeBand } from "../core";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import type { createHorse } from "./createHorse";
 
 /**
  * The measured Icelandic cohort and the extra gaits a film author may select.
@@ -30,7 +30,9 @@ export namespace EquineIcelandicProfile {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the horse rig, contact names and tack entry points.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the returned static profile and no samples.
    */
-  export function shape(base: createHorse.IProfile): createHorse.IProfile {
+  export function shape(
+    base: AutoMovieArchetypeEquine.IProfile,
+  ): AutoMovieArchetypeEquine.IProfile {
     return {
       ...base,
       names: {

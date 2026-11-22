@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquineEncounter,
   type AutoMovieArchetypeEquineEncounterCue,
   AutoMovieArchetypeQuadrupedBody,
@@ -15,21 +16,19 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { equineExpressionObservation as Look } from "../internal/equineExpressionObservation";
-
 /** A horse. */
 type Horse = ReturnType<typeof createHorse>;
 
 /** A horse ride. */
 type Ride = AutoMovieArchetypeRide.IRide<
-  createHorse.Affordance,
-  createHorse.Dimension
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /** A sample of a horse ride. */
 type Sample = AutoMovieArchetypeRide.ISample<
-  createHorse.Affordance,
-  createHorse.Dimension
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /** Two of a kind. */

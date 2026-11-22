@@ -1,5 +1,6 @@
 import {
   type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquineTeam,
   type AutoMovieArchetypeEquineTeamPlan,
   AutoMovieArchetypeFrame,
@@ -64,8 +65,8 @@ const TOLERANCE: number = 0.01;
  */
 export function test_archetype_equine_draft_driver(): void {
   const horses: AutoMovieArchetype<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >[] = [
     createHorse({ tack: "both", withersHeight: 1.6, tempo: 0 }, 1),
     createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 2),
@@ -213,8 +214,8 @@ export function test_archetype_equine_draft_driver(): void {
 
   // 3. The postilion on the near wheeler.
   const ride: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = team.rides[0]!;
   const horsePlacement = (seconds: number): IAutoMovieRigidTransform => {
     const frame: IAutoMovieTransform = ride.at(
@@ -223,7 +224,10 @@ export function test_archetype_equine_draft_driver(): void {
     return { position: frame.translation, rotation: frame.rotation };
   };
   const horsePart = (id: string, seconds: number): IAutoMovieTransform =>
-    ride.frame(id as createHorse.Affordance, Math.max(0, seconds - WAIT));
+    ride.frame(
+      id as AutoMovieArchetypeEquine.Affordance,
+      Math.max(0, seconds - WAIT),
+    );
   // The postilion sits on the saddle as the ride poses it at its start, not on the rest horse's: a stance lowers the trunk.
   const saddle: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
     ride.at(0).archetype,
@@ -246,8 +250,8 @@ export function test_archetype_equine_draft_driver(): void {
   if (postilion !== undefined)
     for (const seconds of instants) {
       const sample: AutoMovieArchetypeRide.ISample<
-        createHorse.Affordance,
-        createHorse.Dimension
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
       > = ride.at(seconds - WAIT);
       seated(
         `postilion ${seconds.toFixed(2)}`,

@@ -1,8 +1,8 @@
 import { AutoMovieArchetypeBand } from "../core";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import type { createHorse } from "./createHorse";
 
 /**
  * The ambling breeds' extra gaits, each a four-beat lateral-sequence stepping gait a horse takes only when its breed declares it: the Tennessee Walking Horse's running walk, the racking horse's rack, the Missouri Fox Trotter's fox trot, the Peruvian Paso's paso llano and the Paso Fino's paso corto.
@@ -53,7 +53,9 @@ export namespace AutoMovieArchetypeEquineGaitedProfile {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a profile.
    */
-  export function shape(base: createHorse.IProfile): createHorse.IProfile {
+  export function shape(
+    base: AutoMovieArchetypeEquine.IProfile,
+  ): AutoMovieArchetypeEquine.IProfile {
     return {
       ...base,
       names: {

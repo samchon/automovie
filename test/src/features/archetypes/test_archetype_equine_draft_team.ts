@@ -1,5 +1,6 @@
 import {
   type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquineTeam,
   type AutoMovieArchetypeEquineTeamPlan,
   AutoMovieArchetypeFrame,
@@ -52,8 +53,10 @@ type Team = AutoMovieArchetypeEquineTeamPlan.ITeam<
 export function test_archetype_equine_draft_team(): void {
   const horse = (
     seed: number,
-  ): AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension> =>
-    createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, seed);
+  ): AutoMovieArchetype<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  > => createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, seed);
   const base: AutoMovieArchetypeEquineTeamPlan.IParams = {
     hitch: "pair",
     spacing: 0.8,
@@ -217,8 +220,8 @@ export function test_archetype_equine_draft_team(): void {
     team.rides.forEach(
       (
         ride: AutoMovieArchetypeRide.IRide<
-          createHorse.Affordance,
-          createHorse.Dimension
+          AutoMovieArchetypeEquine.Affordance,
+          AutoMovieArchetypeEquine.Dimension
         >,
         k: number,
       ): void => {
@@ -237,8 +240,8 @@ export function test_archetype_equine_draft_team(): void {
 /** A posed part's world origin. */
 function world(
   sample: AutoMovieArchetypeRide.ISample<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >,
   id: string,
 ): IAutoMovieVector3 {
@@ -253,8 +256,8 @@ function world(
 /** The trunk's world centre. */
 function trunk(
   sample: AutoMovieArchetypeRide.ISample<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >,
 ): IAutoMovieVector3 {
   return world(sample, "trunk");
@@ -274,18 +277,18 @@ function inverse(
 /** The clearance between two horses' trunk capsules, metres. */
 function capsules(
   a: AutoMovieArchetypeRide.ISample<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >,
   b: AutoMovieArchetypeRide.ISample<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >,
 ): number {
   const axis = (
     sample: AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
   ): Bar => {
     const part: IAutoMovieModelPart = sample.archetype.parts.find(

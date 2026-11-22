@@ -1,5 +1,6 @@
 import {
   type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquineDraft,
   type AutoMovieArchetypeEquineDraftPlan,
   AutoMovieArchetypeFrame,
@@ -22,16 +23,16 @@ import { equineFordScene } from "../internal/equineFordScene";
 
 /** A take's sample. */
 type Sample = AutoMovieArchetypeEquineDraftPlan.ISample<
-  createHorse.Affordance,
-  createHorse.Dimension,
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension,
   createCart.Affordance,
   createCart.Dimension
 >;
 
 /** A take. */
 type Take = AutoMovieArchetypeEquineDraftPlan.ITake<
-  createHorse.Affordance,
-  createHorse.Dimension,
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension,
   createCart.Affordance,
   createCart.Dimension
 >;
@@ -55,8 +56,8 @@ type Take = AutoMovieArchetypeEquineDraftPlan.ITake<
  */
 export function test_archetype_equine_draft(): void {
   const horse: AutoMovieArchetype<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = createHorse({ tack: "harness", withersHeight: 1.72, tempo: 0 }, 4);
   const cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension> =
     createCart({ kind: "cart", withersHeight: 1.72 }, 4);
@@ -362,8 +363,8 @@ export function test_archetype_equine_draft(): void {
   /** An emitted part's world frame in a ride sample. */
   function part(
     sample: AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
     id: string,
   ): IAutoMovieTransform {
@@ -378,10 +379,10 @@ export function test_archetype_equine_draft(): void {
   /** A contact's world point in a ride sample. */
   function world(
     sample: AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
-    id: createHorse.Affordance,
+    id: AutoMovieArchetypeEquine.Affordance,
   ): IAutoMovieVector3 {
     return AutoMovieArchetypeFrame.compose(
       sample.placement,

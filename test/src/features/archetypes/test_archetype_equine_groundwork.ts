@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquineHobble,
   AutoMovieArchetypeEquineLunge,
   AutoMovieArchetypeEquineLungeLine,
@@ -25,14 +26,14 @@ import { TestValidator } from "@nestia/e2e";
 
 /** A horse ride. */
 type Ride = AutoMovieArchetypeRide.IRide<
-  createHorse.Affordance,
-  createHorse.Dimension
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /** A sample of a horse ride. */
 type Sample = AutoMovieArchetypeRide.ISample<
-  createHorse.Affordance,
-  createHorse.Dimension
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /** A named instant of a ride. */

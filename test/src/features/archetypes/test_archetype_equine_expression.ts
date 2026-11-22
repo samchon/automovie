@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquineExpression,
   type AutoMovieArchetypeEquineExpressionCue,
   AutoMovieArchetypeQuadrupedBody,
@@ -14,21 +15,19 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { equineExpressionObservation as Look } from "../internal/equineExpressionObservation";
-
 /** The horse producer's model. */
 type Horse = ReturnType<typeof createHorse>;
 
 /** A horse ride. */
 type Ride = AutoMovieArchetypeRide.IRide<
-  createHorse.Affordance,
-  createHorse.Dimension
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /** A sample of a horse ride. */
 type Sample = AutoMovieArchetypeRide.ISample<
-  createHorse.Affordance,
-  createHorse.Dimension
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /** Grazing chew period, seconds: 47.1 chews a minute (Taylor, Lancaster and Ellis 2025, Animals 15:2273, Table 1), transcribed here independently of the layer. */
@@ -121,8 +120,8 @@ export function test_archetype_equine_expression(): void {
     { kind: "vocalize", call: "neigh", at: t + 18.3 },
   ];
   const layered: AutoMovieArchetypeEquineExpression.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = AutoMovieArchetypeEquineExpression.layer(horse, halted, cues);
 
   // 1. Each target meets the displayed muzzle while held and lies clear of it outside.

@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquineCare,
   AutoMovieArchetypeEquineExpression,
   type AutoMovieArchetypeEquineExpressionCue,
@@ -60,8 +61,8 @@ export namespace equestrianHandlerTake {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export type Ride = AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >;
 
   /**
@@ -109,8 +110,8 @@ export namespace equestrianHandlerTake {
     horse: (
       at: number,
     ) => AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >;
 
     /** The horse's contact frames, care points included, at a take second. */
@@ -189,8 +190,8 @@ export namespace equestrianHandlerTake {
     const care: AutoMovieArchetypeEquineCare.IPoints =
       AutoMovieArchetypeEquineCare.of(horse);
     const halt: AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     > = ride.at(ride.duration);
     const girth: IAutoMovieTransform = care.frame(halt, "groomLeft");
     const hoofAt: IAutoMovieVector3 = care.frame(
@@ -342,7 +343,7 @@ export namespace equestrianHandlerTake {
       const part = (id: string, at: number): IAutoMovieTransform =>
         care.affordances.some((a: IAutoMovieAffordance): boolean => a.id === id)
           ? care.frame(shown.at(at + offset), id)
-          : shown.frame(id as createHorse.Affordance, at + offset);
+          : shown.frame(id as AutoMovieArchetypeEquine.Affordance, at + offset);
       return { model, place, part };
     };
     const stage = (
@@ -373,8 +374,8 @@ export namespace equestrianHandlerTake {
       horse: (
         at: number,
       ): AutoMovieArchetypeRide.ISample<
-        createHorse.Affordance,
-        createHorse.Dimension
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
       > => shown.at(at + offset),
       part: prop(shown, offset).part,
       affordances: [...horse.affordances, ...care.affordances],

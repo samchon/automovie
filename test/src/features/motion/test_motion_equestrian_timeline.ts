@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeQuadrupedGait,
   createHorse,
   createQuadruped,
@@ -85,7 +86,7 @@ export function test_motion_equestrian_timeline(): void {
     Math.sqrt(
       0.35 *
         AutoMovieGravity.STANDARD *
-        createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y,
+        AutoMovieArchetypeEquine.rig(horse.dimensions).limbs.leftHind[0]!.y,
     );
   const canterBand: IGaitBand = AutoMovieArchetypeQuadrupedGait.range(
     reference,

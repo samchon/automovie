@@ -9,16 +9,35 @@ import {
 } from "../core";
 
 /**
- * A flintlock, laid on the right of a gun's breech, the gun lying along `+Z` with its barrel's line at `y = 0`: the `pan` holding the priming by the touch hole, the `frizzen`, the steel standing over the pan on its pivot ahead, opened forward to prime and thrown open by the cock's fall, and the `cock` behind on its pivot, resting down on the frizzen and drawn back to half and full cock by the thumb on its `spur`, the thumb piece at the top of its jaw, which rides it. A musket's and a pistol's lock are the same lock (`createLongGun`, `createHandgun`).
+ * The firearm action model the handguns and the long guns share: the lock time, from the sear's release to the firing pin's or hammer's fall, and the flintlock a musket and a pistol both carry (`createLongGun`, `createHandgun`).
  *
- * The lock's places and angles are not read at any source: the searches (museum records, the 1764 Manual Exercise, replica lock makers, high-speed ignition studies) are recorded in the sources record, records-firearms-flintlock.md; each is a named estimate in `ESTIMATES`.
+ * Two lock times are read at their makers' or designers' own documents: the M1903's service firing pin, and an AR-15's standard hammer. No measured lock time of a pistol, a revolver, a pump shotgun or a lever action was found in published ballistics or firearms-engineering literature. The search covered journals, DTIC and Picatinny reports, Beretta's PX4 paper (whose 8.50 ms is a simulation step, not a measurement), Hatcher's Notebook and the SAAMI glossary, and is recorded in records-firearms-locktime.md. Those guns borrow the span of the two read figures, labelled provisional.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what is laid, where, each hinge's sense and where the unread values are.
- * @evidence contracts/development/design.md#principled-representation The three parts a hand works and their two hinges about the gun's cross axis, and the pan as a socket.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `lay`, the estimates and the lock's time, shared by every flintlock.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every unread place and angle is a named estimate, never a bare number in a builder.
+ * The flintlock lies on the right of a gun's breech, the gun lying along `+Z` with its barrel's line at `y = 0`: the `pan` holding the priming by the touch hole, the `frizzen`, the steel standing over the pan on its pivot ahead, opened forward to prime and thrown open by the cock's fall, and the `cock` behind on its pivot, resting down on the frizzen and drawn back to half and full cock by the thumb on its `spur`, the thumb piece at the top of its jaw, which rides it. The lock's places and angles are not read at any source: the searches (museum records, the 1764 Manual Exercise, replica lock makers, high-speed ignition studies) are recorded in the sources record, records-firearms-flintlock.md; each is a named estimate in `FLINTLOCK`.
+ *
+ * A gun's calibre, its ball's diameter, stays each producer's own dimension: the handgun's and the long gun's bands come from different read guns.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the shared lock-time and flintlock model once, which lock times are read and why the others borrow, and where the unread lock values are.
+ * @evidence contracts/development/design.md#principled-representation Two read lock times in seconds and the band spanning them; the flintlock's three worked parts, their two hinges about the gun's cross axis and the pan as a socket.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The one owner of what the handguns and long guns share; each producer keeps its own calibre, dimensions and bands.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No forum or encyclopedia figure stands as a source; a borrowed band names its lenders and the failed search, and every unread lock place and angle is a named estimate.
  */
-export namespace FlintLock {
+export namespace AutoMovieArchetypeFirearm {
+  /** The M1903's service firing pin's time of fall, seconds: "the time of fall of the usual firing pin in the U. S. rifle is .0057 seconds", J. C. Garand, US Patent 1,780,521 (1930) (https://patents.google.com/patent/US1780521A/en), measured at Springfield Armory on a smoked disc (Hatcher's Notebook, pp. 397-398). */
+  export const M1903: number = 0.0057;
+
+  /** An AR-15's standard hammer's lock time, seconds: "Over 50% lock time reduction over standard hammer (4.4 ms vs. 10ms)", Geissele's Hi-Speed National Match trigger instruction sheet, p. 2 (https://308ar.com/wp-content/uploads/2017/07/GEISSELE-AR-308-HI-SPEED-NATIONAL-MATCH-TRIGGER-SET-INSTRUCTIONS.pdf), the maker's figure, its method not stated. */
+  export const AR15: number = 0.01;
+
+  /** The band a firearm whose own lock time was not found borrows: from the M1903's to the AR-15's. */
+  export const BORROWED: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
+    "s",
+    M1903,
+    AR15,
+    "borrowed from the M1903's read 5.7 ms (Garand, US Patent 1,780,521) to an AR-15's standard hammer's 10 ms (Geissele's instruction sheet), because no measured lock time of this firearm was found (searched: journals, DTIC and Picatinny reports, Beretta's PX4 paper, Hatcher's Notebook, the SAAMI glossary; records-firearms-locktime.md)",
+    true,
+  );
+
   /**
    * The lock's places and angles, none read, each an estimate:
    *
@@ -29,7 +48,7 @@ export namespace FlintLock {
    * - `half`, `full`: the cock's travel back from its fired rest to half cock and to full cock, degrees. A replica cast from a 1746 Land Pattern lock gives its cock a 1.8 in throw, a straight distance, not an angle (Track of the Wolf, secondary).
    * - `open`: the frizzen's opening, degrees.
    */
-  export const ESTIMATES: Readonly<{
+  export const FLINTLOCK: Readonly<{
     side: number;
     pan: number;
     frizzen: number;
@@ -60,13 +79,14 @@ export namespace FlintLock {
   };
 
   /** A flintlock's lock time, from the lock's firing to the pan's flash: Pletcher, Flintlock Timing, Muzzle Blasts (January 1990), 80 trials of two locks fired electrically and timed to a photocell at the pan, 0.0312 to 0.0536 s (the article's chart, reprinted at https://www.blackpowdermag.com/flintlock-timing-muzzleblast-january-1990/): an experimenter's report, not peer-reviewed, and the main charge's ignition after the flash is a separate interval. */
-  export const TIME: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
-    "s",
-    0.0312,
-    0.0536,
-    "Pletcher, Flintlock Timing, Muzzle Blasts (January 1990): 0.0312 to 0.0536 s over 80 electrically fired trials from the lock's firing to the pan's flash (https://www.blackpowdermag.com/flintlock-timing-muzzleblast-january-1990/); an experimenter's report in a hobby journal, not peer-reviewed, and the main charge's ignition after the flash is not included (searched: Fuller, SPIE 4948, closed; records-firearms-locktime.md)",
-    true,
-  );
+  export const FLINTLOCK_TIME: IAutoMovieArchetypeBand =
+    AutoMovieArchetypeBand.of(
+      "s",
+      0.0312,
+      0.0536,
+      "Pletcher, Flintlock Timing, Muzzle Blasts (January 1990): 0.0312 to 0.0536 s over 80 electrically fired trials from the lock's firing to the pan's flash (https://www.blackpowdermag.com/flintlock-timing-muzzleblast-january-1990/); an experimenter's report in a hobby journal, not peer-reviewed, and the main charge's ignition after the flash is not included (searched: Fuller, SPIE 4948, closed; records-firearms-locktime.md)",
+      true,
+    );
 
   /**
    * Lay a flintlock on a gun under construction.
@@ -78,12 +98,15 @@ export namespace FlintLock {
    * @evidence contracts/development/common.md#meaningful-documentation States what it adds.
    * @evidence contracts/development/implementation.md#principled-implementation The pan by the touch hole, the frizzen's pivot ahead of it and the cock's behind, each hinge turning about the cross axis: the frizzen forward to open, the cock back to cock; the spur at the cock's jaw end, the farthest point from its pivot, where a thumb has the most leverage, riding the cock.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plate, pan, frizzen and cock, then the three contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flint, the springs and the tumbler are not modelled; half cock is a travel of the one hinge, `ESTIMATES.half`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flint, the springs and the tumbler are not modelled; half cock is a travel of the one hinge, `FLINTLOCK.half`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one lock.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function lay<Affordance extends string, Dimension extends string>(
+  export function layFlintlock<
+    Affordance extends string,
+    Dimension extends string,
+  >(
     builder: AutoMovieArchetypeBuilder<Affordance, Dimension>,
     hole: IAutoMovieVector3,
     ids: Readonly<{
@@ -94,7 +117,7 @@ export namespace FlintLock {
     }>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
-    const e: typeof ESTIMATES = ESTIMATES;
+    const e: typeof FLINTLOCK = FLINTLOCK;
     const steel: { color: string } = { color: "#2c2f33" };
     const x: number = hole.x - e.side;
     const pan: IAutoMovieVector3 = v(x, hole.y + e.rise, hole.z + e.pan);

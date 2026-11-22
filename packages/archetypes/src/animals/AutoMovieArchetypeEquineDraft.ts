@@ -11,10 +11,10 @@ import {
 } from "../core";
 import type { ArchetypeTowing } from "../core/ArchetypeTowing";
 import { createCart } from "../vehicles/createCart";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeEquineDraftPlan } from "./AutoMovieArchetypeEquineDraftPlan";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { EquineHarness } from "./EquineHarness";
-import type { createHorse } from "./createHorse";
 import { rideHorse } from "./rideHorse";
 import type { rideQuadruped } from "./rideQuadruped";
 
@@ -43,18 +43,21 @@ const SAG_POINTS: number = 9;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the ride and the towed ride for the take's lifetime.
  */
 export function AutoMovieArchetypeEquineDraft(
-  horse: AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension>,
+  horse: AutoMovieArchetype<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  >,
   cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
   params: AutoMovieArchetypeEquineDraftPlan.IParams,
 ): AutoMovieArchetypeEquineDraftPlan.ITake<
-  createHorse.Affordance,
-  createHorse.Dimension,
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension,
   createCart.Affordance,
   createCart.Dimension
 > {
   type HorseSample = AutoMovieArchetypeRide.ISample<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >;
   type CartSample = AutoMovieArchetypeRide.ISample<
     createCart.Affordance,
@@ -125,8 +128,8 @@ export function AutoMovieArchetypeEquineDraft(
     ...params.depart,
   ];
   const ride: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = rideHorse(horse, {
     start: params.start,
     legs,
@@ -164,16 +167,18 @@ export function AutoMovieArchetypeEquineDraft(
   const hold = (seconds: number): number =>
     Math.min(coupled, Math.max(0, seconds));
   const leader: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = {
     plan: ride.plan,
     duration: coupled,
     instants: [],
     at: (seconds: number): HorseSample =>
       ride.at(events.connect + hold(seconds)),
-    frame: (id: createHorse.Affordance, seconds: number): IAutoMovieTransform =>
-      ride.frame(id, events.connect + hold(seconds)),
+    frame: (
+      id: AutoMovieArchetypeEquine.Affordance,
+      seconds: number,
+    ): IAutoMovieTransform => ride.frame(id, events.connect + hold(seconds)),
   };
   const traces: AutoMovieArchetypeRide.ILine[] = createCart.lines(cart);
   const footing: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined =
@@ -210,8 +215,8 @@ export function AutoMovieArchetypeEquineDraft(
   function at(
     seconds: number,
   ): AutoMovieArchetypeEquineDraftPlan.ISample<
-    createHorse.Affordance,
-    createHorse.Dimension,
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension,
     createCart.Affordance,
     createCart.Dimension
   > {

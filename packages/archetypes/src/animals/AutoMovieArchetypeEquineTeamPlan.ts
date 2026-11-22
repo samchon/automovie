@@ -5,8 +5,8 @@ import type {
   AutoMovieArchetypeCourse,
   AutoMovieArchetypeRide,
 } from "../core";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import type { createHorse } from "./createHorse";
 
 /**
  * The hitch places, the authored team course, the per-horse draught states and the displayed samples of several harnessed horses put to one pole vehicle (`AutoMovieArchetypeEquineTeam`).
@@ -110,8 +110,8 @@ export namespace AutoMovieArchetypeEquineTeamPlan {
     stage: Stage;
     /** Each horse, in place order. */
     horses: readonly AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >[];
     /** Whether each horse's breeching holds the vehicle back, in place order. */
     breeching: readonly boolean[];
@@ -140,8 +140,8 @@ export namespace AutoMovieArchetypeEquineTeamPlan {
     places: readonly IPlace[];
     /** Each horse's own ride. */
     rides: readonly AutoMovieArchetypeRide.IRide<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >[];
     /** The vehicle's towed ride, the moving support a driver, charioteer or passenger rides. */
     vehicle: AutoMovieArchetypeRide.ITowedRide<VehicleId, VehicleD>;

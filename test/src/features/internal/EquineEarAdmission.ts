@@ -1,8 +1,8 @@
 import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeQuadrupedEars,
-  createHorse,
 } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
@@ -19,7 +19,7 @@ import { nclose } from "./nclose";
 export namespace EquineEarAdmission {
   /** A genuine builder is observed before and after malformed profile admission. */
   export function verify(findings: string[]): void {
-    const head: createHorse.IRig = createHorse.rig({
+    const head: AutoMovieArchetypeEquine.IRig = AutoMovieArchetypeEquine.rig({
       withersHeight: 1.6,
       girth: (1.6 * 2.04) / 1.72,
       mass: 400,

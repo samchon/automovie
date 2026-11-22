@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeQuadrupedBody,
   AutoMovieArchetypeRefusal,
@@ -74,9 +75,8 @@ export function test_archetype_equine_dressage(): void {
     withersHeight: 1.72,
     tempo: 0,
   });
-  const rig: ReturnType<typeof createHorse.rig> = createHorse.rig(
-    horse.dimensions,
-  );
+  const rig: ReturnType<typeof AutoMovieArchetypeEquine.rig> =
+    AutoMovieArchetypeEquine.rig(horse.dimensions);
   const issues: string[] = [];
 
   // 1. Lateral figures, mirrored.

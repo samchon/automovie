@@ -1,5 +1,6 @@
 import {
   AutoMovieArchetypeCourse,
+  AutoMovieArchetypeEquine,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -32,7 +33,8 @@ export function test_archetype_ride_horse_hysteresis(): void {
           ? Math.sqrt(
               0.35 *
                 AutoMovieGravity.STANDARD *
-                createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y,
+                AutoMovieArchetypeEquine.rig(horse.dimensions).limbs
+                  .leftHind[0]!.y,
             )
           : 5 * (horse.dimensions.mass! / 170) ** 0.216;
       const speeds: number[] = [point + 0.3];

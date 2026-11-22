@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeQuadrupedBody,
   type AutoMovieArchetypeQuadrupedGait,
@@ -14,8 +15,8 @@ import { TestValidator } from "@nestia/e2e";
 
 /** A horse ride. */
 type Ride = AutoMovieArchetypeRide.IRide<
-  createHorse.Affordance,
-  createHorse.Dimension
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /** One gait and its constant speed. */
@@ -97,8 +98,8 @@ export function test_archetype_equine_anchored(): void {
 /** A part's displayed world origin. */
 function point(ride: Ride, id: string, at: number): IAutoMovieVector3 {
   const sample: AutoMovieArchetypeRide.ISample<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = ride.at(at);
   const part: IAutoMovieModelPart = sample.archetype.parts.find(
     (each: IAutoMovieModelPart): boolean => each.id === id,

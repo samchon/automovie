@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import type { createHorse } from "./createHorse";
 import { rideQuadruped } from "./rideQuadruped";
 
 /**
@@ -21,9 +21,15 @@ import { rideQuadruped } from "./rideQuadruped";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The ride's own.
  */
 export function rideHorse(
-  horse: AutoMovieArchetype<createHorse.Affordance, createHorse.Dimension>,
+  horse: AutoMovieArchetype<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  >,
   course: rideQuadruped.ICourse,
   gait?: AutoMovieArchetypeQuadrupedGait.Gait,
-): AutoMovieArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension> {
+): AutoMovieArchetypeRide.IRide<
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
+> {
   return rideQuadruped(horse, course, gait);
 }

@@ -1,5 +1,6 @@
 import {
   AutoMovieArchetypeCourse,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeQuadrupedGait,
   createHorse,
   createQuadruped,
@@ -46,7 +47,8 @@ export function test_archetype_ride_horse_transition(): void {
         (Math.max(p.minimum, q.minimum) + Math.min(p.maximum, q.maximum)) / 2
       );
     };
-    const hip: number = createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y;
+    const hip: number = AutoMovieArchetypeEquine.rig(horse.dimensions).limbs
+      .leftHind[0]!.y;
     const trot: number =
       1.6 * Math.sqrt(0.35 * AutoMovieGravity.STANDARD * hip);
     const gallop: number = 5 * (horse.dimensions.mass! / 170) ** 0.216;

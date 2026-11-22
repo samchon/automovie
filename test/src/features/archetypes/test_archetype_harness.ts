@@ -1,5 +1,6 @@
 import {
   type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRide,
   AutoMovieArchetypeUnits,
@@ -65,14 +66,18 @@ export function test_archetype_harness(): void {
       "both",
       "pack",
       "bare",
-    ] as const satisfies readonly createHorse.Tack[]) {
+    ] as const satisfies readonly AutoMovieArchetypeEquine.Tack[]) {
       const horse: AutoMovieArchetype<
-        createHorse.Affordance,
-        createHorse.Dimension
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
       > = createHorse({ tack }, seed);
       const label: string = `${tack} ${seed}`;
-      const d = horse.dimensions as Record<createHorse.Dimension, number>;
-      const rig: createHorse.IRig = createHorse.rig(d);
+      const d = horse.dimensions as Record<
+        AutoMovieArchetypeEquine.Dimension,
+        number
+      >;
+      const rig: AutoMovieArchetypeEquine.IRig =
+        AutoMovieArchetypeEquine.rig(d);
       const h: number = d.withersHeight;
       const shoulder: IAutoMovieVector3 = rig.limbs.leftFore[0]!;
       const hip: IAutoMovieVector3 = rig.limbs.leftHind[0]!;
@@ -268,8 +273,8 @@ export function test_archetype_harness(): void {
 
   // 3. The cart built for the horse, joined at the hitch.
   const horse: AutoMovieArchetype<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = createHorse({ tack: "harness" }, 4);
   const cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension> =
     createCart(
@@ -279,7 +284,9 @@ export function test_archetype_harness(): void {
       },
       4,
     );
-  const rig: createHorse.IRig = createHorse.rig(horse.dimensions);
+  const rig: AutoMovieArchetypeEquine.IRig = AutoMovieArchetypeEquine.rig(
+    horse.dimensions,
+  );
   const coupling: IAutoMovieVector3 =
     cart.affordance("coupling").frame.translation;
   const hitch: IAutoMovieVector3 = horse.affordance("hitch").frame.translation;
@@ -339,8 +346,8 @@ export function test_archetype_harness(): void {
 
   // 4. Drawn through a quarter turn.
   const ride: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = rideHorse(horse, COURSE);
   const lines: AutoMovieArchetypeRide.ILine[] = createCart.lines(cart);
   const towedRide: AutoMovieArchetypeRide.IRide<
@@ -366,8 +373,8 @@ export function test_archetype_harness(): void {
   const relative: number[] = [];
   for (const seconds of [0, 3, 6, 9, 12, 15]) {
     const lead: AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     > = ride.at(seconds);
     const sample: AutoMovieArchetypeRide.ISample<
       createCart.Affordance,

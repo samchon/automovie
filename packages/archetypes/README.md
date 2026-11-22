@@ -113,7 +113,7 @@ ride.instants; // depart, cruise, turn2Start, brake, turn2End, stop
 
 ### Animals and their source limits
 
-The equids (`createHorse`, `createPony`, `createDonkey`, `createMule`, `createFoal`) share one build, tack set and mass law. `createQuadruped` also accepts `ox`, `camel`, `dog` and `deer`. Each of these is one measured reference: its height and girth come from the cited cohort, and limb data transferred from another species or shapes built without a source are labelled as such. A reference is a cohort mean, so the seed does not vary it the way it varies a band. Dog, ox and camel need the whole-model mass from the author; a bare deer may take its cited cohort mean.
+The equids (`createHorse`, `createPony`, `createDonkey`, `createMule`, `createFoal`) share one model, `AutoMovieArchetypeEquine`: one build, tack set, dimension set and mass law. `createQuadruped` also accepts `ox`, `camel`, `dog` and `deer`. Each of these is one measured reference: its height and girth come from the cited cohort, and limb data transferred from another species or shapes built without a source are labelled as such. A reference is a cohort mean, so the seed does not vary it the way it varies a band. Dog, ox and camel need the whole-model mass from the author; a bare deer may take its cited cohort mean.
 
 Equipment is authored: a lead from its collar and rope dimensions, an ox yoke and a camel or ox side pack (`AutoMovieArchetypeQuadrupedEquipment`), with `hitch`, `leftLoad` and `rightLoad` contacts fitted against the rest rig. The author supplies the body-plus-equipment mass, and the coarse assemblies claim no maker dimension or load rating.
 

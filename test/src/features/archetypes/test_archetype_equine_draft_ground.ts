@@ -1,5 +1,6 @@
 import {
   type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquineDraggedLoad,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
@@ -39,12 +40,12 @@ const LIFT: number = 0.05;
  */
 export function test_archetype_equine_draft_ground(): void {
   const horse: AutoMovieArchetype<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 1);
   const ride: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = rideHorse(
     horse,
     {
@@ -146,8 +147,8 @@ export function test_archetype_equine_draft_ground(): void {
 
   // 6. The horse leans into the collar under its draught.
   const leaned: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = rideHorse(
     horse,
     {
@@ -161,8 +162,8 @@ export function test_archetype_equine_draft_ground(): void {
     "walk",
   );
   const upright: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = rideHorse(
     horse,
     {
@@ -177,8 +178,8 @@ export function test_archetype_equine_draft_ground(): void {
   for (const seconds of [2, 4, 6]) {
     const axis = (
       sample: AutoMovieArchetypeRide.ISample<
-        createHorse.Affordance,
-        createHorse.Dimension
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
       >,
     ): IAutoMovieVector3 =>
       Quaternion.rotateVector(
@@ -219,8 +220,8 @@ export function test_archetype_equine_draft_ground(): void {
       const sample: AutoMovieArchetypeEquineDraggedLoad.ISample =
         load.at(seconds);
       const horseSample: AutoMovieArchetypeRide.ISample<
-        createHorse.Affordance,
-        createHorse.Dimension
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
       > = ride.at(seconds);
       const balls: IAutoMovieVector3[] = ["draft-left", "draft-right"].map(
         (id: string): IAutoMovieVector3 =>

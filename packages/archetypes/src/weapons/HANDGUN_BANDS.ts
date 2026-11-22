@@ -3,9 +3,8 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { FlintLock } from "./FlintLock";
+import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import { HANDGUN_MODELS } from "./HANDGUN_MODELS";
-import { LockTimes } from "./LockTimes";
 import type { createHandgun } from "./createHandgun";
 
 /** The Graz test of a flintlock pistol. */
@@ -86,7 +85,7 @@ const SHARED: Readonly<
     "SIG SAUER's 9mm +P 124 gr Elite Ball M17 FMJ, 1,198 fps from its 4.0 in test barrel (https://www.sigsauer.com/9mm-p-124gr-elite-ball-m17-fmj-box-50.html); the GLOCKs' borrowed from it because GLOCK publishes no velocity (searched: GLOCK's product pages and Gen4 guide; records-firearms-rifles.md)",
     true,
   ),
-  lockTime: LockTimes.BORROWED,
+  lockTime: AutoMovieArchetypeFirearm.BORROWED,
 };
 
 /** The band of each free dimension of `createHandgun` a model leaves, by frame, with the sources they are read at: kept apart from the producer, with its models, so each file stays within its size. */
@@ -126,7 +125,7 @@ export const HANDGUN_BANDS: Readonly<
       "borrowed from Hornady's .45 Colt 255 gr Cowboy, 725 fps from a 4.75 in barrel (https://www.hornady.com/ammunition/handgun/45-colt-255-gr-cowboy), because no velocity from the Single Action Army's 7.5 in or the Vaquero's 5.5 in barrel was found (searched: Colt, Ruger, Gun Tests' load tables; records-firearms-revolver.md)",
       true,
     ),
-    lockTime: LockTimes.BORROWED,
+    lockTime: AutoMovieArchetypeFirearm.BORROWED,
   },
   flintlock: {
     triggerReach: borrowed(SHARED.triggerReach, "trigger reach"),
@@ -146,7 +145,7 @@ export const HANDGUN_BANDS: Readonly<
       `${GRAZ_PISTOL}, because no measured velocity of a British service pistol was found (searched: Griffiths 1856, Robins 1805; records-firearms-flintlock.md)`,
       true,
     ),
-    lockTime: FlintLock.TIME,
+    lockTime: AutoMovieArchetypeFirearm.FLINTLOCK_TIME,
     ball: AutoMovieArchetypeBand.metres(
       0.0135,
       0.0135,

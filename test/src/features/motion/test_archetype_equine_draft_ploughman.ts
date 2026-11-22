@@ -1,5 +1,6 @@
 import {
   type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquineDraggedLoad,
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeRide,
@@ -76,8 +77,8 @@ interface IMatched {
 export function test_archetype_equine_draft_ploughman(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const horse: AutoMovieArchetype<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 1);
   const load: AutoMovieArchetype<
     createDragged.Affordance,
@@ -147,8 +148,8 @@ export function test_archetype_equine_draft_ploughman(): void {
   const coupling: number = load.affordance("coupling").frame.translation.z;
   const trace: number = 2;
   const ride: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = rideHorse(
     horse,
     {
@@ -227,8 +228,8 @@ export function test_archetype_equine_draft_ploughman(): void {
       const shoulder: IAutoMovieVector3 =
         bones.get("leftShoulder")!.worldPosition;
       const horseAt: AutoMovieArchetypeRide.ISample<
-        createHorse.Affordance,
-        createHorse.Dimension
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
       > = ride.at(at - staged.start);
       for (const line of staged.plough.lines(at - staged.start, shoulder)) {
         const bit: IAutoMovieVector3 = AutoMovieArchetypeFrame.compose(

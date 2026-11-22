@@ -1,5 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AutoMovieArchetypeEquine } from "../animals/AutoMovieArchetypeEquine";
 import { EquineHarness } from "../animals/EquineHarness";
 import { createHorse } from "../animals/createHorse";
 import {
@@ -96,7 +97,7 @@ export namespace CartFit {
       createHorse.PROFILE.girth(drawn.withersHeight!),
     );
     if (drawn.shaftLength !== undefined) return;
-    const horse: createHorse.IRig = createHorse.rig({
+    const horse: AutoMovieArchetypeEquine.IRig = AutoMovieArchetypeEquine.rig({
       withersHeight: drawn.withersHeight!,
       girth,
     });
@@ -140,7 +141,8 @@ export namespace CartFit {
         reason: `the ${cart.name} has no single tree and no driving lines`,
         fix: "draw a cart kind built for a horse in harness",
       });
-    const spread: number = createHorse.rig(cart.dimensions).draft.x;
+    const spread: number = AutoMovieArchetypeEquine.rig(cart.dimensions).draft
+      .x;
     const ball = (part: string): AutoMovieArchetypeSpan.End => ({
       part,
       at: { x: 0, y: 0, z: 0 },

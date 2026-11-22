@@ -3,9 +3,8 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { FlintLock } from "./FlintLock";
+import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import { LONG_GUN_MODELS } from "./LONG_GUN_MODELS";
-import { LockTimes } from "./LockTimes";
 import type { createLongGun } from "./createLongGun";
 
 /** A carbine's published data, from its maker. */
@@ -84,8 +83,8 @@ export const LONG_GUN_BANDS: Readonly<
     ),
     lockTime: AutoMovieArchetypeBand.of(
       "s",
-      LockTimes.AR15,
-      LockTimes.AR15,
+      AutoMovieArchetypeFirearm.AR15,
+      AutoMovieArchetypeFirearm.AR15,
       "an AR-15's standard hammer's 10 ms, Geissele's Hi-Speed National Match trigger instruction sheet, p. 2, the maker's figure, its method not stated",
       true,
     ),
@@ -113,7 +112,7 @@ export const LONG_GUN_BANDS: Readonly<
       "Federal Premium Buckshot P154, 2 3/4 in 00 buck, 1325 fps, its test barrel not stated (https://le.vistaoutdoor.com/ammunition/federal/buckshot/details.aspx?id=472)",
       true,
     ),
-    lockTime: LockTimes.BORROWED,
+    lockTime: AutoMovieArchetypeFirearm.BORROWED,
     travel: AutoMovieArchetypeBand.metres(
       0.08,
       0.1,
@@ -151,7 +150,7 @@ export const LONG_GUN_BANDS: Readonly<
       `borrowed from ${GRAZ}, because no measured velocity of a British service musket at its service charge was found (searched: Robins 1805, Griffiths 1856, Graz 1995; records-firearms-flintlock.md)`,
       true,
     ),
-    lockTime: FlintLock.TIME,
+    lockTime: AutoMovieArchetypeFirearm.FLINTLOCK_TIME,
     ball: AutoMovieArchetypeBand.metres(
       0.689 * AutoMovieArchetypeUnits.INCH,
       0.689 * AutoMovieArchetypeUnits.INCH,
@@ -175,8 +174,8 @@ export const LONG_GUN_BANDS: Readonly<
     sightHeight: BEAD,
     lockTime: AutoMovieArchetypeBand.of(
       "s",
-      LockTimes.M1903,
-      LockTimes.M1903,
+      AutoMovieArchetypeFirearm.M1903,
+      AutoMovieArchetypeFirearm.M1903,
       "borrowed from the M1903's service firing pin's 5.7 ms (Garand, US Patent 1,780,521, https://patents.google.com/patent/US1780521A/en) because no measured Mauser 98 lock time was found (searched: records-firearms-locktime.md)",
       true,
     ),
@@ -211,6 +210,6 @@ export const LONG_GUN_BANDS: Readonly<
       "Winchester .30-30 Win 150 gr Power-Point, 2390 fps, its test barrel not stated (https://winchester.com/Products/Ammunition/Rifle/Power-Point)",
       true,
     ),
-    lockTime: LockTimes.BORROWED,
+    lockTime: AutoMovieArchetypeFirearm.BORROWED,
   },
 };

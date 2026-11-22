@@ -5,7 +5,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import type { createHorse } from "./createHorse";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 
 /**
  * A single horse's driving harness, laid on the horse's body: a breast collar with its neck strap, a driving saddle with its tugs, terrets and girth, a backstrap and crupper, hip straps and a breeching, and a bridle with blinkers and a bit.
@@ -80,7 +80,7 @@ export namespace EquineHarness {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function chest(
-    rig: createHorse.IRig,
+    rig: AutoMovieArchetypeEquine.IRig,
     angle: number,
   ): IAutoMovieVector3 {
     return Vector3.create(
@@ -104,7 +104,7 @@ export namespace EquineHarness {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of these places, read by `lay` and by a vehicle's lines.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function passes(rig: createHorse.IRig): Readonly<{
+  export function passes(rig: AutoMovieArchetypeEquine.IRig): Readonly<{
     bit: IAutoMovieVector3;
     foot: IAutoMovieVector3;
     crest: IAutoMovieVector3;
@@ -147,11 +147,11 @@ export namespace EquineHarness {
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
-    d: Readonly<Record<createHorse.Dimension, number>>,
-    rig: createHorse.IRig,
+    d: Readonly<Record<AutoMovieArchetypeEquine.Dimension, number>>,
+    rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const e: typeof ESTIMATES = ESTIMATES;

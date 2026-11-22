@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeQuadrupedDatumRide,
   type AutoMovieArchetypeQuadrupedFooting,
   type AutoMovieArchetypeRide,
@@ -221,8 +222,8 @@ export namespace equineLeadOut {
       slope: { x: 0, z: slope },
     });
     const ride: AutoMovieArchetypeRide.IRide<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     > = AutoMovieArchetypeQuadrupedDatumRide(
       horse,
       {

@@ -1,4 +1,5 @@
 import {
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeQuadrupedBody,
   AutoMovieArchetypeQuadrupedSkeleton,
   createHorse,
@@ -107,7 +108,7 @@ export function test_archetype_animal_skeleton(): void {
   for (const contact of animal.affordances) {
     if (contacts[contact.id] !== "head") continue;
     const current: IAutoMovieTransform = posed.affordance(
-      contact.id as createHorse.Affordance,
+      contact.id as AutoMovieArchetypeEquine.Affordance,
     ).frame;
     const oldLocal: IAutoMovieTransform["translation"] =
       Quaternion.rotateVector(
@@ -151,7 +152,10 @@ export function test_archetype_animal_skeleton(): void {
   const heldHead: IAutoMovieTransform = heldPose.parts.find(
     (part: IAutoMovieModelPart): boolean => part.id === "head",
   )!.transform!;
-  const lines: readonly (readonly [createHorse.Affordance, string])[] = [
+  const lines: readonly (readonly [
+    AutoMovieArchetypeEquine.Affordance,
+    string,
+  ])[] = [
     ["leftRein", "rein-left"],
     ["rightRein", "rein-right"],
     ["lead", "lead"],

@@ -1,5 +1,6 @@
 import {
   type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeEquinePackLoad,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
@@ -32,8 +33,8 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_equine_pack(): void {
   const horse: AutoMovieArchetype<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = createHorse({ tack: "pack", withersHeight: 1.6, tempo: 0 }, 2);
   const load: AutoMovieArchetypeEquinePackLoad.ILoad = {
     length: 0.4,
@@ -44,8 +45,8 @@ export function test_archetype_equine_pack(): void {
   const loads: AutoMovieArchetypeEquinePackLoad.IPrepared =
     AutoMovieArchetypeEquinePackLoad(horse, load);
   const ride: AutoMovieArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = rideHorse(horse, {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 6 }],
@@ -56,8 +57,8 @@ export function test_archetype_equine_pack(): void {
   const issues: string[] = [];
   for (let seconds: number = 0; seconds <= ride.duration; seconds += 0.4) {
     const sample: AutoMovieArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     > = ride.at(seconds);
     const placed: Record<
       AutoMovieArchetypeEquinePackLoad.Side,

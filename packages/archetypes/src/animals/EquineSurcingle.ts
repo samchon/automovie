@@ -5,7 +5,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import type { createHorse } from "./createHorse";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 
 /**
  * An equid's vaulting tack, laid on its body: a surcingle round the barrel behind the withers with two handles on top, and a back pad behind it, the equipment FEI vaulting is performed on (https://www.fei.org/vaulting). The USEF vaulting rules give "two solid handles" and the pad's extent, "max. 80 cm from the back edge of the surcingle to the back"; Equestrian Australia's rules, harmonised with the FEI's, cap the handles at 240 mm apart and the pad at "3 cm thick including cover" (https://usef.org/forms-pubs/QGJpESAxi3s/va-vaulting-division, https://www.equestrian.org.au/sites/default/files/Vaulting%20Rule%20Changes%20Effective%201.7.19_0.pdf). The values below lie inside those limits; where they are below a limit they are estimates.
@@ -57,10 +57,10 @@ export namespace EquineSurcingle {
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
-      createHorse.Affordance,
-      createHorse.Dimension
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
-    rig: createHorse.IRig,
+    rig: AutoMovieArchetypeEquine.IRig,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const back: number = rig.back;

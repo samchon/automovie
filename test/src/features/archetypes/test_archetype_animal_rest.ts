@@ -1,5 +1,6 @@
 import {
   type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeQuadrupedBody,
   AutoMovieArchetypeQuadrupedLateralRest,
@@ -198,8 +199,8 @@ export function test_archetype_animal_rest(): void {
     );
     const roll: ReturnType<
       typeof AutoMovieArchetypeQuadrupedLateralRest<
-        createHorse.Affordance,
-        createHorse.Dimension
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
       >
     > = AutoMovieArchetypeQuadrupedLateralRest(bare, bareParams, {
       side,

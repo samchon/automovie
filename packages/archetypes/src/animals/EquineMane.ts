@@ -5,7 +5,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
-import type { createHorse } from "./createHorse";
+import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 
 /** A handful of mane, metres: the round aperture a fist closes on, a construction estimate no source read gives. */
 const HANDFUL: number = 0.03;
@@ -34,10 +34,10 @@ const HAIR: string = "#2b1d14";
  */
 export function EquineMane(
   builder: AutoMovieArchetypeBuilder<
-    createHorse.Affordance,
-    createHorse.Dimension
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >,
-  rig: createHorse.IRig,
+  rig: AutoMovieArchetypeEquine.IRig,
 ): void {
   const along: IAutoMovieVector3 = Vector3.normalize(
     Vector3.subtract(rig.poll, rig.neck),
