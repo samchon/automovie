@@ -20,9 +20,9 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The gap between the holder's chest and the hostage's back in the hold, metres: the grapple specs' skin. */
 const SKIN: number = 0.01;
@@ -63,7 +63,7 @@ const AIM: number = 0.08;
  * @evidence contracts/development/testing.md#distinguishing-cases Two body pairs and a refused parameter pair.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_hostage_hold(): void {
+export function test_motion_hostage_hold(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const [holderLabel, hostageLabel] of [
     ["m-average", "f-small"],

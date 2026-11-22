@@ -5,7 +5,7 @@ import type {
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Fixed shadow strikes retain their authored goals and absolute-time playback.
@@ -16,7 +16,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers the chambered kick and the shortened fist feint on a small and average figure respectively.
  * @evidence contracts/development/testing.md#execution-ownership Builds two real-body performances through the public chain and reads their public authoring and playback methods.
  */
-export function test_motion_posture_shadow_strike_events(): void {
+export function test_motion_strike_shadow_strike_events(): void {
   for (const name of ["f-small", "m-average"] as const) {
     const chain = HumanChain.subject("actor").guard({ duration: 0.8 });
     const kicking: boolean = name === "f-small";

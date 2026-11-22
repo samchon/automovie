@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
 import { AutoMovieMotionHumanArm } from "@automovie/motions";
 
-import { motionContactArmFixture as fixture } from "../internal/motionContactArmFixture";
+import { motionContactArmFixture as fixture } from "../../internal/motionContactArmFixture";
 
 /**
  * A staged wrist passes a passive marker and returns from its follow-through.
@@ -15,7 +15,7 @@ import { motionContactArmFixture as fixture } from "../internal/motionContactArm
  * @evidence contracts/development/testing.md#execution-ownership Runs the named public operation in memory and samples its observable outputs.
  * @evidence contracts/development/common.md#meaningful-documentation States the phase, coordinate frame and quantitative basis of the check.
  */
-export function test_motion_contact_primitive_arm_phrase_strike(): void {
+export function test_motion_strike_primitive_arm_phrase_strike(): void {
   const f: fixture.IInputs = fixture();
   const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.strike({
     body: f.body,

@@ -15,10 +15,10 @@ import {
   HumanSignature,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionCombatPair } from "../internal/motionCombatPair";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionCombatPair } from "../../internal/motionCombatPair";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** A held or landed contact lies within this, metres: the grapple specs' 1 cm. */
 const GRIP: number = 0.01;
@@ -41,7 +41,7 @@ const RODA: number = 1;
  * @evidence contracts/development/testing.md#distinguishing-cases A pair on a small and an average body; karate and tai chi stay pinned by the striking support baseline.
  * @evidence contracts/development/testing.md#execution-ownership Public in-memory performances, with no host or capture.
  */
-export function test_motion_exercise_capoeira(): void {
+export function test_motion_strike_capoeira(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);

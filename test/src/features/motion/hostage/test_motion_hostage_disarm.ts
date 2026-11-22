@@ -18,9 +18,9 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The pair's separation, metres: inside a forearm grab. */
 const APART: number = 0.75;
@@ -59,7 +59,7 @@ const SAMPLES: number = 6;
  * @evidence contracts/development/testing.md#distinguishing-cases A knife and a handgun, two body pairs, a refused unarmed partner.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_disarm(): void {
+export function test_motion_hostage_disarm(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const [defenderLabel, armedLabel, kind] of CASES) {
     const label: string = `${defenderLabel} takes a ${kind}`;

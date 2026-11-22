@@ -12,8 +12,8 @@ import { HumanChain, HumanFoot, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 import { PerspectiveCamera, Vector3 as ScreenPoint } from "three";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /** The four unpartnered takes on the same stage and from the same camera. */
 const FORMS = [
@@ -84,7 +84,7 @@ interface IObservation {
  * @evidence contracts/development/testing.md#distinguishing-cases A fixed rear ball and travelling lead ball distinguish holding from sliding during entry, while contrasting hip orientation and camera height distinguish two screen silhouettes. Two proportional bodies use opposite leads.
  * @evidence contracts/development/testing.md#execution-ownership Portable motion and camera math only. No canvas, playback host or rendering is invoked by this named test.
  */
-export function test_motion_exercise_martial_forms_recovery(): void {
+export function test_motion_strike_martial_forms_recovery(): void {
   const camera: PerspectiveCamera = new PerspectiveCamera(40, 16 / 9, 0.1, 20);
   camera.position.set(3.4, 2.1, 5.2);
   camera.lookAt(0, 0.9, 0.24);

@@ -11,17 +11,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStrike,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  HumanStrike,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The foot strike rows. */
 type Row =
@@ -133,7 +133,7 @@ const SIDE: readonly [number, number] = [0.7, 0.84];
  * @evidence contracts/development/testing.md#distinguishing-cases Nine rows on a small and an average body, the sweep's reachable and unreachable partner and an unreachable kick target. The round and push kicks stay pinned by the striking baselines.
  * @evidence contracts/development/testing.md#execution-ownership Public in-memory performances through the strike rows, with no host or capture.
  */
-export function test_motion_exercise_foot_strikes(): void {
+export function test_motion_strike_foot_strikes(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
@@ -230,7 +230,7 @@ function perform(
     HumanChain.subject("b");
   return new HumanPerformance({
     seed: `foot-${row}`,
-    laws: Object.values(HumanStrike),
+    laws: Object.values(AutoMovieMotionHumanStrike.HumanStrike),
     performers: [
       {
         subject: "a",
@@ -252,7 +252,7 @@ function perform(
           partner
             .registered(
               "knockdown",
-              { from: { kind: "person", subject: "a", region: "soleLeft" } },
+              { target: { kind: "person", subject: "a", region: "soleLeft" } },
               "fall",
             )
             .sync({ of: "strike", align: "stroke" }),

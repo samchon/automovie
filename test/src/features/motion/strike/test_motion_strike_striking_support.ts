@@ -12,9 +12,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
-import { vclose } from "../internal/vclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
 
 /** The existing displayed foot-pivot fixture's 5 mm bound, in metres. */
 const CONTACT: number = 0.005;
@@ -44,7 +44,7 @@ interface ITake {
  * @evidence contracts/development/testing.md#distinguishing-cases Covers both leads over small and average rigs, the two kinds of footwork, and contrasting rhythms and arm goals in the two form phrases.
  * @evidence contracts/development/testing.md#execution-ownership Every take uses the public HumanChain and HumanPerformance, and observes displayed poses through FK.
  */
-export function test_motion_exercise_striking_support(): void {
+export function test_motion_strike_striking_support(): void {
   for (const [name, lead, turn] of [
     ["f-small", "right", -15],
     ["m-average", "left", 15],

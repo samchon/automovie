@@ -14,8 +14,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { nclose } from "../../internal/nclose";
 
 /** The existing displayed foot-pivot fixture's 5 mm bound, in metres. */
 const CONTACT: number = 0.005;
@@ -52,7 +52,7 @@ interface ITake {
  * @evidence contracts/development/testing.md#distinguishing-cases Covers straight reversal, traveling turn, stationary pivot, guard, punch, both kicking support assignments, a paired defence and an inadmissible cut. Supported cases mirror both leads on two body proportions.
  * @evidence contracts/development/testing.md#execution-ownership Uses public HumanChain and HumanPerformance with actual world FK.
  */
-export function test_motion_exercise_striking_support_cut(): void {
+export function test_motion_strike_striking_support_cut(): void {
   verifyStepCuts();
   verifyRecipientCuts();
 }

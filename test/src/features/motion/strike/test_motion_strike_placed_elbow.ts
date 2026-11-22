@@ -8,10 +8,11 @@ import type {
   IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { poseBones, resolveHumanPosture } from "@automovie/motions";
+import { poseBones } from "@automovie/motions";
+import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The turn of the bend hint about the shoulder-to-wrist line between two displayed seconds, degrees. */
 const STEP: number = 5;
@@ -35,7 +36,7 @@ const STEP: number = 5;
  * @evidence contracts/development/testing.md#distinguishing-cases A whole turn passes through the arcs the shoulder's range refuses on both extreme bodies.
  * @evidence contracts/development/testing.md#execution-ownership Pure posture fits on in-memory polygon bodies.
  */
-export function test_motion_contact_placed_elbow(): void {
+export function test_motion_strike_placed_elbow(): void {
   for (const name of ["f-small", "m-large"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const raw: IAutoMovieMotionHumanPosture = {

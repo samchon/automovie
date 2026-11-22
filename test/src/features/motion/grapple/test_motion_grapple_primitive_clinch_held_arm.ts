@@ -6,24 +6,24 @@ import type {
 } from "@automovie/interface";
 import { HumanChain } from "@automovie/motions";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionContactArmFixture as fixture } from "../internal/motionContactArmFixture";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionContactArmFixture as fixture } from "../../internal/motionContactArmFixture";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { motionHumanLaw } from "../../internal/motionHumanLaw";
 
 /**
- * A bilateral visit reaches two distinct partner skin sites and exits the shared interval.
+ * A held arm follows its own declared contact on a passively moving partner.
  *
  * Scenarios:
- * 1. Use two initially level reference points and inspect both hand windows through approach and return.
+ * 1. Observe each hand's declared partner-region window at both boundaries and at its midpoint.
  *
- * @evidence contracts/development/testing.md#behavioral-verification A bilateral visit reaches two distinct partner skin sites and exits the shared interval.
+ * @evidence contracts/development/testing.md#behavioral-verification A held arm follows its own declared contact on a passively moving partner.
  * @evidence contracts/development/testing.md#independent-expectations The two contacts name their own anatomical regions. Independent posed meshes supply distances for the 10 mm physical skin allowance.
- * @evidence contracts/development/testing.md#distinguishing-cases Use two initially level reference points and inspect both hand windows through approach and return.
+ * @evidence contracts/development/testing.md#distinguishing-cases Observe each hand's declared partner-region window at both boundaries and at its midpoint.
  * @evidence contracts/development/testing.md#execution-ownership Runs the named public operation in memory and samples its observable outputs.
  * @evidence contracts/development/common.md#meaningful-documentation States the phase, coordinate frame and quantitative basis of the check.
  */
-export function test_motion_contact_primitive_clinch_visit(): void {
+export function test_motion_grapple_primitive_clinch_held_arm(): void {
   const a: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const b: IAutoMovieMotionHumanBody = motionHumanBody("f-average");
   const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
@@ -33,12 +33,8 @@ export function test_motion_contact_primitive_clinch_visit(): void {
       { subject: "b", body: b, at: { x: 0, y: 0, z: 0.55 }, yaw: 180 },
     ],
     HumanChain.subject("a")
-      .act("clinch", {
-        partner: "b",
-        grip: "collarSleeve",
-        under: { fulcrum: "sternum", on: "sternum" },
-      })
-      .with(HumanChain.subject("b").stand({ hold: 4, sway: 0 })),
+      .act("clinch", { partner: "b", grip: "collarSleeve" })
+      .with(HumanChain.subject("b").stand({ hold: 4 })),
   );
   const segment: IAutoMovieMotionHumanSegment =
     film.performance.segments("a")[0]!;

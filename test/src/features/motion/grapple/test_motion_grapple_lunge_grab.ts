@@ -15,10 +15,10 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { performanceAimFrame } from "../internal/performanceAimFrame";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
+import { performanceAimFrame } from "../../internal/performanceAimFrame";
 
 /** The pair's separation no lunge covers, metres. */
 const FAR: number = 3;
@@ -49,7 +49,7 @@ const HOLDS: readonly (readonly [
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, a reachable and an unreachable victim.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
-export function test_human_motion_lunge_grab(): void {
+export function test_motion_grapple_lunge_grab(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const label of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(label);

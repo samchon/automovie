@@ -11,18 +11,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanBlade,
+  AutoMovieMotionHumanStageFight,
+  AutoMovieMotionHumanStrike,
   HumanChain,
   HumanFoot,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  HumanStrike,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** A close strike row, or a stage-fight row that exposes one. */
 type Row =
@@ -106,7 +106,7 @@ const TOLERANCE: number = 10;
  * @evidence contracts/development/testing.md#distinguishing-cases Three elbow paths, two spins and a held headbutt on a small and an average body at their own band's distance, the stage-fight feints and the adjacent out-of-band target. The partner stands relaxed; first-surface stops against a guard belong to the close hand strike spec.
  * @evidence contracts/development/testing.md#execution-ownership Public in-memory performances through the strike rows, with no host or capture.
  */
-export function test_motion_exercise_close_strikes(): void {
+export function test_motion_strike_close_strikes(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
@@ -196,8 +196,8 @@ function perform(
   const film: HumanPerformance = new HumanPerformance({
     seed: `close-${row}`,
     laws: [
-      ...Object.values(HumanStrike),
-      ...Object.values(AutoMovieMotionHumanBlade.stageBladeFootwork),
+      ...Object.values(AutoMovieMotionHumanStrike.HumanStrike),
+      ...Object.values(AutoMovieMotionHumanStageFight.stageBladeFootwork),
     ],
     performers: [
       {

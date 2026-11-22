@@ -13,16 +13,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStrike,
   HumanChain,
   HumanColliders,
   HumanPerformance,
   HumanSignature,
-  HumanStrike,
 } from "@automovie/motions";
 
-import { assertTakeClean } from "../internal/assertTakeClean";
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { assertTakeClean } from "../../internal/assertTakeClean";
+import { motionComplaints } from "../../internal/motionComplaints";
+import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** A close hand strike's technique. */
 type Technique = Extract<
@@ -79,7 +79,7 @@ const DISTANCE: number = 0.45;
  * @evidence contracts/development/testing.md#distinguishing-cases Three surfaces and three arrival directions on a small and an average body against a guarded target whose guard may be met first. Spinning variants and the elbows belong to the close strike spec.
  * @evidence contracts/development/testing.md#execution-ownership Public in-memory performances through the strike rows, with no host or capture.
  */
-export function test_motion_exercise_close_hand_strikes(): void {
+export function test_motion_strike_close_hand_strikes(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
@@ -104,7 +104,7 @@ function play(
 ): void {
   const film: HumanPerformance = new HumanPerformance({
     seed: `hand-${technique}`,
-    laws: Object.values(HumanStrike),
+    laws: Object.values(AutoMovieMotionHumanStrike.HumanStrike),
     performers: [
       {
         subject: "a",
