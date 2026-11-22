@@ -110,6 +110,14 @@ export interface IAutoMovieHumanLimbGoal {
    */
   rests?: readonly IAutoMovieMotionHumanColliders.IPlaced[];
 
+  /**
+   * The performer's own segments the hand is laid on (a pocket's thigh, a
+   * holster's hip): on the hold the hand's and its digits' contact with them
+   * is its placement, not a collision; the rest of the arm keeps clear of
+   * them. None when absent.
+   */
+  restsOwn?: IAutoMovieHumanLimbGoal.OwnRests;
+
   /** Collider frames of a rigidly carried partner in this goal's `on` frame. */
   clearanceOn?: IAutoMovieHumanLimbGoal.IClearance;
 }
@@ -119,6 +127,9 @@ export interface IAutoMovieHumanLimbGoal {
  *
  */
 export namespace IAutoMovieHumanLimbGoal {
+  /** The performer's own bones a hand is laid on. */
+  export type OwnRests = readonly AutoMovieHumanoidBone[];
+
   /**
    * Clear and resting segments expressed in the goal's attachment frame.
    *

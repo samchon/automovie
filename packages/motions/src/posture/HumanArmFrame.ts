@@ -165,6 +165,22 @@ export namespace HumanArmFrame {
         if (!own.has(part.bone)) own.set(part.bone, i);
       },
     );
+    // The performer's own segments the hand is laid on rest with it too.
+    const restsOwn: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      base.restsOwn ?? [],
+    );
+    const restingAll: ReadonlySet<number> =
+      restsOwn.size === 0
+        ? resting
+        : new Set([
+            ...resting,
+            ...model.parts.flatMap(
+              (
+                part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number],
+                i: number,
+              ): number[] => (restsOwn.has(part.bone) ? [i] : []),
+            ),
+          ]);
     const shapes: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
     const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
       HumanColliders.placed(body, resolved);
@@ -378,7 +394,7 @@ export namespace HumanArmFrame {
       segments,
       corners: indices,
       related: model.related,
-      resting,
+      resting: restingAll,
       bounds,
       colliders,
       shapes,

@@ -48,6 +48,10 @@ export namespace HumanArmMirror {
         ),
       },
       ...mirroredOthers(base),
+      // The own segments the hand rests on, as their mirror images.
+      ...(base.restsOwn === undefined
+        ? {}
+        : { restsOwn: base.restsOwn.map(opposite) }),
     };
   }
 
