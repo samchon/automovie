@@ -3,6 +3,7 @@ import {
   ArchetypeRefusal,
   type EquineBank,
   QuadrupedBody,
+  type QuadrupedFooting,
   QuadrupedJoints,
   createHorse,
 } from "@automovie/archetypes";
@@ -69,7 +70,7 @@ const slide = (friction: number): EquineBank.ISlide => ({
  * 2. Sat, each hind limb flexes at least 5 degrees more at the stifle and at the hock than when standing at the start, and the trunk pitches at least 10 degrees nose-up against the face, read from the emitted bars.
  * 3. The ride's placement stays continuous onto the level foot, with no jump between reads 20 ms apart across the slide's end.
  * 4. A face steeper than the technique's bound, a face its friction holds, a slide without a run-out at its foot and one without authored footing are refused on the leg's `equineFootwork`.
- * 6. No hoof standing on its surface lands within its pastern's length of the face's concave foot, where the face meets the level ground below: the hoof's terminal endpoint, its rig pastern along the bar from the fetlock, stays that far from the edge.
+ * 6. No hoof standing on its surface lands within its pastern's length of the face's concave foot, where the face meets the level ground below: the hoof's foothold, its terminal endpoint (its rig pastern along the bar from the fetlock) laid onto its plane, stays that far from the edge.
  * 5. A mounted rider in the descent seat keeps the seat socket within 10 mm of the saddle and the trunk within 10 degrees of upright in space through the slide, and the take passes the shipped take verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
@@ -158,13 +159,30 @@ export function test_archetype_equine_bank_slide(): void {
         read.part(at, QuadrupedBody.BONES[limb][3]),
       );
       const reach: number = pasterns[limb];
-      const z: number = ArchetypeFrame.point(
+      const endpoint: IAutoMovieVector3 = ArchetypeFrame.point(
         ride.at(at).placement,
         Vector3.addScaled(
           top,
           Vector3.normalize(Vector3.subtract(bottom, top)),
           reach,
         ),
+      );
+      // Its foothold is the endpoint laid along its plane's normal onto the plane, where the hoof meets the footing.
+      const plane: QuadrupedFooting.IPlane = equineBankStage
+        .planes(FACE)
+        .find(
+          (p: QuadrupedFooting.IPlane): boolean =>
+            endpoint.z >= p.z[0] && endpoint.z < p.z[1],
+        )!;
+      const normal: IAutoMovieVector3 = Vector3.normalize({
+        x: -plane.slope.x,
+        y: 1,
+        z: -plane.slope.z,
+      });
+      const z: number = Vector3.addScaled(
+        endpoint,
+        normal,
+        -Vector3.dot(normal, Vector3.subtract(endpoint, plane.origin)),
       ).z;
       if (Math.abs(z - foot) < reach - SURFACE)
         issues.push(
