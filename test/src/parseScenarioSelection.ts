@@ -1,4 +1,5 @@
 import type { IScenarioSelection } from "./IScenarioSelection";
+import { parseScenarioShard } from "./parseScenarioShard";
 
 /**
  * Admit argv before discovery: space-separated groups need at least one term per occurrence, equals forms contain one term and repeated groups accumulate in order. Unknown options, positional tokens and blank or option-like terms retain their existing refusal messages.
@@ -31,6 +32,14 @@ export function parseScenarioSelection(
   }
 
   for (const argument of argv) {
+    if (argument.startsWith("--shard")) {
+      finishGroup();
+      group = undefined;
+      if (selection.shard !== undefined)
+        throw new Error("--shard may occur only once.");
+      selection.shard = parseScenarioShard(argument);
+      continue;
+    }
     if (argument.startsWith("-")) {
       finishGroup();
       const option: RegExpExecArray | null =

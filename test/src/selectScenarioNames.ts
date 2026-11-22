@@ -1,4 +1,5 @@
 import type { IScenarioSelection } from "./IScenarioSelection";
+import type { IScenarioShard } from "./IScenarioShard";
 
 /**
  * Require every requested substring to match a discovered basename, then retain the include/exclude intersection in discovery order and refuse an empty result. Duplicate basenames collapse in the returned Set as before.
@@ -32,5 +33,18 @@ export function selectScenarioNames(
   );
   if (selected.size === 0)
     throw new Error("The scenario selection matched nothing.");
-  return selected;
+  const shard: IScenarioShard | undefined = selection.shard;
+  if (shard === undefined) return selected;
+
+  // A shard keeps every count-th name of the name-sorted selection, so the
+  // slices partition the selection independently of discovery order.
+  const sorted: string[] = [...selected].sort((a: string, b: string): number =>
+    a < b ? -1 : a > b ? 1 : 0,
+  );
+  return new Set(
+    sorted.filter(
+      (_: string, position: number): boolean =>
+        position % shard.count === shard.index,
+    ),
+  );
 }
